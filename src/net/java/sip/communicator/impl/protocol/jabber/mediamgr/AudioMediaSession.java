@@ -8,12 +8,13 @@
 package net.java.sip.communicator.impl.protocol.jabber.mediamgr;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.service.media.event.*;
+import net.java.sip.communicator.impl.protocol.jabber.*;
+
 import org.jivesoftware.smackx.jingle.*;
 import org.jivesoftware.smackx.jingle.media.*;
 import org.jivesoftware.smackx.jingle.nat.*;
-
-import net.java.sip.communicator.service.media.*;
-import net.java.sip.communicator.impl.protocol.jabber.*;
 
 import java.io.*;
 import java.net.*;
@@ -27,8 +28,9 @@ import java.util.*;
  *
  * @author Symphorien Wanko
  */
-public class AudioMediaSession 
-    extends JingleMediaSession
+public class AudioMediaSession
+        extends JingleMediaSession
+        implements MediaListener
 {
     /**
      * the logger used by this class
@@ -48,11 +50,12 @@ public class AudioMediaSession
      * @param payloadType Payload used by jmf
      * @param remote      the remote information.
      * @param local       the local information.
+     * @param jingleSession the session for which we create a media session
      */
     public AudioMediaSession(PayloadType payloadType, TransportCandidate remote
-            , TransportCandidate local)
+            , TransportCandidate local, JingleSession jingleSession)
     {
-        this(payloadType, remote, local, null);
+        this(payloadType, remote, local, null, null);
         initialize();
     }
 
@@ -66,12 +69,13 @@ public class AudioMediaSession
      * @param remote      the remote information.
      * @param local       the local information.
      * @param locator     media locator
+     * @param jingleSession the session for which we create a media session
      */
     private AudioMediaSession(PayloadType payloadType, TransportCandidate remote
-            , TransportCandidate local, String locator)
+            , TransportCandidate local, String locator, JingleSession jingleSession)
     {
         //super(payloadType, remote, local, locator==null?"dsound://":locator, jingleSession);
-        super(payloadType, remote, local, locator);
+        super(payloadType, remote, local, locator, jingleSession);
     }
 
     /**
@@ -214,4 +218,17 @@ public class AudioMediaSession
 //        
 //        return freePort;
 //    }
+
+    /**
+     * Implementation of <tt>receivedMediaStream</tt> from
+     * <tt>RtpFlow</tt>.
+     */
+    public void receivedMediaStream(MediaEvent evt)
+    {
+        getJingleSession().mediaReceived(evt.getFrom());
+    }
+
+    public void mediaServiceStatusChanged()
+    {
+    }
 }

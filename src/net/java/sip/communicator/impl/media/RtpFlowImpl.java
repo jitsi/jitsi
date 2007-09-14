@@ -18,6 +18,8 @@ import javax.media.rtp.event.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.MediaException;
+import net.java.sip.communicator.service.media.event.*;
+import net.java.sip.communicator.service.media.event.MediaEvent;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -89,6 +91,11 @@ public class RtpFlowImpl
      * Media encoding passed to JMF via the media control
      */
     private Hashtable mediaEncoding = new Hashtable();
+
+    /**
+     * A list of listeners registered for media events.
+     */
+    private Vector mediaListeners = new Vector();
 
     /**
      * Creates an instance of <tt>RtpFlowImpl</tt> for media transmission.
@@ -376,6 +383,8 @@ public class RtpFlowImpl
 
                 p.addControllerListener(this);
                 p.realize();
+                
+                fireMediaEvent((participant != null) ? participant.getCNAME() : "");
             }
             catch (Exception e)
             {
@@ -430,6 +439,41 @@ public class RtpFlowImpl
         {
             p.removeControllerListener(this);
             logger.warn("Receiver internal error " + ce);
+        }
+    }
+
+    /**
+     * Add a listener to be informed of media events hapening
+     * on this flow.
+     */
+    public void addMediaListener(MediaListener listener)
+    {
+        synchronized(mediaListeners)
+        {
+            if (!mediaListeners.contains(listener))
+                mediaListeners.add(listener);
+        }
+    }
+
+    /**
+     * Notify listeners that we have received media.
+     *
+     * @param from origin of the media
+     */
+    private void fireMediaEvent(String from)
+    {
+        MediaEvent mediaEvent = new MediaEvent(this, from);
+
+        Iterator listeners = null;
+        synchronized(mediaListeners)
+        {
+            listeners = new ArrayList(mediaListeners).iterator();
+        }
+
+        while(listeners.hasNext())
+        {
+            MediaListener listener = (MediaListener) listeners.next();
+            listener.receivedMediaStream(mediaEvent);
         }
     }
 }

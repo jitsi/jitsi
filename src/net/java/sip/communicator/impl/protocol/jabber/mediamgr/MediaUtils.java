@@ -162,4 +162,55 @@ public abstract class MediaUtils
                 return null;
         }
     }
+    
+    /**
+     * Convert a <tt>SdpConstant</tt> to the corresponding payload type.
+     *
+     * @param sdpConstant the sdp constant to convert.
+     * @return the payload type which match the provided sdp constant.
+     */
+    public static int getPayloadType(int sdpConstant)
+    {
+        switch (sdpConstant)
+        {
+            case SdpConstants.PCMU:
+                return 0;
+            case SdpConstants.GSM:
+                return 3;
+            case SdpConstants.G723:
+                return 4;
+            case SdpConstants.DVI4_8000:
+                return 5;
+            case SdpConstants.DVI4_16000:
+                return 6;
+            case SdpConstants.LPC:
+                return 7;
+            case SdpConstants.PCMA:
+                return 8;
+            case SdpConstants.G722:
+                return 9;
+            case SdpConstants.L16_1CH:
+                return 10;
+            case SdpConstants.L16_2CH:
+                return 11;
+            case SdpConstants.QCELP:
+                return 12;
+            case SdpConstants.CN:
+                return 13;
+            case SdpConstants.MPA:
+                return 14;
+            case SdpConstants.G728:
+                return 15;
+            case SdpConstants.DVI4_11025:
+                return 16;
+            case SdpConstants.DVI4_22050:
+                return 17;
+            case SdpConstants.G729:
+                return 18;
+            default:
+                //throw new IllegalStateException("Unknown sdp constant");
+                logger.warn("unknown sdp constant : " + sdpConstant);
+                return -1;
+        }
+    }
 }

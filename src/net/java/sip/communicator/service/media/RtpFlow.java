@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.media;
 
+import net.java.sip.communicator.service.media.event.*;
+
 /**
  * RtpFlow Interface.
  *
@@ -63,4 +65,9 @@ public interface RtpFlow
      * Resume transmission on this flow
      */
     public void resume();
+    
+    /**
+     * Add a listener to be informed when there of media events.
+     */
+    public void addMediaListener(MediaListener listener);
 }

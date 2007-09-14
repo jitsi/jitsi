@@ -48,14 +48,16 @@ public class JingleScMediaManager extends JingleMediaManager
      * @param payloadType payloadType
      * @param remote      remote Candidate
      * @param local       local Candidate
+     * @param jingleSession the session for which we create a media session
+     *
      * @return JingleMediaSession
      */
     public JingleMediaSession createMediaSession(
             PayloadType payloadType,
             TransportCandidate remote,
-            TransportCandidate local)
+            TransportCandidate local, JingleSession jingleSession)
     {
-        return new AudioMediaSession(payloadType, remote, local);
+        return new AudioMediaSession(payloadType, remote, local, jingleSession);
     }
 
     /**
@@ -70,7 +72,9 @@ public class JingleScMediaManager extends JingleMediaManager
                 getSupportedAudioEncodings();
         for (int i = 0; i < audioEnc.length; i++)
         {
-            int payloadType = Integer.parseInt(audioEnc[i]);
+            int payloadType = MediaUtils.getPayloadType(
+                    Integer.parseInt(audioEnc[i]));
+
             if (MediaUtils.getPayloadName(payloadType) != null)
             {
                 payloads.add(new PayloadType.Audio(payloadType
