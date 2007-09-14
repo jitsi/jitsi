@@ -27,6 +27,9 @@ import ymsg.network.event.*;
 public class OperationSetBasicInstantMessagingYahooImpl
     implements OperationSetBasicInstantMessaging
 {
+    /**
+     * Logger for this class
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingYahooImpl.class);
     
@@ -334,37 +337,64 @@ public class OperationSetBasicInstantMessagingYahooImpl
         }
     }
 
+    /**
+     * This class provides methods to listen for yahoo events which interest us.
+     */
     private class YahooMessageListener
         extends SessionAdapter
     {
+        /**
+         * Overrides <tt>messageReceived</tt> from <tt>SessionAdapter</tt>,
+         * called when we receive a new intant message.
+         *
+         * @param ev Event with information on the received message
+         */
         public void messageReceived(SessionEvent ev)
         {
             handleNewMessage(ev);
         }
 
+        /**
+         * Overrides <tt>offlineMessageReceived</tt> from <tt>SessionAdapter</tt>,
+         * called when we receive a message which has been sent to us
+         * when we were offline.
+         *
+         * @param ev Event with information on the received message
+         */
         public void offlineMessageReceived(SessionEvent ev)
         {
             handleNewMessage(ev);
         }
  
+        /**
+         * Overrides <tt>newMailReceived</tt> from <tt>SessionAdapter</tt>,
+         * called when yahoo alert us that there is a new message in our mailbox.
+         *
+         * @param ev Event with information on the received email
+         */
          public void newMailReceived(SessionNewMailEvent ev)
          {
              String myEmail = yahooProvider.getAccountID().getAccountAddress();
              
              // this was intended to obtain the user server i.e. mail.yahoo.com,
              // or mail.yahoo.fr so that the login page is in the preferred user
-             // language. but it always gives yahoo.com, even if the account is registered
-             // with yahoo.fr ... perhaps because the pps always login on yahoo.com ?
+             // language. but it always gives yahoo.com, even if the account
+             // is registered with yahoo.fr ...
+             // perhaps because the pps always login on yahoo.com ?
              String yahooMailLogon = "http://mail."
                      + myEmail.substring(myEmail.indexOf("@") + 1);
+
              yahooMailLogon = "<a href=\""
                      + yahooMailLogon + "\">"
                      + yahooMailLogon + "</a>";
 
-             // TODO: care about internationalization ...
-             String newMail = "<small>New mail, subject :</small> "
-                     + ev.getSubject();
-             newMail += "\n<br /><small>From :</small> " + ev.getEmailAddress();
+             String newMail = "<small>" + Resources.getString("newMail")
+                    + " : </small> " + ev.getSubject();
+
+             newMail += "\n<br /><small>" + Resources.getString("from")
+                    + " : </small> " + ev.getFrom()
+                    + " &lt;" + ev.getEmailAddress() + "&gt;";
+
              newMail += "\n<br />&nbsp;&nbsp;&nbsp;&nbsp;" + yahooMailLogon;
 
              Message newMailMessage = new MessageYahooImpl(
@@ -392,6 +422,14 @@ public class OperationSetBasicInstantMessagingYahooImpl
              fireMessageEvent(msgReceivedEvt);
          }
 
+        /**
+         * Handle incoming message by creating an appropriate Sip Communicator
+         * <tt>Message</tt> and firing a <tt>MessageReceivedEvent</tt>
+         * to interested listeners.
+         *
+         * @param ev The original <tt>SessionEvent</tt> which noticed us
+         * of an incoming message.
+         */
         private void handleNewMessage(SessionEvent ev)
         {
             logger.debug("Message received : " + ev);
