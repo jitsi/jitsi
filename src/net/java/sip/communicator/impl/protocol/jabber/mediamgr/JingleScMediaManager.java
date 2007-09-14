@@ -80,7 +80,7 @@ public class JingleScMediaManager extends JingleMediaManager
                 payloads.add(new PayloadType.Audio(payloadType
                         , MediaUtils.getPayloadName(payloadType)));
             }
-            else
+            else if (payloadType >= 0)
             {
                 payloads.add(new PayloadType.Audio(payloadType, audioEnc[i]));
             }
