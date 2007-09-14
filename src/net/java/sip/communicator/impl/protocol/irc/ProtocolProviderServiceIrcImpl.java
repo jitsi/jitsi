@@ -451,7 +451,7 @@ public class ProtocolProviderServiceIrcImpl
     /**
      * Sets the current registration state of this protocol provider.
      * 
-     * @param currentRegistrationState the new registration state to set
+     * @param regState the new registration state to set
      */
     protected void setCurrentRegistrationState(
         RegistrationState regState)
