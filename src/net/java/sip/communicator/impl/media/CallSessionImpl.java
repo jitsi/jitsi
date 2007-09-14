@@ -1760,15 +1760,17 @@ public class CallSessionImpl
         {
 
             //set the volume as it is not on max by default.
-            GainControl gc
-                = (GainControl)player.getControl(GainControl.class.getName());
-            if (gc != null)
-            {
-                logger.debug("Setting volume to max");
-                gc.setLevel(1);
-            }
-            else
-                logger.debug("Player does not have gain control.");
+            //XXX: I am commenting this since apparently it is causing some 
+            //problems on windows.
+            //GainControl gc
+            //    = (GainControl)player.getControl(GainControl.class.getName());
+            //if (gc != null)
+            //{
+            //    logger.debug("Setting volume to max");
+            //    gc.setLevel(1);
+            //}
+            //else
+            //    logger.debug("Player does not have gain control.");
 
 
             logger.debug("A player was realized and will be started.");
