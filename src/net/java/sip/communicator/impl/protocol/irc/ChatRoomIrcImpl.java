@@ -702,17 +702,36 @@ public class ChatRoomIrcImpl
     {
         assertConnected();
 
-        if (((MessageIrcImpl) message).isCommand())
-        {
-            parentProvider.getIrcStack().sendCommand(this, message);
-        }
-        else
-        {
-            parentProvider.getIrcStack()
-                .sendMessage(chatRoomName, message.getContent());
-        }
+        String[] splitMessages = message.getContent().split("\n");
 
-        this.fireMessageDeliveredEvent(message);
+        String messagePortion = null;
+        for (int i = 0; i < splitMessages.length; i ++)
+        {
+            messagePortion = splitMessages[i];
+
+            // As we only send one message per line, we ignore empty lines in
+            // the incoming multi line message.
+            if(messagePortion.equals("\n")
+                || messagePortion.matches("[\\ ]*"))
+                continue;
+
+            if (((MessageIrcImpl) message).isCommand())
+            {
+                parentProvider.getIrcStack()
+                    .sendCommand(this, messagePortion);
+            }
+            else
+            {
+                parentProvider.getIrcStack()
+                    .sendMessage(chatRoomName, messagePortion);
+            }
+
+            this.fireMessageDeliveredEvent(
+                new MessageIrcImpl( messagePortion,
+                                    message.getContentType(),
+                                    message.getEncoding(),
+                                    message.getSubject()));
+        }
     }
 
     /**

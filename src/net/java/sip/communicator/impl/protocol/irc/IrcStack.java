@@ -1597,10 +1597,8 @@ public class IrcStack
      * 
      * @param message The command we want to send.
      */
-    protected void sendCommand(ChatRoomIrcImpl chatRoom, Message message)
+    protected void sendCommand(ChatRoomIrcImpl chatRoom, String command)
     {
-        String command = message.getContent();
-
         if (command.startsWith("/me"))
         {
             this.sendAction(chatRoom.getName(), command.substring(3));
