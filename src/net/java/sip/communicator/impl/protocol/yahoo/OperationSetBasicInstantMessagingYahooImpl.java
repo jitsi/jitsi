@@ -388,12 +388,11 @@ public class OperationSetBasicInstantMessagingYahooImpl
                      + yahooMailLogon + "\">"
                      + yahooMailLogon + "</a>";
 
-             String newMail = "<small>" + Resources.getString("newMail")
-                    + " : </small> " + ev.getSubject();
+             String newMail = "<b>" + Resources.getString("newMail") + " : </b> "
+                     + ev.getSubject();
 
-             newMail += "\n<br /><small>" + Resources.getString("from")
-                    + " : </small> " + ev.getFrom()
-                    + " &lt;" + ev.getEmailAddress() + "&gt;";
+             newMail += "\n<br /><b>" + Resources.getString("from") + " : </b> "
+                     + ev.getFrom() + " &lt;" + ev.getEmailAddress() + "&gt;";
 
              newMail += "\n<br />&nbsp;&nbsp;&nbsp;&nbsp;" + yahooMailLogon;
 
