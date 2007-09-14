@@ -375,7 +375,8 @@ public class OperationSetMultiUserChatIrcImpl
     /**
      * Returns the private room corresponding to the given nick name.
      * 
-     * @param nickName the nickName of the person for which the private room is.
+     * @param nickIdentifier the nickName of the person for which the private
+     * room is.
      * @return the private room corresponding to the given nick name
      */
     protected ChatRoomIrcImpl findPrivateChatRoom(String nickIdentifier)
