@@ -67,6 +67,8 @@ public class SystrayServiceJdicImpl
 
     private int maxMessageNumber = 3;
 
+    private SystrayMessage aggregatedMessage;
+
     /**
      * The logger for this class.
      */
@@ -252,8 +254,8 @@ public class SystrayServiceJdicImpl
         else if (messageType == SystrayService.WARNING_MESSAGE_TYPE)
             trayMsgType = TrayIcon.WARNING_MESSAGE_TYPE;
 
-        if(messageContent.length() > 100)
-            messageContent = messageContent.substring(0, 100).concat("...");
+        if(messageContent.length() > 40)
+            messageContent = messageContent.substring(0, 40).concat("...");
 
         messageQueue.add(new SystrayMessage(title, messageContent, trayMsgType));
     }
@@ -341,16 +343,24 @@ public class SystrayServiceJdicImpl
             {
                 messageQueue.clear();
 
-                String messageContent = msg.getMessageContent();
+                if(aggregatedMessage != null)
+                {
+                    aggregatedMessage
+                        .addAggregatedMessageNumber(messageNumber);
+                }
+                else
+                {
+                    String messageContent = msg.getMessageContent();
 
-                if(!messageContent.endsWith("..."))
-                    messageContent.concat("...");
+                    if(!messageContent.endsWith("..."))
+                        messageContent.concat("...");
 
-                messageQueue.add(new SystrayMessage(
-                    "You have received " + messageNumber
-                    + " new messages. For more info check your chat window.",
-                    "Messages starts by: " + messageContent,
-                    TrayIcon.INFO_MESSAGE_TYPE));
+                    aggregatedMessage = new SystrayMessage(
+                        "Messages start by: " + messageContent,
+                        messageNumber);
+                }
+
+                messageQueue.add(aggregatedMessage);
             }
             else
             {
@@ -359,15 +369,22 @@ public class SystrayServiceJdicImpl
                                     msg.getMessageType());
 
                 messageQueue.remove(0);
+
+                if(msg.equals(aggregatedMessage))
+                    aggregatedMessage = null;
             }
         }
     }
 
+    /**
+     * Represents a systray message.
+     */
     private class SystrayMessage
     {
         private String title;
         private String messageContent;
         private int messageType;
+        private int aggregatedMessageNumber;
 
         /**
          * Creates an instance of <tt>SystrayMessage</tt> by specifying the
@@ -385,6 +402,29 @@ public class SystrayServiceJdicImpl
             this.title = title;
             this.messageContent = messageContent;
             this.messageType = messageType;
+        }
+
+        /**
+         * Creates an instance of <tt>SystrayMessage</tt> by specifying the
+         * message <tt>title</tt>, the content of the message, the type of
+         * the message and the number of messages that this message has
+         * aggregated.
+         * 
+         * @param messageContent the content of the message
+         * @param aggregatedMessageNumber the number of messages that this
+         * message has aggregated
+         */
+        public SystrayMessage(  String messageContent,
+                                int aggregatedMessageNumber)
+        {
+            this.aggregatedMessageNumber = aggregatedMessageNumber;
+
+            this.title = "You have received "
+                            + aggregatedMessageNumber
+                            + " new messages.";
+
+            this.messageContent = messageContent;
+            this.messageType = TrayIcon.INFO_MESSAGE_TYPE;
         }
 
         /**
@@ -415,6 +455,31 @@ public class SystrayServiceJdicImpl
         public int getMessageType()
         {
             return messageType;
+        }
+
+        /**
+         * Returns the number of aggregated messages this message represents.
+         * 
+         * @return the number of aggregated messages this message represents.
+         */
+        public int getAggregatedMessageNumber()
+        {
+            return aggregatedMessageNumber;
+        }
+
+        /**
+         * Adds the given number of messages to the number of aggregated
+         * messages contained in this message.
+         * 
+         * @param messageNumber the number of messages to add to the number of
+         * aggregated messages contained in this message
+         */
+        public void addAggregatedMessageNumber(int messageNumber)
+        {
+            this.aggregatedMessageNumber += messageNumber;
+
+            this.title = "You have received " + aggregatedMessageNumber
+                + " new messages.";
         }
     }
 }
