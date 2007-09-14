@@ -403,7 +403,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                      null);
 
              Contact sourceContact = opSetPersPresence.
-                 findContactByID(ev.getFrom());
+                 findContactByID(ev.getEmailAddress());
 
              if (sourceContact == null)
              {
@@ -411,7 +411,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                                     + ev.getFrom());
                  //create the volatile contact
                  sourceContact = opSetPersPresence
-                     .createVolatileContact(ev.getEmailAddress());
+                     .createVolatileContact(ev.getFrom());
              }
              MessageReceivedEvent msgReceivedEvt
                  = new MessageReceivedEvent(
