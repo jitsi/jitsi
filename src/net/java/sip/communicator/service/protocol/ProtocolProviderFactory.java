@@ -457,7 +457,17 @@ public abstract class ProtocolProviderFactory
                 }
                 accountProperties.put(propertyName, storedPropertyValue);
             }
-            loadAccount(accountProperties);
+            try
+            {
+                loadAccount(accountProperties);
+            }
+            catch (Exception exc)
+            {
+                //catch any exception here so that one failing accoung does not
+                //cut the whole account reloading process
+                logger.error("Failed to reload account:" + accountProperties,
+                             exc);
+            }
         }
     }
 
