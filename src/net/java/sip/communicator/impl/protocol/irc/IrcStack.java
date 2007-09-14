@@ -1130,7 +1130,9 @@ public class IrcStack
         }
         else if (code != RPL_LISTSTART
                     && code != RPL_LIST
-                    && code != RPL_LISTEND)
+                    && code != RPL_LISTEND
+                    && code != RPL_ENDOFNAMES
+                    && code != RPL_ENDOFMOTD)
         {
             logger.trace(
                 "Server response: Code : "
@@ -1595,7 +1597,8 @@ public class IrcStack
      * This method sends a command to the server which can also be an action or
      * a notice.
      * 
-     * @param message The command we want to send.
+     * @param chatRoom the chat room corresponding to the command
+     * @param command the command we want to send
      */
     protected void sendCommand(ChatRoomIrcImpl chatRoom, String command)
     {
@@ -1738,10 +1741,10 @@ public class IrcStack
         logger.trace("WHOIS on: " + userInfo.getNickName() + "!"
                 + userInfo.getLogin() + "@" + userInfo.getHostname());
 
-        String whoisMessage =    "Nickname: " + userInfo.getNickName() + "<br>"
-                            + "Host name: " + userInfo.getHostname() + "<br>"
-                            + "Login: " + userInfo.getLogin() + "<br>"
-                            + "Server info: " + userInfo.getServerInfo() + "<br>"
+        String whoisMessage =    "Nickname: " + userInfo.getNickName() + "\n"
+                            + "Host name: " + userInfo.getHostname() + "\n"
+                            + "Login: " + userInfo.getLogin() + "\n"
+                            + "Server info: " + userInfo.getServerInfo() + "\n"
                             + "Joined chat rooms:";
 
         Iterator joinedChatRooms = userInfo.getJoinedChatRooms().iterator();
@@ -1763,13 +1766,7 @@ public class IrcStack
         if(chatRoom == null || !chatRoom.isJoined())
             return;
 
-        ChatRoomMember sourceMember
-                = new ChatRoomMemberIrcImpl(parentProvider,
-                                            chatRoom,
-                                            "",
-                                            "",
-                                            "",
-                                            ChatRoomMemberRole.GUEST);
+        ChatRoomMember sourceMember = ircMUCOpSet.findSystemMember();
     
         chatRoom.fireMessageReceivedEvent(
             message,
