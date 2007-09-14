@@ -90,6 +90,18 @@ public class ChatRoomIrcImpl
     private Hashtable bannedMembers = new Hashtable();
 
     /**
+     * Indicates if this chat room is a private one (i.e. created with the 
+     * query command ).
+     */
+    private boolean isPrivate = false;
+
+    /**
+     * Indicates if this chat room is a system one (i.e. corresponding to the
+     * server channel).
+     */
+    private boolean isSystem = false;
+
+    /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
      * name and the protocol provider.
      *  
@@ -99,8 +111,25 @@ public class ChatRoomIrcImpl
     public ChatRoomIrcImpl( String chatRoomName,
                             ProtocolProviderServiceIrcImpl parentProvider)
     {
+        this(chatRoomName, parentProvider, false);
+    }
+
+    /**
+     * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
+     * name, the protocol provider and the isPrivate property. Private chat
+     * rooms are one-to-one chat rooms.
+     *  
+     * @param chatRoomName the name of the chat room
+     * @param parentProvider the protocol provider
+     * @param isPrivate indicates if this chat room is a private one
+     */
+    public ChatRoomIrcImpl( String chatRoomName,
+                            ProtocolProviderServiceIrcImpl parentProvider,
+                            boolean isPrivate)
+    {
         this.parentProvider = parentProvider;
         this.chatRoomName = chatRoomName;
+        this.isPrivate = isPrivate;
     }
 
     /**
@@ -929,5 +958,41 @@ public class ChatRoomIrcImpl
     
             listener.memberRoleChanged(evt);
         }
+    }
+
+    /**
+     * Indicates if this chat room is a private one or not. Private chat rooms
+     * are created with the query command.
+     * 
+     * @return <code>true</code> if this chat room is private and
+     * <code>false</code> otherwise.
+     */
+    public boolean isPrivate()
+    {
+        return isPrivate;
+    }
+
+    /**
+     * Indicates whether or not this chat room is corresponding to a server
+     * channel.
+     * 
+     * @return <code>true</code> to indicate that this chat room is
+     * corresponding to a server channel, <code>false</code> - otherwise.
+     */
+    public boolean isSystem()
+    {
+        return isSystem;
+    }
+
+    /**
+     * Sets whether or not this chat room is corresponding to a server
+     * channel.
+     * 
+     * @param isSystem <code>true</code> to indicate that this chat room is
+     * corresponding to a server channel, <code>false</code> - otherwise.
+     */
+    protected void setSystem(boolean isSystem)
+    {
+        this.isSystem = isSystem;
     }
 }

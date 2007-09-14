@@ -418,16 +418,6 @@ public class OperationSetMultiUserChatJabberImpl
     }
 
     /**
-     * Returns NULL, as there's not system room in the Jabber multi user chat.
-     * 
-     * @return NULL, as there's not system room in the Jabber multi user chat.
-     */
-    public ChatRoom getSystemRoom()
-    {
-        return null;
-    }
-
-    /**
      * Returns true if <tt>contact</tt> supports multi user chat sessions.
      *
      * @param contact reference to the contact whose support for chat rooms

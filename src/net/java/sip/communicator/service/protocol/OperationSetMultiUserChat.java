@@ -99,17 +99,6 @@ public interface OperationSetMultiUserChat
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
-     * Returns the room corresponding to the server. The system room is the one
-     * where the user could communicate with the server. In the case of IRC this
-     * would be the server channel. The system room is joined as we are
-     * connected to the server. Returns NULL if we are not connected to the
-     * server.
-     * 
-     * @return the room corresponding to the server
-     */
-    public ChatRoom getSystemRoom();
-
-    /**
      * Informs the sender of an invitation that we decline their invitation.
      *
      * @param invitation the invitation we are rejecting.
@@ -157,7 +146,7 @@ public interface OperationSetMultiUserChat
      *
      * @param contact reference to the contact whose support for chat rooms
      * we are currently querying.
-     * @return a boolean indicating whether <tt>contact</tt> supports chatrooms.
+     * @return a boolean indicating whether <tt>contact</tt> supports chat rooms.
      */
     public boolean isMultiChatSupportedByContact(Contact contact);
     

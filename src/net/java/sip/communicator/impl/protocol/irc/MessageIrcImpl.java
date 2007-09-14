@@ -26,7 +26,7 @@ public class MessageIrcImpl
     /**
      * Default mime type for outgoing messages.
      */
-    public static final String DEFAULT_MIME_TYPE = "text/html";
+    public static final String DEFAULT_MIME_TYPE = "text/plain";
 
     /**
      * The actual message content.

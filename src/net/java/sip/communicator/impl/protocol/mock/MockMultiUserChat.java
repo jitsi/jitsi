@@ -292,14 +292,4 @@ public class MockMultiUserChat
             elem.localUserPresenceChanged(evt);
         }
     }
-
-    /**
-     * Returns NULL, as there's not system room in the Jabber multi user chat.
-     * 
-     * @return NULL, as there's not system room in the Jabber multi user chat.
-     */
-    public ChatRoom getSystemRoom()
-    {
-        return null;
-    }
 }

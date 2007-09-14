@@ -385,4 +385,13 @@ public interface ChatRoom
      */
     public ChatRoomConfigurationForm getConfigurationForm()
         throws OperationFailedException;
+
+    /**
+     * Returns <code>true</code> if this chat room is a system room and 
+     * <code>false</code> otherwise.
+     * 
+     * @return <code>true</code> if this chat room is a system room and 
+     * <code>false</code> otherwise.
+     */
+    public boolean isSystem();
 }

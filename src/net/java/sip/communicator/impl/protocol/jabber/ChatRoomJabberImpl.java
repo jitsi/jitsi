@@ -535,7 +535,7 @@ public class ChatRoomJabberImpl
         try
         {
             multiUserChat.join(nickname);
-            
+
             ChatRoomMemberJabberImpl member
                 = new ChatRoomMemberJabberImpl( this,
                                                 nickname,
@@ -552,8 +552,23 @@ public class ChatRoomJabberImpl
         catch (XMPPException ex)
         {
             String errorMessage;
-            
-            if(ex.getXMPPError().getCode() == 401)
+
+            if(ex.getXMPPError() == null)
+            {
+                errorMessage
+                    = "Failed to join room "
+                        + getName()
+                        + " with nickname: "
+                        + nickname;
+
+                logger.error(errorMessage, ex);
+
+                throw new OperationFailedException(
+                    errorMessage, 
+                    OperationFailedException.GENERAL_ERROR,
+                    ex);
+            }
+            else if(ex.getXMPPError().getCode() == 401)
             {
                 errorMessage
                     = "Failed to join chat room "
@@ -594,12 +609,26 @@ public class ChatRoomJabberImpl
                         + nickname;
                 
                 logger.error(errorMessage, ex);
-       
+
                 throw new OperationFailedException(
                     errorMessage, 
                     OperationFailedException.GENERAL_ERROR,
                     ex);
             }
+        }
+        catch (Exception ex)
+        {
+            String errorMessage = "Failed to join room "
+                                    + getName()
+                                    + " with nickname: "
+                                    + nickname;
+
+            logger.error(errorMessage, ex);
+
+            throw new OperationFailedException(
+                errorMessage, 
+                OperationFailedException.GENERAL_ERROR,
+                ex);
         }
     }
 
@@ -1650,5 +1679,16 @@ public class ChatRoomJabberImpl
         }
         
         return configForm;
+    }
+
+    /**
+     * The Jabber multi user chat implementation doesn't support system rooms.
+     * 
+     * @return false to indicate that the Jabber protocol implementation doesn't
+     * support system rooms.
+     */
+    public boolean isSystem()
+    {
+        return false;
     }
 }

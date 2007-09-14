@@ -144,11 +144,6 @@ public class IrcStack
      */
     protected void onConnect()
     {
-        ChatRoom serverRoom = ircMUCOpSet.getSystemRoom();
-
-        if (serverRoom == null)
-            serverRoom = ircMUCOpSet.createSystemRoom();
-
         RegistrationState oldState
             = parentProvider.getCurrentRegistrationState();
         parentProvider.setCurrentRegistrationState(RegistrationState.REGISTERED);
@@ -185,7 +180,7 @@ public class IrcStack
         ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
 
         if (chatRoom == null)
-            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.getSystemRoom();
+            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
 
         if(chatRoom == null || !chatRoom.isJoined())
             return;
@@ -193,13 +188,7 @@ public class IrcStack
         ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sender);
 
         if (sourceMember == null)
-            sourceMember
-                = new ChatRoomMemberIrcImpl(parentProvider,
-                                            chatRoom,
-                                            sender,
-                                            login,
-                                            hostname,
-                                            ChatRoomMemberRole.GUEST);
+            return;
 
         chatRoom.fireMessageReceivedEvent(
             message,
@@ -221,8 +210,6 @@ public class IrcStack
                         + " " + login + "@" + hostname
                         + " the message: " + messageContent);
 
-        String senderContactAddress = sender + "." + login + "@" + hostname;
-
         MessageIrcImpl message
             = new MessageIrcImpl(   messageContent,
                                     MessageIrcImpl.DEFAULT_MIME_TYPE,
@@ -230,7 +217,7 @@ public class IrcStack
                                     null);
 
         ChatRoomIrcImpl chatRoom
-            = ircMUCOpSet.findPrivateChatRoom(senderContactAddress);
+            = ircMUCOpSet.findPrivateChatRoom(sender);
 
         if(chatRoom == null || !chatRoom.isJoined())
             return;
@@ -238,6 +225,7 @@ public class IrcStack
         ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sender);
 
         if (sourceMember == null)
+        {
             sourceMember
                 = new ChatRoomMemberIrcImpl(parentProvider,
                                             chatRoom,
@@ -245,6 +233,15 @@ public class IrcStack
                                             login,
                                             hostname,
                                             ChatRoomMemberRole.GUEST);
+
+            chatRoom.addChatRoomMember(sender, sourceMember);
+
+            chatRoom.fireMemberPresenceEvent(
+                sourceMember,
+                null, // There's no other actors in this presence event.
+                ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED,
+                "A message received from unknown member.");
+        }
 
         chatRoom.fireMessageReceivedEvent(
             message,
@@ -283,7 +280,7 @@ public class IrcStack
         ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(target);
 
         if (chatRoom == null)
-            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.getSystemRoom();
+            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
 
         if(chatRoom == null || !chatRoom.isJoined())
             return;
@@ -291,13 +288,7 @@ public class IrcStack
         ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sender);
 
         if (sourceMember == null)
-            sourceMember
-                = new ChatRoomMemberIrcImpl(parentProvider,
-                                            chatRoom,
-                                            sender,
-                                            login,
-                                            hostname,
-                                            ChatRoomMemberRole.GUEST);
+            return;
 
         chatRoom.fireMessageReceivedEvent(
             actionMessage,
@@ -593,18 +584,12 @@ public class IrcStack
         ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(target);
 
         if(chatRoom == null || !chatRoom.isJoined())
-            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.getSystemRoom();
+            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
 
         ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sourceNick);
-            
+
         if (sourceMember == null)
-            sourceMember
-                = new ChatRoomMemberIrcImpl(parentProvider,
-                                            chatRoom,
-                                            sourceNick,
-                                            sourceLogin,
-                                            sourceHostname,
-                                            ChatRoomMemberRole.GUEST);
+            return;
 
         chatRoom.fireMessageReceivedEvent(
                 message,
@@ -1166,28 +1151,13 @@ public class IrcStack
                     null);
 
             ChatRoomIrcImpl serverRoom
-                = (ChatRoomIrcImpl) ircMUCOpSet.getSystemRoom();
+                = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
 
-            if (serverRoom == null)
-                serverRoom = ircMUCOpSet.createSystemRoom();
-
-            ChatRoomMember sourceMember = null;
-
-            if (serverRoom.getMembers().size() > 0)
-                sourceMember = (ChatRoomMember) serverRoom.getMembers().get(0);
-            else
-                sourceMember
-                    = new ChatRoomMemberIrcImpl(parentProvider,
-                                                serverRoom,
-                                                parentProvider.getAccountID()
-                                                    .getService(),
-                                                "",
-                                                "",
-                                                ChatRoomMemberRole.GUEST);
+            ChatRoomMember serverMember = ircMUCOpSet.findSystemMember();
 
             serverRoom.fireMessageReceivedEvent(
                     message,
-                    sourceMember,
+                    serverMember,
                     new Date(System.currentTimeMillis()),
                     ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
         }
@@ -1551,9 +1521,12 @@ public class IrcStack
     {
         // If we are asked for the status of the server channel, we return true
         // if the server is connected and false otherwise.
-        if(ircMUCOpSet.getSystemRoom() != null
-            && ircMUCOpSet.getSystemRoom().equals(chatRoom))
+        if(ircMUCOpSet.findSystemRoom().equals(chatRoom))
             return isConnected();
+
+        // Private rooms are joined if they exist.
+        if(chatRoom.isPrivate())
+            return true;
 
         // For all other channels on the server.
         if (this.isConnected())
@@ -1626,23 +1599,78 @@ public class IrcStack
      */
     protected void sendCommand(ChatRoomIrcImpl chatRoom, Message message)
     {
-        if (message.getContent().startsWith("/me"))
+        String command = message.getContent();
+
+        if (command.startsWith("/me"))
         {
-            this.sendAction(chatRoom.getName(),
-                message.getContent().substring(3));
+            this.sendAction(chatRoom.getName(), command.substring(3));
         }
-        else if (message.getContent().startsWith("/notice"))
+        else if (command.startsWith("/notice"))
         {
-            this.sendNotice(chatRoom.getName(),
-                message.getContent().substring(7));
+            this.sendNotice(chatRoom.getName(), command.substring(7));
+        }
+        else if (command.startsWith("/msg"))
+        {
+            StringTokenizer tokenizer = new StringTokenizer(command);
+
+            String target = null;
+            String messageContent = null;
+
+            // We don't need the /msg command text.
+            tokenizer.nextToken();
+
+            if(tokenizer.hasMoreTokens())
+                target = tokenizer.nextToken();
+
+            if(tokenizer.hasMoreTokens())
+                messageContent = tokenizer.nextToken();
+
+            this.sendMessage(target, messageContent);
+        }
+        else if (command.startsWith("/query"))
+        {
+            StringTokenizer tokenizer = new StringTokenizer(command);
+
+            String target = null;
+
+            tokenizer.nextToken();
+
+            if(tokenizer.hasMoreTokens())
+                target = tokenizer.nextToken();
+
+            ChatRoomIrcImpl privateChatRoom
+                = ircMUCOpSet.findPrivateChatRoom(target);
+
+            if(privateChatRoom == null)
+                return;
+
+            ChatRoomMember sourceMember = privateChatRoom.getChatRoomMember(
+                parentProvider.getAccountID().getService());
+
+            if (sourceMember == null)
+                sourceMember
+                    = new ChatRoomMemberIrcImpl(
+                            parentProvider,
+                            privateChatRoom,
+                            parentProvider.getAccountID().getService(),
+                            "",
+                            "",
+                            ChatRoomMemberRole.GUEST);
+
+            MessageIrcImpl queryMessage
+                = new MessageIrcImpl(   "Private conversation initiated.",
+                                        MessageIrcImpl.DEFAULT_MIME_TYPE,
+                                        MessageIrcImpl.DEFAULT_MIME_ENCODING,
+                                        null);
+
+            privateChatRoom.fireMessageReceivedEvent(
+                queryMessage,
+                sourceMember,
+                new Date(System.currentTimeMillis()),
+                ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
         }
         else
         {
-            String command = message.getContent();
-
-            if(command.startsWith("/msg"))
-                command = command.replaceFirst("/msg", "/PRIVMSG");
-
             this.sendRawLine(command.substring(1));
         }
     }
@@ -1732,7 +1760,7 @@ public class IrcStack
                                     null);
 
         ChatRoomIrcImpl chatRoom
-            = (ChatRoomIrcImpl) ircMUCOpSet.getSystemRoom();
+            = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
 
         if(chatRoom == null || !chatRoom.isJoined())
             return;

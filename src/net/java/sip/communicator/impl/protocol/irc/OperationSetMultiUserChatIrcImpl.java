@@ -190,16 +190,6 @@ public class OperationSetMultiUserChatIrcImpl
     }
 
     /**
-     * Returns the room corresponding to the server channel.
-     * 
-     * @return the room corresponding to the server channel
-     */
-    public ChatRoom getSystemRoom()
-    {
-        return serverChatRoom;
-    }
-
-    /**
      * Informs the sender of an invitation that we decline their invitation.
      *
      * @param invitation the invitation we are rejecting.
@@ -388,31 +378,25 @@ public class OperationSetMultiUserChatIrcImpl
      * @param nickName the nickName of the person for which the private room is.
      * @return the private room corresponding to the given nick name
      */
-    protected ChatRoomIrcImpl findPrivateChatRoom(String nickName)
+    protected ChatRoomIrcImpl findPrivateChatRoom(String nickIdentifier)
     {
         synchronized(privateRoomCache)
         {
-            if(privateRoomCache.contains(nickName))
-                return (ChatRoomIrcImpl) privateRoomCache.get(nickName);
+            if(privateRoomCache.containsKey(nickIdentifier))
+                return (ChatRoomIrcImpl) privateRoomCache.get(nickIdentifier);
 
             ChatRoomIrcImpl chatRoom
-                = new ChatRoomIrcImpl(nickName, ircProvider);
+                = new ChatRoomIrcImpl(nickIdentifier, ircProvider, true);
 
-            this.chatRoomCache.put(nickName, chatRoom);
+            privateRoomCache.put(nickIdentifier, chatRoom);
+
+            fireLocalUserPresenceEvent(
+                    chatRoom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                    "Private conversation initiated.");
 
             return chatRoom;
         }
-    }
-
-    /**
-     * Creates the chat room corresponding to the IRC server channel.
-     */
-    protected ChatRoomIrcImpl createSystemRoom()
-    {
-        serverChatRoom = new ChatRoomIrcImpl(
-            ircProvider.getAccountID().getService(), ircProvider);
-
-        return serverChatRoom;
     }
 
     /**
@@ -452,5 +436,45 @@ public class OperationSetMultiUserChatIrcImpl
 
             listener.invitationReceived(evt);
         }
+    }
+
+    /**
+     * Returns the room corresponding to the server channel.
+     * 
+     * @return the room corresponding to the server channel
+     */
+    protected ChatRoomIrcImpl findSystemRoom()
+    {
+        if(serverChatRoom == null)
+        {
+            serverChatRoom = new ChatRoomIrcImpl(
+                ircProvider.getAccountID().getService(), ircProvider);
+
+            this.fireLocalUserPresenceEvent(
+                serverChatRoom,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                "Connected to the server.");
+        }
+
+        return serverChatRoom;
+    }
+
+    /**
+     * Returns the system room member.
+     * 
+     * @return the system room member.
+     */
+    protected ChatRoomMemberIrcImpl findSystemMember()
+    {
+        if (serverChatRoom.getMembers().size() > 0)
+            return (ChatRoomMemberIrcImpl) serverChatRoom.getMembers().get(0);
+        else
+            return new ChatRoomMemberIrcImpl(
+                ircProvider,
+                serverChatRoom,
+                ircProvider.getAccountID().getService(),
+                "", // We don't specify a login.
+                "", // We don't specify a hostname.
+                ChatRoomMemberRole.GUEST);
     }
 }

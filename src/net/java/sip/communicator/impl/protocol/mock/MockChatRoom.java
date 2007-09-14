@@ -583,4 +583,9 @@ public class MockChatRoom
         // TODO Implement the removeMemberPropertyChangeListener
         
     }
+    
+    public boolean isSystem()
+    {
+        return false;
+    }
 }
