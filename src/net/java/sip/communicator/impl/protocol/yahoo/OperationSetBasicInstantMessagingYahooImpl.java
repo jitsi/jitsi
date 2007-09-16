@@ -402,12 +402,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
                      DEFAULT_MIME_ENCODING,
                      null);
 
-             Contact sourceContact = null;
-             if (ev.getEmailAddress() != null)
-             {
-                 sourceContact = opSetPersPresence.
-                         findContactByID(ev.getEmailAddress());
-             }
+             Contact sourceContact = opSetPersPresence.
+                 findContactByID(ev.getEmailAddress());
 
              if (sourceContact == null)
              {
