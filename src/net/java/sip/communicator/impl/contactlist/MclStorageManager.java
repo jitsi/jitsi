@@ -282,29 +282,33 @@ public class MclStorageManager
                                   +"list file="+fileName
                                   +". error was:" + ex.getMessage());
         }
-        
+
         // try to see if any backup remains from the last execution
-        try {
-            File backup = faService.getPrivatePersistentFile(fileName
-                                                                + ".bak");
+        try
+        {
+            File backup = faService.getPrivatePersistentFile(fileName + ".bak");
 
             // if the backup exists, simply use it as a normal file
-            if (backup.exists()) {
+            if (backup.exists())
+            {
                 FileInputStream in = new FileInputStream(backup);
                 FileOutputStream out = new FileOutputStream(contactlistFile);
-                
+
                 byte[] buf = new byte[1024];
                 int len;
-                while ((len = in.read(buf)) > 0){
+                while ((len = in.read(buf)) > 0)
+                {
                   out.write(buf, 0, len);
                 }
-                
+
                 in.close();
                 out.close();
-                
+
                 backup.delete();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.error("Failed to restore the backup contact list file", e);
         }
 
@@ -391,16 +395,17 @@ public class MclStorageManager
             File backup = new File (contactlistFile.getAbsolutePath() + ".bak");
             FileInputStream in = new FileInputStream(contactlistFile);
             FileOutputStream out = new FileOutputStream(backup);
-            
+
             byte[] buf = new byte[1024];
             int len;
-            while ((len = in.read(buf)) > 0){
+            while ((len = in.read(buf)) > 0)
+            {
               out.write(buf, 0, len);
             }
-            
+
             in.close();
             out.close();
-            
+
             // really write the modification
             OutputStream stream = new FileOutputStream(contactlistFile);
             XMLUtils.indentedWriteXML(contactListDocument
