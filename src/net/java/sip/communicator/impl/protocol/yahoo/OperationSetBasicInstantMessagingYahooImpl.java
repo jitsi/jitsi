@@ -369,13 +369,24 @@ public class OperationSetBasicInstantMessagingYahooImpl
         /**
          * Overrides <tt>newMailReceived</tt> from <tt>SessionAdapter</tt>,
          * called when yahoo alert us that there is a new message in our mailbox.
+         * There is two types of notification, the first one provides only
+         * the number of unread mails and the second gives informations about
+         * a precise new mail. Here, we care about only the second case in which
+         * we should always have the email of the sender of the mail.
          *
          * @param ev Event with information on the received email
          */
          public void newMailReceived(SessionNewMailEvent ev)
          {
              String myEmail = yahooProvider.getAccountID().getAccountAddress();
-             
+
+             // we don't process incoming event without email.
+             if ((ev.getEmailAddress() == null)
+                    || (ev.getEmailAddress().indexOf('@') < 0))
+             {
+                 return;
+             }
+
              // this was intended to obtain the user server i.e. mail.yahoo.com,
              // or mail.yahoo.fr so that the login page is in the preferred user
              // language. but it always gives yahoo.com, even if the account
@@ -408,7 +419,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
              if (sourceContact == null)
              {
                  logger.debug("received a new mail from an unknown contact: "
-                                    + ev.getFrom());
+                                    + ev.getFrom()
+                                    + " &lt;" + ev.getEmailAddress() + "&gt;");
                  //create the volatile contact
                  sourceContact = opSetPersPresence
                      .createVolatileContact(ev.getEmailAddress());
