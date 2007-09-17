@@ -408,7 +408,16 @@ public class MclStorageManager
             out.close();
             
             // note the end of the transfert
-            backup.renameTo(new File(contactlistFile.getName() + ".bak"));
+            File final_backup = new File(contactlistFile.getAbsolutePath()
+                    + ".bak");
+            
+            // this should not happen, but if it's the case, the rename
+            // operation can fail
+            if (final_backup.exists()) {
+                final_backup.delete();
+            }
+            
+            backup.renameTo(final_backup);
 
             // really write the modification
             OutputStream stream = new FileOutputStream(contactlistFile);
@@ -417,7 +426,7 @@ public class MclStorageManager
             stream.close();
 
             // once done, delete the backup file
-            backup.delete();
+            final_backup.delete();
         }
     }
 
