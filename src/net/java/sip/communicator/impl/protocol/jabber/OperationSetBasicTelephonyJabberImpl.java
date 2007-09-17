@@ -220,10 +220,18 @@ public class OperationSetBasicTelephonyJabberImpl
                     , OperationFailedException.INTERNAL_ERROR);
         }
 
-        // we determine on wich resource the remote user is connected
-        String fullCalleeURI = protocolProvider.getConnection().
-                getRoster().getPresence(calleeAddress).getFrom();
-
+        // we determine on which resource the remote user is connected if the
+        // resource isn't already provided
+        String fullCalleeURI = null;
+        if (calleeAddress.indexOf('/') > 0)
+        {
+            fullCalleeURI = calleeAddress;
+        }
+        else
+        {
+            fullCalleeURI = protocolProvider.getConnection().
+                    getRoster().getPresence(calleeAddress).getFrom();
+        }
         if (fullCalleeURI.indexOf('/') < 0)
         {
             throw new OperationFailedException(
@@ -243,15 +251,15 @@ public class OperationSetBasicTelephonyJabberImpl
                     .discoverInfo(fullCalleeURI);
             if (di.containsFeature("http://www.xmpp.org/extensions/xep-0166.html#ns"))
             {
-                logger.info(fullCalleeURI + ": telephony supported ");
+                logger.info(fullCalleeURI + ": jingle supported ");
             }
             else
             {
-                logger.info(calleeAddress + ": telephony not supported ??? ");
+                logger.info(calleeAddress + ": jingle not supported ??? ");
 //                
 //                throw new OperationFailedException(
 //                        "Failed to create OutgoingJingleSession.\n"
-//                        + fullCalleeURI + " do not supports telephony"
+//                        + fullCalleeURI + " do not supports jingle"
 //                        , OperationFailedException.INTERNAL_ERROR);
             }
         }

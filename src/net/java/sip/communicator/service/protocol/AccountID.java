@@ -189,6 +189,9 @@ public abstract class AccountID
      */
     public String getAccountAddress()
     {
-        return getUserID() + "@" + getService();
+        if (getUserID().indexOf('@') > 0)
+            return getUserID();
+        else
+            return getUserID() + "@" + getService();
     }
 }

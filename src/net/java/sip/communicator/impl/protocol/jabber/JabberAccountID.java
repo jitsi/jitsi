@@ -47,18 +47,4 @@ public class JabberAccountID
         else
             return "jabber.org";
     }
-
-    /**
-     * The super method is overridden here because jabber user id
-     * is already the user address and it is therefore pointless to add the
-     * service name.
-     *
-     * @return a String in the form of userid@service that other protocol users
-     * should be able to parse into a meaningful address and use it to
-     * communicate with us.
-     */
-    public String getAccountAddress()
-    {
-        return getUserID();
-    }
 }
