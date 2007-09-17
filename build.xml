@@ -872,7 +872,7 @@
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
         bundle-plugin-extended-callhistory-search,
-        bundle-rss,bundle-plugin-rssaccregwizz,
+        bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
         bundle-irc,bundle-plugin-ircaccregwizz,
         bundle-pluginmanager,bundle-notification"/>
@@ -1598,6 +1598,17 @@ javax.swing.event, javax.swing.border"/>
         <zipfileset src="${lib.noinst}/aclibico-2.1.jar" prefix=""/>
         <zipfileset dir="${resources}/images/rss"
                 prefix="resources/images/rss"/>
+        </jar>
+    </target>
+	
+    <!-- BUNDLE-RSS-SLICK -->
+    <!-- Creates a bundle containing the slick for the Gibberish protocol
+         provider.-->
+    <target name="bundle-rss-slick">
+        <jar compress="false" destfile="${bundles.dest}/protocol-rss-slick.jar"
+            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/rss/rss.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/rss"
+                prefix="net/java/sip/communicator/slick/protocol/rss"/>
         </jar>
     </target>
 

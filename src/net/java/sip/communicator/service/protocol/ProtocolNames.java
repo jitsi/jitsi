@@ -69,4 +69,10 @@ public interface ProtocolNames
      * The Zeroconf protcool.
      */
     public static final String ZEROCONF  = "Zeroconf";
+    
+    /**
+     * The RSS protocol.
+     */
+    public static final String RSS = "RSS"; 
+
 }
