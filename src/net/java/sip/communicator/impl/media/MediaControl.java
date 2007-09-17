@@ -139,6 +139,7 @@ public class MediaControl
         "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
         "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
+        "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
         "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
