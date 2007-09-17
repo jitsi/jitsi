@@ -321,7 +321,8 @@ public class SystrayServiceJdicImpl
      */
     public void setSystrayIcon(byte[] image)
     {
-        this.trayIcon.setIcon(new ImageIcon(image));
+        if (image != null)
+            this.trayIcon.setIcon(new ImageIcon(image));
     }
 
     /**
