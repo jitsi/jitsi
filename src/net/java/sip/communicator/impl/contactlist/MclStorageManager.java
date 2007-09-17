@@ -392,7 +392,8 @@ public class MclStorageManager
         {
             // copy the contact list before write on it to ensure
             // a safe modification
-            File backup = new File (contactlistFile.getAbsolutePath() + ".bak");
+            File backup = new File (contactlistFile.getAbsolutePath()
+                    + ".bak.part");
             FileInputStream in = new FileInputStream(contactlistFile);
             FileOutputStream out = new FileOutputStream(backup);
 
@@ -405,11 +406,14 @@ public class MclStorageManager
 
             in.close();
             out.close();
+            
+            // note the end of the transfert
+            backup.renameTo(new File(contactlistFile.getName() + ".bak"));
 
             // really write the modification
             OutputStream stream = new FileOutputStream(contactlistFile);
-            XMLUtils.indentedWriteXML(contactListDocument
-                                      , stream);
+            XMLUtils.indentedWriteXML(contactListDocument,
+                                      stream);
             stream.close();
 
             // once done, delete the backup file
