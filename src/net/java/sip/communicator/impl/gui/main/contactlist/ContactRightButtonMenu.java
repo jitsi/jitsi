@@ -57,7 +57,10 @@ public class ContactRightButtonMenu
     
     private I18NString removeContactString
         = Messages.getI18NString("removeContact");
-    
+
+    private I18NString callString
+        = Messages.getI18NString("call");
+
     private I18NString sendMessageString
         = Messages.getI18NString("sendMessage");
     
@@ -84,6 +87,10 @@ public class ContactRightButtonMenu
 
     private SIPCommMenu removeContactMenu
         = new SIPCommMenu(removeContactString.getText());
+
+    private JMenuItem callItem = new JMenuItem(
+        callString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
 
     private JMenuItem sendMessageItem = new JMenuItem(
         sendMessageString.getText(),
@@ -284,6 +291,7 @@ public class ContactRightButtonMenu
         }
 
         this.add(sendMessageItem);
+        this.add(callItem);
         this.add(sendFileItem);
 
         this.addSeparator();
@@ -308,6 +316,7 @@ public class ContactRightButtonMenu
         this.initPluginComponents();
 
         this.sendMessageItem.setName("sendMessage");
+        this.callItem.setName("call");
         this.sendFileItem.setName("sendFile");
         this.moveToMenu.setName("moveToGroup");
         this.addSubcontactMenu.setName("addSubcontact");
@@ -316,13 +325,22 @@ public class ContactRightButtonMenu
         this.userInfoMenu.setName("userInfo");
 
         this.sendMessageItem.addActionListener(this);
+        this.callItem.addActionListener(this);
         this.sendFileItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
         this.viewHistoryItem.addActionListener(this);
         this.userInfoMenu.addActionListener(this);
 
         // Disable all menu items that do nothing.
-        this.sendFileItem.setEnabled(false);
+        if (contactItem.getDefaultContact(OperationSetFileTransfer.class)
+                == null)
+            this.sendFileItem.setEnabled(false);
+        if (contactItem.getDefaultContact(OperationSetBasicTelephony.class)
+                == null)
+            this.callItem.setEnabled(false);
+        if (contactItem.getDefaultContact(OperationSetBasicInstantMessaging.class)
+                == null)
+            this.sendMessageItem.setEnabled(false);        
     }
     
     private void initPluginComponents()
@@ -350,6 +368,7 @@ public class ContactRightButtonMenu
     private void initMnemonics()
     {
         this.sendMessageItem.setMnemonic(sendMessageString.getMnemonic());
+        this.callItem.setMnemonic(sendMessageString.getMnemonic());
         this.sendFileItem.setMnemonic(sendFileString.getMnemonic());
         this.moveToMenu.setMnemonic(moveToString.getMnemonic());
         this.addSubcontactMenu.setMnemonic(addSubcontactString.getMnemonic());
@@ -369,6 +388,7 @@ public class ContactRightButtonMenu
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
         String itemText = menuItem.getText();
+        Contact cont = null;
 
         if (itemName.startsWith(addSubcontactPrefix)) {
             
@@ -395,6 +415,19 @@ public class ContactRightButtonMenu
             ContactListPanel clistPanel = mainFrame.getContactListPanel();
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
                     contactItem));
+        }
+        else if (itemName.equalsIgnoreCase("call"))
+        {
+            cont = contactItem.getDefaultContact(
+                    OperationSetBasicTelephony.class);
+            if (cont != null)
+            {
+                Vector v = new Vector();
+                v.add(cont);
+                mainFrame.getCallManager().createCall(v);
+                // wow, it's really tricky, I wonder there isn't a simple method
+                // CallManager#createCall(Contact contact);
+            }
         }
         else if (itemName.equalsIgnoreCase("sendFile"))
         {

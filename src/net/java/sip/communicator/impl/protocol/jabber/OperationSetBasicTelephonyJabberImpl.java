@@ -107,12 +107,9 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         if ((evt.getNewState() == RegistrationState.REGISTERED))
         {
-            // NOTE: a null stun server is provided here _intentionally_
-            // it may cause some exceptions, it's temporary
-            logger.warn("warning: we will use a null stun server ***");
             transportManager = new ICETransportManager(
                     protocolProvider.getConnection(),
-                    null, 3478);
+                    "stun.iptel.org", 3478);
 
             jingleManager = new JingleManager(
                     protocolProvider.getConnection(),
@@ -598,11 +595,7 @@ public class OperationSetBasicTelephonyJabberImpl
             , JingleNegotiator.State newState)
                     throws JingleNegotiator.JingleException
     {
-        if (newState instanceof IncomingJingleSession.Accepting)
-        {}
-        else if (newState instanceof IncomingJingleSession.Pending)
-        {}
-        else if (newState instanceof IncomingJingleSession.Active)
+        if (newState instanceof IncomingJingleSession.Active)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
@@ -650,22 +643,6 @@ public class OperationSetBasicTelephonyJabberImpl
             }
             callParticipant.setState(CallParticipantState.CONNECTED);
         }
-//        else if (newState instanceof MediaNegotiator.Inviting)
-//        {}
-//        else if (newState instanceof MediaNegotiator.Pending)
-//        {}
-//        else if (newState instanceof MediaNegotiator.Accepting)
-//        {}
-//        else if (newState instanceof MediaNegotiator.Active)
-//        {}
-//        else if (newState instanceof TransportNegotiator.Inviting)
-//        {}
-//        else if (newState instanceof TransportNegotiator.Pending)
-//        {}
-//        else if (newState instanceof TransportNegotiator.Accepting)
-//        {}
-//        else if (newState instanceof TransportNegotiator.Active)
-//        {}
 
         if ((newState == null) && (oldState != null))
         { //hanging

@@ -769,6 +769,13 @@ public class ImageLoader {
         = new ImageID("SEND_MESSAGE_16x16_ICON");
 
     /**
+     * Call 16x16 image.
+     * //TODO : change to an appropriate logo
+     */
+    public static final ImageLoader.ImageID CALL_16x16_ICON
+            = new ImageID("SIP_COMMUNICATOR_LOGO");
+
+    /**
      * Delete 16x16 image.
      */
     public static final ImageID DELETE_16x16_ICON
@@ -932,6 +939,7 @@ public class ImageLoader {
     public static final ImageID SMILEY11 = new ImageID("SMILEY11");
 
     public static final ImageID SMILEY12 = new ImageID("SMILEY12");
+
 
     /**
      * Load default smilies pack.

@@ -99,16 +99,31 @@ public class ChatSendPanel
     {
         int stringWidth = GuiUtils.getStringWidth(statusLabel, statusMessage);
 
-        while (stringWidth > statusPanel.getWidth() - 10) {
-            if (statusMessage.endsWith("...")) {
-                statusMessage = statusMessage.substring(0,
-                    statusMessage.indexOf("...") - 1).concat("...");
+        int dot3 = GuiUtils.getStringWidth(statusLabel, "... ");
+
+        // first, we avoid to loop if it is useless.
+        if (dot3 >= statusPanel.getWidth())
+        {
+            if (stringWidth > dot3)
+                statusMessage = "...";
+        }
+        else
+        {
+            while ((stringWidth > (statusPanel.getWidth() - dot3))
+                    && (statusMessage != "..."))
+            {
+                if (statusMessage.endsWith("..."))
+                {
+                    statusMessage = statusMessage.substring(0,
+                        statusMessage.indexOf("...") - 1).concat("...");
+                }
+                else
+                {
+                    statusMessage = statusMessage.substring(0,
+                        statusMessage.length() - 3).concat("...");
+                }
+                stringWidth = GuiUtils.getStringWidth(statusLabel, statusMessage);
             }
-            else {
-                statusMessage = statusMessage.substring(0,
-                    statusMessage.length() - 3).concat("...");
-            }
-            stringWidth = GuiUtils.getStringWidth(statusLabel, statusMessage);
         }
         statusLabel.setText(statusMessage);
     }

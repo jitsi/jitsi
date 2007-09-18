@@ -443,18 +443,9 @@ public class CallManager
      */
     private Contact getTelephonyContact(MetaContact metaContact)
     {
-        Iterator i = metaContact.getContacts();
-        while (i.hasNext())
-        {
-            Contact contact = (Contact) i.next();
+        return metaContact.getDefaultContact(
+                OperationSetBasicTelephony.class);
 
-            OperationSetBasicTelephony telephony = mainFrame
-                .getTelephonyOpSet(contact.getProtocolProvider());
-
-            if (telephony != null)
-                return contact;
-        }
-        return null;
     }
 
     /**
@@ -758,6 +749,19 @@ public class CallManager
     }
 
     /**
+     * Call the specified contact.
+     * @param contact the contact to call.
+     */
+    public void createCall(Contact contact)
+    {
+        CallPanel callPanel = new CallPanel(this, contact);
+
+        mainFrame.addCallPanel(callPanel);
+
+        new CreateCallThread(contact, callPanel).start();
+    }
+
+    /**
      * Creates a call to the given list of contacts.
      * 
      * @param contacts the list of contacts to call to
@@ -784,6 +788,8 @@ public class CallManager
         String stringContact;
 
         OperationSetBasicTelephony telephony;
+        
+        Contact contact;
 
         public CreateCallThread(String contact, CallPanel callPanel)
         {
@@ -803,6 +809,15 @@ public class CallManager
                 telephony = mainFrame.getTelephonyOpSet(selectedCallProvider);
         }
 
+        public CreateCallThread(Contact contact, CallPanel callPanel)
+        {
+            this.contact = contact;
+            this.callPanel = callPanel;
+
+            if (selectedCallProvider != null)
+                telephony = mainFrame.getTelephonyOpSet(selectedCallProvider);
+        }
+
         public void run()
         {
             if (telephony == null)
@@ -810,7 +825,44 @@ public class CallManager
             
             Call createdCall = null;
 
-            if (contacts != null)
+            if (contact != null)
+            {
+                try
+                {
+                    createdCall = telephony.createCall(contact);                        
+                }
+                catch (OperationFailedException e)
+                {
+                    logger.error("The call could not be created: " + e);
+
+                    // well, what if we try with the contact own telephony
+                    // if it's different
+                    OperationSetBasicTelephony tel
+                            = (OperationSetBasicTelephony) contact.getProtocolProvider()
+                            .getOperationSet(OperationSetBasicTelephony.class);
+
+                    if (tel != telephony)
+                        logger.info("perpahps it would be better to use "
+                                + "the contact own telephony " + tel);
+
+                    callPanel.getParticipantPanel(contact.getDisplayName())
+                        .setState(e.getMessage());
+                    
+                    removeCallPanelWait(callPanel);
+                }
+                
+                // If the call is successfully created we set the created
+                // Call instance to the already existing CallPanel and we
+                // add this call to the active calls.
+                if (createdCall != null)
+                {
+                    callPanel.setCall(createdCall,
+                        GuiCallParticipantRecord.OUTGOING_CALL);
+
+                    activeCalls.put(createdCall, callPanel);
+                }
+            }
+            else if (contacts != null)
             {
                 Contact contact = (Contact) contacts.get(0);
                 

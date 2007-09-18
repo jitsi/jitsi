@@ -266,6 +266,11 @@ public class OperationSetMultiUserChatJabberImpl
         //make sure we are connected and multichat is supported.
         assertSupportedAndConnected();
 
+//        return (ChatRoom)chatRoomCache.get(roomName);
+
+//         XXX is the following behaviour correct ? in the test if finding
+//         an unexisting room return anything other than null, the test fails.
+
         //first check whether we have already initialized the room.
         ChatRoom room = (ChatRoom)chatRoomCache.get(roomName);
 

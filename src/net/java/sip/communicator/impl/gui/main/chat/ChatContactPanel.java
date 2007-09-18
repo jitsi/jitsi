@@ -16,8 +16,10 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -126,8 +128,31 @@ public class ChatContactPanel
         this.add(mainPanel, BorderLayout.CENTER);
 
         // Disabled all unused buttons.
-        this.callButton.setEnabled(false);
-        this.sendFileButton.setEnabled(false);
+
+        ProtocolProviderService pps = chatContact.getProtocolProvider();
+
+        if (chatContact.getSourceContact() instanceof Contact)
+        {
+            Contact c = (Contact) chatContact.getSourceContact();
+            MetaContact m = chatPanel.getChatWindow().getMainFrame()
+                    .getContactList().findMetaContactByContact(c);
+
+            if (m.getDefaultContact(OperationSetBasicTelephony.class)
+                    == null)
+                this.callButton.setEnabled(false); 
+
+            if (m.getDefaultContact(OperationSetFileTransfer.class)
+                    == null)
+                this.sendFileButton.setEnabled(false); 
+        }
+        else
+        {
+            if (pps.getOperationSet(OperationSetBasicTelephony.class) == null)  
+                this.callButton.setEnabled(false);
+
+            if (pps.getOperationSet(OperationSetFileTransfer.class) == null)
+                this.sendFileButton.setEnabled(false);
+        }
 
         //Load the contact photo.
         new Thread()
@@ -150,9 +175,6 @@ public class ChatContactPanel
 
             }
         }.start();
-
-        ProtocolProviderService pps
-            = chatContact.getProtocolProvider();
 
         Object contactInfoOpSet
             = pps.getOperationSet(OperationSetWebContactInfo.class);
@@ -215,9 +237,33 @@ public class ChatContactPanel
     {
         JButton button = (JButton) evt.getSource();
 
+        // first, see if the contact with which we chat supports telephony
+        // and call that one. If he don't, we look for the default
+        // telephony contact in its enclosing metacontact
         if(button.getName().equals("call"))
         {
-            //TODO: Implement the call functionality.
+            CallManager cm =
+                    chatPanel.getChatWindow().getMainFrame().getCallManager();
+            Object o = chatContact.getSourceContact();
+
+            OperationSetBasicTelephony opSetBT
+                    = (OperationSetBasicTelephony) chatContact.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicTelephony.class);
+
+            if (opSetBT != null)
+            {
+                if (o instanceof Contact)
+                    cm.createCall((Contact)chatContact.getSourceContact());
+                else // hope an appropriate telephony will be used.
+                    cm.createCall(((ChatRoomMember) o).getContactAddress());
+            }
+            else if (o instanceof Contact)
+            {
+                MetaContact m = chatPanel.getChatWindow().getMainFrame()
+                        .getContactList().findMetaContactByContact((Contact)o);
+                cm.createCall(
+                        m.getDefaultContact(OperationSetBasicTelephony.class));
+            }
         }
         else if(button.getName().equals("info"))
         {

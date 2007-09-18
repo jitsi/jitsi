@@ -273,6 +273,72 @@ public class MetaContactImpl
     }
 
     /**
+     * Returns a default contact for a specific operation (call,
+     * file transfert, IM ...)
+     *
+     * @param operationSet the operation for which the default contact is needed
+     * @return the default contact for the specified operation.
+     */
+    public Contact getDefaultContact(Class operationSet)
+    {
+        Contact defaultOpSetContact = null;
+        try
+        {
+            // if the current default contact supports the requested information
+            // we use it
+            if (getDefaultContact().getProtocolProvider()
+                    .getOperationSet(Class.forName(operationSet.getName()))
+                    != null)
+            {
+                defaultOpSetContact = getDefaultContact();
+            }
+            else
+            {
+                for (int i = 0; i < this.protoContacts.size(); i++)
+                {
+                    PresenceStatus currentStatus = null;
+                    Contact protoContact = (Contact)this.protoContacts.get(i);
+
+                    // we filter to care only about contact which support
+                    // the needed opset.
+                    if (protoContact.getProtocolProvider()
+                            .getOperationSet(
+                            Class.forName(operationSet.getName())) != null)
+                    {
+                        PresenceStatus contactStatus
+                                = protoContact.getPresenceStatus();
+
+                        if (currentStatus != null)
+                        {
+                            if (currentStatus.getStatus()
+                                    < contactStatus.getStatus())
+                            {
+                                currentStatus = contactStatus;
+                                defaultOpSetContact = protoContact;
+                            }
+                        }
+                        else
+                        {
+                            currentStatus = contactStatus;
+                            defaultOpSetContact = protoContact;
+                        }
+                    }
+                }
+            }
+        }
+        catch (ClassNotFoundException ex)
+        {
+            logger.info("cannot find a default " + operationSet.getName()
+                    + " contact for "
+                    + this, ex);
+        }
+        finally
+        {
+            return defaultOpSetContact;
+        }
+    }
+
+    /**
      * Returns a String identifier (the actual contents is left to
      * implementations) that uniquely represents this <tt>MetaContact</tt> in
      * the containing <tt>MetaContactList</tt>

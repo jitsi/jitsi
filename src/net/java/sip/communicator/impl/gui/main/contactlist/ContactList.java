@@ -639,8 +639,9 @@ public class ContactList
 
                     contactRightButtonMenu.setInvoker(this);
 
-                    contactRightButtonMenu.setLocation(selectedCellPoint.x,
-                        selectedCellPoint.y + renderer.getHeight());
+                    Point p = new Point(e.getPoint());
+                    SwingUtilities.convertPointToScreen(p, this);
+                    contactRightButtonMenu.setLocation(p);
 
                     contactRightButtonMenu.setVisible(true);
                 }

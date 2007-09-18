@@ -31,6 +31,15 @@ public interface MetaContact extends Comparable
     public Contact getDefaultContact();
 
     /**
+     * Returns the default protocol specific <tt>Contact</tt> to use with this
+     * <tt>MetaContact</tt> for a precise operation (IM, call, ...).
+     *
+     * @param operationSet the operation for which the default contact is needed
+     * @return the default contact for the specified operation.
+     */
+    public Contact getDefaultContact(Class operationSet);
+
+    /**
      * Returns a <tt>java.util.Iterator</tt> with all protocol specific
      * <tt>Contacts</tt> encapsulated by this <tt>MetaContact</tt>.
      * <p>
