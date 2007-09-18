@@ -282,60 +282,47 @@ public class MetaContactImpl
     public Contact getDefaultContact(Class operationSet)
     {
         Contact defaultOpSetContact = null;
-        try
+
+        // if the current default contact supports the requested operationSet
+        // we use it
+        if (getDefaultContact().getProtocolProvider()
+                .getOperationSet(operationSet) != null)
         {
-            // if the current default contact supports the requested information
-            // we use it
-            if (getDefaultContact().getProtocolProvider()
-                    .getOperationSet(Class.forName(operationSet.getName()))
-                    != null)
+            defaultOpSetContact = getDefaultContact();
+        }
+        else
+        {
+            for (int i = 0; i < protoContacts.size(); i++)
             {
-                defaultOpSetContact = getDefaultContact();
-            }
-            else
-            {
-                for (int i = 0; i < this.protoContacts.size(); i++)
+                PresenceStatus currentStatus = null;
+                Contact protoContact = (Contact)this.protoContacts.get(i);
+
+                // we filter to care only about contact which support
+                // the needed opset.
+                if (protoContact.getProtocolProvider()
+                        .getOperationSet(operationSet) != null)
                 {
-                    PresenceStatus currentStatus = null;
-                    Contact protoContact = (Contact)this.protoContacts.get(i);
+                    PresenceStatus contactStatus
+                            = protoContact.getPresenceStatus();
 
-                    // we filter to care only about contact which support
-                    // the needed opset.
-                    if (protoContact.getProtocolProvider()
-                            .getOperationSet(
-                            Class.forName(operationSet.getName())) != null)
+                    if (currentStatus != null)
                     {
-                        PresenceStatus contactStatus
-                                = protoContact.getPresenceStatus();
-
-                        if (currentStatus != null)
-                        {
-                            if (currentStatus.getStatus()
-                                    < contactStatus.getStatus())
-                            {
-                                currentStatus = contactStatus;
-                                defaultOpSetContact = protoContact;
-                            }
-                        }
-                        else
+                        if (currentStatus.getStatus()
+                                < contactStatus.getStatus())
                         {
                             currentStatus = contactStatus;
                             defaultOpSetContact = protoContact;
                         }
                     }
+                    else
+                    {
+                        currentStatus = contactStatus;
+                        defaultOpSetContact = protoContact;
+                    }
                 }
             }
         }
-        catch (ClassNotFoundException ex)
-        {
-            logger.info("cannot find a default " + operationSet.getName()
-                    + " contact for "
-                    + this, ex);
-        }
-        finally
-        {
-            return defaultOpSetContact;
-        }
+        return defaultOpSetContact;
     }
 
     /**
