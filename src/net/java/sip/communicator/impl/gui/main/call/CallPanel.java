@@ -70,23 +70,7 @@ public class CallPanel
         
         this.getViewport().add(mainPanel);
     }
-
-    public CallPanel(CallManager callManager, Contact contact)
-    {
-        this.callManager = callManager;
-        
-        this.mainPanel.setBorder(
-                BorderFactory.createEmptyBorder(20, 10, 20, 10));
-            
-        this.title = contact.getDisplayName();
-            
-        this.mainPanel.setLayout(new BorderLayout());
-        
-        this.addCallParticipant(contact.getDisplayName(), callType);
-        
-        this.getViewport().add(mainPanel);
-    }
-
+    
     /**
      * Creates an instance of CallPanel for the given call and call type.
      * @param callManager the CallManager that manages this panel

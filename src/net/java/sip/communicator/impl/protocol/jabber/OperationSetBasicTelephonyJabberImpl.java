@@ -534,7 +534,7 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void mediaClosed(PayloadType payloadType)
     {
-        logger.info(" media losed ");
+        logger.info(" media closed ");
     }
 
     /**

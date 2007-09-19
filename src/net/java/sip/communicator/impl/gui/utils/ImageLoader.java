@@ -773,7 +773,7 @@ public class ImageLoader {
      * //TODO : change to an appropriate logo
      */
     public static final ImageLoader.ImageID CALL_16x16_ICON
-            = new ImageID("SIP_COMMUNICATOR_LOGO");
+            = new ImageID("CALL_16x16_ICON");
 
     /**
      * Delete 16x16 image.

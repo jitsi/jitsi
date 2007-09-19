@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -253,7 +254,11 @@ public class ChatContactPanel
             if (opSetBT != null)
             {
                 if (o instanceof Contact)
-                    cm.createCall((Contact)chatContact.getSourceContact());
+                {
+                    Vector v = new Vector();
+                    v.add((Contact)chatContact.getSourceContact());
+                    cm.createCall(v);
+                }
                 else // hope an appropriate telephony will be used.
                     cm.createCall(((ChatRoomMember) o).getContactAddress());
             }
@@ -261,8 +266,11 @@ public class ChatContactPanel
             {
                 MetaContact m = chatPanel.getChatWindow().getMainFrame()
                         .getContactList().findMetaContactByContact((Contact)o);
-                cm.createCall(
-                        m.getDefaultContact(OperationSetBasicTelephony.class));
+
+                Vector v = new Vector();
+                v.add(m.getDefaultContact(OperationSetBasicTelephony.class));
+                cm.createCall(v);
+                        
             }
         }
         else if(button.getName().equals("info"))

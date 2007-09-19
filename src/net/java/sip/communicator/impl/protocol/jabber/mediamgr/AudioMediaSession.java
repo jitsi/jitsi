@@ -225,7 +225,7 @@ public class AudioMediaSession
      */
     public void receivedMediaStream(MediaEvent evt)
     {
-        getJingleSession().mediaReceived(evt.getFrom());
+        mediaReceived(evt.getFrom());
     }
 
     public void mediaServiceStatusChanged()
