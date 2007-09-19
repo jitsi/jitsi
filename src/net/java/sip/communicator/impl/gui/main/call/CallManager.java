@@ -797,7 +797,7 @@ public class CallManager
                 // We just get the first contact and create a call for him.
                 try
                 {   
-                    createdCall = telephony.createCall(contact);                        
+                    createdCall = telephony.createCall(contact);
                 }
                 catch (OperationFailedException e)
                 {
