@@ -453,17 +453,17 @@ public class ChatRoomsList
         for(int i = serverIndex + 1; i < listModel.size(); i ++)
         {
             final Object o = listModel.get(i);
-            
+
             if(!(o instanceof ChatRoomWrapper))
                 break;
-            
+
             new Thread()
             {
                 public void run()
                 {
                     ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) o;
                     ChatRoom chatRoom = null;
-                    
+
                     try
                     {
                         chatRoom
@@ -479,7 +479,7 @@ public class ChatRoomsList
                         logger.error("Failed to find chat room with name:"
                             + chatRoomWrapper.getChatRoomName(), e1);
                     }
-                    
+
                     if(chatRoom != null)
                     {
                         chatRoomWrapper.setChatRoom(chatRoom);

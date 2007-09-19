@@ -452,21 +452,28 @@ public class ContactRightButtonMenu
         else if (itemName.equalsIgnoreCase("viewHistory")) {
 
             HistoryWindow history;
-            
-            if(guiContactList.containsHistoryWindowForContact(contactItem)) {                
-                history = guiContactList.getHistoryWindowForContact(contactItem);
-                
+
+            HistoryWindowManager historyWindowManager
+                = mainFrame.getHistoryWindowManager();
+
+            if(historyWindowManager
+                .containsHistoryWindowForContact(contactItem))
+            {
+                history = historyWindowManager
+                    .getHistoryWindowForContact(contactItem);
+
                 if(history.getState() == JFrame.ICONIFIED)
                     history.setState(JFrame.NORMAL);
-                
+
                 history.toFront();
             }
             else {
                 history = new HistoryWindow(
                     this.mainFrame, this.contactItem);
-                
-                guiContactList.addHistoryWindowForContact(contactItem, history);
-                
+
+                historyWindowManager
+                    .addHistoryWindowForContact(contactItem, history);
+
                 history.setVisible(true);
             }
         }

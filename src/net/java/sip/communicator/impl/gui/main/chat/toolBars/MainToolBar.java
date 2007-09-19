@@ -16,6 +16,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -210,7 +211,7 @@ public class MainToolBar
         }
         else if (buttonText.equalsIgnoreCase("previous"))
         {   
-            chatPanel.loadPreviousPageFromHistory();            
+            chatPanel.loadPreviousPageFromHistory();
         }
         else if (buttonText.equalsIgnoreCase("next"))
         {   
@@ -219,12 +220,36 @@ public class MainToolBar
         else if (buttonText.equalsIgnoreCase("sendFile")) {
 
         }
-        else if (buttonText.equalsIgnoreCase("history")) {
+        else if (buttonText.equalsIgnoreCase("history"))
+        {
+            HistoryWindow history;
 
-            HistoryWindow history = new HistoryWindow(messageWindow
-                .getMainFrame(), chatPanel.getChatIdentifier());
+            HistoryWindowManager historyWindowManager
+                = messageWindow.getMainFrame().getHistoryWindowManager();
 
-            history.setVisible(true);
+            Object historyContact = chatPanel.getChatIdentifier();
+
+            if(historyWindowManager
+                .containsHistoryWindowForContact(historyContact))
+            {
+                history = historyWindowManager
+                    .getHistoryWindowForContact(historyContact);
+
+                if(history.getState() == JFrame.ICONIFIED)
+                    history.setState(JFrame.NORMAL);
+                
+                history.toFront();
+            }
+            else
+            {
+                history = new HistoryWindow(messageWindow
+                    .getMainFrame(), chatPanel.getChatIdentifier());
+
+                history.setVisible(true);
+
+                historyWindowManager.addHistoryWindowForContact(historyContact,
+                                                                history);
+            }
         }
         else if (buttonText.equalsIgnoreCase("font")) {
 

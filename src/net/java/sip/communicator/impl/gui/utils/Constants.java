@@ -408,6 +408,21 @@ public class Constants {
     }
 
     /**
+     * Returns the image corresponding to the given status.
+     * @param status ONLINE_STATUS or OFFLINE_STATUS
+     * @return the image corresponding to the given status.
+     */
+    public static BufferedImage getStatusIcon(String status)
+    {
+        if (status.equals(ONLINE_STATUS))
+            return ImageLoader
+                .getImage(ImageLoader.USER_ONLINE_ICON);
+        else
+            return ImageLoader
+                .getImage(ImageLoader.USER_OFFLINE_ICON);
+    }
+
+    /**
      * Loads a chat window style.
      */
     public static void loadAdiumStyle(){

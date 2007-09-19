@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.msghistory.*;
@@ -41,7 +42,8 @@ public class HistoryWindow
     extends SIPCommFrame
     implements  ChatConversationContainer,
                 MessageHistorySearchProgressListener,
-                MessageListener
+                MessageListener,
+                ChatRoomMessageListener
 {
 
     private static final Logger logger = Logger
@@ -63,7 +65,7 @@ public class HistoryWindow
 
     private DatesPanel datesPanel;
 
-    private MetaContact metaContact;
+    private Object historyContact;
 
     private MessageHistoryService msgHistory;
 
@@ -87,39 +89,41 @@ public class HistoryWindow
      * @param mainFrame the main application window
      * @param o the <tt>MetaContact</tt> or the <tt>ChatRoom</tt>
      */
-    public HistoryWindow(MainFrame mainFrame, Object o)
+    public HistoryWindow(MainFrame mainFrame, Object historyContact)
     {
-        if(o instanceof MetaContact)
+        this.mainFrame = mainFrame;
+        this.historyContact = historyContact;
+
+        chatConvPanel = new ChatConversationPanel(this);
+
+        this.progressBar = new JProgressBar(
+            MessageHistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
+            MessageHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+
+        this.progressBar.setValue(0);
+        this.progressBar.setStringPainted(true);
+
+        this.msgHistory = GuiActivator.getMsgHistoryService();
+        this.msgHistory.addSearchProgressListener(this);
+
+        this.datesPanel = new DatesPanel(this);
+        this.historyMenu = new HistoryMenu(this);
+        this.searchPanel = new SearchPanel(this);
+
+        this.initPanels();
+
+        this.initDates();
+
+        this.addWindowListener(new HistoryWindowAdapter());
+
+        if (historyContact instanceof MetaContact)
         {
-            chatConvPanel = new ChatConversationPanel(this);
-            
-            this.progressBar = new JProgressBar(
-                MessageHistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
-                MessageHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
-                    
-            this.progressBar.setValue(0);
-            this.progressBar.setStringPainted(true);
-            
-            this.msgHistory = GuiActivator.getMsgHistoryService();
-            this.msgHistory.addSearchProgressListener(this);
-            
-            this.mainFrame = mainFrame;
-            this.metaContact = (MetaContact) o;
+            MetaContact metaContact = (MetaContact) historyContact;
 
             this.setTitle(Messages.getI18NString(
                     "historyContact",
                     new String[]{metaContact.getDisplayName()}).getText());
 
-            this.datesPanel = new DatesPanel(this);
-            this.historyMenu = new HistoryMenu(this);
-            this.searchPanel = new SearchPanel(this);
-
-            this.initPanels();
-
-            this.initDates();
-
-            this.addWindowListener(new HistoryWindowAdapter());
-            
             Iterator protoContacts = metaContact.getContacts();
             
             while(protoContacts.hasNext())
@@ -131,6 +135,12 @@ public class HistoryWindow
                         OperationSetBasicInstantMessaging.class))
                             .addMessageListener(this);
             }
+        }
+        else if (historyContact instanceof ChatRoomWrapper)
+        {
+            ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) historyContact;
+
+            chatRoomWrapper.getChatRoom().addMessageListener(this);
         }
     }
     
@@ -187,8 +197,8 @@ public class HistoryWindow
             //init progress bar by precising the date that will be loaded.
             this.initProgressBar(startDate);
             
-            new MessagesLoader(startDate, endDate).start();                         
-        }        
+            new MessagesLoader(startDate, endDate).start();
+        }
     }
 
     /**
@@ -221,9 +231,9 @@ public class HistoryWindow
 
                 Object o = i.next();
 
-                if(o instanceof MessageDeliveredEvent) {
-
-                    MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
+                if(o instanceof MessageDeliveredEvent)
+                {
+                    MessageDeliveredEvent evt = (MessageDeliveredEvent) o;
 
                     ProtocolProviderService protocolProvider = evt
                         .getDestinationContact().getProtocolProvider();
@@ -233,16 +243,42 @@ public class HistoryWindow
                             evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
                             evt.getSourceMessage().getContent(),
                             evt.getSourceMessage().getContentType(),
-                            searchKeyword);                    
+                            searchKeyword);
                 }
-                else if(o instanceof MessageReceivedEvent) {
-                    MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                else if(o instanceof MessageReceivedEvent)
+                {
+                    MessageReceivedEvent evt = (MessageReceivedEvent) o;
 
                     processedMessage = chatConvPanel.processMessage(
                             evt.getSourceContact().getDisplayName(),
                             evt.getTimestamp(), Constants.INCOMING_MESSAGE,
                             evt.getSourceMessage().getContent(),
                             evt.getSourceMessage().getContentType(),
+                            searchKeyword);
+                }
+                else if(o instanceof ChatRoomMessageReceivedEvent)
+                {
+                    ChatRoomMessageReceivedEvent evt
+                        = (ChatRoomMessageReceivedEvent) o;
+
+                    processedMessage = chatConvPanel.processMessage(
+                            evt.getSourceChatRoomMember().getName(),
+                            evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                            evt.getMessage().getContent(),
+                            evt.getMessage().getContentType(),
+                            searchKeyword);
+                }
+                else if(o instanceof ChatRoomMessageDeliveredEvent)
+                {
+                    ChatRoomMessageDeliveredEvent evt
+                        = (ChatRoomMessageDeliveredEvent) o;
+
+                    processedMessage = chatConvPanel.processMessage(
+                            evt.getSourceChatRoom().getParentProvider()
+                                .getAccountID().getUserID(),
+                            evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                            evt.getMessage().getContent(),
+                            evt.getMessage().getContentType(),
                             searchKeyword);
                 }
                 chatConvPanel.appendMessageToEnd(processedMessage);
@@ -320,16 +356,20 @@ public class HistoryWindow
     /**
      * Waits 1 second and removes the progress bar from the main panel.
      */
-    private class ProgressBarTimer extends Timer {
-        public ProgressBarTimer() {
+    private class ProgressBarTimer extends Timer
+    {
+        public ProgressBarTimer()
+        {
             //Set delay
             super(1 * 1000, null);
             this.setRepeats(false);
             this.addActionListener(new TimerActionListener());
         }
 
-        private class TimerActionListener implements ActionListener {
-            public void actionPerformed(ActionEvent e) {
+        private class TimerActionListener implements ActionListener
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 mainPanel.remove(progressBar);
                 mainPanel.add(readyLabel, BorderLayout.SOUTH);
                 mainPanel.revalidate();
@@ -345,36 +385,71 @@ public class HistoryWindow
      */
     private class DatesLoader extends Thread
     {
-        public void run() {
-            Collection msgList = msgHistory.findByEndDate(
-                metaContact, new Date(System.currentTimeMillis()));
-            
+        public void run()
+        {
+            Collection msgList = null;
+
+            if (historyContact instanceof MetaContact)
+            {
+                msgList = msgHistory.findByEndDate(
+                    (MetaContact) historyContact,
+                    new Date(System.currentTimeMillis()));
+            }
+            else if(historyContact instanceof ChatRoomWrapper)
+            {
+                ChatRoomWrapper chatRoomWrapper
+                    = (ChatRoomWrapper) historyContact;
+
+                if(chatRoomWrapper.getChatRoom() == null)
+                    return;
+
+                msgList = msgHistory.findByEndDate(
+                    chatRoomWrapper.getChatRoom(),
+                    new Date(System.currentTimeMillis()));
+            }
+
             Object[] msgArray = msgList.toArray();
             Date date = null;
 
-            for (int i = 0; i < msgArray.length; i ++) {
+            for (int i = 0; i < msgArray.length; i ++)
+            {
                 Object o = msgArray[i];
-       
-                if (o instanceof MessageDeliveredEvent) {
+
+                if (o instanceof MessageDeliveredEvent)
+                {
                     MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
-       
                     date = evt.getTimestamp();
                 }
-                else if (o instanceof MessageReceivedEvent) {
+                else if (o instanceof MessageReceivedEvent)
+                {
                     MessageReceivedEvent evt = (MessageReceivedEvent)o;
                     date = evt.getTimestamp();
                 }
-                       
+                else if (o instanceof ChatRoomMessageReceivedEvent)
+                {
+                    ChatRoomMessageReceivedEvent
+                        evt = (ChatRoomMessageReceivedEvent) o;
+                    date = evt.getTimestamp();
+                }
+                else if (o instanceof ChatRoomMessageDeliveredEvent)
+                {
+                    ChatRoomMessageDeliveredEvent
+                        evt = (ChatRoomMessageDeliveredEvent) o;
+                    date = evt.getTimestamp();
+                }
+
                 boolean containsDate = false;
                 long milisecondsPerDay = 24*60*60*1000;
-                for(int j = 0; !containsDate && j < datesVector.size(); j ++) {
+                for(int j = 0; !containsDate && j < datesVector.size(); j ++)
+                {
                     Date date1 = (Date)datesVector.get(j);
                     
                     containsDate = Math.floor(date1.getTime()/milisecondsPerDay)
                         == Math.floor(date.getTime()/milisecondsPerDay);
                 }
 
-                if(!containsDate) {
+                if(!containsDate)
+                {
                     datesVector.add(new Date(date.getTime()
                             - date.getTime()%milisecondsPerDay));
                 }
@@ -395,7 +470,7 @@ public class HistoryWindow
                         //Initializes the conversation panel with the data of the
                         //last conversation.
                         int lastDateIndex = datesPanel.getDatesNumber() - 1;
-                        datesPanel.setSelected(lastDateIndex);                        
+                        datesPanel.setSelected(lastDateIndex);
                     }
                 };
                 SwingUtilities.invokeLater(updateDatesPanel);
@@ -411,6 +486,14 @@ public class HistoryWindow
         private Collection msgList;
         private Date startDate;
         private Date endDate;
+
+        /**
+         * Creates a MessageLoader thread charged to load history messages in
+         * the right panel.
+         * 
+         * @param startDate the start date of the history to load
+         * @param endDate the end date of the history to load
+         */
         public MessagesLoader (Date startDate, Date endDate)
         {
             this.startDate = startDate;
@@ -419,14 +502,31 @@ public class HistoryWindow
         
         public void run()
         {
-            msgList = msgHistory.findByPeriod(
-                    metaContact, startDate, endDate);
-            
-            Runnable updateMessagesPanel = new Runnable() {
-                public void run() {
+            if(historyContact instanceof MetaContact)
+            {
+                msgList = msgHistory.findByPeriod(
+                    (MetaContact) historyContact, startDate, endDate);
+            }
+            else if (historyContact instanceof ChatRoomWrapper)
+            {
+                ChatRoomWrapper chatRoomWrapper
+                    = (ChatRoomWrapper) historyContact;
+
+                if(chatRoomWrapper.getChatRoom() == null)
+                    return;
+
+                msgList = msgHistory.findByPeriod(
+                    chatRoomWrapper.getChatRoom(), startDate, endDate);
+            }
+
+            Runnable updateMessagesPanel = new Runnable()
+            {
+                public void run()
+                {
                     HTMLDocument doc = createHistory(msgList);
-                    
-                    if(searchKeyword == null || searchKeyword == "") {
+
+                    if(searchKeyword == null || searchKeyword == "")
+                    {
                         dateHistoryTable.put(startDate, doc);
                     }
                 }
@@ -442,7 +542,13 @@ public class HistoryWindow
         private Vector keywordDatesVector = new Vector();
         private Collection msgList;
         private String keyword;
-        
+
+        /**
+         * Creates a KeywordDatesLoader thread charged to load a list of dates
+         * of messages found by the given keyword.
+         * 
+         * @param keyword the keyword to search for
+         */
         public KeywordDatesLoader(String keyword)
         {
             this.keyword = keyword;
@@ -450,9 +556,23 @@ public class HistoryWindow
         
         public void run()
         {
-            msgList = msgHistory.findByKeyword(
-                    metaContact, keyword);
-            
+            if (historyContact instanceof MetaContact)
+            {
+                msgList = msgHistory.findByKeyword(
+                    (MetaContact) historyContact, keyword);
+            }
+            else if (historyContact instanceof ChatRoomWrapper)
+            {
+                ChatRoomWrapper chatRoomWrapper
+                    = (ChatRoomWrapper) historyContact;
+
+                if (chatRoomWrapper.getChatRoom() == null)
+                    return;
+
+                msgList = msgHistory.findByKeyword(
+                    chatRoomWrapper.getChatRoom(), keyword);
+            }
+
             Object[] msgArray = msgList.toArray();
             Date date = null;
                         
@@ -528,18 +648,21 @@ public class HistoryWindow
      */
     protected void close(boolean isEscaped)
     {
-        if(chatConvPanel.getRightButtonMenu().isVisible()) {
+        if(chatConvPanel.getRightButtonMenu().isVisible())
+        {
             chatConvPanel.getRightButtonMenu().setVisible(false);
         }
-        else if(historyMenu.isPopupMenuVisible()) {
+        else if(historyMenu.isPopupMenuVisible())
+        {
             MenuSelectionManager menuSelectionManager
                 = MenuSelectionManager.defaultManager();
             menuSelectionManager.clearSelectedPath();
         }
-        else {
-            this.mainFrame.getContactListPanel()
-                .getContactList().removeHistoryWindowForContact(metaContact);
-            
+        else
+        {
+            mainFrame.getHistoryWindowManager()
+                .removeHistoryWindowForContact(historyContact);
+
             this.dispose();
         }
     }
@@ -598,12 +721,19 @@ public class HistoryWindow
      * @param messageType INCOMING or OUTGOING
      * @param messageContent the content text of the message
      */
-    private void processMessage(Contact contact, Date timestamp,
-        String messageType, String messageContent, String messageContentType)
+    private void processMessage(Contact contact,
+                                Date timestamp,
+                                String messageType,
+                                String messageContent,
+                                String messageContentType)
     {
-        Contact containedContact = metaContact.getContact(
-            contact.getAddress(), contact.getProtocolProvider());
-        
+        if (!(historyContact instanceof MetaContact))
+            return;
+
+        Contact containedContact = ((MetaContact) historyContact)
+            .getContact(contact.getAddress(),
+                        contact.getProtocolProvider());
+
         if(containedContact != null)
         {
             int lastDateIndex = datesPanel.getDatesNumber() - 1;
@@ -657,11 +787,29 @@ public class HistoryWindow
 
         try {
             doc.insertAfterEnd(root
-                    .getElement(root.getElementCount() - 1), chatString);            
+                    .getElement(root.getElementCount() - 1), chatString);
         } catch (BadLocationException e) {
             logger.error("Insert in the HTMLDocument failed.", e);
         } catch (IOException e) {
             logger.error("Insert in the HTMLDocument failed.", e);
         }
+    }
+
+    public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void messageReceived(ChatRoomMessageReceivedEvent evt)
+    {
+        // TODO Auto-generated method stub
+        
     }
 }

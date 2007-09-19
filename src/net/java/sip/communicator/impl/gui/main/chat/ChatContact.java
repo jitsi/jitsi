@@ -26,23 +26,23 @@ import net.java.sip.communicator.util.*;
 public class ChatContact
 {
     private Logger logger = Logger.getLogger(ChatContact.class);
-    
+
     private String name;
-     
+
     private String address;
-    
+
     private ImageIcon image;
-    
+
     private ProtocolProviderService protocolProvider;
-    
+
     private PresenceStatus presenceStatus;
-    
+
     private boolean isMultiChatContact;
-    
+
     private Object sourceContact;
-    
+
     private boolean isSelected;
-    
+
     /**
      * Creates an instance of <tt>ChatContact</tt> by passing to it the
      * <tt>Contact</tt> for which it is created.

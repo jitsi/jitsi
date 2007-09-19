@@ -102,7 +102,7 @@ public class ChatWindowManager
                 chatWindow.setCurrentChatPanel(chatPanel);
                 
                 chatPanel.setCaretToEnd();
-            }            
+            }
         }
     }
     
@@ -118,7 +118,7 @@ public class ChatWindowManager
         synchronized (syncChat)
         {
             if(containsChat(metaContact)
-                && getChat(metaContact).isVisible())
+                && getChat(metaContact).isShown())
                 return true;
             
             return false;
@@ -138,7 +138,7 @@ public class ChatWindowManager
         synchronized (syncChat)
         {
             if(containsChat(chatRoomWrapper)
-                && getChat(chatRoomWrapper).isVisible())
+                && getChat(chatRoomWrapper).isShown())
                 return true;
             
             return false;
@@ -176,7 +176,7 @@ public class ChatWindowManager
             }
             
             if(containsChat(chatRoomWrapper)
-                && getChat(chatRoomWrapper).isVisible())
+                && getChat(chatRoomWrapper).isShown())
                 return true;
             
             return false;
@@ -554,6 +554,7 @@ public class ChatWindowManager
      */
     private ConferenceChatPanel createChat(ChatRoomWrapper chatRoomWrapper)
     {
+        
         ChatWindow chatWindow;
 
         if(Constants.TABBED_CHAT_WINDOW)
@@ -561,18 +562,18 @@ public class ChatWindowManager
             if(this.chatWindow == null)
             {
                 this.chatWindow = new ChatWindow(mainFrame);
-                
+
                 GuiActivator.getUIService()
                     .registerExportedWindow(this.chatWindow);
             }
-            
+
             chatWindow = this.chatWindow;
         }
         else
         {
             chatWindow = new ChatWindow(mainFrame);
             GuiActivator.getUIService().registerExportedWindow(chatWindow);
-            
+
             this.chatWindow = chatWindow;
         }
 

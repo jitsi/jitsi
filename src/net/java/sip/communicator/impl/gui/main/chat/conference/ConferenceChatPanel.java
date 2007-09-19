@@ -364,6 +364,6 @@ public class ConferenceChatPanel
 
     public void chatRoomPropertyChangeFailed(
         ChatRoomPropertyChangeFailedEvent event)
-    {   
+    {
     }
 }

@@ -12,9 +12,11 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -36,6 +38,8 @@ public class MultiUserChatManager
     private MainFrame mainFrame;
 
     private ChatWindowManager chatWindowManager;
+
+    private Hashtable chatRoomHistory = new Hashtable();
 
     /**
      * Creates an instance of <tt>MultiUserChatManager</tt>, by passing to it
@@ -254,17 +258,21 @@ public class MultiUserChatManager
             {
                 chatRoomsList.refresh();
 
+                ConferenceChatPanel chatPanel
+                    = (ConferenceChatPanel) chatWindowManager
+                        .getMultiChat(chatRoomWrapper);
+
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
                 // wrapper.
                 if(chatWindowManager
                     .isChatOpenedForChatRoom(chatRoomWrapper))
                 {
-                    ConferenceChatPanel chatPanel
-                        = (ConferenceChatPanel) chatWindowManager
-                            .getMultiChat(chatRoomWrapper);
-
                     chatPanel.loadChatRoom(sourceChatRoom);
+                }
+                else
+                {
+                    chatWindowManager.openChat(chatPanel, true);
                 }
             }
 
@@ -282,7 +290,12 @@ public class MultiUserChatManager
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED))
         {
-            
+            new ErrorDialog(mainFrame,
+                Messages.getI18NString("failedToJoinChatRoom",
+                    new String[]{sourceChatRoom.getName()})
+                        .getText() + evt.getReason(),
+                Messages.getI18NString("error").getText())
+                    .showDialog();
         }
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
@@ -549,7 +562,7 @@ public class MultiUserChatManager
                     Messages.getI18NString("error").getText())
                         .showDialog();
             }
-            
+
             logger.error("Failed to join chat room: "
                 + chatRoom.getName(), e);
         }
@@ -563,5 +576,53 @@ public class MultiUserChatManager
     public MainFrame getMainFrame()
     {
         return mainFrame;
+    }
+
+    /**
+     * Checks if there's an open history window for the given chat room.
+     * 
+     * @param chatRoomWrapper the chat room wrapper to check for
+     * @return TRUE if there's an opened history window for the given chat room,
+     *         FALSE otherwise.
+     */
+    public boolean containsHistoryWindowForChatRoom(
+        ChatRoomWrapper chatRoomWrapper)
+    {
+        return chatRoomHistory.containsKey(chatRoomWrapper);
+    }
+
+    /**
+     * Returns the history window for the given chat room.
+     * 
+     * @param chatRoomWrapper the chat room wrapper to search for
+     * @return the history window for the given chat room
+     */
+    public HistoryWindow getHistoryWindowForChatRoom(
+        ChatRoomWrapper chatRoomWrapper)
+    {
+        return (HistoryWindow) chatRoomHistory.get(chatRoomWrapper);
+    }
+
+    /**
+     * Adds a history window for a given chat room in the table of opened
+     * history windows.
+     * 
+     * @param chatRoomWrapper the chat room wrapper to add
+     * @param historyWindow the history window to add
+     */
+    public void addHistoryWindowForChatRoom(ChatRoomWrapper chatRoomWrapper,
+        HistoryWindow historyWindow)
+    {
+        chatRoomHistory.put(chatRoomWrapper, historyWindow);
+    }
+
+    /**
+     * Removes the history window for the given chat room.
+     * 
+     * @param chatRoomWrapper the chat room wrapper to remove the history window
+     */
+    public void removeHistoryWindowForChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {
+        chatRoomHistory.remove(chatRoomWrapper);
     }
 }

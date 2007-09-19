@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
@@ -72,6 +73,9 @@ public class MainFrame
     private ChatWindowManager chatWindowManager;
     
     private MultiUserChatManager multiUserChatManager;
+
+    private HistoryWindowManager historyWindowManager
+        = new HistoryWindowManager();
     
     /**
      * Creates an instance of <tt>MainFrame</tt>.
@@ -79,15 +83,15 @@ public class MainFrame
     public MainFrame()
     {
         this.chatWindowManager = new ChatWindowManager(this);
-        
+
         callManager = new CallManager(this);
         multiUserChatManager = new MultiUserChatManager(this);
-        
+
         tabbedPane = new MainTabbedPane(this);
         quickMenu = new QuickMenu(this);
         statusPanel = new StatusPanel(this);
         menu = new MainMenu(this);
-        
+
         this.addWindowListener(new MainFrameWindowAdapter());
 
         this.setInitialBounds();
@@ -1013,7 +1017,15 @@ public class MainFrame
     {
         return chatWindowManager;
     }
-    
+
+    /**
+     * Returns the <tt>HistoryWindowManager</tt>.
+     * @return the <tt>HistoryWindowManager</tt>
+     */
+    public HistoryWindowManager getHistoryWindowManager()
+    {
+        return historyWindowManager;
+    }
 
     /**
      * Returns the class that manages all chat room invitation and message

@@ -17,7 +17,6 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -66,8 +65,6 @@ public class ContactList
     private GroupRightButtonMenu groupRightButtonMenu;
 
     private ContactRightButtonMenu contactRightButtonMenu;
-
-    private Hashtable contactHistory = new Hashtable();
 
     private ContactListDraggable draggedElement;
     
@@ -1341,51 +1338,5 @@ public class ContactList
     public MainFrame getMainFrame()
     {
         return mainFrame;
-    }
-
-    /**
-     * Checks if there's an open history window for the given contact.
-     * 
-     * @param contact the contact to check for
-     * @return TRUE if there's an opened history window for the given contact,
-     *         FALSE otherwise.
-     */
-    public boolean containsHistoryWindowForContact(MetaContact contact)
-    {
-        return contactHistory.containsKey(contact);
-    }
-
-    /**
-     * Returns the history window for the given contact.
-     * 
-     * @param contact the contact to search for
-     * @return the history window for the given contact
-     */
-    public HistoryWindow getHistoryWindowForContact(MetaContact contact)
-    {
-        return (HistoryWindow) contactHistory.get(contact);
-    }
-
-    /**
-     * Adds a history window for a given contact in the table of opened history
-     * windows.
-     * 
-     * @param contact the contact to add
-     * @param historyWindow the history window to add
-     */
-    public void addHistoryWindowForContact(MetaContact contact,
-        HistoryWindow historyWindow)
-    {
-        contactHistory.put(contact, historyWindow);
-    }
-
-    /**
-     * Removes the history window for the given contact.
-     * 
-     * @param contact the contact to remove the history window
-     */
-    public void removeHistoryWindowForContact(MetaContact contact)
-    {
-        contactHistory.remove(contact);
     }
 }
