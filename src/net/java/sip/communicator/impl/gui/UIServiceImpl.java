@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
@@ -609,6 +610,23 @@ public class UIServiceImpl
 
         MetaContactChatPanel chatPanel
             = chatWindowManager.getContactChat(metaContact);
+
+        return chatPanel;
+    }
+
+    /**
+     * Returns the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
+     * 
+     * @param chatRoom the <tt>ChatRoom</tt> for which the searched chat is
+     * about.
+     * @return the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
+     */
+    public Chat getChat(ChatRoom chatRoom)
+    {
+        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
+
+        ConferenceChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoom);
 
         return chatPanel;
     }

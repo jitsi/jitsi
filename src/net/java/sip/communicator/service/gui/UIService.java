@@ -263,7 +263,16 @@ public interface UIService
      * @return the <tt>Chat</tt> corresponding to the given <tt>Contact</tt>.
      */
     public Chat getChat(Contact contact);
-    
+
+    /**
+     * Returns the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
+     * 
+     * @param chatRoom the <tt>ChatRoom</tt> for which the searched chat is
+     * about.
+     * @return the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
+     */
+    public Chat getChat(ChatRoom chatRoom);
+
     /**
      * Returns the selected <tt>Chat</tt>.
      * 
