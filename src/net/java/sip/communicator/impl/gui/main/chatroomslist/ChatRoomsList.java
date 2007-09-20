@@ -303,23 +303,23 @@ public class ChatRoomsList
      */
     public MultiUserChatServerWrapper findServerWrapperFromProvider(
         ProtocolProviderService protocolProvider)
-    {   
+    {
         for(int i = 0; i < listModel.getSize(); i ++)
-        {   
+        {
             Object listItem = listModel.get(i);
-            
+
             if(listItem instanceof MultiUserChatServerWrapper)
             {
                 MultiUserChatServerWrapper serverWrapper
                     = (MultiUserChatServerWrapper) listItem;
-            
+
                 if(protocolProvider.equals(serverWrapper.getProtocolProvider()))
                 {
                     return serverWrapper;
                 }
             }
         }
-        
+
         return null;
     }
 

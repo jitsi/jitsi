@@ -31,7 +31,7 @@ public class IrcStack
     /**
      * Timeout for server response.
      */
-    private int timeout = 5000;
+    private int timeout = 10000;
 
     /**
      * A list of timers indicating when a chat room join fails.
@@ -66,6 +66,16 @@ public class IrcStack
      * The operation response code indicates 
      */
     private int operationResponseCode = 0;
+
+    /**
+     * Indicates if the IRC server has been initialized.
+     */
+    private boolean isInitialized = false;
+
+    /**
+     * Keeps all join requests received before the server is initialized.
+     */
+    private ArrayList joinCache = new ArrayList();
 
     /**
      * Creates an instance of <tt>IrcStack</tt>.
@@ -153,8 +163,9 @@ public class IrcStack
             RegistrationState.REGISTERED,
             RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
 
+        // It should be done when a getExistingChatRooms request is processed.
         // Obtain information for all channels on this server.
-        this.listChannels();
+        // this.listChannels();
     }
 
     /**
@@ -429,11 +440,21 @@ public class IrcStack
         ChatRoomIrcImpl chatRoom
             = (ChatRoomIrcImpl) ircMUCOpSet.findRoom(channel);
 
+        if(joinTimeoutTimers.containsKey(chatRoom))
+        {
+            Timer timer = (Timer) joinTimeoutTimers.get(chatRoom);
+
+            timer.cancel();
+            joinTimeoutTimers.remove(chatRoom);
+        }
+
         if(chatRoom.getUserNickname().equals(sender))
+        {
             ircMUCOpSet.fireLocalUserPresenceEvent(
                 chatRoom,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
                 "");
+        }
         else
         {
             ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(
@@ -1128,11 +1149,23 @@ public class IrcStack
                 this.onWhoIs(userInfo);
             }
         }
+        else if (code == RPL_ENDOFMOTD)
+        {
+            this.isInitialized = true;
+
+            ArrayList joinCacheCopy = new ArrayList(joinCache);
+
+            joinCache.clear();
+
+            for (int i = 0; i < joinCacheCopy.size(); i ++)
+            {
+                this.join((ChatRoom) joinCacheCopy.get(i));
+            }
+        }
         else if (code != RPL_LISTSTART
                     && code != RPL_LIST
                     && code != RPL_LISTEND
-                    && code != RPL_ENDOFNAMES
-                    && code != RPL_ENDOFMOTD)
+                    && code != RPL_ENDOFNAMES)
         {
             logger.trace(
                 "Server response: Code : "
@@ -1408,7 +1441,7 @@ public class IrcStack
      */
     protected void onUnknown(String line)
     {
-        logger.error("Unknown message received from the server : " + line);
+        logger.trace("Unknown message received from the server : " + line);
     }
 
     /**
@@ -1557,12 +1590,19 @@ public class IrcStack
      */
     public void join(ChatRoom chatRoom)
     {
+        if (!isInitialized)
+        {
+            joinCache.add(chatRoom);
+
+            return;
+        }
+
         this.joinChannel(chatRoom.getName());
-        
+
         Timer joinTimeoutTimer = new Timer();
 
         joinTimeoutTimers.put(chatRoom, joinTimeoutTimer);
-        
+
         joinTimeoutTimer.schedule(new JoinTimeoutTask(chatRoom), timeout);
     }
 
@@ -1818,8 +1858,8 @@ public class IrcStack
                 .getOperationSet(OperationSetMultiUserChat.class))
                     .fireLocalUserPresenceEvent(chatRoom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED,
-                    "An error occured while joining the " + chatRoom.getName()
-                    + " chat room.");
+                    "Failed to join the  " + chatRoom.getName()
+                    + " chat room, because there is no response from the server.");
         }
     }
 

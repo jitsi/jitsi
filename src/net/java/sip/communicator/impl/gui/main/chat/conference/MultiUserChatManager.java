@@ -16,7 +16,6 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -151,8 +150,24 @@ public class MultiUserChatManager
         Date date = evt.getTimestamp();
         Message message = evt.getMessage();
 
-        ConferenceChatPanel chatPanel
-            = chatWindowManager.getMultiChat(sourceChatRoom);
+        ChatRoomsList chatRoomList
+            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
+
+        ConferenceChatPanel chatPanel = null;
+
+        if(sourceChatRoom.isSystem())
+        {
+            MultiUserChatServerWrapper serverWrapper
+                = chatRoomList.findServerWrapperFromProvider(
+                    sourceChatRoom.getParentProvider());
+
+            chatPanel = chatWindowManager.getMultiChat(
+                serverWrapper.getSystemRoomWrapper());
+        }
+        else
+        {
+            chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
+        }
 
         chatPanel.processMessage(
             sourceMember.getName(), date,
@@ -165,11 +180,12 @@ public class MultiUserChatManager
         // Fire notification
         String title = Messages.getI18NString("msgReceived",
             new String[]{sourceMember.getName()}).getText();
-        
-        NotificationManager.fireNotification(
-                                        NotificationManager.INCOMING_MESSAGE,
-                                        title,
-                                        message.getContent());
+
+        NotificationManager.fireChatNotification(
+            sourceChatRoom,
+            NotificationManager.INCOMING_MESSAGE,
+            title,
+            message.getContent());
     }    
 
     /**

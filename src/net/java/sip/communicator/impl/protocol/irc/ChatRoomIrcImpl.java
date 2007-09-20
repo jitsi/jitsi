@@ -111,7 +111,7 @@ public class ChatRoomIrcImpl
     public ChatRoomIrcImpl( String chatRoomName,
                             ProtocolProviderServiceIrcImpl parentProvider)
     {
-        this(chatRoomName, parentProvider, false);
+        this(chatRoomName, parentProvider, false, false);
     }
 
     /**
@@ -125,11 +125,13 @@ public class ChatRoomIrcImpl
      */
     public ChatRoomIrcImpl( String chatRoomName,
                             ProtocolProviderServiceIrcImpl parentProvider,
-                            boolean isPrivate)
+                            boolean isPrivate,
+                            boolean isSystem)
     {
         this.parentProvider = parentProvider;
         this.chatRoomName = chatRoomName;
         this.isPrivate = isPrivate;
+        this.isSystem = isSystem;
     }
 
     /**

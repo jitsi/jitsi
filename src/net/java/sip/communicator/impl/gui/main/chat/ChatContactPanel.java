@@ -148,7 +148,7 @@ public class ChatContactPanel
         }
         else
         {
-            if (pps.getOperationSet(OperationSetBasicTelephony.class) == null)  
+            if (pps.getOperationSet(OperationSetBasicTelephony.class) == null)
                 this.callButton.setEnabled(false);
 
             if (pps.getOperationSet(OperationSetFileTransfer.class) == null)
@@ -270,7 +270,6 @@ public class ChatContactPanel
                 Vector v = new Vector();
                 v.add(m.getDefaultContact(OperationSetBasicTelephony.class));
                 cm.createCall(v);
-                        
             }
         }
         else if(button.getName().equals("info"))

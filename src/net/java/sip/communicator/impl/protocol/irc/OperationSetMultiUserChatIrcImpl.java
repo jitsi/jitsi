@@ -387,7 +387,7 @@ public class OperationSetMultiUserChatIrcImpl
                 return (ChatRoomIrcImpl) privateRoomCache.get(nickIdentifier);
 
             ChatRoomIrcImpl chatRoom
-                = new ChatRoomIrcImpl(nickIdentifier, ircProvider, true);
+                = new ChatRoomIrcImpl(nickIdentifier, ircProvider, true, false);
 
             privateRoomCache.put(nickIdentifier, chatRoom);
 
@@ -449,7 +449,10 @@ public class OperationSetMultiUserChatIrcImpl
         if(serverChatRoom == null)
         {
             serverChatRoom = new ChatRoomIrcImpl(
-                ircProvider.getAccountID().getService(), ircProvider);
+                ircProvider.getAccountID().getService(),
+                ircProvider,
+                false, // is private room
+                true); // is system room
 
             this.fireLocalUserPresenceEvent(
                 serverChatRoom,
