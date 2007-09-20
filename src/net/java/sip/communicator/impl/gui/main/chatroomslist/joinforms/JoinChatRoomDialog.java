@@ -216,7 +216,7 @@ public class JoinChatRoomDialog
         if(list != null)
         {
             if(list.size() == 0)
-                list.add(Messages.getI18NString("noAvailableRooms"));
+                list.add(Messages.getI18NString("noAvailableRooms").getText());
 
             chatRoomsList.setListData(new Vector(list));
             chatRoomsScrollPane.setPreferredSize(new Dimension(500, 120));
