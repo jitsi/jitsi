@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.utils;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -115,12 +116,13 @@ public class NotificationManager
      * Fires a chat message notification for the given event type through the
      * <tt>NotificationService</tt>.
      * 
-     * @param contact the contact to which the chat message corresponds
+     * @param contact the chat contact to which the chat message corresponds;
+     * the chat contact could be a Contact or a ChatRoom.
      * @param eventType the event type for which we fire a notification
      * @param messageTitle the title of the message
      * @param message the content of the message
      */
-    public static void fireChatNotification(Contact contact,
+    public static void fireChatNotification(Object contact,
                                             String eventType,
                                             String messageTitle,
                                             String message)
@@ -133,8 +135,22 @@ public class NotificationManager
 
         NotificationActionHandler popupActionHandler = null;
 
+        Chat chatPanel = null;
+
+        if (contact instanceof Contact)
+            chatPanel = GuiActivator.getUIService().getChat((Contact) contact);
+        else if (contact instanceof ChatRoom)
+        {
+            // For system rooms we don't want to send notification events.
+            if ((contact instanceof ChatRoom)
+                && ((ChatRoom) contact).isSystem())
+                return;
+
+            chatPanel = GuiActivator.getUIService().getChat((ChatRoom) contact);
+        }
+
         if(eventType.equals(INCOMING_MESSAGE)
-            && GuiActivator.getUIService().getChat(contact).isChatFocused())
+            && chatPanel.isChatFocused())
         {
             popupActionHandler = notificationService
                 .getEventNotificationActionHandler(
