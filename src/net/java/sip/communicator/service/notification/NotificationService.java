@@ -212,7 +212,7 @@ public interface NotificationService
      * @param eventType the name of the event that we'd like to retrieve actions
      * for.
      * @return a <tt>Map</tt> containing the <tt>actionType</tt>s (as keys) and
-     * <tt>actionDescriptor</tt>s (as values) that should be executed when
+     * <tt>actionHandler</tt>s (as values) that should be executed when
      * an event with the specified name has occurred, or null if no actions
      * have been defined for <tt>eventType</tt>.
      */
