@@ -419,9 +419,9 @@ public class ChatWindowManager
      * @param chatPanel the chat panel to close.
      */
     private void closeChatPanel(ChatPanel chatPanel)
-    {        
+    {
         this.chatWindow.removeChat(chatPanel);
-        
+
         synchronized (chats)
         {
             chats.remove(chatPanel.getChatIdentifier());

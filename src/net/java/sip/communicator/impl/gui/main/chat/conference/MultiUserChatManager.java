@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -316,16 +318,7 @@ public class MultiUserChatManager
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
         {
-            ChatWindowManager chatWindowManager
-                = mainFrame.getChatWindowManager();
-
-            if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
-            {
-                ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-                chatWindowManager.closeChat(chatPanel);
-            }
+            this.closeChatRoom(chatRoomWrapper);
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
@@ -337,16 +330,7 @@ public class MultiUserChatManager
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED))
         {
-            ChatWindowManager chatWindowManager
-                = mainFrame.getChatWindowManager();
-
-            if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
-            {
-                ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-                chatWindowManager.closeChat(chatPanel);
-            }
+            this.closeChatRoom(chatRoomWrapper);
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
@@ -358,16 +342,7 @@ public class MultiUserChatManager
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED))
         {
-            ChatWindowManager chatWindowManager
-                = mainFrame.getChatWindowManager();
-
-            if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
-            {
-                ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-                chatWindowManager.closeChat(chatPanel);
-            }
+            this.closeChatRoom(chatRoomWrapper);
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
@@ -640,5 +615,33 @@ public class MultiUserChatManager
     public void removeHistoryWindowForChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
         chatRoomHistory.remove(chatRoomWrapper);
+    }
+
+    /**
+     * Closes the chat corresponding to the given chat room wrapper, if such
+     * exists.
+     * 
+     * @param chatRoomWrapper the chat room wrapper for which we search a chat
+     * to close.
+     */
+    private void closeChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {
+        final ChatWindowManager chatWindowManager
+            = mainFrame.getChatWindowManager();
+
+        if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
+        {
+            final ChatPanel chatPanel
+                = chatWindowManager.getMultiChat(chatRoomWrapper);
+
+            // We have to be sure that we close the chat in the swing thread
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    chatWindowManager.closeChat(chatPanel);
+                }
+            });
+        }
     }
 }

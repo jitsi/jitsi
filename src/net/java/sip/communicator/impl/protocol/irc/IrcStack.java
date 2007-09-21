@@ -559,6 +559,13 @@ public class IrcStack
             ChatRoomIrcImpl chatRoom
                 = (ChatRoomIrcImpl) joinedChatRoomsIter.next();
 
+            if (chatRoom.getUserNickname().equals(oldNick))
+            {
+                chatRoom.setNickName(newNick);
+
+                return;
+            }
+
             ChatRoomMember member = chatRoom.getChatRoomMember(oldNick);
 
             if (member == null)
@@ -679,10 +686,28 @@ public class IrcStack
             = (ChatRoomIrcImpl) ircMUCOpSet.findRoom(channel);
 
         if(chatRoom.getUserNickname().equals(sender))
+        {
             ircMUCOpSet.fireLocalUserPresenceEvent(
                 chatRoom,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
                 "");
+
+            Iterator members = chatRoom.getMembers().iterator();
+
+            while(members.hasNext())
+            {
+                ChatRoomMember member = (ChatRoomMember) members.next();
+
+                chatRoom.fireMemberPresenceEvent(
+                    member,
+                    null,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                    "Local user has left the chat room.");
+            }
+            
+            // Delete the list of members
+            chatRoom.clearChatRoomMemberList();
+        }
         else
         {
             ChatRoomMember member = chatRoom.getChatRoomMember(sender);
@@ -1459,7 +1484,7 @@ public class IrcStack
             logger.debug("NAMES on " + channel);
 
         ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-        
+
         chatRoom.clearChatRoomMemberList();
 
         for (int i = 0; i < users.length; i++)

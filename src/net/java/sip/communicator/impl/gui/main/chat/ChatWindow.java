@@ -235,22 +235,22 @@ public class ChatWindow
             
             return;
         }
-        
+
         //in the case of a tabbed chat window
         int index = chatTabbedPane.indexOfComponent(chatPanel);
-        
+
         if (index != -1)
         {
             if (chatTabbedPane.getTabCount() > 1)
                 chatTabbedPane.removeTabAt(index);
-            
+
             if (chatTabbedPane.getTabCount() == 1)
             {
                 ChatPanel currentChatPanel = (ChatPanel) this.chatTabbedPane
                     .getComponentAt(0);
 
                 this.chatTabbedPane.removeAll();
-                
+
                 this.getContentPane().remove(chatTabbedPane);
 
                 this.getContentPane().add(currentChatPanel, BorderLayout.CENTER);
@@ -272,7 +272,7 @@ public class ChatWindow
         if(getChatTabCount() > 0)
         {
             this.chatTabbedPane.removeAll();
-            
+
             this.getContentPane().remove(chatTabbedPane);
         }
         else

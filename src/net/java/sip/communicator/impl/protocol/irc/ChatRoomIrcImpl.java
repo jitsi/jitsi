@@ -102,6 +102,11 @@ public class ChatRoomIrcImpl
     private boolean isSystem = false;
 
     /**
+     * The nick name of the local user for this chat room.
+     */
+    private String userNickName;
+
+    /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
      * name and the protocol provider.
      *  
@@ -483,26 +488,26 @@ public class ChatRoomIrcImpl
      */
     public String getUserNickname()
     {
-        if (this.isJoined())
-            return this.parentProvider.getIrcStack().getNick();
-        
-        return null;
+        if(userNickName == null && isJoined())
+            userNickName =  parentProvider.getIrcStack().getNick();
+
+        return userNickName;
     }
-    
+
     /**
      * Changes the the local user's nickname in the context of this chat room.
      * If the operation is not supported by the underlying implementation, the
      * method throws an OperationFailedException with the corresponding code.
      * 
-     * @param nickname the new nickname within the room.
+     * @param nickName the new nickname within the room.
      * 
      * @throws OperationFailedException if the setting the new nickname changes
      *             for some reason.
      */
-    public void setUserNickname(String nickname)
+    public void setUserNickname(String nickName)
         throws OperationFailedException
     {
-        parentProvider.getIrcStack().setUserNickname(nickname);
+        parentProvider.getIrcStack().setUserNickname(nickName);
     }
 
     /**
@@ -1015,5 +1020,15 @@ public class ChatRoomIrcImpl
     protected void setSystem(boolean isSystem)
     {
         this.isSystem = isSystem;
+    }
+
+    /**
+     * Sets the nickName for this chat room.
+     * 
+     * @param nickName the nick name to set
+     */
+    protected void setNickName(String nickName)
+    {
+        this.userNickName = nickName;
     }
 }
