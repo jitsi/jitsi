@@ -35,8 +35,6 @@ public class ChatContact
 
     private ProtocolProviderService protocolProvider;
 
-    private PresenceStatus presenceStatus;
-
     private boolean isMultiChatContact;
 
     private Object sourceContact;
@@ -121,14 +119,20 @@ public class ChatContact
      * @return the current presence status for single user chat contacts and
      * null for multi user chat contacts
      */
-    public PresenceStatus getPresenceStatus()
+    public ImageIcon getStatusIcon()
     {
         if(!isMultiChatContact)
-            return ((Contact)sourceContact).getPresenceStatus();
-        
-        return null;
+        {
+            return new ImageIcon(Constants.getStatusIcon(
+                ((Contact)sourceContact).getPresenceStatus()));
+        }
+        else
+        {
+            return new ImageIcon(
+                Constants.getStatusIcon(Constants.ONLINE_STATUS));
+        }
     }
-    
+
     /**
      * Returns the <tt>ProtocolProviderService</tt> of the contact.
      * 
@@ -206,7 +210,7 @@ public class ChatContact
         {
             Image image = ImageLoader.getBytesInImage(contactImage);
             
-            return new ImageIcon(image.getScaledInstance(            
+            return new ImageIcon(image.getScaledInstance(
                             40, 45, Image.SCALE_SMOOTH));
         }
         else

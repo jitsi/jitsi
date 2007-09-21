@@ -292,6 +292,8 @@ public class MultiUserChatManager
                 {
                     chatWindowManager.openChat(chatPanel, true);
                 }
+
+                chatPanel.updateChatRoomStatus(Constants.ONLINE_STATUS);
             }
 
             if (sourceChatRoom.isSystem())

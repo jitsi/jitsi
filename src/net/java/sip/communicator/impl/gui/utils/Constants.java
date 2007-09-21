@@ -24,13 +24,29 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 
-public class Constants {
-
+public class Constants
+{
     private static Logger logger = Logger.getLogger(Constants.class);
 
+    /**
+     * Indicates that the user is connected and ready to communicate.
+     */
     public static final String ONLINE_STATUS = "Online";
 
+    /**
+     * Indicates that the user is disconnected.
+     */
     public static final String OFFLINE_STATUS = "Offline";
+
+    /**
+     * Indicates that the user is away.
+     */
+    public static final String AWAY_STATUS = "Away";
+
+    /**
+     * Indicates that the user is connected and eager to communicate.
+     */
+    public static final String FREE_FOR_CHAT_STATUS = "FreeForChat";
 
     /*
      * ===================================================================
@@ -384,7 +400,7 @@ public class Constants {
             else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
             {
                 return ImageLoader
-                .getImage(ImageLoader.USER_AWAY_ICON);
+                    .getImage(ImageLoader.USER_AWAY_ICON);
             }
             else if(connectivity
                         < PresenceStatus.EAGER_TO_COMMUNICATE_THRESSHOLD)
@@ -417,6 +433,15 @@ public class Constants {
         if (status.equals(ONLINE_STATUS))
             return ImageLoader
                 .getImage(ImageLoader.USER_ONLINE_ICON);
+        else if (status.equals(OFFLINE_STATUS))
+            return ImageLoader
+                .getImage(ImageLoader.USER_OFFLINE_ICON);
+        else if (status.equals(AWAY_STATUS))
+            return ImageLoader
+                .getImage(ImageLoader.USER_AWAY_ICON);
+        else if (status.equals(FREE_FOR_CHAT_STATUS))
+            return ImageLoader
+                .getImage(ImageLoader.USER_FFC_ICON);
         else
             return ImageLoader
                 .getImage(ImageLoader.USER_OFFLINE_ICON);

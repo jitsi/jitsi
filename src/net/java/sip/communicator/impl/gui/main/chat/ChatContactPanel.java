@@ -68,8 +68,6 @@ public class ChatContactPanel
 
     private ChatContact chatContact;
 
-    private PresenceStatus status;
-
     private ChatPanel chatPanel;
     
     /**
@@ -85,23 +83,21 @@ public class ChatContactPanel
 
         this.chatContact = contact;
 
-        this.status = chatContact.getPresenceStatus();
         this.chatPanel = chatPanel;
 
         // Adds a mouse listener, which when notified will open a right button
         // menu.
         this.addMouseListener(this);
-        
+
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-        
+
         this.setOpaque(false);
         this.mainPanel.setOpaque(false);
         this.buttonsPanel.setOpaque(false);
 
         this.personNameLabel.setText(chatContact.getName());
         this.personNameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
-        this.personNameLabel.setIcon(new ImageIcon(Constants
-                .getStatusIcon(status)));
+        this.personNameLabel.setIcon(chatContact.getStatusIcon());
 
         this.callButton.setToolTipText(
             Messages.getI18NString("call").getText());
@@ -185,7 +181,7 @@ public class ChatContactPanel
         else
             infoButton.setEnabled(true);
 
-        this.setStatusIcon(chatContact.getPresenceStatus());
+        this.updateStatusIcon();
     }
 
     /**
@@ -220,13 +216,12 @@ public class ChatContactPanel
     }
 
     /**
-     * Changes the status icon left to the contact name when the status changes.
-     *
-     * @param newStatus The new status.
+     * Changes the status icon left to the contact name. This method is called
+     * when the status changes.
      */
-    public void setStatusIcon(PresenceStatus newStatus) {
-        this.personNameLabel.setIcon(new ImageIcon(Constants
-                .getStatusIcon(newStatus)));
+    public void updateStatusIcon()
+    {
+        this.personNameLabel.setIcon(chatContact.getStatusIcon());
     }
 
     /**

@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -281,9 +282,8 @@ public class MetaContactChatPanel
             ChatContactPanel chatContactPanel
                 = getChatContactListPanel()
                     .getChatContactPanel(chatContact);
-            
-            chatContactPanel.setStatusIcon(
-                chatContact.getPresenceStatus());
+
+            chatContactPanel.updateStatusIcon();
         }
 
         // Show a status message to the user.
@@ -298,7 +298,7 @@ public class MetaContactChatPanel
         getChatConversationPanel().appendMessageToEnd(message);
 
         if(Constants.TABBED_CHAT_WINDOW)
-        {                
+        {
             if (getChatWindow().getChatTabCount() > 0) {
                 getChatWindow().setTabIcon(this,
                     new ImageIcon(Constants.getStatusIcon(newStatus)));
@@ -730,6 +730,6 @@ public class MetaContactChatPanel
     }
 
     public void inviteChatContact(String contactAddress, String reason)
-    {   
+    {
     }
 }

@@ -10,6 +10,8 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -316,14 +318,14 @@ public class ConferenceChatPanel
         {
             ChatContact chatContact
                 = new ChatContact((ChatRoomMember)membersList.get(i));
-            
+
             getChatContactListPanel()
                 .addContact(chatContact);
         }
 
         chatRoom.addPropertyChangeListener(this);
         chatRoom.addMemberPresenceListener(this);
-        
+
         // Load the subject of the chat room.
         subjectPanel.setSubject(chatRoom.getSubject());
     }
@@ -342,15 +344,19 @@ public class ConferenceChatPanel
             chatRoom.invite(contactAddress, reason);
     }
 
-    
-    public void chatRoomPropertyChanged(
-        ChatRoomPropertyChangeEvent evt)
+
+    /**
+     * Updates the chat panel when a property of the chat room has been modified.
+     * 
+     * @param evt the event containing information about the property change
+     */
+    public void chatRoomPropertyChanged(ChatRoomPropertyChangeEvent evt)
     {
         if(evt.getPropertyName().equals(
             ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT))
         {
             subjectPanel.setSubject((String) evt.getNewValue());
-            
+
             this.processMessage(
                 evt.getSourceChatRoom().getName(),
                 new Date(System.currentTimeMillis()),
@@ -362,8 +368,28 @@ public class ConferenceChatPanel
         }
     }
 
+    /**
+     * 
+     */
     public void chatRoomPropertyChangeFailed(
-        ChatRoomPropertyChangeFailedEvent event)
+        ChatRoomPropertyChangeFailedEvent evt)
     {
+        
+    }
+
+    /**
+     * Updates the status of this chat room.
+     * 
+     * @param status the new status of the chat room
+     */
+    public void updateChatRoomStatus(String status)
+    {
+        if(Constants.TABBED_CHAT_WINDOW)
+        {
+            if (getChatWindow().getChatTabCount() > 0) {
+                getChatWindow().setTabIcon(this,
+                    new ImageIcon(Constants.getStatusIcon(status)));
+            }
+        }
     }
 }

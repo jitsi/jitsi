@@ -150,7 +150,7 @@ public class ChatWindow
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     private void addSimpleChat(ChatPanel chatPanel)
-    {   
+    {
         this.getContentPane().add(chatPanel, BorderLayout.CENTER);
     }
 
