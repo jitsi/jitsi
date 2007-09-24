@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -47,16 +48,20 @@ public class ChatRoomRightButtonMenu
         = Messages.getI18NString("remove");
 
     private JMenuItem leaveChatRoomItem = new JMenuItem(
-        leaveChatRoomString.getText());
-    
+        leaveChatRoomString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.LEAVE_ICON)));
+
     private JMenuItem joinChatRoomItem = new JMenuItem(
-        joinChatRoomString.getText());
-    
+        joinChatRoomString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.JOIN_ICON)));
+
     private JMenuItem joinAsChatRoomItem = new JMenuItem(
-        joinAsChatRoomString.getText());
-    
+        joinAsChatRoomString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.JOIN_AS_ICON)));
+
     private JMenuItem removeChatRoomItem = new JMenuItem(
-        removeChatRoomString.getText());
+        removeChatRoomString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
 
     private MainFrame mainFrame;
     
@@ -85,31 +90,34 @@ public class ChatRoomRightButtonMenu
     private void init()
     {
         this.add(joinChatRoomItem);
-        this.add(joinAsChatRoomItem);        
+        this.add(joinAsChatRoomItem);
         this.add(leaveChatRoomItem);
         this.add(removeChatRoomItem);
-        
+
         this.joinChatRoomItem.setName("joinChatRoom");
         this.joinAsChatRoomItem.setName("joinAsChatRoom");
         this.leaveChatRoomItem.setName("leaveChatRoom");
         this.removeChatRoomItem.setName("removeChatRoom");
-        
+
         this.joinChatRoomItem
             .setMnemonic(joinChatRoomString.getMnemonic());
-        
+
         this.joinAsChatRoomItem
             .setMnemonic(joinAsChatRoomString.getMnemonic());
-    
+
         this.leaveChatRoomItem
             .setMnemonic(leaveChatRoomString.getMnemonic());
-    
+
         this.removeChatRoomItem
             .setMnemonic(removeChatRoomString.getMnemonic());
-    
+
         this.joinChatRoomItem.addActionListener(this);
         this.joinAsChatRoomItem.addActionListener(this);
         this.leaveChatRoomItem.addActionListener(this);
-        this.removeChatRoomItem.addActionListener(this);        
+        this.removeChatRoomItem.addActionListener(this);
+
+        // Initially the leave item is disabled until the chat room is joined.
+        // this.leaveChatRoomItem.setEnabled(false);
     }
 
     /**

@@ -547,7 +547,26 @@ public class ImageLoader {
      */
     public static final ImageID SYSTRAY_ENVELOPE_ICON
         = new ImageID("SYSTRAY_ENVELOPE_ICON");
-    
+
+    /**
+     * The image used to set to the chat room "join" right button menu.
+     */
+    public static final ImageID JOIN_ICON
+        = new ImageID("JOIN_ICON");
+
+    /**
+     * The image used to set to the chat room "join as" right button menu.
+     */
+    public static final ImageID JOIN_AS_ICON
+        = new ImageID("JOIN_AS_ICON");
+
+    /**
+     * The image used to set to the chat room "leave" right button menu.
+     */
+    public static final ImageID LEAVE_ICON
+        = new ImageID("LEAVE_ICON");
+
+
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**
