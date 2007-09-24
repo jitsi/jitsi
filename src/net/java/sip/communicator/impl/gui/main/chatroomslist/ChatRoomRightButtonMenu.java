@@ -69,16 +69,19 @@ public class ChatRoomRightButtonMenu
         
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
+     * @param mainFrame the main application window
+     * @param chatRoomWrapper the chat room wrapper, corresponding to the
+     * selected chat room
      */
-    public ChatRoomRightButtonMenu(MainFrame mainFrame,
-        ChatRoomWrapper chatRoomWrapper)
+    public ChatRoomRightButtonMenu( MainFrame mainFrame,
+                                    ChatRoomWrapper chatRoomWrapper)
     {
         super();
 
         this.mainFrame = mainFrame;
-        
+
         this.chatRoomWrapper = chatRoomWrapper;
-        
+
         this.setLocation(getLocation());
 
         this.init();
@@ -116,8 +119,14 @@ public class ChatRoomRightButtonMenu
         this.leaveChatRoomItem.addActionListener(this);
         this.removeChatRoomItem.addActionListener(this);
 
-        // Initially the leave item is disabled until the chat room is joined.
-        // this.leaveChatRoomItem.setEnabled(false);
+        if (chatRoomWrapper.getChatRoom() != null
+            && chatRoomWrapper.getChatRoom().isJoined())
+        {
+            this.joinAsChatRoomItem.setEnabled(false);
+            this.joinChatRoomItem.setEnabled(false);
+        }
+        else
+            this.leaveChatRoomItem.setEnabled(false);
     }
 
     /**
@@ -129,10 +138,10 @@ public class ChatRoomRightButtonMenu
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        final ChatRoom chatRoom = chatRoomWrapper.getChatRoom();    
-        
+        final ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+
         if (itemName.equals("removeChatRoom"))
-        {            
+        {
             ChatWindowManager chatWindowManager
                 = mainFrame.getChatWindowManager();
             
