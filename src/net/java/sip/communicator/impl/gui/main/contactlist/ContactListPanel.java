@@ -255,7 +255,7 @@ public class ContactListPanel
 
             if(eventType == MessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
             {
-                messageType = Constants.INCOMING_MESSAGE;                
+                messageType = Constants.INCOMING_MESSAGE;
             }
             else if(eventType == MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
             {
