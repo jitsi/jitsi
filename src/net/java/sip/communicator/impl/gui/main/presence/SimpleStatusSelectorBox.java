@@ -144,8 +144,7 @@ public class SimpleStatusSelectorBox
             }
         }
 
-        saveStatusInformation(
-                protocolProvider, Constants.OFFLINE_STATUS);
+        saveStatusInformation(protocolProvider, itemName);
     }
 
 

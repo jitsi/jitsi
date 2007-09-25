@@ -29,7 +29,8 @@ public abstract class StatusSelectorBox extends SIPCommMenu
      * on loging. Each time user logs in he's logged with the same status
      * as he was the last time before closing the application.
      */
-    protected void saveStatusInformation(ProtocolProviderService protocolProvider,
+    protected void saveStatusInformation(
+            ProtocolProviderService protocolProvider,
             String statusName)
     {
         ConfigurationService configService

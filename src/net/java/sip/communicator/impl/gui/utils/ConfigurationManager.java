@@ -226,17 +226,29 @@ public class ConfigurationManager
                 newMessageCommand);
     }
 
+    /**
+     * Saves a chat room through the <tt>ConfigurationService</tt>.
+     * 
+     * @param protocolProvider the protocol provider to which the chat room
+     * belongs
+     * @param oldChatRoomId the old identifier of the chat room
+     * @param newChatRoomId the new identifier of the chat room
+     * @param newChatRoomName the new chat room name
+     */
     public static void saveChatRoom(ProtocolProviderService protocolProvider,
-        String oldChatRoomId, String newChatRoomId, String newChatRoomName)
-    {   
+                                    String oldChatRoomId,
+                                    String newChatRoomId,
+                                    String newChatRoomName)
+    {
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
-        
+
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
 
         Iterator accountsIter = accounts.iterator();
 
-        while(accountsIter.hasNext()) {
+        while(accountsIter.hasNext())
+        {
             String accountRootPropName
                 = (String) accountsIter.next();
 
