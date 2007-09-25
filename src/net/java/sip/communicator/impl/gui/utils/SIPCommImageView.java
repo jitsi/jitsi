@@ -88,12 +88,8 @@ public class SIPCommImageView
         {
             fElement = elem;
 
-            // Request image from document's cache:
-            AttributeSet attr = elem.getAttributes();
-
             if (isURL())
             {
-
                 URL src = getSourceURL();
 
                 if (src != null)
@@ -110,10 +106,12 @@ public class SIPCommImageView
             }
             else
             {
-
                 /*--Code to load from relative path--*/
                 String src = (String) fElement.getAttributes().getAttribute(
                     HTML.Attribute.SRC);
+
+                if (src == null)
+                    return;
 
                 // fImage = Toolkit.getDefaultToolkit().createImage(src);
                 try
@@ -200,6 +198,9 @@ public class SIPCommImageView
     {
         String src = (String) fElement.getAttributes().getAttribute(
             HTML.Attribute.SRC);
+
+        if(src == null)
+            return false;
 
         return src.toLowerCase().startsWith("file")
             || src.toLowerCase().startsWith("http");
