@@ -45,6 +45,11 @@ public class ProtocolProviderServiceIrcImpl
     private Hashtable supportedOperationSets = new Hashtable();
 
     /**
+     * The operation set managing multi user chat.
+     */
+    private OperationSetMultiUserChatIrcImpl multiUserChat;
+
+    /**
      * A list of listeners interested in changes in our registration state.
      */
     private Vector registrationStateListeners = new Vector();
@@ -93,9 +98,8 @@ public class ProtocolProviderServiceIrcImpl
             this.accountID = accountID;
 
             //Initialize the multi user chat support
-            OperationSetMultiUserChatIrcImpl multiUserChat
-                = new OperationSetMultiUserChatIrcImpl(this);
-            
+            multiUserChat = new OperationSetMultiUserChatIrcImpl(this);
+
             supportedOperationSets.put(
                 OperationSetMultiUserChat.class.getName(), multiUserChat);
 
@@ -405,17 +409,18 @@ public class ProtocolProviderServiceIrcImpl
     public void unregister()
         throws OperationFailedException
     {
-        RegistrationState oldState = currentRegistrationState;
-        currentRegistrationState = RegistrationState.UNREGISTERED;
-        
+        Iterator joinedChatRooms
+            = multiUserChat.getCurrentlyJoinedChatRooms().iterator();
+
+        while (joinedChatRooms.hasNext())
+        {
+            ChatRoom joinedChatRoom = (ChatRoom) joinedChatRooms.next();
+
+            joinedChatRoom.leave();
+        }
+
         if (ircStack.isConnected())
             ircStack.disconnect();
-        
-        fireRegistrationStateChanged(
-            oldState
-            , currentRegistrationState
-            , RegistrationStateChangeEvent.REASON_USER_REQUEST
-            , null);
     }
 
     /**

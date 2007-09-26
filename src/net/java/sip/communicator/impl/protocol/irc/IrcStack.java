@@ -156,7 +156,9 @@ public class IrcStack
     {
         RegistrationState oldState
             = parentProvider.getCurrentRegistrationState();
-        parentProvider.setCurrentRegistrationState(RegistrationState.REGISTERED);
+
+        parentProvider
+            .setCurrentRegistrationState(RegistrationState.REGISTERED);
 
         parentProvider.fireRegistrationStateChanged(
             oldState,
@@ -166,6 +168,23 @@ public class IrcStack
         // It should be done when a getExistingChatRooms request is processed.
         // Obtain information for all channels on this server.
         // this.listChannels();
+    }
+
+    /**
+     * Called when we're disconnected from the IRC server.
+     */
+    protected void onDisconnect()
+    {
+        RegistrationState oldState
+            = parentProvider.getCurrentRegistrationState();
+
+        parentProvider
+            .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+
+        parentProvider.fireRegistrationStateChanged(
+            oldState,
+            RegistrationState.UNREGISTERED,
+            RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
     }
 
     /**
@@ -704,7 +723,7 @@ public class IrcStack
                     ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
                     "Local user has left the chat room.");
             }
-            
+
             // Delete the list of members
             chatRoom.clearChatRoomMemberList();
         }
