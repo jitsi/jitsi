@@ -8,14 +8,11 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
-
-import ymsg.support.*;
-import ymsg.network.*;
 import ymsg.network.event.*;
 
 /**
@@ -70,7 +67,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
         ProtocolProviderServiceYahooImpl provider)
     {
         this.yahooProvider = provider;
-        provider.addRegistrationStateChangeListener(new RegistrationStateListener());
+        provider.addRegistrationStateChangeListener(
+            new RegistrationStateListener());
     }
 
     /**
@@ -124,7 +122,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
     {
         return true;
     }
-    
+
     /**
      * Determines wheter the protocol supports the supplied content type
      *
@@ -193,13 +191,12 @@ public class OperationSetBasicInstantMessagingYahooImpl
                "The specified contact is not a Yahoo contact."
                + to);
 
-
         try
         {
             String toUserID = ((ContactYahooImpl) to).getID();
 
-            byte[] msgBytesToBeSent = message.getContent().getBytes();            
-            
+            byte[] msgBytesToBeSent = message.getContent().getBytes();
+
             // split the message in parts with max allowed length
             // and send them all
             do
@@ -444,11 +441,13 @@ public class OperationSetBasicInstantMessagingYahooImpl
         private void handleNewMessage(SessionEvent ev)
         {
             logger.debug("Message received : " + ev);
-            
+
+            String formattedMessage = processLinks(ev.getMessage());
+
             //As no indications in the protocol is it html or not. No harm
             //to set all messages html - doesn't affect the appearance of the gui
             Message newMessage = createMessage(
-                new MessageDecoder().decodeToHTML(ev.getMessage()).getBytes(),
+                formattedMessage.getBytes(),
                 CONTENT_TYPE_HTML,
                 DEFAULT_MIME_ENCODING,
                 null);
@@ -471,5 +470,127 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
             fireMessageEvent(msgReceivedEvt);
         }
+    }
+
+    /**
+     * Format links in the given message. Skips all links, which are already in
+     * HTML format and converts all other links.
+     * 
+     * @param message The source message string.
+     * @return The message string with properly formatted links.
+     */
+    private String processLinks(String message)
+    {
+        StringBuffer msgBuffer = new StringBuffer();
+
+        // We match two groups of Strings. The first group is the group of any
+        // String. The second group is a well formatted HTML link.
+        Pattern p = Pattern.compile("(.*?)(<a[\\s][^<]*(/>|</a>))",
+                                    Pattern.CASE_INSENSITIVE);
+
+        Matcher m = p.matcher(message);
+
+        int lastMatchIndex = 0;
+        while (m.find())
+        {
+            lastMatchIndex = m.end();
+
+            String matchGroup1 = m.group(1);
+            String matchGroup2 = m.group(2);
+
+            String formattedString = this.formatLinksToHTML(matchGroup1);
+
+            m.appendReplacement(msgBuffer,
+                replaceSpecialRegExpChars(formattedString) + matchGroup2);
+        }
+
+        String tailString = message.substring(lastMatchIndex);
+
+        String formattedTailString = formatLinksToHTML(tailString);
+
+        msgBuffer.append(formattedTailString);
+
+        return msgBuffer.toString();
+    }
+
+    /**
+     * Replaces some chars that are special in a regular expression.
+     * 
+     * @param text The initial text.
+     * @return the formatted text
+     */
+    private String replaceSpecialRegExpChars(String text)
+    {
+        return text.replaceAll("([.()^&$*|])", "\\\\$1");
+    }
+
+    /**
+     * Goes through the given text and converts all links to HTML links.
+     * <p>
+     * For example all occurrences of http://sip-communicator.org will be
+     * replaced by <a href="http://sip-communicator.org">
+     * http://sip-communicator.org</a\>. The same is true for all strings
+     * starting with "www".
+     * 
+     * @param text the text on which the regular expression would be performed 
+     * @return the initial text containing only HTML links
+     */
+    private String formatLinksToHTML(String text)
+    {
+        String wwwURL = "(www\\." + // Matches the "www" string.
+                        "[^/?#<\"'\\s]+" + // Matches at least one char of
+                                           // any type except / ? # < " '
+                                           // and space.
+                        "[\\.]" + // Matches the second point of the link.
+                        "[^?#<\"'\\s]+" +   // Matches at least one char of
+                                            // any type except ? # < " '
+                                            // and space.
+                        "(\\?[^#<\"'\\s]*)?" +
+                        "(#.*)?)";
+
+        String protocolURL
+                =   "([^\"'<>:/?#\\s]+" +   // Matches at least one char of
+                                            // any type except " ' < > : / ? #
+                                            // and space.
+                    "://" + // Matches the :// delimiter in links
+                    "[^/?#<\"'\\s]*" +  // Matches any number of times any char
+                                        // except / ? # < " ' and space.
+                    "[^?#<\"'\\s]*" +   // Matches any number of times any char
+                                        // except ? # < " ' and space.
+                    "(\\?[^#<\"'\\s]*)?" +
+                    "(#.*)?)";
+
+        String url = "(" + wwwURL + "|" + protocolURL + ")";
+
+        Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+
+        Matcher m = p.matcher(text);
+
+        StringBuffer linkBuffer = new StringBuffer();
+
+        String replacement;
+
+        while (m.find())
+        {
+            String linkGroup = m.group();
+
+            if (linkGroup.startsWith("www"))
+            {
+                replacement = "<A href=\"" + "http://"
+                    + linkGroup + "\">" + linkGroup + "</A>";
+            }
+            else
+            {
+                replacement = "<A href=\"" + linkGroup
+                    + "\">" + linkGroup + "</A>";
+            }
+
+            m.appendReplacement(linkBuffer,
+                replaceSpecialRegExpChars(replacement));
+        }
+
+        m.appendTail(linkBuffer);
+
+        return linkBuffer.toString();
     }
 }
