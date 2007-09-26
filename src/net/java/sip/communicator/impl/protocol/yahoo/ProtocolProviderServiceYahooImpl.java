@@ -509,7 +509,7 @@ public class ProtocolProviderServiceYahooImpl
                 fireRegistrationStateChanged(
                     getRegistrationState(),
                     RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);            
+                    RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
         }
     }
     
