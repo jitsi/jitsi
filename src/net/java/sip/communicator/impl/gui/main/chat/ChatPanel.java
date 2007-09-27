@@ -59,8 +59,14 @@ public abstract class ChatPanel
 
     private ChatWindow chatWindow;
 
+    /**
+     * Indicates that a typing notification event is successfully sent.
+     */
     public static final int TYPING_NOTIFICATION_SUCCESSFULLY_SENT = 1;
 
+    /**
+     * Indicates that sending a typing notification event has failed.
+     */
     public static final int TYPING_NOTIFICATION_SEND_FAILED = 0;
 
     private Date beginLastPageTimeStamp;
@@ -119,32 +125,112 @@ public abstract class ChatPanel
         );
     }
 
+    /**
+     * Returns the identifier of this chat. In the case of a single chat this
+     * method will return the <tt>MetaContact</tt> of the chat, otherwise it
+     * will return the <tt>ChatRoomWrapper</tt> corresponding to the chat room.
+     * 
+     * @return the identifier of this chat panel
+     */
     public abstract Object getChatIdentifier();
 
+    /**
+     * Returns the name of the chat. If this chat panel corresponds to a single
+     * chat it will return the name of the <tt>MetaContact</tt>, otherwise it
+     * will return the name of the chat room.
+     * 
+     * @return the name of the chat
+     */
     public abstract String getChatName();
 
-    public abstract PresenceStatus getChatStatus();
+    /**
+     * Implements the <tt>ChatPanel.getChatStatusIcon</tt> method.
+     *
+     * @return the status icon corresponding to this chat room
+     */
+    public abstract ImageIcon getChatStatusIcon();
 
+    /**
+     * Loads the history of the single or multi user chat corresponding to this
+     * chat panel.
+     */
     public abstract void loadHistory();
 
+    /**
+     * Loads the history of the single or multi user chat corresponding to this
+     * chat panel, by specifying the identifier of the message which should be
+     * ignored from the obtained history.
+     * 
+     * @param escapedMessageID the identifier of the message, which should be
+     * ignored from the obtained history.
+     */
     public abstract void loadHistory(String escapedMessageID);
 
+    /**
+     * Loads the previous page from history. This method would be called when
+     * user clicks on the left arrow button.
+     */
     public abstract void loadPreviousPageFromHistory();
 
+    /**
+     * Loads the next page from history. This method would be called when
+     * user clicks on the right arrow button.
+     */
     public abstract void loadNextPageFromHistory();
 
+    /**
+     * Sends the given text message to the chat corresponding to this chat
+     * panel.
+     * 
+     * @param text the text to send
+     */
     protected abstract void sendMessage(String text);
 
+    /**
+     * This method should be implemented in case additional treatment is needed
+     * of received messages before showing them to the user.
+     * 
+     * @param sourceContact the contact from which the message has been received
+     */
     public abstract void treatReceivedMessage(Contact sourceContact);
 
+    /**
+     * Sends a typing notification state.
+     * 
+     * @param typingState the typing notification state to send
+     * 
+     * @return the result of this operation. One of the TYPING_NOTIFICATION_XXX
+     * constants defined in this class
+     */
     public abstract int sendTypingNotification(int typingState);
 
+    /**
+     * Returns the date of the first message in the history of this chat.
+     * 
+     * @return the date of the first message in the history of this chat
+     */
     public abstract Date getFirstHistoryMsgTimestamp();
 
+    /**
+     * Returns the date of the last message in the history of this chat.
+     * 
+     * @return the date of the last message in the history of this chat
+     */
     public abstract Date getLastHistoryMsgTimestamp();
 
+    /**
+     * Invites a contact to join this chat.
+     * 
+     * @param contactAddress the address of the contact we invite
+     * @param reason the reason for the invite
+     */
     public abstract void inviteChatContact(String contactAddress, String reason);
 
+    /**
+     * Returns the chat window, where this chat panel is added.
+     * 
+     * @return the chat window, where this chat panel is added
+     */
     public ChatWindow getChatWindow()
     {
         return chatWindow;
@@ -171,22 +257,42 @@ public abstract class ChatPanel
     public void setStatusMessage(String statusMessage){
         this.sendPanel.setStatusMessage(statusMessage);
     }
-    
+
+    /**
+     * Returns the conversation panel, contained in this chat panel.
+     * 
+     * @return the conversation panel, contained in this chat panel
+     */
     public ChatConversationPanel getChatConversationPanel()
     {
         return this.conversationPanel;
     }
 
+    /**
+     * Returns the write area panel, contained in this chat panel.
+     * 
+     * @return the write area panel, contained in this chat panel
+     */
     public ChatWritePanel getChatWritePanel()
     {
         return this.writeMessagePanel;
     }
 
+    /**
+     * Returns the panel containing the list of contacts in this chat.
+     * 
+     * @return the panel containing the list of contacts in this chat
+     */
     public ChatContactListPanel getChatContactListPanel()
     {
         return this.chatContactListPanel;
     }
 
+    /**
+     * Returns the send panel, contained in this chat panel.
+     * 
+     * @return the send panel, contained in this chat panel
+     */
     public ChatSendPanel getChatSendPanel()
     {
         return this.sendPanel;
@@ -200,15 +306,16 @@ public abstract class ChatPanel
     private class TabSelectionComponentListener
         implements ComponentListener {
 
-        public TabSelectionComponentListener() {
+        public TabSelectionComponentListener()
+        {
             super();
         }
 
-        public void componentResized(ComponentEvent evt) {
-        }
+        public void componentResized(ComponentEvent evt)
+        {}
 
-        public void componentMoved(ComponentEvent evt) {
-        }
+        public void componentMoved(ComponentEvent evt)
+        {}
 
         public void componentShown(ComponentEvent evt)
         {
@@ -384,11 +491,16 @@ public abstract class ChatPanel
      * @param messageType The type of the message. One of OUTGOING_MESSAGE
      * or INCOMING_MESSAGE.
      * @param message The message text.
+     * @param contentType the content type of the message (html or plain text)
      *
-     * @return a string containingthe processed message.
+     * @return a string containing the processed message.
      */
-    public String processHistoryMessage(String contactName, Date date,
-            String messageType, String message, String contentType){
+    public String processHistoryMessage(String contactName,
+                                        Date date,
+                                        String messageType,
+                                        String message,
+                                        String contentType)
+    {
         String processedMessage
             = this.conversationPanel.processMessage(contactName, date,
                                             messageType, message, contentType);

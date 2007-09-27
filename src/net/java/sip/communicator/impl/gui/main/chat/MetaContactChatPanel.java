@@ -242,22 +242,25 @@ public class MetaContactChatPanel
     
     /**
      * Returns the identifier of this chat.
+     * 
+     * @return the identifier of this chat
      */
     public Object getChatIdentifier()
     {
         return metaContact;
     }
-    
+
     /**
-     * Returns the <tt>PresenceStatus</tt> of the default contact for this chat
-     * panel. Implements the <tt>ChatPanel.getChatStatus()</tt>.
-     * 
-     * @return the <tt>PresenceStatus</tt> of the default contact for this chat
-     * panel.
+     * Implements the <tt>ChatPanel.getChatStatusIcon</tt> method.
+     *
+     * @return the status icon corresponding to this chat room
      */
-    public PresenceStatus getChatStatus()
+    public ImageIcon getChatStatusIcon()
     {
-        return this.metaContact.getDefaultContact().getPresenceStatus();
+        PresenceStatus status
+            = this.metaContact.getDefaultContact().getPresenceStatus();
+
+        return new ImageIcon(Constants.getStatusIcon(status));
     }
 
     /**

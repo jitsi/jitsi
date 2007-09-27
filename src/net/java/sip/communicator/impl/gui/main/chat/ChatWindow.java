@@ -163,33 +163,30 @@ public class ChatWindow
     private void addChatTab(ChatPanel chatPanel)
     {
         String chatName = chatPanel.getChatName();
-        PresenceStatus status = chatPanel.getChatStatus();
-        
+
         if (getCurrentChatPanel() == null)
         {
-            this.getContentPane().add(chatPanel, BorderLayout.CENTER);            
+            this.getContentPane().add(chatPanel, BorderLayout.CENTER);
         }
         else
         {
             if (getChatTabCount() == 0)
-            {                
+            {
                 ChatPanel firstChatPanel = getCurrentChatPanel();
-                
-                PresenceStatus currentContactStatus = firstChatPanel
-                    .getChatStatus();
-                
-                // Add first two tabs to the tabbed pane.
-                chatTabbedPane.addTab(firstChatPanel.getChatName(),
-                    new ImageIcon(Constants.getStatusIcon(currentContactStatus)),
-                    firstChatPanel);
 
-                chatTabbedPane.addTab(chatName, new ImageIcon(Constants
-                    .getStatusIcon(status)), chatPanel);
-                
-                //when added to the tabbed pane, the first chat panel should rest
-                //the selected component
+                // Add first two tabs to the tabbed pane.
+                chatTabbedPane.addTab(  firstChatPanel.getChatName(),
+                                        chatPanel.getChatStatusIcon(),
+                                        firstChatPanel);
+
+                chatTabbedPane.addTab(  chatName,
+                                        chatPanel.getChatStatusIcon(),
+                                        chatPanel);
+
+                // When added to the tabbed pane, the first chat panel should
+                // rest the selected component.
                 chatTabbedPane.setSelectedComponent(firstChatPanel);
-                
+
                 // Workaround for the following problem:
                 // The scrollbar in the conversation area moves up when the
                 // scrollpane is resized. This happens when ChatWindow is in
@@ -198,7 +195,7 @@ public class ChatWindow
                 // conversation area is slightly resized and is made smaller,
                 // which moves the scrollbar up.
                 firstChatPanel.setCaretToEnd();
-                
+
                 //add the chatTabbedPane to the window
                 this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
                 this.getContentPane().validate();
@@ -207,14 +204,15 @@ public class ChatWindow
             {
                 // The tabbed pane contains already tabs.
 
-                chatTabbedPane.addTab(chatName, new ImageIcon(Constants
-                    .getStatusIcon(status)), chatPanel);
+                chatTabbedPane.addTab(  chatName,
+                                        chatPanel.getChatStatusIcon(),
+                                        chatPanel);
 
                 chatTabbedPane.getParent().validate();
             }
         }
     }
-    
+
     /**
      * Removes a given <tt>ChatPanel</tt> from this chat window.
      * 

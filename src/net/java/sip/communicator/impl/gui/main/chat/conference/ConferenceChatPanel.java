@@ -85,13 +85,19 @@ public class ConferenceChatPanel
     }
 
     /**
-     * Implements the <tt>ChatPanel.getChatStatus</tt> method.
+     * Implements the <tt>ChatPanel.getChatStatusIcon</tt> method.
      *
-     * @return the status of this chat room
+     * @return the status icon corresponding to this chat room
      */
-    public PresenceStatus getChatStatus()
+    public ImageIcon getChatStatusIcon()
     {
-        return null;
+        String status = Constants.OFFLINE_STATUS;
+
+        if(chatRoomWrapper.getChatRoom() != null
+            && chatRoomWrapper.getChatRoom().isJoined())
+            status = Constants.ONLINE_STATUS;
+
+        return new ImageIcon(Constants.getStatusIcon(status));
     }
 
     /**
