@@ -1031,4 +1031,14 @@ public class ChatRoomIrcImpl
     {
         this.userNickName = nickName;
     }
+
+    /**
+     * Sets the subject obtained from the server once we're connected.
+     * 
+     * @param subject the subject to set
+     */
+    protected void setSubjectFromServer(String subject)
+    {
+        this.chatSubject = subject;
+    }
 }

@@ -51,13 +51,13 @@ public class ConferenceChatPanel
         this.chatRoomWrapper = chatRoomWrapper;
 
         subjectPanel = new ChatRoomSubjectPanel(chatWindow, chatRoomWrapper);
-        
+
         // The subject panel is added here, because it's specific for the
         // multi user chat and is not contained in the single chat chat panel.
         this.add(subjectPanel, BorderLayout.NORTH);
-        
+
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-        
+
         if(chatRoom != null && chatRoom.isJoined())
         {
             this.loadChatRoom(chatRoom);

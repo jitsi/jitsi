@@ -491,7 +491,7 @@ public class ChatRoomsList
             }.start();
         }
     }
-    
+
     /**
      * Refreshes the chat room's list. Meant to be invoked when a modification
      * in a chat room is made and the list should be refreshed in order to show

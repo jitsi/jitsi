@@ -19,7 +19,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The panel containing the subject of the chat room.
+ * The panel containing the subject of the chat room and the configuration
+ * button.
  * 
  * @author Yana Stamcheva
  */
@@ -45,30 +46,39 @@ public class ChatRoomSubjectPanel
     
     /**
      * Creates the panel containing the chat room subject.
+     * 
+     * @param chatWindow the chat window, where this panel is added
+     * @param chatRoomWrapper the chat room wrapper, from which we obtain the
+     * chat room subject and the configuration information.
      */
-    public ChatRoomSubjectPanel(ChatWindow window,
-        ChatRoomWrapper chatRoomWrap)
+    public ChatRoomSubjectPanel(ChatWindow chatWindow,
+                                ChatRoomWrapper chatRoomWrapper)
     {
         super(new BorderLayout(5, 5));
 
-        this.chatRoomWrapper = chatRoomWrap;
-        this.chatWindow = window;
-        
+        this.chatRoomWrapper = chatRoomWrapper;
+        this.chatWindow = chatWindow;
+
         this.add(subjectLabel, BorderLayout.WEST);
         this.add(subjectField, BorderLayout.CENTER);
         this.add(configButton, BorderLayout.EAST);
 
         this.configButton.setPreferredSize(new Dimension(26, 26));
-        
+
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        
+
         this.configButton.addActionListener(new ConfigButtonActionListener());
-        
+
+        if(chatRoomWrapper.getChatRoom() != null)
+        {
+            this.subjectField.setText(
+                chatRoomWrapper.getChatRoom().getSubject());
+        }
         // The subject is set not editable until we implement this functionality.
         // TODO: Implement the editing of the chat room subject
         this.subjectField.setEditable(false);
     }
-    
+
     /**
      * Sets the subject in the corresponding field.
      * 
@@ -78,12 +88,16 @@ public class ChatRoomSubjectPanel
     {
         this.subjectField.setText(subject);
     }
-    
+
     /*
      * Opens the configuration dialog when the configure buttons is pressed.
      */
     private class ConfigButtonActionListener implements ActionListener
     {
+        /**
+         * Obtains and opens the configuration form of the corresponding chat
+         * room when user clicks on the configuration button.
+         */
         public void actionPerformed(ActionEvent evt)
         {   
             if(chatRoomWrapper.getChatRoom() == null)
@@ -94,11 +108,11 @@ public class ChatRoomSubjectPanel
                 ChatRoomConfigurationForm configForm
                     = chatRoomWrapper.getChatRoom()
                         .getConfigurationForm();
-                
+
                 ChatRoomConfigurationWindow configWindow
                     = new ChatRoomConfigurationWindow(
                         chatRoomWrapper.getChatRoomName(), configForm);
-                
+
                 configWindow.setVisible(true);
             }
             catch (OperationFailedException e)

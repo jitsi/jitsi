@@ -452,8 +452,7 @@ public class IrcStack
                             String login,
                             String hostname)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("JOIN on " + channel + ": Received from " + sender
+        logger.trace("JOIN on " + channel + ": Received from " + sender
                 + " " + login + "@" + hostname);
 
         ChatRoomIrcImpl chatRoom
@@ -1471,8 +1470,12 @@ public class IrcStack
             = new ChatRoomPropertyChangeEvent(
                 chatRoom,
                 ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT,
-                topic,
+                chatRoom.getSubject(),
                 topic);
+
+        // After creating the event with the old and new value of the subject
+        // we could change the subject property of the chat room.
+        chatRoom.setSubjectFromServer(topic);
 
         chatRoom.firePropertyChangeEvent(evt);
     }
