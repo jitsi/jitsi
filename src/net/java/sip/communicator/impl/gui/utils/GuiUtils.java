@@ -147,7 +147,32 @@ public class GuiUtils {
         
         return c1.getTime();
     }
-    
+
+    /**
+     * Requests the focus in the given <tt>component</tt>. The actual request
+     * focus is called from a separate thread with the help
+     * SwingUtilities.invokeLater().
+     * 
+     * @param component the component which requests the focus.
+     */
+    public static void requestFocus(final Component component)
+    {
+        new Thread()
+        {
+            public void run()
+            {
+                SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            component.requestFocus();
+                        }
+                    });
+            }
+        }.start();
+    }
+
     /**
      * Replaces the month with its abbreviation.
      * @param month Value from 1 to 12, which indicates the month.

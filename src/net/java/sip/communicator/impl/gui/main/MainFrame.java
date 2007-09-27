@@ -108,6 +108,10 @@ public class MainFrame
     {
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0),
                 new RenameAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+            KeyEvent.ALT_DOWN_MASK), new ForwordTabAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+            KeyEvent.ALT_DOWN_MASK), new BackwordTabAction());
 
         this.setJMenuBar(menu);
         
@@ -237,16 +241,6 @@ public class MainFrame
             tn.addTypingNotificationsListener(this.getContactListPanel());
         }
 
-        // Obtain the web contact info operation set.
-        String wciOpSetClassName = OperationSetWebContactInfo.class.getName();
-
-        if (supportedOperationSets.containsKey(wciOpSetClassName)) {
-
-            OperationSetWebContactInfo wContactInfo
-                = (OperationSetWebContactInfo)
-                    supportedOperationSets.get(wciOpSetClassName);
-        }
-
         // Obtain the basic telephony operation set.
         String telOpSetClassName = OperationSetBasicTelephony.class.getName();
 
@@ -360,7 +354,7 @@ public class MainFrame
             
             this.getStatusPanel().addAccount(protocolProvider);
 
-            //request the focus int the contact list panel, which
+            //request the focus in the contact list panel, which
             //permits to search in the contact list
             this.tabbedPane.getContactListPanel().getContactList()
                     .requestFocus();
@@ -1036,5 +1030,52 @@ public class MainFrame
     public MultiUserChatManager getMultiUserChatManager()
     {
         return multiUserChatManager;
+    };
+
+    /**
+     * The <tt>ForwordTabAction</tt> is an <tt>AbstractAction</tt> that
+     * changes the currently selected tab with the next one. Each time when the
+     * last tab index is reached the first one is selected.
+     */
+    private class ForwordTabAction
+        extends AbstractAction
+    {
+        /**
+         * Changes the currently selected tab with the next one. Each time when
+         * the last tab index is reached the first one is selected.
+         * @param e the action event
+         */
+        public void actionPerformed(ActionEvent e)
+        {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+
+            if (selectedIndex < tabbedPane.getTabCount() - 1)
+                tabbedPane.setSelectedIndex(selectedIndex + 1);
+            else
+                tabbedPane.setSelectedIndex(0);
+        }
+    };
+
+    /**
+     * The <tt>BackwordTabAction</tt> is an <tt>AbstractAction</tt> that
+     * changes the currently selected tab with the previous one. Each time when
+     * the first tab index is reached the last one is selected.
+     */
+    private class BackwordTabAction
+        extends AbstractAction
+    {
+        /**
+         * Changes the currently selected tab with the previous one. Each time
+         * when the first tab index is reached the last one is selected.
+         * @param e the action event
+         */
+        public void actionPerformed(ActionEvent e)
+        {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            if (selectedIndex != 0)
+                tabbedPane.setSelectedIndex(selectedIndex - 1);
+            else
+                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+        }
     };
 }
