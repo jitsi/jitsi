@@ -9,16 +9,13 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
