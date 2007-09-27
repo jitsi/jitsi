@@ -410,9 +410,12 @@ public class MultiUserChatManager
      * exceptions that could occur during the join process.
      * 
      * @param chatRoom the chat room to join
+     * @param nickname the nickname we choose for the given chat room
      * @param password the password
      */
-    public void joinChatRoom(ChatRoom chatRoom, String nickname, byte[] password)
+    public void joinChatRoom(   ChatRoom chatRoom,
+                                String nickname,
+                                byte[] password)
     {
         try
         {
@@ -420,6 +423,27 @@ public class MultiUserChatManager
                 chatRoom.joinAs(nickname, password);
             else
                 chatRoom.joinAs(nickname);
+
+            ChatRoomsList chatRoomList
+                = mainFrame.getChatRoomsListPanel().getChatRoomsList();
+
+            ChatRoomWrapper chatRoomWrapper
+                = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
+
+            if(chatRoomWrapper == null)
+            {
+                chatRoomWrapper = new ChatRoomWrapper(chatRoom);
+
+                chatRoomList.addChatRoom(chatRoomWrapper);
+            }
+
+            // We save the choice of the user, before the chat room is really
+            // joined, because even the join fails we want the next time when
+            // we login to join this chat room automatically.
+            ConfigurationManager.updateChatRoomStatus(
+                chatRoomWrapper.getParentProvider(),
+                chatRoomWrapper.getChatRoomID(),
+                Constants.ONLINE_STATUS);
         }
         catch (OperationFailedException e)
         {
@@ -494,10 +518,23 @@ public class MultiUserChatManager
             ChatRoomsList chatRoomList
                 = mainFrame.getChatRoomsListPanel().getChatRoomsList();
 
-            if( chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom) == null)
+            ChatRoomWrapper chatRoomWrapper
+                = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
+
+            if(chatRoomWrapper == null)
             {
-                chatRoomList.addChatRoom(new ChatRoomWrapper(chatRoom));
+                chatRoomWrapper = new ChatRoomWrapper(chatRoom);
+
+                chatRoomList.addChatRoom(chatRoomWrapper);
             }
+
+            // We save the choice of the user, before the chat room is really
+            // joined, because even the join fails we want the next time when
+            // we login to join this chat room automatically.
+            ConfigurationManager.updateChatRoomStatus(
+                chatRoomWrapper.getParentProvider(),
+                chatRoomWrapper.getChatRoomID(),
+                Constants.ONLINE_STATUS);
         }
         catch (OperationFailedException e)
         {
@@ -560,7 +597,34 @@ public class MultiUserChatManager
                 + chatRoom.getName(), e);
         }
     }
-    
+
+    /**
+     * Leaves the given <tt>ChatRoom</tt>.
+     * 
+     * @param chatRoom the <tt>ChatRoom</tt> to leave.
+     */
+    public void leaveChatRoom(ChatRoom chatRoom)
+    {
+        chatRoom.leave();
+
+        ChatRoomsList chatRoomList
+            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
+
+        ChatRoomWrapper chatRoomWrapper
+            = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
+
+        if(chatRoomWrapper == null)
+            return;
+
+        // We save the choice of the user, before the chat room is really
+        // joined, because even the join fails we want the next time when
+        // we login to join this chat room automatically.
+        ConfigurationManager.updateChatRoomStatus(
+            chatRoomWrapper.getParentProvider(),
+            chatRoomWrapper.getChatRoomID(),
+            Constants.OFFLINE_STATUS);
+    }
+
     /**
      * Returns the main application frame.
      * 

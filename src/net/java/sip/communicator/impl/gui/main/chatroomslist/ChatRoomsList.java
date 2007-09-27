@@ -228,7 +228,9 @@ public class ChatRoomsList
                 listModel.addElement(chatRoomWrapper);
         }
 
-        ConfigurationManager.saveChatRoom(
+        String chatRoomStatus = Constants.OFFLINE_STATUS;
+
+        ConfigurationManager.updateChatRoom(
             chatRoomWrapper.getParentProvider(),
             chatRoomWrapper.getChatRoomID(),
             chatRoomWrapper.getChatRoomID(),
@@ -245,11 +247,12 @@ public class ChatRoomsList
     public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
         listModel.removeElement(chatRoomWrapper);
-        
-        ConfigurationManager.saveChatRoom(
+
+        ConfigurationManager.updateChatRoom(
             chatRoomWrapper.getParentProvider(),
             chatRoomWrapper.getChatRoomID(),
-            null, null);
+            null,   // The new identifier.
+            null);   // The name of the chat room.
     }
 
     /**
@@ -484,8 +487,18 @@ public class ChatRoomsList
                     {
                         chatRoomWrapper.setChatRoom(chatRoom);
 
-                        mainFrame.getMultiUserChatManager()
+                        String lastChatRoomStatus
+                            = ConfigurationManager.getChatRoomStatus(
+                                chatRoomWrapper.getParentProvider(),
+                                chatRoomWrapper.getChatRoomID());
+
+                        if(lastChatRoomStatus == null
+                            || lastChatRoomStatus.equals(
+                                Constants.ONLINE_STATUS))
+                        {
+                            mainFrame.getMultiUserChatManager()
                                     .joinChatRoom(chatRoom);
+                        }
                     }
                 }
             }.start();

@@ -177,12 +177,12 @@ public class ChatRoomRightButtonMenu
                 
                 return;
             }
-            
+
             new Thread()
             {
                 public void run()
                 {
-                    chatRoom.leave();
+                    mainFrame.getMultiUserChatManager().leaveChatRoom(chatRoom);
                 }
             }.start();
         }

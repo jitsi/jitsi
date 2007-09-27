@@ -151,10 +151,10 @@ public class ConfigurationManager
     }
 
     /**
-     * Return the "sendMessageCommand" property that was saved previously through
-     * the <tt>ConfigurationService</tt>. Indicates to the user interface whether
-     * the default send message command is Enter or Ctrl-Enter.
-     * @return "Enter" or "Ctrl-Enter" message commands.
+     * Return the "sendMessageCommand" property that was saved previously
+     * through the <tt>ConfigurationService</tt>. Indicates to the user
+     * interface whether the default send message command is Enter or CTRL-Enter.
+     * @return "Enter" or "CTRL-Enter" message commands.
      */
     public static String getSendMessageCommand()
     {
@@ -181,6 +181,13 @@ public class ConfigurationManager
                     "no");
     }
 
+    /**
+     * Updates the "showOffline" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isShowOffline <code>true</code> to indicate that the
+     * offline users should be shown, <code>false</code> otherwise.
+     */
     public static void setShowOffline(boolean isShowOffline)
     {
         ConfigurationManager.isShowOffline = isShowOffline;
@@ -190,6 +197,13 @@ public class ConfigurationManager
                 new Boolean(isShowOffline));
     }
 
+    /**
+     * Updates the "showCallPanel" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isCallPanelShown <code>true</code> to indicate that the
+     * call panel should be shown, <code>false</code> otherwise.
+     */
     public static void setShowCallPanel(boolean isCallPanelShown)
     {
         ConfigurationManager.isCallPanelShown = isCallPanelShown;
@@ -199,6 +213,13 @@ public class ConfigurationManager
                 new Boolean(isCallPanelShown));
     }
 
+    /**
+     * Updates the "showApplication" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isVisible <code>true</code> to indicate that the
+     * application should be shown, <code>false</code> otherwise.
+     */
     public static void setApplicationVisible(boolean isVisible)
     {
         isApplicationVisible = isVisible;
@@ -208,6 +229,13 @@ public class ConfigurationManager
                 new Boolean(isVisible));
     }
 
+    /**
+     * Updates the "sendTypingNotifications" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isSendTypingNotif <code>true</code> to indicate that typing
+     * notifications are enabled, <code>false</code> otherwise.
+     */
     public static void setSendTypingNotifications(boolean isSendTypingNotif)
     {
         isSendTypingNotifications = isSendTypingNotif;
@@ -217,6 +245,13 @@ public class ConfigurationManager
                 new Boolean(isSendTypingNotif));
     }
 
+    /**
+     * Updates the "sendMessageCommand" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param newMessageCommand the command used to send a message ( it could be
+     * ENTER_COMMAND or CTRL_ENTER_COMMAND)
+     */
     public static void setSendMessageCommand(String newMessageCommand)
     {
         sendMessageCommand = newMessageCommand;
@@ -235,10 +270,10 @@ public class ConfigurationManager
      * @param newChatRoomId the new identifier of the chat room
      * @param newChatRoomName the new chat room name
      */
-    public static void saveChatRoom(ProtocolProviderService protocolProvider,
-                                    String oldChatRoomId,
-                                    String newChatRoomId,
-                                    String newChatRoomName)
+    public static void updateChatRoom(  ProtocolProviderService protocolProvider,
+                                        String oldChatRoomId,
+                                        String newChatRoomId,
+                                        String newChatRoomName)
     {
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
@@ -282,8 +317,9 @@ public class ConfigurationManager
                     configService.setProperty(chatRoomPropName,
                         newChatRoomId);
 
-                    configService.setProperty(chatRoomPropName + ".chatRoomName",
-                        newChatRoomName);
+                    configService.setProperty(  chatRoomPropName
+                                                    + ".chatRoomName",
+                                                newChatRoomName);
                 }
 
                 if(!isExistingChatRoom)
@@ -297,10 +333,126 @@ public class ConfigurationManager
                     configService.setProperty(chatRoomPackage,
                         newChatRoomId);
 
-                    configService.setProperty(chatRoomPackage + ".chatRoomName",
-                        newChatRoomName);
+                    configService.setProperty(  chatRoomPackage
+                                                    + ".chatRoomName",
+                                                newChatRoomName);
                 }
             }
         }
+    }
+
+    /**
+     * Updates the status of the chat room through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param protocolProvider the protocol provider to which the chat room
+     * belongs
+     * @param chatRoomId the identifier of the chat room to update
+     * @param chatRoomStatus the new status of the chat room
+     */
+    public static void updateChatRoomStatus(
+            ProtocolProviderService protocolProvider,
+            String chatRoomId,
+            String chatRoomStatus)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        List accounts = configService
+            .getPropertyNamesByPrefix(prefix, true);
+
+        Iterator accountsIter = accounts.iterator();
+
+        while(accountsIter.hasNext())
+        {
+            String accountRootPropName
+                = (String) accountsIter.next();
+
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(protocolProvider
+                .getAccountID().getAccountUniqueID()))
+            {
+                List chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                Iterator chatRoomsIter = chatRooms.iterator();
+
+                while(chatRoomsIter.hasNext())
+                {
+                    String chatRoomPropName
+                        = (String) chatRoomsIter.next();
+
+                    String chatRoomID
+                        = configService.getString(chatRoomPropName);
+
+                    if(!chatRoomId.equals(chatRoomID))
+                        continue;
+
+                    configService.setProperty(  chatRoomPropName
+                        + ".lastChatRoomStatus",
+                        chatRoomStatus);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the last chat room status, saved through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param protocolProvider the protocol provider, to which the chat room
+     * belongs
+     * @param chatRoomId the identifier of the chat room
+     * @return the last chat room status, saved through the
+     * <tt>ConfigurationService</tt>.
+     */
+    public static String getChatRoomStatus(
+        ProtocolProviderService protocolProvider,
+        String chatRoomId)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        List accounts = configService
+            .getPropertyNamesByPrefix(prefix, true);
+
+        Iterator accountsIter = accounts.iterator();
+
+        while(accountsIter.hasNext())
+        {
+            String accountRootPropName
+                = (String) accountsIter.next();
+
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(protocolProvider
+                .getAccountID().getAccountUniqueID()))
+            {
+                List chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                Iterator chatRoomsIter = chatRooms.iterator();
+
+                while(chatRoomsIter.hasNext())
+                {
+                    String chatRoomPropName
+                        = (String) chatRoomsIter.next();
+
+                    String chatRoomID
+                        = configService.getString(chatRoomPropName);
+
+                    if(!chatRoomId.equals(chatRoomID))
+                        continue;
+
+                    return configService.getString(  chatRoomPropName
+                                                    + ".lastChatRoomStatus");
+                }
+            }
+        }
+
+        return null;
     }
 }
