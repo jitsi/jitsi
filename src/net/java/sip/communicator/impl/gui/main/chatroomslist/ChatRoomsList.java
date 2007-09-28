@@ -141,12 +141,14 @@ public class ChatRoomsList
         {
             Object o = listModel.get(i);
 
-            if((o instanceof MultiUserChatServerWrapper)
-                || i == listModel.getSize() - 1)
+            if (o instanceof MultiUserChatServerWrapper)
             {
-                listModel.removeRange(serverIndex, i);
+                listModel.removeRange(serverIndex, i - 1);
                 break;
             }
+
+            if (i == listModel.getSize() - 1)
+                listModel.removeRange(serverIndex, i);
         }
 
         ConfigurationService configService
@@ -227,8 +229,6 @@ public class ChatRoomsList
             if(!inserted)
                 listModel.addElement(chatRoomWrapper);
         }
-
-        String chatRoomStatus = Constants.OFFLINE_STATUS;
 
         ConfigurationManager.updateChatRoom(
             chatRoomWrapper.getParentProvider(),
