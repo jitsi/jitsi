@@ -310,8 +310,8 @@ public interface ChatRoom
     public Message createMessage(String messageText);
 
     /**
-     * Sends the <tt>message</tt> to the destination indicated by the
-     * <tt>to</tt> contact.
+     * Sends the <tt>message</tt> to this chat room.
+     * 
      * @param message the <tt>Message</tt> to send.
      * @throws OperationFailedException if sending the message fails for some
      * reason.
