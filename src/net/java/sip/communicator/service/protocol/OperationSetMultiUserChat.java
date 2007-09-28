@@ -72,7 +72,7 @@ public interface OperationSetMultiUserChat
      * @param roomProperties properties specifying how the room should be
      * created.
      * @throws OperationFailedException if the room couldn't be created for some
-     * reason (e.g. room already exists; user already joined to an existant
+     * reason (e.g. room already exists; user already joined to an existent
      * room or user has no permissions to create a chat room).
      * @throws OperationNotSupportedException if chat room creation is not
      * supported by this server
