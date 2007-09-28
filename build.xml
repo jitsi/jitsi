@@ -875,7 +875,8 @@
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
         bundle-irc,bundle-plugin-ircaccregwizz,
-        bundle-pluginmanager,bundle-notification"/>
+        bundle-pluginmanager,bundle-notification,
+    	bundle-ssh,bundle-plugin-sshaccregwizz"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1273,6 +1274,31 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
+	
+    <!-- BUNDLE-SSH -->
+    <target name="bundle-ssh">
+        <!-- Creates a bundle containing the SSH impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-ssh.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/ssh/ssh.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/ssh"
+                prefix="net/java/sip/communicator/impl/protocol/ssh"/>
+            <zipfileset src="${lib.noinst}/jsch-0.1.33.jar" prefix=""/>
+            <zipfileset dir="resources/images/ssh"
+                            prefix="resources/images/ssh"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-SSHACCREGWIZZ -->
+    <target name="bundle-plugin-sshaccregwizz">
+        <!-- Creates a bundle for the plugin SSH Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/sshaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/sshaccregwizz/sshaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sshaccregwizz"
+                prefix="net/java/sip/communicator/plugin/sshaccregwizz"/>
+            <zipfileset dir="resources/images/ssh"
+                            prefix="resources/images/ssh"/>
+        </jar>
+    </target>	
 
     <!-- BUNDLE-YAHOO -->
     <target name="bundle-yahoo">

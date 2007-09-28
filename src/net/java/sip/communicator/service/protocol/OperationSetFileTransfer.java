@@ -19,7 +19,11 @@ import net.java.sip.communicator.service.protocol.event.*;
 public interface OperationSetFileTransfer
     extends OperationSet
 {
-    public void sendFile();
+    public void sendFile(
+            Contact toContact, 
+            Contact fromContact,
+            String remotePath,
+            String localPath);
 
     public void addFileListener(FileListener listener);
 }
