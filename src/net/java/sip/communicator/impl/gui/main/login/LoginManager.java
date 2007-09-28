@@ -31,7 +31,7 @@ import org.osgi.framework.*;
  * <tt>LoginWindow</tt>s for each <tt>ProtocolProviderFactory</tt>. The
  * <tt>LoginWindow</tt> is where user could enter an identifier and password.
  * <p>
- * Note that the behaviour of this class will be changed when the Configuration
+ * Note that the behavior of this class will be changed when the Configuration
  * Service is ready.
  *
  * @author Yana Stamcheva
@@ -43,12 +43,16 @@ public class LoginManager
 
     private Logger logger = Logger.getLogger(LoginManager.class.getName());
 
-    private Hashtable loginWindows = new Hashtable();
-
     private MainFrame mainFrame;
 
     private boolean manuallyDisconnected = false;
 
+    /**
+     * Creates an instance of the <tt>LoginManager</tt>, by specifying the main
+     * application window.
+     * 
+     * @param mainFrame the main application window
+     */
     public LoginManager(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
@@ -341,7 +345,6 @@ public class LoginManager
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                             .REASON_CLIENT_LIMIT_REACHED_FOR_IP)
                 {
-
                     String msgText = Messages.getI18NString(
                         "limitReachedForIp", new String[]
                         { protocolProvider.getProtocolName() }).getText();
@@ -470,6 +473,9 @@ public class LoginManager
         this.manuallyDisconnected = manuallyDisconnected;
     }
 
+    /**
+     * Registers a protocol provider in a separate thread.
+     */
     private class RegisterProvider
         extends Thread
     {
@@ -484,6 +490,10 @@ public class LoginManager
             this.secAuth = secAuth;
         }
 
+        /**
+         * Registers the contained protocol provider and process all possible
+         * errors that may occur during the registration process.
+         */
         public void run()
         {
             try
@@ -548,6 +558,9 @@ public class LoginManager
         }
     }
 
+    /**
+     * Unregisters a protocol provider in a separate thread.
+     */
     private class UnregisterProvider
         extends Thread
     {
@@ -558,6 +571,10 @@ public class LoginManager
             this.protocolProvider = protocolProvider;
         }
 
+        /**
+         * Unregisters the contained protocol provider and process all possible
+         * errors that may occur during the un-registration process.
+         */
         public void run()
         {
             try
