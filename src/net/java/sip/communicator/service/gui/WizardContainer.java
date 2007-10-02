@@ -58,4 +58,9 @@ public interface WizardContainer {
      * disable it.
      */
     public void setCancelButtonEnabled(boolean newValue);
+    
+    /**
+     * Refreshes the current content of this wizard container.
+     */
+    public void refresh();
 }

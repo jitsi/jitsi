@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -181,12 +182,15 @@ public class FileMenu
         {
             CreateChatRoomWizard createChatRoomWizard
                 = new CreateChatRoomWizard(parentWindow);
-            
+
             createChatRoomWizard.showDialog(false);
         }
         else if (itemName.equals("searchForChatRooms"))
         {
-        
+            JoinChatRoomWizard joinChatRoomWizard
+                = new JoinChatRoomWizard(parentWindow);
+
+            joinChatRoomWizard.showDialog(false);
         }
     }
 }

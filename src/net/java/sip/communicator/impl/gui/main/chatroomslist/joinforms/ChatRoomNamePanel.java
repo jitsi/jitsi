@@ -10,6 +10,7 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -21,7 +22,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  *  
  * @author Yana Stamcheva
  */
-public class JoinChatRoomPanel
+public class ChatRoomNamePanel
     extends JPanel
 {    
     private JLabel chatRoomLabel = new JLabel(
@@ -46,25 +47,25 @@ public class JoinChatRoomPanel
     /**
      * Creates and initializes the <tt>ChatRoomNamePanel</tt>.
      */
-    public JoinChatRoomPanel()
+    public ChatRoomNamePanel()
     {
         super(new BorderLayout());
-        
+
         this.infoLabel.setEditable(false);
-                
+
         this.dataPanel.add(chatRoomLabel, BorderLayout.WEST);
-        
+
         this.dataPanel.add(textField, BorderLayout.CENTER);
-                
+
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-        
+
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
         this.labelsPanel.add(dataPanel);
-        
+
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
-        
+
         this.add(rightPanel, BorderLayout.CENTER);
     }
     
@@ -93,5 +94,16 @@ public class JoinChatRoomPanel
     public void requestFocusInField()
     {
         this.textField.requestFocus();
+    }
+
+    /**
+     * Adds a <tt>DocumentListener</tt> to the text field containing the chosen
+     * chat room.
+     * 
+     * @param l the <tt>DocumentListener</tt> to add
+     */
+    public void addChatRoomNameListener(DocumentListener l)
+    {
+        this.textField.getDocument().addDocumentListener(l);
     }
 }

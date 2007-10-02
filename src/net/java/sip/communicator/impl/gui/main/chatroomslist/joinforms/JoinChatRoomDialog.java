@@ -8,16 +8,12 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -34,8 +30,6 @@ public class JoinChatRoomDialog
 {
     private Logger logger = Logger.getLogger(JoinChatRoomDialog.class.getName());
     
-    private JoinChatRoomPanel namePanel = new JoinChatRoomPanel();
-    
     private SearchChatRoomPanel searchPanel;
     
     private I18NString joinString = Messages.getI18NString("join");
@@ -51,17 +45,11 @@ public class JoinChatRoomDialog
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private JPanel mainPanel = new JPanel(new BorderLayout());
-    
-    private JList chatRoomsList = new JList();
-    
     private OperationSetMultiUserChat multiUserChatOpSet;
     
     private MainFrame mainFrame;
     
     private ProtocolProviderService protocolProvider;
-    
-    private JScrollPane chatRoomsScrollPane = new JScrollPane();
     
     /**
      * Creates an instance of <tt>JoinChatRoomDialog</tt>.
@@ -81,12 +69,9 @@ public class JoinChatRoomDialog
             = (OperationSetMultiUserChat) protocolProvider
                 .getOperationSet(OperationSetMultiUserChat.class);
 
-        this.searchPanel = new SearchChatRoomPanel(this);
+        this.searchPanel = new SearchChatRoomPanel(this, protocolProvider);
 
         this.setTitle(Messages.getI18NString("joinChatRoom").getText());
-
-        this.namePanel.setPreferredSize(new Dimension(520, 100));
-        this.searchPanel.setPreferredSize(new Dimension(520, 110));
 
         this.getRootPane().setDefaultButton(joinButton);
         this.joinButton.setName("join");
@@ -104,21 +89,9 @@ public class JoinChatRoomDialog
         this.buttonsPanel.add(joinButton);
         this.buttonsPanel.add(cancelButton);
 
-        this.mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
-
-        this.mainPanel.add(namePanel);
-        this.mainPanel.add(searchPanel);
-
-        this.chatRoomsScrollPane.setBorder(BorderFactory
-            .createTitledBorder(Messages.getI18NString("chatRooms").getText()));
-
         this.getContentPane().add(iconLabel, BorderLayout.WEST);
-        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+        this.getContentPane().add(searchPanel, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
-
-        this.chatRoomsList.addListSelectionListener(
-            new ChatRoomListSelectionListener());
     }
     
     /**
@@ -140,7 +113,7 @@ public class JoinChatRoomDialog
                 {
                     ChatRoom chatRoom = null;
 
-                    String chatRoomName = namePanel.getChatRoomName();
+                    String chatRoomName = searchPanel.getChatRoomName();
 
                     try
                     {
@@ -187,74 +160,7 @@ public class JoinChatRoomDialog
         this.cancelButton.doClick();
     }
 
-    /**
-     * Loads the list of existing server chat rooms.
-     */
-    public void loadChatRoomsList()
-    {
-        OperationSetMultiUserChat multiUserChat
-            = (OperationSetMultiUserChat) protocolProvider
-                .getOperationSet(OperationSetMultiUserChat.class);
-
-        List list = null;
-
-        try
-        {
-            list = multiUserChat.getExistingChatRooms();
-        }
-        catch (OperationFailedException e)
-        {
-            logger.error("Failed to obtain existing chat rooms for server: "
-                + protocolProvider.getAccountID().getService(), e);
-        }
-        catch (OperationNotSupportedException e)
-        {
-            logger.error("Failed to obtain existing chat rooms for server: "
-                + protocolProvider.getAccountID().getService(), e);
-        }
-
-        if(list != null)
-        {
-            if(list.size() == 0)
-                list.add(Messages.getI18NString("noAvailableRooms").getText());
-
-            chatRoomsList.setListData(new Vector(list));
-            chatRoomsScrollPane.setPreferredSize(new Dimension(500, 120));
-
-            chatRoomsScrollPane.getViewport().add(chatRoomsList);
-
-            this.mainPanel.add(chatRoomsScrollPane);
-
-            this.pack();
-
-            // When we're finished we replace the "wait cursor"
-            // by the default cursor.
-            this.setCursor(Cursor.getDefaultCursor());
-        }
-    }
-
-    /**
-     * The <tt>ListSelectionListener</tt> of the chat rooms list. When a chat
-     * room is selected in the list, we update the text field containing the
-     * name of the chat room to join.
-     */
-    private class ChatRoomListSelectionListener
-        implements ListSelectionListener
-    {
-        /**
-         * When a chat room is selected in the list, we update the text field
-         * containing the name of the chat room to join.
-         */
-        public void valueChanged(ListSelectionEvent e)
-        {
-            if(e.getValueIsAdjusting())
-                return;
-
-            namePanel.setChatRoomName(
-                chatRoomsList.getSelectedValue().toString());
-        }
-    }
-
+    
     /**
      * Shows this dialog. And requests the current focus in the chat room name
      * field.
@@ -263,6 +169,6 @@ public class JoinChatRoomDialog
     {
         this.setVisible(true);
 
-        namePanel.requestFocusInField();
+        searchPanel.requestFocusInField();
     }
 }
