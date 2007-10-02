@@ -32,7 +32,9 @@ public class SelectAccountPanel extends JPanel
 {
     private Logger logger = Logger.getLogger(SelectAccountPanel.class);
     
-    private JScrollPane tablePane = new JScrollPane();
+    private JScrollPane tablePane = new JScrollPane(
+        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     
     private JTable accountsTable;
     
@@ -70,30 +72,30 @@ public class SelectAccountPanel extends JPanel
             Iterator protocolProvidersList)
     {
         super(new BorderLayout());
-    
+
         this.setPreferredSize(new Dimension(600, 400));
         this.newChatRoom = newChatRoom;
-        
+
         this.protocolProvidersList = protocolProvidersList;
-    
+
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
-       
+
         this.infoLabel.setEditable(false);
-               
+
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-                
+
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
-        
+
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         this.rightPanel.add(tablePane, BorderLayout.CENTER);
-        
+
         this.add(iconLabel, BorderLayout.WEST);
-        
+
         this.add(rightPanel, BorderLayout.CENTER);
-        
+
         this.tableInit();
-    }  
+    }
     
     /**
      * Initializes the accounts table.
@@ -102,25 +104,32 @@ public class SelectAccountPanel extends JPanel
     {
         accountsTable = new JTable(tableModel)
         {
-            public void tableChanged(TableModelEvent e) {
+            public void tableChanged(TableModelEvent e)
+            {
               super.tableChanged(e);
               repaint();
             }
         };
-        
+
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        
+
         tableModel.addColumn("");
         tableModel.addColumn(Messages.getI18NString("account").getText());
         tableModel.addColumn(Messages.getI18NString("protocol").getText());
-                
+
         while(protocolProvidersList.hasNext())
         {
             ProtocolProviderService pps 
                 = (ProtocolProviderService)protocolProvidersList.next();
-            
+
+            OperationSet opSet = pps.getOperationSet(
+                OperationSetMultiUserChat.class);
+
+            if(opSet == null)
+                continue;
+
             String pName = pps.getProtocolName();
-            
+
             Image protocolImage = null;
             try
             {
@@ -132,42 +141,62 @@ public class SelectAccountPanel extends JPanel
             {
                 logger.error("Could not read image.", e);
             }
-            
+
             JLabel protocolLabel = new JLabel();
             protocolLabel.setText(pName);
             protocolLabel.setIcon(new ImageIcon(protocolImage));
-            
+
             JRadioButton radioButton = new JRadioButton();
-            
+
             tableModel.addRow(new Object[]{radioButton,
                     pps, protocolLabel});
-            
+
             radioButtonGroup.add(radioButton);
         }
-        
+
         accountsTable.setRowHeight(22);
-                
+
         accountsTable.getColumnModel().getColumn(0).setPreferredWidth(30);
         accountsTable.getColumnModel().getColumn(0).setCellRenderer(
             new RadioButtonTableCellRenderer());
-        
+
         accountsTable.getColumnModel().getColumn(0).setCellEditor(
             new RadioButtonCellEditor(new JCheckBox()));
-            
+
         accountsTable.getColumnModel().getColumn(2)
             .setCellRenderer(new LabelTableCellRenderer());
         accountsTable.getColumnModel().getColumn(1)
             .setCellRenderer(new LabelTableCellRenderer());
-        
+
         this.tablePane.getViewport().add(accountsTable);
+
+        if (accountsTable.getModel().getRowCount() == 0)
+        {
+            JTextArea noAccountsTextArea = new JTextArea(
+                Messages.getI18NString("noMultiChatAccountAvailable").getText());
+
+            noAccountsTextArea.setLineWrap(true);
+            noAccountsTextArea.setPreferredSize(new Dimension(400, 200));
+
+            this.rightPanel.add(noAccountsTextArea, BorderLayout.SOUTH);
+        }
     }
-    
-    public void addCheckBoxCellListener(CellEditorListener l) {
-        if(accountsTable.getModel().getRowCount() != 0) {
+
+    /**
+     * Adds a <tt>CellEditorListener</tt> to the list of account, which will
+     * listen for events triggered by user clicks on the check boxes in the
+     * first column of the accounts table.
+     * 
+     * @param l the <tt>CellEditorListener</tt> to add
+     */
+    public void addCheckBoxCellListener(CellEditorListener l)
+    {
+        if(accountsTable.getModel().getRowCount() != 0)
+        {
             accountsTable.getCellEditor(0, 0).addCellEditorListener(l);
         }
     }
-    
+
     /**
      * Checks whether there is a selected radio button in the table.
      * @return <code>true</code> if any of the check boxes is selected,
@@ -189,13 +218,16 @@ public class SelectAccountPanel extends JPanel
             }
         }
         
-        return false;        
+        return false;
     }
-    
+
+    /**
+     * Set the selected account, which will be used in the rest of the wizard.
+     */
     public void setSelectedAccount()
     {
         TableModel model = accountsTable.getModel();
-        
+
         for (int i = 0; i < accountsTable.getRowCount(); i ++) {
             Object value = model.getValueAt(i, 0);
             

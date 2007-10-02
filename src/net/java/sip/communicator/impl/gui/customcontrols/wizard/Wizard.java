@@ -555,4 +555,10 @@ public class Wizard extends SIPCommDialog
     {
         return this.backButton;
     }
+
+    public void refresh()
+    {
+        this.pack();
+        this.repaint();
+    }
 }

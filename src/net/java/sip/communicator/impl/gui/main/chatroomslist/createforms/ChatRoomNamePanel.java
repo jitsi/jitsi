@@ -80,7 +80,7 @@ public class ChatRoomNamePanel
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
         
         this.labelsPanel.add(infoTitleLabel);
-        this.labelsPanel.add(infoLabel);        
+        this.labelsPanel.add(infoLabel);
         this.labelsPanel.add(dataPanel);
         
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
@@ -90,7 +90,7 @@ public class ChatRoomNamePanel
         
         this.textField.getDocument().addDocumentListener(this);
     }
-    
+
     /**
      * Returns the chat room name entered by user.
      * @return the chat room name entered by user
@@ -99,8 +99,12 @@ public class ChatRoomNamePanel
     {
         return textField.getText();
     }
-    
-    public void requestFocusInField() {
+
+    /**
+     * Requests the current focus in the chat room name field.
+     */
+    public void requestFocusInField()
+    {
         this.textField.requestFocus();
     }
 
@@ -117,16 +121,21 @@ public class ChatRoomNamePanel
     {
         this.setNextFinishButtonAccordingToUIN();
     }
-    
+
+    /**
+     * Enables or disables the Next/Finish button of the parent wizard,
+     * depending on whether the text field is empty.
+     */
     public void setNextFinishButtonAccordingToUIN()
-    {        
+    {
         if(parentWizard != null)
         {
             if(textField.getText() != null && textField.getText().length() > 0)
-            {                
+            {
                 parentWizard.setNextFinishButtonEnabled(true);
             }
-            else {                
+            else
+            {
                 parentWizard.setNextFinishButtonEnabled(false);
             }
         }

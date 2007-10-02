@@ -42,13 +42,13 @@ public class CreateChatRoomWizardPage1
     public CreateChatRoomWizardPage1(WizardContainer wizard,
             NewChatRoom newChatRoom, 
             Iterator protocolProvidersList)
-    {   
+    {
         this.wizard = wizard;
-        
+
         selectAccountPanel
             = new SelectAccountPanel(newChatRoom, protocolProvidersList);
-        
-        selectAccountPanel.addCheckBoxCellListener(this);        
+
+        selectAccountPanel.addCheckBoxCellListener(this);
     }
     
     /**

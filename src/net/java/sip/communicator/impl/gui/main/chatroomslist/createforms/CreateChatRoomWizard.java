@@ -59,16 +59,9 @@ public class CreateChatRoomWizard
 
         this.registerWizardPage(CreateChatRoomWizardPage2.IDENTIFIER, page2);
 
-        this.setCurrentPage(CreateChatRoomWizardPage1.IDENTIFIER);        
+        this.setCurrentPage(CreateChatRoomWizardPage1.IDENTIFIER);
     }
-    
-    /**
-     * Overrides the Wizard.showModalDialog method.
-     */
-    public void showDialog(boolean modal) {
-        super.showDialog(modal);        
-    }
-    
+
     /**
      * Creates a new chat room in a separate thread.
      */
@@ -101,7 +94,7 @@ public class CreateChatRoomWizard
                         ex,
                     Messages.getI18NString(
                         "error").getText())
-                        .showDialog();                
+                        .showDialog();
             }
             catch (OperationNotSupportedException ex)
             {
