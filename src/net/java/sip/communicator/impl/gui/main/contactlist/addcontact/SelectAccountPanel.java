@@ -72,30 +72,30 @@ public class SelectAccountPanel
             Iterator protocolProvidersList)
     {
         super(new BorderLayout());
-    
+
         this.setPreferredSize(new Dimension(500, 200));
         this.newContact = newContact;
-    
+
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
-       
+
         this.infoLabel.setEditable(false);
-               
+
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-                
+
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
-        
+
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         this.rightPanel.add(tablePane, BorderLayout.CENTER);
-        
+
         this.add(iconLabel, BorderLayout.WEST);
-        
+
         this.add(rightPanel, BorderLayout.CENTER);
-        
+
         this.tableInit(protocolProvidersList);
-        
+
         GuiActivator.bundleContext.addServiceListener(this);
-    }  
+    }
     
     /**
      * Initializes the accounts table.
@@ -112,14 +112,14 @@ public class SelectAccountPanel
         {
             ProtocolProviderService pps 
                 = (ProtocolProviderService)protocolProvidersList.next();
-            
+
             OperationSet opSet = pps.getOperationSet(OperationSetPresence.class);
-            
+
             if(opSet == null)
                 continue;
-            
+
             String pName = pps.getProtocolName();
-            
+
             Image protocolImage = null;
             try
             {
@@ -139,10 +139,10 @@ public class SelectAccountPanel
             tableModel.addRow(new Object[]{new Boolean(false),
                     pps, protocolLabel});
         }
-        
+
         accountsTable.setRowHeight(22);
         accountsTable.setModel(tableModel);
-        
+
         accountsTable.getColumnModel().getColumn(0).sizeWidthToFit();
         accountsTable.getColumnModel().getColumn(2)
             .setCellRenderer(new LabelTableCellRenderer());
@@ -219,11 +219,11 @@ public class SelectAccountPanel
 
         ProtocolProviderService sourcePProvider
             = (ProtocolProviderService) sourceService;
-        
+
         if (event.getType() == ServiceEvent.REGISTERED)
         {
             String pName = sourcePProvider.getProtocolName();
-            
+
             Image protocolImage = null;
             try
             {

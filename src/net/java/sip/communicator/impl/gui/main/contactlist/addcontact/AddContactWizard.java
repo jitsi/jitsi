@@ -64,7 +64,7 @@ public class AddContactWizard
 
         this.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
 
-        this.setCurrentPage(AddContactWizardPage1.IDENTIFIER);        
+        this.setCurrentPage(AddContactWizardPage1.IDENTIFIER);
     }
     
     /**
@@ -156,7 +156,7 @@ public class AddContactWizard
                 ProtocolProviderService pps
                     = (ProtocolProviderService)ppList.get(i);
 
-                new CreateContact(pps, newContact).start();                
+                new CreateContact(pps, newContact).start();
             }
         }
     }

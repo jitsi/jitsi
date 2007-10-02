@@ -44,7 +44,7 @@ public class AddContactWizardPage1
         
         selectAccountPanel = new SelectAccountPanel(
                 newContact, protocolProvidersList);
-        selectAccountPanel.addCheckBoxCellListener(this);        
+        selectAccountPanel.addCheckBoxCellListener(this);
     }
     
     /**
