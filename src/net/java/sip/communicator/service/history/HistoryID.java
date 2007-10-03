@@ -11,8 +11,8 @@ package net.java.sip.communicator.service.history;
  *
  * @author Alexander Pelov
  */
-public class HistoryID {
-
+public class HistoryID
+{
     private String[] id;
 
     private String stringRepresentation;
@@ -129,7 +129,7 @@ public class HistoryID {
     /**
      * An one-way function returning a "human readable" containing no special
      * characters. All characters _, a-z, A-Z, 0-9 are kept unchainged. All
-     * other are replaced with _ and the word is postfixed with %HASHCODE, where
+     * other are replaced with _ and the word is postfixed with $HASHCODE, where
      * HASHCODE is the hexadecimal hash value of the original string. If there
      * are no special characters the word is not postfixed.
      *
@@ -156,7 +156,7 @@ public class HistoryID {
 
         if (addHash)
         {
-            encodedString.append('%');
+            encodedString.append('$');
             encodedString.append(Integer.toHexString(rawString.hashCode()));
         }
 
@@ -170,15 +170,15 @@ public class HistoryID {
     {
         boolean isValid = true;
 
-        int pos = id.indexOf('%');
+        int pos = id.indexOf('$');
         if (pos < 0)
         {
-            // There is no % in the id. In order to be valid all characters
+            // There is no $ in the id. In order to be valid all characters
             // should be non-special
             isValid = !hasSpecialChar(id);
         } else {
-            // There is a % sign in the id. In order to be valid it has
-            // to be in the form X..X%Y..Y, where there should be no
+            // There is a $ sign in the id. In order to be valid it has
+            // to be in the form X..X$Y..Y, where there should be no
             // special characters in X..X, and Y..Y should be a hexadecimal
             // number
             if (pos + 1 < id.length())
@@ -220,7 +220,12 @@ public class HistoryID {
      */
     private static boolean isSpecialChar(char c)
     {
-        return (c != '_') && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z')
+        return  (c != '_')
+                && (c != '@')
+                && (c != '.')
+                && (c != '-')
+                && (c != '+')
+                && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z')
                 && (c < '0' || c > '9');
     }
 
@@ -235,7 +240,7 @@ public class HistoryID {
         {
             if (isSpecialChar(str.charAt(i)))
             {
-                hasSpecialChar = false;
+                hasSpecialChar = true;
                 break;
             }
         }
