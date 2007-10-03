@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -135,13 +134,13 @@ public class MetaContactChatPanel
                         
                         public void run()
                         {
-                            processHistory(historyList, null);                            
+                            processHistory(historyList, null);
                         }
                     }
                     SwingUtilities.invokeLater(new ProcessHistory(historyList));
                 }
             }
-        }.start();        
+        }.start();
     }
 
     /**

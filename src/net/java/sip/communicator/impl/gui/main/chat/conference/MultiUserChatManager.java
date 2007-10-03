@@ -163,12 +163,14 @@ public class MultiUserChatManager
                 = chatRoomList.findServerWrapperFromProvider(
                     sourceChatRoom.getParentProvider());
 
-            chatPanel = chatWindowManager.getMultiChat(
-                serverWrapper.getSystemRoomWrapper());
+            chatPanel
+                = chatWindowManager.getMultiChat(
+                    serverWrapper.getSystemRoomWrapper());
         }
         else
         {
-            chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
+            chatPanel = chatWindowManager
+                .getMultiChat(sourceChatRoom, message.getMessageUID());
         }
 
         chatPanel.processMessage(

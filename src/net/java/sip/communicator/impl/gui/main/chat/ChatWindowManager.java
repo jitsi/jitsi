@@ -382,6 +382,20 @@ public class ChatWindowManager
      */
     public ConferenceChatPanel getMultiChat(ChatRoom chatRoom)
     {
+        return getMultiChat(chatRoom, null);
+    }
+
+    /**
+     * Returns the chat panel corresponding to the given chat room.
+     *
+     * @param chatRoom the chat room, for which the chat panel is about
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the chat panel corresponding to the given chat room
+     */
+    public ConferenceChatPanel getMultiChat(ChatRoom chatRoom,
+                                            String escapedMessageID)
+    {
         synchronized (syncChat)
         {
             Enumeration chatKeys = chats.keys();
@@ -409,7 +423,7 @@ public class ChatWindowManager
             if(chatRoomWrapper == null)
                 chatRoomWrapper = new ChatRoomWrapper(chatRoom);
 
-            return createChat(chatRoomWrapper);
+            return createChat(chatRoomWrapper, escapedMessageID);
         }
     }
             
@@ -547,12 +561,27 @@ public class ChatWindowManager
 
     /**
      * Creates a <tt>ChatPanel</tt> for the given <tt>ChatRoom</tt> and saves it
-     * in the list ot created <tt>ChatPanel</tt>s.
+     * in the list of created <tt>ChatPanel</tt>s.
      *
      * @param chatRoom the <tt>ChatRoom</tt>, for which the chat will be created
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ConferenceChatPanel createChat(ChatRoomWrapper chatRoomWrapper)
+    private ConferenceChatPanel createChat( ChatRoomWrapper chatRoomWrapper)
+    {
+        return createChat(chatRoomWrapper, null);
+    }
+
+    /**
+     * Creates a <tt>ChatPanel</tt> for the given <tt>ChatRoom</tt> and saves it
+     * in the list of created <tt>ChatPanel</tt>s.
+     *
+     * @param chatRoom the <tt>ChatRoom</tt>, for which the chat will be created
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat.
+     * @return The <code>ChatPanel</code> newly created.
+     */
+    private ConferenceChatPanel createChat( ChatRoomWrapper chatRoomWrapper,
+                                            String escapedMessageID)
     {
         
         ChatWindow chatWindow;
@@ -584,6 +613,11 @@ public class ChatWindowManager
         {
             this.chats.put(chatRoomWrapper, chatPanel);
         }
+
+        if(escapedMessageID != null)
+            chatPanel.loadHistory(escapedMessageID);
+        else
+            chatPanel.loadHistory();
 
         return chatPanel;
     }

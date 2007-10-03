@@ -12,9 +12,11 @@ import java.util.List;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -33,6 +35,10 @@ public class ConferenceChatPanel
     private ChatRoomSubjectPanel subjectPanel;
     
     private Logger logger = Logger.getLogger(ConferenceChatPanel.class);
+
+    private Date firstHistoryMsgTimestamp;
+
+    private Date lastHistoryMsgTimestamp;
 
     private ChatRoomWrapper chatRoomWrapper;
 
@@ -107,7 +113,48 @@ public class ConferenceChatPanel
      */
     public void loadHistory()
     {
+        if (chatRoomWrapper.getChatRoom() == null)
+            return;
 
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        if (msgHistory == null)
+            return;
+
+        new Thread() {
+            public void run()
+            {
+                // Load the history period, which initializes the
+                // firstMessageTimestamp and the lastMessageTimeStamp variables.
+                // Used to disable/enable history flash buttons in the chat
+                // window tool bar.
+                loadHistoryPeriod(chatRoomWrapper.getChatRoom());
+
+                // Load the last N=CHAT_HISTORY_SIZE messages from history.
+                Collection historyList
+                    = msgHistory.findLast(  chatRoomWrapper.getChatRoom(),
+                                            Constants.CHAT_HISTORY_SIZE);
+
+                if(historyList.size() > 0) {
+                    class ProcessHistory implements Runnable
+                    {
+                        Collection historyList;
+                        
+                        ProcessHistory(Collection historyList)
+                        {
+                            this.historyList = historyList;
+                        }
+                        
+                        public void run()
+                        {
+                            processHistory(historyList, null);
+                        }
+                    }
+                    SwingUtilities.invokeLater(new ProcessHistory(historyList));
+                }
+            }
+        }.start();
     }
 
     /**
@@ -118,7 +165,20 @@ public class ConferenceChatPanel
      */
     public void loadHistory(String escapedMessageID)
     {
-        // TODO Auto-generated method stub
+        if (chatRoomWrapper.getChatRoom() == null)
+            return;
+
+        MessageHistoryService msgHistory
+        = GuiActivator.getMsgHistoryService();
+
+        if (msgHistory == null)
+            return;
+
+        Collection historyList
+            = msgHistory.findLast(  chatRoomWrapper.getChatRoom(),
+                                    Constants.CHAT_HISTORY_SIZE);
+
+        processHistory(historyList, escapedMessageID);
     }
 
     /**
@@ -128,7 +188,38 @@ public class ConferenceChatPanel
      */
     public void loadPreviousPageFromHistory()
     {
-        // TODO Auto-generated method stub
+        if (chatRoomWrapper.getChatRoom() == null)
+            return;
+
+        new Thread() {
+            public void run()
+            {
+                MessageHistoryService msgHistory
+                    = GuiActivator.getMsgHistoryService();
+                
+                ChatConversationPanel conversationPanel
+                    = getChatConversationPanel();
+                
+                Date firstMsgDate
+                    = conversationPanel.getPageFirstMsgTimestamp();
+                
+                Collection c = null;
+                
+                if(firstMsgDate != null)
+                {
+                    c = msgHistory.findLastMessagesBefore(
+                        chatRoomWrapper.getChatRoom(),
+                        firstMsgDate,
+                        MESSAGES_PER_PAGE);
+                }
+                 
+                if(c !=null && c.size() > 0)
+                {   
+                    SwingUtilities.invokeLater(
+                            new HistoryMessagesLoader(c));
+                }
+            }   
+        }.start();
     }
 
     /**
@@ -138,7 +229,33 @@ public class ConferenceChatPanel
      */
     public void loadNextPageFromHistory()
     {
-        // TODO Auto-generated method stub
+        if (chatRoomWrapper.getChatRoom() == null)
+            return;
+
+        new Thread()
+        {
+            public void run()
+            {
+                MessageHistoryService msgHistory
+                    = GuiActivator.getMsgHistoryService();
+
+                Date lastMsgDate
+                    = getChatConversationPanel().getPageLastMsgTimestamp();
+
+                Collection c = null;
+                if(lastMsgDate != null)
+                {
+                    c = msgHistory.findFirstMessagesAfter(
+                        chatRoomWrapper.getChatRoom(),
+                        lastMsgDate,
+                        MESSAGES_PER_PAGE);
+                }
+
+                if(c != null && c.size() > 0)
+                    SwingUtilities.invokeLater(
+                            new HistoryMessagesLoader(c));
+            }
+        }.start();
     }
 
     /**
@@ -222,7 +339,7 @@ public class ConferenceChatPanel
      */
     public Date getFirstHistoryMsgTimestamp()
     {
-        return null;
+        return firstHistoryMsgTimestamp;
     }
 
     /**
@@ -230,7 +347,7 @@ public class ConferenceChatPanel
      */
     public Date getLastHistoryMsgTimestamp()
     {
-        return null;
+        return lastHistoryMsgTimestamp;
     }
 
     public void chatRoomChanged(ChatRoomPropertyChangeEvent event)
@@ -396,6 +513,85 @@ public class ConferenceChatPanel
                 getChatWindow().setTabIcon(this,
                     new ImageIcon(Constants.getStatusIcon(status)));
             }
+        }
+    }
+
+    /**
+     * Loads history period dates for the current chat.
+     */
+    private void loadHistoryPeriod(ChatRoom chatRoom)
+    {
+        MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        Collection firstMessage = msgHistory
+            .findFirstMessagesAfter(chatRoom, new Date(0), 1);
+
+        if(firstMessage.size() > 0)
+        {
+            Iterator i = firstMessage.iterator();
+
+            Object o = i.next();
+
+            if(o instanceof MessageDeliveredEvent)
+            {
+                MessageDeliveredEvent evt
+                    = (MessageDeliveredEvent)o;
+
+                this.firstHistoryMsgTimestamp = evt.getTimestamp();
+            }
+            else if(o instanceof MessageReceivedEvent)
+            {
+                MessageReceivedEvent evt = (MessageReceivedEvent)o;
+
+                this.firstHistoryMsgTimestamp = evt.getTimestamp();
+            }
+        }
+
+        Collection lastMessage = msgHistory
+            .findLastMessagesBefore(chatRoom, new Date(Long.MAX_VALUE), 1);
+
+        if(lastMessage.size() > 0)
+        {
+            Iterator i1 = lastMessage.iterator();
+            
+            Object o1 = i1.next();
+
+            if(o1 instanceof MessageDeliveredEvent)
+            {
+                MessageDeliveredEvent evt
+                    = (MessageDeliveredEvent)o1;
+
+                this.lastHistoryMsgTimestamp = evt.getTimestamp();
+            }
+            else if(o1 instanceof MessageReceivedEvent)
+            {
+                MessageReceivedEvent evt = (MessageReceivedEvent)o1;
+
+                this.lastHistoryMsgTimestamp = evt.getTimestamp();
+            }
+        }
+    }
+
+    /**
+     * From a given collection of messages shows the history in the chat window.
+     */
+    private class HistoryMessagesLoader implements Runnable
+    {
+        private Collection msgHistory;
+
+        public HistoryMessagesLoader(Collection msgHistory)
+        {
+            this.msgHistory = msgHistory;
+        }
+
+        public void run()
+        {
+            getChatConversationPanel().clear();
+
+            processHistory(msgHistory, "");
+            
+            getChatConversationPanel().setDefaultContent();
         }
     }
 }

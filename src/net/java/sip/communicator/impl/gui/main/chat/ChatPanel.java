@@ -418,15 +418,18 @@ public abstract class ChatPanel
      * @param escapedMessageID The incoming message needed to be ignored if
      * contained in history.
      */
-    public void processHistory(Collection historyList,
-            String escapedMessageID)
+    public void processHistory( Collection historyList,
+                                String escapedMessageID)
     {
         Iterator iterator = historyList.iterator();
         String historyString = "";
-        while (iterator.hasNext()) {
+
+        while (iterator.hasNext())
+        {
             Object o = iterator.next();
 
-            if(o instanceof MessageDeliveredEvent) {
+            if(o instanceof MessageDeliveredEvent)
+            {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o;
 
@@ -441,7 +444,8 @@ public abstract class ChatPanel
                             evt.getSourceMessage().getContent(),
                             evt.getSourceMessage().getContentType());
             }
-            else if(o instanceof MessageReceivedEvent) {
+            else if(o instanceof MessageReceivedEvent)
+            {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
 
                 if(!evt.getSourceMessage().getMessageUID()
@@ -452,6 +456,38 @@ public abstract class ChatPanel
                             Constants.HISTORY_INCOMING_MESSAGE,
                             evt.getSourceMessage().getContent(),
                             evt.getSourceMessage().getContentType());
+                }
+            }
+            else if(o instanceof ChatRoomMessageDeliveredEvent)
+            {
+                ChatRoomMessageDeliveredEvent evt
+                    = (ChatRoomMessageDeliveredEvent)o;
+
+                ProtocolProviderService protocolProvider = evt
+                    .getSourceChatRoom().getParentProvider();
+
+                historyString += processHistoryMessage(
+                            getChatWindow().getMainFrame()
+                                .getAccount(protocolProvider),
+                            evt.getTimestamp(),
+                            Constants.HISTORY_OUTGOING_MESSAGE,
+                            evt.getMessage().getContent(),
+                            evt.getMessage().getContentType());
+            }
+            else if(o instanceof ChatRoomMessageReceivedEvent)
+            {
+                ChatRoomMessageReceivedEvent evt
+                    = (ChatRoomMessageReceivedEvent) o;
+
+                if(!evt.getMessage().getMessageUID()
+                        .equals(escapedMessageID))
+                {
+                    historyString += processHistoryMessage(
+                            evt.getSourceChatRoomMember().getName(),
+                            evt.getTimestamp(),
+                            Constants.HISTORY_INCOMING_MESSAGE,
+                            evt.getMessage().getContent(),
+                            evt.getMessage().getContentType());
                 }
             }
         }
