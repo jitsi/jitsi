@@ -191,8 +191,8 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     /**
-     * Parse documets. Synchronized to avoid exception
-     * when concurently parsing with same DocumentBuilder
+     * Parse documents. Synchronized to avoid exception
+     * when concurrently parsing with same DocumentBuilder
      * @param file File the file to parse
      * @return Document the result document
      * @throws SAXException exception
@@ -205,8 +205,8 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     /**
-     * Parse documets. Synchronized to avoid exception
-     * when concurently parsing with same DocumentBuilder
+     * Parse documents. Synchronized to avoid exception
+     * when concurrently parsing with same DocumentBuilder
      * @param in ByteArrayInputStream the stream to parse
      * @return Document the result document
      * @throws SAXException exception

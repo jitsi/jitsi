@@ -9,13 +9,13 @@ package net.java.sip.communicator.impl.history;
 import java.io.*;
 import java.security.*;
 import java.util.*;
-import javax.xml.parsers.*;
 
-import org.w3c.dom.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.XMLUtils;
+import net.java.sip.communicator.util.xml.*;
+
+import org.w3c.dom.*;
 
 /**
  * @author Alexander Pelov
@@ -227,7 +227,7 @@ public class HistoryImpl implements History {
 //                    throw new RuntimeException("Error occured while "
 //                            + "parsing XML document.", e);
 //                    log.error("Error occured while parsing XML document.", e);
-                    log.error("Error occured while parsing XML document.");
+                    log.error("Error occured while parsing XML document.", e);
 
                     // will try to fix the xml file
                     retVal = getFixedDocument(file);

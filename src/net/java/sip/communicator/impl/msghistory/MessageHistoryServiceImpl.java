@@ -411,8 +411,10 @@ public class MessageHistoryServiceImpl
         String remoteId = remoteContact == null ? "default" : remoteContact
                 .getAddress();
 
-        HistoryID historyId = HistoryID.createFromID(new String[] { "messages",
-                localId, remoteId });
+        HistoryID historyId = HistoryID.createFromRawID(
+            new String[] {  "messages",
+                            localId,
+                            remoteId });
 
         if (this.historyService.isHistoryExisting(historyId))
         {
@@ -473,7 +475,7 @@ public class MessageHistoryServiceImpl
         String localId = localContact == null ? "default" : localContact
                 .getAddress();
 
-        HistoryID historyId = HistoryID.createFromID(
+        HistoryID historyId = HistoryID.createFromRawID(
             new String[] { "messages",
                             localId, 
                             account, 
@@ -967,7 +969,8 @@ public class MessageHistoryServiceImpl
         if(evt.getEventType() == 
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED)
         {
-            evt.getChatRoom().addMessageListener(this);
+            if (!evt.getChatRoom().isSystem())
+                evt.getChatRoom().addMessageListener(this);
         }
         else
         {
