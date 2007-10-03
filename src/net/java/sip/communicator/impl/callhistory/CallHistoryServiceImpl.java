@@ -311,8 +311,10 @@ public class CallHistoryServiceImpl
         String remoteId = remoteContact == null ? "default" : remoteContact
                 .getAddress();
 
-        HistoryID historyId = HistoryID.createFromID(new String[] { "callhistory",
-                localId, remoteId });
+        HistoryID historyId = HistoryID.createFromRawID(
+            new String[] {  "callhistory",
+                            localId,
+                            remoteId });
 
         if (this.historyService.isHistoryExisting(historyId))
         {
