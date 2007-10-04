@@ -43,6 +43,7 @@ public class SlicklessTests
 
         addTestSuite(TestXMLUtils.class);
         addTestSuite(TestBase64.class);
+        addTestSuite(TestFailSafeTransaction.class);
         bundleContext.registerService(getClass().getName(), this, properties);
 
         logger.debug("Successfully registered " + getClass().getName());

@@ -90,6 +90,11 @@ public class MclStorageManager
      * A reference to the file containing the locally stored meta contact list.
      */
     private File contactlistFile = null;
+    
+    /**
+     * A reference to the failsafe transaction used with the contactlist file.
+     */
+    private FailSafeTransaction contactlistTrans = null;
 
     /**
      * A regerence to the MetaContactListServiceImpl that created and started us.
@@ -283,33 +288,14 @@ public class MclStorageManager
                                   +". error was:" + ex.getMessage());
         }
 
-        // try to see if any backup remains from the last execution
-        try
-        {
-            File backup = faService.getPrivatePersistentFile(fileName + ".bak");
-
-            // if the backup exists, simply use it as a normal file
-            if (backup.exists())
-            {
-                FileInputStream in = new FileInputStream(backup);
-                FileOutputStream out = new FileOutputStream(contactlistFile);
-
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0)
-                {
-                  out.write(buf, 0, len);
-                }
-
-                in.close();
-                out.close();
-
-                backup.delete();
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error("Failed to restore the backup contact list file", e);
+        // create the failsafe transaction and restore the file if needed
+        try {
+            contactlistTrans = new FailSafeTransaction(this.contactlistFile);
+            contactlistTrans.restoreFile();
+        } catch (NullPointerException e) {
+            logger.error("the contactlist file is null", e);
+        } catch (IllegalStateException e) {
+            logger.error("The contactlist file can't be found", e);
         }
 
         try
@@ -390,34 +376,12 @@ public class MclStorageManager
                      + isModified);
         if(isStarted())
         {
-            // copy the contact list before write on it to ensure
-            // a safe modification
-            File backup = new File (contactlistFile.getAbsolutePath()
-                    + ".bak.part");
-            FileInputStream in = new FileInputStream(contactlistFile);
-            FileOutputStream out = new FileOutputStream(backup);
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0)
-            {
-              out.write(buf, 0, len);
+            // begin a new transaction
+            try {
+                contactlistTrans.beginTransaction();
+            } catch (IllegalStateException e) {
+                logger.error("the contactlist file is missing", e);
             }
-
-            in.close();
-            out.close();
-            
-            // note the end of the transfert
-            File final_backup = new File(contactlistFile.getAbsolutePath()
-                    + ".bak");
-            
-            // this should not happen, but if it's the case, the rename
-            // operation can fail
-            if (final_backup.exists()) {
-                final_backup.delete();
-            }
-            
-            backup.renameTo(final_backup);
 
             // really write the modification
             OutputStream stream = new FileOutputStream(contactlistFile);
@@ -425,8 +389,12 @@ public class MclStorageManager
                                       stream);
             stream.close();
 
-            // once done, delete the backup file
-            final_backup.delete();
+            // commit the changes
+            try {
+                contactlistTrans.commit();
+            } catch (IllegalStateException e) {
+                logger.error("the contactlist file is missing", e);
+            }
         }
     }
 
