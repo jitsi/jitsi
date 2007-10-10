@@ -28,8 +28,8 @@ import net.java.sip.communicator.util.*;
  */
 public class AddContactDialog
     extends SIPCommDialog
-    implements ActionListener {
-
+    implements ActionListener
+{
     private Logger logger = Logger.getLogger(AddContactDialog.class.getName());
     
     private AddContactPanel addContactPanel = new AddContactPanel();
@@ -67,8 +67,8 @@ public class AddContactDialog
      */
     public AddContactDialog(MainFrame mainFrame,
             MetaContact metaContact,
-            ProtocolProviderService pps) {
-        
+            ProtocolProviderService pps)
+    {
         super(mainFrame);
         
         this.mainFrame = mainFrame;
@@ -78,7 +78,7 @@ public class AddContactDialog
         
         this.init();
     }
-    
+
     /**
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
      * that adds a new meta contact to an already existing meta contact group.
@@ -90,8 +90,8 @@ public class AddContactDialog
      */
     public AddContactDialog(MainFrame mainFrame,
             MetaContactGroup group,
-            ProtocolProviderService pps) {
-        
+            ProtocolProviderService pps)
+    {
         super(mainFrame);
         
         this.mainFrame = mainFrame;
@@ -105,7 +105,8 @@ public class AddContactDialog
     /**
      * Initializes the dialog.
      */
-    private void init() {
+    private void init()
+    {
         this.setTitle(Messages.getI18NString("addContact").getText());
         
         this.setSize(520, 250);
@@ -135,28 +136,38 @@ public class AddContactDialog
     /**
      * 
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
         
-        if (name.equals("add")) {
-            if (metaContact != null) {
-                new Thread() {
-                    public void run() {
+        if (name.equals("add"))
+        {
+            if (metaContact != null)
+            {
+                new Thread()
+                {
+                    public void run()
+                    {
                         clist.addNewContactToMetaContact(pps, metaContact,
                             addContactPanel.getUIN());
                     }
-                }.start();                
+                }.start();
             }
-            else if (group != null) {
-                new Thread() {
-                    public void run() {
+            else if (group != null)
+            {
+                new Thread()
+                {
+                    public void run()
+                    {
                         String uin = addContactPanel.getUIN();
-                        try {
+                        try
+                        {
                             clist.createMetaContact(
                                 pps, group, uin);
                         }
-                        catch (MetaContactListException ex) {
+                        catch (MetaContactListException ex)
+                        {
                             logger.error(ex);
                             ex.printStackTrace();
                             int errorCode = ex.getErrorCode();
@@ -164,7 +175,7 @@ public class AddContactDialog
                             if (errorCode
                                     == MetaContactListException
                                         .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
-                                    
+                                
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addContactExistError",
@@ -176,8 +187,8 @@ public class AddContactDialog
                             }
                             else if (errorCode
                                 == MetaContactListException
-                                    .CODE_LOCAL_IO_ERROR) {
-                                
+                                    .CODE_LOCAL_IO_ERROR)
+                            {
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addContactError",
@@ -189,27 +200,27 @@ public class AddContactDialog
                             }
                             else if (errorCode
                                     == MetaContactListException
-                                        .CODE_NETWORK_ERROR) {
-                                
+                                        .CODE_NETWORK_ERROR)
+                            {
                                 new ErrorDialog(mainFrame,
-                                        Messages.getI18NString(
-                                                "addContactError",
-                                                new String[]{uin}).getText(),
-                                                ex,
-                                        Messages.getI18NString(
-                                                "addContactErrorTitle").getText())
-                                                .showDialog();
+                                    Messages.getI18NString(
+                                            "addContactError",
+                                            new String[]{uin}).getText(),
+                                            ex,
+                                    Messages.getI18NString(
+                                            "addContactErrorTitle").getText())
+                                            .showDialog();
                             }
-                            else {
-                                
+                            else
+                            {
                                 new ErrorDialog(mainFrame,
-                                        Messages.getI18NString(
-                                                "addContactError",
-                                                new String[]{uin}).getText(),
-                                                ex,
-                                        Messages.getI18NString(
-                                                "addContactErrorTitle").getText())
-                                                .showDialog();
+                                    Messages.getI18NString(
+                                            "addContactError",
+                                            new String[]{uin}).getText(),
+                                            ex,
+                                    Messages.getI18NString(
+                                            "addContactErrorTitle").getText())
+                                            .showDialog();
                             }
                         }
                     }
@@ -217,7 +228,8 @@ public class AddContactDialog
             }
             this.dispose();
         }
-        else {
+        else
+        {
             this.dispose();
         }
     }
@@ -225,5 +237,15 @@ public class AddContactDialog
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
+    }
+
+    /**
+     * Shows this dialog and requests the default focus in the name field.
+     */
+    public void showDialog()
+    {
+        this.setVisible(true);
+        
+        this.addContactPanel.requestFocusInField();
     }
 }

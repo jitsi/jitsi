@@ -399,15 +399,15 @@ public class ContactRightButtonMenu
                 AddContactDialog dialog = new AddContactDialog(
                         mainFrame,
                         contactItem, pps);
-    
+
                 dialog.setLocation(
                         Toolkit.getDefaultToolkit().getScreenSize().width/2
                             - 250,
                         Toolkit.getDefaultToolkit().getScreenSize().height/2
                             - 100
                         );
-    
-                dialog.setVisible(true);
+
+                dialog.showDialog();
             }
         }
         else if (itemName.equalsIgnoreCase("sendMessage"))
