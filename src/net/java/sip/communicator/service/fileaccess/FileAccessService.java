@@ -106,4 +106,14 @@ public interface FileAccessService {
      *             directory.
      */
     File getPrivatePersistentDirectory(String[] dirNames) throws Exception;
+    
+    /**
+     * Creates a failsafe transaction which can be used to safely store
+     * informations into a file.
+     * 
+     * @param file The file concerned by the transaction, null if file is null.
+     * 
+     * @return A new failsafe transaction related to the given file.
+     */
+    FailSafeTransaction createFailSafeTransaction(File file);
 }

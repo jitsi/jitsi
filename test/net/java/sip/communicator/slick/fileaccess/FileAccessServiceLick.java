@@ -39,6 +39,7 @@ public class FileAccessServiceLick extends TestSuite implements BundleActivator 
         properties.put("service.pid", getName());
 
         addTestSuite(TestFileAccessService.class);
+        addTestSuite(TestFailSafeTransaction.class);
         bundleContext.registerService(getClass().getName(), this, properties);
 
         logger.debug("Successfully registered " + getClass().getName());

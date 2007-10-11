@@ -5,10 +5,14 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.slick.slickless.util;
+package net.java.sip.communicator.slick.fileaccess;
 
 import java.io.*;
-import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
+import net.java.sip.communicator.service.fileaccess.*;
 import junit.framework.*;
 
 /**
@@ -19,6 +23,11 @@ import junit.framework.*;
 public class TestFailSafeTransaction
     extends TestCase
 {
+    /**
+     * The Service that we will be testing.
+     */
+    private FileAccessService fileAccessService = null;
+    
     /**
      * Test data to write in the original file
      */
@@ -42,6 +51,19 @@ public class TestFailSafeTransaction
     private static String tempName = "wzsxedcrfv" + System.currentTimeMillis();
     
     /**
+     * Standart constructor.
+     * 
+     * @param name 
+     */
+    public TestFailSafeTransaction(String name)
+    {
+        super(name);
+        BundleContext context = FileAccessServiceLick.bc;
+        ServiceReference ref = context
+                .getServiceReference(FileAccessService.class.getName());
+        this.fileAccessService = (FileAccessService) context.getService(ref);
+    }
+    /**
      * Tests the commit operation
      */
     public void testCommit() {
@@ -53,7 +75,8 @@ public class TestFailSafeTransaction
             out.write(origData.getBytes());
             
             // write a modification during a transaction
-            FailSafeTransaction trans = new FailSafeTransaction(temp);
+            FailSafeTransaction trans = this.fileAccessService
+                                            .createFailSafeTransaction(temp);
             trans.beginTransaction();
             
             out.write(addedData.getBytes());
@@ -97,7 +120,8 @@ public class TestFailSafeTransaction
             out.write(origData.getBytes());
             
             // write a modification during a transaction
-            FailSafeTransaction trans = new FailSafeTransaction(temp);
+            FailSafeTransaction trans = this.fileAccessService
+                                            .createFailSafeTransaction(temp);
             trans.beginTransaction();
             
             out.write(wrongData.getBytes());
@@ -141,7 +165,8 @@ public class TestFailSafeTransaction
             out.write(origData.getBytes());
             
             // write a modification during a transaction
-            FailSafeTransaction trans = new FailSafeTransaction(temp);
+            FailSafeTransaction trans = this.fileAccessService
+                                            .createFailSafeTransaction(temp);
             trans.beginTransaction();
             
             out.write(addedData.getBytes());
@@ -190,8 +215,10 @@ public class TestFailSafeTransaction
             out.write(origData.getBytes());
             
             // write a modification during a transaction
-            FailSafeTransaction trans = new FailSafeTransaction(temp);
-            FailSafeTransaction trans2 = new FailSafeTransaction(temp);
+            FailSafeTransaction trans = this.fileAccessService
+                                            .createFailSafeTransaction(temp);
+            FailSafeTransaction trans2 = this.fileAccessService
+                                            .createFailSafeTransaction(temp);
             trans.beginTransaction();
             
             out.write(wrongData.getBytes());

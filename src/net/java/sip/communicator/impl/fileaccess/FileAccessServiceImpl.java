@@ -330,5 +330,21 @@ public class FileAccessServiceImpl implements FileAccessService {
 
         return file;
     }
+    
+    /**
+     * Creates a failsafe transaction which can be used to safely store
+     * informations into a file.
+     * 
+     * @param file The file concerned by the transaction, null if file is null.
+     * 
+     * @return A new failsafe transaction related to the given file.
+     */
+    public FailSafeTransaction createFailSafeTransaction(File file) {
+        if (file == null) {
+            return null;
+        }
+        
+        return new FailSafeTransactionImpl(file);
+    }
 
 }

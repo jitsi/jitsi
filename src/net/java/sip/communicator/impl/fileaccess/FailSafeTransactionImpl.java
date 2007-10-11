@@ -5,18 +5,20 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.util;
+package net.java.sip.communicator.impl.fileaccess;
 
 import java.io.*;
+import net.java.sip.communicator.service.fileaccess.*;
 
 /**
- * A failsafe transaction utility class. By failsafe we mean here that the file
+ * A failsafe transaction class. By failsafe we mean here that the file
  * concerned always stays in a coherent state. This class use the transactional
  * model.
  * 
  * @author Benoit Pradelle
  */
-public class FailSafeTransaction 
+public class FailSafeTransactionImpl 
+    implements FailSafeTransaction
 {
     
     /**
@@ -46,7 +48,7 @@ public class FailSafeTransaction
      * 
      * @throws NullPointerException if the file is null
      */
-    public FailSafeTransaction(File file)
+    protected FailSafeTransactionImpl(File file)
         throws NullPointerException
     {
         if (file == null) {

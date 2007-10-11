@@ -12,6 +12,7 @@ import javax.xml.parsers.*;
 
 import org.osgi.framework.*;
 import org.w3c.dom.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -290,7 +291,8 @@ public class MclStorageManager
 
         // create the failsafe transaction and restore the file if needed
         try {
-            contactlistTrans = new FailSafeTransaction(this.contactlistFile);
+            contactlistTrans = faService.createFailSafeTransaction(
+                                            this.contactlistFile);
             contactlistTrans.restoreFile();
         } catch (NullPointerException e) {
             logger.error("the contactlist file is null", e);
