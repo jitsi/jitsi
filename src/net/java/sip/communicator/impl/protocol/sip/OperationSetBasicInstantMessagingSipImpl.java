@@ -401,16 +401,15 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         // Content params
         ContentTypeHeader contTypeHeader;
-        ContentEncodingHeader contEncodHeader;
         ContentLengthHeader contLengthHeader;
         try
         {
             contTypeHeader = this.sipProvider.getHeaderFactory()
                 .createContentTypeHeader(getType(message),
                                          getSubType(message));
-
-            contEncodHeader = this.sipProvider.getHeaderFactory()
-                .createContentEncodingHeader(message.getEncoding());
+            
+            if (! DEFAULT_MIME_ENCODING.equalsIgnoreCase(message.getEncoding()))
+                contTypeHeader.setParameter("charset", message.getEncoding());
 
             contLengthHeader = this.sipProvider.getHeaderFactory()
                 .createContentLengthHeader(message.getSize());
@@ -466,7 +465,6 @@ public class OperationSetBasicInstantMessagingSipImpl
                 , ex);
         }
 
-        req.addHeader(contEncodHeader);
         req.addHeader(contLengthHeader);
 
         return req;
@@ -660,10 +658,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             String content = null;
             try
             {
-                content = new String(
-                    req.getRawContent()
-                    , req.getContentEncoding()
-                        .getEncoding());
+                content = new String(req.getRawContent(), getCharset(req));
             }
             catch (UnsupportedEncodingException ex)
             {
@@ -736,10 +731,8 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             try
             {
-                content = new String(
-                    requestEvent.getRequest().getRawContent(),
-                    requestEvent.getRequest().getContentEncoding()
-                    .getEncoding());
+                Request req = requestEvent.getRequest();
+                content = new String(req.getRawContent(), getCharset(req));
             }
             catch (UnsupportedEncodingException ex)
             {
@@ -819,10 +812,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             try
             {
-                content = new String(
-                    req.getRawContent(),
-                    req.getContentEncoding()
-                    .getEncoding());
+                content = new String(req.getRawContent(), getCharset(req));
             }
             catch (UnsupportedEncodingException exc)
             {
@@ -954,6 +944,27 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // we don't need this message anymore
                 sentMsg.remove(key);
             }
+        }
+        
+        /**
+         * Try to find a charset in a MESSAGE request for the
+         * text content. If no charset is defined, the default charset
+         * for text messages is returned.
+         * 
+         * @param req the MESSAGE request in which to look for a charset
+         * @return defined charset in the request or DEFAULT_MIME_ENCODING
+         *  if no charset is specified
+         */
+        private String getCharset(Request req)
+        {
+            String charset = null;
+            Header contentTypeHeader = req.getHeader(ContentTypeHeader.NAME);
+            if (contentTypeHeader instanceof ContentTypeHeader)
+                charset = ((ContentTypeHeader) contentTypeHeader)
+                                                .getParameter("charset");
+            if (charset == null)
+                charset = DEFAULT_MIME_ENCODING;
+            return charset;
         }
 
         /**
