@@ -3,7 +3,8 @@
     <import file="../build.xml"/>
     <!-- TODO: edit the following target according to your needs -->
     <!-- (more info: http://www.netbeans.org/kb/41/freeform-config.html#debugj2se) -->
-    <target description="Starts oscar and runs sip-comunicator gui (use latest build)." name="debug-nb">
+    <target description="Starts oscar and runs sip-comunicator gui (use latest build)." name="debug-nb"
+            depends="-deploy-os-specific-bundles">
         <!-- forking prevents from debugging-->
         <nbjpdastart addressproperty="jpda.address" name="sip-communicator-1.0" transport="dt_socket"/>
         <java classname="org.apache.felix.main.Main" classpathref="project.class.path" failonerror="true" fork="true">
