@@ -6,11 +6,11 @@
     <target description="Starts oscar and runs sip-comunicator gui (use latest build)." name="debug-nb">
         <!-- forking prevents from debugging-->
         <nbjpdastart addressproperty="jpda.address" name="sip-communicator-1.0" transport="dt_socket"/>
-        <java classname="org.ungoverned.oscar.Main" classpathref="project.class.path" failonerror="true" fork="true">
+        <java classname="org.apache.felix.main.Main" classpathref="project.class.path" failonerror="true" fork="true">
             <!-- Sets the charset for the messages -->
             <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
             <!-- Tell oscar to run sip-communicator-->
-            <sysproperty key="oscar.config.properties" value="file:./lib/oscar.client.run.properties"/>
+            <sysproperty key="felix.config.properties" value="file:./lib/felix.client.run.properties"/>
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file" value="lib/logging.properties"/>
             <!-- Setting LD_LIBRARY_PATH-->
