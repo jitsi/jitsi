@@ -17,7 +17,7 @@ public class WelcomeWindow
             " " + System.getProperty("sip-communicator.version"));
 
     private JTextArea logoArea
-        = new JTextArea("Open Source VoIP & Instant Messaging");
+        = new JTextArea(Resources.getString("logoMessage"));
 
     private JEditorPane rightsArea = new JEditorPane();
 
@@ -36,7 +36,8 @@ public class WelcomeWindow
 
     private JPanel loadingPanel = new JPanel(new BorderLayout());
 
-    private JLabel loadingLabel = new JLabel("Loading: ");
+    private JLabel loadingLabel
+        = new JLabel(Resources.getString("loading") + ": ");
 
     private JLabel bundleLabel = new JLabel();
 
@@ -85,12 +86,13 @@ public class WelcomeWindow
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.setText( "<html><font size=3 style=bold>"
-            + "The SIP Communicator is currently under active development."
-            + "The version you are running is only experimental and WILL NOT "
-            + "work as expected. Please refer to "
-            + "<a href=http://sip-communicator.org>http://sip-communicator.org</a>"
-            + " for more information.</font></html>");
+        this.licenseArea.setText(
+            "<html><font size=3 style=bold>"
+            + Resources.getString("welcomeMessage",
+                new String[]{"<a href=http://sip-communicator.org>"
+                            + "http://sip-communicator.org</a>"
+            })
+            + "</font></html>");
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
         this.licenseArea.setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
