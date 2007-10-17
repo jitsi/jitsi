@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -26,9 +27,10 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class AccountRegWizardContainerImpl extends Wizard
-    implements AccountRegistrationWizardContainer {
-
+public class AccountRegWizardContainerImpl
+    extends Wizard
+    implements AccountRegistrationWizardContainer
+{
     private static final Logger logger = Logger
         .getLogger(AccountRegWizardContainerImpl.class);
     
@@ -58,8 +60,10 @@ public class AccountRegWizardContainerImpl extends Wizard
         this.summaryPage = new AccountRegSummaryPage(this);
         
         this.addAccountRegistrationListener(firstPage);
+        
+        this.setWizzardIcon(ImageLoader.getImage(ImageLoader.WINDOW_LOGO));
     }
-            
+
     /**
      * Adds the given <tt>AccountRegistrationWizard</tt> to the list of
      * containing wizards.
