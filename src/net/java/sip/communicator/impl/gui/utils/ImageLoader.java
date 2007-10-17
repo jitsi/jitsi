@@ -566,6 +566,8 @@ public class ImageLoader {
     public static final ImageID LEAVE_ICON
         = new ImageID("LEAVE_ICON");
 
+    public static final ImageID WINDOW_LOGO
+        = new ImageID("WINDOW_LOGO");
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
