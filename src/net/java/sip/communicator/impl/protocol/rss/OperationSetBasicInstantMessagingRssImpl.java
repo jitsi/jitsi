@@ -230,7 +230,16 @@ public class OperationSetBasicInstantMessagingRssImpl
          Iterator rssContact = rssContactList.iterator();
          while(rssContact.hasNext())
          {
-            submitRssQuery((ContactRssImpl)rssContact.next(), false);
+             ContactRssImpl contact = (ContactRssImpl)rssContact.next();
+             try
+             {
+                 
+                 submitRssQuery(contact, false);
+             }
+             catch (Exception ex)
+             {
+                 logger.error("Failed to refresh feed for " + contact, ex);
+             }
          }
     }
 

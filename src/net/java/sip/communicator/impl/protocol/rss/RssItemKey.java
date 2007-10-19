@@ -119,6 +119,7 @@ public class RssItemKey
      * Used for restoring the key information from a textual representation.
      *
      * @param settings textual representation of the stored data
+     * @return the result rss item
      */
     public static RssItemKey deserialize(String settings)
     {
@@ -127,7 +128,7 @@ public class RssItemKey
 
         while (reader.hasMoreTokens())
         {
-            String data[] = reader.nextToken().split("=");
+            String data[] = reader.nextToken().split("=", 2);
             if (data[0].equals("itemDate"))
             {
                 if (data.length == 2)
