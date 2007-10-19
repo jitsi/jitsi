@@ -417,14 +417,9 @@ function djnInit() {
 	document.getElementById("banner").style.display="block";
 }
 
-if(window.location.href.indexOf("http://localhost:8080/")!=-1
-|| window.location.href.indexOf("http://wiki.glassfish.java.net/")!=-1)
-	addLoadEvent(wikiInit);
-else {
-	// add referene to theme.css
-	document.write('<link rel="stylesheet" type="text/css" href="https://glassfish-theme.dev.java.net/theme.css"/>');
-	addLoadEvent(djnInit);
-}
+// add referene to theme.css
+document.write('<link rel="stylesheet" type="text/css" href="https://sip-communicator.dev.java.net/theme.css"/>');
+addLoadEvent(djnInit);
 
 // add the open search link.
-document.write('<link rel="search" type="application/opensearchdescription+xml" href="https://glassfish.dev.java.net/coolstuff/javanet/it.xml" title="Java.net issue tracker"/>');
+document.write('<link rel="search" type="application/opensearchdescription+xml" href="https://sip-communicator.dev.java.net/it.xml" title="Java.net issue tracker"/>');

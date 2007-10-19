@@ -1,0 +1,310 @@
+  /* Get rid of much of the java.net HTML structures */
+  #toptabs, #breadcrumbs, #searchbox, #helptext, #apphead, .pagecomponent .axial { display:none; }
+  .topbar { border: none; }
+  /* Kill logo */
+  #banner TABLE IMG { display: none; }
+  /* some boxes inside the floated topline has white background which interfers with the navbar */
+  #banner, #banner TD { background-color: transparent; }
+  /* Move the login bar to right and dock the left bar to top */
+  /* DIV.topline { float: right; } */
+  #banner {
+    padding-top: 0px;
+  }
+  .topline {
+    border-top: none !important;
+  }
+
+  /* logo layout */
+  #logo-box {
+    /*clear: right;*/
+  }
+  #logo-box IMG {
+    vertical-align: middle;
+    margin-left: 1em;
+    margin-right: 1em;
+  }
+  #logo-box {
+    font-size:2em;
+    color: #707277;
+  }
+  #logo-box A:link, #logo-box A:visited {
+    text-decoration: none !important;
+    color: #E76F00 !important;
+  }
+
+  /* login box */
+  #loginbox {
+    font-size: inherit;
+    font-weight: normal;
+  }
+  #loginbox A:link, #loginbox A:visited {
+    color: black !important;
+    font-weight: normal;
+  }
+
+  /* General regions styling */
+  #regions {
+  	padding: 0;
+  	margin: 0;
+  	list-style: none;
+  }
+  #regions LI {
+  	float: right;
+  	text-align: center;
+  	position: relative;
+  	background-color: #ED9B4F;
+  }
+  #regions LI#regions-leadin {
+  	background-image: url('https://sip-communicator.dev.java.net/regions-gradation.png');
+  	background-color: transparent;
+  	width: 100px;
+  	float: right;
+  }
+  #regions #current-region {
+    background-color: #E76F00;
+  }
+  #regions #current-region LI {
+    background-color: #E76F00;
+  }
+  #regions-box #regions #current-region A {
+    color: white !important;
+  }
+  #regions-box #regions LI A {
+	text-decoration: none !important;
+	color: white !important;
+	display: block;
+	padding: 0.5em;
+	width: 8em;
+	font-size: 1.2em;
+  }
+/*  #regions-box #regions LI A:hover {
+	color: #E76F00 !important;
+  }*/
+  #regions-box #regions LI:hover {/* lots of ID axis to get high priority */
+  	background-color: #E76F00; /* current selection should always get the same color, even if it's in the current region */
+  }
+  #regions-box #regions #current-region LI A:hover {
+    color: white !important;
+    background-color: #ED9B4F;
+  }
+  #regions-box #regions LI#current-region:hover {/* lots of ID axis to get high priority */
+  	background-color: #E76F00; /* ... except when it's the current region itself */
+  }
+  #banner TABLE { /* to move the login bar beneath the regions menu */
+  	clear: right;
+  	padding-top: 0.5em;
+  }
+  #regions LI UL {
+  	display: none;
+  	position: absolute;
+	z-index: 999;
+  	list-style: none;
+  	padding: 0;
+  	margin: 0;
+  	top: 1em;
+  	right: 0;
+        float: none;
+  }
+  #regions LI > UL {
+	top: auto;
+	left: auto;
+  }
+  #regions LI:hover UL, #regions LI.over UL {
+	display: block;
+  }
+  #regions LI LI {
+    display: block;
+    float: none;
+  }
+  
+  
+  /* General zone styling. See http://alistapart.com/articles/dropdowns */
+  #projecttools {
+    background-color: #5382A1;
+    margin-top: 2em; /* create some space between the GF logo and menu bar */
+    border: none;
+  }
+
+  /*
+    reset the padding for LI, and use padding for A instead, so that 
+    the selection bar gets all the width it can take.
+  */
+  #projecttools #menubar {/* lots of ID axis to get high priority */
+    padding: 0;
+    /* shift the menu bar to the right a bit */
+    position: relative;
+    left: 1em;
+    border: 1px solid #999999;
+    border-left: none;
+  }
+  #menubar LI {
+    padding: 0;
+  }
+  #menubar.depth1 { margin-left: 1em; } /* depth support */
+  #menubar.depth2 { margin-left: 2em; }
+  #menubar.depth3 { margin-left: 4em; }
+  #projecttools DT.depth1 { margin-left: 1em; }
+  #projecttools DT.depth2 { margin-left: 2em; }
+  #projecttools DT.depth3 { margin-left: 3em; }
+  #menubar UL LI A {
+    padding-left: 1em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+  }
+  #menubar UL LI UL LI A {
+    padding-left: 2em;
+  }
+  #menubar UL LI UL LI UL LI A {
+    padding-left: 3em;
+  }
+  #menubar UL LI UL LI UL LI UL LI A {
+    padding-left: 4em;
+  }
+  #menubar UL LI UL LI UL LI UL LI UL LI A {
+    padding-left: 5em;
+  }
+  
+  #topmodule {/* align the issue bar in the issue tracker to the left menu. */
+    margin-top: 2em;
+  }
+  #projecttools #current-zone {
+    background-color: #5382A1;
+  }
+  #projecttools DT {
+  	padding: 0;
+  	font-weight: bold;
+	background-color: #A3B8CB;
+  }
+  #navcol #projecttools DT A {
+	color: white !important;
+  	display: block;
+  	padding: 0.3em;
+  }
+  #navcol #projecttools DT A:hover {/* zone hover */
+    background-color: #5382A1;
+    color: white !important;
+  }
+  #projecttools DT#current-zone A {
+    color: white !important;
+  }
+
+  .navgroup LI LI {
+    /* prevent nested lists to use bigger fonts, due to .navgroup LI {font-size:1.1em;} */
+    font-size: inherit;
+  }
+  
+  #projecttools #menubar A {/* use lots of ID selectors to have higher precedence*/
+    display: block;
+    text-decoration: none;
+    margin-top: 0.1em;
+    margin-bottom: 0.1em;
+  }
+  
+  #menubar UL {
+  	margin: 0;
+  }
+  #menubar LI.active {
+    font-weight: bold;
+  }
+  #menubar LI {
+  	margin: 0;
+  	font-weight: normal;
+  }
+  
+  /*
+  #menubar LI.inactive > UL {/ * hide inactive ULs ...  * /
+    display: none;
+  }
+  #menubar LI.inactive.parent > A:after {
+    content: "...";
+  }
+  #menubar LI.inactive.expanded > UL {/ * ... except when it's expanded by a mouse click * /
+    display: block;
+  }
+  #menubar LI.inactive.expanded.parent > A:after {
+    content: "";
+  }
+  */
+  
+  #menubar LI.inactive > UL {/* hide inactive ULs ... */
+    display: none;
+  }
+  #menubar LI.inactive.parent > A:before {
+    content: url(https://sip-communicator.dev.java.net/plus.gif);
+    left: -9px;
+    margin-left: -9px;
+  }
+  #menubar LI.inactive.parent > A:hover:before {
+	content: url(https://sip-communicator.dev.java.net/plus-white.gif);
+  }
+  #menubar LI.inactive.expanded > UL {/* ... except when it's expanded by a mouse click */
+    display: block;
+  }
+  #menubar LI.inactive.expanded.parent > A:before {
+    content: url(https://sip-communicator.dev.java.net/minus.gif);
+  }
+  #menubar LI.inactive.expanded.parent > A:hover:before {
+    content: url(https://sip-communicator.dev.java.net/minus-white.gif);
+  }
+  
+  
+  #projecttools #menubar LI A:hover {/* use lots of ID selectors to have higher precedence*/
+    background-color: #5382A1;
+    color: white !important;
+  }
+
+
+
+  /* "hosted on java.net" line */
+  #hosted-on-javanet {
+    margin-top: 2em;
+    text-align: center;
+  }
+
+
+
+  /* main content area */
+  h1 {
+    color: #E76F00;
+	font-size: 1.5em;
+    font-weight: bold;
+  }
+  .application h3, .app h3, h3 {
+	color: #E76F00;
+	font-size: 1.3em;
+	background-color: transparent;
+
+  }
+  .application h2, .app h2, h2 {
+	background-color: transparent;
+	font-size: 1.4em;
+	color: #E76F00;
+  }
+  .h2 h2, #longdescription h2 {/* override inst.css line 106*/
+	background-color: transparent;
+	color: #E76F00;
+  }
+  h4 {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+  }
+
+  .a:hover td, .a:hover, #rightcol div.siteinfo .a:hover, .b:hover td, .b:hover, #rightcol div.siteinfo .b:hover, .hilight {
+	background-color: #FFA855;
+	color: transparent;
+  }
+  #footer P {/* hide java.net RSS icon */
+	visibility: hidden;
+  }
+
+
+/* gray box on the right hand side. */
+.floatbox {
+	width: 230px;
+	
+	background:rgb(238,238,238);
+	margin-top: 1em;
+	padding: 5px;
+	
+	border: 1px solid rgb(170,170,170);
+}
