@@ -4,6 +4,36 @@
 </dd>
 </dl>
 
+<script id="eraser">
+
+	// if the Get Involved block was named I could just get the
+	// the two sections by name and set the display to none. 
+
+	// get to the block
+	var dd = document.getElementById("eraser").previousSibling;
+
+	// hide all default navigation bars
+
+	// within the previous blocks hide everything
+	for( n=dd; n!=null; n=n.previousSibling ) {
+			if(n.nodeType==1) { // if element
+				if(n.tagName=="DL") 
+				{ // kill all the link items
+					n.style.display = "none";
+				}
+			}
+	}
+
+	var searchbox = document.getElementById("searchbox");
+	searchbox.style.display = "none";
+
+	var helptext = document.getElementById("helptext");
+	helptext.style.display = "none";
+
+	// This is all you can do because the "Search" and "How do I"
+	// boxes aren't created
+</script>
+
 <dl id="tools" class="navgroup">
 <dt>Project Tools</dt>
 <dd>
