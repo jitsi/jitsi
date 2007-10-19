@@ -446,7 +446,7 @@
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
         <javaproperty name="apple.awt.showGrowBox" value="false"/>
         <javaproperty name="java.library.path"
-                      value="${dyld.library.path}"/>
+                      value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
 
         <!-- Tell felix to run sip-communicator -->
         <javaproperty name="felix.config.properties"
