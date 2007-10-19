@@ -42,7 +42,7 @@ public class VersionImpl
      * and version revisions are exclusive, so in case this version is a pre-
      * release the revision will bereturn null.
      */
-    public static final String PRE_RELEASE_ID = "alpha2";
+    public static final String PRE_RELEASE_ID = "alpha3";
 
     /**
      * Returns the version revision number of the current SIP Communicator
