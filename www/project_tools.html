@@ -22,6 +22,23 @@ for( n=dd; n!=null; n=n.previousSibling ) {
 	}
 }
 
+// insert the zone list into the navigation bar
+var projecttools = document.getElementById("projecttools");
+projecttools.innerHTML = html.join('');
+
+// insert the menubar
+var curZone = document.getElementById("current-zone");
+if(curZone!=null)
+projecttools.insertBefore(menubar, curZone.nextSibling);
+else
+projecttools.appendChild(menubar); // TODO: will come back to this later
+
+// kill all the boxes in front of the projecttools
+while(projecttools.previousSibling!=null) {
+	projecttools.parentNode.removeChild(projecttools.previousSibling);
+}
+
+
 // This is all you can do because the "Search" and "How do I"
 // boxes aren't created
 </script>
