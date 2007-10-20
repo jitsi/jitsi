@@ -233,7 +233,6 @@ public class OperationSetBasicInstantMessagingRssImpl
              ContactRssImpl contact = (ContactRssImpl)rssContact.next();
              try
              {
-                 
                  submitRssQuery(contact, false);
              }
              catch (Exception ex)
