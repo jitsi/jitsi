@@ -303,7 +303,7 @@
       description="Generates project javadoc.">
         <javadoc author="true" destdir="${java.doc}" package="true"
             version="true" use="true" windowtitle="SIP Communicator API"
-            classpathref="compile.class.path" source="1.4+">
+            classpathref="compile.class.path" source="1.4+" maxmemory="128m">
             <packageset dir="${src}">
                 <exclude name="net/java/sip/communicator/impl/version/**"/>
                 <include name="**"/>
