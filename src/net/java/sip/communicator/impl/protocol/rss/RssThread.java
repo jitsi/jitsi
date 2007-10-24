@@ -33,6 +33,8 @@ public class RssThread
     {
         this.opSet = opSet;
         this.rssContact = rssContact;
+        
+        this.setDaemon(true);
     }
 
     /**
