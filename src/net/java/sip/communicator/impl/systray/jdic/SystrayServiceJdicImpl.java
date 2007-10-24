@@ -75,7 +75,11 @@ public class SystrayServiceJdicImpl
     private static Logger logger =
         Logger.getLogger(SystrayServiceJdicImpl.class.getName());
 
+    /**
+     * The various icons used on the systray
+     */
     private ImageIcon logoIcon;
+    private ImageIcon envelopeIcon;
 
     /**
      * Creates an instance of <tt>Systray</tt>.
@@ -115,16 +119,24 @@ public class SystrayServiceJdicImpl
         {
            logoIcon = new ImageIcon(
                    Resources.getImage("trayIconWindows"));
+           envelopeIcon = new ImageIcon(
+                   Resources.getImage("messageIconWindows"));
         }
+        // If we're running under MacOSX, we use a special back and 
+        // white icons without background.
         else if (osName.startsWith("Mac OS X"))
         {
            logoIcon = new ImageIcon(
                    Resources.getImage("trayIconMacOSX"));
+           envelopeIcon = new ImageIcon(
+                   Resources.getImage("messageIconMacOSX"));
         }
         else
         {
             logoIcon = new ImageIcon(
                     Resources.getImage("trayIcon"));
+           envelopeIcon = new ImageIcon(
+                   Resources.getImage("messageIcon"));
         }
 
         trayIcon = new TrayIcon(logoIcon, "SIP Communicator", menu);
@@ -322,12 +334,18 @@ public class SystrayServiceJdicImpl
     /**
      * Sets a new Systray icon.
      * 
-     * @param image the icon to set.
+     *  @param imageType the type of the image to set.
      */
-    public void setSystrayIcon(byte[] image)
+    public void setSystrayIcon(int imageType)
     {
-        if (image != null)
-            this.trayIcon.setIcon(new ImageIcon(image));
+        if (imageType == SystrayService.SC_IMG_TYPE)
+        {
+            this.trayIcon.setIcon(logoIcon);
+        }
+        else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
+        {
+            this.trayIcon.setIcon(envelopeIcon);
+        }
     }
 
     /**

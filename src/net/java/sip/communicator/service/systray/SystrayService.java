@@ -37,6 +37,16 @@ public interface SystrayService
     public static final int NONE_MESSAGE_TYPE = -1;
 
     /**
+     * Image type corresponding to the sip-communicator icon
+     */
+    public static final int SC_IMG_TYPE = 0;
+
+    /**
+     * Image type corresponding to the envelope icon
+     */
+    public static final int ENVELOPE_IMG_TYPE = 1;
+
+    /**
      * Shows a system tray message with the given title and message content. The
      * message type will affect the icon used to present the message.
      *
@@ -66,7 +76,7 @@ public interface SystrayService
     /**
      * Sets a new icon to the systray.
      * 
-     * @param image the image to set
+     * @param imageType the type of the image to set
      */
-    public void setSystrayIcon(byte[] image);
+    public void setSystrayIcon(int imageType);
 }

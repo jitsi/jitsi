@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.systray.*;
 
 /**
  * The list model of the ContactList. This class use as a data model the
@@ -607,12 +608,9 @@ public class ContactListModel
         synchronized (activeContacts)
         {
             if(activeContacts.size() == 0)
-            {
                 GuiActivator.getSystrayService().setSystrayIcon(
-                    ImageLoader.getImageInBytes(
-                        ImageLoader.SYSTRAY_ENVELOPE_ICON));
-            }
-            
+                   SystrayService.ENVELOPE_IMG_TYPE);
+
             if(!activeContacts.contains(metaContact))
                 this.activeContacts.add(metaContact);
         }
@@ -631,10 +629,8 @@ public class ContactListModel
                 this.activeContacts.remove(metaContact);
             
             if(activeContacts.size() == 0)
-            {
                 GuiActivator.getSystrayService().setSystrayIcon(
-                    ImageLoader.getImageInBytes(ImageLoader.SYSTRAY_ICON));
-            }
+                   SystrayService.SC_IMG_TYPE);
         }
     }
     
@@ -650,7 +646,7 @@ public class ContactListModel
                 this.activeContacts.removeAllElements();
                 
                 GuiActivator.getSystrayService().setSystrayIcon(
-                    ImageLoader.getImageInBytes(ImageLoader.SYSTRAY_ICON));
+                   SystrayService.SC_IMG_TYPE);
             }   
         }
     }
