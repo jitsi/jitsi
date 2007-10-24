@@ -116,6 +116,11 @@ public class SystrayServiceJdicImpl
            logoIcon = new ImageIcon(
                    Resources.getImage("trayIconWindows"));
         }
+        else if (osName.startsWith("Mac OS X"))
+        {
+           logoIcon = new ImageIcon(
+                   Resources.getImage("trayIconMacOSX"));
+        }
         else
         {
             logoIcon = new ImageIcon(
