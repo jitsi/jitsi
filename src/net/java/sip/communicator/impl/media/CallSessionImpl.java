@@ -1484,6 +1484,8 @@ public class CallSessionImpl
             {
                 Player player = ( Player )playersIter.next();
                 player.stop();
+                player.deallocate();
+                player.close();
                 playersIter.remove();
             }
 
