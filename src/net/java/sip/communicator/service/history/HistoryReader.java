@@ -184,4 +184,15 @@ public interface HistoryReader {
      * @param listener HistorySearchProgressListener
      */
     public void removeSearchProgressListener(HistorySearchProgressListener listener);
+    
+    /**
+     * Total count of records that current history reader will read through
+     * 
+     * @return the number of searched messages
+     * @throws UnsupportedOperationException 
+     *              Thrown if an exception occurs during the execution of the
+     *              query, such as internal IO error.
+     */
+    public int countRecords()
+        throws UnsupportedOperationException;
 }

@@ -840,6 +840,45 @@ public class HistoryReaderImpl
             progressListeners.remove(listener);
         }
     }
+    
+    /**
+     * Count the number of messages that a search will return
+     * Actually only the last file is parsed and its nodes are counted.
+     * We accept that the other files are full with max records, 
+     * this way we escape parsing all files which will significantly 
+     * slow the process and for one search will parse the files twice.
+     * 
+     * @return the number of searched messages
+     * @throws UnsupportedOperationException 
+     *              Thrown if an exception occurs during the execution of the
+     *              query, such as internal IO error.
+     */
+    public int countRecords()
+        throws UnsupportedOperationException
+    {
+        int result = 0;
+        String lastFile = null;
+        Iterator filelistIter = this.historyImpl.getFileList();
+        while (filelistIter.hasNext())
+        {
+            lastFile = (String)filelistIter.next();
+            result += HistoryWriterImpl.MAX_RECORDS_PER_FILE;
+        }
+
+        if(lastFile == null)
+            return result;
+        
+        Document doc = this.historyImpl.getDocumentForFile(lastFile);
+
+        if(doc == null)
+            return result;
+
+        NodeList nodes = doc.getElementsByTagName("record");
+
+        result += nodes.getLength();
+        
+        return result;
+    }
 
     /**
      * Used to compare HistoryRecords

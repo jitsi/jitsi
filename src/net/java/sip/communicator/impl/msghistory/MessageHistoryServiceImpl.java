@@ -84,6 +84,8 @@ public class MessageHistoryServiceImpl
         // get the readers for this contact
         Hashtable readers = getHistoryReaders(contact);
 
+        int recordsCount = countRecords(readers);
+        
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -91,7 +93,7 @@ public class MessageHistoryServiceImpl
             HistoryReader reader = (HistoryReader)readers.get(item);
 
             // add the progress listeners
-            addHistorySearchProgressListeners(reader, readers.size());
+            addHistorySearchProgressListeners(reader, recordsCount);
             Iterator recs = reader.findByStartDate(startDate);
             while (recs.hasNext())
             {
@@ -127,6 +129,8 @@ public class MessageHistoryServiceImpl
         // get the readers for this contact
         Hashtable readers = getHistoryReaders(contact);
 
+        int recordsCount = countRecords(readers);
+        
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -134,7 +138,7 @@ public class MessageHistoryServiceImpl
             HistoryReader reader = (HistoryReader)readers.get(item);
 
             // add the progress listeners
-            addHistorySearchProgressListeners(reader, readers.size());
+            addHistorySearchProgressListeners(reader, recordsCount);
             Iterator recs = reader.findByEndDate(endDate);
             while (recs.hasNext())
             {
@@ -170,6 +174,8 @@ public class MessageHistoryServiceImpl
         // get the readers for this contact
         Hashtable readers = getHistoryReaders(contact);
 
+        int recordsCount = countRecords(readers);
+        
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -177,7 +183,7 @@ public class MessageHistoryServiceImpl
             HistoryReader reader = (HistoryReader)readers.get(item);
 
             // add the progress listeners
-            addHistorySearchProgressListeners(reader, readers.size());
+            addHistorySearchProgressListeners(reader, recordsCount);
 
             Iterator recs = reader.findByPeriod(startDate, endDate);
             while (recs.hasNext())
@@ -1011,10 +1017,10 @@ public class MessageHistoryServiceImpl
      * to the given HistoryReader
      *
      * @param reader HistoryReader
-     * @param countContacts number of contacts will search
+     * @param countRecords number of records will search
      */
     private void addHistorySearchProgressListeners(
-        HistoryReader reader, int countContacts)
+        HistoryReader reader, int countRecords)
     {
         synchronized(progressListeners)
         {
@@ -1023,7 +1029,7 @@ public class MessageHistoryServiceImpl
             {
                 SearchProgressWrapper l =
                     (SearchProgressWrapper) iter.next();
-                l.contactCount = countContacts;
+                l.setCurrentValues(reader, countRecords);
                 reader.addSearchProgressListener(l);
             }
         }
@@ -1072,6 +1078,8 @@ public class MessageHistoryServiceImpl
         // get the readers for this contact
         Hashtable readers = getHistoryReaders(contact);
 
+        int recordsCount = countRecords(readers);
+        
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -1079,7 +1087,7 @@ public class MessageHistoryServiceImpl
             HistoryReader reader = (HistoryReader) readers.get(item);
 
             // add the progress listeners
-            addHistorySearchProgressListeners(reader, readers.size());
+            addHistorySearchProgressListeners(reader, recordsCount);
             Iterator recs = reader.findByPeriod(startDate, endDate, keywords,
                                                 SEARCH_FIELD, caseSensitive);
             while (recs.hasNext())
@@ -1118,6 +1126,8 @@ public class MessageHistoryServiceImpl
         // get the readers for this contact
         Hashtable readers = getHistoryReaders(contact);
 
+        int recordsCount = countRecords(readers);
+        
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -1125,7 +1135,7 @@ public class MessageHistoryServiceImpl
             HistoryReader reader = (HistoryReader) readers.get(item);
 
             // add the progress listeners
-            addHistorySearchProgressListeners(reader, readers.size());
+            addHistorySearchProgressListeners(reader, recordsCount);
             Iterator recs = reader.
                 findByKeyword(keyword, SEARCH_FIELD, caseSensitive);
             while (recs.hasNext())
@@ -1164,6 +1174,8 @@ public class MessageHistoryServiceImpl
         // get the readers for this contact
         Hashtable readers = getHistoryReaders(contact);
 
+        int recordsCount = countRecords(readers);
+        
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -1171,7 +1183,7 @@ public class MessageHistoryServiceImpl
             HistoryReader reader = (HistoryReader) readers.get(item);
 
             // add the progress listeners
-            addHistorySearchProgressListeners(reader, readers.size());
+            addHistorySearchProgressListeners(reader, recordsCount);
             Iterator recs = reader.
                 findByKeywords(keywords, SEARCH_FIELD, caseSensitive);
             while (recs.hasNext())
@@ -1216,6 +1228,30 @@ public class MessageHistoryServiceImpl
             }
         }
         return readers;
+    }
+    
+    /**
+     * Total count of records for supplied history readers will read through
+     * 
+     * @param readers hashtable with pairs contact <-> history reader
+     * @return the number of searched messages
+     * @throws UnsupportedOperationException 
+     *              Thrown if an exception occurs during the execution of the
+     *              query, such as internal IO error.
+     */
+    public int countRecords(Hashtable readers)
+    {
+        int result = 0;
+        
+        Enumeration readersEnum = readers.elements();
+        
+        while (readersEnum.hasMoreElements())
+        {
+            HistoryReader r = (HistoryReader)readersEnum.nextElement();
+            result += r.countRecords();
+        }
+
+        return result;
     }
     
     /**
@@ -1642,62 +1678,78 @@ public class MessageHistoryServiceImpl
         implements HistorySearchProgressListener
     {
         private MessageHistorySearchProgressListener listener = null;
-        int contactCount = 0;
-        int currentContactCount = 0;
-        int currentProgress = 0;
-        int lastHistoryProgress = 0;
+        int allRecords = 0;
+        HistoryReader reader = null;
+        double currentReaderProgressRatio = 0;
+        double accumulatedRatio = 0;
+        double currentProgress = 0;
+        double lastHistoryProgress = 0;
+        
+        // used for more precise calculations with double values
+        int raiser = 1000;
 
         SearchProgressWrapper(MessageHistorySearchProgressListener listener)
         {
             this.listener = listener;
         }
+        
+        private void setCurrentValues(HistoryReader currentReader, int allRecords)
+        {
+            this.allRecords = allRecords;
+            this.reader = currentReader;
+            currentReaderProgressRatio = 
+                    (double)currentReader.countRecords()/allRecords * raiser;
+            accumulatedRatio += currentReaderProgressRatio;
+        }
 
         public void progressChanged(ProgressEvent evt)
         {
-            int progress = getProgressMapping(evt.getProgress());
+            int progress = getProgressMapping(evt);
+            currentProgress = progress;
 
             listener.progressChanged(
                 new net.java.sip.communicator.service.msghistory.event.
                     ProgressEvent(MessageHistoryServiceImpl.this,
-                    evt, progress));
+                    evt, progress/raiser));
         }
 
         /**
-         * Calculates the progress according the count of the contacts
+         * Calculates the progress according the count of the records
          * we will search
          * @param historyProgress int
          * @return int
          */
-        private int getProgressMapping(int historyProgress)
+        private int getProgressMapping(ProgressEvent evt)
         {
-            currentProgress += (historyProgress - lastHistoryProgress)/contactCount;
-
-            if(historyProgress == HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
+            double tmpHistoryProgress = 
+                    currentReaderProgressRatio * evt.getProgress();
+            
+            currentProgress += tmpHistoryProgress - lastHistoryProgress;
+            
+            if(evt.getProgress() == HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
             {
-                currentContactCount++;
                 lastHistoryProgress = 0;
-
+                
                 // this is the last one and the last event fire the max
                 // there will be looses in currentProgress due to the devision
-                if(currentContactCount == contactCount)
-                    currentProgress =
+                if((int)accumulatedRatio == raiser)
+                    currentProgress = raiser *
                         MessageHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
             }
             else
-                lastHistoryProgress = historyProgress;
-
-            return currentProgress;
+                lastHistoryProgress = tmpHistoryProgress;
+            
+            return (int)currentProgress;
         }
 
         /**
          * clear the values
          */
         void clear()
-        {
-            contactCount = 0;
+        {            
+            allRecords = 0;
             currentProgress = 0;
             lastHistoryProgress = 0;
-            currentContactCount = 0;
         }
     }
 
