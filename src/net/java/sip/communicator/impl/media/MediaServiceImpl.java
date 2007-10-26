@@ -155,8 +155,9 @@ public class MediaServiceImpl
         CallSessionImpl callSession = new CallSessionImpl(
                 call, this, (URL)callDataSinkMappings.get(call));
 
-        activeCallSessions.put(call, callSession);
-
+        // commented out because it leaks memory, and activeCallSessions isn't 
+        // used anyway (by Michael Koch)
+        // activeCallSessions.put(call, callSession);
         /** @todo make sure you remove the session once its over. */
 
         return callSession;
