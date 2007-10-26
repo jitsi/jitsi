@@ -156,12 +156,13 @@ public class CallSessionImpl
      * @see #registerCustomCodecFormats(RTPManager)
      * @see MediaControl#registerCustomCodecs()
      */
-     private static final String[] CUSTOM_CODEC_FORMATS = new String[]
-     {
-         Constants.ILBC_RTP,
-         Constants.ALAW_RTP,
-         Constants.SPEEX_RTP
-     };
+    private static final javax.media.Format[] CUSTOM_CODEC_FORMATS 
+        = new javax.media.Format[] 
+    {
+        new AudioFormat(Constants.ILBC_RTP),
+        new AudioFormat(Constants.ALAW_RTP),
+        new AudioFormat(Constants.SPEEX_RTP)
+    };
 
     /**
      * Creates a new session for the specified <tt>call</tt> with a custom
@@ -1441,10 +1442,16 @@ public class CallSessionImpl
     {
         for (int i=0; i<CUSTOM_CODEC_FORMATS.length; i++) 
         {
-            String format = CUSTOM_CODEC_FORMATS[i];
+            javax.media.Format format = CUSTOM_CODEC_FORMATS[i];
             logger.debug("registering format " + format + " with RTP manager");
+            /*
+             * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat 
+             * leaks memory, since it stores the Format in a static Vector. 
+             * AFAIK there is no easy way around it, but the memory impact 
+             * should not be too bad.
+             */
             rtpManager.addFormat(
-                new AudioFormat(format), MediaUtils.jmfToSdpEncoding(format));
+                format, MediaUtils.jmfToSdpEncoding(format.getEncoding()));
         }
     }
 
