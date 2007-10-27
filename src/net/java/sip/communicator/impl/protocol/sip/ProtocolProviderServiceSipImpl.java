@@ -223,7 +223,7 @@ public class ProtocolProviderServiceSipImpl
      * A default specifyier telling the stack whether or not to cache client
      * connections.
      */
-    private static final String NSPVALUE_CACHE_CLIENT_CONNECTIONS = "false";
+    private static final String NSPVALUE_CACHE_CLIENT_CONNECTIONS = "true";
 
     /**
      * The name of the property under which the user may specify a transport
