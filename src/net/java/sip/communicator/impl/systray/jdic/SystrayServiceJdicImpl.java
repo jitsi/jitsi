@@ -133,7 +133,7 @@ public class SystrayServiceJdicImpl
         }
         else
         {
-            logoIcon = new ImageIcon(
+           logoIcon = new ImageIcon(
                     Resources.getImage("trayIcon"));
            envelopeIcon = new ImageIcon(
                    Resources.getImage("messageIcon"));
