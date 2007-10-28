@@ -79,9 +79,11 @@ public class SystrayServiceJdicImpl
     /**
      * The various icons used on the systray
      */
+    private ImageIcon currentIcon;
     private ImageIcon logoIcon;
     private ImageIcon logoIconWhite;
     private ImageIcon envelopeIcon;
+    private ImageIcon envelopeIconWhite;
 
     /**
      * Creates an instance of <tt>Systray</tt>.
@@ -134,6 +136,8 @@ public class SystrayServiceJdicImpl
                     Resources.getImage("trayIconMacOSXWhite"));
             envelopeIcon = new ImageIcon(
                     Resources.getImage("messageIconMacOSX"));
+            envelopeIconWhite = new ImageIcon(
+                    Resources.getImage("messageIconMacOSXWhite"));
         }
         else
         {
@@ -143,6 +147,7 @@ public class SystrayServiceJdicImpl
                     Resources.getImage("messageIcon"));
         }
 
+        currentIcon = logoIcon;
         trayIcon = new TrayIcon(logoIcon, "SIP Communicator", menu);
         trayIcon.setIconAutoSize(true);
 
@@ -176,17 +181,35 @@ public class SystrayServiceJdicImpl
             {
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e)
                 {
-                    trayIcon.setIcon(logoIconWhite);
+                    if (currentIcon == envelopeIcon)
+                    {
+                        trayIcon.setIcon(envelopeIconWhite);
+                        currentIcon = envelopeIconWhite;
+                    }
+                    else
+                    {
+                        trayIcon.setIcon(logoIconWhite);
+                        currentIcon = logoIconWhite;                        
+                    }
                 }
 
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e) 
                 {
-                    trayIcon.setIcon(logoIcon);                
+                    if (currentIcon == envelopeIconWhite)
+                    {
+                        trayIcon.setIcon(envelopeIcon);
+                        currentIcon = envelopeIcon;
+                    }
+                    else
+                    {
+                        trayIcon.setIcon(logoIcon);
+                        currentIcon = logoIcon;
+                    }
                 }
         
                 public void popupMenuCanceled(PopupMenuEvent e) 
                 {
-                    trayIcon.setIcon(logoIconWhite);
+                    popupMenuWillBecomeInvisible(e);
                 } 
             });
         }
@@ -361,17 +384,37 @@ public class SystrayServiceJdicImpl
     /**
      * Sets a new Systray icon.
      * 
-     *  @param imageType the type of the image to set.
+     * @param imageType the type of the image to set.
      */
     public void setSystrayIcon(int imageType)
     {
+        String osName = System.getProperty("os.name");
+
         if (imageType == SystrayService.SC_IMG_TYPE)
         {
-            this.trayIcon.setIcon(logoIcon);
+            if (osName.startsWith("Mac OS X") && this.menu.isVisible())
+            {
+                this.trayIcon.setIcon(logoIconWhite);
+                this.currentIcon = logoIconWhite;
+            }
+            else
+            {
+                this.trayIcon.setIcon(logoIcon);
+                this.currentIcon = logoIcon;
+            }
         }
         else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
         {
-            this.trayIcon.setIcon(envelopeIcon);
+            if (osName.startsWith("Mac OS X") && this.menu.isVisible())
+            {
+                this.trayIcon.setIcon(envelopeIconWhite);
+                this.currentIcon = envelopeIconWhite;
+            }
+            else
+            {
+                this.trayIcon.setIcon(envelopeIcon);
+                this.currentIcon = envelopeIcon;
+            }
         }
     }
 
