@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.Timer;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -79,6 +80,7 @@ public class SystrayServiceJdicImpl
      * The various icons used on the systray
      */
     private ImageIcon logoIcon;
+    private ImageIcon logoIconWhite;
     private ImageIcon envelopeIcon;
 
     /**
@@ -117,26 +119,28 @@ public class SystrayServiceJdicImpl
         // background.
         if (osName.startsWith("Windows"))
         {
-           logoIcon = new ImageIcon(
-                   Resources.getImage("trayIconWindows"));
-           envelopeIcon = new ImageIcon(
-                   Resources.getImage("messageIconWindows"));
+            logoIcon = new ImageIcon(
+                    Resources.getImage("trayIconWindows"));
+            envelopeIcon = new ImageIcon(
+                    Resources.getImage("messageIconWindows"));
         }
         // If we're running under MacOSX, we use a special back and 
         // white icons without background.
         else if (osName.startsWith("Mac OS X"))
         {
-           logoIcon = new ImageIcon(
-                   Resources.getImage("trayIconMacOSX"));
-           envelopeIcon = new ImageIcon(
-                   Resources.getImage("messageIconMacOSX"));
+            logoIcon = new ImageIcon(
+                    Resources.getImage("trayIconMacOSX"));
+            logoIconWhite = new ImageIcon(
+                    Resources.getImage("trayIconMacOSXWhite"));
+            envelopeIcon = new ImageIcon(
+                    Resources.getImage("messageIconMacOSX"));
         }
         else
         {
-           logoIcon = new ImageIcon(
+            logoIcon = new ImageIcon(
                     Resources.getImage("trayIcon"));
-           envelopeIcon = new ImageIcon(
-                   Resources.getImage("messageIcon"));
+            envelopeIcon = new ImageIcon(
+                    Resources.getImage("messageIcon"));
         }
 
         trayIcon = new TrayIcon(logoIcon, "SIP Communicator", menu);
@@ -163,6 +167,29 @@ public class SystrayServiceJdicImpl
                         new Boolean(isVisible));
             }
         });
+
+        // Change the MacOSX icon with the white one when the popup 
+        // menu appears
+        if (osName.startsWith("Mac OS X"))
+        {
+            menu.addPopupMenuListener(new PopupMenuListener()
+            {
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+                {
+                    trayIcon.setIcon(logoIconWhite);
+                }
+
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) 
+                {
+                    trayIcon.setIcon(logoIcon);                
+                }
+        
+                public void popupMenuCanceled(PopupMenuEvent e) 
+                {
+                    trayIcon.setIcon(logoIconWhite);
+                } 
+            });
+        }
 
         //Notify all interested listener that user has clicked on the systray
         //popup message.
