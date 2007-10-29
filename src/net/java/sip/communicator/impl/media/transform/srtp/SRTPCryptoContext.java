@@ -166,7 +166,7 @@ public class SRTPCryptoContext
      * @param roc the initial Roll-Over-Counter according to RFC 3711.
      * These are the upper 32 bit of the overall 48 bit SRTP packet index.
      * Refer to chapter 3.2.1 of the RFC.
-     * @param keyDerivRate the key derivation rate defines when to recompute
+     * @param keyDerivationRate the key derivation rate defines when to recompute
      * the SRTP session keys. Refer to chapter 4.3.1 in the RFC.
      * @param masterKey byte array holding the master key for this SRTP
      * cryptographic context. Refer to chapter 3.2.1 of the RFC about the
@@ -712,7 +712,7 @@ public class SRTPCryptoContext
      *
      * @param ssrc The SSRC for this context
      * @param roc The Roll-Over-Counter for this context
-     * @param keyDerivRate The key derivation rate for this context
+     * @param deriveRate The key derivation rate for this context
      * @return a new SRTPCryptoContext with all relevant data set.
      */
     public SRTPCryptoContext deriveContext(long ssrc, int roc, long deriveRate)
