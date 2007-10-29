@@ -166,29 +166,19 @@ public class JmfDeviceDetector
         }
 
         //Linux
-//        try
-//        {
-//            V4LAuto v4lAuto = new V4LAuto();
-//            nDevices = v4lAuto.autoDetectDevices();
-//            logger.info("Detected "
-//                        + nDevices
-//                        +" V4L video capture device.");
-//        }
-//        catch (Throwable exc)
-//        {
-//            logger.debug("No V4l video detected: " + exc.getMessage());
-//        }
-        
-//        try
-//        {
-//            new net.sf.fmj.media.cdp.civil.CaptureDevicePlugger().
-//                    addCaptureDevices();
-//            CaptureDeviceManager.commit();
-//        }
-//        catch (Throwable exc)
-//        {
-//            logger.debug("No civil video detected: ", exc);
-//        }
+        try
+        {
+            V4LAuto v4lAuto = new V4LAuto();
+            nDevices = v4lAuto.autoDetectDevices();
+            logger.info("Detected "
+                        + nDevices
+                        +" V4L video capture device.");
+        }
+        catch (Throwable exc)
+        {
+            logger.debug("No V4l video detected: " + exc.getMessage());
+        }
+
     }
 
     private void detectDirectAudio()
