@@ -1158,7 +1158,7 @@ public class MetaContactListServiceImpl
         //removed
         locallyRemoveAllContactsForProvider(metaContainer
                                             , groupToRemove);
-
+        
         fireMetaContactGroupEvent(metaContainer, sourceProvider, groupToRemove
             , MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP);
 
@@ -1554,7 +1554,9 @@ public class MetaContactListServiceImpl
             ContactGroup group = (ContactGroup)subgroups.next();
             //remove the group
             this.removeContactGroupFromMetaContactGroup(
-                this.rootMetaGroup, group, provider);
+                (MetaContactGroupImpl)findMetaContactGroupByContactGroup(group), 
+                group, 
+                provider);
         }
 
         //remove the root group
