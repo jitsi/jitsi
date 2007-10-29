@@ -224,7 +224,7 @@
         <!--internal-target- compiles the entire project source tree -->
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
-            source="1.4" target="1.4">
+            source="1.5" target="1.5">
             <src path="${src}"/>
             <src path="${src2}"/>
             <include name="**/*.java" />
@@ -303,7 +303,7 @@
       description="Generates project javadoc.">
         <javadoc author="true" destdir="${java.doc}" package="true"
             version="true" use="true" windowtitle="SIP Communicator API"
-            classpathref="compile.class.path" source="1.4+" maxmemory="128m">
+            classpathref="compile.class.path" source="1.5+" maxmemory="128m">
             <packageset dir="${src}">
                 <exclude name="net/java/sip/communicator/impl/version/**"/>
                 <include name="**"/>
@@ -341,7 +341,7 @@
         <delete failonerror="false">
             <fileset dir="${dest}" includes="net/java/sip/communicator/impl/version/*.class"/>
         </delete>
-        <javac destdir="${dest}" source="1.4" target="1.4">
+        <javac destdir="${dest}" source="1.5" target="1.5">
             <src path="${src}"/>
             <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
             <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />
@@ -433,7 +433,7 @@
                   signature="sipc"
                   mainclass="org.apache.felix.main.Main"
                   icon="resources/images/logo/sc_logo_128x128.icns"
-                  jvmversion="1.4+"
+                  jvmversion="1.5+"
                   version="${sip-communicator.version}"
                   build="draft"
                   infostring="SIP Communicator"
