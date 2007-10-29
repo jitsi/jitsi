@@ -182,7 +182,7 @@
         <fileset dir="${lib}">
             <include name="*.jar"/>
             <include name="installer-exclude/*.jar"/>
-            <include name="bundles/*.jar"/>
+            <include name="bundle/*.jar"/>
         </fileset>
 
         <fileset dir="${os.lib.home}">
@@ -764,7 +764,7 @@
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                     value="${user.home}"/-->
-
+                
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>

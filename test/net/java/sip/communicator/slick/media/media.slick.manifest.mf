@@ -4,6 +4,7 @@ Bundle-Description: A Service Implementation Compatibility Kit for the Media Ser
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
+ junit.framework,
  net.java.sip.communicator.slick.media,
  net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,

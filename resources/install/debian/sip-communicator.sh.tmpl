@@ -32,6 +32,6 @@ cd $SCDIR
 
 if [ -f $javabin ]
 then
-        $javabin -classpath	"$LIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar:$LIBPATH/felix.jar:$LIBPATH/kxml-min.jar:$LIBPATH/servicebinder.jar:$LIBPATH/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar:$SCDIR/sc-bundles/util.jar" -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
+        $javabin -classpath	"$LIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar:$LIBPATH/felix.jar:$SCDIR/sc-bundles/util.jar" -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
         exit $?
 fi
