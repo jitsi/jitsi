@@ -627,6 +627,15 @@ public class OperationSetBasicTelephonySipImpl
             logger.debug("Received a stray ok response.");
             return;
         }
+        
+        if (callParticipant.getState() == CallParticipantState.CONNECTED)
+        {
+            // This can happen if the OK UDP packet has been resent due to a 
+            //timeout. (fix by Michael Koch)
+            logger.debug("Ignoring invite OK since call participant is "
+                         +"already connected.");
+            return;
+        }
 
         Request ack = null;
         ContentTypeHeader contentTypeHeader = null;
