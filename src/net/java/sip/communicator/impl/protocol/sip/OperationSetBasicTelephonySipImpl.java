@@ -108,7 +108,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws ParseException if <tt>callee</tt> is not a valid sip address
      * string.
      */
-    public Call createCall(String callee)
+    public synchronized Call createCall(String callee)
         throws OperationFailedException, ParseException
     {
         Address toAddress = parseAddressStr(callee);
@@ -129,7 +129,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    public Call createCall(Contact callee)
+    public synchronized Call createCall(Contact callee)
         throws OperationFailedException
     {
         Address toAddress = null;
@@ -345,7 +345,7 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param participant the call participant to put on hold.
      */
-    public void putOffHold(CallParticipant participant)
+    public synchronized void putOffHold(CallParticipant participant)
     {
         /** @todo implement putOffHold() */
     }
@@ -355,7 +355,7 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param participant the participant that we'd like to put on hold.
      */
-    public void putOnHold(CallParticipant participant)
+    public synchronized void putOnHold(CallParticipant participant)
     {
         /** @todo implement putOnHold() */
     }
@@ -871,7 +871,7 @@ public class OperationSetBasicTelephonySipImpl
      *       dialog has transitioned into the terminated state.
      */
     public void processDialogTerminated(DialogTerminatedEvent
-                                        dialogTerminatedEvent)
+                                                         dialogTerminatedEvent)
     {
         CallParticipantSipImpl callParticipant = activeCallsRepository
             .findCallParticipant(dialogTerminatedEvent.getDialog());
@@ -1363,7 +1363,7 @@ public class OperationSetBasicTelephonySipImpl
      * CallParticipantSipImpl.
      * @throws OperationFailedException if we fail to terminate the call.
      */
-    public void hangupCallParticipant(CallParticipant participant)
+    public synchronized void hangupCallParticipant(CallParticipant participant)
         throws ClassCastException, OperationFailedException
     {
         //do nothing if the call is already ended
@@ -1674,7 +1674,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to create or send the
      * response.
      */
-    public void answerCallParticipant(CallParticipant participant)
+    public synchronized void answerCallParticipant(CallParticipant participant)
         throws OperationFailedException
     {
         CallParticipantSipImpl callParticipant
@@ -1875,7 +1875,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Closes all active calls. And releases resources.
      */
-    public void shutdown()
+    public synchronized void shutdown()
     {
         logger.trace("Ending all active calls.");
         Iterator activeCalls = this.activeCallsRepository.getActiveCalls();
