@@ -680,19 +680,38 @@ public class OperationSetBasicTelephonySipImpl
 
         try
         {
-            if(callSession == null)
+            try
             {
-                //non existent call session - that means we didn't send sdp in
-                //the invide and this is the offer so we need to create the
-                //answer.
-                callSession = SipActivator.getMediaService()
-                    .createCallSession(callParticipant.getCall());
-                String sdp = callSession.processSdpOffer(
-                                      callParticipant
-                                    , callParticipant.getSdpDescription());
-                ack.setContent(sdp, contentTypeHeader);
+                if(callSession == null)
+                {
+                    //non existent call session - that means we didn't send sdp 
+                    //in the invide and this is the offer so we need to create 
+                    //the answer.
+                    callSession = SipActivator.getMediaService()
+                        .createCallSession(callParticipant.getCall());
+                    String sdp = callSession.processSdpOffer(
+                        callParticipant
+                        , callParticipant.getSdpDescription());
+                    ack.setContent(sdp, contentTypeHeader);
+                }
 
             }
+            finally
+            {
+                // Send the ACK now since we got all the info we need,
+                // and callSession.processSdpAnswer can take a few seconds.
+                // (patch by Michael Koch)
+                try{
+                    clientTransaction.getDialog().sendAck(ack);
+                }
+                catch (SipException ex)
+                {
+                    logger.error("Failed to acknowledge call!", ex);
+                    callParticipant.setState(CallParticipantState.FAILED);
+                    return;
+                }
+            }
+       
             callSession.processSdpAnswer(callParticipant
                                          , callParticipant.getSdpDescription());
         }
@@ -722,18 +741,6 @@ public class OperationSetBasicTelephonySipImpl
                 + ". Error was: "
                 + exc.getMessage());
         }
-
-        //send ack
-        try{
-            clientTransaction.getDialog().sendAck(ack);
-        }
-        catch (SipException ex)
-        {
-            logger.error("Failed to acknowledge call!", ex);
-            callParticipant.setState(CallParticipantState.FAILED);
-            return;
-        }
-
 
         //change status
         callParticipant.setState(CallParticipantState.CONNECTED);
