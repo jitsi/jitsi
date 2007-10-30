@@ -572,7 +572,7 @@ public class MainFrame
             ProtocolProviderService pps = evt.getProvider();
 
             getStatusPanel().updateStatus(pps, evt.getNewStatus());
-            
+
             if(callManager.containsCallAccount(pps))
             {
                 callManager.updateCallAccountStatus(pps);
@@ -893,7 +893,7 @@ public class MainFrame
                             new Integer(0));
                 }
             }
-            this.getStatusPanel().updateAccount(currentProvider);
+            this.getStatusPanel().updateAccountIndex(currentProvider);
         }
     }
 
