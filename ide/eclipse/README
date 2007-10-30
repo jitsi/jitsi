@@ -9,6 +9,6 @@ In order to use it do:
 		cp .classpath ../../
 
 	b) Under Windows:
-		copy .project ../../
-		copy .classpath ../../
+		copy .project ..\..\
+		copy .classpath ..\..\
 3) Start Eclipse
