@@ -126,7 +126,7 @@ public class SystrayServiceJdicImpl
             envelopeIcon = new ImageIcon(
                     Resources.getImage("messageIconWindows"));
         }
-        // If we're running under MacOSX, we use a special back and 
+        // If we're running under MacOSX, we use a special black and 
         // white icons without background.
         else if (osName.startsWith("Mac OS X"))
         {
