@@ -16,7 +16,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
-public abstract class SIPCommFrame extends JFrame
+public abstract class SIPCommFrame
+    extends JFrame
 {
     private Logger logger = Logger.getLogger(SIPCommFrame.class);
     
@@ -27,24 +28,23 @@ public abstract class SIPCommFrame extends JFrame
     {
         this.setIconImage(
             ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
-        
+
         // In order to have the same icon when using option panes
         JOptionPane.getRootFrame().setIconImage(
                 ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
         this.addWindowListener(new FrameWindowAdapter());
-        
+
         amap = this.getRootPane().getActionMap();
 
         amap.put("close", new CloseAction());
-        
+
         imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
-        
     }
-    
+
     /**
      * The action invoked when user presses Escape key.
      */
@@ -54,7 +54,7 @@ public abstract class SIPCommFrame extends JFrame
         {
             saveSizeAndLocation();
             close(true);
-        }        
+        }
     }
     
     /**
@@ -79,8 +79,10 @@ public abstract class SIPCommFrame extends JFrame
      */
     public class FrameWindowAdapter extends WindowAdapter
     {
-        public void windowClosing(WindowEvent e) {
+        public void windowClosing(WindowEvent e)
+        {
             saveSizeAndLocation();
+
             close(false);
         }
     }
@@ -117,12 +119,13 @@ public abstract class SIPCommFrame extends JFrame
             logger.error("The proposed property change "
                     + "represents an unacceptable value");
         }
-    }    
+    }
 
     /**
      * Sets window size and position.
      */
-    public void setSizeAndLocation() {
+    public void setSizeAndLocation()
+    {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
@@ -157,7 +160,8 @@ public abstract class SIPCommFrame extends JFrame
             this.setLocation(new Integer(xString).intValue(),
                 new Integer(yString).intValue());
         }        
-        else {            
+        else
+        {
             this.setCenterLocation();
         }
     }
@@ -182,7 +186,8 @@ public abstract class SIPCommFrame extends JFrame
      */
     public void setVisible(boolean isVisible)
     {
-        if(isVisible) {
+        if(isVisible)
+        {
             this.pack();
             this.setSizeAndLocation();
         }
