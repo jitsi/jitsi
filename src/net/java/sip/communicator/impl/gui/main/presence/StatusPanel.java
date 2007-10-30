@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
 package net.java.sip.communicator.impl.gui.main.presence;
@@ -22,8 +21,8 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>StatusPanel</tt> is the place where the user can see and change
- * its status for all registered protocols. 
+ * The <tt>StatusPanel</tt> is the place where the user can see and change its
+ * status for all registered protocols.
  * 
  * @author Yana Stamcheva
  */
@@ -31,27 +30,26 @@ public class StatusPanel
     extends JMenuBar
     implements ComponentListener
 {
-
     private Hashtable protocolStatusCombos = new Hashtable();
+
+    private GlobalStatusSelectorBox globalStatusBox;
 
     private MainFrame mainFrame;
 
     /**
      * Creates an instance of <tt>StatusPanel</tt>.
+     * 
      * @param mainFrame The main application window.
      */
-    public StatusPanel(MainFrame mainFrame) {
-
+    public StatusPanel(MainFrame mainFrame)
+    {
         this.mainFrame = mainFrame;
 
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-
-        this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
-                Constants.MOVER_START_COLOR));
     }
 
     /**
-     * Creates the selector box, containing all protocol statuses, adds it to 
+     * Creates the selector box, containing all protocol statuses, adds it to
      * the StatusPanel and refreshes the panel.
      * 
      * @param protocolProvider The protocol provider.
@@ -59,86 +57,100 @@ public class StatusPanel
     public void addAccount(ProtocolProviderService protocolProvider)
     {
         StatusSelectorBox protocolStatusCombo;
-        
-        int providerIndex = this.mainFrame.getProviderIndex(protocolProvider); 
-        if(mainFrame.getProtocolPresenceOpSet(protocolProvider) != null) {
-            protocolStatusCombo
-                = new PresenceStatusSelectorBox(
-                        this.mainFrame, protocolProvider,
-                        providerIndex);
-        }
-        else {
-            protocolStatusCombo
-               = new SimpleStatusSelectorBox(
-                        this.mainFrame, protocolProvider,
-                        providerIndex);
-        }
-        
-        protocolStatusCombo.addComponentListener(this);
-        
-        this.protocolStatusCombos.put(protocolProvider,
-                protocolStatusCombo);
 
-        if(protocolProvider.getProtocolName().equals("SIP"))
-            this.add(protocolStatusCombo, FlowLayout.LEFT);
+        int providerIndex = this.mainFrame.getProviderIndex(protocolProvider);
+
+        if (mainFrame.getProtocolPresenceOpSet(protocolProvider) != null)
+        {
+            protocolStatusCombo =
+                new PresenceStatusSelectorBox(this.mainFrame, protocolProvider,
+                    providerIndex);
+        }
         else
-            this.add(protocolStatusCombo);
+        {
+            protocolStatusCombo =
+                new SimpleStatusSelectorBox(this.mainFrame, protocolProvider,
+                    providerIndex);
+        }
+
+        protocolStatusCombo.addComponentListener(this);
+
+        if (protocolStatusCombos.size() == 1)
+        {
+            this.globalStatusBox = new GlobalStatusSelectorBox(mainFrame);
+
+            Icon statusSeparatorIcon = new ImageIcon(
+                ImageLoader.getImage(ImageLoader.STATUS_SEPARATOR_ICON));
+
+            this.add(new JLabel(statusSeparatorIcon), FlowLayout.LEFT);
+            this.add(globalStatusBox, FlowLayout.LEFT);
+        }
+
+        this.protocolStatusCombos.put(protocolProvider, protocolStatusCombo);
+
+        this.add(protocolStatusCombo);
 
         this.getParent().validate();
     }
 
     /**
-     * Removes the selector box, containing all protocol statuses, from 
-     * the StatusPanel and refreshes the panel.
+     * Removes the selector box, containing all protocol statuses, from the
+     * StatusPanel and refreshes the panel.
      * 
      * @param pps The protocol provider to remove.
      */
-    public void removeAccount(ProtocolProviderService pps) {
-        
-        StatusSelectorBox protocolStatusCombo
-            = (StatusSelectorBox) this.protocolStatusCombos.get(pps);
+    public void removeAccount(ProtocolProviderService pps)
+    {
+        StatusSelectorBox protocolStatusCombo =
+            (StatusSelectorBox) this.protocolStatusCombos.get(pps);
 
         this.protocolStatusCombos.remove(pps);
+
+        if (protocolStatusCombos.size() == 1 && globalStatusBox != null)
+        {
+            this.remove(globalStatusBox);
+        }
+
         this.remove(protocolStatusCombo);
 
         this.revalidate();
         this.repaint();
     }
-    
+
     /**
-     * Updates the account given by the protocol provider.
+     * Updates the account index for the given protocol provider.
      * 
      * @param protocolProvider the protocol provider for the account to update
      */
-    public void updateAccount(ProtocolProviderService protocolProvider) {
-        StatusSelectorBox protocolStatusCombo
-            = (StatusSelectorBox) this.protocolStatusCombos
-                .get(protocolProvider);
-    
-        protocolStatusCombo.setAccountIndex(
-                mainFrame.getProviderIndex(protocolProvider));
-        
+    public void updateAccountIndex(ProtocolProviderService protocolProvider)
+    {
+        StatusSelectorBox protocolStatusCombo =
+            (StatusSelectorBox) this.protocolStatusCombos.get(protocolProvider);
+
+        protocolStatusCombo.setAccountIndex(mainFrame
+            .getProviderIndex(protocolProvider));
+
         this.revalidate();
         this.repaint();
     }
 
-    
     /**
      * Shows the protocol animated icon, which indicates that it is in a
      * connecting state.
      * 
      * @param protocolProvider The protocol provider.
      */
-    public void startConnecting(ProtocolProviderService protocolProvider) {
+    public void startConnecting(ProtocolProviderService protocolProvider)
+    {
 
-        StatusSelectorBox selectorBox 
-            = (StatusSelectorBox) protocolStatusCombos
-                .get(protocolProvider);
+        StatusSelectorBox selectorBox =
+            (StatusSelectorBox) protocolStatusCombos.get(protocolProvider);
 
-        BufferedImage[] animatedImage = ImageLoader.getAnimatedImage(
-            protocolProvider.getProtocolIcon().getConnectingIcon());
-        
-        if(animatedImage != null && animatedImage.length > 0)
+        BufferedImage[] animatedImage =
+            ImageLoader.getAnimatedImage(protocolProvider.getProtocolIcon()
+                .getConnectingIcon());
+
+        if (animatedImage != null && animatedImage.length > 0)
             selectorBox.startConnecting(animatedImage);
         else
             selectorBox.setSelectedIcon(new ImageIcon(protocolProvider
@@ -147,70 +159,76 @@ public class StatusPanel
         selectorBox.repaint();
     }
 
-    public String getLastStatusString(
-        ProtocolProviderService protocolProvider)
+    /**
+     * Returns the last contact status saved in the configuration.
+     * 
+     * @param protocolProvider the protocol provider to which the status
+     *            corresponds
+     * @return the last contact status saved in the configuration.
+     */
+    public String getLastStatusString(ProtocolProviderService protocolProvider)
     {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-        
-        //find the last contact status saved in the configuration.
+        ConfigurationService configService =
+            GuiActivator.getConfigurationService();
+
+        // find the last contact status saved in the configuration.
         String lastStatus = null;
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
-        
-        List accounts = configService
-                .getPropertyNamesByPrefix(prefix, true);
-        
+
+        List accounts = configService.getPropertyNamesByPrefix(prefix, true);
+
         Iterator accountsIter = accounts.iterator();
-        
-        while(accountsIter.hasNext()) {
-            String accountRootPropName 
-                = (String) accountsIter.next();
-            
-            String accountUID 
-                = configService.getString(accountRootPropName);
-            
-            if(accountUID.equals(protocolProvider
-                    .getAccountID().getAccountUniqueID())) {
-                lastStatus = configService.getString(
-                        accountRootPropName + ".lastAccountStatus");
-                
-                if(lastStatus != null)
+
+        while (accountsIter.hasNext())
+        {
+            String accountRootPropName = (String) accountsIter.next();
+
+            String accountUID = configService.getString(accountRootPropName);
+
+            if (accountUID.equals(protocolProvider.getAccountID()
+                .getAccountUniqueID()))
+            {
+                lastStatus =
+                    configService.getString(accountRootPropName
+                        + ".lastAccountStatus");
+
+                if (lastStatus != null)
                     break;
             }
         }
 
         return lastStatus;
     }
-        
+
     /**
      * Returns the last status that was stored in the configuration xml for the
      * given protocol provider.
      * 
-     * @param protocolProvider the protocol provider 
+     * @param protocolProvider the protocol provider
      * @return the last status that was stored in the configuration xml for the
-     * given protocol provider
+     *         given protocol provider
      */
     public PresenceStatus getLastPresenceStatus(
         ProtocolProviderService protocolProvider)
     {
         String lastStatus = getLastStatusString(protocolProvider);
 
-        OperationSetPresence presence
-            = mainFrame.getProtocolPresenceOpSet(protocolProvider);
+        OperationSetPresence presence =
+            mainFrame.getProtocolPresenceOpSet(protocolProvider);
 
-        if(presence == null)
+        if (presence == null)
             return null;
 
         Iterator i = presence.getSupportedStatusSet();
 
-        if(lastStatus != null)
+        if (lastStatus != null)
         {
             PresenceStatus status;
-            while(i.hasNext())
+            while (i.hasNext())
             {
-                status = (PresenceStatus)i.next();
-                if(status.getStatusName().equals(lastStatus))
+                status = (PresenceStatus) i.next();
+                if (status.getStatusName().equals(lastStatus))
                 {
                     return status;
                 }
@@ -218,46 +236,46 @@ public class StatusPanel
         }
         return null;
     }
-    
+
     /**
-     * Updates the status for this protocol provider.
-     *  
-     * @param protocolProvider The ProtocolProvider, which presence status to
+     * Updates the status for this protocol provider in the corresponding
+     * status selector box.
+     * 
+     * @param protocolProvider the protocol provider, which presence status to
      * update.
      */
     public void updateStatus(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorBox selectorBox
-            = (StatusSelectorBox) protocolStatusCombos
-                .get(protocolProvider);
+        StatusSelectorBox selectorBox =
+            (StatusSelectorBox) protocolStatusCombos.get(protocolProvider);
 
-        if(selectorBox == null)
+        if (selectorBox == null)
             return;
 
-        if(selectorBox instanceof PresenceStatusSelectorBox)
+        if (selectorBox instanceof PresenceStatusSelectorBox)
         {
-            PresenceStatusSelectorBox presenceSelectorBox
-                = (PresenceStatusSelectorBox) selectorBox;
+            PresenceStatusSelectorBox presenceSelectorBox =
+                (PresenceStatusSelectorBox) selectorBox;
 
-            if(!protocolProvider.isRegistered())
-                presenceSelectorBox.updateStatus(
-                        presenceSelectorBox.getOfflineStatus());
+            if (!protocolProvider.isRegistered())
+                presenceSelectorBox.updateStatus(presenceSelectorBox
+                    .getOfflineStatus());
             else
             {
-                if(presenceSelectorBox.getLastSelectedStatus() != null)
+                if (presenceSelectorBox.getLastSelectedStatus() != null)
                 {
-                    presenceSelectorBox.updateStatus(
-                            presenceSelectorBox.getLastSelectedStatus());
+                    presenceSelectorBox.updateStatus(presenceSelectorBox
+                        .getLastSelectedStatus());
                 }
                 else
                 {
-                    PresenceStatus lastStatus
-                        = getLastPresenceStatus(protocolProvider);
+                    PresenceStatus lastStatus =
+                        getLastPresenceStatus(protocolProvider);
 
-                    if(lastStatus == null)
+                    if (lastStatus == null)
                     {
-                        presenceSelectorBox.updateStatus(
-                                presenceSelectorBox.getOnlineStatus());
+                        presenceSelectorBox.updateStatus(presenceSelectorBox
+                            .getOnlineStatus());
                     }
                     else
                     {
@@ -266,27 +284,47 @@ public class StatusPanel
                 }
             }
         }
-        else {
-            ((SimpleStatusSelectorBox)selectorBox).updateStatus();
+        else
+        {
+            ((SimpleStatusSelectorBox) selectorBox).updateStatus();
         }
+
         selectorBox.repaint();
+
+        // Update the global status.
+        if (globalStatusBox != null)
+        {
+            globalStatusBox.updateStatus();
+        }
     }
 
+    /**
+     * Changes the current status of the given protocol provider, selected in
+     * the selector box with the given status.
+     * 
+     * @param pps the protocol provider, which status should be updated.
+     * @param status the new status to set
+     */
     public void updateStatus(ProtocolProviderService pps, PresenceStatus status)
     {
-        StatusSelectorBox selectorBox 
-            = (StatusSelectorBox) protocolStatusCombos
-                .get(pps);
+        StatusSelectorBox selectorBox =
+            (StatusSelectorBox) protocolStatusCombos.get(pps);
 
-        if(selectorBox == null)
+        if (selectorBox == null)
             return;
-        
-        if(selectorBox instanceof PresenceStatusSelectorBox)
+
+        if (selectorBox instanceof PresenceStatusSelectorBox)
         {
-            PresenceStatusSelectorBox presenceSelectorBox
-                = (PresenceStatusSelectorBox) selectorBox;
-            
+            PresenceStatusSelectorBox presenceSelectorBox =
+                (PresenceStatusSelectorBox) selectorBox;
+
             presenceSelectorBox.updateStatus(status);
+        }
+
+        // Update the global status.
+        if (globalStatusBox != null)
+        {
+            globalStatusBox.updateStatus();
         }
     }
 
@@ -295,16 +333,17 @@ public class StatusPanel
      * in the <tt>StatusPanel</tt>.
      * 
      * @param pps The protocol provider to check.
-     * @return True if the protcol has already its StatusSelectorBox in the 
-     * StatusPanel, False otherwise.
+     * @return True if the protcol has already its StatusSelectorBox in the
+     *         StatusPanel, False otherwise.
      */
-    public boolean containsAccount(ProtocolProviderService pps) {
+    public boolean containsAccount(ProtocolProviderService pps)
+    {
         if (protocolStatusCombos.containsKey(pps))
             return true;
         else
             return false;
     }
-       
+
     /**
      * Returns TRUE if there are selected status selector boxes, otherwise
      * returns FALSE.
@@ -312,12 +351,14 @@ public class StatusPanel
     public boolean hasSelectedMenus()
     {
         Enumeration statusCombos = protocolStatusCombos.elements();
-        
-        while(statusCombos.hasMoreElements()) {
-            StatusSelectorBox statusSelectorBox
-                = (StatusSelectorBox)statusCombos.nextElement();
-            
-            if(statusSelectorBox.isSelected()) {
+
+        while (statusCombos.hasMoreElements())
+        {
+            StatusSelectorBox statusSelectorBox =
+                (StatusSelectorBox) statusCombos.nextElement();
+
+            if (statusSelectorBox.isSelected())
+            {
                 return true;
             }
         }
@@ -325,7 +366,8 @@ public class StatusPanel
     }
 
     public void componentHidden(ComponentEvent e)
-    {}
+    {
+    }
 
     public void componentMoved(ComponentEvent e)
     {
@@ -333,27 +375,29 @@ public class StatusPanel
         int buttonHeight = e.getComponent().getHeight();
 
         int biggestY = 0;
-        for (int i = 0; i < compCount; i ++)
+        for (int i = 0; i < compCount; i++)
         {
             Component c = this.getComponent(i);
-            
-            if(c instanceof StatusSelectorBox)
+
+            if (c instanceof StatusSelectorBox)
             {
-                if(c.getY() > biggestY)
+                if (c.getY() > biggestY)
                     biggestY = c.getY();
             }
         }
-        
-        this.setPreferredSize(
-            new Dimension(this.getWidth(), biggestY + buttonHeight));
-        
-        ((JPanel)this.getParent()).revalidate();
-        ((JPanel)this.getParent()).repaint();
+
+        this.setPreferredSize(new Dimension(this.getWidth(), biggestY
+            + buttonHeight));
+
+        ((JPanel) this.getParent()).revalidate();
+        ((JPanel) this.getParent()).repaint();
     }
 
     public void componentResized(ComponentEvent e)
-    {}
+    {
+    }
 
     public void componentShown(ComponentEvent e)
-    {}
+    {
+    }
 }

@@ -48,6 +48,11 @@ public class Constants
      */
     public static final String FREE_FOR_CHAT_STATUS = "FreeForChat";
 
+    /**
+     * Indicates that the user is connected and eager to communicate.
+     */
+    public static final String DO_NOT_DISTURB_STATUS = "DoNotDisturb";
+
     /*
      * ===================================================================
      * ------------------------ CONFIG CONSTANTS ---------------------------
@@ -403,21 +408,24 @@ public class Constants
                     .getImage(ImageLoader.USER_AWAY_ICON);
             }
             else if(connectivity
-                        < PresenceStatus.EAGER_TO_COMMUNICATE_THRESSHOLD)
+                        < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
             {
                 return ImageLoader
                     .getImage(ImageLoader.USER_ONLINE_ICON);
             }
-            else if(connectivity < PresenceStatus.MAX_STATUS_VALUE) {
+            else if(connectivity < PresenceStatus.MAX_STATUS_VALUE)
+            {
                 return ImageLoader
                     .getImage(ImageLoader.USER_FFC_ICON);
             }
-            else {
+            else
+            {
                 return ImageLoader
                     .getImage(ImageLoader.USER_OFFLINE_ICON);
             }
         }
-        else {
+        else
+        {
             return ImageLoader
                 .getImage(ImageLoader.USER_OFFLINE_ICON);
         }

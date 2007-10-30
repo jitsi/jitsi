@@ -630,24 +630,31 @@ public class ImageLoader {
         = new ImageID("TEXT_BOLD_ROLLOVER_BUTTON");
 
     /**
-     * "Italic" button rollover image in the <tt>EditTextToolBar</tt> in the
+     * "Italic" button roll-over image in the <tt>EditTextToolBar</tt> in the
      * <tt>ChatWindow</tt>.
      */
     public static final ImageID TEXT_ITALIC_ROLLOVER_BUTTON
         = new ImageID("TEXT_ITALIC_ROLLOVER_BUTTON");
 
     /**
-     * "Underline" button rollover image in the <tt>EditTextToolBar</tt> in
+     * "Underline" button roll-over image in the <tt>EditTextToolBar</tt> in
      * the <tt>ChatWindow</tt>.
      */
     public static final ImageID TEXT_UNDERLINED_ROLLOVER_BUTTON
         = new ImageID("TEXT_UNDERLINED_ROLLOVER_BUTTON");
-    
+
     /**
      * The icon shown in the invite dialog.
      */
     public static final ImageID INVITE_DIALOG_ICON
         = new ImageID("INVITE_DIALOG_ICON");
+
+    /**
+     * The icon shown between the global status button and other protocol status
+     * buttons. 
+     */
+    public static final ImageID STATUS_SEPARATOR_ICON
+        = new ImageID("STATUS_SEPARATOR_ICON");
 
     // ///////////////////////// Main Toolbar icons ////////////////////////////
 

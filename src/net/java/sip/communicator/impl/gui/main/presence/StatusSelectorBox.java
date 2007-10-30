@@ -14,16 +14,41 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
-public abstract class StatusSelectorBox extends SIPCommMenu
-{   
+/**
+ * A parent class for all status selector boxes.
+ * 
+ * @see SimpleStatusSelectorBox
+ * @see PresenceStatusSelectorBox
+ * @see GlobalStatusSelectorBox
+ * 
+ * @author Yana Stamcheva
+ */
+public abstract class StatusSelectorBox
+    extends SIPCommMenu
+{
+    /**
+     * 
+     * @param images
+     */
     public void startConnecting(BufferedImage[] images){}
-    
+
+    /**
+     * 
+     */
     public void updateStatus(){}
-        
+
+    /**
+     * 
+     * @return
+     */
     public int getAccountIndex(){return -1;}
-    
+
+    /**
+     * 
+     * @param index
+     */
     public void setAccountIndex(int index){}
-    
+
     /**
      * Saves the last status for all accounts. This information is used
      * on loging. Each time user logs in he's logged with the same status

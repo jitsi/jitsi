@@ -30,7 +30,6 @@ public class SimpleStatusSelectorBox
     extends StatusSelectorBox
     implements ActionListener
 {
-
     private Logger logger = Logger.getLogger(
             PresenceStatusSelectorBox.class.getName());
 
