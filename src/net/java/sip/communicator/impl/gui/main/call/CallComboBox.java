@@ -73,10 +73,9 @@ public class CallComboBox
     public void actionPerformed(ActionEvent e)
     {   
         callManager.setCallMetaContact(false);
-        callManager.getCallButton().setEnabled(true);        
+        callManager.getCallButton().setEnabled(true);
     }
-    
-            
+
     public void insertUpdate(DocumentEvent e) { handleChange(); }
     public void removeUpdate(DocumentEvent e) { handleChange(); }
     public void changedUpdate(DocumentEvent e) {}
@@ -90,7 +89,7 @@ public class CallComboBox
         
         if (item.length() > 0) {
             callManager.setCallMetaContact(false);
-            
+
             ContactList clist = this.callManager.getMainFrame()
                 .getContactListPanel().getContactList();
         
