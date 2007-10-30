@@ -8,9 +8,7 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.*;
-import java.util.*;
 
-import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
