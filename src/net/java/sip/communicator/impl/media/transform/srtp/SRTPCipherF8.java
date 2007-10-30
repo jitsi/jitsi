@@ -43,11 +43,11 @@ import java.util.*;
  * 
  * As defined by RFC3711: F8 mode encryption is optional.
  *
- *                        mandatory©\to©\impl     optional      default
+ *                        mandatory to impl     optional      default
  * -------------------------------------------------------------------------
- *   encryption           AES©\CM, NULL          AES©\f8        AES©\CM
- *   message integrity    HMAC©\SHA1               ©\           HMAC©\SHA1
- *   key derivation       (PRF) AES©\CM            ©\           AES©\CM 
+ *   encryption           AES-CM, NULL          AES-f8        AES-CM
+ *   message integrity    HMAC-SHA1                -          HMAC-SHA1
+ *   key derivation       (PRF) AES-CM             -          AES-CM 
  *
  * We use AESCipher to handle basic AES encryption / decryption.
  * 
