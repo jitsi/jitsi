@@ -72,7 +72,7 @@ public class SIPCommMenu
      * @param o The object to select.
      * @param icon The icon to select.
      */
-    public void setSelected(Object o, ImageIcon icon)
+    public void setSelected(Object o, Icon icon)
     {
         this.setIcon(icon);
         this.setSelectedObject(o);
