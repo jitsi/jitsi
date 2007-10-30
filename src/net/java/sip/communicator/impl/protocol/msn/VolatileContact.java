@@ -56,4 +56,6 @@ public class VolatileContact
     public MsnUserStatus getOldStatus(){return null;}
 
     public String getPersonalMessage(){return "";}
+    
+    public MsnObject getAvatar(){return null;}
 }

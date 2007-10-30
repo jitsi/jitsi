@@ -72,7 +72,18 @@ public class ContactMsnImpl
 
     public byte[] getImage()
     {
+        if(image == null)
+            ssclCallback.addContactForImageUpdate(this);
+        
         return image;
+    }
+    
+    /**
+    *  Set the image of the contact
+    */
+    void setImage(byte[] imgBytes)
+    {
+        this.image = imgBytes;
     }
 
     /**

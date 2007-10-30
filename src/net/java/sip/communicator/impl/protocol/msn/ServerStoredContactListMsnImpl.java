@@ -14,6 +14,7 @@ import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
 import net.sf.jml.event.*;
 import net.sf.jml.impl.*;
+import net.sf.jml.message.p2p.*;
 
 /**
  * This class encapsulates the Roster class. Once created, it will
@@ -1202,6 +1203,25 @@ public class ServerStoredContactListMsnImpl
 
         messenger.addContactListListener(new ContactListListener());
     }
+    
+    /**
+     * when there is no image for contact we must retreive it 
+     * add contacts for image update
+     *
+     * @param c ContactJabberImpl
+     */
+    protected void addContactForImageUpdate(ContactMsnImpl c)
+    {
+        // Get the MSnObject
+	MsnObject avatar = c.getSourceContact().getAvatar(); 
+        
+        if (avatar != null) 
+        {
+            messenger.retrieveDisplayPicture(
+                    avatar,
+                    new ImageUpdater(c));
+        }
+    }
 
     /**
      * used for debuging. Printing the serverside lists that msn supports
@@ -1262,5 +1282,33 @@ public class ServerStoredContactListMsnImpl
             logger.info("group " + groups[j]);
         }
         logger.info("---=End Printing contact list=---");
+    }
+    
+    private class ImageUpdater
+            implements DisplayPictureListener
+    {
+        private ContactMsnImpl contact;
+        ImageUpdater(ContactMsnImpl contact)
+        {
+            this.contact = contact;
+        }
+        
+        public void notifyMsnObjectRetrieval(MsnMessenger arg0messenger,
+                                             DisplayPictureRetrieveWorker worker,
+                                             MsnObject msnObject, 
+                                             ResultStatus result,
+                                             byte[] resultBytes, 
+                                             Object context)
+        {
+            if (result == ResultStatus.GOOD) 
+            {
+                contact.setImage(resultBytes);
+                
+                parentOperationSet.fireContactPropertyChangeEvent(
+                                ContactPropertyChangeEvent.PROPERTY_IMAGE, 
+                                contact, null, resultBytes);
+            }
+        }
+        
     }
 }

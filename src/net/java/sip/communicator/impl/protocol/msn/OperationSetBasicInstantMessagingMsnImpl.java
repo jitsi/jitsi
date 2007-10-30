@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.msn;
 
 import java.util.*;
+import java.text.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -15,6 +16,7 @@ import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
 import net.sf.jml.event.*;
 import net.sf.jml.message.*;
+import net.java.sip.communicator.impl.protocol.msn.mail.utils.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -244,6 +246,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
                 msnProvider.getMessenger().
                     addMessageListener(new MsnMessageListener());
+                msnProvider.getMessenger().
+                    addEmailListener(new MsnMessageListener());
             }
         }
     }
@@ -284,6 +288,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
     private class MsnMessageListener
         extends MsnMessageAdapter
+        implements MsnEmailListener
     {
         public void instantMessageReceived(MsnSwitchboard switchboard,
                                            MsnInstantMessage message,
@@ -308,5 +313,74 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             fireMessageEvent(msgReceivedEvt);
         }
-    }
+
+        public void initialEmailNotificationReceived(MsnSwitchboard switchboard,
+                                                     MsnEmailInitMessage message, 
+                                                     MsnContact contact)
+        {
+        }
+
+        public void initialEmailDataReceived(MsnSwitchboard switchboard,
+                                             MsnEmailInitEmailData message,
+                                             MsnContact contact)
+        {
+        }
+
+        public void newEmailNotificationReceived(MsnSwitchboard switchboard,
+                                                 MsnEmailNotifyMessage message,
+                                                 MsnContact contact)
+        {
+            // we don't process incoming event without email.
+            if ((message.getFromAddr() == null)
+                || (message.getFromAddr().indexOf('@') < 0))
+            {
+                return;
+            }
+            
+            String subject = message.getSubject();
+
+            try
+            {
+                subject = MimeUtility.decodeText(subject);
+            }
+            catch (Exception exception)
+            {
+                exception.printStackTrace();
+            }
+
+            Message newMailMessage = new MessageMsnImpl(
+                    MessageFormat.format(Resources.getString("newMail"), 
+                        new Object[]{message.getFrom(), 
+                                     message.getFromAddr(), 
+                                     subject}),
+                     DEFAULT_MIME_TYPE,
+                     DEFAULT_MIME_ENCODING,
+                     subject);
+
+             Contact sourceContact = opSetPersPresence.
+                 findContactByID(message.getFromAddr());
+
+             if (sourceContact == null)
+             {
+                 logger.debug("received a new mail from an unknown contact: "
+                                    + message.getFrom()
+                                    + " &lt;" + message.getFromAddr() + "&gt;");
+                 //create the volatile contact
+                 sourceContact = opSetPersPresence
+                     .createVolatileContact(message.getFromAddr());
+             }
+             MessageReceivedEvent msgReceivedEvt
+                 = new MessageReceivedEvent(
+                     newMailMessage, sourceContact, new Date(),
+                     MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+
+             fireMessageEvent(msgReceivedEvt);
+        }
+
+        public void activityEmailNotificationReceived(MsnSwitchboard switchboard,
+                                                      MsnEmailActivityMessage message,
+                                                      MsnContact contact)
+        {
+        }
+    }    
 }

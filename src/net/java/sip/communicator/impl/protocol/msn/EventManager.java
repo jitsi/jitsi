@@ -81,7 +81,7 @@ public class EventManager
      * @param message Message
      * @throws Exception
      */
-    public void messageSent(SocketSession session, Message message) throws Exception
+    public void messageSent(Session session, Message message) throws Exception
     {
         logger.trace(msnMessenger.getOwner().getEmail().getEmailAddress() +
                      " outgoing " + message);
@@ -93,7 +93,7 @@ public class EventManager
      * @param message Message
      * @throws Exception
      */
-    public void messageReceived(SocketSession session, Message message)
+    public void messageReceived(Session session, Message message)
         throws Exception
     {
         MsnIncomingMessage incoming = (MsnIncomingMessage)((WrapperMessage)message)
@@ -220,7 +220,7 @@ public class EventManager
     private boolean connected = false;
     private Timer connectionTimer = new Timer();
             
-    public void sessionTimeout(SocketSession socketSession) throws Exception
+    public void sessionTimeout(Session socketSession) throws Exception
     {
         connectionTimer.schedule(new TimerTask()
         {
