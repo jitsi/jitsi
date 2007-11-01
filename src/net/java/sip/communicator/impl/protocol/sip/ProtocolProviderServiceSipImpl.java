@@ -209,7 +209,7 @@ public class ProtocolProviderServiceSipImpl
      * the port where they would prefer us to bind our sip socket.
      */
     private static final String PREFERRED_SIP_PORT =
-        "net.java.sip.communicator.impl.protocol.sip.PREFERRED_SIP_PORT";
+        "net.java.sip.communicator.service.protocol.sip.PREFERRED_SIP_PORT";
 
 
     /**
@@ -607,8 +607,8 @@ public class ProtocolProviderServiceSipImpl
             //init proxy port
             int preferredSipPort = ListeningPoint.PORT_5060;
 
-            String proxyPortStr = (String) accountID.getAccountProperties()
-                .get(PREFERRED_SIP_PORT);
+            String proxyPortStr = SipActivator.getConfigurationService().
+                    getString(PREFERRED_SIP_PORT);
 
             if (proxyPortStr != null && proxyPortStr.length() > 0)
             {
