@@ -193,7 +193,7 @@
             <arg line="a -y data.7z *"/>
         </exec>
 
-        <concat destfile="${windows.app.dir}/setup-sip-communicator-${sip-communicator.version}.exe"
+        <concat destfile="${windows.app.dir}/sip-communicator-${sip-communicator.version}.exe"
                 binary="true">
             <fileset dir="${inst.resrc}/windows">
                 <include name="7zS.sfx"/>
