@@ -1405,7 +1405,7 @@ public class CallSessionImpl
             .getControl(BufferControl.class.getName());
         if (bc != null)
         {
-            long buff = 500;
+            long buff = 100;
             String buffStr = MediaActivator.getConfigurationService()
                     .getString(PROPERTY_NAME_RECEIVE_BUFFER_LENGTH);
             try
