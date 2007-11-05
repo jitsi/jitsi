@@ -1,13 +1,14 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.imageio.*;
 
@@ -15,7 +16,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -31,37 +31,35 @@ public class AccountRegWizardContainerImpl
     extends Wizard
     implements AccountRegistrationWizardContainer
 {
-    private static final Logger logger = Logger
-        .getLogger(AccountRegWizardContainerImpl.class);
-    
+    private static final Logger logger =
+        Logger.getLogger(AccountRegWizardContainerImpl.class);
+
     private AccountRegFirstPage firstPage;
-    
+
     private AccountRegSummaryPage summaryPage;
-        
+
     private AccountRegistrationWizard currentWizard;
-    
-    ConfigurationService configService
-            = GuiActivator.getConfigurationService();
+
+    ConfigurationService configService = GuiActivator.getConfigurationService();
+
     /**
-     * Listeners interested in events dispatched upon modifications
-     * in the account registrations list.
+     * Listeners interested in events dispatched upon modifications in the
+     * account registrations list.
      */
     private Vector accountRegListeners = new Vector();
-    
+
     public AccountRegWizardContainerImpl(MainFrame mainFrame)
     {
         super(mainFrame);
-        
-        this.setTitle(
-            Messages.getI18NString("accountRegistrationWizard").getText());
-        
+
+        this.setTitle(Messages.getI18NString("accountRegistrationWizard")
+            .getText());
+
         this.firstPage = new AccountRegFirstPage(this);
-        
+
         this.summaryPage = new AccountRegSummaryPage(this);
-        
+
         this.addAccountRegistrationListener(firstPage);
-        
-        this.setWizzardIcon(ImageLoader.getImage(ImageLoader.WINDOW_LOGO));
     }
 
     /**
@@ -70,11 +68,11 @@ public class AccountRegWizardContainerImpl
      * 
      * @param wizard the <tt>AccountRegistrationWizard</tt> to add
      */
-    public void addAccountRegistrationWizard(
-            AccountRegistrationWizard wizard) {    
-        
+    public void addAccountRegistrationWizard(AccountRegistrationWizard wizard)
+    {
+
         this.fireAccountRegistrationEvent(wizard,
-                AccountRegistrationEvent.REGISTRATION_ADDED);        
+            AccountRegistrationEvent.REGISTRATION_ADDED);
     }
 
     /**
@@ -83,20 +81,20 @@ public class AccountRegWizardContainerImpl
      * 
      * @param wizard the <tt>AccountRegistrationWizard</tt> to remove
      */
-    public void removeAccountRegistrationWizard(
-            AccountRegistrationWizard wizard) {
-        
+    public void removeAccountRegistrationWizard(AccountRegistrationWizard wizard)
+    {
+
         this.fireAccountRegistrationEvent(wizard,
-                AccountRegistrationEvent.REGISTRATION_REMOVED);
+            AccountRegistrationEvent.REGISTRATION_REMOVED);
     }
-    
+
     /**
      * Adds a listener for <tt>AccountRegistrationEvent</tt>s.
-     *
+     * 
      * @param l the listener to add
      */
-    public void addAccountRegistrationListener(
-            AccountRegistrationListener l) {
+    public void addAccountRegistrationListener(AccountRegistrationListener l)
+    {
         synchronized (accountRegListeners)
         {
             this.accountRegListeners.add(l);
@@ -105,20 +103,20 @@ public class AccountRegWizardContainerImpl
 
     /**
      * Removes a listener for <tt>AccountRegistrationEvent</tt>s.
-     *
+     * 
      * @param l the listener to remove
      */
-    public void removeAccountRegistrationListener(
-            AccountRegistrationListener l) {
+    public void removeAccountRegistrationListener(AccountRegistrationListener l)
+    {
         synchronized (accountRegListeners)
         {
             this.accountRegListeners.remove(l);
         }
     }
-    
+
     /**
-     * Creates the corresponding <tt>AccountRegistrationEvent</tt> instance and
-     * notifies all <tt>AccountRegistrationListener</tt>s that an account
+     * Creates the corresponding <tt>AccountRegistrationEvent</tt> instance
+     * and notifies all <tt>AccountRegistrationListener</tt>s that an account
      * registration wizard has been added or removed from this container.
      * 
      * @param wizard The wizard that has caused the event.
@@ -126,254 +124,274 @@ public class AccountRegWizardContainerImpl
      *            nature of the event.
      */
     private void fireAccountRegistrationEvent(AccountRegistrationWizard wizard,
-            int eventID)
+        int eventID)
     {
-        AccountRegistrationEvent evt
-            = new AccountRegistrationEvent(wizard, eventID);
+        AccountRegistrationEvent evt =
+            new AccountRegistrationEvent(wizard, eventID);
 
-        logger.trace("Will dispatch the following mcl event: "
-                + evt);
+        logger.trace("Will dispatch the following mcl event: " + evt);
 
         synchronized (accountRegListeners)
         {
-            Iterator listeners = this.accountRegListeners
-                .iterator();
+            Iterator listeners = this.accountRegListeners.iterator();
 
             while (listeners.hasNext())
             {
-                AccountRegistrationListener l 
-                    = (AccountRegistrationListener) listeners.next();
-                
+                AccountRegistrationListener l =
+                    (AccountRegistrationListener) listeners.next();
+
                 switch (evt.getEventID())
                 {
-                    case AccountRegistrationEvent.REGISTRATION_ADDED:
-                        l.accountRegistrationAdded(evt);
-                        break;
-                    case AccountRegistrationEvent.REGISTRATION_REMOVED:
-                        l.accountRegistrationRemoved(evt);
-                        break;
-                    default:
-                        logger.error("Unknown event type " + evt.getEventID());
-                }   
+                case AccountRegistrationEvent.REGISTRATION_ADDED:
+                    l.accountRegistrationAdded(evt);
+                    break;
+                case AccountRegistrationEvent.REGISTRATION_REMOVED:
+                    l.accountRegistrationRemoved(evt);
+                    break;
+                default:
+                    logger.error("Unknown event type " + evt.getEventID());
+                }
             }
         }
     }
 
     /**
      * Returns the first wizard page.
+     * 
      * @return the first wizard page
      */
-    public AccountRegFirstPage getFirstPage() {
+    public AccountRegFirstPage getFirstPage()
+    {
         return firstPage;
     }
-    
+
     /**
      * Returns the summary wizard page.
+     * 
      * @return the summary wizard page
      */
-    public AccountRegSummaryPage getSummaryPage() {
+    public AccountRegSummaryPage getSummaryPage()
+    {
         return summaryPage;
     }
-    
+
     /**
      * Opens a wizard for creating a new account.
      */
-    public void newAccount() {
-        this.newAccount(firstPage.getIdentifier());        
+    public void newAccount()
+    {
+        this.newAccount(firstPage.getIdentifier());
     }
-    
+
     /**
      * Opens a wizard for creating a new account.
+     * 
+     * @param currentPageIdentifier the identifier of the current page.
      */
-    public void newAccount(Object currentPageIdentifier) {
+    public void newAccount(Object currentPageIdentifier)
+    {
         this.registerWizardPage(firstPage.getIdentifier(), firstPage);
-                
+
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
-        
-        this.setCurrentPage(currentPageIdentifier);        
+
+        this.setCurrentPage(currentPageIdentifier);
     }
-    
+
     /**
-     * Opens the corresponding wizard to modify an existing account given by
-     * the <tt>protocolProvider</tt> parameter.
+     * Opens the corresponding wizard to modify an existing account given by the
+     * <tt>protocolProvider</tt> parameter.
      * 
      * @param protocolProvider The <tt>ProtocolProviderService</tt> for the
-     * account to modify.
+     *            account to modify.
      */
-    public void modifyAccount(ProtocolProviderService protocolProvider) {
-        
+    public void modifyAccount(ProtocolProviderService protocolProvider)
+    {
         String wizardClassName = null;
-        
+
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
-                        
-        List accounts = this.configService
-                .getPropertyNamesByPrefix(prefix, true);
-        
+
+        List accounts =
+            this.configService.getPropertyNamesByPrefix(prefix, true);
+
         Iterator accountsIter = accounts.iterator();
-        
-        while(accountsIter.hasNext()) {            
+
+        while (accountsIter.hasNext())
+        {
             String accountRootPropName = (String) accountsIter.next();
 
             String accountUID = configService.getString(accountRootPropName);
 
-            if(accountUID.equals(protocolProvider
-                    .getAccountID().getAccountUniqueID())) {
-                                
-                wizardClassName = configService.getString(
-                        accountRootPropName + ".wizard");
+            if (accountUID.equals(protocolProvider.getAccountID()
+                .getAccountUniqueID()))
+            {
+
+                wizardClassName =
+                    configService.getString(accountRootPropName + ".wizard");
                 break;
             }
         }
-        
-        AccountRegistrationWizard wizard
-            = getWizardFromClassName(wizardClassName);
-        
+
+        AccountRegistrationWizard wizard =
+            getWizardFromClassName(wizardClassName);
+
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
-        
+
         this.setCurrentWizard(wizard);
-        
+
         Iterator i = wizard.getPages();
-        
+
         Object identifier = null;
         boolean firstPage = true;
-        
-        while(i.hasNext()) {
-            WizardPage page = (WizardPage)i.next();
-            
+
+        while (i.hasNext())
+        {
+            WizardPage page = (WizardPage) i.next();
+
             identifier = page.getIdentifier();
-            
+
             this.registerWizardPage(identifier, page);
-            
-            if(firstPage) {
+
+            if (firstPage)
+            {
                 this.setCurrentPage(identifier);
                 firstPage = false;
             }
         }
-        
+
         wizard.loadAccount(protocolProvider);
-        
-        this.getSummaryPage()
-            .setPreviousPageIdentifier(identifier);
-        
-        try {
-            this.setWizzardIcon(
-                ImageIO.read(new ByteArrayInputStream(wizard.getPageImage())));
+
+        this.getSummaryPage().setPreviousPageIdentifier(identifier);
+
+        try
+        {
+            this.setWizzardIcon(ImageIO.read(new ByteArrayInputStream(wizard
+                .getPageImage())));
         }
-        catch (IOException e1) {         
+        catch (IOException e1)
+        {
             e1.printStackTrace();
         }
     }
 
     /**
      * Saves the (protocol provider, wizard) pair in through the
-     * <tt>ConfigurationService</tt>. 
+     * <tt>ConfigurationService</tt>.
      * 
      * @param protocolProvider the protocol provider to save
      * @param wizard the wizard to save
      */
-    public void addAccountWizard(
-            ProtocolProviderService protocolProvider,
-            AccountRegistrationWizard wizard)
+    public void addAccountWizard(ProtocolProviderService protocolProvider,
+        AccountRegistrationWizard wizard)
     {
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List accounts = configService
-                .getPropertyNamesByPrefix(prefix, true);
+        List accounts = configService.getPropertyNamesByPrefix(prefix, true);
 
         boolean savedAccount = false;
         Iterator accountsIter = accounts.iterator();
 
-        while(accountsIter.hasNext()) {
-            String accountRootPropName
-                = (String) accountsIter.next();
+        while (accountsIter.hasNext())
+        {
+            String accountRootPropName = (String) accountsIter.next();
 
-            String accountUID
-                = configService.getString(accountRootPropName);
+            String accountUID = configService.getString(accountRootPropName);
 
-            if(accountUID.equals(protocolProvider
-                    .getAccountID().getAccountUniqueID())) {
+            if (accountUID.equals(protocolProvider.getAccountID()
+                .getAccountUniqueID()))
+            {
 
-                configService.setProperty(
-                        accountRootPropName + ".wizard",
-                        wizard.getClass().getName().replace('.', '_'));
+                configService.setProperty(accountRootPropName + ".wizard",
+                    wizard.getClass().getName().replace('.', '_'));
 
                 savedAccount = true;
             }
         }
 
-        if(!savedAccount) {
-            String accNodeName
-                = "acc" + Long.toString(System.currentTimeMillis());
+        if (!savedAccount)
+        {
+            String accNodeName =
+                "acc" + Long.toString(System.currentTimeMillis());
 
-            String accountPackage
-                = "net.java.sip.communicator.impl.gui.accounts."
-                        + accNodeName;
+            String accountPackage =
+                "net.java.sip.communicator.impl.gui.accounts." + accNodeName;
 
-            configService.setProperty(accountPackage,
-                    protocolProvider.getAccountID().getAccountUniqueID());
+            configService.setProperty(accountPackage, protocolProvider
+                .getAccountID().getAccountUniqueID());
 
-            configService.setProperty(
-                    accountPackage+".wizard",
-                    wizard);
+            configService.setProperty(accountPackage + ".wizard", wizard);
         }
     }
 
     /**
      * Returns the currently used <tt>AccountRegistrationWizard</tt>.
+     * 
      * @return the currently used <tt>AccountRegistrationWizard</tt>
      */
-    public AccountRegistrationWizard getCurrentWizard() {
+    public AccountRegistrationWizard getCurrentWizard()
+    {
         return currentWizard;
     }
 
     /**
      * Sets the currently used <tt>AccountRegistrationWizard</tt>.
-     * @param currentWizard the <tt>AccountRegistrationWizard</tt> to set
-     * as current one
+     * 
+     * @param currentWizard the <tt>AccountRegistrationWizard</tt> to set as
+     *            current one
      */
-    public void setCurrentWizard(AccountRegistrationWizard currentWizard) {
+    public void setCurrentWizard(AccountRegistrationWizard currentWizard)
+    {
         this.currentWizard = currentWizard;
+
+        Dimension wizardSize = this.currentWizard.getSize();
+
+        summaryPage.setPreferredSize(wizardSize);
     }
-    
+
     /**
      * Returns the <tt>AccountRegistrationWizard</tt> corresponding to the
      * given class name.
+     * 
      * @param wizardClassName the class name of the searched wizard
      * @return the <tt>AccountRegistrationWizard</tt> corresponding to the
-     * given class name
+     *         given class name
      */
     private AccountRegistrationWizard getWizardFromClassName(
-            String wizardClassName) {
-                
+        String wizardClassName)
+    {
+
         Iterator i = this.firstPage.getWizardsList();
-        
-        while(i.hasNext()) {
-            AccountRegistrationWizard wizard
-                = (AccountRegistrationWizard)i.next();
-            
-            String wizardClassName1 = wizard.getClass()
-                .getName().replace('.', '_');
-            
-            if(wizardClassName1.equals(wizardClassName)) {
+
+        while (i.hasNext())
+        {
+            AccountRegistrationWizard wizard =
+                (AccountRegistrationWizard) i.next();
+
+            String wizardClassName1 =
+                wizard.getClass().getName().replace('.', '_');
+
+            if (wizardClassName1.equals(wizardClassName))
+            {
                 return wizard;
             }
         }
         return null;
     }
-    
+
     /**
      * Unregisters all pages added by the current wizard.
      */
-    public void unregisterWizardPages() {
+    public void unregisterWizardPages()
+    {
         Iterator i = this.getCurrentWizard().getPages();
-        
+
         Object identifier = null;
-        
-        while(i.hasNext()) {
-            WizardPage page = (WizardPage)i.next();
-            
+
+        while (i.hasNext())
+        {
+            WizardPage page = (WizardPage) i.next();
+
             identifier = page.getIdentifier();
-            
+
             this.unregisterWizardPage(identifier);
         }
     }

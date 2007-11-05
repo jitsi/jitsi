@@ -74,10 +74,10 @@ public class AccountRegSummaryPage extends JScrollPane
     private void init(Iterator summaryData) {
         while(summaryData.hasNext()) {
             Map.Entry entry = (Map.Entry)summaryData.next();
-            
+
             JLabel keyLabel = new JLabel(entry.getKey().toString()+ ":");
             JLabel valueLabel = new JLabel(entry.getValue().toString());
-            
+
             keysPanel.add(keyLabel);
             valuesPanel.add(valueLabel);
         }
