@@ -61,20 +61,32 @@ public class ErrorDialog
 
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window.
-     * @param owner This dialog owner.
+     * owner window and the message to be displayed.
+     * 
+     * @param owner the dialog owner
+     * @param title the title of the dialog
+     * @param message the message to be displayed
      */
-    public ErrorDialog(Frame owner)
+    public ErrorDialog( Frame owner,
+                        String title,
+                        String message)
     {
         super(owner, false);
 
-        this.setTitle(Messages.getI18NString("removeContact").getText());
+        this.mainPanel.setBorder(
+            BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
-        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        this.stackTraceScrollPane.setBorder(
+            new SIPCommBorders.BoldRoundBorder());
 
-        this.stackTraceScrollPane.setBorder(new SIPCommBorders.BoldRoundBorder());
         this.stackTraceScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+        this.setTitle(title);
+
+        this.messagePanel.add(msgTextArea, BorderLayout.NORTH);
+
+        this.msgTextArea.setText(message);
 
         this.init();
     }
@@ -82,28 +94,19 @@ public class ErrorDialog
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
      * owner window and the message to be displayed.
-     * @param owner The dialog owner.
-     * @param message The message to be displayed.
+     * @param owner the dialog owner
+     * @param title the title of the dialog
+     * @param message the message to be displayed
+     * @param e the exception corresponding to the error
      */
-    public ErrorDialog(Frame owner, String message)
+    public ErrorDialog( Frame owner,
+                        String title,
+                        String message,
+                        Exception e)
     {
-        this(owner);
+        this(owner, title, message);
 
-        this.messagePanel.add(msgTextArea, BorderLayout.NORTH);
-
-        this.msgTextArea.setText(message);
-    }
-
-    /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
-     * @param owner The dialog owner.
-     * @param message The message to be displayed.
-     * @param e the exception correspinding to the error
-     */
-    public ErrorDialog(Frame owner, String message, Exception e)
-    {
-        this(owner);
+        this.setTitle(title);
 
         this.htmlMsgEditorPane.setEditable(false);
         this.htmlMsgEditorPane.setOpaque(false);
@@ -145,45 +148,17 @@ public class ErrorDialog
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
      * owner window and the message to be displayed.
      *
-     * @param owner The dialog owner.
-     * @param message The message to be displayed.
-     * @param title the title of the dialog
+     * @param owner the dialog owner
+     * @param title the title of the error dialog
+     * @param message the message to be displayed
+     * @param type the dialog type
      */
-    public ErrorDialog(Frame owner, String message, String title)
+    public ErrorDialog( Frame owner,
+                        String title,
+                        String message,
+                        int type)
     {
-        this(owner, message);
-
-        this.setTitle(title);
-    }
-
-    /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
-     *
-     * @param owner The dialog owner.
-     * @param message The message to be displayed.
-     * @param e the exception that caused the error.
-     * @param title the title of the error dialog.
-     */
-    public ErrorDialog(Frame owner, String message, Exception e, String title)
-    {
-        this(owner, message, e);
-
-        this.setTitle(title);
-    }
-
-    /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
-     *
-     * @param owner The dialog owner.
-     * @param message The message to be displayed.
-     * @param title the title of the error dialog.
-     * @param type the dialog type.
-     */
-    public ErrorDialog(Frame owner, String message, String title, int type)
-    {
-        this(owner, message, title);
+        this(owner, title, message);
 
         if(type == WARNING)
             iconLabel.setIcon(new ImageIcon(ImageLoader
@@ -235,6 +210,8 @@ public class ErrorDialog
                 screenSize.height/2 - this.getHeight()/2);
 
         this.setVisible(true);
+
+        this.toFront();
     }
 
     /**

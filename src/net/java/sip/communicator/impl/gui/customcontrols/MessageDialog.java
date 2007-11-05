@@ -26,8 +26,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  */
 public class MessageDialog
     extends SIPCommDialog
-    implements ActionListener {
-
+    implements ActionListener
+{
     private JButton cancelButton = new JButton(
         Messages.getI18NString("cancel").getText());
 
@@ -40,7 +40,7 @@ public class MessageDialog
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.WARNING_ICON)));
 
-    private JLabel messageLabel = new JLabel();
+    private JTextArea messageArea = new JTextArea();
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -51,10 +51,20 @@ public class MessageDialog
     
     private int returnCode;
     
+    /**
+     * Indicates that the OK button is pressed.
+     */
     public static final int OK_RETURN_CODE = 0;
     
+    /**
+     * Indicates that the Cancel button is pressed.
+     */
     public static final int CANCEL_RETURN_CODE = 1;
     
+    /**
+     * Indicates that the OK button is pressed and the Don't ask check box is
+     * checked.
+     */
     public static final int OK_DONT_ASK_CODE = 2;
     
     private Object lock = new Object();
@@ -64,53 +74,88 @@ public class MessageDialog
      * owner window.
      * @param owner This dialog owner.
      */
-    public MessageDialog(Frame owner) {
+    public MessageDialog(Frame owner)
+    {
         super(owner);
-        
-        this.setTitle(Messages.getI18NString("removeContact").getText());
-
-        this.setSize(Constants.MSG_DIALOG_WIDTH, Constants.MSG_DIALOG_HEIGHT);
 
         this.getContentPane().setLayout(new BorderLayout(5, 5));
 
-        this.messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0,
-                10));
-        this.checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10,
-                10));
+        this.messageArea.setLineWrap(true);
+        this.messageArea.setWrapStyleWord(true);
+
+        this.messagePanel.setBorder(
+            BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        this.checkBoxPanel.setBorder(
+            BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
         this.init();
     }
-    
+
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
      * owner window and the message to be displayed.
-     * @param owner The dialog owner.
-     * @param message The message to be displayed.
+     * @param owner the dialog owner
+     * @param title the title of the message
+     * @param message the message to be displayed
      */
-    public MessageDialog(Frame owner, String message) {
+    public MessageDialog(Frame owner, String title, String message)
+    {
         this(owner);
-        
-        this.messageLabel.setText(message);
+
+        this.setTitle(title);
+
+        this.messageArea.setText(message);
     }
 
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
      * owner window and the message to be displayed.
-     * @param owner The dialog owner.
-     * @param message The message to be displayed.
+     * @param owner the dialog owner
+     * @param title the title of the message
+     * @param message the message to be displayed
+     * @param okButtonName ok button name
      */
-    public MessageDialog(Frame owner, String message,
-            String okButtonName) {
-        this(owner, message);
-        
+    public MessageDialog(   Frame owner,
+                            String title,
+                            String message,
+                            String okButtonName)
+    {
+        this(owner, title, message);
+
         this.okButton.setText(okButtonName);
         this.okButton.setMnemonic(okButtonName.charAt(0));
     }
-    
+
+    /**
+     * Creates an instance of <tt>MessageDialog</tt> by specifying the
+     * owner window and the message to be displayed.
+     * @param owner the dialog owner
+     * @param title the title of the message
+     * @param message the message to be displayed
+     * @param isCancelButtonEnabled <code>true</code> to show the Cancel button,
+     * <code>false</code> - otherwise
+     */
+    public MessageDialog(   Frame owner,
+                            String title,
+                            String message,
+                            boolean isCancelButtonEnabled)
+    {
+        this(owner, title, message);
+
+        if(!isCancelButtonEnabled)
+        {
+            doNotAskAgain.setText(
+                Messages.getI18NString("doNotShowAgain").getText());
+
+            buttonsPanel.remove(cancelButton);
+        }
+    }
+
     /**
      * Initializes this dialog.
      */
-    private void init() {
+    private void init()
+    {
         this.getRootPane().setDefaultButton(okButton);
 
         this.checkBoxPanel.add(doNotAskAgain);
@@ -123,7 +168,7 @@ public class MessageDialog
 
         this.cancelButton.setMnemonic(cancelButton.getText().charAt(0));
         this.messagePanel.add(iconLabel, BorderLayout.WEST);
-        this.messagePanel.add(messageLabel, BorderLayout.CENTER);
+        this.messagePanel.add(messageArea, BorderLayout.CENTER);
 
         this.getContentPane().add(messagePanel, BorderLayout.NORTH);
         this.getContentPane().add(checkBoxPanel, BorderLayout.CENTER);
@@ -134,10 +179,11 @@ public class MessageDialog
      * Sets the message to be displayed.
      * @param message The message to be displayed.
      */
-    public void setMessage(String message) {
-        this.messageLabel.setText(message);
+    public void setMessage(String message)
+    {
+        this.messageArea.setText(message);
     }
-    
+
     /**
      * Shows the dialog.
      * @return The return code that should indicate what was the choice of
@@ -145,45 +191,55 @@ public class MessageDialog
      * CANCEL_RETURN_CODE.
      */
     public int showDialog()
-    {   
-        setVisible(true);
-        
-        synchronized (lock) {
-            try {                    
+    {
+        this.pack();
+
+        this.setVisible(true);
+
+        synchronized (lock)
+        {
+            try
+            {
                 lock.wait();
             }
-            catch (InterruptedException e) {
-                // TODO Auto-generated catch block
+            catch (InterruptedException e)
+            {
                 e.printStackTrace();
             }
         }
-        
+
         return returnCode;
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt>. Depending on the user choice sets
      * the return code to the appropriate value.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton)e.getSource();
-        
-        if(button.equals(okButton)) {
-            if (doNotAskAgain.isSelected()) {
+
+        if(button.equals(okButton))
+        {
+            if (doNotAskAgain.isSelected())
+            {
                 this.returnCode = OK_DONT_ASK_CODE;
             }
-            else {
+            else
+            {
                 this.returnCode = OK_RETURN_CODE;
             }
         }
-        else {
+        else
+        {
             this.returnCode = CANCEL_RETURN_CODE;
         }
-        
-        synchronized (lock) {
+
+        synchronized (lock)
+        {
             lock.notify();
         }
-                
+
         this.dispose();
     }
 
