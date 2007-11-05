@@ -45,7 +45,7 @@ public class PresenceStatus
      * An integer above which all values of the status coefficient indicate
      * eagerness to communicate
      */
-    public static final int EAGER_TO_COMMUNICATE_THRESSHOLD = 80;
+    public static final int EAGER_TO_COMMUNICATE_THRESHOLD = 80;
 
     /**
      * An integer indicating the maximum possible value of the status field.
@@ -166,7 +166,7 @@ public class PresenceStatus
      */
     public boolean isEagerToCommunicate()
     {
-        return getStatus() >= EAGER_TO_COMMUNICATE_THRESSHOLD;
+        return getStatus() >= EAGER_TO_COMMUNICATE_THRESHOLD;
     }
 
     /**
