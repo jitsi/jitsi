@@ -1,6 +1,7 @@
 package net.java.sip.communicator.plugin.splashscreen;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -129,6 +130,26 @@ public class WelcomeWindow
             Toolkit.getDefaultToolkit().getScreenSize().height/2
                 - 305/2
             );
+
+        // Close the splash screen on simple click or Esc.
+        this.getGlassPane().addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                WelcomeWindow.this.close();
+            }
+        });
+
+        this.getGlassPane().setVisible(true);
+
+        ActionMap amap = this.getRootPane().getActionMap();
+
+        amap.put("close", new CloseAction());
+
+        InputMap imap = this.getRootPane().getInputMap(
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
     protected void close()
@@ -143,4 +164,17 @@ public class WelcomeWindow
         this.loadingPanel.revalidate();
         this.loadingPanel.repaint();
     }
+
+    /**
+     * The action invoked when user presses Escape key.
+     */
+    private class CloseAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            WelcomeWindow.this.close();
+        }
+    }
+
+
 }
