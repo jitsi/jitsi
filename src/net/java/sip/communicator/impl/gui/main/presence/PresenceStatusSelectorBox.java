@@ -102,9 +102,9 @@ public class PresenceStatusSelectorBox
                 this.offlineStatus = status;
             }
             else if ((onlineStatus != null
-                        && (onlineStatus.getStatus() < connectivity))
+                    && (onlineStatus.getStatus() < connectivity))
                 || (onlineStatus == null
-                        && (connectivity > 50 && connectivity < 80)))
+                    && (connectivity > 50 && connectivity < 80)))
             {
                 this.onlineStatus = status;
             }
@@ -143,7 +143,7 @@ public class PresenceStatusSelectorBox
                     {
 
                         if (protocolProvider.getRegistrationState()
-                                == RegistrationState.REGISTERED
+                            == RegistrationState.REGISTERED
                             && !presence.getPresenceStatus().equals(status))
                         {
                             if (status.isOnline())
@@ -174,7 +174,7 @@ public class PresenceStatusSelectorBox
                         {
                             if (!status.isOnline()
                                 && !(protocolProvider.getRegistrationState()
-                                    == RegistrationState.UNREGISTERING))
+                                        == RegistrationState.UNREGISTERING))
                             {
                                 loginManager.setManuallyDisconnected(true);
 
@@ -378,25 +378,27 @@ public class PresenceStatusSelectorBox
             }
             catch (OperationFailedException e1)
             {
+
                 if (e1.getErrorCode()
-                    == OperationFailedException.GENERAL_ERROR)
+                        == OperationFailedException.GENERAL_ERROR)
                 {
                     String msgText =
                         Messages.getI18NString("statusChangeGeneralError")
                             .getText();
 
-                    new ErrorDialog(null, msgText, e1, Messages.getI18NString(
-                        "generalError").getText()).showDialog();
+                    new ErrorDialog(null, Messages
+                        .getI18NString("generalError").getText(), msgText, e1)
+                        .showDialog();
                 }
                 else if (e1.getErrorCode()
-                    == OperationFailedException.NETWORK_FAILURE)
+                        == OperationFailedException.NETWORK_FAILURE)
                 {
                     String msgText =
                         Messages.getI18NString("statusChangeNetworkFailure")
                             .getText();
 
-                    new ErrorDialog(null, msgText, e1, Messages.getI18NString(
-                        "networkFailure").getText()).showDialog();
+                    new ErrorDialog(null, Messages.getI18NString(
+                        "networkFailure").getText(), msgText, e1).showDialog();
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException.PROVIDER_NOT_REGISTERED)
@@ -405,8 +407,8 @@ public class PresenceStatusSelectorBox
                         Messages.getI18NString("statusChangeNetworkFailure")
                             .getText();
 
-                    new ErrorDialog(null, msgText, e1, Messages.getI18NString(
-                        "networkFailure").getText()).showDialog();
+                    new ErrorDialog(null, Messages.getI18NString(
+                        "networkFailure").getText(), msgText, e1).showDialog();
                 }
                 logger.error("Error - changing status", e1);
             }

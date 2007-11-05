@@ -370,7 +370,7 @@ public class GlobalStatusSelectorBox
 
         JMenuItem item = getItemFromStatus(status);
 
-        setSelected(item, item.getIcon());
+        setSelected(item, (ImageIcon)item.getIcon());
     }
 
     /**
@@ -420,8 +420,9 @@ public class GlobalStatusSelectorBox
                         Messages.getI18NString("statusChangeGeneralError")
                             .getText();
 
-                    new ErrorDialog(null, msgText, e1, Messages.getI18NString(
-                        "generalError").getText()).showDialog();
+                    new ErrorDialog(null, Messages.getI18NString(
+                        "generalError").getText(), msgText, e1)
+                    .showDialog();
                 }
                 else if (e1.getErrorCode()
                     == OperationFailedException.NETWORK_FAILURE)
@@ -430,8 +431,9 @@ public class GlobalStatusSelectorBox
                         Messages.getI18NString("statusChangeNetworkFailure")
                             .getText();
 
-                    new ErrorDialog(null, msgText, e1, Messages.getI18NString(
-                        "networkFailure").getText()).showDialog();
+                    new ErrorDialog(null, msgText,
+                        Messages.getI18NString("networkFailure").getText(), e1)
+                    .showDialog();
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException.PROVIDER_NOT_REGISTERED)
@@ -440,8 +442,9 @@ public class GlobalStatusSelectorBox
                         Messages.getI18NString("statusChangeNetworkFailure")
                             .getText();
 
-                    new ErrorDialog(null, msgText, e1, Messages.getI18NString(
-                        "networkFailure").getText()).showDialog();
+                    new ErrorDialog(null, Messages.getI18NString(
+                        "networkFailure").getText(), msgText, e1)
+                    .showDialog();
                 }
                 logger.error("Error - changing status", e1);
             }
