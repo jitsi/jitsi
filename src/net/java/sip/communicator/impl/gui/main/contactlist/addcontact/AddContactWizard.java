@@ -100,47 +100,47 @@ public class AddContactWizard
                         
                         new ErrorDialog(mainFrame,
                             Messages.getI18NString(
+                            "addContactErrorTitle").getText(),
+                            Messages.getI18NString(
                                     "addContactExistError",
                                     new String[]{newContact.getUin()}).getText(),
-                                    ex,
-                            Messages.getI18NString(
-                                    "addContactErrorTitle").getText())
-                                    .showDialog();
+                            ex)
+                        .showDialog();
                 }
                 else if (errorCode
                     == MetaContactListException.CODE_LOCAL_IO_ERROR) {
                     
                     new ErrorDialog(mainFrame,
                         Messages.getI18NString(
+                        "addContactErrorTitle").getText(),
+                        Messages.getI18NString(
                                 "addContactError",
                                 new String[]{newContact.getUin()}).getText(),
-                                ex,
-                        Messages.getI18NString(
-                                "addContactErrorTitle").getText())
-                                .showDialog();
+                        ex)
+                    .showDialog();
                 }
                 else if (errorCode
                         == MetaContactListException.CODE_NETWORK_ERROR) {
                     
                     new ErrorDialog(mainFrame,
                         Messages.getI18NString(
+                        "addContactErrorTitle").getText(),
+                        Messages.getI18NString(
                                 "addContactError",
                                 new String[]{newContact.getUin()}).getText(),
-                                ex,
-                        Messages.getI18NString(
-                                "addContactErrorTitle").getText())
-                                .showDialog();
+                        ex)
+                    .showDialog();
                 }
                 else {
                     
                     new ErrorDialog(mainFrame,
                         Messages.getI18NString(
+                        "addContactErrorTitle").getText(),
+                        Messages.getI18NString(
                                 "addContactError",
                                 new String[]{newContact.getUin()}).getText(),
-                                ex,
-                        Messages.getI18NString(
-                                "addContactErrorTitle").getText())
-                                .showDialog();
+                        ex)
+                    .showDialog();
                 }
             }
         }
@@ -202,5 +202,15 @@ public class AddContactWizard
     public void bringToFront()
     {
         this.toFront();
+    }
+    
+    /**
+     * Returns the main application window.
+     * 
+     * @return the main application window
+     */
+    public MainFrame getMainFrame()
+    {
+        return mainFrame;
     }
 }

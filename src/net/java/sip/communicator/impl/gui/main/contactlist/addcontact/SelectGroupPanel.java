@@ -16,7 +16,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>SelectGroupPanel</tt> is where the user should select the group,
@@ -36,8 +35,7 @@ public class SelectGroupPanel
     
     private JComboBox groupCombo = new JComboBox();
     
-    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
-            Messages.getI18NString("selectGroupWizard").getText());
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea();
     
     private JLabel infoTitleLabel = new JLabel(
             Messages.getI18NString("selectGroupWizardTitle").getText());
@@ -45,47 +43,40 @@ public class SelectGroupPanel
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
     private JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
-   
+    
     private JPanel rightNorthPanel = new JPanel();
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
-    private NewContact newContact;
-    
-    private WizardContainer parentWizard;
+    private AddContactWizard parentWizard;
     
     /**
      * Creates an instance of <tt>SelectGroupPanel</tt>.
      * 
+     * @param wizard the wizard where this panel is contained
      * @param newContact An object that collects all user choices through the
      * wizard.
      * @param groupsList The list of all <tt>MetaContactGroup</tt>s, from which
      * the user could select.
      */
-    public SelectGroupPanel(WizardContainer wizard, NewContact newContact, 
-            Iterator groupsList) {
+    public SelectGroupPanel(AddContactWizard wizard,
+                            NewContact newContact)
+    {
         super(new BorderLayout(10, 10));
-    
-        this.setPreferredSize(new Dimension(500, 200));
-        
-        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
-        
+
         this.parentWizard = wizard;
-        
-        this.newContact = newContact;
-        
+
+        this.setPreferredSize(new Dimension(500, 200));
+
+        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
+
+        this.rightNorthPanel.setLayout(
+            new BoxLayout(rightNorthPanel, BoxLayout.Y_AXIS));
+
         this.groupCombo.setPreferredSize(new Dimension(300, 22));
         this.groupCombo.addItemListener(this);
-        
-        while(groupsList.hasNext())
-        {   
-            MetaContactGroup group
-                = (MetaContactGroup)groupsList.next();
-            
-            groupCombo.addItem(new GroupWrapper(group));
-        }
-        
+
         this.infoLabel.setEditable(false);
         
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -94,40 +85,66 @@ public class SelectGroupPanel
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
         
-        this.groupPanel.add(groupLabel, BorderLayout.WEST);
-        this.groupPanel.add(groupCombo, BorderLayout.CENTER);
-                
-        this.rightNorthPanel.setLayout(
-            new BoxLayout(rightNorthPanel, BoxLayout.Y_AXIS));
-        
         this.rightNorthPanel.add(labelsPanel);
         this.rightNorthPanel.add(groupPanel);
-     
+        
         this.rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
         
         this.rightPanel.add(rightNorthPanel, BorderLayout.NORTH);
         
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
-    } 
-    
-    /**
-     * Adds all selected from user contact groups in the new contact.
-     */
-    public void setGroup()
-    {
-        Object group = groupCombo.getSelectedItem();
-        
-        newContact.setGroup(((GroupWrapper)group).getMetaGroup());        
+
+//      groupCombo.addItem(new GroupWrapper(
+//      Messages.getI18NString("rootGroup").getText(),
+//      wizard.getRootGroup()));
+
+        Iterator groupsList = wizard.getMainFrame().getAllGroups();
+
+        if (groupsList.hasNext())
+        {
+            infoLabel.setText(
+                Messages.getI18NString("selectGroupWizard").getText());
+
+            this.groupPanel.add(groupLabel, BorderLayout.WEST);
+            this.groupPanel.add(groupCombo, BorderLayout.CENTER);
+
+            while(groupsList.hasNext())
+            {
+                MetaContactGroup group
+                    = (MetaContactGroup)groupsList.next();
+
+                groupCombo.addItem(new GroupWrapper(group));
+            }
+        }
+        else
+        {
+            infoLabel.setForeground(Color.RED);
+            infoLabel.setText(
+                Messages.getI18NString("createFirstGroupWizard").getText());
+        }
     }
     
+    /**
+     * Returns the selected group.
+     * @return the selected group
+     */
+    public MetaContactGroup getSelectedGroup()
+    {
+        Object selectedGroup = groupCombo.getSelectedItem();
+
+        if (selectedGroup != null)
+            return ((GroupWrapper) selectedGroup).getMetaGroup();
+
+        return null;
+    }
+
     /**
      * 
      */
     public void setNextButtonAccordingToComboBox()
     {
-        if(groupCombo.getSelectedItem() != null
-            || groupCombo.getSelectedItem() != "")
+        if(groupCombo.getSelectedItem() != null)
         {
             parentWizard.setNextFinishButtonEnabled(true);
         }
@@ -144,24 +161,34 @@ public class SelectGroupPanel
     {
         this.setNextButtonAccordingToComboBox();
     }
-    
+
     private class GroupWrapper
     {
+        private String groupName;
+
         private MetaContactGroup group;
-        
+
         public GroupWrapper(MetaContactGroup group)
         {
             this.group = group;
+            this.groupName = group.getGroupName();
         }
-        
+
+        public GroupWrapper(String groupName, MetaContactGroup group)
+        {
+            this.group = group;
+            this.groupName = groupName;
+        }
+
         public String toString()
         {
-            return group.getGroupName();
+            return groupName;
         }
-        
+
         public MetaContactGroup getMetaGroup()
         {
             return this.group;
         }
     }
+
 }

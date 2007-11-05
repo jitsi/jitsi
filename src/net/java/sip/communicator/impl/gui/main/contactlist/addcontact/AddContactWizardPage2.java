@@ -21,37 +21,43 @@ import net.java.sip.communicator.service.gui.*;
  * 
  * @author Yana Stamcheva
  */
-public class AddContactWizardPage2     
+public class AddContactWizardPage2
         implements  WizardPage,
                     CellEditorListener
 {
-
     public static final String IDENTIFIER = "SELECT_GROUP_PANEL";
     
     private SelectGroupPanel selectGroupPanel;
     
     private WizardContainer wizard;
+    
+    private NewContact newContact;
+    
     /**
      * Creates an instance of <tt>AddContactWizardPage2</tt>.
+     * @param wizard the parent wizard, where this page is contained
      * @param newContact An object that collects all user choices through the
      * wizard.
      * @param groupsList The list of all <tt>MetaContactGroup</tt>s, from which
      * the user could select.
      */
-    public AddContactWizardPage2(WizardContainer wizard, 
-            NewContact newContact,
-            Iterator groupsList) {
-                
+    public AddContactWizardPage2(   AddContactWizard wizard, 
+                                    NewContact newContact,
+                                    Iterator groupsList)
+    {
         this.wizard = wizard;
-        
-        selectGroupPanel = new SelectGroupPanel(wizard, newContact, groupsList);                
+
+        this.newContact = newContact;
+
+        selectGroupPanel = new SelectGroupPanel(wizard, newContact);
     }
     
     /**
      * Implements the <tt>WizardPanelDescriptor</tt> method to return the
      * identifier of the next wizard page.
      */
-    public Object getNextPageIdentifier() {
+    public Object getNextPageIdentifier()
+    {
         return AddContactWizardPage3.IDENTIFIER;
     }
     
@@ -59,24 +65,27 @@ public class AddContactWizardPage2
      * Implements the <tt>WizardPanelDescriptor</tt> method to return the
      * identifier of the previous wizard page.
      */
-    public Object getBackPageIdentifier() {
+    public Object getBackPageIdentifier()
+    {
         return AddContactWizardPage1.IDENTIFIER;
     }
-        
+
     /**
      * Before the panel is displayed checks the selections and enables the
      * next button if a checkbox is already selected or disables it if 
      * nothing is selected.
      */
-    public void pageShowing() {
+    public void pageShowing()
+    {
         selectGroupPanel.setNextButtonAccordingToComboBox();
-    }    
+    }
     
     /**
      * When user canceled editing the next button is enabled or disabled
      * depending on if the user has selected a check box or not.
      */
-    public void editingCanceled(ChangeEvent e) {
+    public void editingCanceled(ChangeEvent e)
+    {
         selectGroupPanel.setNextButtonAccordingToComboBox();
     }
 
@@ -84,28 +93,35 @@ public class AddContactWizardPage2
      * When user stopped editing the next button is enabled or disabled
      * depending on if the user has selected a check box or not.
      */
-    public void editingStopped(ChangeEvent e) {
+    public void editingStopped(ChangeEvent e)
+    {
         selectGroupPanel.setNextButtonAccordingToComboBox();
     }
 
-    public Object getIdentifier() {
+    public Object getIdentifier()
+    {
         return IDENTIFIER;
     }
 
-    public Object getWizardForm() {
+    public Object getWizardForm()
+    {
         return selectGroupPanel;
     }
 
-    public void pageHiding() {
+    public void pageHiding()
+    {
     }
 
-    public void pageShown() {
+    public void pageShown()
+    {
     }
 
-    public void pageNext() {
-        this.selectGroupPanel.setGroup();
+    public void pageNext()
+    {
+        this.newContact.setGroup(selectGroupPanel.getSelectedGroup());
     }
 
-    public void pageBack() {
+    public void pageBack()
+    {
     }
 }

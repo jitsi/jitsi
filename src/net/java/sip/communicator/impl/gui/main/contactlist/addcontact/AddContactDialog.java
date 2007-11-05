@@ -178,12 +178,12 @@ public class AddContactDialog
                                 
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
+                                    "addContactErrorTitle").getText(),
+                                    Messages.getI18NString(
                                             "addContactExistError",
                                             new String[]{uin}).getText(),
-                                            ex,
-                                    Messages.getI18NString(
-                                            "addContactErrorTitle").getText())
-                                            .showDialog();
+                                    ex)
+                                .showDialog();
                             }
                             else if (errorCode
                                 == MetaContactListException
@@ -191,12 +191,12 @@ public class AddContactDialog
                             {
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
+                                    "addContactErrorTitle").getText(),
+                                    Messages.getI18NString(
                                             "addContactError",
                                             new String[]{uin}).getText(),
-                                            ex,
-                                    Messages.getI18NString(
-                                            "addContactErrorTitle").getText())
-                                            .showDialog();
+                                    ex)
+                                .showDialog();
                             }
                             else if (errorCode
                                     == MetaContactListException
@@ -204,23 +204,23 @@ public class AddContactDialog
                             {
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
+                                    "addContactErrorTitle").getText(),
+                                    Messages.getI18NString(
                                             "addContactError",
                                             new String[]{uin}).getText(),
-                                            ex,
-                                    Messages.getI18NString(
-                                            "addContactErrorTitle").getText())
-                                            .showDialog();
+                                    ex)
+                                .showDialog();
                             }
                             else
                             {
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
+                                    "addContactErrorTitle").getText(),
+                                    Messages.getI18NString(
                                             "addContactError",
                                             new String[]{uin}).getText(),
-                                            ex,
-                                    Messages.getI18NString(
-                                            "addContactErrorTitle").getText())
-                                            .showDialog();
+                                    ex)
+                                .showDialog();
                             }
                         }
                     }
