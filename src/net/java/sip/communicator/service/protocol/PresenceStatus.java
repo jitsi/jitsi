@@ -45,7 +45,7 @@ public class PresenceStatus
      * An integer above which all values of the status coefficient indicate
      * eagerness to communicate
      */
-    public static final int EAGER_TO_COMMUNICATE_THRESHOLD = 80;
+    public static final int EAGER_TO_COMMUNICATE_THRESSHOLD = 80;
 
     /**
      * An integer indicating the maximum possible value of the status field.
@@ -59,7 +59,7 @@ public class PresenceStatus
 
     /**
      * Represents the connectivity status on a scale from
-     * 0 to 100  with 0 indicating complete disability for communication and 100
+     * 0 to 100  with 0 indicating complete disabiilty for communication and 100
      * maximum ability and user willingness. Implementors of this service should
      * respect the following indications for status values.
      * 0      - complete disability
@@ -166,7 +166,7 @@ public class PresenceStatus
      */
     public boolean isEagerToCommunicate()
     {
-        return getStatus() >= EAGER_TO_COMMUNICATE_THRESHOLD;
+        return getStatus() >= EAGER_TO_COMMUNICATE_THRESSHOLD;
     }
 
     /**
