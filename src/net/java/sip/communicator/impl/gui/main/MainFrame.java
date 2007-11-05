@@ -28,6 +28,7 @@ import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -611,11 +612,36 @@ public class MainFrame
      * through the <tt>ConfigurationService</tt>.
      */
     public class MainFrameWindowAdapter extends WindowAdapter
-    {   
+    {
         public void windowClosing(WindowEvent e)
         {
             if(!GuiActivator.getUIService().getExitOnMainWindowClose())
-            {   
+            {
+                new Thread()
+                {
+                    public void run()
+                    {
+                        if(!ConfigurationManager.isApplicationVisibleSaved())
+                        {
+                            MessageDialog dialog
+                                = new MessageDialog(
+                                    MainFrame.this,
+                                    Messages.getI18NString("close").getText(),
+                                    Messages.getI18NString("hideMainWindow")
+                                        .getText(),
+                                    false);
+
+                            int returnCode = dialog.showDialog();
+
+                            if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
+                            {
+                                ConfigurationManager
+                                    .setApplicationVisibleSaved(true);
+                            }
+                        }
+                    }
+                }.start();
+
                 ConfigurationManager.setApplicationVisible(false);
             }
         }
@@ -624,9 +650,12 @@ public class MainFrame
         {
             if(GuiActivator.getUIService().getExitOnMainWindowClose())
             {
-                try {
+                try
+                {
                     GuiActivator.bundleContext.getBundle(0).stop();
-                } catch (BundleException ex) {
+                }
+                catch (BundleException ex)
+                {
                     logger.error("Failed to gently shutdown Felix", ex);
                     System.exit(0);
                 }
@@ -893,6 +922,7 @@ public class MainFrame
                             new Integer(0));
                 }
             }
+
             this.getStatusPanel().updateAccountIndex(currentProvider);
         }
     }
