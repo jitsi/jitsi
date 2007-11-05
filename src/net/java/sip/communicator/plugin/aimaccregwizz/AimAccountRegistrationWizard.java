@@ -1,15 +1,13 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.aimaccregwizz;
 
+import java.awt.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.plugin.gibberishaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -19,15 +17,15 @@ import org.osgi.framework.*;
  * The <tt>AimAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the AIM protocol. It should allow
  * the user to create and configure a new AIM account.
- *
+ * 
  * @author Yana Stamcheva
  */
-public class AimAccountRegistrationWizard implements AccountRegistrationWizard
+public class AimAccountRegistrationWizard
+    implements AccountRegistrationWizard
 {
     private FirstWizardPage firstWizardPage;
 
-    private AimAccountRegistration registration
-        = new AimAccountRegistration();
+    private AimAccountRegistration registration = new AimAccountRegistration();
 
     private WizardContainer wizardContainer;
 
@@ -37,10 +35,11 @@ public class AimAccountRegistrationWizard implements AccountRegistrationWizard
 
     /**
      * Creates an instance of <tt>AimAccountRegistrationWizard</tt>.
-     * @param wizardContainer the wizard container, where this wizard
-     * is added
+     * 
+     * @param wizardContainer the wizard container, where this wizard is added
      */
-    public AimAccountRegistrationWizard(WizardContainer wizardContainer) {
+    public AimAccountRegistrationWizard(WizardContainer wizardContainer)
+    {
         this.wizardContainer = wizardContainer;
     }
 
@@ -48,13 +47,14 @@ public class AimAccountRegistrationWizard implements AccountRegistrationWizard
      * Implements the <code>AccountRegistrationWizard.getIcon</code> method.
      * Returns the icon to be used for this wizard.
      */
-    public byte[] getIcon() {
+    public byte[] getIcon()
+    {
         return Resources.getImage(Resources.AIM_LOGO);
     }
-    
+
     /**
-     * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
-     * Returns the image used to decorate the wizard page
+     * Implements the <code>AccountRegistrationWizard.getPageImage</code>
+     * method. Returns the image used to decorate the wizard page
      * 
      * @return byte[] the image used to decorate the wizard page
      */
@@ -62,29 +62,33 @@ public class AimAccountRegistrationWizard implements AccountRegistrationWizard
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
      */
-    public String getProtocolName() {
+    public String getProtocolName()
+    {
         return Resources.getString("protocolName");
     }
 
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolDescription
-     * </code> method. Returns the description of the protocol for this wizard.
+     * </code>
+     * method. Returns the description of the protocol for this wizard.
      */
-    public String getProtocolDescription() {
+    public String getProtocolDescription()
+    {
         return Resources.getString("protocolDescription");
     }
 
     /**
      * Returns the set of pages contained in this wizard.
      */
-    public Iterator getPages() {
+    public Iterator getPages()
+    {
         ArrayList pages = new ArrayList();
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
 
@@ -94,106 +98,124 @@ public class AimAccountRegistrationWizard implements AccountRegistrationWizard
     /**
      * Returns the set of data that user has entered through this wizard.
      */
-    public Iterator getSummary() {
+    public Iterator getSummary()
+    {
         Hashtable summaryTable = new Hashtable();
 
         summaryTable.put("UIN", registration.getUin());
-        summaryTable.put("Remember password",
-                new Boolean(registration.isRememberPassword()));
-        
-        if(registration.getProxy() != null)
-            summaryTable.put(Resources.getString("proxy"),
-                            registration.getProxy());
-        
-        if(registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyPort"),
-                            registration.getProxyPort());
-        
-        if(registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyType"),
-                            registration.getProxyType());
-        
-        if(registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyUsername"),
-                            registration.getProxyPort());
-        
-        if(registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyPassword"),
-                            registration.getProxyType());
-        
+        summaryTable.put("Remember password", new Boolean(registration
+            .isRememberPassword()));
+
+        if (registration.getProxy() != null)
+            summaryTable.put(Resources.getString("proxy"), registration
+                .getProxy());
+
+        if (registration.getProxyPort() != null)
+            summaryTable.put(Resources.getString("proxyPort"), registration
+                .getProxyPort());
+
+        if (registration.getProxyType() != null)
+            summaryTable.put(Resources.getString("proxyType"), registration
+                .getProxyType());
+
+        if (registration.getProxyPort() != null)
+            summaryTable.put(Resources.getString("proxyUsername"), registration
+                .getProxyPort());
+
+        if (registration.getProxyType() != null)
+            summaryTable.put(Resources.getString("proxyPassword"), registration
+                .getProxyType());
+
         return summaryTable.entrySet().iterator();
     }
 
     /**
      * Installs the account created through this wizard.
      */
-    public ProtocolProviderService finish() {
+    public ProtocolProviderService finish()
+    {
         firstWizardPage = null;
-        ProtocolProviderFactory factory
-            = AimAccRegWizzActivator.getAimProtocolProviderFactory();
+        ProtocolProviderFactory factory =
+            AimAccRegWizzActivator.getAimProtocolProviderFactory();
 
-        return this.installAccount(factory,
-                registration.getUin(), registration.getPassword());
+        return this.installAccount(factory, registration.getUin(), registration
+            .getPassword());
     }
 
     /**
      * Creates an account for the given user and password.
-     * @param providerFactory the ProtocolProviderFactory which will create
-     * the account
+     * 
+     * @param providerFactory the ProtocolProviderFactory which will create the
+     *            account
      * @param user the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
     public ProtocolProviderService installAccount(
-            ProtocolProviderFactory providerFactory,
-            String user,
-            String passwd) {
-
+        ProtocolProviderFactory providerFactory, String user, String passwd)
+    {
         Hashtable accountProperties = new Hashtable();
 
-        if(registration.isRememberPassword()) {
+        if (registration.isRememberPassword())
+        {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
-        if(registration.getProxyType() != null)
+        if (registration.getProxyType() != null)
         {
-            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                registration.getProxy());
+            if (registration.getProxy() != null)
+                accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+                    registration.getProxy());
 
-            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                registration.getProxyPort());
+            if (registration.getProxyPort() != null)
+                accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                    registration.getProxyPort());
 
-            accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
-                registration.getProxyType());
+            if (registration.getProxyType() != null)
+                accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
+                    registration.getProxyType());
 
-            accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
-                registration.getProxyUsername());
+            if (registration.getProxyUsername() != null)
+                accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
+                    registration.getProxyUsername());
 
-            accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
-                registration.getProxyPassword());
+            if (registration.getProxyPassword() != null)
+                accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
+                    registration.getProxyPassword());
         }
 
-        if(isModification) {
+        if (isModification)
+        {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
+            this.isModification  = false;
         }
 
-        try {
-            AccountID accountID = providerFactory.installAccount(
-                    user, accountProperties);
+        try
+        {
+            AccountID accountID =
+                providerFactory.installAccount(user, accountProperties);
 
-            ServiceReference serRef = providerFactory
-                .getProviderForAccount(accountID);
+            ServiceReference serRef =
+                providerFactory.getProviderForAccount(accountID);
 
-            protocolProvider
-                = (ProtocolProviderService) AimAccRegWizzActivator.bundleContext
+            protocolProvider =
+                (ProtocolProviderService) AimAccRegWizzActivator.bundleContext
                     .getService(serRef);
         }
-        catch (IllegalArgumentException e) {
-            new ErrorDialog(null, e.getMessage(), e).showDialog();
+        catch (IllegalArgumentException e)
+        {
+            AimAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(e.getMessage(),
+                                        Resources.getString("error"),
+                                        PopupDialog.ERROR_MESSAGE);
         }
-        catch (IllegalStateException e) {
-            new ErrorDialog(null, e.getMessage(), e).showDialog();
+        catch (IllegalStateException e)
+        {
+            AimAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(e.getMessage(),
+                                        Resources.getString("error"),
+                                        PopupDialog.ERROR_MESSAGE);
         }
 
         return protocolProvider;
@@ -202,15 +224,59 @@ public class AimAccountRegistrationWizard implements AccountRegistrationWizard
     /**
      * Fills the UIN and Password fields in this panel with the data comming
      * from the given protocolProvider.
-     * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
-     * data from.
+     * 
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
+     *            the data from.
      */
-    public void loadAccount(ProtocolProviderService protocolProvider) {
+    public void loadAccount(ProtocolProviderService protocolProvider)
+    {
+        this.isModification = true;
 
         this.protocolProvider = protocolProvider;
 
         this.firstWizardPage.loadAccount(protocolProvider);
+    }
 
-        this.isModification = true;
-    }    
+    /**
+     * Indicates if this wizard is opened for modification or for creating a
+     * new account.
+     * 
+     * @return <code>true</code> if this wizard is opened for modification and
+     * <code>false</code> otherwise.
+     */
+    public boolean isModification()
+    {
+        return isModification;
+    }
+
+    /**
+     * Returns the wizard container, where all pages are added.
+     * 
+     * @return the wizard container, where all pages are added
+     */
+    public WizardContainer getWizardContainer()
+    {
+        return wizardContainer;
+    }
+
+    /**
+     * Returns the registration object, which will store all the data through
+     * the wizard.
+     * 
+     * @return the registration object, which will store all the data through
+     * the wizard
+     */
+    public AimAccountRegistration getRegistration()
+    {
+        return registration;
+    }
+
+    /**
+     * Returns the size of this wizard.
+     * @return the size of this wizard
+     */
+    public Dimension getSize()
+    {
+        return new Dimension(600, 500);
+    }
 }

@@ -22,24 +22,34 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov/Jean-Albert Vescovo
  */
 public class FirstWizardPage
-    extends JPanel implements WizardPage, DocumentListener
+    extends JPanel
+    implements  WizardPage,
+                DocumentListener
 {
-
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
-
-    private JPanel userPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new JPanel();
 
+    private JLabel infoTitle= new JLabel(
+        Resources.getString("rssAccountInfoTitle"));
+
+    private JPanel infoTitlePanel
+        = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
     private JLabel existingAccountLabel =
-        new JLabel("RSS account already exists !");
+        new JLabel(Resources.getString("rssAccountExist"));
 
-    private JLabel creatingAccountLabel =
-        new JLabel("Press next to create your RSS account...");
+    private JPanel existingAccountPanel =
+        new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-    private JTextField userIDField = new JTextField();
+    private JTextArea accountInfoArea = new JTextArea(
+        Resources.getString("rssAccountInfo"));
 
-    private JPanel mainPanel = new JPanel();
+    private JLabel accountInfoAttentionArea
+        = new JLabel(Resources.getString("rssAccountAttention"));
+
+    private JPanel accountInfoAttentionPanel
+        = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -57,54 +67,53 @@ public class FirstWizardPage
     public FirstWizardPage(RssAccountRegistration registration,
                            WizardContainer wizardContainer)
     {
-
         super(new BorderLayout());
 
         this.wizardContainer = wizardContainer;
 
         this.registration = registration;
 
-        this.setPreferredSize(new Dimension(300, 150));
-
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
-        this.init();
-
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        this.labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
-    }
+        this.labelsPanel.setLayout(
+            new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
 
-    /**
-     * Initializes all panels, buttons, etc.
-     */
-    private void init()
-    {
-        this.userIDField.getDocument().addDocumentListener(this);
+        this.add(labelsPanel, BorderLayout.NORTH);
+
+        this.infoTitle.setFont(
+            infoTitle.getFont().deriveFont(Font.BOLD, 14.0f));
+
+        this.infoTitlePanel.add(infoTitle);
+
+        this.labelsPanel.add(infoTitlePanel);
+
+        this.accountInfoAttentionArea.setFont(
+            infoTitle.getFont().deriveFont(Font.BOLD, 14.0f));
+
+        this.accountInfoAttentionPanel.add(accountInfoAttentionArea);
+
+        this.accountInfoArea.setWrapStyleWord(true);
+        this.accountInfoArea.setLineWrap(true);
 
         this.existingAccountLabel.setForeground(Color.RED);
+        this.existingAccountPanel.add(existingAccountLabel);
 
-        this.creatingAccountLabel.setForeground(Color.BLUE);
+        if(!isExistingAccount("rss"))
+        {
+            labelsPanel.remove(existingAccountPanel);
+            labelsPanel.add(accountInfoAttentionPanel);
+            labelsPanel.add(accountInfoArea);
 
-        labelsPanel.add(creatingAccountLabel);
-
-        if(!isExistingAccount("rss")){
-            labelsPanel.remove(existingAccountLabel);
-            labelsPanel.add(creatingAccountLabel);
             setNextButtonAccordingToUserID(true);
         }
-        else{
-            labelsPanel.remove(creatingAccountLabel);
-            labelsPanel.add(existingAccountLabel);
+        else
+        {
+            labelsPanel.remove(accountInfoAttentionPanel);
+            labelsPanel.remove(accountInfoArea);
+            labelsPanel.add(existingAccountPanel);
+
             setNextButtonAccordingToUserID(false);
         }
-
-        userPassPanel.add(labelsPanel, BorderLayout.CENTER);
-
-        userPassPanel.setBorder(BorderFactory
-                                .createTitledBorder("RSS account creation..."));
-
-        this.add(userPassPanel, BorderLayout.CENTER);
     }
 
     /**
@@ -167,7 +176,7 @@ public class FirstWizardPage
     public void pageNext()
     {
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-        userPassPanel.remove(existingAccountLabel);
+
         registration.setUserID("RSS");
     }
 

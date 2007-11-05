@@ -26,9 +26,8 @@ import net.java.sip.communicator.util.*;
  */
 public class FirstWizardPage
     extends JPanel
-    implements
-    WizardPage,
-    DocumentListener
+    implements  WizardPage,
+                DocumentListener
 {
     private static final Logger logger = Logger
         .getLogger(FirstWizardPage.class);
@@ -38,6 +37,12 @@ public class FirstWizardPage
     private static final String GOOGLE_USER_SUFFIX = "gmail.com";
 
     private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
+
+    private static final String DEFAULT_PORT = "5222";
+
+    private static final String DEFAULT_PRIORITY = "10";
+
+    private static final String DEFAULT_RESOURCE = "sip-comm";
 
     private JabberNewAccountDialog jabberNewAccountDialog;
 
@@ -79,11 +84,11 @@ public class FirstWizardPage
 
     private JLabel resourceLabel = new JLabel("Resource");
 
-    private JTextField resourceField = new JTextField("sip-comm");
+    private JTextField resourceField = new JTextField(DEFAULT_RESOURCE);
 
     private JLabel priorityLabel = new JLabel("Priority");
 
-    private JTextField priorityField = new JTextField("10");
+    private JTextField priorityField = new JTextField(DEFAULT_PRIORITY);
 
     private JLabel serverLabel = new JLabel(Resources.getString("server"));
 
@@ -91,7 +96,7 @@ public class FirstWizardPage
 
     private JLabel portLabel = new JLabel(Resources.getString("port"));
 
-    private JTextField portField = new JTextField("5222");
+    private JTextField portField = new JTextField(DEFAULT_PORT);
 
     private JPanel registerPanel = new JPanel(new GridLayout(0, 1));
 
@@ -107,28 +112,19 @@ public class FirstWizardPage
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
-    private JabberAccountRegistration registration;
-
-    private WizardContainer wizardContainer;
+    private JabberAccountRegistrationWizard wizard;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * 
-     * @param registration the <tt>JabberAccountRegistration</tt>, where all
-     *            data through the wizard are stored
-     * @param wizardContainer the wizardContainer, where this page will be added
+     * @param wizard the parent wizard
      */
-    public FirstWizardPage(JabberAccountRegistration registration,
-        WizardContainer wizardContainer)
+    public FirstWizardPage(JabberAccountRegistrationWizard wizard)
     {
 
         super(new BorderLayout());
 
-        this.wizardContainer = wizardContainer;
-
-        this.registration = registration;
-
-        this.setPreferredSize(new Dimension(300, 480));
+        this.wizard = wizard;
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -149,7 +145,6 @@ public class FirstWizardPage
     private void init()
     {
         this.userIDField.getDocument().addDocumentListener(this);
-        this.resourceField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
 
         this.existingAccountLabel.setForeground(Color.RED);
@@ -178,10 +173,10 @@ public class FirstWizardPage
 
         mainPanel.add(userIDPassPanel);
 
-        serverField.setEditable(false);
-        portField.setEditable(false);
-        resourceField.setEditable(false);
-        priorityField.setEditable(false);
+        serverField.setEnabled(false);
+        portField.setEnabled(false);
+        resourceField.setEnabled(false);
+        priorityField.setEnabled(false);
 
         enableAdvOpButton.addActionListener(new ActionListener()
         {
@@ -190,10 +185,21 @@ public class FirstWizardPage
                 // Perform action
                 JCheckBox cb = (JCheckBox) evt.getSource();
 
-                serverField.setEditable(cb.isSelected());
-                portField.setEditable(cb.isSelected());
-                resourceField.setEditable(cb.isSelected());
-                priorityField.setEditable(cb.isSelected());
+                if (!wizard.isModification())
+                    serverField.setEnabled(cb.isSelected());
+
+                portField.setEnabled(cb.isSelected());
+                resourceField.setEnabled(cb.isSelected());
+                priorityField.setEnabled(cb.isSelected());
+
+                if(!cb.isSelected())
+                {
+                    setServerFieldAccordingToUserID();
+
+                    portField.setText(DEFAULT_PORT);
+                    resourceField.setText(DEFAULT_RESOURCE);
+                    priorityField.setText(DEFAULT_PRIORITY);
+                }
             }
         });
 
@@ -268,11 +274,11 @@ public class FirstWizardPage
                 {
                     serverField.setText(jabberNewAccountDialog.server);
                     portField.setText(jabberNewAccountDialog.port);
-                    
+
                     // This userIDField contains the username "@" the server.
                     userIDField.setText(jabberNewAccountDialog.userID + "@"
                         + jabberNewAccountDialog.server);
-                    
+
                     passField.setText(jabberNewAccountDialog.password);
                 }
                 logger.debug("Reg End");
@@ -281,7 +287,7 @@ public class FirstWizardPage
 
         buttonPanel.add(registerButton);
 
-        registerArea.setEditable(false);
+        registerArea.setEnabled(false);
         registerArea.setOpaque(false);
         registerArea.setLineWrap(true);
         registerArea.setWrapStyleWord(true);
@@ -357,7 +363,7 @@ public class FirstWizardPage
     {
         String userID = userIDField.getText();
 
-        if (isExistingAccount(userID))
+        if (!wizard.isModification() && isExistingAccount(userID))
         {
             nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
             userIDPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
@@ -368,6 +374,8 @@ public class FirstWizardPage
             nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
             userIDPassPanel.remove(existingAccountLabel);
 
+            JabberAccountRegistration registration = wizard.getRegistration();
+
             registration.setUserID(userIDField.getText());
             registration.setPassword(new String(passField.getPassword()));
             registration.setRememberPassword(rememberPassBox.isSelected());
@@ -375,15 +383,13 @@ public class FirstWizardPage
             registration.setServerAddress(serverField.getText());
             registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
             registration.setResource(resourceField.getText());
-            try
-            {
+
+            if (portField.getText() != null)
                 registration.setPort(Integer.parseInt(portField.getText()));
-                registration.setPriority(Integer.parseInt(priorityField
-                    .getText()));
-            }
-            catch (NumberFormatException ex)
-            {
-            }
+
+            if (priorityField.getText() != null)
+                registration.setPriority(
+                    Integer.parseInt(priorityField.getText()));
         }
     }
 
@@ -393,15 +399,16 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUserIDAndResource()
     {
-        if (userIDField.getText() == null || userIDField.getText().equals("")
+        if (userIDField.getText() == null
+            || userIDField.getText().equals("")
             || resourceField.getText() == null
             || resourceField.getText().equals(""))
         {
-            wizardContainer.setNextFinishButtonEnabled(false);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
         else
         {
-            wizardContainer.setNextFinishButtonEnabled(true);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
     }
 
@@ -415,6 +422,7 @@ public class FirstWizardPage
     public void insertUpdate(DocumentEvent evt)
     {
         this.setNextButtonAccordingToUserIDAndResource();
+
         this.setServerFieldAccordingToUserID();
     }
 
@@ -428,6 +436,7 @@ public class FirstWizardPage
     public void removeUpdate(DocumentEvent evt)
     {
         this.setNextButtonAccordingToUserIDAndResource();
+
         this.setServerFieldAccordingToUserID();
     }
 
@@ -448,7 +457,7 @@ public class FirstWizardPage
     }
 
     /**
-     * Fills the User ID and Password fields in this panel with the data comming
+     * Fills the User ID and Password fields in this panel with the data coming
      * from the given protocolProvider.
      * 
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
@@ -457,15 +466,60 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
-        String password = (String) accountID.getAccountProperties().get(
+
+        Map accountProperties = accountID.getAccountProperties();
+
+        String password = (String) accountProperties.get(
             ProtocolProviderFactory.PASSWORD);
 
+        this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
 
         if (password != null)
         {
             this.passField.setText(password);
             this.rememberPassBox.setSelected(true);
+        }
+
+        String serverAddress = (String) accountProperties
+            .get(ProtocolProviderFactory.SERVER_ADDRESS);
+
+        serverField.setText(serverAddress);
+
+        String serverPort = (String) accountProperties
+            .get(ProtocolProviderFactory.SERVER_PORT);
+
+        portField.setText(serverPort);
+
+        boolean keepAlive = new Boolean((String)accountProperties
+            .get("SEND_KEEP_ALIVE")).booleanValue();
+
+        sendKeepAliveBox.setSelected(keepAlive);
+
+        String resource = (String) accountProperties.get(
+            ProtocolProviderFactory.RESOURCE);
+
+        resourceField.setText(resource);
+
+        String priority = (String) accountProperties.get(
+            ProtocolProviderFactory.RESOURCE_PRIORITY);
+
+        priorityField.setText(priority);
+
+        if (!serverPort.equals(DEFAULT_PORT)
+            || !resource.equals(DEFAULT_RESOURCE)
+            || !priority.equals(DEFAULT_PRIORITY))
+        {
+            enableAdvOpButton.setSelected(true);
+
+            // The server field should stay disabled in modification mode,
+            // because the user should not be able to change anything concerning
+            // the account identifier and server name is part of it.
+            serverField.setEnabled(false);
+
+            portField.setEnabled(true);
+            resourceField.setEnabled(true);
+            priorityField.setEnabled(true);
         }
     }
 
@@ -503,11 +557,11 @@ public class FirstWizardPage
         {
             new Integer(portField.getText());
             new Integer(priorityField.getText());
-            wizardContainer.setNextFinishButtonEnabled(true);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
         catch (NumberFormatException ex)
         {
-            wizardContainer.setNextFinishButtonEnabled(false);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
     }
 

@@ -29,6 +29,8 @@ public class IrcAccRegWizzActivator
      */
     public static BundleContext bundleContext;
 
+    public static UIService uiService;
+
     /**
      * Starts this bundle.
      * @param bc the currently valid <tt>BundleContext</tt>.
@@ -100,5 +102,15 @@ public class IrcAccRegWizzActivator
     public BundleContext getBundleContext()
     {
         return bundleContext;
+    }
+
+    /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 }

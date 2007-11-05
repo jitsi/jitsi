@@ -99,28 +99,18 @@ public class FirstWizardPage
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
-    private IrcAccountRegistration registration = null;
-
-    private WizardContainer wizardContainer;
+    private IrcAccountRegistrationWizard wizard;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * 
-     * @param registration the <tt>IrcAccountRegistration</tt>, where
-     * all data through the wizard are stored
-     * @param wizardContainer the wizardContainer, where this page will
-     * be added
+     * @param wizard the parent wizard
      */
-    public FirstWizardPage(IrcAccountRegistration registration,
-                           WizardContainer wizardContainer)
+    public FirstWizardPage(IrcAccountRegistrationWizard wizard)
     {
         super(new BorderLayout());
 
-        this.wizardContainer = wizardContainer;
-
-        this.registration = registration;
-
-        this.setPreferredSize(new Dimension(200, 150));
+        this.wizard = wizard;
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -292,10 +282,15 @@ public class FirstWizardPage
             nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
             userPassPanel.remove(existingAccountLabel);
 
+            IrcAccountRegistration registration = wizard.getRegistration();
+
             registration.setUserID(nickField.getText());
-            registration.setPassword(new String(passField.getPassword()));
-            registration.setServer(new String(serverField.getText()));
-            registration.setPort(new String(portField.getText()));
+
+            if (passField.getPassword() != null)
+                registration.setPassword(new String(passField.getPassword()));
+
+            registration.setServer(serverField.getText());
+            registration.setPort(portField.getText());
             registration.setRememberPassword(rememberPassBox.isSelected());
             registration.setAutoChangeNick(autoNickChange.isSelected());
             registration.setRequiredPassword(!passwordNotRequired.isSelected());
@@ -314,11 +309,11 @@ public class FirstWizardPage
                 || (!passwordNotRequired.isSelected()
                         && passField.equals("")))
         {
-            wizardContainer.setNextFinishButtonEnabled(false);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
         else
         {
-            wizardContainer.setNextFinishButtonEnabled(true);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
     }
 
@@ -356,21 +351,23 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
+
         String password = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PASSWORD);
-        
+
         String server = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.SERVER_ADDRESS);
-        
+
         String port = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.SERVER_PORT);
-        
+
         String autoNickChange = (String) accountID.getAccountProperties()
-            .get("AUTO_NICK_CHANGE");
-        
-        String passwordNotRequired = (String) accountID.getAccountProperties()
-            .get("PASSWORD_NOT_REQUIRED");
-        
+            .get(ProtocolProviderFactory.AUTO_CHANGE_USER_NAME);
+
+        String passwordRequired = (String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.PASSWORD_REQUIRED);
+
+        this.nickField.setEnabled(false);
         this.nickField.setText(accountID.getUserID());
         this.serverField.setText(server);
 
@@ -379,25 +376,29 @@ public class FirstWizardPage
             this.passField.setText(password);
             this.rememberPassBox.setSelected(true);
         }
-        
+
         if (port != null)
         {
             this.portField.setText(port);
             this.portField.setEnabled(true);
             this.defaultPort.setSelected(false);
         }
-        
-        if (autoNickChange.equals("1"))
+
+        if (autoNickChange != null)
         {
-            this.autoNickChange.setSelected(true);
+            this.autoNickChange.setSelected(
+                new Boolean(autoNickChange).booleanValue());
         }
-        else this.autoNickChange.setSelected(false);
-        
-        if (passwordNotRequired.equals("1"))
+
+        if (passwordRequired != null)
         {
-            this.passwordNotRequired.setSelected(true);
+            boolean isPassRequired
+                = new Boolean(passwordRequired).booleanValue();
+
+            this.passwordNotRequired.setSelected(!isPassRequired);
+
+            passField.setEnabled(isPassRequired);
         }
-        else this.passwordNotRequired.setSelected(false);
     }
 
     /**
@@ -438,8 +439,9 @@ public class FirstWizardPage
             portField.setText("");
             portField.setEnabled(false);
         }
-        else portField.setEnabled(true);
-        
+        else
+            portField.setEnabled(true);
+
         if (passwordNotRequired.isSelected())
         {
             passField.setText("");

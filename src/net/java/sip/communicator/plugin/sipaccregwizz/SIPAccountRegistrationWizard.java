@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
+import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
@@ -21,9 +22,9 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
+public class SIPAccountRegistrationWizard
+    implements AccountRegistrationWizard
 {
-
     private FirstWizardPage firstWizardPage;
 
     private SIPAccountRegistration registration
@@ -95,7 +96,7 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
      */
     public Iterator getPages() {
         ArrayList pages = new ArrayList();
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
 
@@ -183,8 +184,8 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
     public ProtocolProviderService installAccount(
             ProtocolProviderFactory providerFactory,
             String user,
-            String passwd) {
-
+            String passwd)
+    {
         Hashtable accountProperties = new Hashtable();
 
         if(registration.isRememberPassword()) {
@@ -205,22 +206,24 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());
-        
+
         accountProperties.put(ProtocolProviderFactory.IS_PRESENCE_ENABLED,
                 Boolean.toString(registration.isEnablePresence()));
 
         accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
                 Boolean.toString(registration.isForceP2PMode()));
-        
+
         accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
                 registration.getPollingPeriod());
-        
+
         accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
                 registration.getSubscriptionExpiration());
-        
-        if(isModification) {
+
+        if(isModification)
+        {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
+            this.isModification  = false;
         }
 
         try {
@@ -235,27 +238,82 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
                     .getService(serRef);
 
         }
-        catch (Exception exc)
+        catch (IllegalArgumentException exc)
         {
-            logger.error(exc.getMessage(), exc);
-            throw new RuntimeException(exc.getMessage(), exc);
+            SIPAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(exc.getMessage(),
+                    Resources.getString("error"),
+                    PopupDialog.ERROR_MESSAGE);
         }
+        catch (IllegalStateException exc)
+        {
+            SIPAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(exc.getMessage(),
+                    Resources.getString("error"),
+                    PopupDialog.ERROR_MESSAGE);
+        }
+
 
         return protocolProvider;
     }
 
     /**
-     * Fills the UIN and Password fields in this panel with the data comming
+     * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
-    public void loadAccount(ProtocolProviderService protocolProvider) {
+    public void loadAccount(ProtocolProviderService protocolProvider)
+    {
+        this.isModification = true;
 
         this.protocolProvider = protocolProvider;
 
-        this.firstWizardPage.loadAccount(protocolProvider);
+        this.registration = new SIPAccountRegistration();
 
-        this.isModification = true;
+        this.firstWizardPage.loadAccount(protocolProvider);
+    }
+
+    /**
+     * Indicates if this wizard is opened for modification or for creating a
+     * new account.
+     * 
+     * @return <code>true</code> if this wizard is opened for modification and
+     * <code>false</code> otherwise.
+     */
+    public boolean isModification()
+    {
+        return isModification;
+    }
+
+    /**
+     * Returns the wizard container, where all pages are added.
+     * 
+     * @return the wizard container, where all pages are added
+     */
+    public WizardContainer getWizardContainer()
+    {
+        return wizardContainer;
+    }
+
+    /**
+     * Returns the registration object, which will store all the data through
+     * the wizard.
+     * 
+     * @return the registration object, which will store all the data through
+     * the wizard
+     */
+    public SIPAccountRegistration getRegistration()
+    {
+        return registration;
+    }
+    
+    /**
+     * Returns the size of this wizard.
+     * @return the size of this wizard
+     */
+    public Dimension getSize()
+    {
+        return new Dimension(600, 500);
     }
 }

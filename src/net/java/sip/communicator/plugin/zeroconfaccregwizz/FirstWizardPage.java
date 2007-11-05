@@ -27,7 +27,6 @@ public class FirstWizardPage
     implements WizardPage, 
                DocumentListener
 {
-
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel userPassPanel = new JPanel(new BorderLayout(10, 10));
@@ -38,12 +37,10 @@ public class FirstWizardPage
 
     private JLabel userID = new JLabel(Resources.getString("userID"));
 
-    
     /* TEMPORARY : HARD CODED !! Should be added to Resource */
     private JLabel firstLabel = new JLabel("Firstname:");
     private JLabel lastLabel = new JLabel("Lastname:");
     private JLabel mailLabel = new JLabel("Mail address:");
-    
 
     private JLabel existingAccountLabel
         = new JLabel(Resources.getString("existingAccount"));
@@ -52,12 +49,12 @@ public class FirstWizardPage
     private JPanel emptyPanel2 = new JPanel();
     private JPanel emptyPanel3 = new JPanel();
     private JPanel emptyPanel4 = new JPanel();
-    
+
     private JLabel userIDExampleLabel = new JLabel("Ex: Bill@microsoft");
     private JLabel firstExampleLabel = new JLabel("Ex: Bill");
-    private JLabel lastExampleLabel = new JLabel("Ex: Gates");    
-    private JLabel mailExampleLabel = new JLabel("Ex: Bill@microsoft.com");    
-    
+    private JLabel lastExampleLabel = new JLabel("Ex: Gates");
+    private JLabel mailExampleLabel = new JLabel("Ex: Bill@microsoft.com");
+
     private JTextField userIDField = new JTextField();
     private JTextField firstField = new JTextField();
     private JTextField lastField = new JTextField();
@@ -70,28 +67,19 @@ public class FirstWizardPage
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
-    private ZeroconfAccountRegistration registration = null;
-
-    private WizardContainer wizardContainer;
+    private ZeroconfAccountRegistrationWizard wizard;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * @param registration the <tt>ZeroconfAccountRegistration</tt>, where
-     * all data through the wizard are stored
-     * @param wizardContainer the wizardContainer, where this page will
-     * be added
+     * 
+     * @param wizard the parent wizard
      */
-    public FirstWizardPage(ZeroconfAccountRegistration registration,
-                           WizardContainer wizardContainer)
+    public FirstWizardPage(ZeroconfAccountRegistrationWizard wizard)
     {
 
         super(new BorderLayout());
 
-        this.wizardContainer = wizardContainer;
-
-        this.registration = registration;
-
-        this.setPreferredSize(new Dimension(150, 100));
+        this.wizard = wizard;
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -147,8 +135,7 @@ public class FirstWizardPage
         this.emptyPanel4.setMaximumSize(new Dimension(40, 35));
         this.mailExampleLabel.setBorder(
                 BorderFactory.createEmptyBorder(0, 0, 8,0));
-        
-        
+
         labelsPanel.add(userID);
         labelsPanel.add(emptyPanel);
         labelsPanel.add(firstLabel);
@@ -156,12 +143,11 @@ public class FirstWizardPage
         labelsPanel.add(lastLabel);
         labelsPanel.add(emptyPanel3);
         labelsPanel.add(mailLabel);
-        
 
         valuesPanel.add(userIDField);
         valuesPanel.add(userIDExampleLabel);
         valuesPanel.add(firstField);
-        valuesPanel.add(firstExampleLabel);        
+        valuesPanel.add(firstExampleLabel);
         valuesPanel.add(lastField);
         valuesPanel.add(lastExampleLabel);
         valuesPanel.add(mailField);
@@ -238,10 +224,9 @@ public class FirstWizardPage
     public void pageNext()
     {
         String userID = userIDField.getText();
-        
+
         // TODO: isExistingAccount blocks (probably badly/not implemented) !!!!
-        // ----
-       if (isExistingAccount(userID))
+       if (!wizard.isModification() && isExistingAccount(userID))
         {
             nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
             userPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
@@ -252,11 +237,14 @@ public class FirstWizardPage
             nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
             userPassPanel.remove(existingAccountLabel);
 
+            ZeroconfAccountRegistration registration
+                = wizard.getRegistration();
+
             registration.setUserID(userIDField.getText());
             registration.setFirst(firstField.getText());
             registration.setLast(lastField.getText());
             registration.setMail(mailField.getText());
-            
+
             registration.setRememberContacts(rememberContacts.isSelected());
         }
     }
@@ -270,11 +258,11 @@ public class FirstWizardPage
         if (userIDField.getText() == null || userIDField.getText().equals("")
            || firstField.getText() == null || firstField.getText().equals(""))
         {
-            wizardContainer.setNextFinishButtonEnabled(false);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
         else
         {
-            wizardContainer.setNextFinishButtonEnabled(true);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
     }
 
@@ -341,6 +329,7 @@ public class FirstWizardPage
     {
         AccountID accountID = protocolProvider.getAccountID();
 
+        this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
         this.firstField.setText((String)accountID.getAccountProperties()
                                 .get("first"));

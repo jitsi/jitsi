@@ -97,56 +97,45 @@ public class FirstWizardPage
     
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
     
-    private SSHAccountRegistration registration = null;
-    
-    private WizardContainer wizardContainer;
+    private SSHAccountRegistrationWizard wizard;
     
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * @param registration the <tt>SSHAccountRegistration</tt>, where
-     * all data through the wizard are stored
-     * @param wizardContainer the wizardContainer, where this page will
-     * be added
+     * @param wizard the parent wizard
      */
-    public FirstWizardPage(SSHAccountRegistration registration,
-            WizardContainer wizardContainer)
+    public FirstWizardPage(SSHAccountRegistrationWizard wizard)
     {
-        
         super(new BorderLayout());
-        
-        this.wizardContainer = wizardContainer;
-        
-        this.registration = registration;
-        
-        this.setPreferredSize(new Dimension(300, 150));
-        
+
+        this.wizard = wizard;
+
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        
+
         identityFileField.setEditable(false);
-        
+
         knownHostsFileField.setEditable(false);
-        
+
         identityFileChooser.setFileHidingEnabled(false);
-        
+
         knownHostsFileChooser.setFileHidingEnabled(false);
-        
+
         this.init();
-        
+
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         this.labelsPanel.setLayout(new BoxLayout(labelsPanel,
                 BoxLayout.Y_AXIS));
-        
+
         this.valuesPanel.setLayout(new BoxLayout(valuesPanel,
                 BoxLayout.Y_AXIS));
-        
+
         this.identityFilePanel.setLayout(new BoxLayout(identityFilePanel,
                 BoxLayout.X_AXIS));
-        
+
         this.knownHostsFilePanel.setLayout(new BoxLayout(knownHostsFilePanel, 
                 BoxLayout.X_AXIS));
     }
-    
+
     /**
      * Initializes all panels, buttons, etc.
      */
@@ -249,6 +238,7 @@ public class FirstWizardPage
         String knownHostsFile = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactorySSH.KNOWN_HOSTS_FILE);
 
+        this.accountIDField.setEnabled(false);
         this.accountIDField.setText(accountID.getUserID());
 
         this.identityFileField.setText(identityFile);
@@ -315,8 +305,8 @@ public class FirstWizardPage
     public void pageNext()
     {
         String userID = accountIDField.getText();
-        
-        if (isExistingAccount(userID))
+
+        if (!wizard.isModification() && isExistingAccount(userID))
         {
             nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
             accountPanel.add(existingAccountLabel, BorderLayout.NORTH);
@@ -326,30 +316,32 @@ public class FirstWizardPage
         {
             nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
             accountPanel.remove(existingAccountLabel);
-            
+
+            SSHAccountRegistration registration = wizard.getRegistration();
+
             registration.setAccountID(accountIDField.getText());
             registration.setIdentityFile(identityFileField.getText());
             registration.setKnownHostsFile(knownHostsFileField.getText());
         }
     }
-    
+
     /**
      * Enables or disables the "Next" wizard button according to whether the
      * User ID field is empty.
      */
     private void setNextButtonAccordingToUserID()
     {
-        if (accountIDField.getText() == null || accountIDField.getText()
-                .equals(""))
+        if (accountIDField.getText() == null
+                || accountIDField.getText().equals(""))
         {
-            wizardContainer.setNextFinishButtonEnabled(false);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
         else
         {
-            wizardContainer.setNextFinishButtonEnabled(true);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
     }
-    
+
     /**
      * Handles the <tt>DocumentEvent</tt> triggered when user types in the
      * User ID field. Enables or disables the "Next" wizard button according to

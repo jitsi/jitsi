@@ -55,28 +55,20 @@ public class FirstWizardPage
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
-    private GibberishAccountRegistration registration = null;
-
-    private WizardContainer wizardContainer;
+    private GibberishAccountRegistrationWizard wizard;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * @param registration the <tt>GibberishAccountRegistration</tt>, where
      * all data through the wizard are stored
-     * @param wizardContainer the wizardContainer, where this page will
-     * be added
+     * @param wizard the parent wizard
      */
-    public FirstWizardPage(GibberishAccountRegistration registration,
-                           WizardContainer wizardContainer)
+    public FirstWizardPage(GibberishAccountRegistrationWizard wizard)
     {
 
         super(new BorderLayout());
 
-        this.wizardContainer = wizardContainer;
-
-        this.registration = registration;
-
-        this.setPreferredSize(new Dimension(300, 150));
+        this.wizard = wizard;
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -185,7 +177,7 @@ public class FirstWizardPage
     {
         String userID = userIDField.getText();
 
-        if (isExistingAccount(userID))
+        if (!wizard.isModification() && isExistingAccount(userID))
         {
             nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
             userPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
@@ -196,8 +188,14 @@ public class FirstWizardPage
             nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
             userPassPanel.remove(existingAccountLabel);
 
+            GibberishAccountRegistration registration
+                = wizard.getRegistration();
+
             registration.setUserID(userIDField.getText());
-            registration.setPassword(new String(passField.getPassword()));
+
+            if (passField.getPassword() != null)
+                registration.setPassword(new String(passField.getPassword()));
+
             registration.setRememberPassword(rememberPassBox.isSelected());
         }
     }
@@ -210,11 +208,11 @@ public class FirstWizardPage
     {
         if (userIDField.getText() == null || userIDField.getText().equals(""))
         {
-            wizardContainer.setNextFinishButtonEnabled(false);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
         else
         {
-            wizardContainer.setNextFinishButtonEnabled(true);
+            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
     }
 
@@ -270,6 +268,7 @@ public class FirstWizardPage
         String password = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PASSWORD);
 
+        this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
 
         if (password != null)

@@ -29,9 +29,11 @@ public class JabberAccRegWizzActivator
     private static ConfigurationService configService;
 
     private static AccountRegistrationWizardContainer wizardContainer;
-    
+
     private static JabberAccountRegistrationWizard jabberWizard;
-    
+
+    private static UIService uiService;
+
     /**
      * Starts this bundle.
      * @param bc BundleContext
@@ -46,8 +48,7 @@ public class JabberAccRegWizzActivator
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService
-            = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService) bundleContext.getService(uiServiceRef);
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
@@ -86,5 +87,15 @@ public class JabberAccRegWizzActivator
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+    }
+
+    /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 }

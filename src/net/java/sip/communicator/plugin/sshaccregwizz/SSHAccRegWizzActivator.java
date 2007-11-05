@@ -40,10 +40,12 @@ public class SSHAccRegWizzActivator
      * A currently valid reference to the configuration service.
      */
     private static ConfigurationService configService;
-    
+
     private static AccountRegistrationWizardContainer wizardContainer;
-    
+
     private static SSHAccountRegistrationWizard sshWizard;
+
+    private static UIService uiService;
 
     /**
      * Starts this bundle.
@@ -58,8 +60,7 @@ public class SSHAccRegWizzActivator
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService = (UIService) bundleContext
-                                            .getService(uiServiceRef);
+        uiService = (UIService) bundleContext.getService(uiServiceRef);
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
@@ -116,5 +117,15 @@ public class SSHAccRegWizzActivator
     public BundleContext getBundleContext()
     {
         return bundleContext;
+    }
+
+    /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 }

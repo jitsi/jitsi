@@ -9,9 +9,6 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 import java.awt.*;
 import java.util.*;
 
-import javax.swing.*;
-
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -49,7 +46,7 @@ public class JabberAccountRegistrationWizard
      */
     public JabberAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;        
+        this.wizardContainer = wizardContainer;
     }
 
     /**
@@ -100,7 +97,7 @@ public class JabberAccountRegistrationWizard
     public Iterator getPages()
     {
         ArrayList pages = new ArrayList();
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
 
@@ -118,6 +115,18 @@ public class JabberAccountRegistrationWizard
         summaryTable.put("User ID", registration.getUserID());
         summaryTable.put("Remember password",
                          new Boolean(registration.isRememberPassword()));
+        summaryTable.put("Server address", registration.getServerAddress());
+
+        summaryTable.put("Server port",
+            String.valueOf(registration.getPort()));
+
+        summaryTable.put("Keep alive",
+            String.valueOf(registration.isSendKeepAlive()));
+
+        summaryTable.put("Resource", registration.getResource());
+
+        summaryTable.put("Priority",
+            String.valueOf(registration.getPriority()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -152,7 +161,6 @@ public class JabberAccountRegistrationWizard
         String user,
         String passwd)
     {
-
         Hashtable accountProperties = new Hashtable();
 
         if (registration.isRememberPassword())
@@ -160,25 +168,26 @@ public class JabberAccountRegistrationWizard
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
-        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
-                              registration.getServerAddress());
-
-        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
-                              String.valueOf(registration.getPort()));
-
         accountProperties.put("SEND_KEEP_ALIVE",
                               String.valueOf(registration.isSendKeepAlive()));
 
-        accountProperties.put("RESOURCE",
+        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+            registration.getServerAddress());
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+            String.valueOf(registration.getPort()));
+
+        accountProperties.put(ProtocolProviderFactory.RESOURCE,
                               registration.getResource());
 
-        accountProperties.put("PRIORITY",
+        accountProperties.put(ProtocolProviderFactory.RESOURCE_PRIORITY,
                               String.valueOf(registration.getPriority()));
 
         if (isModification)
         {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
+            this.isModification  = false;
         }
 
         try
@@ -195,29 +204,79 @@ public class JabberAccountRegistrationWizard
         }
         catch (IllegalArgumentException exc)
         {
-            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
+            JabberAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(exc.getMessage(),
+                    Resources.getString("error"),
+                    PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
-            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
+            JabberAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(exc.getMessage(),
+                    Resources.getString("error"),
+                    PopupDialog.ERROR_MESSAGE);
         }
 
         return protocolProvider;
     }
 
     /**
-     * Fills the User ID and Password fields in this panel with the data comming
+     * Fills the User ID and Password fields in this panel with the data coming
      * from the given protocolProvider.
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
+        this.isModification = true;
+
         this.protocolProvider = protocolProvider;
 
-        this.firstWizardPage.loadAccount(protocolProvider);
+        this.registration = new JabberAccountRegistration();
 
-        isModification = true;
+        this.firstWizardPage.loadAccount(protocolProvider);
     }
 
+    /**
+     * Indicates if this wizard is opened for modification or for creating a
+     * new account.
+     * 
+     * @return <code>true</code> if this wizard is opened for modification and
+     * <code>false</code> otherwise.
+     */
+    public boolean isModification()
+    {
+        return isModification;
+    }
+
+    /**
+     * Returns the wizard container, where all pages are added.
+     * 
+     * @return the wizard container, where all pages are added
+     */
+    public WizardContainer getWizardContainer()
+    {
+        return wizardContainer;
+    }
+
+    /**
+     * Returns the registration object, which will store all the data through
+     * the wizard.
+     * 
+     * @return the registration object, which will store all the data through
+     * the wizard
+     */
+    public JabberAccountRegistration getRegistration()
+    {
+        return registration;
+    }
+
+    /**
+     * Returns the size of this wizard.
+     * @return the size of this wizard
+     */
+    public Dimension getSize()
+    {
+        return new Dimension(300, 480);
+    }
 }

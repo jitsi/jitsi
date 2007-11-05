@@ -28,9 +28,11 @@ public class YahooAccRegWizzActivator implements BundleActivator {
     private static ConfigurationService configService;
 
     private static AccountRegistrationWizardContainer wizardContainer;
-    
+
     private static YahooAccountRegistrationWizard yahooWizard;
-    
+
+    private static UIService uiService;
+
     /**
      * Starts this bundle.
      * @param bc BundleContext
@@ -43,8 +45,7 @@ public class YahooAccRegWizzActivator implements BundleActivator {
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService
-            = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService) bundleContext.getService(uiServiceRef);
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
@@ -79,5 +80,15 @@ public class YahooAccRegWizzActivator implements BundleActivator {
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+    }
+
+    /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 }

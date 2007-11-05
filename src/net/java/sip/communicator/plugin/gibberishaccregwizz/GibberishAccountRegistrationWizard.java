@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.plugin.gibberishaccregwizz;
 
+import java.awt.*;
 import java.util.*;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -103,7 +104,7 @@ public class GibberishAccountRegistrationWizard
     public Iterator getPages()
     {
         ArrayList pages = new ArrayList();
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
 
@@ -153,8 +154,15 @@ public class GibberishAccountRegistrationWizard
 
         if (registration.isRememberPassword())
         {
-            accountProperties.put(ProtocolProviderFactory.PASSWORD
-                                  , registration.getPassword());
+            accountProperties.put(  ProtocolProviderFactory.PASSWORD,
+                                    registration.getPassword());
+        }
+
+        if (isModification)
+        {
+            providerFactory.uninstallAccount(protocolProvider.getAccountID());
+            this.protocolProvider = null;
+            this.isModification  = false;
         }
 
         try
@@ -171,11 +179,17 @@ public class GibberishAccountRegistrationWizard
         }
         catch (IllegalArgumentException exc)
         {
-            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
+            GibberishAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(exc.getMessage(),
+                                        Resources.getString("error"),
+                                        PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
-            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
+            GibberishAccRegWizzActivator.getUIService().getPopupDialog()
+            .showMessagePopupDialog(exc.getMessage(),
+                                    Resources.getString("error"),
+                                    PopupDialog.ERROR_MESSAGE);
         }
 
         return protocolProvider;
@@ -189,11 +203,55 @@ public class GibberishAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
+        this.isModification = true;
 
         this.protocolProvider = protocolProvider;
 
-        this.firstWizardPage.loadAccount(protocolProvider);
+        this.registration = new GibberishAccountRegistration();
 
-        isModification = true;
-    }    
+        this.firstWizardPage.loadAccount(protocolProvider);
+    }
+
+    /**
+     * Indicates if this wizard is opened for modification or for creating a
+     * new account.
+     * 
+     * @return <code>true</code> if this wizard is opened for modification and
+     * <code>false</code> otherwise.
+     */
+    public boolean isModification()
+    {
+        return isModification;
+    }
+
+    /**
+     * Returns the wizard container, where all pages are added.
+     * 
+     * @return the wizard container, where all pages are added
+     */
+    public WizardContainer getWizardContainer()
+    {
+        return wizardContainer;
+    }
+
+    /**
+     * Returns the registration object, which will store all the data through
+     * the wizard.
+     * 
+     * @return the registration object, which will store all the data through
+     * the wizard
+     */
+    public GibberishAccountRegistration getRegistration()
+    {
+        return registration;
+    }
+
+    /**
+     * Returns the size of this wizard.
+     * @return the size of this wizard
+     */
+    public Dimension getSize()
+    {
+        return new Dimension(600, 500);
+    }
 }

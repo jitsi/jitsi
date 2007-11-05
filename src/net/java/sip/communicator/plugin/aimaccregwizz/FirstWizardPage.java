@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.aimaccregwizz;
 
@@ -19,14 +18,15 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
  * and the password of the account.
- *
+ * 
  * @author Yana Stamcheva
  */
-public class FirstWizardPage extends JPanel
+public class FirstWizardPage
+    extends JPanel
     implements  WizardPage,
                 DocumentListener,
-                ActionListener {
-
+                ActionListener
+{
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
@@ -41,8 +41,8 @@ public class FirstWizardPage extends JPanel
 
     private JPanel valuesAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox enableAdvOpButton = new JCheckBox(
-        Resources.getString("ovverideServerOps"), false);
+    private JCheckBox enableAdvOpButton =
+        new JCheckBox(Resources.getString("ovverideServerOps"), false);
 
     private JLabel uinLabel = new JLabel(Resources.getString("uin"));
 
@@ -52,36 +52,39 @@ public class FirstWizardPage extends JPanel
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
-    private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("existingAccount"));
+    private JLabel existingAccountLabel =
+        new JLabel(Resources.getString("existingAccount"));
 
     private JTextField uinField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
 
-    private JCheckBox rememberPassBox = new JCheckBox(
-            Resources.getString("rememberPassword"));
+    private JCheckBox rememberPassBox =
+        new JCheckBox(Resources.getString("rememberPassword"));
 
     private JPanel registerPanel = new JPanel(new GridLayout(0, 1));
 
-    private JPanel buttonPanel = new JPanel(
-                new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JTextArea registerArea = new JTextArea(
-            Resources.getString("registerNewAccountText"));
+    private JTextArea registerArea =
+        new JTextArea(Resources.getString("registerNewAccountText"));
 
-    private JButton registerButton = new JButton(
-            Resources.getString("registerNewAccount"));
+    private JButton registerButton =
+        new JButton(Resources.getString("registerNewAccount"));
 
     private JLabel proxyLabel = new JLabel(Resources.getString("proxy"));
 
-    private JLabel proxyPortLabel = new JLabel(Resources.getString("proxyPort"));
+    private JLabel proxyPortLabel =
+        new JLabel(Resources.getString("proxyPort"));
 
-    private JLabel proxyUsernameLabel = new JLabel(Resources.getString("proxyUsername"));
+    private JLabel proxyUsernameLabel =
+        new JLabel(Resources.getString("proxyUsername"));
 
-    private JLabel proxyPasswordLabel = new JLabel(Resources.getString("proxyPassword"));
+    private JLabel proxyPasswordLabel =
+        new JLabel(Resources.getString("proxyPassword"));
 
-    private JLabel proxyTypeLabel = new JLabel(Resources.getString("proxyType"));
+    private JLabel proxyTypeLabel =
+        new JLabel(Resources.getString("proxyType"));
 
     private JTextField proxyField = new JTextField();
 
@@ -91,32 +94,26 @@ public class FirstWizardPage extends JPanel
 
     private JPasswordField proxyPassField = new JPasswordField();
 
-    private JComboBox proxyTypeCombo = new JComboBox(
-        new Object[]{"http", "socks5", "socks4"});
+    private JComboBox proxyTypeCombo = new JComboBox(new Object[]
+    { "http", "socks5", "socks4" });
 
     private JPanel mainPanel = new JPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
-    private AimAccountRegistration registration;
-
-    private WizardContainer wizardContainer;
+    private AimAccountRegistrationWizard wizard;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * @param registration the <tt>AimAccountRegistration</tt>, where
-     * all data through the wizard are stored
-     * @param wizardContainer the wizardContainer, where this page will
-     * be added
+     * 
+     * @param wizard the parent wizard
      */
-    public FirstWizardPage(AimAccountRegistration registration,
-            WizardContainer wizardContainer) {
+    public FirstWizardPage( AimAccountRegistrationWizard wizard)
+    {
 
         super(new BorderLayout());
 
-        this.wizardContainer = wizardContainer;
-
-        this.registration = registration;
+        this.wizard = wizard;
 
         this.setPreferredSize(new Dimension(600, 500));
 
@@ -126,15 +123,18 @@ public class FirstWizardPage extends JPanel
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        this.labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
+        this.labelsPanel
+            .setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
 
-        this.valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
+        this.valuesPanel
+            .setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
     }
 
     /**
      * Initializes all panels, buttons, etc.
      */
-    private void init() {
+    private void init()
+    {
         this.registerButton.addActionListener(this);
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
@@ -144,7 +144,8 @@ public class FirstWizardPage extends JPanel
         this.uinExampleLabel.setForeground(Color.GRAY);
         this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
         this.emptyPanel.setMaximumSize(new Dimension(40, 35));
-        this.uinExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        this.uinExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8,
+            0));
 
         labelsPanel.add(uinLabel);
         labelsPanel.add(emptyPanel);
@@ -158,8 +159,8 @@ public class FirstWizardPage extends JPanel
         uinPassPanel.add(valuesPanel, BorderLayout.CENTER);
         uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
-        uinPassPanel.setBorder(BorderFactory
-                .createTitledBorder(Resources.getString("uinAndPassword")));
+        uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
+            .getString("uinAndPassword")));
 
         mainPanel.add(uinPassPanel);
 
@@ -167,15 +168,18 @@ public class FirstWizardPage extends JPanel
         proxyPortField.setEditable(false);
         proxyTypeCombo.setEnabled(false);
 
-        enableAdvOpButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent evt) {
+        enableAdvOpButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
                 // Perform action
-                JCheckBox cb = (JCheckBox)evt.getSource();
+                JCheckBox cb = (JCheckBox) evt.getSource();
 
                 proxyField.setEditable(cb.isSelected());
                 proxyPortField.setEditable(cb.isSelected());
                 proxyTypeCombo.setEnabled(cb.isSelected());
-            }});
+            }
+        });
 
         proxyTypeCombo.setSelectedItem("http");
 
@@ -195,12 +199,10 @@ public class FirstWizardPage extends JPanel
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
-        advancedOpPanel.setBorder(BorderFactory
-                                  .createTitledBorder(Resources.getString(
-            "advancedOptions")));
+        advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
+            .getString("advancedOptions")));
 
         mainPanel.add(advancedOpPanel);
-
 
         this.buttonPanel.add(registerButton);
 
@@ -211,8 +213,8 @@ public class FirstWizardPage extends JPanel
         this.registerPanel.add(registerArea);
         this.registerPanel.add(buttonPanel);
 
-        this.registerPanel.setBorder(BorderFactory
-                .createTitledBorder(Resources.getString("registerNewAccount")));
+        this.registerPanel.setBorder(BorderFactory.createTitledBorder(Resources
+            .getString("registerNewAccount")));
 
         mainPanel.add(registerPanel);
 
@@ -220,10 +222,11 @@ public class FirstWizardPage extends JPanel
     }
 
     /**
-     * Implements the <code>WizardPage.getIdentifier</code> to return
-     * this page identifier.
+     * Implements the <code>WizardPage.getIdentifier</code> to return this
+     * page identifier.
      */
-    public Object getIdentifier() {
+    public Object getIdentifier()
+    {
         return FIRST_PAGE_IDENTIFIER;
     }
 
@@ -231,7 +234,8 @@ public class FirstWizardPage extends JPanel
      * Implements the <code>WizardPage.getNextPageIdentifier</code> to return
      * the next page identifier - the summary page.
      */
-    public Object getNextPageIdentifier() {
+    public Object getNextPageIdentifier()
+    {
         return nextPageIdentifier;
     }
 
@@ -239,15 +243,17 @@ public class FirstWizardPage extends JPanel
      * Implements the <code>WizardPage.getBackPageIdentifier</code> to return
      * the next back identifier - the default page.
      */
-    public Object getBackPageIdentifier() {
+    public Object getBackPageIdentifier()
+    {
         return WizardPage.DEFAULT_PAGE_IDENTIFIER;
     }
 
     /**
-     * Implements the <code>WizardPage.getWizardForm</code> to return
-     * this panel.
+     * Implements the <code>WizardPage.getWizardForm</code> to return this
+     * panel.
      */
-    public Object getWizardForm() {
+    public Object getWizardForm()
+    {
         return this;
     }
 
@@ -255,60 +261,75 @@ public class FirstWizardPage extends JPanel
      * Before this page is displayed enables or disables the "Next" wizard
      * button according to whether the UIN field is empty.
      */
-    public void pageShowing() {
+    public void pageShowing()
+    {
         this.setNextButtonAccordingToUIN();
     }
 
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext() {
+    public void pageNext()
+    {
         String uin = uinField.getText();
 
-        if(isExistingAccount(uin)) {
+        if (!wizard.isModification() && isExistingAccount(uin))
+        {
             nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
             uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
             this.revalidate();
         }
-        else {
+        else
+        {
             nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
             uinPassPanel.remove(existingAccountLabel);
+
+            AimAccountRegistration registration = wizard.getRegistration();
 
             registration.setUin(uin);
             registration.setPassword(new String(passField.getPassword()));
             registration.setRememberPassword(rememberPassBox.isSelected());
 
-            if(enableAdvOpButton.isSelected())
+            if (enableAdvOpButton.isSelected())
             {
                 registration.setProxy(proxyField.getText());
                 registration.setProxyPort(proxyPortField.getText());
-                registration.setProxyType(
-                    proxyTypeCombo.getSelectedItem().toString());
                 registration.setProxyUsername(proxyUsernameField.getText());
-                registration.setProxyPassword(new String(proxyPassField.getPassword()));
+
+                if (proxyTypeCombo.getSelectedItem() != null)
+                    registration.setProxyType(proxyTypeCombo.getSelectedItem()
+                        .toString());
+
+                if (proxyPassField.getPassword() != null)
+                    registration.setProxyPassword(new String(proxyPassField
+                        .getPassword()));
             }
         }
     }
 
     /**
-     * Enables or disables the "Next" wizard button according to whether the
-     * UIN field is empty.
+     * Enables or disables the "Next" wizard button according to whether the UIN
+     * field is empty.
      */
-    private void setNextButtonAccordingToUIN() {
-        if (uinField.getText() == null || uinField.getText().equals("")) {
-            wizardContainer.setNextFinishButtonEnabled(false);
+    private void setNextButtonAccordingToUIN()
+    {
+        if (uinField.getText() == null || uinField.getText().equals(""))
+        {
+            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
-        else {
-            wizardContainer.setNextFinishButtonEnabled(true);
+        else
+        {
+            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
     }
 
     /**
-     * Handles the <tt>DocumentEvent</tt> triggered when user types in the
-     * UIN field. Enables or disables the "Next" wizard button according to
-     * whether the UIN field is empty.
+     * Handles the <tt>DocumentEvent</tt> triggered when user types in the UIN
+     * field. Enables or disables the "Next" wizard button according to whether
+     * the UIN field is empty.
      */
-    public void insertUpdate(DocumentEvent e) {
+    public void insertUpdate(DocumentEvent e)
+    {
         this.setNextButtonAccordingToUIN();
     }
 
@@ -317,55 +338,77 @@ public class FirstWizardPage extends JPanel
      * from the UIN field. Enables or disables the "Next" wizard button
      * according to whether the UIN field is empty.
      */
-    public void removeUpdate(DocumentEvent e) {
+    public void removeUpdate(DocumentEvent e)
+    {
         this.setNextButtonAccordingToUIN();
     }
 
-    public void changedUpdate(DocumentEvent e) {
+    public void changedUpdate(DocumentEvent e)
+    {
     }
 
-    public void pageHiding() {
+    public void pageHiding()
+    {
     }
 
-    public void pageShown() {
+    public void pageShown()
+    {
     }
 
-    public void pageBack() {
+    public void pageBack()
+    {
     }
 
     /**
      * Fills the UIN and Password fields in this panel with the data comming
      * from the given protocolProvider.
-     * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
-     * data from.
+     * 
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
+     *            the data from.
      */
-    public void loadAccount(ProtocolProviderService protocolProvider) {
+    public void loadAccount(ProtocolProviderService protocolProvider)
+    {
         AccountID accountID = protocolProvider.getAccountID();
-        String password = (String)accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PASSWORD);
+        String password =
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.PASSWORD);
 
+        this.uinField.setEnabled(false);
         this.uinField.setText(accountID.getUserID());
 
-        if(password != null) {
+        if (password != null)
+        {
             this.passField.setText(password);
 
             this.rememberPassBox.setSelected(true);
         }
 
-        String proxyAddress = (String)accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_ADDRESS);
+        String proxyAddress =
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.PROXY_ADDRESS);
 
-        String proxyPort = (String)accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_PORT);
+        String proxyPort =
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.PROXY_PORT);
 
-        String proxyType = (String)accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_TYPE);
+        String proxyType =
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.PROXY_TYPE);
 
-        String proxyUsername = (String)accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_USERNAME);
+        String proxyUsername =
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.PROXY_USERNAME);
 
-        String proxyPassword = (String)accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_PASSWORD);
+        String proxyPassword =
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.PROXY_PASSWORD);
+
+        if (proxyAddress != null || proxyPort != null
+            || proxyType != null || proxyUsername != null
+            || proxyPassword != null)
+        {
+            enableAdvOpButton.setSelected(true);
+        }
 
         proxyField.setText(proxyAddress);
         proxyPortField.setText(proxyPort);
@@ -376,8 +419,10 @@ public class FirstWizardPage extends JPanel
 
     public void actionPerformed(ActionEvent e)
     {
-        AimAccRegWizzActivator.getBrowserLauncher()
-            .openURL("http://my.screenname.aol.com/_cqr/login/login.psp?seamless=n&createSn=1");
+        AimAccRegWizzActivator
+            .getBrowserLauncher()
+            .openURL(
+                "http://my.screenname.aol.com/_cqr/login/login.psp?seamless=n&createSn=1");
     }
 
     /**
@@ -385,19 +430,20 @@ public class FirstWizardPage extends JPanel
      * 
      * @param accountName the name of the account to check
      * @return TRUE, if an account with the given name already exists, FALSE -
-     * otherwise
+     *         otherwise
      */
     private boolean isExistingAccount(String accountName)
     {
-        ProtocolProviderFactory factory
-            = AimAccRegWizzActivator.getAimProtocolProviderFactory();
+        ProtocolProviderFactory factory =
+            AimAccRegWizzActivator.getAimProtocolProviderFactory();
 
         ArrayList registeredAccounts = factory.getRegisteredAccounts();
 
-        for(int i = 0; i < registeredAccounts.size(); i ++) {
+        for (int i = 0; i < registeredAccounts.size(); i++)
+        {
             AccountID accountID = (AccountID) registeredAccounts.get(i);
 
-            if(accountName.equalsIgnoreCase(accountID.getUserID()))
+            if (accountName.equalsIgnoreCase(accountID.getUserID()))
                 return true;
         }
         return false;

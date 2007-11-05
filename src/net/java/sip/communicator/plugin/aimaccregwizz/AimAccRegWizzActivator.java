@@ -97,4 +97,14 @@ public class AimAccRegWizzActivator implements BundleActivator {
 
         return browserLauncherService;
     }
+    
+    /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
+    }
 }

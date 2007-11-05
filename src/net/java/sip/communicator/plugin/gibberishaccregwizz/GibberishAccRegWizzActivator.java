@@ -38,6 +38,8 @@ public class GibberishAccRegWizzActivator
 
     private static GibberishAccountRegistrationWizard gibberishWizard;
 
+    private static UIService uiService;
+
     /**
      * Starts this bundle.
      * @param bc the currently valid <tt>BundleContext</tt>.
@@ -51,7 +53,7 @@ public class GibberishAccRegWizzActivator
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService) bundleContext.getService(uiServiceRef);
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
@@ -108,5 +110,15 @@ public class GibberishAccRegWizzActivator
     public BundleContext getBundleContext()
     {
         return bundleContext;
+    }
+
+    /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 }

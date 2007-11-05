@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.rssaccregwizz;
 
+import java.awt.*;
 import java.util.*;
 
 import org.osgi.framework.*;
@@ -165,11 +166,17 @@ public class RssAccountRegistrationWizard
         }
         catch (IllegalArgumentException exc)
         {
-            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
+            new ErrorDialog(null,
+                            Resources.getString("error"),
+                            exc.getMessage(),
+                            exc).showDialog();
         }
         catch (IllegalStateException exc)
         {
-            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
+            new ErrorDialog(null,
+                            Resources.getString("error"),
+                            exc.getMessage(),
+                            exc).showDialog();
         }
 
         return protocolProvider;
@@ -188,5 +195,14 @@ public class RssAccountRegistrationWizard
         this.protocolProvider = protocolProvider;
 
         isModification = true;
+    }
+
+    /**
+     * Returns the size of this wizard.
+     * @return the size of this wizard
+     */
+    public Dimension getSize()
+    {
+        return new Dimension(600, 500);
     }
 }
