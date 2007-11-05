@@ -482,7 +482,26 @@ public interface UIService
                 String constraint, ContactAwareComponent component)
         throws ClassCastException, IllegalArgumentException;
     
-    
+    /**
+     * Removes the given UI component from the container given by
+     * <tt>containerID</tt>. 
+     * This method is meant to be used by plugins or bundles that have added
+     * their components to the user interface and for some reason want to remove
+     * them. The <tt>containerID</tt> is used by the implementation to determine
+     * the place where the component was added. The <tt>containerID</tt> SHOULD
+     * be one of the CONTAINER_XXX constants. It is up to the service
+     * implementation to verify that the <tt>component</tt> is really contained
+     * in the specified container. If this is not the case nothing will happen.
+     * <br>
+     * @param containerID one of the CONTAINER_XXX ContainerID-s 
+     * @param component the component to remove
+     * @throws IllegalArgumentException if the specified <tt>containerID</tt>
+     * is not recognized by the implementation (note that implementations
+     * MUST properly handle all CONTAINER_XXX containerID-s.
+     */
+    public void removeComponent(ContainerID containerID, Object component)
+        throws IllegalArgumentException;
+
     /**
      * Returns an iterator over a set containing containerID-s pointing to
      * containers supported by the current UI implementation. Each containerID

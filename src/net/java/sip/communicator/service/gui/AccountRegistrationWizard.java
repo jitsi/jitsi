@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.gui;
 
+import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -91,6 +92,14 @@ public interface AccountRegistrationWizard {
     /**
      * Defines the operations that will be executed when the user clicks on
      * the wizard "Finish" button.
+     * 
      */
     public ProtocolProviderService finish();
+    
+    /**
+     * Returns the preferred dimensions of this wizard.
+     * 
+     * @return the preferred dimensions of this wizard.
+     */
+    public Dimension getSize();
 }
