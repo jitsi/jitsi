@@ -88,28 +88,26 @@ public class CreateChatRoomWizard
                 logger.error("Failed to create chat room.", ex);
                 
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString(
                         "createChatRoomError",
                         new String[]{newChatRoom.getChatRoomName()}).getText(),
-                        ex,
-                    Messages.getI18NString(
-                        "error").getText())
-                        .showDialog();
+                        ex)
+                .showDialog();
             }
             catch (OperationNotSupportedException ex)
             {
                 logger.error("Failed to create chat room.", ex);
-                
+
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString(
                         "createChatRoomError",
                         new String[]{newChatRoom.getChatRoomName()}).getText(),
-                        ex,
-                    Messages.getI18NString(
-                        "error").getText())
-                        .showDialog();
+                        ex)
+                .showDialog();
             }
-            
+
             if(chatRoom != null)
                 mainFrame.getChatRoomsListPanel().getChatRoomsList()
                     .addChatRoom(new ChatRoomWrapper(chatRoom));

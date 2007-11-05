@@ -102,11 +102,11 @@ public class JoinChatRoomWizard
             if(chatRoom == null)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("chatRoomNotExist",
                         new String[]{chatRoomName,
                         newChatRoom.getProtocolProvider().getAccountID()
-                        .getService()}).getText(),
-                    Messages.getI18NString("error").getText())
+                        .getService()}).getText())
                         .showDialog();
             }
             else

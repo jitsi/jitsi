@@ -161,9 +161,9 @@ public class ChatContactRightButtonMenu
                     if(chatRoom == null)
                     {   
                         new ErrorDialog(chatPanel.getChatWindow(),
+                            Messages.getI18NString("error").getText(),
                             Messages.getI18NString("chatRoomNotJoined")
-                                .getText(),
-                            Messages.getI18NString("error").getText())
+                                .getText())
                                 .setVisible(true);
                         
                         return;
@@ -248,36 +248,30 @@ public class ChatContactRightButtonMenu
                 {
                     ErrorDialog errorDialog
                         = new ErrorDialog(chatPanel.getChatWindow(),
-                        Messages.getI18NString(
+                            Messages.getI18NString("kickFailed").getText(),
+                            Messages.getI18NString(
                             "kickFailedNotEnoughPermissions",
-                            new String[]{chatContact.getName()})
-                            .getText(),
-                        e,
-                        Messages.getI18NString("kickFailed")
-                            .getText());
-                    
+                            new String[]{chatContact.getName()}).getText(),
+                            e);
+
                     errorDialog.showDialog();
                 }
-                else if (e.getErrorCode()                
+                else if (e.getErrorCode()
                     == OperationFailedException.FORBIDDEN)
                 {   
                     new ErrorDialog(chatPanel.getChatWindow(),
+                        Messages.getI18NString("kickFailed").getText(),
                         Messages.getI18NString("kickFailedNotAllowed",
-                            new String[]{chatContact.getName()})
-                            .getText(),
-                            e,
-                        Messages.getI18NString("kickFailed").getText())
-                            .showDialog();
+                            new String[]{chatContact.getName()}).getText(),
+                            e).showDialog();
                 }
                 else
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
+                        Messages.getI18NString("kickFailed").getText(),
                         Messages.getI18NString("kickFailedGeneralError",
-                            new String[]{chatContact.getName()})
-                            .getText(),
-                        e,
-                        Messages.getI18NString("kickFailed").getText())
-                            .showDialog();
+                            new String[]{chatContact.getName()}).getText(),
+                        e).showDialog();
                 }
             }
         }
@@ -311,37 +305,33 @@ public class ChatContactRightButtonMenu
             {
                 logger.error("Failed to ban participant.", e);
                 
-                if (e.getErrorCode()                
+                if (e.getErrorCode()
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
+                        Messages.getI18NString("banFailed").getText(),
                         Messages.getI18NString("banFailedNotEnoughPermissions",
                             new String[]{chatContact.getName()})
                             .getText(),
-                        e,
-                        Messages.getI18NString("banFailed").getText())
-                            .showDialog();
+                        e).showDialog();
                 }
-                else if (e.getErrorCode()                
+                else if (e.getErrorCode()
                     == OperationFailedException.FORBIDDEN)
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
+                        Messages.getI18NString("banFailed").getText(),
                         Messages.getI18NString("banFailedNotAllowed",
-                            new String[]{chatContact.getName()})
-                            .getText(),
-                        e,
-                        Messages.getI18NString("banFailed").getText())
-                            .showDialog();
+                            new String[]{chatContact.getName()}).getText(),
+                        e).showDialog();
                 }
                 else
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
+                        Messages.getI18NString("banFailed").getText(),
                         Messages.getI18NString("banFailedGeneralError",
                             new String[]{chatContact.getName()})
                             .getText(),
-                        e,
-                        Messages.getI18NString("banFailed").getText())
-                            .showDialog();
+                        e).showDialog();
                 }
             }
         }

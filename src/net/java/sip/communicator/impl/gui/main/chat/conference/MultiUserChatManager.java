@@ -313,10 +313,10 @@ public class MultiUserChatManager
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED))
         {
             new ErrorDialog(mainFrame,
+                Messages.getI18NString("error").getText(),
                 Messages.getI18NString("failedToJoinChatRoom",
                     new String[]{sourceChatRoom.getName()})
-                        .getText() + evt.getReason(),
-                Messages.getI18NString("error").getText())
+                        .getText() + evt.getReason())
                     .showDialog();
         }
         else if (evt.getEventType().equals(
@@ -383,9 +383,9 @@ public class MultiUserChatManager
         catch (OperationFailedException e)
         {
             new ErrorDialog(mainFrame,
+                Messages.getI18NString("error").getText(),
                 Messages.getI18NString("failedToJoinChatRoom",
-                    new String[] {chatRoom.getName()}).getText(),
-                Messages.getI18NString("error").getText())
+                    new String[] {chatRoom.getName()}).getText())
                     .showDialog();
             
             logger.error("Failed to join chat room: "
@@ -463,20 +463,20 @@ public class MultiUserChatManager
                     .REGISTRATION_REQUIRED)
             {                
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("chatRoomRegistrationRequired",
                         new String[]{chatRoom.getName()})
-                            .getText(),
-                    Messages.getI18NString("error").getText())
+                            .getText())
                         .showDialog();
             }
             else if(e.getErrorCode()
                 == OperationFailedException.PROVIDER_NOT_REGISTERED)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("chatRoomNotConnected",
                         new String[]{chatRoom.getName()})
-                            .getText(),
-                    Messages.getI18NString("error").getText())
+                            .getText())
                         .showDialog();
             }
             else if(e.getErrorCode()
@@ -484,19 +484,19 @@ public class MultiUserChatManager
                         .SUBSCRIPTION_ALREADY_EXISTS)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("chatRoomAlreadyJoined",
                         new String[]{chatRoom.getName()})
-                            .getText(),
-                    Messages.getI18NString("error").getText())
+                            .getText())
                         .showDialog();
             }            
             else
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("failedToJoinChatRoom",
                         new String[]{chatRoom.getName()})
-                            .getText(),
-                    Messages.getI18NString("error").getText())
+                            .getText())
                         .showDialog();
             }
             
@@ -554,45 +554,41 @@ public class MultiUserChatManager
                     .REGISTRATION_REQUIRED)
             {                
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("chatRoomRegistrationRequired",
                         new String[]{chatRoom.getName()})
                             .getText(),
-                    e,
-                    Messages.getI18NString("error").getText())
-                        .showDialog();
+                    e).showDialog();
             }
             else if(e.getErrorCode()
                 == OperationFailedException.PROVIDER_NOT_REGISTERED)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("chatRoomNotConnected",
                         new String[]{chatRoom.getName()})
                             .getText(),
-                    e,
-                    Messages.getI18NString("error").getText())
-                        .showDialog();
+                    e).showDialog();
             }            
             else if(e.getErrorCode()
                     == OperationFailedException
                         .SUBSCRIPTION_ALREADY_EXISTS)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("chatRoomAlreadyJoined",
                         new String[]{chatRoom.getName()})
                             .getText(),
-                    e,
-                    Messages.getI18NString("error").getText())
-                        .showDialog();
-            }            
+                    e).showDialog();
+            }
             else
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString("failedToJoinChatRoom",
                         new String[]{chatRoom.getName()})
                             .getText(),
-                    e,
-                    Messages.getI18NString("error").getText())
-                        .showDialog();
+                    e).showDialog();
             }
 
             logger.error("Failed to join chat room: "

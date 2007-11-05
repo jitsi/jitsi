@@ -140,26 +140,24 @@ public class CreateChatRoomDialog
                 logger.error("Failed to create chat room.", ex);
                 
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString(
                         "createChatRoomError",
                         new String[]{chatRoomName}).getText(),
-                        ex,
-                    Messages.getI18NString(
-                        "error").getText())
-                        .showDialog();
+                        ex)
+                .showDialog();
             }
             catch (OperationNotSupportedException ex)
             {
                 logger.error("Failed to create chat room.", ex);
 
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
                     Messages.getI18NString(
                         "createChatRoomError",
                         new String[]{chatRoomName}).getText(),
-                        ex,
-                    Messages.getI18NString(
-                        "error").getText())
-                        .showDialog();
+                        ex)
+                .showDialog();
             }
 
             if(chatRoom != null)

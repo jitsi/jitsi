@@ -170,9 +170,9 @@ public class ChatRoomRightButtonMenu
             if(chatRoom == null)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("warning").getText(),
                     Messages.getI18NString("haveToBeConnectedToLeave")
-                            .getText(),
-                    Messages.getI18NString("warning").getText())
+                            .getText())
                         .showDialog();
                 
                 return;
@@ -191,9 +191,9 @@ public class ChatRoomRightButtonMenu
             if(chatRoom == null)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("warning").getText(),
                     Messages.getI18NString("haveToBeConnectedToJoin")
-                            .getText(),
-                    Messages.getI18NString("warning").getText())
+                            .getText())
                         .showDialog();
                 
                 return;
@@ -212,9 +212,9 @@ public class ChatRoomRightButtonMenu
             if(chatRoom == null)
             {
                 new ErrorDialog(mainFrame,
+                    Messages.getI18NString("warning").getText(),
                     Messages.getI18NString("haveToBeConnectedToJoin")
-                            .getText(),
-                    Messages.getI18NString("warning").getText())
+                            .getText())
                         .showDialog();
                 
                 return;

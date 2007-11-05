@@ -130,9 +130,9 @@ public class AddChatRoomDialog
                     catch (OperationFailedException e)
                     {
                         new ErrorDialog(mainFrame,
+                            Messages.getI18NString("error").getText(),
                             Messages.getI18NString("failedToCreateChatRoom",
-                                new String[]{chatRoomName}).getText(),
-                            Messages.getI18NString("error").getText())
+                                new String[]{chatRoomName}).getText())
                                 .showDialog();
                         
                         logger.error("Failed to create chat room with name: "
@@ -141,11 +141,11 @@ public class AddChatRoomDialog
                     catch (OperationNotSupportedException e)
                     {
                         new ErrorDialog(mainFrame,
+                            Messages.getI18NString("error").getText(),
                             Messages.getI18NString("createChatRoomNotSupported",
                                 new String[]{chatRoomName,
                                 protocolProvider.getAccountID().getService()})
-                                .getText(),
-                            Messages.getI18NString("error").getText())
+                                .getText())
                                 .showDialog();
                         
                         logger.error("Failed to create chat room with name: "
@@ -154,22 +154,22 @@ public class AddChatRoomDialog
                     catch (Exception e)
                     {
                         new ErrorDialog(mainFrame,
+                            Messages.getI18NString("error").getText(),
                             Messages.getI18NString("failedToCreateChatRoom",
-                                new String[]{chatRoomName}).getText(),
-                            Messages.getI18NString("error").getText())
+                                new String[]{chatRoomName}).getText())
                                 .showDialog();
 
                         logger.error("Failed to create chat room with name: "
                             + namePanel.getChatRoomName(), e);
-                    }                    
+                    }
                 }
-            }.start();                
+            }.start();
         }
         this.dispose();
     }
 
     protected void close(boolean isEscaped)
     {
-        this.cancelButton.doClick();        
-    }    
+        this.cancelButton.doClick();
+    }
 }

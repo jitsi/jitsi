@@ -134,11 +134,11 @@ public class JoinChatRoomDialog
                     if(chatRoom == null)
                     {
                         new ErrorDialog(mainFrame,
+                            Messages.getI18NString("error").getText(),
                             Messages.getI18NString("chatRoomNotExist",
                                 new String[]{chatRoomName,
                                 protocolProvider.getAccountID().getService()})
-                                .getText(),
-                            Messages.getI18NString("error").getText())
+                                .getText())
                                 .showDialog();
                     }
                     else

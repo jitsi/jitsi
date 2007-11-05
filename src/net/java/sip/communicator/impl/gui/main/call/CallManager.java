@@ -239,12 +239,12 @@ public class CallManager
                             {
                                 new ErrorDialog(
                                     this.mainFrame,
+                                    Messages.getI18NString("warning").getText(),
                                     Messages.getI18NString(
                                         "contactNotSupportingTelephony",
                                         new String[]
                                         { ((MetaContact) o).getDisplayName() })
-                                            .getText(),
-                                    Messages.getI18NString("warning").getText())
+                                            .getText())
                                     .showDialog();
                             }
                         }

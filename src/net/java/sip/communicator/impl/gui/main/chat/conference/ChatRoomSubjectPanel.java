@@ -123,14 +123,14 @@ public class ChatRoomSubjectPanel
                 
                 if(e.getErrorCode()
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
-                {                            
+                {
                     new ErrorDialog(
                         chatWindow,
+                        Messages.getI18NString("warning").getText(),
                         Messages.getI18NString(
                             "chatRoomOpenConfigForbidden",
                             new String[]{chatRoomWrapper.getChatRoomName()})
-                                .getText(),
-                        Messages.getI18NString("warning").getText(),
+                            .getText(),
                         ErrorDialog.WARNING)
                             .showDialog();
                 }
@@ -138,14 +138,13 @@ public class ChatRoomSubjectPanel
                 {
                     new ErrorDialog(
                         chatWindow,
+                        Messages.getI18NString("error").getText(),
                         Messages.getI18NString(
                             "chatRoomOpenConfigFailed",
                             new String[]{
                             chatRoomWrapper.getChatRoomName()})
                             .getText(),
-                        e,
-                        Messages.getI18NString("error").getText())
-                    .showDialog();
+                        e).showDialog();
                 }
             }
         }

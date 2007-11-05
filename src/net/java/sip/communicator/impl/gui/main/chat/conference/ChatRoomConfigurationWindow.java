@@ -390,12 +390,10 @@ public class ChatRoomConfigurationWindow
                     {
                         new ErrorDialog(
                             ChatRoomConfigurationWindow.this,
+                            Messages.getI18NString("error").getText(),
                             Messages.getI18NString(
                                 "chatRoomConfigFormSubmitFailed").getText(),
-                            e,
-                            Messages.getI18NString(
-                            "error").getText())
-                            .showDialog();
+                            e).showDialog();
                     }
                 }
             }.start();
