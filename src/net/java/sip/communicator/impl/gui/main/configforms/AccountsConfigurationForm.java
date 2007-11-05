@@ -54,13 +54,13 @@ public class AccountsConfigurationForm extends JPanel
 
     private I18NString newString = Messages.getI18NString("new");
     
-    //private I18NString modifyString = Messages.getI18NString("modify");
+    private I18NString modifyString = Messages.getI18NString("modify");
     
     private I18NString removeString = Messages.getI18NString("remove");
     
     private JButton newButton = new JButton(newString.getText());
 
-    //private JButton modifyButton = new JButton(modifyString.getText());
+    private JButton modifyButton = new JButton(modifyString.getText());
 
     private JButton removeButton = new JButton(removeString.getText());
 
@@ -95,15 +95,15 @@ public class AccountsConfigurationForm extends JPanel
      */
     private void buttonsPanelInit() {
         this.newButton.addActionListener(this);
-        //this.modifyButton.addActionListener(this);
+        this.modifyButton.addActionListener(this);
         this.removeButton.addActionListener(this);
 
         this.newButton.setMnemonic(newString.getMnemonic());
-        //this.modifyButton.setMnemonic(modifyString.getMnemonic());
+        this.modifyButton.setMnemonic(modifyString.getMnemonic());
         this.removeButton.setMnemonic(removeString.getMnemonic());
 
         this.buttonsPanel.add(newButton);
-        //this.buttonsPanel.add(modifyButton);
+        this.buttonsPanel.add(modifyButton);
         this.buttonsPanel.add(removeButton);
 
         this.rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -247,7 +247,6 @@ public class AccountsConfigurationForm extends JPanel
 
             wizard.showDialog(false);
         }
-        /*
         else if (sourceButton.equals(modifyButton)) {
 
             if(accountsTable.getSelectedRow() != -1) {
@@ -256,7 +255,8 @@ public class AccountsConfigurationForm extends JPanel
                         .getAccountRegWizardContainer();
 
                 wizard.setTitle(
-                    Messages.getI18NString("accountRegistrationWizard").getText());
+                    Messages.getI18NString("accountRegistrationWizard")
+                        .getText());
 
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)tableModel.getValueAt(
@@ -266,7 +266,6 @@ public class AccountsConfigurationForm extends JPanel
                 wizard.showDialog(false);
             }
         }
-        */
         else if(sourceButton.equals(removeButton)){
 
             if(accountsTable.getSelectedRow() != -1) {
