@@ -106,6 +106,40 @@ public class UIServiceImpl
     }
 
     /**
+     * Implements removeComponent in UIService interface. Removes a plugin
+     * component and fires a PluginComponentEvent to inform all interested
+     * listeners that a plugin component has been removed.
+     *
+     * @param containerID the <tt>ContainerID</tt> of the plugable container,
+     * where the component is stored
+     * @param component the component to remove
+     *
+     * @see UIService#removeComponent(ContainerID, Object)
+     *
+     * @throws java.lang.IllegalArgumentException if no component exists for
+     * the specified container id.
+     */
+    public void removeComponent(ContainerID containerID, Object component)
+        throws IllegalArgumentException
+    {
+        if (!supportedContainers.contains(containerID))
+        {
+            throw new IllegalArgumentException(
+                "The constraint that you specified is not"
+                    + " supported by this UIService implementation.");
+        }
+        else
+        {
+            if (registeredPlugins.containsKey(containerID))
+            {
+                ((Vector) registeredPlugins.get(containerID)).remove(component);
+            }
+            this.firePluginEvent(component, containerID,
+                PluginComponentEvent.PLUGIN_COMPONENT_REMOVED);
+        }
+    }
+
+    /**
      * Implements addComponent in UIService interface. Stores a plugin component
      * and fires a PluginComponentEvent to inform all interested listeners that
      * a plugin component has been added.
@@ -756,5 +790,4 @@ public class UIServiceImpl
             logger.error("The provided Look & Feel is not supported.", e);
         }
     }
-
 }
