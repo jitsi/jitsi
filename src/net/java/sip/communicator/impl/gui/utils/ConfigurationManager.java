@@ -31,11 +31,16 @@ public class ConfigurationManager
     
     private static boolean isApplicationVisible = true;
     
+    private static boolean isApplicationVisibleSaved = false;
+    
     private static boolean isSendTypingNotifications = true;
     
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
 
+    /**
+     * 
+     */
     public static void loadGuiConfigurations()
     {
         // Load the "auPopupNewMessage" property.
@@ -77,6 +82,16 @@ public class ConfigurationManager
         if(isVisible != null && isVisible != "")
         {
             isApplicationVisible = new Boolean(isVisible).booleanValue();
+        }
+
+        // Load the "showApplicationSaved" property.
+        String isVisibleSaved = configService.getString(
+            "net.java.sip.communicator.impl.systray.showApplicationSaved");
+
+        if(isVisible != null && isVisible != "")
+        {
+            isApplicationVisibleSaved
+                = new Boolean(isVisibleSaved).booleanValue();
         }
 
         // Load the "sendTypingNotifications" property.
@@ -136,6 +151,18 @@ public class ConfigurationManager
     public static boolean isApplicationVisible()
     {
         return isApplicationVisible;
+    }
+
+    /**
+     * Return TRUE if "showApplicationSaved" property is true, otherwise -
+     * return FALSE. Indicates to the user interface whether the main
+     * application window should shown or hidden on startup.
+     * @return TRUE if "showApplicationSaved" property is true, otherwise -
+     * return FALSE.
+     */
+    public static boolean isApplicationVisibleSaved()
+    {
+        return isApplicationVisibleSaved;
     }
 
     /**
@@ -227,6 +254,22 @@ public class ConfigurationManager
         configService.setProperty(
                 "net.java.sip.communicator.impl.systray.showApplication",
                 new Boolean(isVisible));
+    }
+
+    /**
+     * Updates the "showApplicationSaved" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isSaved <code>true</code> to indicate that the
+     * application visible property is saved, <code>false</code> otherwise.
+     */
+    public static void setApplicationVisibleSaved(boolean isSaved)
+    {
+        isApplicationVisibleSaved = isSaved;
+            
+        configService.setProperty(
+                "net.java.sip.communicator.impl.systray.showApplicationSaved",
+                new Boolean(isSaved));
     }
 
     /**
