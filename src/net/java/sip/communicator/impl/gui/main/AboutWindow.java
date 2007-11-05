@@ -13,29 +13,27 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 
 public class AboutWindow
-        extends SIPCommDialog
-        implements  HyperlinkListener,
-                    ActionListener,
-                    ExportedWindow
+    extends SIPCommDialog
+    implements  HyperlinkListener,
+                ActionListener,
+                ExportedWindow
 {
-    private WindowBackground mainPanel
-        = new WindowBackground();
+    private WindowBackground mainPanel = new WindowBackground();
 
-    private JLabel titleLabel = new JLabel(
-            "SIP Communicator");
+    private JLabel titleLabel = new JLabel("SIP Communicator");
 
-    private JLabel versionLabel = new JLabel(
-            " " + System.getProperty("sip-communicator.version"));
+    private JLabel versionLabel =
+        new JLabel(" " + System.getProperty("sip-communicator.version"));
 
-    private JTextArea logoArea
-        = new JTextArea("Open Source VoIP & Instant Messaging");
+    private JTextArea logoArea =
+        new JTextArea("Open Source VoIP & Instant Messaging");
 
     private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
 
     private StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
 
     private I18NString okString = Messages.getI18NString("ok");
-    
+
     private JButton okButton = new JButton(okString.getText());
 
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -53,7 +51,8 @@ public class AboutWindow
 
         this.textPanel.setPreferredSize(new Dimension(470, 280));
         this.textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        this.textPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        this.textPanel.setBorder(BorderFactory
+            .createEmptyBorder(15, 15, 15, 15));
         this.textPanel.setOpaque(false);
 
         this.titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
@@ -75,19 +74,19 @@ public class AboutWindow
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(30, 180, 0, 0));
 
         this.rightsArea.setContentType("text/html");
-        
+
         String startDivTag = "<DIV id=\"message\">";
         String endDivTag = "</DIV>";
-        
+
         this.rightsArea.appendToEnd(startDivTag
-                + "(c)2003-2007 Copyright <b>sip-communicator.org</b>."
-                + " All rights reserved. Visit "
-                + "<a href=\"http://sip-communicator.org\">"
-                + "http://sip-communicator.org</a>."
-                + endDivTag);
+            + "(c)2003-2007 Copyright <b>sip-communicator.org</b>."
+            + " All rights reserved. Visit "
+            + "<a href=\"http://sip-communicator.org\">"
+            + "http://sip-communicator.org</a>." + endDivTag);
 
         this.rightsArea.setPreferredSize(new Dimension(50, 20));
-        this.rightsArea.setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
+        this.rightsArea
+            .setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
         this.rightsArea.setOpaque(false);
         this.rightsArea.setEditable(false);
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -95,14 +94,13 @@ public class AboutWindow
 
         this.licenseArea.setContentType("text/html");
         this.licenseArea.appendToEnd(startDivTag
-                + "The <b>SIP Communicator</b> is distributed under the"
-                + " terms of the  LGPL "
-                + "(<a href=\"http://www.gnu.org\">"
-                + "http://www.gnu.org</a>)."
-                + endDivTag);
+            + "The <b>SIP Communicator</b> is distributed under the"
+            + " terms of the  LGPL " + "(<a href=\"http://www.gnu.org\">"
+            + "http://www.gnu.org</a>)." + endDivTag);
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
-        this.licenseArea.setBorder(BorderFactory.createEmptyBorder(10, 180, 0, 0));
+        this.licenseArea.setBorder(BorderFactory.createEmptyBorder(10, 180, 0,
+            0));
         this.licenseArea.setOpaque(false);
         this.licenseArea.setEditable(false);
         this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -115,11 +113,11 @@ public class AboutWindow
         this.textPanel.add(licenseArea);
 
         this.getRootPane().setDefaultButton(okButton);
-        
+
         this.okButton.setMnemonic(okString.getMnemonic());
-        
+
         this.okButton.addActionListener(this);
-        
+
         this.buttonPanel.add(okButton);
         this.buttonPanel.setOpaque(false);
 
@@ -139,17 +137,20 @@ public class AboutWindow
     /**
      * Constructs the window background in order to have a background image.
      */
-    private class WindowBackground extends JPanel {
+    private class WindowBackground
+        extends JPanel
+    {
+        private Image bgImage =
+            ImageLoader.getImage(ImageLoader.ABOUT_WINDOW_BACKGROUND);
 
-        private Image bgImage
-            = ImageLoader.getImage(ImageLoader.ABOUT_WINDOW_BACKGROUND);
-
-        public WindowBackground() {
+        public WindowBackground()
+        {
             this.setPreferredSize(new Dimension(bgImage.getWidth(this), bgImage
-                    .getHeight(this)));
+                .getHeight(this)));
         }
 
-        protected void paintComponent(Graphics g) {
+        protected void paintComponent(Graphics g)
+        {
             super.paintComponent(g);
 
             AntialiasingManager.activateAntialiasing(g);
@@ -166,7 +167,8 @@ public class AboutWindow
 
     public void hyperlinkUpdate(HyperlinkEvent e)
     {
-        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+        {
             String href = e.getDescription();
 
             GuiActivator.getBrowserLauncher().openURL(href);
@@ -197,12 +199,12 @@ public class AboutWindow
      * This dialog could not be maximized.
      */
     public void maximize()
-    {   
-    }    
-    
+    {
+    }
+
     /**
-     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
-     * window to front.
+     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings
+     * this window to front.
      */
     public void bringToFront()
     {

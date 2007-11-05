@@ -162,16 +162,6 @@ public class Constants
     public static final int HISTORY_WINDOW_WIDTH = 450;
 
     /**
-     * The width of a <tt>MessageDialog</tt>.
-     */
-    public static final int MSG_DIALOG_WIDTH = 330;
-
-    /**
-     * The height of a <tt>MessageDialog</tt>.
-     */
-    public static final int MSG_DIALOG_HEIGHT = 150;
-
-    /**
      * The size of the buffer that indicates how many messages will be stored
      * in the conversation area in the chat window.
      */
