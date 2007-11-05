@@ -44,7 +44,7 @@ public class CreateGroupPanel
     
     private JPanel rightPanel = new JPanel(new BorderLayout());
     
-    private JLabel errorLabel = new JLabel();    
+    private JLabel errorLabel = new JLabel();
     
     /**
      * Creates and initializes the <tt>CreateGroupPanel</tt>.
@@ -58,7 +58,7 @@ public class CreateGroupPanel
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
         
         this.infoLabel.setEditable(false);
-                
+
         this.dataPanel.add(uinLabel, BorderLayout.WEST);
         
         this.dataPanel.add(textField, BorderLayout.CENTER);
@@ -67,14 +67,14 @@ public class CreateGroupPanel
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
         
         this.labelsPanel.add(infoTitleLabel);
-        this.labelsPanel.add(infoLabel);        
+        this.labelsPanel.add(infoLabel);
         this.labelsPanel.add(dataPanel);
         this.labelsPanel.add(errorLabel);
-        
+
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         errorLabel.setForeground(Color.red);
         errorLabel.setVisible(false);
-                
+
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
     }

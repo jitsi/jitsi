@@ -51,22 +51,23 @@ public class CreateGroupDialog
      * 
      * @param mainFrame The MainFrame window.
      */
-    public CreateGroupDialog(MainFrame mainFrame) {
-        
+    public CreateGroupDialog(MainFrame mainFrame)
+    {
         super(mainFrame);
-        
+
         this.mainFrame = mainFrame;
         this.clist = mainFrame.getContactList();
 
         this.setSize(520, 250);
-                
+
         this.init();
     }
     
     /**
      * Initializes the dialog.
      */
-    private void init() {
+    private void init()
+    {
         this.setTitle(Messages.getI18NString("addGroup").getText());
         
         this.getRootPane().setDefaultButton(addButton);
@@ -103,7 +104,6 @@ public class CreateGroupDialog
         {
             dispose();
         }
-            
     }
     
     /**
@@ -136,7 +136,7 @@ public class CreateGroupDialog
                     {
                         logger.error(ex);
                         int errorCode = ex.getErrorCode();
-                                                
+
                         if (errorCode
                                 == MetaContactListException
                                     .CODE_GROUP_ALREADY_EXISTS_ERROR)
@@ -150,7 +150,7 @@ public class CreateGroupDialog
                         }
                         else if (errorCode
                             == MetaContactListException.CODE_LOCAL_IO_ERROR)
-                        {                               
+                        {
                             groupPanel.showErrorMessage(
                                     Messages.getI18NString(
                                             "addGroupLocalError",
@@ -160,7 +160,7 @@ public class CreateGroupDialog
                         }
                         else if (errorCode
                                 == MetaContactListException.CODE_NETWORK_ERROR)
-                        {   
+                        {
                             groupPanel.showErrorMessage(
                                     Messages.getI18NString(
                                             "addGroupNetError",
@@ -169,12 +169,12 @@ public class CreateGroupDialog
                             return;
                         }
                         else
-                        {                            
+                        {
                             groupPanel.showErrorMessage(
                                     Messages.getI18NString(
                                             "addGroupError",
                                             new String[]{groupName}).getText());
-                                                        
+
                             return;
                         }
                     }

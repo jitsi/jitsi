@@ -196,21 +196,24 @@ public class GroupRightButtonMenu
         public RemoveGroupThread(MetaContactGroup group) {
             this.group = group;
         }
-        public void run() {
+        public void run()
+        {
             if(Constants.REMOVE_CONTACT_ASK) {
                 String message = "<HTML>Are you sure you want to remove <B>"
                     + this.group.getGroupName()
                     + "</B><BR>from your contact list?</html>";
 
-                MessageDialog dialog = new MessageDialog(mainFrame,
-                        message, Messages.getI18NString("remove").getText());
+                MessageDialog dialog = new MessageDialog(
+                        mainFrame,
+                        Messages.getI18NString("removeGroup").getText(),
+                        message,
+                        Messages.getI18NString("remove").getText());
 
-                dialog.setTitle(Messages.getI18NString("removeGroup").getText());
                 int returnCode = dialog.showDialog();
                 
                 if (returnCode == MessageDialog.OK_RETURN_CODE) {
                     mainFrame.getContactList()
-                                .removeMetaContactGroup(group);                    
+                                .removeMetaContactGroup(group);
                 }
                 else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
                     mainFrame.getContactList()

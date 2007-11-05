@@ -265,9 +265,9 @@ public class QuickMenu
                 else
                 {
                     new ErrorDialog(mainFrame,
+                        Messages.getI18NString("warning").getText(),
                         Messages.getI18NString("selectContactSupportingInfo")
                             .getText(),
-                        Messages.getI18NString("warning").getText(),
                         ErrorDialog.WARNING).showDialog();
                 }
             }            

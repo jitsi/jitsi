@@ -574,8 +574,11 @@ public class ContactRightButtonMenu
                     + contact.getDisplayName()
                     + "</B><BR>from your contact list?</html>";
     
-                MessageDialog dialog = new MessageDialog(mainFrame,
-                        message, Messages.getI18NString("remove").getText());
+                MessageDialog dialog = new MessageDialog(
+                        mainFrame,
+                        Messages.getI18NString("removeContact").getText(),
+                        message,
+                        Messages.getI18NString("remove").getText());
     
                 int returnCode = dialog.showDialog();
                 
@@ -605,24 +608,32 @@ public class ContactRightButtonMenu
                     = "<HTML>Are you sure you want to remove <B>"
                     + allContactsString.getText()
                     + "</B><BR>from your contact list?</html>";
-        
-                MessageDialog dialog = new MessageDialog(mainFrame,
-                        message, Messages.getI18NString("remove").getText());
-        
+
+                MessageDialog dialog
+                    = new MessageDialog(mainFrame,
+                                        Messages.getI18NString("removeContact")
+                                            .getText(),
+                                        message,
+                                        Messages.getI18NString("remove")
+                                            .getText());
+
                 int returnCode = dialog.showDialog();
-        
-                if (returnCode == MessageDialog.OK_RETURN_CODE) {
+
+                if (returnCode == MessageDialog.OK_RETURN_CODE)
+                {
                     mainFrame.getContactList().removeMetaContact(contactItem);
                 }
-                else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                else if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
+                {
                     mainFrame.getContactList().removeMetaContact(contactItem);
-        
+
                     Constants.REMOVE_CONTACT_ASK = false;
                 }
             }
-            else {
+            else
+            {
                 mainFrame.getContactList().removeMetaContact(contactItem);
-            }   
+            }
         }
     }
     
@@ -676,9 +687,9 @@ public class ContactRightButtonMenu
         
         if(toMetaContact.equals(contactItem)) {
             new ErrorDialog(this.mainFrame,
-                    Messages.getI18NString("moveSubcontactInSameContact").getText(),
-                    Messages.getI18NString("moveSubcontact").getText(),
-                    ErrorDialog.WARNING)
+                Messages.getI18NString("moveSubcontact").getText(),
+                Messages.getI18NString("moveSubcontactInSameContact").getText(),
+                ErrorDialog.WARNING)
                     .showDialog();
         }
         else {

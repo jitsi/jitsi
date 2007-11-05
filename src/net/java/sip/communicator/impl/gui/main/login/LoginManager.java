@@ -262,8 +262,9 @@ public class LoginManager
                     { accountID.getUserID(), accountID.getService() })
                     .getText();
 
-                new ErrorDialog(null, msgText, Messages.getI18NString("error")
-                    .getText()).showDialog();
+                new ErrorDialog(null,
+                                Messages.getI18NString("error").getText(),
+                                msgText).showDialog();
             }
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                                 .REASON_NON_EXISTING_USER_ID)
@@ -273,8 +274,9 @@ public class LoginManager
                     new String[]
                     { protocolProvider.getProtocolName() }).getText();
 
-                new ErrorDialog(null, msgText, Messages.getI18NString("error")
-                    .getText()).showDialog();
+                new ErrorDialog(null,
+                    Messages.getI18NString("error").getText(),
+                    msgText).showDialog();
             }
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                                 .REASON_AUTHENTICATION_FAILED)
@@ -284,8 +286,9 @@ public class LoginManager
                     { accountID.getUserID(), accountID.getService() })
                     .getText();
 
-                new ErrorDialog(null, msgText, Messages.getI18NString("error")
-                    .getText()).showDialog();
+                new ErrorDialog(null,
+                    Messages.getI18NString("error").getText(),
+                    msgText).showDialog();
             }
             logger.error(evt.getReason());
         }
@@ -298,8 +301,9 @@ public class LoginManager
                 new String[]
                 { accountID.getUserID(), accountID.getService() }).getText();
 
-            new ErrorDialog(null, msgText, Messages.getI18NString("error")
-                .getText()).showDialog();
+            new ErrorDialog(null,
+                Messages.getI18NString("error").getText(),
+                msgText).showDialog();
 
             logger.error(evt.getReason());
         }
@@ -312,8 +316,9 @@ public class LoginManager
                 new String[]
                 { protocolProvider.getProtocolName() }).getText();
 
-            new ErrorDialog(null, msgText, Messages.getI18NString("error")
-                .getText()).showDialog();
+            new ErrorDialog(null,
+                Messages.getI18NString("error").getText(),
+                msgText).showDialog();
 
             logger.error(evt.getReason());
         }
@@ -339,8 +344,9 @@ public class LoginManager
                         { accountID.getUserID(), accountID.getService() })
                         .getText();
 
-                    new ErrorDialog(null, msgText, Messages.getI18NString(
-                        "error").getText()).showDialog();
+                    new ErrorDialog(null,
+                        Messages.getI18NString("error").getText(),
+                        msgText).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                             .REASON_CLIENT_LIMIT_REACHED_FOR_IP)
@@ -349,8 +355,9 @@ public class LoginManager
                         "limitReachedForIp", new String[]
                         { protocolProvider.getProtocolName() }).getText();
 
-                    new ErrorDialog(null, msgText, Messages.getI18NString(
-                        "error").getText()).showDialog();
+                    new ErrorDialog(null,
+                        Messages.getI18NString("error").getText(),
+                        msgText).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                             .REASON_USER_REQUEST)
@@ -364,8 +371,9 @@ public class LoginManager
                         { accountID.getUserID(), accountID.getService() })
                         .getText();
 
-                    new ErrorDialog(null, msgText, Messages.getI18NString(
-                        "error").getText()).showDialog();
+                    new ErrorDialog(null,
+                        Messages.getI18NString("error").getText(),
+                        msgText).showDialog();
                 }
                 logger.error(evt.getReason());
             }
@@ -531,13 +539,14 @@ public class LoginManager
                     logger.error("Provider could not be registered.", ex);
                 }
 
-                new ErrorDialog(mainFrame, Messages.getI18NString(
-                    "loginNotSucceeded",
-                    new String[]
-                    { protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService() })
-                    .getText(), ex, Messages.getI18NString("error").getText())
-                    .showDialog();
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
+                    Messages.getI18NString("loginNotSucceeded",
+                        new String[]{
+                            protocolProvider.getAccountID().getUserID(),
+                            protocolProvider.getAccountID().getService()
+                        }).getText(),
+                        ex).showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
@@ -545,12 +554,14 @@ public class LoginManager
             {
                 logger.error("Failed to register protocol provider. ", ex);
 
-                new ErrorDialog(mainFrame, Messages.getI18NString(
-                    "loginNotSucceeded",
-                    new String[]
-                    { protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService() })
-                    .getText(), Messages.getI18NString("error").getText())
+                new ErrorDialog(
+                    mainFrame,
+                    Messages.getI18NString("error").getText(),
+                    Messages.getI18NString("loginNotSucceeded",
+                        new String[]
+                        { protocolProvider.getAccountID().getUserID(),
+                            protocolProvider.getAccountID().getService() })
+                        .getText())
                     .showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
@@ -601,12 +612,13 @@ public class LoginManager
                         + " due to a network failure: " + ex);
                 }
 
-                new ErrorDialog(mainFrame, Messages.getI18NString(
-                    "logoffNotSucceeded",
-                    new String[]
-                    { protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService() })
-                    .getText(), Messages.getI18NString("error").getText())
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
+                    Messages.getI18NString("logoffNotSucceeded",
+                        new String[]
+                        { protocolProvider.getAccountID().getUserID(),
+                            protocolProvider.getAccountID().getService() })
+                        .getText())
                     .showDialog();
             }
         }
