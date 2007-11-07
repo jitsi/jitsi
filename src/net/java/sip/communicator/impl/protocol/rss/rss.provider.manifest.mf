@@ -6,6 +6,7 @@ Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
  org.xml.sax,
  org.xml.sax.helpers,
+ org.xml.sax.ext,
  org.w3c.dom,
  javax.xml.parsers,
  net.java.sip.communicator.service.configuration,
