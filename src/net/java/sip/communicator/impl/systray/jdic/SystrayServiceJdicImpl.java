@@ -148,7 +148,10 @@ public class SystrayServiceJdicImpl
         }
 
         currentIcon = logoIcon;
-        trayIcon = new TrayIcon(logoIcon, "SIP Communicator", menu);
+        trayIcon = new TrayIcon(logoIcon,
+                                Resources.getString("systrayToolTip"),
+                                menu);
+
         trayIcon.setIconAutoSize(true);
 
         //Show/hide the contact list when user clicks on the systray.
