@@ -493,7 +493,7 @@ public class CallSessionImpl
      * @throws ParseException if sdpAnswerStr does not contain a valid sdp
      * String.
      */
-    public synchronized void processSdpAnswer(CallParticipant responder, 
+    public void processSdpAnswer(CallParticipant responder, 
                                               String sdpAnswerStr)
         throws MediaException, ParseException
     {
