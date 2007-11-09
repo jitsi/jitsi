@@ -76,6 +76,11 @@ public interface UIService
     public static final ContainerID CONTAINER_MAIN_TOOL_BAR 
         = new ContainerID("MainToolBar");
     /**
+     * Main application window main tabbedpane container.
+     */
+    public static final ContainerID CONTAINER_MAIN_TABBED_PANE
+        = new ContainerID("MainTabbedPane");
+    /**
      * Chat window toolbar container.
      */
     public static final ContainerID CONTAINER_CHAT_TOOL_BAR 

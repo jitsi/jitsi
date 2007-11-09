@@ -11,12 +11,15 @@ import java.awt.*;
 
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 
 /** 
  * The <tt>MainTabbedPane</tt> is a <tt>SIPCommTabbedPane</tt> that contains
@@ -27,7 +30,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  */
 public class MainTabbedPane
     extends SIPCommTabbedPane
-    implements ChangeListener
+    implements  ChangeListener,
+                PluginComponentListener
 {
     private DialPanel dialPanel;
 
@@ -50,11 +54,11 @@ public class MainTabbedPane
         contactListPanel = new ContactListPanel(parent);
 
         callHistoryPanel = new CallListPanel(parent);
-        
+
         dialPanel = new DialPanel(parent.getCallManager());
-        
+
         chatRoomsListPanel = new ChatRoomsListPanel(parent);
-                
+
         this.addTab(Messages.getI18NString("contacts").getText(),
                     contactListPanel);
         this.addTab(Messages.getI18NString("chatRooms").getText(),
@@ -64,6 +68,8 @@ public class MainTabbedPane
         this.addTab(Messages.getI18NString("dial").getText(), dialPanel);
 
         this.addChangeListener(this);
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
     /**
@@ -124,6 +130,30 @@ public class MainTabbedPane
                 return;
 
             GuiUtils.requestFocus(chatRoomList);
+        }
+    }
+
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+
+        if(event.getContainerID()
+                .equals(UIService.CONTAINER_MAIN_TABBED_PANE))
+        {
+            this.addTab(c.getName(), c);
+
+            this.repaint();
+        }
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        if(event.getContainerID()
+                .equals(UIService.CONTAINER_MAIN_TABBED_PANE))
+        {
+            this.remove(c);
         }
     }
 }

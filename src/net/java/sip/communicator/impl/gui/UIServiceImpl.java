@@ -56,6 +56,7 @@ public class UIServiceImpl
         supportedContainers.add(UIService.CONTAINER_TOOLS_MENU);
         supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
         supportedContainers.add(UIService.CONTAINER_CALL_HISTORY);
+        supportedContainers.add(UIService.CONTAINER_MAIN_TABBED_PANE);
     }
 
     private static final Hashtable exportedWindows = new Hashtable();
@@ -270,7 +271,7 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements getComponentsForConstraint in UIService interface.
+     * Implements getComponentsForContainer in UIService interface.
      *
      * @param containerID the id of the container whose components we'll be
      * retrieving.
