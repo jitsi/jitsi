@@ -1046,6 +1046,111 @@ public class ServerStoredContactListYahooImpl
                                 ContactPropertyChangeEvent.PROPERTY_IMAGE, 
                                 contact, null, ev.getPictureData());
         }
+        
+        /**
+         * Process Authorization responses
+         * @param ev the event to process
+         */
+        public void authorizationReceived(SessionAuthorizationEvent ev)
+        {
+            if(ev.isAuthorizationAccepted())
+            {
+                logger.trace("authorizationAccepted from " + ev.getFrom());
+                Contact srcContact = findContactById(ev.getFrom());
+                
+                if(srcContact == null)
+                    logger.trace("No contact found");
+                else
+                    handler.processAuthorizationResponse(
+                        new AuthorizationResponse(
+                                AuthorizationResponse.ACCEPT, 
+                                ev.getMessage()), 
+                        srcContact);
+            }
+            else if(ev.isAuthorizationDenied())
+            {
+                logger.trace("authorizationDenied from " + ev.getFrom());
+                Contact srcContact = findContactById(ev.getFrom());
+
+                if(srcContact == null)
+                    logger.trace("No contact found");
+                else
+                {
+                    handler.processAuthorizationResponse(
+                        new AuthorizationResponse(
+                                AuthorizationResponse.REJECT, 
+                                ev.getMessage()),
+                        srcContact);
+                    try
+                    {
+                        removeContact((ContactYahooImpl)srcContact);
+                    } catch (Exception ex)
+                    {
+                        logger.error("cannot remove denied contact : " + 
+                                srcContact, ex);
+                    }
+                }
+            }
+            else if(ev.isAuthorizationRequest())
+            {
+                logger.trace("authorizationRequestReceived from " + ev.getFrom());
+                Contact srcContact = findContactById(ev.getFrom());
+
+                // if there is no such contact we create it as 
+                // volatile so we can fire notification
+                // and then if accepted add it in the protocol 
+                // so we can receive its states
+                boolean isCurrentlyCreated = false;
+                if(srcContact == null)
+                {
+                    srcContact = createVolatileContact(ev.getFrom());
+                    isCurrentlyCreated = true;
+                }
+
+                AuthorizationRequest authRequest = new AuthorizationRequest();
+                    authRequest.setReason(ev.getMessage());
+
+                AuthorizationResponse authResponse =
+                    handler.processAuthorisationRequest(
+                        authRequest, srcContact);
+
+                if (authResponse.getResponseCode() == AuthorizationResponse.IGNORE)
+                    return;
+                else
+                    if (authResponse.getResponseCode() == AuthorizationResponse.REJECT)
+                    {
+                        removeContact((ContactYahooImpl)srcContact);
+                        try
+                        {
+                            yahooSession.rejectFriendAuthorization(
+                                ev, ev.getFrom(), authResponse.getReason());
+                        }catch(IOException ex)
+                        {
+                            logger.error("cannot send auth deny", ex);
+                        }
+                    }
+                
+                // else we accepted it
+                try
+                {
+                    yahooSession.acceptFriendAuthorization(ev, ev.getFrom());
+                }
+                catch(IOException ex)
+                {
+                    logger.error("cannot send auth deny", ex);
+                }
+                
+                if(isCurrentlyCreated)
+                try
+                {
+                    addContact(ev.getFrom());
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Cannot add friend", ex);
+                }
+            }
+        }
     }
 
     /**

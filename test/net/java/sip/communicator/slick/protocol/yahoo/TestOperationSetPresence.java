@@ -287,7 +287,7 @@ public class TestOperationSetPresence
         PresenceStatusEventCollector statusEventCollector2
             = new PresenceStatusEventCollector();
         ContactPresenceEventCollector statusEventCollector1
-            = new ContactPresenceEventCollector(fixture.userID1, newStatus);
+            = new ContactPresenceEventCollector(fixture.userID2, newStatus);
         operationSetPresence2.addProviderPresenceStatusListener(
             statusEventCollector2);
         operationSetPresence1.addContactPresenceStatusListener(
@@ -456,7 +456,7 @@ public class TestOperationSetPresence
                     .removeContactPresenceStatusListener(contactPresEvtCollector);
             }
         }
-        
+
         assertEquals("Presence Notif. event dispatching failed."
                      , 1, contactPresEvtCollector.collectedEvents.size());
         ContactPresenceStatusChangeEvent presEvt =
