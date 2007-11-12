@@ -14,19 +14,22 @@ import javax.swing.plaf.basic.*;
 
 public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
 {
-    public static ComponentUI createUI(JComponent c) {
+    public static ComponentUI createUI(JComponent c)
+    {
         return new SIPCommCallComboBoxUI();
     }
-    
+
     /**
      * Creates the popup portion of the combo box.
      *
      * @return an instance of <code>ComboPopup</code>
      * @see ComboPopup
      */
-    protected ComboPopup createPopup() {
+    protected ComboPopup createPopup()
+    {
         SIPCommComboPopup popup = new SIPCommComboPopup( comboBox );
         popup.getAccessibleContext().setAccessibleParent(comboBox);
+
         return popup;
     }
     
@@ -36,7 +39,7 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
         {
             super(combo);
         }
-                
+
         /**
          * Makes the popup visible if it is hidden and makes it hidden if it is 
          * visible.

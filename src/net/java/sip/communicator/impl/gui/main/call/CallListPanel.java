@@ -14,7 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.customcontrols.SmartComboBox.*;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommSmartComboBox.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -37,7 +37,7 @@ public class CallListPanel
     private JLabel searchLabel = new JLabel(
         Messages.getI18NString("search").getText() + ": ");
     
-    private SmartComboBox searchComboBox = new SmartComboBox();
+    private SIPCommSmartComboBox searchComboBox = new SIPCommSmartComboBox();
     
     private CallList callList = new CallList();
     

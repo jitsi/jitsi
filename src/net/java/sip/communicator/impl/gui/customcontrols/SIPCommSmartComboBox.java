@@ -14,20 +14,22 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
+
 /**
- * <tt>SmartComboBox</tt> is an editable combo box which selects an item
+ * <tt>SIPCommSmartComboBox</tt> is an editable combo box which selects an item
  * according to user input.
  *  
  * @author Yana Stamcheva
  */
-public class SmartComboBox extends JComboBox
+public class SIPCommSmartComboBox extends JComboBox
 {
     private ArrayList historyList = new ArrayList();
     
     /**
-     * Creates an instance of <tt>SmartComboBox</tt>.
+     * Creates an instance of <tt>SIPCommSmartComboBox</tt>.
      */
-    public SmartComboBox()
+    public SIPCommSmartComboBox()
     {
         setModel(new FilterableComboBoxModel(historyList));
         setEditor(new CallComboEditor());
@@ -50,75 +52,75 @@ public class SmartComboBox extends JComboBox
         private Object selectedItem;
         
         public FilterableComboBoxModel(List items)
-        {   
+        {
             this.items = new ArrayList(items);
             filteredItems = new ArrayList(items.size());
-            updateFilteredItems();            
+            updateFilteredItems();
         }
-                
+
         public boolean contains(Object obj)
         {
             return items.contains(obj);
         }
-        
+
         public void addElement( Object obj )
         {
             items.add(obj);
             updateFilteredItems();
         }
-        
+
         public void removeElement( Object obj )
         {
             items.remove(obj);
             updateFilteredItems();
         }
-                
+
         public void removeElementAt(int index)
         {   
             items.remove(index);
             updateFilteredItems();
         }
-        
+
         public void insertElementAt( Object obj, int index ) {
             items.add(index, obj);
             updateFilteredItems();
         }
-        
+
         public void setFilter(Filter filter)
         {   
             this.filter = filter;
             updateFilteredItems();
         }
-        
+
         protected void updateFilteredItems()
-        {   
+        {
             fireIntervalRemoved(this, 0, filteredItems.size());
             filteredItems.clear();
-        
+
             if (filter == null)
                 filteredItems.addAll(items);
             else {
                 for (Iterator iterator = items.iterator(); iterator.hasNext();) {
                     
                     Object item = iterator.next();
-        
+
                     if (filter.accept(item))
                         filteredItems.add(item);
                 }
             }
             fireIntervalAdded(this, 0, filteredItems.size());
         }
-        
+
         public int getSize()
         {
             return filteredItems.size();
         }
-        
+
         public Object getElementAt(int index)
         {
             return filteredItems.get(index);
         }
-        
+
         public Object getSelectedItem()
         {
             return selectedItem;
@@ -166,34 +168,42 @@ public class SmartComboBox extends JComboBox
     }
     
     public class CallComboEditor
-    implements ComboBoxEditor, DocumentListener
-    {   
+    implements  ComboBoxEditor,
+                DocumentListener
+    {
         private JTextField text;
         private volatile boolean filtering = false;
         private volatile boolean setting = false;
         
         public CallComboEditor()
-        {   
+        {
             text = new JTextField(15);
             text.getDocument().addDocumentListener(this);
+
+            // Enable delete button from the UI.
+            if (text.getUI() instanceof SIPCommTextFieldUI)
+            {
+                ((SIPCommTextFieldUI) text.getUI())
+                    .setDeleteButtonEnabled(true);
+            }
         }
-        
+
         public Component getEditorComponent() { return text; }
-        
+
         public void setItem(Object item)
         {
             if(filtering)
                 return;
-        
+
             setting = true;
             String newText = (item == null) ? "" : item.toString();
-            
+
             text.setText(newText);
             setting = false;
         }
         
         public Object getItem()
-        {            
+        {
             return text.getText();
         }
         
@@ -222,7 +232,7 @@ public class SmartComboBox extends JComboBox
             
             Filter filter = null;
             if (text.getText().length() > 0) {
-                filter = new StartsWithFilter(text.getText());                 
+                filter = new StartsWithFilter(text.getText());
             }
             
             ((FilterableComboBoxModel) getModel()).setFilter(filter);
