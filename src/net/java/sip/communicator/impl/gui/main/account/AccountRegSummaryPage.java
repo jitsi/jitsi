@@ -154,18 +154,6 @@ public class AccountRegSummaryPage
 
         this.wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
-        if (wizardContainer.containsPage(WizardPage.DEFAULT_PAGE_IDENTIFIER))
-        {
-            this.wizardContainer
-                .unregisterWizardPage(WizardPage.DEFAULT_PAGE_IDENTIFIER);
-        }
-
-        if (wizardContainer.containsPage(WizardPage.SUMMARY_PAGE_IDENTIFIER))
-        {
-            this.wizardContainer
-                .unregisterWizardPage(WizardPage.SUMMARY_PAGE_IDENTIFIER);
-        }
-
         this.wizardContainer.unregisterWizardPages();
         this.wizardContainer.removeWizzardIcon();
     }

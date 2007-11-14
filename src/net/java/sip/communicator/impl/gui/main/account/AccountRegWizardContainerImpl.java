@@ -260,8 +260,6 @@ public class AccountRegWizardContainerImpl
         AccountRegistrationWizard wizard =
             getWizardFromClassName(wizardClassName);
 
-        this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
-
         this.setCurrentWizard(wizard);
 
         Iterator i = wizard.getPages();
