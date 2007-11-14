@@ -182,11 +182,11 @@ public abstract class SIPCommDialog extends JDialog
         }
         
         if(xString != null && yString != null)
-        {   
+        {
             this.setLocation(new Integer(xString).intValue(),
                 new Integer(yString).intValue());
-        }        
-        else {            
+        }
+        else {
             this.setCenterLocation();
         }
     }
@@ -213,12 +213,17 @@ public abstract class SIPCommDialog extends JDialog
         if(isVisible)
         {
             this.pack();
-            
+
             if(isSaveSizeAndLocation)
                 this.setSizeAndLocation();
-            
+            else
+            {
+                this.pack();
+                this.setCenterLocation();
+            }
+
             JButton button = this.getRootPane().getDefaultButton();
-            
+
             if(button != null)
                 button.requestFocus();
         }
