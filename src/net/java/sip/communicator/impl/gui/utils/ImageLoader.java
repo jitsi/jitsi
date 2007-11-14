@@ -166,6 +166,20 @@ public class ImageLoader {
     public static final ImageID CLOSE_TAB_SELECTED_ICON
         = new ImageID("CLOSE_TAB_SELECTED_ICON");
 
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
+     * used to delete text in text fields and editable combo boxes.
+     */
+    public static final ImageID DELETE_TEXT_ICON
+        = new ImageID("DELETE_TEXT_ICON");
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the rollover
+     * icon used to delete text in text fields and editable combo boxes.
+     */
+    public static final ImageID DELETE_TEXT_ROLLOVER_ICON
+        = new ImageID("DELETE_TEXT_ROLLOVER_ICON");
+
     /////////////////////// OptionPane icons /////////////////////////////
 
     /**
