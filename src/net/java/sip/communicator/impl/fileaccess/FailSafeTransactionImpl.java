@@ -87,8 +87,6 @@ public class FailSafeTransactionImpl
      * When the transaction begins, the file is restored to a coherent state if
      * needed.
      * 
-     * @return The fail-safe file in which every modification must be done.
-     * 
      * @throws IllegalStateException if the file doesn't exists anymore
      * @throws IOException if an IOException occurs during the transaction
      * creation

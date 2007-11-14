@@ -10,11 +10,13 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.*;
 
+import org.osgi.framework.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import net.java.sip.communicator.impl.configuration.xml.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
@@ -88,6 +90,11 @@ public class ConfigurationServiceImpl
      * Indicates whether the service is started or stopped.
      */
     private boolean started = false;
+    
+    /**
+     * a reference to the FileAccessService
+     */
+    private FileAccessService faService = null;
 
     /**
      * Sets the property with the specified name to the specified value. Calling
@@ -374,6 +381,12 @@ public class ConfigurationServiceImpl
     {
         this.started = true;
         
+        // retrieve a reference to the FileAccessService
+        BundleContext bc = ConfigurationActivator.bundleContext;
+        ServiceReference faServiceReference = bc.getServiceReference(
+                FileAccessService.class.getName());
+        this.faService = (FileAccessService) bc.getService(faServiceReference);
+        
         try
         {
             debugPrintSystemProperties();
@@ -414,6 +427,16 @@ public class ConfigurationServiceImpl
     Map loadConfiguration(File file)
         throws IOException, XMLException
     {
+        // restore the file if needed
+        FailSafeTransaction trans = this.faService
+            .createFailSafeTransaction(file);
+        try {
+            trans.restoreFile();
+        } catch (Exception e) {
+            logger.error("can't restore the configuration file before loading" +
+                    " it", e);
+        }
+        
         try
         {
             DocumentBuilderFactory factory =
@@ -536,10 +559,20 @@ public class ConfigurationServiceImpl
                                   newlyAddedProperties);
 
         //write the file.
-        OutputStream stream = new FileOutputStream(getConfigurationFile());
-        XMLUtils.indentedWriteXML(
-            propertiesDocument, stream);
-        stream.close();
+        File config = getConfigurationFile();
+        FailSafeTransaction trans = this.faService
+                                        .createFailSafeTransaction(config);
+        try {
+            trans.beginTransaction();
+            OutputStream stream = new FileOutputStream(config);
+            XMLUtils.indentedWriteXML(
+                    propertiesDocument, stream);
+            stream.close();
+            trans.commit();
+        } catch (Exception e) {
+            logger.error("can't write data in the configuration file", e);
+            trans.rollback();
+        }
     }
 
     /**

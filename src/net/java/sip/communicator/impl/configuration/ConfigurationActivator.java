@@ -17,6 +17,11 @@ import net.java.sip.communicator.util.*;
 public class ConfigurationActivator
     implements BundleActivator
 {
+    /**
+     * The current bundle context
+     */
+    public static BundleContext bundleContext;
+    
     private Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
     private ConfigurationServiceImpl impl = new ConfigurationServiceImpl();
 
@@ -30,7 +35,8 @@ public class ConfigurationActivator
     public void start(BundleContext bundleContext) throws Exception
     {
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
-
+        
+        this.bundleContext = bundleContext;
         impl.start();
 
         bundleContext.registerService(ConfigurationService.class.getName(),

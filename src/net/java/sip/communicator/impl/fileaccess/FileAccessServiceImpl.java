@@ -36,51 +36,11 @@ public class FileAccessServiceImpl implements FileAccessService {
     public static final String TEMP_FILE_SUFFIX = "TEMP";
 
     /**
-     * List of available configuration services.
-     */
-    private ConfigurationService configurationService = null;
-
-    /**
      * An synchronization object.
      *
      * A lock should be obtained whenever the configuration service is accessed.
      */
     private Object syncRoot = new Object();
-
-    /**
-     * Set the configuration service.
-     *
-     * @param configurationService a currently active instance of the
-     * configuration service
-     */
-    public void setConfigurationService(
-            ConfigurationService configurationService)
-    {
-        synchronized (this.syncRoot)
-        {
-            this.configurationService = configurationService;
-            logger.debug("New configuration service registered.");
-        }
-    }
-
-    /**
-     * Remove a configuration service.
-     *
-     * @param configurationService a currently active instance of the
-     * configuration service
-     */
-    public void unsetConfigurationService(
-            ConfigurationService configurationService)
-    {
-        synchronized (this.syncRoot)
-        {
-            if (this.configurationService == configurationService)
-            {
-                this.configurationService = null;
-                logger.debug("Configuration service unregistered.");
-            }
-        }
-    }
 
     /**
      * This method returns a created temporary file. After you close this file
@@ -253,9 +213,9 @@ public class FileAccessServiceImpl implements FileAccessService {
      */
     private String getFullPath(String fileName)
     {
-
-        String userhome =  this.configurationService.getScHomeDirLocation();
-        String sipSubdir = this.configurationService.getScHomeDirName();
+        // bypass the configurationService here to remove the dependancy
+        String userhome =  getScHomeDirLocation();
+        String sipSubdir = getScHomeDirName();
 
         if (!userhome.endsWith(File.separator))
         {
@@ -268,7 +228,77 @@ public class FileAccessServiceImpl implements FileAccessService {
 
         return userhome + sipSubdir;
     }
+    /**
+     * Returns the name of the directory where SIP Communicator is to store user
+     * specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     *
+     * @return the name of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     */
+    public String getScHomeDirName()
+    {
+        //check whether user has specified a custom name in the
+        //system properties
+        String scHomeDirName
+            = getSystemProperty(ConfigurationService.PNAME_SC_HOME_DIR_NAME);
 
+        if (scHomeDirName == null)
+        {
+            scHomeDirName = ".sip-communicator";
+        }
+
+        return scHomeDirName;
+    }
+    
+    /**
+     * Returns the location of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     *
+     * @return the location of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     */
+    public String getScHomeDirLocation()
+    {
+        //check whether user has specified a custom name in the
+        //system properties
+        String scHomeDirLocation
+            = getSystemProperty(ConfigurationService
+                    .PNAME_SC_HOME_DIR_LOCATION);
+
+        if (scHomeDirLocation == null)
+        {
+            scHomeDirLocation = getSystemProperty("user.home");
+        }
+
+        return scHomeDirLocation;
+    }
+
+    /**
+     * Returns the value of the specified java system property. In case the
+     * value was a zero length String or one that only contained whitespaces,
+     * null is returned. This method is for internal use only. Users of the
+     * configuration service are to use the getProperty() or getString() methods
+     * which would automatically determine whether a property is system or not.
+     * @param propertyName the name of the property whose value we need.
+     * @return the value of the property with name propertyName or null if
+     * the value had length 0 or only contained spaces tabs or new lines.
+     */
+    private static String getSystemProperty(String propertyName)
+    {
+        String retval = System.getProperty(propertyName);
+        if (retval == null){
+            return retval;
+        }
+
+        if (retval.trim().length() == 0){
+            return null;
+        }
+        return retval;
+    }
     /**
      * Checks if a file exists and if it is writable or readable. If not -
      * checks if the user has a write privileges to the containing directory.

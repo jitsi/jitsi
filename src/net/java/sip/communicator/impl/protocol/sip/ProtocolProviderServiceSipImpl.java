@@ -556,9 +556,15 @@ public class ProtocolProviderServiceSipImpl
                 + SipActivator.getConfigurationService().getScHomeDirName()
                 + System.getProperty("file.separator");
 
-            NSPVALUE_DEBUG_LOG = logDir + NSPVALUE_DEBUG_LOG;
-            NSPVALUE_SERVER_LOG = logDir + NSPVALUE_SERVER_LOG;
-
+            // don't do it more than one time if many provider are initialised
+            if (!NSPVALUE_DEBUG_LOG.startsWith(logDir)) {
+                NSPVALUE_DEBUG_LOG = logDir + NSPVALUE_DEBUG_LOG;
+            }
+            
+            if (!NSPVALUE_SERVER_LOG.startsWith(logDir)) {
+                NSPVALUE_SERVER_LOG = logDir + NSPVALUE_SERVER_LOG;
+            }
+            
             this.accountID = accountID;
 
             sipFactory = SipFactory.getInstance();

@@ -1,5 +1,5 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+u * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
@@ -205,6 +205,7 @@ public class OperationSetPresenceSipImpl
     private static final String BASIC_ELEMENT   = "basic";
     private static final String CONTACT_ELEMENT = "contact";
     private static final String NOTE_ELEMENT    = "note";
+    private static final String PRIORITY_ATTRIBUTE  = "priority";
 
     // rpid elements and attributes
     private static final String RPID_NS_ELEMENT = "xmlns:rpid";
@@ -592,15 +593,19 @@ public class OperationSetPresenceSipImpl
 
         // now inform our distant presence agent if we have one
         if (this.useDistantPA) {
-            Request req = createPublish(this.subscriptionDuration, true);
-
+            Request req = null;
             if (status.equals(SipStatusEnum.OFFLINE)) {
+                // unpublish our state
+                req = createPublish(0, false);
+                
                 // remember the callid to be sure that the publish arrived
                 // before unregister
                 synchronized (this.waitedCallIds) {
                     this.waitedCallIds.add(((CallIdHeader)
                         req.getHeader(CallIdHeader.NAME)).getCallId());
                 }
+            } else {
+                req = createPublish(this.subscriptionDuration, true);
             }
 
             ClientTransaction transac = null;
@@ -1963,6 +1968,14 @@ public class OperationSetPresenceSipImpl
                     logger.error("no Expires header in the response");
                     return;
                 }
+                
+                // if it's a response to an unpublish request (Expires: 0),
+                // invalidate the etag and don't schedule a republish
+                if (expires.getExpires() == 0)
+                {
+                    this.distantPAET = null;
+                    return;
+                }
 
                 // just to be sure to not have two refreshing task
                 if (this.republishTask != null) {
@@ -2020,7 +2033,40 @@ public class OperationSetPresenceSipImpl
                 ClientTransaction transac = null;
                 try {
                     transac = this.parentProvider
-                        .getDefaultJainSipProvider().getNewClientTransaction(req);
+                        .getDefaultJainSipProvider()
+                        .getNewClientTransaction(req);
+                } catch (TransactionUnavailableException e) {
+                    logger.error("can't create the client transaction", e);
+                    return;
+                }
+
+                try {
+                    transac.sendRequest();
+                } catch (SipException e) {
+                    logger.error("can't send the PUBLISH request", e);
+                    return;
+                }
+            
+            // CONDITIONAL REQUEST FAILED (412)
+            } else if (response.getStatusCode() == Response
+                                                .CONDITIONAL_REQUEST_FAILED)
+            {
+                // as recommanded in rfc3903#5, we start a totally new 
+                // publication
+                this.distantPAET = null;
+                Request req = null;
+                try {
+                    req = createPublish(this.subscriptionDuration, true);
+                } catch (OperationFailedException e) {
+                    logger.error("can't create the new publish request", e);
+                    return;
+                }
+
+                ClientTransaction transac = null;
+                try {
+                    transac = this.parentProvider
+                        .getDefaultJainSipProvider()
+                        .getNewClientTransaction(req);
                 } catch (TransactionUnavailableException e) {
                     logger.error("can't create the client transaction", e);
                     return;
@@ -3595,9 +3641,14 @@ public class OperationSetPresenceSipImpl
          // <presence>
          NodeList presList = doc.getElementsByTagNameNS(NS_VALUE,
                  PRESENCE_ELEMENT);
+         
          if (presList.getLength() == 0) {
-             logger.error("no presence element in this document");
-             return;
+             presList = doc.getElementsByTagNameNS(ANY_NS, PRESENCE_ELEMENT);
+             
+             if (presList.getLength() == 0) {
+                 logger.error("no presence element in this document");
+                 return;
+             }
          }
          if (presList.getLength() > 1) {
              logger.warn("more than one presence element in this document");
@@ -3672,10 +3723,14 @@ public class OperationSetPresenceSipImpl
                  }
              }
          }
+         
+         // Vector containing the list of status to set for each contact in
+         // the presence document ordered by priority (highest first).
+         // <SipContact, Float (priority), SipStatusEnum>
+         Vector newPresenceStates = new Vector(3, 2);
 
          // <tuple>
-         NodeList tupleList = presence.getElementsByTagNameNS(NS_VALUE,
-                 TUPLE_ELEMENT);
+         NodeList tupleList = getPidfChilds(presence, TUPLE_ELEMENT); 
          for (int i = 0; i < tupleList.getLength(); i++) {
              Node tupleNode = tupleList.item(i);
 
@@ -3686,9 +3741,8 @@ public class OperationSetPresenceSipImpl
              Element tuple = (Element) tupleNode;
 
              // <contact>
-             NodeList contactList = tuple.getElementsByTagNameNS(NS_VALUE,
-                     CONTACT_ELEMENT);
-             
+             NodeList contactList = getPidfChilds(tuple, CONTACT_ELEMENT);
+
              // we use a vector here and not an unique contact to handle an
              // error case where many contacts are associated with a status
              // Vector<ContactSipImpl>
@@ -3700,11 +3754,14 @@ public class OperationSetPresenceSipImpl
                  contactID = XMLUtils.getAttribute(
                          presNode, ENTITY_ATTRIBUTE);
                  // also accept entity URIs starting with pres: instead of sip:
-                 if (contactID.startsWith("pres:"))
+                 if (contactID.startsWith("pres:")) {
                      contactID = contactID.substring("pres:".length());
+                 }
                  Contact tmpContact = resolveContactID(contactID);
+                 
                  if (tmpContact != null) {
-                     sipcontact.add(tmpContact);
+                     Object tab[] = {tmpContact, new Float(0f)};
+                     sipcontact.add(tab);
                  }
              }
              else
@@ -3720,9 +3777,74 @@ public class OperationSetPresenceSipImpl
                      Element contact = (Element) contactNode;
 
                      contactID = getTextContent(contact);
+                     // also accept entity URIs starting with pres: instead
+                     // of sip:
+                     if (contactID.startsWith("pres:")) {
+                         contactID = contactID.substring("pres:".length());
+                     }
                      Contact tmpContact = resolveContactID(contactID);
-                     if (tmpContact != null) {
-                         sipcontact.add(tmpContact);
+                     if (tmpContact == null) {
+                         continue;
+                     }
+                     
+                     // defines an array containing the contact and its
+                     // priority
+                     Object tab[] = new Object[2];
+                     
+                     // search if the contact has a priority
+                     String prioStr = contact.getAttribute(PRIORITY_ATTRIBUTE);
+                     Float prio = null;
+                     try {
+                         if (prioStr == null || prioStr.length() == 0) {
+                             prio = new Float(0f);
+                         } else {
+                             prio = Float.valueOf(prioStr);
+                         }
+                     } catch (NumberFormatException e) {
+                         logger.debug("contact priority is not a valid float",
+                                 e);
+                         prio = new Float(0f);
+                     }
+                     
+                     // 0 <= priority <= 1 according to rfc
+                     if (prio.floatValue() < 0) {
+                         prio = new Float(0f);
+                     }
+                     
+                     if (prio.floatValue() > 1) {
+                         prio = new Float(1f);
+                     }
+
+                     tab[0] = tmpContact;
+                     tab[1] = prio;
+                     
+                     // search if the contact hasn't already been added
+                     Iterator iter = sipcontact.iterator();
+                     boolean contactAlreadyListed = false;
+                     int k = 0;
+                     while (iter.hasNext()) {
+                         Object tmp[];
+                         tmp = ((Object[]) iter.next());
+                         
+                         if (((Contact) tmp[0]).equals(tmpContact)) {
+                             contactAlreadyListed = true;
+                             
+                             // take the highest priority
+                             if (((Float) tmp[1]).floatValue() < 
+                                     prio.floatValue())
+                             {
+                                 sipcontact.remove(k);
+                                 sipcontact.add(tab);
+                             }
+                             break;
+                         }
+                         
+                         k++;
+                     }
+                     
+                     // add the contact and its priority to the list
+                     if (!contactAlreadyListed) {
+                         sipcontact.add(tab);
                      }
                  }
              }
@@ -3734,18 +3856,15 @@ public class OperationSetPresenceSipImpl
              
              // if we use RPID, simply ignore the standard PIDF status
              if (personStatus != null) {
-                 for (int j = 0; j < sipcontact.size(); j++) {
-                     changePresenceStatusForContact(
-                             (ContactSipImpl) sipcontact.get(j),
-                             personStatus);
-                 }
+                 newPresenceStates = setStatusForContacts(personStatus,
+                         sipcontact,
+                         newPresenceStates);
                  continue;
              }
              
              // <status>
-             NodeList statusList = tuple.getElementsByTagNameNS(NS_VALUE,
-                     STATUS_ELEMENT);
-             
+             NodeList statusList = getPidfChilds(tuple, STATUS_ELEMENT); 
+
              // in case of many status, just consider the last one
              // this is normally not permitted by RFC3863
              int index = statusList.getLength() - 1;
@@ -3767,9 +3886,8 @@ public class OperationSetPresenceSipImpl
                  Element status = (Element) statusNode;
     
                  // <basic>
-                 NodeList basicList = status.getElementsByTagNameNS(NS_VALUE,
-                         BASIC_ELEMENT);
-    
+                 NodeList basicList = getPidfChilds(status, BASIC_ELEMENT); 
+
                  // in case of many basic, just consider the last one
                  // this is normally not permitted by RFC3863
                  index = basicList.getLength() - 1;
@@ -3793,8 +3911,7 @@ public class OperationSetPresenceSipImpl
              // search for a <note> that can define a more precise
              // status this is not recommended by RFC3863 but some im
              // clients use this.
-             NodeList noteList = tuple.getElementsByTagNameNS(NS_VALUE,
-                     NOTE_ELEMENT);
+             NodeList noteList = getPidfChilds(tuple, NOTE_ELEMENT); 
 
              boolean changed = false;
              for (int k = 0; k < noteList.getLength() && !changed; k++)
@@ -3815,11 +3932,9 @@ public class OperationSetPresenceSipImpl
 
                      if (current.getStatusName().equalsIgnoreCase(state)) {
                          changed = true;
-                         for (int j = 0; j < sipcontact.size(); j++) {
-                             changePresenceStatusForContact(
-                                     (ContactSipImpl) sipcontact.get(j),
-                                     current);
-                         }
+                         newPresenceStates = setStatusForContacts(current,
+                                 sipcontact,
+                                 newPresenceStates);
                          break;
                      }
                  }
@@ -3828,19 +3943,17 @@ public class OperationSetPresenceSipImpl
              if (changed == false && basic != null) {
                  if (getTextContent(basic).equalsIgnoreCase(ONLINE_STATUS))
                  {
-                     for (int j = 0; j < sipcontact.size(); j++) {
-                         changePresenceStatusForContact(
-                                 (ContactSipImpl) sipcontact.get(j),
-                                 SipStatusEnum.ONLINE);
-                     }
+                     newPresenceStates = setStatusForContacts(
+                             SipStatusEnum.ONLINE,
+                             sipcontact,
+                             newPresenceStates);
                  } else if (getTextContent(basic).equalsIgnoreCase(
                          OFFLINE_STATUS))
                  {
-                     for (int j = 0; j < sipcontact.size(); j++) {
-                         changePresenceStatusForContact(
-                                 (ContactSipImpl) sipcontact.get(j),
-                                 SipStatusEnum.OFFLINE);
-                     }
+                     newPresenceStates = setStatusForContacts(
+                             SipStatusEnum.OFFLINE,
+                             sipcontact,
+                             newPresenceStates);
                  }
              } else {
                  if (changed == false) {
@@ -3850,6 +3963,16 @@ public class OperationSetPresenceSipImpl
              }
          } // for each <tuple>
          
+         // Now really set the new presence status for the listed contacts
+         // newPresenceStates is ordered so priority order is respected
+         Iterator iter = newPresenceStates.iterator();
+         while (iter.hasNext()) {
+             Object tab[] = (Object[]) iter.next();
+             ContactSipImpl contact = (ContactSipImpl) tab[0];
+             SipStatusEnum status = (SipStatusEnum) tab[2];
+             
+             changePresenceStatusForContact(contact, status);
+         }
      }
 
      /**
@@ -3869,6 +3992,112 @@ public class OperationSetPresenceSipImpl
          }
 
          return res;
+     }
+     
+     /**
+      * Gets the list of the descendant of an element in the pidf namespace.
+      * If the list is empty, we try to get this list in any namespace.
+      * This method is usefull for being able to read pidf document without any
+      * namespace or with a wrong namespace.
+      * 
+      * @param element the base element concerned.
+      * @paran childName the name of the descendants to match on.
+      * 
+      * @return The list of all the descendant node.
+      */
+     private NodeList getPidfChilds(Element element, String childName) {
+         NodeList res;
+         
+         res = element.getElementsByTagNameNS(NS_VALUE, childName);
+         
+         if (res.getLength() == 0) {
+             res = element.getElementsByTagNameNS(ANY_NS, childName);
+         }
+         
+         return res;
+     }
+
+     /**
+      * Associate the provided presence state to the contacts considering the
+      * current presence states and priorities.
+      * 
+      * @param presenceState The presence state to associate to the contacts
+      * @param contacts A list of <contact, priority> concerned by the
+      *  presence status.
+      * @param curStatus The list of the current presence status ordered by
+      *  priority (highest priority first).
+      * 
+      * @return a Vector containing a list of <contact, priority, status>
+      *  ordered by priority (highest first). Null if a parameter is null.
+      */
+     private Vector setStatusForContacts(SipStatusEnum presenceState,
+             Vector contacts, Vector curStatus)
+     {
+         // test parameters
+         if (presenceState == null || contacts == null || curStatus == null) {
+             return null;
+         }
+         
+         // for each contact in the list
+         Iterator iter = contacts.iterator();
+         while (iter.hasNext()) {
+             Object tab[] = (Object[]) iter.next();
+             Contact contact = (Contact) tab[0];
+             float priority = ((Float) tab[1]).floatValue();
+
+             // for each existing contact
+             int pos = 0, i = 0;
+             boolean skip = false;
+             Iterator iter2 = curStatus.iterator();
+             while (iter2.hasNext()) {
+                 Object tab2[] = (Object[]) iter2.next();
+                 Contact curContact = (Contact) tab2[0];
+                 float curPriority = ((Float) tab2[1]).floatValue();
+
+                 // save the place where to add this contact in the list
+                 if (pos == 0 && curPriority <= priority) {
+                     pos = i;
+                 }
+                 
+                 if (curContact.equals(contact)) {
+                     // same contact but with an higher priority
+                     // simply ignore this new status affectation
+                     if (curPriority > priority) {
+                         skip = true;
+                         break;
+                     // same contact but with a lower priority
+                     // replace the old status with this one
+                     } else if (curPriority < priority) {
+                         curStatus.remove(i);
+                     // same contact and same priority
+                     // consider the reachability of the status
+                     } else {
+                         SipStatusEnum curPresence = (SipStatusEnum) tab2[2];
+                         if (curPresence.getStatus() >=
+                             presenceState.getStatus())
+                         {
+                             skip = true;
+                             break;
+                         }
+
+                         curStatus.remove(i);
+                     }
+                     
+                 }
+                 
+                 i++;
+             }
+             
+             if (skip) {
+                 continue;
+             }
+         
+             // insert the new entry
+             Object tabRes[] = {contact, new Float(priority), presenceState};  
+             curStatus.insertElementAt(tabRes, pos);
+         }
+         
+         return curStatus;
      }
 
      /**
