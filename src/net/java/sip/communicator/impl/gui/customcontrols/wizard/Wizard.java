@@ -411,15 +411,6 @@ public class Wizard
         if (oldPanelDescriptor != null)
             oldPanelDescriptor.pageHiding();
 
-        if (this.containsPage(WizardPage.DEFAULT_PAGE_IDENTIFIER))
-        {
-            this.unregisterWizardPage(WizardPage.DEFAULT_PAGE_IDENTIFIER);
-        }
-
-        if (this.containsPage(WizardPage.SUMMARY_PAGE_IDENTIFIER))
-        {
-            this.unregisterWizardPage(WizardPage.SUMMARY_PAGE_IDENTIFIER);
-        }
         this.removeWizzardIcon();
 
         if (code == CANCEL_RETURN_CODE)
