@@ -131,8 +131,8 @@ public class MainFrame
      */
     private void setInitialBounds()
     {
-    	this.setSize(200, 450);
-	    this.contactListPanel.setPreferredSize(new Dimension(300, 600));
+        this.setSize(200, 450);
+        this.contactListPanel.setPreferredSize(new Dimension(300, 600));
         this.contactListPanel.setMinimumSize(new Dimension(80, 200));
 
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
