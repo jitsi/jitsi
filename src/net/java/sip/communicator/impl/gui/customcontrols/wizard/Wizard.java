@@ -28,7 +28,9 @@ import net.java.sip.communicator.service.gui.*;
  */
 public class Wizard
     extends SIPCommDialog
-    implements WindowListener, WizardContainer, PropertyChangeListener
+    implements  WindowListener,
+                WizardContainer,
+                PropertyChangeListener
 {
     /**
      * The identifier of the summary wizard page.
@@ -128,7 +130,7 @@ public class Wizard
      */
     public Wizard(Dialog owner)
     {
-        super(owner);
+        super(owner, false);
 
         wizardModel = new WizardModel();
 
@@ -144,7 +146,7 @@ public class Wizard
      */
     public Wizard(Frame owner)
     {
-        super(owner);
+        super(owner, false);
 
         wizardModel = new WizardModel();
 
@@ -253,7 +255,6 @@ public class Wizard
      */
     public void setCurrentPage(Object id)
     {
-
         // Get the hashtable reference to the panel that should
         // be displayed. If the identifier passed in is null, then close
         // the dialog.
@@ -536,6 +537,7 @@ public class Wizard
                 .createTitledBorder("")));
 
         this.wizardIconLabel.setIcon(new ImageIcon(wizardIcon));
+        this.wizardIconPanel.removeAll();
         this.wizardIconPanel.add(wizardIconLabel);
     }
 
