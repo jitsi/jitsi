@@ -156,13 +156,11 @@ public class WizardModel {
         
         WizardPage nextPanel =
             (WizardPage)panelHashmap.get(id);
-        
-        
+
         //  If we couldn't find the panel that should be displayed, return
         //  false.
-        
         if (nextPanel == null)
-            throw new WizardPanelNotFoundException();   
+            throw new WizardPanelNotFoundException();
 
         WizardPage oldPanel = currentPanel;
         currentPanel = nextPanel;
@@ -170,8 +168,9 @@ public class WizardModel {
         if (oldPanel != currentPanel) {
             firePropertyChange(CURRENT_PAGE_PROPERTY,
                     oldPanel, currentPanel);
-        }        
-        return true;        
+        }
+
+        return true;
     }
     
     /**
