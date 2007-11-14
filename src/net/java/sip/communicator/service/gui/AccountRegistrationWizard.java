@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
  * <p>
  * Note that the <tt>AccountRegistrationWizard</tt> is NOT a real wizard, it
  * doesn't handle wizard events. Each UI Service implementation should provide
- * its own wizard ui control, which should manage all the events, panels and
+ * its own wizard UI control, which should manage all the events, panels and
  * buttons, etc.
  * <p>
  * It depends on the wizard implementation in the UI for whether or not a
@@ -79,7 +79,25 @@ public interface AccountRegistrationWizard {
      * wizard. 
      */
     public Iterator getPages();
-    
+
+    /**
+     * Returns the identifier of the first account registration wizard page.
+     * This method is meant to be used by the wizard container to determine,
+     * which is the first page to show to the user.
+     * 
+     * @return the identifier of the first account registration wizard page
+     */
+    public Object getFirstPageIdentifier();
+
+    /**
+     * Returns the identifier of the last account registration wizard page. This
+     * method is meant to be used by the wizard container to determine which is
+     * the page to show before the summary page (of course if there's a summary).
+     * 
+     * @return the identifier of the last account registration wizard page
+     */
+    public Object getLastPageIdentifier();
+
     /**
      * Returns a set of key-value pairs that will represent the summary for
      * this wizard.

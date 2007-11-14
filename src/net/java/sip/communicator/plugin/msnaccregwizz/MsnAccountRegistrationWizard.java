@@ -256,4 +256,23 @@ public class MsnAccountRegistrationWizard
     {
         return new Dimension(600, 500);
     }
+    
+    /**
+     * Returns the identifier of the page to show first in the wizard.
+     * @return the identifier of the page to show first in the wizard.
+     */
+    public Object getFirstPageIdentifier()
+    {
+        return firstWizardPage.getIdentifier();
+    }
+
+    /**
+     * Returns the identifier of the page to show last in the wizard.
+     * @return the identifier of the page to show last in the wizard.
+     */
+    public Object getLastPageIdentifier()
+    {
+        return firstWizardPage.getIdentifier();
+    }
+
 }

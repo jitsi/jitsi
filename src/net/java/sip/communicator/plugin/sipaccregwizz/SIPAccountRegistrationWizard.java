@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * The <tt>SIPAccountRegistrationWizard</tt> is an implementation of the
+ * The <tt>IPPIAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the SIP protocol. It should allow
  * the user to create and configure a new SIP account.
  *
@@ -43,7 +43,7 @@ public class SIPAccountRegistrationWizard
         = Logger.getLogger(SIPAccountRegistrationWizard.class);
 
     /**
-     * Creates an instance of <tt>SIPAccountRegistrationWizard</tt>.
+     * Creates an instance of <tt>IPPIAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
      * is added
      */
@@ -316,4 +316,23 @@ public class SIPAccountRegistrationWizard
     {
         return new Dimension(600, 500);
     }
+    
+    /**
+     * Returns the identifier of the page to show first in the wizard.
+     * @return the identifier of the page to show first in the wizard.
+     */
+    public Object getFirstPageIdentifier()
+    {
+        return firstWizardPage.getIdentifier();
+    }
+
+    /**
+     * Returns the identifier of the page to show last in the wizard.
+     * @return the identifier of the page to show last in the wizard.
+     */
+    public Object getLastPageIdentifier()
+    {
+        return firstWizardPage.getIdentifier();
+    }
+
 }
