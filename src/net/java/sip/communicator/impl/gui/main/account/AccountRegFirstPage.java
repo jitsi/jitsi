@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.io.*;
 import java.util.*;
+
 import javax.imageio.*;
 
 import java.awt.*;
@@ -39,7 +40,7 @@ public class AccountRegFirstPage extends JPanel
 {
     private Logger logger = Logger.getLogger(AccountRegFirstPage.class);
 
-    private String nextPageIdentifier;
+    private Object nextPageIdentifier;
 
     private ExtendedTableModel tableModel;
 
@@ -250,59 +251,27 @@ public class AccountRegFirstPage extends JPanel
      * the choosen wizard and register all the pages contained in this wizard
      * in our wizard container.
      */
-    public void pageNext() {
+    public void pageNext()
+    {
         AccountRegistrationWizard wizard
             = (AccountRegistrationWizard)tableModel
                 .getValueAt(accountRegsTable.getSelectedRow(), 0);
 
-        this.wizardContainer.setCurrentWizard(wizard);
-
         Iterator i = wizard.getPages();
-        boolean firstPage = true;
 
-        Object identifier = null;
-
-        while(i.hasNext()) {
+        while(i.hasNext())
+        {
             WizardPage page = (WizardPage)i.next();
 
-            identifier = page.getIdentifier();
+            nextPageIdentifier = page.getIdentifier();
 
-            if(firstPage) {
-                firstPage = false;
-
-                nextPageIdentifier = (String)identifier;
-            }
-
-            this.wizardContainer.registerWizardPage(identifier, page);
+            break;
         }
 
-        this.wizardContainer.getSummaryPage()
-            .setPreviousPageIdentifier(identifier);
-
-        try {
-            this.wizardContainer.setWizzardIcon(
-                ImageIO.read(new ByteArrayInputStream(wizard.getPageImage())));
-        }
-        catch (IOException e1) {
-            e1.printStackTrace();
-        }
+        this.wizardContainer.setCurrentWizard(wizard);
     }
 
     public void pageBack() {
-    }
-
-    /**
-     * Returns a list of all registered Account Registration Wizards.
-     * @return a list of all registered Account Registration Wizards
-     */
-    public Iterator getWizardsList() {
-        ArrayList wizardsList = new ArrayList();
-
-        for(int i = 0; i < tableModel.getRowCount(); i ++) {
-            wizardsList.add(tableModel.getValueAt(i, 0));
-        }
-
-        return wizardsList.iterator();
     }
 
     public void mouseClicked(MouseEvent e)

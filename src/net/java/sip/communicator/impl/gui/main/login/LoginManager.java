@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -40,12 +41,17 @@ public class LoginManager
     implements  ServiceListener,
                 RegistrationStateChangeListener
 {
-
     private Logger logger = Logger.getLogger(LoginManager.class.getName());
 
     private MainFrame mainFrame;
 
     private boolean manuallyDisconnected = false;
+
+    private static final String RESOURCE_NAME 
+        = "net.java.sip.communicator.impl.gui.main.login.login";
+
+    private static final ResourceBundle LOGIN_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(RESOURCE_NAME);
 
     /**
      * Creates an instance of the <tt>LoginManager</tt>, by specifying the main
@@ -183,21 +189,33 @@ public class LoginManager
      */
     private void showAccountRegistrationWizard()
     {
-        AccountRegWizardContainerImpl wizard
+        // We check in the login properties if there is a preferred account
+        // wizard to run, before running the default wizard. If such exists
+        // we return and when the requested wizard is added in the gui we will
+        // directly show it.
+        String preferredWizardName
+            = LOGIN_RESOURCE_BUNDLE.getString("preferredAccountWizard");
+
+        if (preferredWizardName != null && preferredWizardName.length() > 0)
+            return;
+
+        AccountRegWizardContainerImpl wizardContainer
             = (AccountRegWizardContainerImpl) GuiActivator.getUIService()
                 .getAccountRegWizardContainer();
 
+        // If no preferred wizard is specified we launch the default wizard.
         NoAccountFoundPage noAccountFoundPage = new NoAccountFoundPage();
 
-        wizard.registerWizardPage(noAccountFoundPage.getIdentifier(),
+        wizardContainer.registerWizardPage(
+            noAccountFoundPage.getIdentifier(),
             noAccountFoundPage);
 
-        wizard.setTitle(Messages.getI18NString("accountRegistrationWizard")
-            .getText());
+        wizardContainer.setCurrentPage(noAccountFoundPage.getIdentifier());
 
-        wizard.newAccount(noAccountFoundPage.getIdentifier());
+        wizardContainer.setTitle(
+            Messages.getI18NString("accountRegistrationWizard").getText());
 
-        wizard.showDialog(true);
+        wizardContainer.showDialog(true);
     }
 
     /**
