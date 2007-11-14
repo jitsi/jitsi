@@ -46,10 +46,10 @@ public class SIPCommTextFieldUI
     public SIPCommTextFieldUI()
     {
         deleteButtonImg
-            = ImageLoader.getImage(ImageLoader.CLOSE_TAB_ICON);
+            = ImageLoader.getImage(ImageLoader.DELETE_TEXT_ICON);
 
         deleteButtonRolloverImg
-            = ImageLoader.getImage(ImageLoader.CLOSE_ICON);
+            = ImageLoader.getImage(ImageLoader.DELETE_TEXT_ROLLOVER_ICON);
 
         deleteButton = new SIPCommButton(   deleteButtonImg,
                                             deleteButtonRolloverImg);
