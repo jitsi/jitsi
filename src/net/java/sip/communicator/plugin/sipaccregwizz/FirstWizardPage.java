@@ -449,15 +449,13 @@ public class FirstWizardPage
             (String) accountID.getAccountProperties().get(
                 ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
-        boolean enablePresence =
-            ((String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.IS_PRESENCE_ENABLED)).equals(Resources
-                .getString("yes"));
+        boolean enablePresence = new Boolean(
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.IS_PRESENCE_ENABLED)).booleanValue();
 
-        boolean forceP2P =
-            ((String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.FORCE_P2P_MODE)).equals(Resources
-                .getString("yes"));
+        boolean forceP2P = new Boolean(
+            (String) accountID.getAccountProperties().get(
+                ProtocolProviderFactory.FORCE_P2P_MODE)).booleanValue();
 
         String pollingPeriod =
             (String) accountID.getAccountProperties().get(
