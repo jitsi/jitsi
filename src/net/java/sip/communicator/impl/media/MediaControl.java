@@ -496,16 +496,19 @@ public class MediaControl
                     , ex);
             }
 
-            //Changing buffer size. The default buffer size (for javasound)
-            //is 125 milliseconds - 1/8 sec. On MacOS this leeds to exception and
+            // 1. Changing buffer size. The default buffer size (for javasound)
+            // is 125 milliseconds - 1/8 sec. On MacOS this leeds to exception and
             // no audio capture. 30 value of buffer fix the problem and is ok
             // when using some pstn gateways
+            // 2. Changing to 60. When it is 30 there are some issues 
+            // with asterisk and nat(we don't start to send stream and so
+            // asterisk rtp part doesn't notice that we are behind nat)
             Control ctl = (Control)
                 dataSource.getControl("javax.media.control.BufferControl");
 
             if(ctl != null)
             {
-                ((BufferControl)ctl).setBufferLength(30);//buffers in
+                ((BufferControl)ctl).setBufferLength(60);//buffers in
             }
 
             sourceProcessor = Manager.createProcessor(dataSource);
@@ -1128,9 +1131,11 @@ public class MediaControl
         // formats available when the supported encodings arrays are generated 
         // in initProcessor(). In other JMF implementations this might not be 
         // needed, but should do no harm.
-        RTPManager rtpManager = RTPManager.newInstance();
-        CallSessionImpl.registerCustomCodecFormats(rtpManager);
-        rtpManager.dispose();
+        
+        //Commented as it fails to load alaw codec
+//        RTPManager rtpManager = RTPManager.newInstance();
+//        CallSessionImpl.registerCustomCodecFormats(rtpManager);
+//        rtpManager.dispose();
     }
 
 
