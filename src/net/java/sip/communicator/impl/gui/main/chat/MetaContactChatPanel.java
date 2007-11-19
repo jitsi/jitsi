@@ -81,6 +81,18 @@ public class MetaContactChatPanel
         chatWindow.getMainFrame().getContactList()
             .addMetaContactListListener(this);
         
+        //Detect contact properties changes (photo) and updates them
+        Iterator iter = metaContact.getContacts(); 
+        while (iter.hasNext()) 
+        { 
+            Contact contact = (Contact)iter.next(); 
+            OperationSetPresence opsPresence =  
+                (OperationSetPresence)contact.getProtocolProvider(). 
+                    getOperationSet(OperationSetPresence.class); 
+            if(opsPresence != null) 
+                opsPresence.addSubsciptionListener(this); 
+        }
+        
         //Initializes the "send via" selector box and adds it to the send panel
         contactSelectorBox = new ProtocolContactSelectorBox(
             this, metaContact, protocolContact);
