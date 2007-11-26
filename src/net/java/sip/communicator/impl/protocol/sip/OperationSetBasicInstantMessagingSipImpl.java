@@ -452,7 +452,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 viaHeaders,
                 maxForwards,
                 contTypeHeader,
-                message.getContent().getBytes());
+                message.getRawData());
         }
         catch (ParseException ex)
         {

@@ -6,7 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.io.*;
+import java.nio.charset.*;
+
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A simple implementation of the <tt>Message</tt> interface for SIP/SIMPLE.
@@ -16,10 +20,17 @@ import net.java.sip.communicator.service.protocol.*;
 public class MessageSipImpl
     implements Message
 {
+    private static final Logger logger = Logger.getLogger(MessageSipImpl.class);
+	
     /**
      * The content of this message.
      */
     private String textContent = null;
+    
+    /**
+     * The content of this message, in raw bytes according to the encoding.
+     */
+    private byte[] rawContent = null;
 
     /**
      * The content type of text. Right now only text/plain is supported.
@@ -60,9 +71,21 @@ public class MessageSipImpl
         this.contentType = contentType;
         this.contentEncoding = contentEncoding;
         this.subject = subject;
-
+        
+        try
+        {
+            this.rawContent = content.getBytes(contentEncoding);
+        }
+        catch (UnsupportedEncodingException ex)
+        {
+        	logger.warn("can't handle the requested encoding", ex);
+        	
+            this.contentEncoding = Charset.defaultCharset().name();
+            this.rawContent = content.getBytes();
+        }
+        
         //generate the uid
-        this.messageUID = String.valueOf( System.currentTimeMillis())
+        this.messageUID = String.valueOf(System.currentTimeMillis())
                           + String.valueOf(hashCode());
 
     }
@@ -117,7 +140,7 @@ public class MessageSipImpl
      */
     public byte[] getRawData()
     {
-        return getContent().getBytes();
+        return rawContent;
     }
 
     /**
@@ -128,7 +151,7 @@ public class MessageSipImpl
      */
     public int getSize()
     {
-        return getContent().length();
+        return rawContent.length;
     }
 
     /**
