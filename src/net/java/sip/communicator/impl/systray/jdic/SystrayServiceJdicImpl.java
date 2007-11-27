@@ -84,6 +84,8 @@ public class SystrayServiceJdicImpl
     private ImageIcon logoIconWhite;
     private ImageIcon envelopeIcon;
     private ImageIcon envelopeIconWhite;
+    
+    private boolean initialized = false;
 
     /**
      * Creates an instance of <tt>Systray</tt>.
@@ -238,6 +240,8 @@ public class SystrayServiceJdicImpl
         });
 
         systray.addTrayIcon(trayIcon);
+        
+        initialized = true;
     }
 
     /**
@@ -315,6 +319,9 @@ public class SystrayServiceJdicImpl
                                     String messageContent,
                                     int messageType)
     {
+        if(!checkInitialized())
+            return;
+        
         int trayMsgType = TrayIcon.NONE_MESSAGE_TYPE;
 
         if (messageType == SystrayService.ERROR_MESSAGE_TYPE)
@@ -391,6 +398,9 @@ public class SystrayServiceJdicImpl
      */
     public void setSystrayIcon(int imageType)
     {
+        if(!checkInitialized())
+            return;
+        
         String osName = System.getProperty("os.name");
 
         if (imageType == SystrayService.SC_IMG_TYPE)
@@ -419,6 +429,17 @@ public class SystrayServiceJdicImpl
                 this.currentIcon = envelopeIcon;
             }
         }
+    }
+    
+    private boolean checkInitialized()
+    {
+        if(!initialized)
+        {
+            logger.error("Systray not init");
+            return false;
+        }
+        else
+            return true;
     }
 
     /**

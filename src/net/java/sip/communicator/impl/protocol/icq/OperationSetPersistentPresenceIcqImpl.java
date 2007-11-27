@@ -26,8 +26,10 @@ import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.*;
 import net.kano.joustsim.oscar.oscar.service.bos.*;
 import net.kano.joustsim.oscar.oscar.service.buddy.*;
+import net.kano.joustsim.oscar.oscar.service.info.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import net.kano.joustsim.oscar.oscar.service.icon.*;
+import net.kano.joustsim.trust.*;
 
 
 /**
@@ -738,7 +740,12 @@ public class OperationSetPersistentPresenceIcqImpl
             logger.debug("Will set status: " + status + " long=" + icqStatus);
 
             bosService.getOscarConnection().sendSnac(new SetExtraInfoCmd(icqStatus));
-            bosService.setStatusMessage(statusMessage);
+
+            if(status.equals(IcqStatusEnum.AWAY))
+                icqProvider.getAimConnection().getInfoService().
+                    setAwayMessage(statusMessage);
+            else
+                bosService.setStatusMessage(statusMessage);
         }
 
         //so that everyone sees the change.
@@ -866,7 +873,7 @@ public class OperationSetPersistentPresenceIcqImpl
         
         ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
             ssContactList.findContactGroup(
-                ssContactList.awaitingAuthorizationGroupName);
+                ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
         
         if(newParent.equals(theAwaitingAuthorizationGroup))
                 throw new IllegalArgumentException(
@@ -1390,6 +1397,9 @@ public class OperationSetPersistentPresenceIcqImpl
                     getIconServiceArbiter().addIconRequestListener(
                         new IconUpdateListener());
                 
+                icqProvider.getAimConnection().getInfoService().
+                    addInfoListener(new AwayMessageListener());
+                
                 if(icqProvider.USING_ICQ)
                 {
                     opSetExtendedAuthorizations = 
@@ -1625,10 +1635,6 @@ public class OperationSetPersistentPresenceIcqImpl
             ContactGroupIcqImpl parent
                 = ssContactList.findContactGroup(sourceContact);
 
-            logger.debug("Will Dispatch the contact status event.");
-            fireContactPresenceStatusChangeEvent(sourceContact, parent,
-                                                 oldStatus, newStatus);
-
             List extraInfoBlocks = info.getExtraInfoBlocks();
             if(extraInfoBlocks != null){
                 for (int i = 0; i < extraInfoBlocks.size(); i++)
@@ -1640,9 +1646,14 @@ public class OperationSetPersistentPresenceIcqImpl
                         String status = ExtraInfoData.readAvailableMessage(
                             block.getExtraData());
                         logger.info("Status Message is: " + status + ".");
+                        sourceContact.setStatusMessage(status);
                     }
                 }
             }
+            
+            logger.debug("Will Dispatch the contact status event.");
+            fireContactPresenceStatusChangeEvent(sourceContact, parent,
+                                                 oldStatus, newStatus);
         }
 
         /**
@@ -1689,10 +1700,21 @@ public class OperationSetPersistentPresenceIcqImpl
         public void receivedStatusUpdate(BuddyInfoManager manager,
                                          Screenname buddy, BuddyInfo info)
         {
+            String statusMessage = info.getStatusMessage();
             logger.debug("buddy=" + buddy);
             logger.debug("info.getAwayMessage()=" + info.getAwayMessage());
             logger.debug("info.getOnlineSince()=" + info.getOnlineSince());
-            logger.debug("info.getStatusMessage()=" + info.getStatusMessage());
+            logger.debug("info.getStatusMessage()=" + statusMessage);
+            
+            ContactIcqImpl sourceContact
+                = ssContactList.findContactByScreenName(buddy.getFormatted());
+            
+            if(sourceContact != null)
+            {
+                if(statusMessage != null)
+                    sourceContact.setStatusMessage(statusMessage);
+            }
+            
         }
 
     }
@@ -1777,15 +1799,17 @@ public class OperationSetPersistentPresenceIcqImpl
                     ((VolatileBuddy)buddy).setAwaitingAuthorization(true);
                 
                  ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
-                     ssContactList.findContactGroup(ssContactList.awaitingAuthorizationGroupName);   
+                     ssContactList.findContactGroup(
+                        ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);   
                  
                  
                 if(theAwaitingAuthorizationGroup == null)
                 {
                     List emptyBuddies = new LinkedList();
                     theAwaitingAuthorizationGroup = new ContactGroupIcqImpl(
-                        new VolatileGroup(ssContactList.awaitingAuthorizationGroupName), 
-                        emptyBuddies, ssContactList, false);
+                        new VolatileGroup(
+                            ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName), 
+                            emptyBuddies, ssContactList, false);
 
                     ((RootContactGroupIcqImpl)ssContactList.getRootGroup()).
                         addSubGroup(theAwaitingAuthorizationGroup);
@@ -1801,7 +1825,7 @@ public class OperationSetPersistentPresenceIcqImpl
                  Object lock = new Object();
                  synchronized(lock){
                      try{ lock.wait(500); }catch(Exception e){}
-                 };
+                 }
                  
                  fireSubscriptionMovedEvent(srcContact, 
                      parent, theAwaitingAuthorizationGroup);
@@ -1876,7 +1900,7 @@ public class OperationSetPersistentPresenceIcqImpl
             
             ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
                 ssContactList.findContactGroup(
-                    ssContactList.awaitingAuthorizationGroupName);
+                    ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
             
             if(theAwaitingAuthorizationGroup == null)
                 return;
@@ -1919,5 +1943,32 @@ public class OperationSetPersistentPresenceIcqImpl
                 }   
             }           
         }
+    }
+
+    /**
+     * Notifies for changes in away message
+     */
+    private class AwayMessageListener
+        implements InfoServiceListener
+    {
+        public void handleAwayMessage(
+            InfoService service, Screenname buddy, String awayMessage)
+        {
+            ContactIcqImpl sourceContact
+                = ssContactList.findContactByScreenName(buddy.getFormatted());
+            
+            if(sourceContact != null)
+            {
+                sourceContact.setStatusMessage(awayMessage);
+            }
+        }
+        public void handleUserProfile(InfoService service, Screenname buddy,
+            String userInfo){}
+        public void handleCertificateInfo(InfoService service, Screenname buddy,
+            BuddyCertificateInfo certInfo){}
+        public void handleInvalidCertificates(InfoService service, Screenname buddy,
+            CertificateInfo origCertInfo, Throwable ex){}
+        public void handleDirectoryInfo(InfoService service, Screenname buddy,
+            DirInfo dirInfo){}
     }
 }

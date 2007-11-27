@@ -31,6 +31,8 @@ public class ContactYahooImpl
     
     private String yahooID = null;
     private String id = null;
+    
+    private String statusMessage = null;
 
     /**
      * Creates an YahooContactImpl with custom yahooID
@@ -152,7 +154,7 @@ public class ContactYahooImpl
         {
             logger.warn("Error requesting image!", e);
         }
-        
+logger.info("returning picture " + image);
         return image;
     }
     
@@ -163,6 +165,7 @@ public class ContactYahooImpl
      */
     protected void setImage(byte[] image)
     {
+logger.info("setting image " + image);        
         this.image = image;
     }
 
@@ -348,5 +351,24 @@ public class ContactYahooImpl
     YahooUser getSourceContact()
     {
         return contact;
+    }
+
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return the current status message
+     */
+    public String getStatusMessage()
+    {
+        return statusMessage;
+    }
+    
+    /**
+     * Sets the current status message for this contact
+     * @param statusMessage the message
+     */
+    protected void setStatusMessage(String statusMessage)
+    {
+        this.statusMessage = statusMessage;
     }
 }

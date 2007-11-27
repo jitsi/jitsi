@@ -143,12 +143,15 @@ public class ContactListCellRenderer extends JPanel
                 
                 String contactDisplayName = protocolContact.getDisplayName();
                 String contactAddress = protocolContact.getAddress();
+                String statusMessage = protocolContact.getStatusMessage();
                 toolTipText
                     += "<br>"
                         + ((!contactDisplayName
                                 .equals(contactAddress))
                             ? contactDisplayName + " ("+contactAddress + ")"
-                                    : contactDisplayName);
+                                    : contactDisplayName)
+                        + ((statusMessage != null && statusMessage.length() > 0) 
+                            ? " - " + statusMessage : "");
             }
             this.buttonsPanel.setPreferredSize(
                     new Dimension(buttonsPanelWidth, 16));

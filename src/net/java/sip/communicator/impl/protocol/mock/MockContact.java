@@ -235,4 +235,14 @@ public class MockContact
 
         return this.getAddress().equals(mockContact.getAddress());
     }
+    
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return null as the protocol has currently no support of status messages
+     */
+    public String getStatusMessage()
+    {
+        return null;
+    }
 }

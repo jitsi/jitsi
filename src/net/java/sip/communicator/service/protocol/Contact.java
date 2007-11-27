@@ -110,4 +110,11 @@ public interface Contact
      * establishing network connectivity or null if no such data is required.
      */
     public String getPersistentData();
+    
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return the current status message
+     */
+    public String getStatusMessage();
 }

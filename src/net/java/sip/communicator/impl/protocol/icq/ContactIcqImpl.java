@@ -23,6 +23,7 @@ public class ContactIcqImpl
     private boolean isResolved = false;
 
     private String nickName = null;
+    private String statusMessage = null;
 
     /**
      * Creates an IcqContactImpl
@@ -338,5 +339,24 @@ public class ContactIcqImpl
     protected void setImage(byte[] image)
     {
         this.image = image;
+    }
+
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return the current status message
+     */    
+    public String getStatusMessage()
+    {
+        return statusMessage;
+    }
+    
+    /**
+     * Sets the current status message for this contact
+     * @param statusMessage the message
+     */
+    protected void setStatusMessage(String statusMessage)
+    {
+        this.statusMessage = statusMessage;
     }
 }

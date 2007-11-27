@@ -428,4 +428,14 @@ public class ContactSipImpl
         return (OperationSetPresenceSipImpl) parentProvider
             .getOperationSet(OperationSetPresence.class);
     }
+
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return null as the protocol has currently no support of status messages
+     */
+    public String getStatusMessage()
+    {
+        return null;
+    }
 }

@@ -1075,6 +1075,10 @@ public class OperationSetPersistentPresenceJabberImpl
                     logger.warn("No source contact found for id=" + userID);
                     return;
                 }
+                
+                // statuses maybe the same and only change in status message
+                sourceContact.setStatusMessage(presence.getStatus());
+                
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
 

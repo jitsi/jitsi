@@ -446,9 +446,22 @@ public class OperationSetPersistentPresenceYahooImpl
         
         try
         {
-            yahooProvider.getYahooSession().setStatus(
-                ((Long)scToYahooModesMappings.get(status)).longValue());
-
+            if(statusMessage != null)
+            {
+                boolean isAvailable = false;
+                
+                if(status.equals(YahooStatusEnum.AVAILABLE))
+                    isAvailable = true;
+                
+                // false - away
+                // true - available
+                yahooProvider.getYahooSession().
+                    setStatus(statusMessage, isAvailable);
+            }
+            else
+                yahooProvider.getYahooSession().setStatus(
+                    ((Long)scToYahooModesMappings.get(status)).longValue());
+            
             fireProviderPresenceStatusChangeEvent(currentStatus, status);
         }
         catch(IOException ex)
@@ -820,7 +833,7 @@ public class OperationSetPersistentPresenceYahooImpl
                     ssContactList.findContactById(user.getId());                
                 
                 if(sourceContact != null)
-                    handleContactStatusChange(sourceContact, user.getStatus());
+                    handleContactStatusChange(sourceContact, user);
             }
         }
     }
@@ -1084,17 +1097,20 @@ public class OperationSetPersistentPresenceYahooImpl
             else                    
                 return;
         }
-        
-        handleContactStatusChange(sourceContact, yFriend.getStatus());
+
+        handleContactStatusChange(sourceContact, yFriend);
     }
     
-    void handleContactStatusChange(ContactYahooImpl sourceContact, long newStat)
+    void handleContactStatusChange(ContactYahooImpl sourceContact, YahooUser yFriend)
     {
         PresenceStatus oldStatus
                 = sourceContact.getPresenceStatus();
 
-        PresenceStatus newStatus = yahooStatusToPresenceStatus(newStat);
+        PresenceStatus newStatus = yahooStatusToPresenceStatus(yFriend.getStatus());
 
+        // statuses maybe the same and only change in status message
+        sourceContact.setStatusMessage(yFriend.getCustomStatusMessage());
+        
         // when old and new status are the same do nothing - no change
         if(oldStatus.equals(newStatus))
         {
@@ -1145,8 +1161,7 @@ public class OperationSetPersistentPresenceYahooImpl
             if(!contact.isPersistent() || !contact.isResolved())
                 return;
             
-            handleContactStatusChange(contact, 
-                contact.getSourceContact().getStatus());
+            handleContactStatusChange(contact, contact.getSourceContact());
         }
 
         public void subscriptionFailed(SubscriptionEvent evt) {}

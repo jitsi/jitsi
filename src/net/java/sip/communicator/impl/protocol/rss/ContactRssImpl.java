@@ -539,4 +539,14 @@ public class ContactRssImpl
     {
         return rssFeedReader;
     }
+
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return null as the protocol has no support of status messages
+     */
+    public String getStatusMessage()
+    {
+        return null;
+    }
 }

@@ -30,6 +30,7 @@ public class ContactJabberImpl
     private boolean isResolved = false;
 
     private String tempId = null;
+    private String statusMessage = null;
 
     /**
      * Creates an JabberContactImpl
@@ -301,5 +302,24 @@ public class ContactJabberImpl
     RosterEntry getSourceEntry()
     {
         return rosterEntry;
+    }
+    
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return the current status message
+     */
+    public String getStatusMessage()
+    {
+        return statusMessage;
+    }
+
+    /**
+     * Sets the current status message for this contact
+     * @param statusMessage the message
+     */
+    protected void setStatusMessage(String statusMessage)
+    {
+        this.statusMessage = statusMessage;
     }
 }
