@@ -873,10 +873,11 @@
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
         bundle-plugin-extended-callhistory-search,
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
-        bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
+        bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,bundle-plugin-whiteboard,
         bundle-irc,bundle-plugin-ircaccregwizz,
         bundle-pluginmanager,bundle-notification,
-    	bundle-ssh,bundle-plugin-sshaccregwizz"/>
+        bundle-ssh,bundle-plugin-sshaccregwizz,
+    	bundle-plugin-exampleplugin"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1733,4 +1734,15 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/notification"/>
         </jar>
     </target>
+
+
+    <!-- BUNDLE-PLUGIN-WHITEBOARD -->
+    <target name="bundle-plugin-whiteboard">
+    <!-- Creates a bundle for the Whiteboard plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/whiteboard.jar"
+           manifest="src/net/java/sip/communicator/plugin/whiteboard/whiteboard.manifest.mf">
+           <zipfileset dir="${dest}/net/java/sip/communicator/plugin/whiteboard"
+               prefix="net/java/sip/communicator/plugin/whiteboard"/>
+       </jar>
+   </target>
 </project>
