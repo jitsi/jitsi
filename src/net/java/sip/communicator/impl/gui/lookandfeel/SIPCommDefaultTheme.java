@@ -111,6 +111,8 @@ public class SIPCommDefaultTheme
 
             "RadioButtonMenuItem.gradient", buttonGradient,
 
+            "Spinner.arrowButtonBorder", SIPCommBorders.getTextFieldBorder(),
+
             "Slider.altTrackColor", new ColorUIResource(0xD2E2EF),
             "Slider.gradient", sliderGradient,
             "Slider.focusGradient", sliderGradient,
@@ -118,7 +120,7 @@ public class SIPCommDefaultTheme
             "SplitPane.oneTouchButtonsOpaque", Boolean.FALSE,
             "SplitPane.dividerFocusColor", LIGHT_BLUE_GRAY,
             "SplitPane.dividerSize", new Integer(5),
-            
+
             "ScrollBar.width", new Integer(12),
             "ScrollBar.horizontalThumbIcon",
                 ImageLoader.getImage(
@@ -135,7 +137,7 @@ public class SIPCommDefaultTheme
             "ScrollBar.trackHighlight", GRAY,
             "ScrollBar.highlight", LIGHT_GRAY,
             "ScrollBar.darkShadow", GRAY,
-            
+
             "TabbedPane.borderHightlightColor", LIGHT_BLUE,
             "TabbedPane.contentBorderInsets", new Insets(2, 2, 3, 3),
             "TabbedPane.selected", LIGHT_GRAY,
@@ -144,13 +146,13 @@ public class SIPCommDefaultTheme
 
             "TextField.border", textFieldBorder,
             "TextField.margin", new InsetsUIResource(3, 3, 3, 3),
-            
+
             "PasswordField.border", textFieldBorder,
             "PasswordField.margin", new InsetsUIResource(3, 3, 3, 3),
-            
+
             "FormattedTextField.border", textFieldBorder,
             "FormattedTextField.margin", new InsetsUIResource(3, 3, 3, 3),
-            
+
             "Table.gridColor", LIGHT_BLUE_GRAY,
             "Table.background", getDesktopColor(),
 
@@ -159,11 +161,11 @@ public class SIPCommDefaultTheme
             "ToolBar.isRollover", Boolean.TRUE,
             "ToolBar.separatorColor", Constants.LIGHT_GRAY_COLOR,
             "ToolBar.separatorSize", new DimensionUIResource(8, 22),
-            
+
             "ToolTip.background", LIGHT_GRAY,
             "ToolTip.backgroundInactive", LIGHT_GRAY,
             "ToolTip.hideAccelerator", Boolean.FALSE,
-            
+
             "TitledBorder.border", SIPCommBorders.getBoldRoundBorder()
         };
         table.putDefaults(defaults);

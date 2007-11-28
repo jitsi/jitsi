@@ -27,11 +27,11 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
         return true;
     }
 
-    public String getDescription() {        
+    public String getDescription() {
         return "The SIP-Communicator look and feel.";
     }
 
-    public String getID() {        
+    public String getID() {
         return "SIPCommunicator";
     }
 
@@ -66,7 +66,8 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
                 "TextPaneUI", lfPackageName + "SIPCommTextPaneUI",
                 "CheckBoxUI", lfPackageName + "SIPCommCheckBoxUI",
                 "ListUI", lfPackageName + "SIPCommListUI",
-                "PopupMenuUI", lfPackageName + "SIPCommPopupMenuUI"                
+                "PopupMenuUI", lfPackageName + "SIPCommPopupMenuUI",
+                "SpinnerUI", lfPackageName + "SIPCommSpinnerUI"
         };
         table.putDefaults(uiDefaults);
     }
