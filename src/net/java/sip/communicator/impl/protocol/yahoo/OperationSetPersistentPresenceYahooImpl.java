@@ -458,9 +458,9 @@ public class OperationSetPersistentPresenceYahooImpl
                 yahooProvider.getYahooSession().
                     setStatus(statusMessage, isAvailable);
             }
-            else
-                yahooProvider.getYahooSession().setStatus(
-                    ((Long)scToYahooModesMappings.get(status)).longValue());
+            
+            yahooProvider.getYahooSession().setStatus(
+                ((Long)scToYahooModesMappings.get(status)).longValue());
             
             fireProviderPresenceStatusChangeEvent(currentStatus, status);
         }
