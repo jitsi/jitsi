@@ -562,6 +562,12 @@ public class ProtocolProviderServiceJabberImpl
             // knows
             // supportedFeatures.add(_IM_);
 
+            //initialize the Whiteboard operation set
+            OperationSetWhiteboardingJabberImpl whiteboard =
+                new OperationSetWhiteboardingJabberImpl (this);
+
+            supportedOperationSets.put (
+                OperationSetWhiteboarding.class.getName(), whiteboard);
 
             //initialize the typing notifications operation set
             OperationSetTypingNotifications typingNotifications =
@@ -571,7 +577,6 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
             supportedFeatures.add("http://jabber.org/protocol/chatstates");
-
 
             //initialize the multi user chat operation set
             OperationSetMultiUserChat multiUserChat =
