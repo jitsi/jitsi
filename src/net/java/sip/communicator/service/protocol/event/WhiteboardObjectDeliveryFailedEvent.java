@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
  * <tt>WhiteboardObjectDeliveredEvent</tt>s are used to report that delivery of
@@ -76,17 +77,17 @@ public class WhiteboardObjectDeliveryFailedEvent
      *
      * @param source the <tt>WhiteboardSession</tt> where the failure has
      * occcurred.
-     * @param obj the <tt>WhiteboardObject</tt> the whiteboard object.
+     * @param obj the <tt>WhiteboardObject</tt> the white-board object.
      * @param to the <tt>Contact</tt> that this WhiteboardObject was sent to.
      * @param errorCode an errorCode indicating the reason for the failure.
-     * @param timestamp the exacte Date when it was determined that delivery
+     * @param timestamp the exact Date when it was determined that delivery
      * had failed.
      */
-    public WhiteboardObjectDeliveryFailedEvent(WhiteboardSession source,
-            WhiteboardObject obj,
-            Contact to,
-            int errorCode,
-            Date timestamp )
+    public WhiteboardObjectDeliveryFailedEvent( WhiteboardSession source,
+                                                WhiteboardObject obj,
+                                                Contact to,
+                                                int errorCode,
+                                                Date timestamp )
     {
         super(source);
         this.obj = obj;
@@ -100,7 +101,7 @@ public class WhiteboardObjectDeliveryFailedEvent
      * <tt>WhiteboardObject</tt> was sent to.
      *
      * @return a reference to the <tt>Contact</tt> that the source failed
-     * <tt>WhiteboardObject</tt> wwas sent to.
+     * <tt>WhiteboardObject</tt> was sent to.
      */
     public Contact getDestinationContact()
     {
@@ -108,11 +109,11 @@ public class WhiteboardObjectDeliveryFailedEvent
     }
 
     /**
-     * Returns an error code descibing the reason for the failure of the
-     * whiteboard object delivery.
+     * Returns an error code describing the reason for the failure of the
+     * white-board object delivery.
      *
-     * @return an error code descibing the reason for the failure of the
-     * whiteboard object delivery.
+     * @return an error code describing the reason for the failure of the
+     * white-board object delivery.
      */
     public int getErrorCode()
     {
@@ -122,8 +123,8 @@ public class WhiteboardObjectDeliveryFailedEvent
 
     /**
      * A timestamp indicating the exact date when the event ocurred (in this
-     * case it is the moment when it was determined
-     * that whiteboardObject delivery has failed).
+     * case it is the moment when it was determined that whiteboardObject
+     * delivery has failed).
      *
      * @return a Date indicating when the event ocurred.
      */

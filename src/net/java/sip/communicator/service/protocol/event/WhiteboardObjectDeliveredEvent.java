@@ -9,16 +9,18 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
- * <tt>WhiteboardObjectDeliveredEvent</tt>s confirm successful delivery
+ * <tt>WhiteboardObjectDeliveredEvent</tt>s confirms successful delivery
  * of a WhiteboardObject.
  *
  * @author Julien Waechter
  * @author Emil Ivov
  */
 public class WhiteboardObjectDeliveredEvent
-        extends EventObject {
+        extends EventObject
+{
     /**
      * The contact that has sent this wbObject.
      */
@@ -46,10 +48,10 @@ public class WhiteboardObjectDeliveredEvent
      * @param timestamp a date indicating the exact moment when the event
      * ocurred
      */
-    public WhiteboardObjectDeliveredEvent(WhiteboardSession source,
-                                          WhiteboardObject obj,
-                                          Contact to,
-                                          Date timestamp)
+    public WhiteboardObjectDeliveredEvent ( WhiteboardSession source,
+                                            WhiteboardObject obj,
+                                            Contact to,
+                                            Date timestamp)
     {
         super(source);
         this.obj = obj;

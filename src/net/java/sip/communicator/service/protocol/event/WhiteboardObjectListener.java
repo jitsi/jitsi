@@ -11,7 +11,6 @@ import java.util.*;
 /**
  * A listener that would gather events notifying of WhiteboardObject
  * delivery status.
- * WhiteboardObject received
  *
  * @author Julien Waechter
  * @author Emil Ivov
@@ -26,6 +25,15 @@ public interface WhiteboardObjectListener
      * the newly received WhiteboardObject, its sender and other details.
      */
     public void whiteboardObjectReceived(WhiteboardObjectReceivedEvent evt);
+
+    /**
+     *Called when a deleted <tt>WhiteboardObject</tt> has been received.
+     *
+     * @param evt the <tt>WhiteboardObjectDeletedEvent</tt> containing
+     * the identification of the deleted WhiteboardObject, its sender and 
+     * other details.
+     */
+    public void whiteboardObjectDeleted (WhiteboardObjectDeletedEvent evt);
 
     /**
      * Called when a modified <tt>WhiteboardObject</tt> has been modified

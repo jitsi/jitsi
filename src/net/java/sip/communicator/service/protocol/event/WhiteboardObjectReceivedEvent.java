@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
  * <tt>WhiteboardObjectReceivedEvent</tt> indicates reception of a new
@@ -54,6 +55,18 @@ public class WhiteboardObjectReceivedEvent
         this.obj = obj;
         this.from = from;
         this.timestamp = timestamp;
+    }
+
+    /**
+     * Returns the source white-board session, to which the received object
+     * belongs.
+     * 
+     * @return the source white-board session, to which the received object
+     * belongs
+     */
+    public WhiteboardSession getSourceWhiteboardSession()
+    {
+        return (WhiteboardSession) getSource();
     }
 
     /**

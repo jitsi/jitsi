@@ -9,49 +9,51 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+import net.java.sip.communicator.service.protocol.whiteboardobjects.WhiteboardObject;
 
 /**
- * <tt>WhiteboardObjectModifiedEvent</tt>s indicate that a WhiteboardObject
- * has been modified remotely.
+ * <tt>WhiteboardObjectDeletedEvent</tt> indicates reception of a new
+ * <tt>WhiteboardObject</tt> in the corresponding whiteboard session.
  *
  * @author Julien Waechter
  * @author Emil Ivov
  */
-public class WhiteboardObjectModifiedEvent
+public class WhiteboardObjectDeletedEvent
   extends EventObject
 {
     /**
      * The contact that has sent this wbObject.
      */
     private Contact from = null;
-
+    
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
     private Date timestamp = null;
-
+    
     /**
-     * A reference to the whiteboard object that has been modified.
+     * A String that uniquely identifies this WhiteboardObject.
      */
-    private WhiteboardObject obj;
-
+    private String id;
+    
     /**
-     * Creates a <tt>WhiteboardObjectModifiedEvent</tt> representing
-     * reception of the modified <tt>source</tt> WhiteboardObject
+     * Creates a <tt>WhiteboardObjectReceivedEvent</tt>
+     * representing reception of the <tt>source</tt> WhiteboardObject
      * received from the specified <tt>from</tt> contact.
      *
+     *
+     *
      * @param source the <tt>WhiteboardSession</tt>
-     * @param obj the <tt>WhiteboardObject</tt> whose reception
+     * @param id the identification of the <tt>WhiteboardObject</tt> whose reception
      * this event represents.
      * @param from the <tt>Contact</tt> that has sent this WhiteboardObject.
      * @param timestamp the exact date when the event ocurred.
      */
-    public WhiteboardObjectModifiedEvent (WhiteboardSession source,
-      WhiteboardObject obj, Contact from, Date timestamp)
+    public WhiteboardObjectDeletedEvent (WhiteboardSession source,
+      String id, Contact from, Date timestamp)
     {
         super (source);
-        this.obj = obj;
+        this.id = id;
         this.from = from;
         this.timestamp = timestamp;
     }
@@ -79,20 +81,20 @@ public class WhiteboardObjectModifiedEvent
     {
         return from;
     }
-
+    
     /**
-     * Returns the WhiteboardObject that triggered this event
+     * Returns the identification of the deleted WhiteboardObject
+     * that triggered this event
      *
      * @return the <tt>WhiteboardObject</tt> that triggered this event.
      */
-    public WhiteboardObject getSourceWhiteboardObject ()
+    public String getId ()
     {
-        return obj;
+        return id;
     }
-
+    
     /**
      * A timestamp indicating the exact date when the event ocurred.
-     *
      * @return a Date indicating when the event ocurred.
      */
     public Date getTimestamp ()
