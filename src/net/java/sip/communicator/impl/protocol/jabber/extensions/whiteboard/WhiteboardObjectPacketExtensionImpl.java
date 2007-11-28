@@ -1,0 +1,285 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
+package net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard;
+
+import java.io.*;
+
+import javax.xml.parsers.*;
+
+import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.packet.*;
+import org.w3c.dom.*;
+
+/**
+ * WhiteboardObjectPacketExtensionImpl
+ *
+ * @author Julien Waechter
+ */
+public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
+{
+    private static final Logger logger =
+      Logger.getLogger (WhiteboardObjectPacketExtensionImpl.class);
+
+    /**
+     * The name of the XML element used for transport of white-board parameters.
+     */
+    public static final String ELEMENT_NAME = "x";
+
+    /**
+     * The names XMPP space that the white-board elements belong to.
+     */
+    public static final String NAMESPACE = "http://jabber.org/protocol/swb";
+
+    /**
+     * A type string constant indicating that the current object must be deleted.
+     */
+    public static final String ACTION_DELETE = "DELETE";
+
+    /**
+     * A type string constant indicating that the current object must be drawn.
+     */
+    public static final String ACTION_DRAW = "DRAW";
+
+    /**
+     * A type string constant indicating that the current object must be moved.
+     */
+    public static final String ACTION_MOVE = "MOVE";
+
+    /**
+     * The current WhiteboardObject to be sent.
+     */
+    private WhiteboardObjectJabberImpl whiteboardObject;
+
+    /**
+     * The current action associated with the WhiteboardObject.
+     */
+    private String action;
+
+    /**
+     *  The identifier of the WhiteboardObject to be treated
+     *  When we receive a delete message,
+     *   we've only the identifier of the WhiteboardObject
+     */
+    private String whiteboardObjectID;
+
+    /**
+     * Default WhiteboardObjectPacketExtensionImpl constructor.
+     */
+    public WhiteboardObjectPacketExtensionImpl ()
+    {
+        this.action = ACTION_DRAW;
+    }
+
+    /**
+     * WhiteboardObjectPacketExtensionImpl constructor.
+     *
+     * @param id Identifier of the WhiteboardObject to be treated
+     * @param action The current action associated with the WhiteboardObject.
+     */
+    public WhiteboardObjectPacketExtensionImpl (String id, String action)
+    {
+        this.whiteboardObjectID = id;
+        this.action = action;
+    }
+
+    /**
+     * Constructs and initializes a WhiteboardObjectPacketExtension.
+     *
+     * @param whiteboardObject The WhiteboardObject to be treated
+     * @param action The current action associated with the WhiteboardObject.
+     */
+    public WhiteboardObjectPacketExtensionImpl (
+      WhiteboardObjectJabberImpl whiteboardObject, String action)
+    {
+        this.whiteboardObject = whiteboardObject;
+        this.action = action;
+    }
+
+    /**
+     * WhiteboardObjectPacketExtensionImpl constructor with a XML-SVG String.
+     *
+     * @param xml XML-SVG String
+     */
+    public  WhiteboardObjectPacketExtensionImpl (String xml)
+    {
+        DocumentBuilderFactory factory =
+          DocumentBuilderFactory.newInstance ();
+        DocumentBuilder builder;
+        try
+        {
+            builder = factory.newDocumentBuilder ();
+            InputStream in = new ByteArrayInputStream (xml.getBytes ());
+            Document doc = builder.parse (in);
+            
+            Element e = doc.getDocumentElement ();
+            String elementName = e.getNodeName ();
+            this.action = WhiteboardObjectPacketExtensionImpl.ACTION_DRAW;
+            
+            if (elementName.equals ("rect"))
+            {
+                //we have a rectangle
+                whiteboardObject = new WhiteboardObjectRectJabberImpl (xml);
+            }
+            else if (elementName.equals ("circle"))
+            {
+                //we have a circle
+                whiteboardObject = new WhiteboardObjectCircleJabberImpl (xml);
+            }
+            else if (elementName.equals ("path"))
+            {
+                //we have a path
+                whiteboardObject = new WhiteboardObjectPathJabberImpl (xml);
+            }
+            else if (elementName.equals ("polyline"))
+            {
+                //we have polyline
+                whiteboardObject = new WhiteboardObjectPolyLineJabberImpl (xml);
+            }
+            else if (elementName.equals ("polygon"))
+            {
+                //we have a polygon
+                whiteboardObject = new WhiteboardObjectPolygonJabberImpl (xml);
+            }
+            else if (elementName.equals ("line"))
+            {
+                //we have a line
+                whiteboardObject = new WhiteboardObjectLineJabberImpl (xml);
+            }
+            else if (elementName.equals ("text"))
+            {
+                //we have a text
+                whiteboardObject = new WhiteboardObjectTextJabberImpl (xml);
+            }
+            else if (elementName.equals ("image"))
+            {
+                //we have an image
+                whiteboardObject = new WhiteboardObjectImageJabberImpl (xml);
+            }
+            else if (elementName.equals ("delete"))
+            {
+                //we have a delete action
+                this.setWhiteboardObjectID (e.getAttribute ("id"));
+                this.action = WhiteboardObjectPacketExtensionImpl.ACTION_DELETE;
+            }
+            else //we have a problem :p
+                logger.debug ("elementName unknow\n");
+            
+            System.out.println("XML =====================================" + xml);
+        }
+        catch (ParserConfigurationException ex)
+        {
+            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+        }
+        catch (IOException ex)
+        {
+            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+        }
+        catch (Exception ex)
+        {
+            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+        }
+        
+    }
+
+    /**
+     * Returns the root element name.
+     *
+     * @return the element name.
+     */
+    public String getElementName ()
+    {
+        return ELEMENT_NAME;
+    }
+
+    /**
+     * Returns the root element XML namespace.
+     *
+     * @return the namespace.
+     */
+    public String getNamespace ()
+    {
+        return NAMESPACE;
+    }
+
+    /**
+     * Returns the XML representation of the WhiteboardObject
+     *
+     * @return the WhiteboardObject as XML.
+     */
+    public String toXML ()
+    {
+        String s="";
+        if(getAction ().equals (
+          WhiteboardObjectPacketExtensionImpl.ACTION_DELETE))
+        {
+            s = "<delete id=\"#i\"/>";
+            s = s.replaceAll ("#i", getWhiteboardObjectID());
+        }
+        else
+            s = getWhiteboardObject ().toXML ();
+        
+        return "<" + WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME +
+          " xmlns=\"" + WhiteboardObjectPacketExtensionImpl.NAMESPACE +
+          "\">"+s+"</" + WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME + ">";
+    }
+
+    /**
+     * Returns the current action associated with the WhiteboardObject to send.
+     * (DELETE - DRAW - MOVE)
+     *
+     * @return current action.
+     */
+    public String getAction ()
+    {
+        return action;
+    }
+
+    /**
+     * Sets the action associated with the WhiteboardObject to send.
+     * (DELETE - DRAW - MOVE)
+     *
+     * @param action the action associated with the WhiteboardObject to send.
+     */
+    public void setAction (String action)
+    {
+        this.action = action;
+    }
+
+    /**
+     * Returns the current WhiteboardObject to be sent.
+     *
+     * @return WhiteboardObject to be sent
+     */
+    public WhiteboardObjectJabberImpl getWhiteboardObject ()
+    {
+        return whiteboardObject;
+    }
+
+    /**
+     * Returns the current WhiteboardObject's identifier to be sent.
+     * (For a delete WhiteboardObject message)
+     *
+     * @return WhiteboardObject's identifier
+     */
+    public String getWhiteboardObjectID ()
+    {
+        return whiteboardObjectID;
+    }
+
+    /**
+     * Sets the current WhiteboardObject's identifier to be sent.
+     * (For a delete WhiteboardObject message)
+     *
+     * @param objectID WhiteboardObject's identifier
+     */
+    public void setWhiteboardObjectID (String objectID)
+    {
+        this.whiteboardObjectID = objectID;
+    }
+}

@@ -1,0 +1,182 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
+package net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard;
+
+import net.java.sip.communicator.service.protocol.WhiteboardPoint;
+import net.java.sip.communicator.util.*;
+import java.awt.Color;
+import java.io.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.*;
+import javax.xml.parsers.*;
+import org.w3c.dom.*;
+
+import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+
+/**
+ *  WhiteboardObjectPathJabberImpl
+ * <p>
+ * WhiteboardObjectPathJabberImpl are created through
+ * the <tt>WhiteboardSession</tt> session.
+ * <p>
+ *
+ * All WhiteboardObjectPathJabberImpl have whiteboard object id.
+ * @author Julien Waechter
+ */
+public class WhiteboardObjectPathJabberImpl
+  extends WhiteboardObjectJabberImpl implements WhiteboardObjectPath
+{
+    private static final Logger logger =
+      Logger.getLogger (WhiteboardObjectPathJabberImpl.class);
+
+    /**
+     * List of WhiteboardPoint
+     */
+    private LinkedList listPoints = new LinkedList ();
+
+    /**
+     * Default WhiteboardObjectPathJabberImpl constructor.
+     */
+    public WhiteboardObjectPathJabberImpl ()
+    {
+        super ();
+    }
+
+    /**
+     * WhiteboardObjectPathJabberImpl constructor.
+     *
+     * @param xml the XML string object to parse.
+     */
+    public WhiteboardObjectPathJabberImpl (String xml)
+    {
+        DocumentBuilderFactory factory =
+          DocumentBuilderFactory.newInstance ();
+        DocumentBuilder builder;
+        try
+        {
+            builder = factory.newDocumentBuilder ();
+            InputStream in = new ByteArrayInputStream (xml.getBytes ());
+            Document doc = builder.parse (in);
+            
+            Element e = doc.getDocumentElement ();
+            String elementName = e.getNodeName ();
+            if (elementName.equals ("path"))
+            {
+                //we have a path
+                String id = e.getAttribute ("id");
+                String d = e.getAttribute ("d");
+                String stroke = e.getAttribute ("stroke");
+                String stroke_width = e.getAttribute ("stroke-width");
+                
+                this.setID (id);
+                this.setThickness (Integer.parseInt (stroke_width));
+                this.setColor (Color.decode (stroke).getRGB ());
+                this.setPoints (getPathPoints (d));
+            }
+        }
+        catch (ParserConfigurationException ex)
+        {
+            logger.debug ("Problem WhiteboardObject : "+xml);
+        }
+        catch (IOException ex)
+        {
+            logger.debug ("Problem WhiteboardObject : "+xml);
+        }
+        catch (Exception ex)
+        {
+            logger.debug ("Problem WhiteboardObject : "+xml);
+        }
+    }
+
+    /**
+     * Sets the list of <tt>WhiteboardPoint</tt> instances that this
+     * <tt>WhiteboardObject</tt> is composed of.
+     *
+     * @param points the list of <tt>WhiteboardPoint</tt> instances that this
+     * <tt>WhiteboardObject</tt> is composed of.
+     */
+    public void setPoints (List points)
+    {
+        this.listPoints =  new LinkedList (points);
+    }
+
+    /**
+     * Returns a list of all the <tt>WhiteboardPoint</tt> instances that this
+     * <tt>WhiteboardObject</tt> is composed of.
+     *
+     * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
+     */
+    public List getPoints ()
+    {
+        return this.listPoints;
+    }
+
+    /**
+     * Converts a String in a "M250 150 L150 350 L350 350 Z" format into
+     * LinkedList of points.
+     *
+     * @param points the String to be converted to a LinkedList
+     * of WhiteboardPoint.
+     * @return a LinkedList (WhiteboardPoint) of the String points parameter
+     */
+    private List getPathPoints (String points)
+    {
+        List list = new LinkedList ();
+        if (points == null)
+        {
+            return list;
+        }
+        String patternStr = "[ML]\\S+ \\S+ ";
+        
+        Pattern pattern = Pattern.compile (patternStr);
+        Matcher matcher = pattern.matcher (points);
+        while (matcher.find ())
+        {
+            String[] coords = matcher.group (0).substring (1).split (" ");
+            WhiteboardPoint point = new WhiteboardPoint (
+              Double.parseDouble (coords[0]),
+              Double.parseDouble (coords[1]));
+            list.add (point);
+        }
+        
+        return list;
+    }
+
+    /**
+     * Returns the XML reppresentation of the PacketExtension.
+     *
+     * @return the packet extension as XML.
+     * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
+     *   method
+     */
+    public String toXML ()
+    {
+        String s
+            = "<path id=\"#i\" d=\"#p Z\" stroke=\"#s\" stroke-width=\"#w\"/>";
+
+        s = s.replaceAll ("#i", getID ());
+        s = s.replaceAll ("#s", colorToHex (getColor ()));
+        s = s.replaceAll ("#w", ""+getThickness ());
+
+        StringBuilder sb = new StringBuilder ();
+
+        int size = listPoints.size ();
+        for (int i = 0; i < size; i++)
+        {
+            WhiteboardPoint point = (WhiteboardPoint) listPoints.get (i);
+            sb.append ((i == 0) ? "M" : "L");
+            sb.append (point.getX ());
+            sb.append (" ");
+            sb.append (point.getY ());
+            sb.append (" ");
+        }
+        s = s.replaceAll ("#p", sb.toString ());
+        return s;
+    }
+}
