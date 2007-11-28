@@ -10,6 +10,8 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 
+import net.java.sip.communicator.service.protocol.whiteboardobjects.WhiteboardObject;
+
 /**
  * A represenation of a <tt>WhiteboardSession</tt>.
  *
@@ -24,7 +26,7 @@ public interface WhiteboardSession
      *
      * @return a String uniquely identifying the whiteboard.
      */
-    public String getWhiteboardID();
+    public String getWhiteboardID ();
 
     /**
      * Returns an iterator over all whiteboard participants.
@@ -32,7 +34,7 @@ public interface WhiteboardSession
      * @return an Iterator over all participants currently involved in the
      * whiteboard.
      */
-    public Iterator getWhiteboardParticipants();
+    public Iterator getWhiteboardParticipants ();
 
     /**
      * Returns the number of participants currently associated
@@ -41,7 +43,7 @@ public interface WhiteboardSession
      * @return an <tt>int</tt> indicating the number of participants currently
      * associated with this whiteboard.
      */
-    public int getWhiteboardParticipantsCount();
+    public int getWhiteboardParticipantsCount ();
 
     /**
      * Adds a whiteboard change listener to this whiteboard so that it could
@@ -49,7 +51,7 @@ public interface WhiteboardSession
      *
      * @param listener the listener to register
      */
-    public void addWhiteboardChangeListener(WhiteboardChangeListener listener);
+    public void addWhiteboardChangeListener (WhiteboardChangeListener listener);
 
     /**
      * Removes <tt>listener</tt> to this whiteboard so that it won't receive
@@ -57,8 +59,8 @@ public interface WhiteboardSession
      *
      * @param listener the listener to register
      */
-    public void removeWhiteboardChangeListener(
-                                        WhiteboardChangeListener listener);
+    public void removeWhiteboardChangeListener (
+            WhiteboardChangeListener listener);
 
     /**
      * Returns a reference to the <tt>ProtocolProviderService</tt> instance
@@ -67,7 +69,7 @@ public interface WhiteboardSession
      * @return a reference to the <tt>ProtocolProviderService</tt> instance that
      * created this whiteboard.
      */
-    public ProtocolProviderService getProtocolProvider();
+    public ProtocolProviderService getProtocolProvider ();
 
     /**
      * Joins this whiteboard with the nickname of the local user so that the
@@ -76,7 +78,7 @@ public interface WhiteboardSession
      * @throws OperationFailedException with the corresponding code if an error
      * occurs while joining the room.
      */
-    public abstract void join() throws OperationFailedException;
+    public abstract void join () throws OperationFailedException;
 
     /**
      * Joins this whiteboard so that the user would start receiving events and
@@ -88,16 +90,16 @@ public interface WhiteboardSession
      * @throws OperationFailedException with the corresponding code if an error
      * occurs while joining the room.
      */
-    public abstract void join(byte[] password) throws OperationFailedException;
+    public abstract void join (byte[] password) throws OperationFailedException;
 
     /**
      * Returns true if the local user is currently in the whiteboard session
-     * (after whiteboarding one of the {@link #join()} methods).
+     * (after whiteboarding one of the {@link #join(String)} methods).
      *
      * @return true if currently we're currently in this whiteboard and false
      * otherwise.
      */
-    public abstract boolean isJoined();
+    public abstract boolean isJoined ();
 
     /**
      * Leave this whiteboard. Once this method is whiteboarded, the user won't
@@ -106,8 +108,7 @@ public interface WhiteboardSession
      * and implementation leave() might cause the room to be destroyed if it has
      * been created by the local user.
      */
-    public abstract void leave();
-
+    public abstract void leave ();
 
     /**
      * Invites another user to this room.
@@ -119,8 +120,7 @@ public interface WhiteboardSession
      * @param userAddress the address of the user to invite to the room.
      * (one may also invite users not on their contact list).
      */
-    public abstract void invite(String userAddress);
-
+    public abstract void invite (String userAddress);
 
     /**
      * Registers <tt>listener</tt> so that it would receive events every time a
@@ -131,7 +131,7 @@ public interface WhiteboardSession
      * notified every time a new WhiteboardObject
      * is received on this whiteboard.
      */
-    public abstract void addWhiteboardObjectListener(
+    public abstract void addWhiteboardObjectListener (
             WhiteboardObjectListener listener);
 
     /**
@@ -142,7 +142,7 @@ public interface WhiteboardSession
      * @param listener the <tt>WhiteboardObjectListener</tt>
      * to remove from this room
      */
-    public abstract void removeWhiteboardObjectListener(
+    public abstract void removeWhiteboardObjectListener (
             WhiteboardObjectListener listener);
 
     /**
@@ -151,12 +151,12 @@ public interface WhiteboardSession
      * session participants until it is resolved with the
      * sendWhiteboardObject(WhiteboardObject) method.
      *
-     * @param type the type of the object to create (should be one of the
-     * WhiteboardObject.TYPE_XXX fields).
+     * @param name the name of the object to create (should be one of the
++     * WhiteboardObjectXXX.NAME fields).
      *
      * @return the newly created WhiteboardObject with an id
      */
-    public abstract WhiteboardObject createWhiteboardObject(String type);
+    public abstract WhiteboardObject createWhiteboardObject(String name);
 
     /**
      * Resolves <tt>obj</tt> with the other session participants. When called
@@ -171,17 +171,29 @@ public interface WhiteboardSession
      * @throws OperationFailedException if sending the WhiteboardObject fails
      * for some reason.
      */
-    public abstract void sendWhiteboardObject(WhiteboardObject obj)
+    public abstract void sendWhiteboardObject (WhiteboardObject obj)
         throws OperationFailedException;
 
     /**
-     * Sends the <tt>obj</tt>
+     * Sends a <tt>WhiteboardObject</tt> to modify
+     * and modifies the local <tt>WhiteboardObject</tt>
      *
-     * @param obj the <tt>WhiteboardObject</tt> to send.
+     * @param obj the <tt>WhiteboardObject</tt> to send and modify
      * @throws OperationFailedException if sending
      * the WhiteboardObject fails for some reason.
      */
-    public abstract void moveWhiteboardObject(WhiteboardObject obj)
+    public abstract void moveWhiteboardObject (WhiteboardObject obj)
+        throws OperationFailedException;
+
+    /**
+     * Sends a <tt>WhiteboardObject</tt> to delete
+     * and delete the local <tt>WhiteboardObject</tt>
+     *
+     * @param obj the <tt>WhiteboardObject</tt> to send and delete
+     * @throws OperationFailedException if sending
+     * the WhiteboardObject fails for some reason.
+     */
+    public abstract void deleteWhiteboardObject (WhiteboardObject obj)
         throws OperationFailedException;
 
     /**
@@ -192,8 +204,8 @@ public interface WhiteboardSession
      *
      * @param wbParticipant the new <tt>WhiteboardParticipant</tt>
      */
-    public abstract void addWhiteboardParticipant(
-            WhiteboardParticipant wbParticipant);
+    public abstract void addWhiteboardParticipant (
+        WhiteboardParticipant wbParticipant);
 
     /**
      * Removes <tt>whiteboardParticipant</tt> from the list of participants in
@@ -203,14 +215,16 @@ public interface WhiteboardSession
      * @param wbParticipant the <tt>WhiteboardParticipant</tt> leaving the
      * whiteboard;
      */
-    public abstract void removeWhiteboardParticipant(
-            WhiteboardParticipant wbParticipant);
+
+    public abstract void removeWhiteboardParticipant (
+        WhiteboardParticipant wbParticipant);
+
     /**
      * Returns the WhiteboardObjects in this whiteboard session.
      * @return an <tt>Vector</tt> of WhiteboardObjects associated
      * with this whiteboard.
      */
-    public Vector getWhiteboardObjects();
+    public Vector getWhiteboardObjects ();
 
     /**
      * Sets the state of this whiteboard
@@ -218,12 +232,20 @@ public interface WhiteboardSession
      * @param newState a reference to the <tt>WhiteboardState</tt> instance that
      * the whiteboard is to enter.
      */
-    public void setState(WhiteboardSessionState newState);
+    public void setState (WhiteboardSessionState newState);
+
     /**
      * Returns the state that this whiteboard is currently in.
      *
      * @return a reference to the <tt>WhiteboardState</tt> instance
      * that the whiteboard is currently in.
      */
-    public WhiteboardSessionState getState();
+    public WhiteboardSessionState getState ();
+
+    /**
+     * Returns all the type of WhiteboardObject that this whiteboard support.
+     *
+     * @return all the WhiteboardObject supported by this WhiteboardSession.
+     */
+    public String[] getSupportedWhiteboardObjects();
 }

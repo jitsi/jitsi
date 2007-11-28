@@ -9,7 +9,8 @@ package net.java.sip.communicator.service.protocol;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * The WhiteboardParticipant is an interface that represents participants in a whiteboard.
+ * The WhiteboardParticipant is an interface that represents participants in a
+ * whiteboard.
  *
  * @author Julien Waechter
  * @author Emil Ivov

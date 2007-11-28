@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.awt.geom.*;
+
 /**
  * A point representing a location in {@code (x,y)} coordinate space,
  * specified in integer precision.
@@ -72,6 +74,26 @@ public class WhiteboardPoint implements Cloneable
     }
 
     /**
+     * Sets a new value to the x coordinate.
+     * 
+     * @param y the new value of the x coordinate
+     */
+    public void setX(double x)
+    {
+        this.x = x;
+    }
+
+    /**
+     * Sets a new value to the y coordinate.
+     * 
+     * @param y the new value of the y coordinate
+     */
+    public void setY(double y)
+    {
+        this.y = y;
+    }
+
+    /**
      * Determines whether or not two points are equal. Two instances of
      * <tt>WhiteboardPoint</tt> are equal if the values of their
      * <tt>x</tt> and <tt>y</tt> member fields, representing
@@ -119,4 +141,17 @@ public class WhiteboardPoint implements Cloneable
         return new WhiteboardPoint(this);
     }
 
+    /**
+     * Calculates the distance from this point the given point.
+     * 
+     * @param p the point to which to calculate the distance
+     * @return the distance between this point and the given point
+     */
+    public double distance(WhiteboardPoint p)
+    {
+        double PX = p.getX() - this.getX();
+        double PY = p.getY() - this.getY();
+
+        return Math.sqrt(PX * PX + PY * PY);
+    }
 }
