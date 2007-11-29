@@ -21,7 +21,7 @@ public class WindowBackground
         try
         {
             bgImage = ImageIO.read(WindowBackground.class
-                .getResource("resources/aboutWindowBackground.png"));
+                .getResource("resources/splashScreenBackground.png"));
         }
         catch (IOException e)
         {
