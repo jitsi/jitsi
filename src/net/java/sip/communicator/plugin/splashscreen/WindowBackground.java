@@ -12,7 +12,6 @@ import javax.swing.*;
 public class WindowBackground
     extends JPanel
 {
-
     private Image bgImage;
 
     public WindowBackground()
@@ -22,7 +21,7 @@ public class WindowBackground
         try
         {
             bgImage = ImageIO.read(WindowBackground.class
-                .getResource("aboutWindowBackground.png"));
+                .getResource("resources/aboutWindowBackground.png"));
         }
         catch (IOException e)
         {

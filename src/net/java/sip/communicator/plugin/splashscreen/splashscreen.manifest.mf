@@ -4,8 +4,13 @@ Bundle-Description: Splash Screen plugin.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.browserlauncher,
  net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.gui.event,
+ net.java.sip.communicator.util,
  javax.swing,
  javax.swing.event,
+ javax.swing.border,
+ javax.swing.text,
+ javax.swing.text.html,
  javax.imageio

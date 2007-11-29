@@ -54,6 +54,7 @@ public class UIServiceImpl
         supportedContainers.add(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
         supportedContainers.add(UIService.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
         supportedContainers.add(UIService.CONTAINER_TOOLS_MENU);
+        supportedContainers.add(UIService.CONTAINER_HELP_MENU);
         supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
         supportedContainers.add(UIService.CONTAINER_CALL_HISTORY);
         supportedContainers.add(UIService.CONTAINER_MAIN_TABBED_PANE);
@@ -75,7 +76,8 @@ public class UIServiceImpl
      * Creates an instance of <tt>UIServiceImpl</tt>.
      */
     public UIServiceImpl()
-    {}
+    {
+    }
 
     /**
      * Initializes all frames and panels and shows the gui.
@@ -514,11 +516,10 @@ public class UIServiceImpl
      */
     public void initExportedWindows()
     {
-        AboutWindow aboutWindow = new AboutWindow(mainFrame);
         AddContactWizard addContactWizard = new AddContactWizard(mainFrame);
 
-        exportedWindows.put(aboutWindow.getIdentifier(), aboutWindow);
-        exportedWindows.put(configurationFrame.getIdentifier(), configurationFrame);
+        exportedWindows.put(configurationFrame.getIdentifier(),
+                configurationFrame);
         exportedWindows.put(addContactWizard.getIdentifier(), addContactWizard);
     }
 

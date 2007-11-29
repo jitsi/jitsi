@@ -75,7 +75,7 @@ public class WindowTransparentBackground
             robot = new Robot();
             
             bgImage = ImageIO.read(
-                WindowBackground.class.getResource("aboutWindowBackground.png"));
+                WindowBackground.class.getResource("resources/aboutWindowBackground.png"));
             
             bgWidth = bgImage.getWidth(null);
             
