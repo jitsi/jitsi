@@ -58,6 +58,7 @@ public class UIServiceImpl
         supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
         supportedContainers.add(UIService.CONTAINER_CALL_HISTORY);
         supportedContainers.add(UIService.CONTAINER_MAIN_TABBED_PANE);
+        supportedContainers.add(UIService.CONTAINER_CHAT_HELP_MENU);
     }
 
     private static final Hashtable exportedWindows = new Hashtable();
