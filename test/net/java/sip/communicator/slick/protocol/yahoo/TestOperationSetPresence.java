@@ -449,7 +449,8 @@ public class TestOperationSetPresence
                 contactPresEvtCollector);
 
             synchronized (contactPresEvtCollector){
-                operationSetPresence2.publishPresenceStatus(newStatus, "new status");
+//                operationSetPresence2.publishPresenceStatus(newStatus, "new status");
+                operationSetPresence2.publishPresenceStatus(newStatus, null);
                 //we may already have the event, but it won't hurt to check.
                 contactPresEvtCollector.waitForEvent(10000);
                 operationSetPresence1
