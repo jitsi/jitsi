@@ -1276,11 +1276,11 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-ssh">
         <!-- Creates a bundle containing the SSH impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-ssh.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/ssh/ssh.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/ssh/ssh.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/ssh"
                 prefix="net/java/sip/communicator/impl/protocol/ssh"/>
             <zipfileset src="${lib.noinst}/jsch-0.1.33.jar" prefix=""/>
-            <zipfileset dir="resources/images/ssh"
+            <zipfileset dir="${resources}/images/ssh"
                             prefix="resources/images/ssh"/>
         </jar>
     </target>
@@ -1289,10 +1289,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-sshaccregwizz">
         <!-- Creates a bundle for the plugin SSH Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/sshaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/sshaccregwizz/sshaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/sshaccregwizz/sshaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sshaccregwizz"
                 prefix="net/java/sip/communicator/plugin/sshaccregwizz"/>
-            <zipfileset dir="resources/images/ssh"
+            <zipfileset dir="${resources}/images/ssh"
                             prefix="resources/images/ssh"/>
         </jar>
     </target>	
@@ -1676,11 +1676,11 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-irc">
         <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-irc.jar"
-         manifest="src/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
+         manifest="${src}/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/irc"
                         prefix="net/java/sip/communicator/impl/protocol/irc"/>
             <zipfileset src="${lib.noinst}/pircbot.jar" prefix=""/>
-            <zipfileset dir="resources/images/irc"
+            <zipfileset dir="${resources}/images/irc"
                     prefix="resources/images/irc"/>
             </jar>
         </target>
@@ -1690,10 +1690,10 @@ javax.swing.event, javax.swing.border"/>
             <!-- Creates a bundle for the plugin IRC Account Registration
                  Wizard.-->
             <jar compress="false" destfile="${bundles.dest}/ircaccregwizz.jar"
-                manifest="src/net/java/sip/communicator/plugin/ircaccregwizz/ircaccregwizz.manifest.mf">
+                manifest="${src}/net/java/sip/communicator/plugin/ircaccregwizz/ircaccregwizz.manifest.mf">
                 <zipfileset dir="${dest}/net/java/sip/communicator/plugin/ircaccregwizz"
                     prefix="net/java/sip/communicator/plugin/ircaccregwizz"/>
-                <zipfileset dir="resources/images/irc"
+                <zipfileset dir="${resources}/images/irc"
                     prefix="resources/images/irc"/>
             </jar>
     </target>
