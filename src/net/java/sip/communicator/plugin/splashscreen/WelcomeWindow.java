@@ -5,20 +5,17 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-public class WelcomeWindow
-        extends JDialog
+public class WelcomeWindow extends JDialog
 {
-    private WindowBackground mainPanel
-        = new WindowBackground();
+    private WindowBackground mainPanel = new WindowBackground();
 
-    private JLabel titleLabel = new JLabel(
-            "SIP Communicator");
+    private JLabel titleLabel = new JLabel("SIP Communicator");
 
-    private JLabel versionLabel = new JLabel(
-            " " + System.getProperty("sip-communicator.version"));
+    private JLabel versionLabel = new JLabel(" "
+            + System.getProperty("sip-communicator.version"));
 
-    private JTextArea logoArea
-        = new JTextArea(Resources.getString("logoMessage"));
+    private JTextArea logoArea = new JTextArea(Resources
+            .getString("logoMessage"));
 
     private JEditorPane rightsArea = new JEditorPane();
 
@@ -37,8 +34,8 @@ public class WelcomeWindow
 
     private JPanel loadingPanel = new JPanel(new BorderLayout());
 
-    private JLabel loadingLabel
-        = new JLabel(Resources.getString("loading") + ": ");
+    private JLabel loadingLabel = new JLabel(Resources.getString("loading")
+            + ": ");
 
     private JLabel bundleLabel = new JLabel();
 
@@ -52,7 +49,8 @@ public class WelcomeWindow
 
         this.textPanel.setPreferredSize(new Dimension(470, 240));
         this.textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        this.textPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
+        this.textPanel
+                .setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
         this.textPanel.setOpaque(false);
 
         this.titleLabel.setFont(FONT.deriveFont(Font.BOLD, 28));
@@ -74,29 +72,25 @@ public class WelcomeWindow
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 180, 0, 0));
 
         this.rightsArea.setContentType("text/html");
-        this.rightsArea.setText(
-                "<html><font size=3>(c)2003-2007 Copyright <b>sip-communicator.org</b>."
-                + " All rights reserved. Visit "
-                + "<a href=\"http://sip-communicator.org\">"
-                + "http://sip-communicator.org</a>.</font></html>");
+        this.rightsArea.setText(Resources.getString("copyright"));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 10));
-        this.rightsArea.setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
+        this.rightsArea
+                .setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
         this.rightsArea.setOpaque(false);
         this.rightsArea.setEditable(false);
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.setText(
-            "<html><font size=3 style=bold>"
-            + Resources.getString("welcomeMessage",
-                new String[]{"<a href=http://sip-communicator.org>"
-                            + "http://sip-communicator.org</a>"
-            })
-            + "</font></html>");
+        this.licenseArea.setText(Resources.getString("license", new String[]
+        {
+            "<a href=http://sip-communicator.org>"
+                    + "http://sip-communicator.org</a>"
+        }));
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
-        this.licenseArea.setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
+        this.licenseArea.setBorder(BorderFactory
+                .createEmptyBorder(0, 180, 0, 0));
         this.licenseArea.setOpaque(false);
         this.licenseArea.setEditable(false);
         this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -106,8 +100,8 @@ public class WelcomeWindow
         this.loadingPanel.add(loadingLabel, BorderLayout.WEST);
         this.loadingPanel.add(bundleLabel, BorderLayout.CENTER);
         this.loadingPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.loadingPanel
-                .setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        this.loadingPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10,
+                10));
 
         this.textPanel.add(titleLabel);
         this.textPanel.add(versionLabel);
@@ -124,12 +118,10 @@ public class WelcomeWindow
 
         this.mainPanel.setPreferredSize(new Dimension(570, 330));
 
-        this.setLocation(
-            Toolkit.getDefaultToolkit().getScreenSize().width/2
-                - 527/2,
-            Toolkit.getDefaultToolkit().getScreenSize().height/2
-                - 305/2
-            );
+        this
+                .setLocation(
+                        Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 527 / 2,
+                        Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 305 / 2);
 
         // Close the splash screen on simple click or Esc.
         this.getGlassPane().addMouseListener(new MouseAdapter()
@@ -175,6 +167,5 @@ public class WelcomeWindow
             WelcomeWindow.this.close();
         }
     }
-
 
 }
