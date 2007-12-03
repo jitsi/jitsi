@@ -868,7 +868,7 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
-        bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
+        bundle-growlnotification,bundle-audionotifier,bundle-plugin-branding,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
         bundle-plugin-extended-callhistory-search,
@@ -1549,12 +1549,12 @@ javax.swing.event, javax.swing.border"/>
         </target>
 
     <!-- BUNDLE-PLUGIN-SPLASH SCREEN -->
-        <target name="bundle-plugin-splashscreen">
+        <target name="bundle-plugin-branding">
             <!-- Creates a bundle for the Splash Screen plugin.-->
-            <jar compress="false" destfile="${bundles.dest}/splashscreen.jar"
-                manifest="${src}/net/java/sip/communicator/plugin/splashscreen/splashscreen.manifest.mf">
-                <zipfileset dir="${dest}/net/java/sip/communicator/plugin/splashscreen"
-                    prefix="net/java/sip/communicator/plugin/splashscreen"/>
+        <jar compress="false" destfile="${bundles.dest}/branding.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/branding/branding.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/branding"
+                prefix="net/java/sip/communicator/plugin/branding"/>
             </jar>
         </target>
 
