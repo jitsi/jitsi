@@ -1694,7 +1694,7 @@ public class OperationSetPersistentPresenceIcqImpl
     }
 
     /**
-     * Apart from loggin - does nothing so far.
+     * Apart from login - does nothing so far.
      */
     private class GlobalBuddyInfoListener extends GlobalBuddyInfoAdapter{
         public void receivedStatusUpdate(BuddyInfoManager manager,
@@ -1711,8 +1711,7 @@ public class OperationSetPersistentPresenceIcqImpl
             
             if(sourceContact != null)
             {
-                if(statusMessage != null)
-                    sourceContact.setStatusMessage(statusMessage);
+                sourceContact.setStatusMessage(statusMessage);
             }
             
         }
