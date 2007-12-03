@@ -1,4 +1,4 @@
-package net.java.sip.communicator.plugin.splashscreen;
+package net.java.sip.communicator.plugin.branding;
 
 import java.awt.*;
 import java.io.*;

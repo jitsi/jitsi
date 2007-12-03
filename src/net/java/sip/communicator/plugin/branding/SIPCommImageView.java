@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.plugin.splashscreen;
+package net.java.sip.communicator.plugin.branding;
 
 import java.io.*;
 import java.net.*;

@@ -1,4 +1,4 @@
-package net.java.sip.communicator.plugin.splashscreen;
+package net.java.sip.communicator.plugin.branding;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -178,13 +178,13 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
         {
             String href = e.getDescription();
-            ServiceReference serviceReference = SplashScreenActivator
+            ServiceReference serviceReference = BrandingActivator
                     .getBundleContext().getServiceReference(
                             BrowserLauncherService.class.getName());
 
             if (serviceReference != null)
             {
-                BrowserLauncherService browserLauncherService = (BrowserLauncherService) SplashScreenActivator
+                BrowserLauncherService browserLauncherService = (BrowserLauncherService) BrandingActivator
                         .getBundleContext().getService(serviceReference);
                 browserLauncherService.openURL(href);
 

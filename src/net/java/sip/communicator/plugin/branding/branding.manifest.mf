@@ -1,6 +1,6 @@
-Bundle-Activator: net.java.sip.communicator.plugin.splashscreen.SplashScreenActivator
-Bundle-Name: Splash Screen plugin
-Bundle-Description: Splash Screen plugin.
+Bundle-Activator: net.java.sip.communicator.plugin.branding.BrandingActivator
+Bundle-Name: Branding plugin
+Bundle-Description: Branding plugin.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,

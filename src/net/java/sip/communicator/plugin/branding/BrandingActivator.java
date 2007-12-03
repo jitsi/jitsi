@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.splashscreen;
+package net.java.sip.communicator.plugin.branding;
 
 import java.awt.event.*;
 
@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.gui.UIService;
 
 import org.osgi.framework.*;
 
-public class SplashScreenActivator implements BundleActivator, BundleListener
+public class BrandingActivator implements BundleActivator, BundleListener
 {
     private WelcomeWindow welcomeWindow;
     private static BundleContext bundleContext;

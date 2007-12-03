@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.splashscreen;
+package net.java.sip.communicator.plugin.branding;
 
 import java.text.*;
 import java.util.*;
@@ -18,7 +18,7 @@ import java.util.*;
 public class Resources
 {
     private static final String RESOUCRE_LOCATION
-        = "net.java.sip.communicator.plugin.splashscreen.resources";
+        = "net.java.sip.communicator.plugin.branding.resources";
 
     private static final ResourceBundle resourceBundle 
         = ResourceBundle.getBundle(RESOUCRE_LOCATION);
