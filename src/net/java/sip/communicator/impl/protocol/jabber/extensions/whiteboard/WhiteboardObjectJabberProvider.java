@@ -38,14 +38,19 @@ public class WhiteboardObjectJabberProvider
     public PacketExtension parseExtension (XmlPullParser parser)
         throws Exception
     {
+        PacketExtension extension = null;
+
         StringBuilder sb = new StringBuilder ();
         boolean done = false;
         while (!done)
         {
             int eventType = parser.next ();
-            if (eventType == XmlPullParser.START_TAG &&
-              !parser.getName ().equals (
-              WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME))
+
+            if (eventType == XmlPullParser.START_TAG 
+                && !parser.getName ().equals (
+                    WhiteboardObjectPacketExtension.ELEMENT_NAME)
+                && !parser.getName ().equals (
+                    WhiteboardSessionPacketExtension.ELEMENT_NAME))
             {
                 sb.append (parser.getText ());
             }
@@ -53,26 +58,32 @@ public class WhiteboardObjectJabberProvider
             {
                 sb.append (parser.getText ());
             }
-            else if (eventType == XmlPullParser.END_TAG &&
-              parser.getName ().equals ("image"))
+            else if (eventType == XmlPullParser.END_TAG
+                && parser.getName ().equals ("image"))
             {
                 sb.append (parser.getText ());
             }
-            else if (eventType == XmlPullParser.END_TAG &&
-              parser.getName ().equals ("text"))
+            else if (eventType == XmlPullParser.END_TAG
+                && parser.getName ().equals ("text"))
             {
                 sb.append (parser.getText ());
             }
-            else if (eventType == XmlPullParser.END_TAG &&
-              parser.getName ().equals (
-              WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME))
+            else if (eventType == XmlPullParser.END_TAG
+                && parser.getName ().equals (
+                  WhiteboardObjectPacketExtension.ELEMENT_NAME))
             {
+                extension = new WhiteboardObjectPacketExtension(sb.toString ());
+                done = true;
+            }
+            else if (eventType == XmlPullParser.END_TAG
+                && parser.getName ().equals (
+                WhiteboardSessionPacketExtension.ELEMENT_NAME))
+            {
+                extension = new WhiteboardSessionPacketExtension(sb.toString ());
                 done = true;
             }
         }
-        WhiteboardObjectPacketExtensionImpl wbo
-            = new WhiteboardObjectPacketExtensionImpl(sb.toString ());
 
-        return wbo;
+        return extension;
     }
 }

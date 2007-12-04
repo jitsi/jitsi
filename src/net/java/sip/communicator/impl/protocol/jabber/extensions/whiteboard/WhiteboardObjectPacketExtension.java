@@ -17,19 +17,19 @@ import org.jivesoftware.smack.packet.*;
 import org.w3c.dom.*;
 
 /**
- * WhiteboardObjectPacketExtensionImpl
+ * WhiteboardObjectPacketExtension
  *
  * @author Julien Waechter
  */
-public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
+public class WhiteboardObjectPacketExtension implements PacketExtension
 {
     private static final Logger logger =
-      Logger.getLogger (WhiteboardObjectPacketExtensionImpl.class);
+      Logger.getLogger (WhiteboardObjectPacketExtension.class);
 
     /**
      * The name of the XML element used for transport of white-board parameters.
      */
-    public static final String ELEMENT_NAME = "x";
+    public static final String ELEMENT_NAME = "xObject";
 
     /**
      * The names XMPP space that the white-board elements belong to.
@@ -69,20 +69,20 @@ public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
     private String whiteboardObjectID;
 
     /**
-     * Default WhiteboardObjectPacketExtensionImpl constructor.
+     * Default WhiteboardObjectPacketExtension constructor.
      */
-    public WhiteboardObjectPacketExtensionImpl ()
+    public WhiteboardObjectPacketExtension ()
     {
         this.action = ACTION_DRAW;
     }
 
     /**
-     * WhiteboardObjectPacketExtensionImpl constructor.
+     * WhiteboardObjectPacketExtension constructor.
      *
      * @param id Identifier of the WhiteboardObject to be treated
      * @param action The current action associated with the WhiteboardObject.
      */
-    public WhiteboardObjectPacketExtensionImpl (String id, String action)
+    public WhiteboardObjectPacketExtension (String id, String action)
     {
         this.whiteboardObjectID = id;
         this.action = action;
@@ -94,7 +94,7 @@ public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
      * @param whiteboardObject The WhiteboardObject to be treated
      * @param action The current action associated with the WhiteboardObject.
      */
-    public WhiteboardObjectPacketExtensionImpl (
+    public WhiteboardObjectPacketExtension (
       WhiteboardObjectJabberImpl whiteboardObject, String action)
     {
         this.whiteboardObject = whiteboardObject;
@@ -102,11 +102,11 @@ public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
     }
 
     /**
-     * WhiteboardObjectPacketExtensionImpl constructor with a XML-SVG String.
+     * WhiteboardObjectPacketExtension constructor with a XML-SVG String.
      *
      * @param xml XML-SVG String
      */
-    public  WhiteboardObjectPacketExtensionImpl (String xml)
+    public  WhiteboardObjectPacketExtension (String xml)
     {
         DocumentBuilderFactory factory =
           DocumentBuilderFactory.newInstance ();
@@ -119,7 +119,7 @@ public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
             
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
-            this.action = WhiteboardObjectPacketExtensionImpl.ACTION_DRAW;
+            this.action = WhiteboardObjectPacketExtension.ACTION_DRAW;
             
             if (elementName.equals ("rect"))
             {
@@ -165,12 +165,10 @@ public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
             {
                 //we have a delete action
                 this.setWhiteboardObjectID (e.getAttribute ("id"));
-                this.action = WhiteboardObjectPacketExtensionImpl.ACTION_DELETE;
+                this.action = WhiteboardObjectPacketExtension.ACTION_DELETE;
             }
             else //we have a problem :p
                 logger.debug ("elementName unknow\n");
-            
-            System.out.println("XML =====================================" + xml);
         }
         catch (ParserConfigurationException ex)
         {
@@ -216,7 +214,7 @@ public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
     {
         String s="";
         if(getAction ().equals (
-          WhiteboardObjectPacketExtensionImpl.ACTION_DELETE))
+          WhiteboardObjectPacketExtension.ACTION_DELETE))
         {
             s = "<delete id=\"#i\"/>";
             s = s.replaceAll ("#i", getWhiteboardObjectID());
@@ -224,9 +222,9 @@ public class WhiteboardObjectPacketExtensionImpl implements PacketExtension
         else
             s = getWhiteboardObject ().toXML ();
         
-        return "<" + WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME +
-          " xmlns=\"" + WhiteboardObjectPacketExtensionImpl.NAMESPACE +
-          "\">"+s+"</" + WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME + ">";
+        return "<" + WhiteboardObjectPacketExtension.ELEMENT_NAME +
+          " xmlns=\"" + WhiteboardObjectPacketExtension.NAMESPACE +
+          "\">"+s+"</" + WhiteboardObjectPacketExtension.ELEMENT_NAME + ">";
     }
 
     /**
