@@ -76,8 +76,13 @@ public class OperationSetWhiteboardingJabberImpl
         ProviderManager pManager = ProviderManager.getInstance();
 
         pManager.addExtensionProvider(
-            WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME,
-            WhiteboardObjectPacketExtensionImpl.NAMESPACE,
+            WhiteboardObjectPacketExtension.ELEMENT_NAME,
+            WhiteboardObjectPacketExtension.NAMESPACE,
+            new WhiteboardObjectJabberProvider());
+
+        pManager.addExtensionProvider(
+            WhiteboardSessionPacketExtension.ELEMENT_NAME,
+            WhiteboardSessionPacketExtension.NAMESPACE,
             new WhiteboardObjectJabberProvider());
     }
 
@@ -324,8 +329,8 @@ public class OperationSetWhiteboardingJabberImpl
 
                 PacketExtensionFilter filterWhiteboard =
                     new PacketExtensionFilter(
-                        WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME,
-                        WhiteboardObjectPacketExtensionImpl.NAMESPACE);
+                        WhiteboardObjectPacketExtension.ELEMENT_NAME,
+                        WhiteboardObjectPacketExtension.NAMESPACE);
 
                 jabberProvider.getConnection().addPacketListener(
                     new WhiteboardSmackMessageListener(), filterWhiteboard);
@@ -347,8 +352,8 @@ public class OperationSetWhiteboardingJabberImpl
 
             PacketExtension ext =
                 packet.getExtension(
-                    WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME,
-                    WhiteboardObjectPacketExtensionImpl.NAMESPACE);
+                    WhiteboardObjectPacketExtension.ELEMENT_NAME,
+                    WhiteboardObjectPacketExtension.NAMESPACE);
 
             org.jivesoftware.smack.packet.Message msg =
                 (org.jivesoftware.smack.packet.Message) packet;
@@ -375,8 +380,8 @@ public class OperationSetWhiteboardingJabberImpl
             // If we're here this means that no white board session has been
             // found and we will send an invitation to the user to join a 
             // white-board session created by us.
-            WhiteboardObjectPacketExtensionImpl newMessage
-                = (WhiteboardObjectPacketExtensionImpl) ext;
+            WhiteboardObjectPacketExtension newMessage
+                = (WhiteboardObjectPacketExtension) ext;
 
             WhiteboardSessionJabberImpl session
                 = new WhiteboardSessionJabberImpl(
@@ -476,7 +481,7 @@ public class OperationSetWhiteboardingJabberImpl
                                                         session,
                                                         eventType,
                                                         reason);
-        
+
         Iterator listeners = null;
         synchronized (presenceListeners)
         {

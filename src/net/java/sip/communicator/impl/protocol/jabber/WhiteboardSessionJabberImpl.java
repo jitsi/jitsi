@@ -68,9 +68,20 @@ public class WhiteboardSessionJabberImpl
      */
     private Vector whiteboardListeners = new Vector();
 
+    /**
+     * Stores all white board objects contained in this session.
+     */
     private Vector whiteboardObjects = new Vector();
 
+    /**
+     * The <tt>OperationSet</tt> charged with the whiteboarding.
+     */
     private OperationSetWhiteboardingJabberImpl whiteboardOpSet;
+
+    /**
+     * The corresponding smack chat.
+     */
+    private Chat smackChat;
 
     /**
      * WhiteboardSessionJabberImpl constructor.
@@ -125,13 +136,12 @@ public class WhiteboardSessionJabberImpl
     {
         PacketExtensionFilter filterWhiteboard =
             new PacketExtensionFilter(
-                WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME,
-                WhiteboardObjectPacketExtensionImpl.NAMESPACE);
+                WhiteboardObjectPacketExtension.NAMESPACE);
 
-        jabberProvider.getConnection().addPacketListener(
+        this.jabberProvider.getConnection().addPacketListener(
             new WhiteboardSmackMessageListener(), filterWhiteboard);
 
-        whiteboardOpSet.fireWhiteboardSessionPresenceEvent(
+        this.whiteboardOpSet.fireWhiteboardSessionPresenceEvent(
             this,
             WhiteboardSessionPresenceChangeEvent.LOCAL_USER_JOINED,
             null);
@@ -172,6 +182,42 @@ public class WhiteboardSessionJabberImpl
      */
     public void leave()
     {
+        try
+        {
+            assertConnected();
+
+            org.jivesoftware.smack.packet.Message msg =
+                new org.jivesoftware.smack.packet.Message();
+
+            WhiteboardSessionPacketExtension extension =
+                new WhiteboardSessionPacketExtension(
+                    this,
+                    jabberProvider.getAccountID().getAccountAddress(),
+                    WhiteboardSessionPacketExtension.ACTION_LEAVE);
+
+            msg.addExtension(extension);
+            msg.addExtension(new Version());
+
+            MessageEventManager.addNotificationsRequests(
+                msg,
+                true, // offline
+                false, // delivered
+                false, // displayed
+                true); // composing
+
+            smackChat.sendMessage(msg);
+        }
+        catch (XMPPException ex)
+        {
+            ex.printStackTrace();
+            logger.error("message not send", ex);
+        }
+
+        // Inform all interested listeners that user has left the white board.
+        whiteboardOpSet.fireWhiteboardSessionPresenceEvent(
+            this,
+            WhiteboardSessionPresenceChangeEvent.LOCAL_USER_LEFT,
+            null);
     }
 
     /**
@@ -208,7 +254,6 @@ public class WhiteboardSessionJabberImpl
 
         try
         {
-            System.out.println("SEND WHITE BOARD OBJECT");
             sendWhiteboardObject(
                 createWhiteboardObject(WhiteboardObjectLine.NAME));
         }
@@ -311,6 +356,9 @@ public class WhiteboardSessionJabberImpl
         this.wbParticipants.put(
             wbParticipant.getContactAddress(), wbParticipant);
 
+        this.smackChat = jabberProvider.getConnection().getChatManager()
+            .createChat(wbParticipant.getContactAddress(), null);
+
         fireWhiteboardParticipantEvent(wbParticipant,
             WhiteboardParticipantEvent.WHITEBOARD_PARTICIPANT_ADDED);
     }
@@ -337,7 +385,7 @@ public class WhiteboardSessionJabberImpl
         wbParticipant.removeWhiteboardParticipantListener(this);
 
         fireWhiteboardParticipantEvent(wbParticipant,
-            WhiteboardParticipantEvent.WHITEBOARD_PARTICIPANT_REMVOVED);
+            WhiteboardParticipantEvent.WHITEBOARD_PARTICIPANT_REMOVED);
 
         if (wbParticipants.size() == 0)
             setWhiteboardSessionState(WhiteboardSessionState.WHITEBOARD_ENDED);
@@ -530,25 +578,12 @@ public class WhiteboardSessionJabberImpl
         {
             assertConnected();
 
-            org.jivesoftware.smack.MessageListener msgListener =
-                new org.jivesoftware.smack.MessageListener()
-                {
-                    public void processMessage(Chat arg0,
-                        org.jivesoftware.smack.packet.Message arg1)
-                    {
-                    }
-                };
-
-            Chat chat
-                = jabberProvider.getConnection().getChatManager()
-                    .createChat(contact.getAddress(), msgListener);
-
             org.jivesoftware.smack.packet.Message msg =
                 new org.jivesoftware.smack.packet.Message();
 
-            WhiteboardObjectPacketExtensionImpl messageJI =
-                new WhiteboardObjectPacketExtensionImpl(obj.getID(),
-                    WhiteboardObjectPacketExtensionImpl.ACTION_DELETE);
+            WhiteboardObjectPacketExtension messageJI =
+                new WhiteboardObjectPacketExtension(obj.getID(),
+                    WhiteboardObjectPacketExtension.ACTION_DELETE);
 
             msg.addExtension(messageJI);
             msg.addExtension(new Version());
@@ -556,7 +591,7 @@ public class WhiteboardSessionJabberImpl
             MessageEventManager.addNotificationsRequests(msg, true, false,
                 false, true);
 
-            chat.sendMessage(msg);
+            smackChat.sendMessage(msg);
 
             WhiteboardObjectDeliveredEvent msgDeliveredEvt =
                 new WhiteboardObjectDeliveredEvent(
@@ -610,26 +645,13 @@ public class WhiteboardSessionJabberImpl
         {
             assertConnected();
 
-            org.jivesoftware.smack.MessageListener msgListener =
-                new org.jivesoftware.smack.MessageListener()
-                {
-                    public void processMessage(Chat arg0,
-                        org.jivesoftware.smack.packet.Message arg1)
-                    {
-                    }
-                };
-
-            Chat chat =
-                jabberProvider.getConnection().getChatManager().createChat(
-                    contact.getAddress(), msgListener);
-
             org.jivesoftware.smack.packet.Message msg =
                 new org.jivesoftware.smack.packet.Message();
 
-            WhiteboardObjectPacketExtensionImpl messageJI =
-                new WhiteboardObjectPacketExtensionImpl(
+            WhiteboardObjectPacketExtension messageJI =
+                new WhiteboardObjectPacketExtension(
                     (WhiteboardObjectJabberImpl) message,
-                    WhiteboardObjectPacketExtensionImpl.ACTION_DRAW);
+                    WhiteboardObjectPacketExtension.ACTION_DRAW);
 
             msg.addExtension(messageJI);
             msg.addExtension(new Version());
@@ -637,7 +659,7 @@ public class WhiteboardSessionJabberImpl
             MessageEventManager.addNotificationsRequests(msg, true, false,
                 false, true);
 
-            chat.sendMessage(msg);
+            smackChat.sendMessage(msg);
 
             WhiteboardObjectDeliveredEvent msgDeliveredEvt =
                 new WhiteboardObjectDeliveredEvent(
@@ -789,11 +811,15 @@ public class WhiteboardSessionJabberImpl
             if (eventID
                     == WhiteboardParticipantEvent
                         .WHITEBOARD_PARTICIPANT_ADDED)
+            {
                 listener.whiteboardParticipantAdded(cpEvent);
+            }
             else if (eventID
                     == WhiteboardParticipantEvent
-                        .WHITEBOARD_PARTICIPANT_REMVOVED)
+                        .WHITEBOARD_PARTICIPANT_REMOVED)
+            {
                 listener.whiteboardParticipantRemoved(cpEvent);
+            }
 
         }
     }
@@ -901,20 +927,7 @@ public class WhiteboardSessionJabberImpl
                     (WhiteboardObjectJabberImpl) (
                         (WhiteboardObjectReceivedEvent) evt)
                         .getSourceWhiteboardObject();
-                /*
-                for(int i = 0; i < whiteboardObjects.size (); i++)
-                {
-                    WhiteboardObjectJabberImpl obj =
-                      (WhiteboardObjectJabberImpl) whiteboardObjects.get (i);
-                    if(wbObj.getID ().equals (obj.getID ()))
-                    {
-                        whiteboardObjects.set (i, wbObj);
-                        listener.whiteboardObjecModified (
-                          (WhiteboardObjectModifiedEvent) evt);
-                        return;
-                    }
-                }
-                 */
+
                 listener.whiteboardObjectReceived(
                     (WhiteboardObjectReceivedEvent) evt);
 
@@ -1102,15 +1115,36 @@ public class WhiteboardSessionJabberImpl
             if (!(packet instanceof org.jivesoftware.smack.packet.Message))
                 return;
 
-            PacketExtension ext =
+            PacketExtension objectExt =
                 packet.getExtension(
-                    WhiteboardObjectPacketExtensionImpl.ELEMENT_NAME,
-                    WhiteboardObjectPacketExtensionImpl.NAMESPACE);
+                    WhiteboardObjectPacketExtension.ELEMENT_NAME,
+                    WhiteboardObjectPacketExtension.NAMESPACE);
+
+            PacketExtension sessionExt =
+                packet.getExtension(
+                    WhiteboardSessionPacketExtension.ELEMENT_NAME,
+                    WhiteboardSessionPacketExtension.NAMESPACE);
 
             org.jivesoftware.smack.packet.Message msg =
                 (org.jivesoftware.smack.packet.Message) packet;
 
-            if (ext == null)
+            if (sessionExt != null)
+            {
+                WhiteboardSessionPacketExtension sessionMessage
+                    = (WhiteboardSessionPacketExtension) sessionExt;
+
+                if (sessionMessage.getAction().equals(
+                    WhiteboardSessionPacketExtension.ACTION_LEAVE))
+                {
+                    fireWhiteboardParticipantEvent(
+                        findWhiteboardParticipantFromContactAddress(
+                            sessionMessage.getContactAddress()),
+                        WhiteboardParticipantEvent
+                            .WHITEBOARD_PARTICIPANT_REMOVED);
+                }
+            }
+
+            if (objectExt == null)
                 return;
 
             String fromUserID = StringUtils.parseBareAddress(msg.getFrom());
@@ -1137,8 +1171,8 @@ public class WhiteboardSessionJabberImpl
             if (!wbParticipants.containsKey(sourceContact.getAddress()))
                 return;
 
-            WhiteboardObjectPacketExtensionImpl newMessage
-                = (WhiteboardObjectPacketExtensionImpl) ext;
+            WhiteboardObjectPacketExtension newMessage
+                = (WhiteboardObjectPacketExtension) objectExt;
 
             if (msg.getType()
                     == org.jivesoftware.smack.packet.Message.Type.error)
@@ -1176,7 +1210,7 @@ public class WhiteboardSessionJabberImpl
             }
 
             if (newMessage.getAction().equals(
-                WhiteboardObjectPacketExtensionImpl.ACTION_DELETE))
+                WhiteboardObjectPacketExtension.ACTION_DELETE))
             {
                 WhiteboardObjectDeletedEvent msgDeletedEvt
                     = new WhiteboardObjectDeletedEvent(
@@ -1188,7 +1222,7 @@ public class WhiteboardSessionJabberImpl
                 fireMessageEvent(msgDeletedEvt);
             }
             else if (newMessage.getAction().equals(
-                WhiteboardObjectPacketExtensionImpl.ACTION_DRAW))
+                WhiteboardObjectPacketExtension.ACTION_DRAW))
             {
                 WhiteboardObjectReceivedEvent msgReceivedEvt
                     = new WhiteboardObjectReceivedEvent(
@@ -1216,5 +1250,30 @@ public class WhiteboardSessionJabberImpl
             return true;
 
         return false;
+    }
+
+    /**
+     * Searches all participants contained in this white board and returns the
+     * one that corresponds to the given contact address.
+     * 
+     * @param contactAddress the address of the contact to search for.
+     * @return the <tt>WhiteboardParticipant</tt>, contained in this
+     * white board session and corresponding to the given contact address
+     */
+    private WhiteboardParticipant findWhiteboardParticipantFromContactAddress(
+        String contactAddress)
+    {
+        Enumeration participants = wbParticipants.elements();
+
+        while(participants.hasMoreElements())
+        {
+            WhiteboardParticipant participant
+                = (WhiteboardParticipant) participants.nextElement();
+
+            if (participant.getContactAddress().equals(contactAddress))
+                return participant;
+        }
+
+        return null;
     }
 }
