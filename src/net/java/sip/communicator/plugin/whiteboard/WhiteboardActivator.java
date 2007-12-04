@@ -101,6 +101,9 @@ public class WhiteboardActivator implements BundleActivator
                         + e);
         }
 
+        if (serRefs == null)
+            return null;
+
         for (int i = 0; i < serRefs.length; i++)
         {
             ProtocolProviderService protocolProvider

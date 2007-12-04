@@ -53,6 +53,10 @@ public class WhiteboardSessionManager
 
     public WhiteboardSessionManager()
     {
+        if (WhiteboardActivator
+            .getWhiteboardOperationSets() == null)
+            return;
+
         Iterator opSets = WhiteboardActivator
             .getWhiteboardOperationSets().iterator();
 
@@ -649,6 +653,7 @@ public class WhiteboardSessionManager
                 if (frame == null)
                     return;
 
+                wbFrames.remove(frame);
                 frame.dispose();
                 whiteboardSession.removeWhiteboardObjectListener(
                     WhiteboardSessionManager.this);
@@ -663,6 +668,19 @@ public class WhiteboardSessionManager
             {
                 
             }
+        }
+    }
+
+    /**
+     * Removes a white board frame.
+     * 
+     * @param frame the frame to remove
+     */
+    public void removeWhiteboardWindow(WhiteboardFrame frame)
+    {
+        synchronized (wbFrames)
+        {
+            wbFrames.remove(frame);
         }
     }
 }
