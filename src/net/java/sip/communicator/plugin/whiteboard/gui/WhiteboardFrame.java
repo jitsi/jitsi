@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.whiteboard.gui;
 
 import java.awt.event.*;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.*;
@@ -19,7 +20,9 @@ import javax.swing.*;
 
 import net.java.sip.communicator.plugin.whiteboard.*;
 import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 import net.java.sip.communicator.util.Logger;
 
@@ -293,6 +296,9 @@ public class WhiteboardFrame
         this.drawCanvas = new WhiteboardPanel(displayList, this);
         this.sessionManager = wps;
         this.session = session;
+
+        this.session.addWhiteboardChangeListener(
+            new WhiteboardChangeListenerImpl());
 
         initComponents();
         initIcons();
@@ -1058,23 +1064,47 @@ public class WhiteboardFrame
         getContentPane().add(leftPanel, BorderLayout.WEST);
 
         fileMenu.setText(Resources.getString("file"));
-        fileMenu.setEnabled(false);
+
         newMenuItem.setText(Resources.getString("new"));
+        newMenuItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    if (session != null)
+                        session.join();
+                    else
+                        sessionManager.initWhiteboard(contact);
+                }
+                catch (OperationFailedException e1)
+                {
+                    logger.error("Creating new session failed.", e1);
+                }
+            }
+        });
         fileMenu.add(newMenuItem);
 
         openMenuItem.setText(Resources.getString("open"));
+        openMenuItem.setEnabled(false);
         fileMenu.add(openMenuItem);
 
         saveMenuItem.setText(Resources.getString("save"));
+        saveMenuItem.setEnabled(false);
         fileMenu.add(saveMenuItem);
 
-        sendMenuItem.setText(Resources.getString("send"));
-        fileMenu.add(sendMenuItem);
-
         printMenuItem.setText(Resources.getString("print"));
+        printMenuItem.setEnabled(false);
         fileMenu.add(printMenuItem);
 
         exitMenuItem.setText(Resources.getString("exit"));
+        exitMenuItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                session.leave();
+            }
+        });
         fileMenu.add(exitMenuItem);
 
         menuBar.add(fileMenu);
@@ -2476,5 +2506,26 @@ public class WhiteboardFrame
     public WhiteboardSession getWhiteboardSession()
     {
         return this.session;
+    }
+
+    private class WhiteboardChangeListenerImpl
+        implements WhiteboardChangeListener
+    {
+        public void whiteboardParticipantAdded(WhiteboardParticipantEvent evt)
+        {
+        }
+
+        public void whiteboardParticipantRemoved(WhiteboardParticipantEvent evt)
+        {
+            logger.trace("Whiteboard participant has left.");
+
+            WhiteboardActivator.getUiService().getPopupDialog()
+                .showMessagePopupDialog(contact.getAddress()
+                        + " has left the whiteboard.");
+        }
+
+        public void whiteboardStateChanged(WhiteboardChangeEvent evt)
+        {
+        }
     }
 }
