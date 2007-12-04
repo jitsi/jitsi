@@ -30,7 +30,7 @@ public class WhiteboardParticipantEvent
      * An event id value indicating that this event is about the fact that
      * the source whiteboard participant has left the source whiteboard.
      */
-    public static final int WHITEBOARD_PARTICIPANT_REMVOVED = 2;
+    public static final int WHITEBOARD_PARTICIPANT_REMOVED = 2;
 
     /**
      * The id indicating the type of this event.
