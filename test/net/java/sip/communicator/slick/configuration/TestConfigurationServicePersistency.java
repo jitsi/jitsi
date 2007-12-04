@@ -110,9 +110,14 @@ public class TestConfigurationServicePersistency extends TestCase
      */
     protected void setUp() throws Exception
     {
+        String confDirName = 
+            System.getProperty(
+                ConfigurationService.PNAME_SC_HOME_DIR_NAME, 
+                ".sip-communicator");
+        
         confFile = new File(System.getProperty("user.home")
                             + File.separator
-                            + ".sip-communicator"
+                            + confDirName
                             + File.separator
                             + ourConfFileName);
 
