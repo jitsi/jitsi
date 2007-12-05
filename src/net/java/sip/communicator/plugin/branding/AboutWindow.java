@@ -71,14 +71,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         this.rightsArea.setContentType("text/html");
 
-        String startDivTag = "<DIV id=\"message\">";
-        String endDivTag = "</DIV>";
-
-        this.rightsArea.appendToEnd(startDivTag
-                + "(c)2003-2007 Copyright <b>sip-communicator.org</b>."
-                + " All rights reserved. Visit "
-                + "<a href=\"http://sip-communicator.org\">"
-                + "http://sip-communicator.org</a>." + endDivTag);
+        this.rightsArea.appendToEnd(Resources.getString("copyright"));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 20));
         this.rightsArea
@@ -89,10 +82,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.rightsArea.addHyperlinkListener(this);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.appendToEnd(startDivTag
-                + "The <b>SIP Communicator</b> is distributed under the"
-                + " terms of the  LGPL " + "(<a href=\"http://www.gnu.org\">"
-                + "http://www.gnu.org</a>)." + endDivTag);
+        this.licenseArea.appendToEnd(Resources.getString("license"));
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
         this.licenseArea.setBorder(BorderFactory.createEmptyBorder(10, 180, 0,

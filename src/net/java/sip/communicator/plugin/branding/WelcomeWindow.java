@@ -72,7 +72,9 @@ public class WelcomeWindow extends JDialog
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 180, 0, 0));
 
         this.rightsArea.setContentType("text/html");
-        this.rightsArea.setText(Resources.getString("copyright"));
+        this.rightsArea.setText(Resources.getString("welcomeMessage",
+            new String[]{   BrandingResources.getString("productName"),
+                            BrandingResources.getString("productWebSite")}));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 10));
         this.rightsArea
@@ -118,10 +120,9 @@ public class WelcomeWindow extends JDialog
 
         this.mainPanel.setPreferredSize(new Dimension(570, 330));
 
-        this
-                .setLocation(
-                        Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 527 / 2,
-                        Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 305 / 2);
+        this.setLocation(
+            Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 527 / 2,
+            Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 305 / 2);
 
         // Close the splash screen on simple click or Esc.
         this.getGlassPane().addMouseListener(new MouseAdapter()
