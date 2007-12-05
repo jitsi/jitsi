@@ -74,7 +74,6 @@ public class StatusSimpleSelector
 
         if(provider.isRegistered())
         {
-            System.out.println("EHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOoo");
             icon = new ImageIcon(protocolProvider.getProtocolIcon()
                 .getIcon(ProtocolIcon.ICON_SIZE_16x16));
         }
