@@ -9,7 +9,8 @@ public class WelcomeWindow extends JDialog
 {
     private WindowBackground mainPanel = new WindowBackground();
 
-    private JLabel titleLabel = new JLabel("SIP Communicator");
+    private JLabel titleLabel
+        = new JLabel(BrandingResources.getString("productName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
@@ -17,51 +18,43 @@ public class WelcomeWindow extends JDialog
     private JTextArea logoArea = new JTextArea(Resources
             .getString("logoMessage"));
 
-    private JEditorPane rightsArea = new JEditorPane();
+    private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
 
-    private JEditorPane licenseArea = new JEditorPane();
+    private StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
 
     private JPanel textPanel = new JPanel();
 
     private static final Color DARK_BLUE = new Color(23, 65, 125);
 
-    private static final String FONT_NAME = "Verdana";
-
-    private static final String FONT_SIZE = "12";
-
-    private static final Font FONT = new Font(FONT_NAME, Font.PLAIN,
-            new Integer(FONT_SIZE).intValue());
-
     private JPanel loadingPanel = new JPanel(new BorderLayout());
 
-    private JLabel loadingLabel = new JLabel(Resources.getString("loading")
-            + ": ");
+    private JLabel loadingLabel = new JLabel(
+        Resources.getString("loading") + ": ");
 
     private JLabel bundleLabel = new JLabel();
 
     public WelcomeWindow()
     {
-        this.setTitle("SIP Communicator");
         this.setModal(false);
         this.setUndecorated(true);
 
         this.mainPanel.setLayout(new BorderLayout());
 
-        this.textPanel.setPreferredSize(new Dimension(470, 240));
+        this.textPanel.setPreferredSize(new Dimension(470, 280));
         this.textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
         this.textPanel
                 .setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
         this.textPanel.setOpaque(false);
 
-        this.titleLabel.setFont(FONT.deriveFont(Font.BOLD, 28));
+        this.titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
         this.titleLabel.setForeground(DARK_BLUE);
         this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.versionLabel.setFont(FONT.deriveFont(Font.BOLD, 18));
+        this.versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
         this.versionLabel.setForeground(Color.GRAY);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.logoArea.setFont(FONT.deriveFont(Font.BOLD, 12));
+        this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12));
         this.logoArea.setForeground(DARK_BLUE);
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
@@ -72,11 +65,11 @@ public class WelcomeWindow extends JDialog
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 180, 0, 0));
 
         this.rightsArea.setContentType("text/html");
-        this.rightsArea.setText(Resources.getString("welcomeMessage",
+        this.rightsArea.appendToEnd(Resources.getString("welcomeMessage",
             new String[]{   BrandingResources.getString("productName"),
                             BrandingResources.getString("productWebSite")}));
 
-        this.rightsArea.setPreferredSize(new Dimension(50, 10));
+        this.rightsArea.setPreferredSize(new Dimension(50, 50));
         this.rightsArea
                 .setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
         this.rightsArea.setOpaque(false);
@@ -84,7 +77,7 @@ public class WelcomeWindow extends JDialog
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.setText(Resources.getString("license", new String[]
+        this.licenseArea.appendToEnd(Resources.getString("license", new String[]
         {
             "<a href=http://sip-communicator.org>"
                     + "http://sip-communicator.org</a>"
@@ -102,8 +95,8 @@ public class WelcomeWindow extends JDialog
         this.loadingPanel.add(loadingLabel, BorderLayout.WEST);
         this.loadingPanel.add(bundleLabel, BorderLayout.CENTER);
         this.loadingPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.loadingPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10,
-                10));
+        this.loadingPanel.setBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         this.textPanel.add(titleLabel);
         this.textPanel.add(versionLabel);

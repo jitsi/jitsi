@@ -10,8 +10,8 @@ import java.text.*;
 import java.util.*;
 
 /**
- * The Messages class manages the access to the internationalization properties
- * files.
+ * The BrandingResources class manages the access to the
+ * brandingResources.properties file.
  *
  * @author Yana Stamcheva
  */

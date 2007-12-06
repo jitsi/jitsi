@@ -78,7 +78,7 @@ public class BrandingActivator implements BundleActivator, BundleListener
         // Add your menu item to the help menu
         if (aboutEntry == null)
         {
-            aboutEntry = new JMenuItem(Resources.getString("menuEntry"));
+            aboutEntry = new JMenuItem(Resources.getString("aboutMenuEntry"));
             aboutEntry.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)

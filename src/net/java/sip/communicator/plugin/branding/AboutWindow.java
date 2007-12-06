@@ -18,7 +18,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 {
     private WindowBackground mainPanel = new WindowBackground();
 
-    private JLabel titleLabel = new JLabel("SIP Communicator");
+    private JLabel titleLabel = new JLabel(
+        BrandingResources.getString("productName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
@@ -40,7 +41,10 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
     {
         super(owner);
 
-        this.setTitle(Resources.getString("about"));
+        this.setTitle(  Resources.getString("aboutWindowTitle",
+                        new String[]{BrandingResources
+                                        .getString("productName")}));
+
         this.setModal(false);
 
         this.mainPanel.setLayout(new BorderLayout());
@@ -139,12 +143,13 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
             {
                 bgImage = ImageIO.read(WindowBackground.class
                         .getResource("resources/aboutWindowBackground.png"));
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 bgImage = null;
             }
-            this.setPreferredSize(new Dimension(bgImage.getWidth(this), bgImage
-                    .getHeight(this)));
+            this.setPreferredSize(new Dimension(bgImage.getWidth(this),
+                                                bgImage.getHeight(this)));
         }
 
         protected void paintComponent(Graphics g)
@@ -174,8 +179,10 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
             if (serviceReference != null)
             {
-                BrowserLauncherService browserLauncherService = (BrowserLauncherService) BrandingActivator
+                BrowserLauncherService browserLauncherService
+                    = (BrowserLauncherService) BrandingActivator
                         .getBundleContext().getService(serviceReference);
+
                 browserLauncherService.openURL(href);
 
             }
