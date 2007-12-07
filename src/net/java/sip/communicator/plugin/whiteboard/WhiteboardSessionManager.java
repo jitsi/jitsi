@@ -71,38 +71,22 @@ public class WhiteboardSessionManager
     }
 
     /**
-     * Initialize (a new) Whiteboard with meta contact.
-     * Finds the first protocol contact that supports Whiteboarding
-     *
-     * @param mc Contact used to init whiteboard
-     */
-    public void initWhiteboard (MetaContact mc)
-    {
-        Contact contact = null;
-        ProtocolProviderService pps = null;
-        Iterator iter = mc.getContacts();
-        while (iter.hasNext())
-        {
-            contact = (Contact)iter.next();
-            pps = contact.getProtocolProvider();
-            
-            opSetWb = (OperationSetWhiteboarding)
-                pps.getOperationSet(OperationSetWhiteboarding.class);
-
-            if (opSetWb != null)
-                initWhiteboard(contact);
-        }
-        
-        logger.info("No contact found that supports whiteboarding");
-    }
-
-    /**
      * Initialize (a new) Whiteboard with contact
      *
      * @param contact Contact used to init whiteboard
      */
     public void initWhiteboard (final Contact contact)
     {
+        opSetWb = (OperationSetWhiteboarding)
+            contact.getProtocolProvider().
+                getOperationSet(OperationSetWhiteboarding.class);
+        
+        if (opSetWb == null)
+        {
+            logger.info("Contact does not support whiteboarding");
+            return;
+        }
+        
         WhiteboardFrame wbf = getWhiteboardFrame (contact);
         if(wbf != null)
         {

@@ -8,10 +8,12 @@ package net.java.sip.communicator.plugin.whiteboard;
 
 import java.awt.event.*;
 
+import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * WhiteboardMenuItem
@@ -19,7 +21,7 @@ import net.java.sip.communicator.service.gui.*;
  * @author Julien Waechter
  */
 public class WhiteboardMenuItem
-    extends JMenuItem
+    extends JMenu
     implements  ContactAwareComponent,
                 ActionListener
 {
@@ -40,9 +42,8 @@ public class WhiteboardMenuItem
      */
     public WhiteboardMenuItem (WhiteboardSessionManager session)
     {
-        super ("Whiteboard plugin");
+        super (Resources.getString("whiteboardMenuItemText"));
         this.session = session;
-        this.addActionListener (this);
         this.setIcon (Resources.getImage ("mpenIcon"));
     }
 
@@ -54,6 +55,36 @@ public class WhiteboardMenuItem
     public void setCurrentContact (MetaContact metaContact)
     {
         this.metaContact = metaContact;
+        
+        this.removeAll();
+        
+        Iterator iter = metaContact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact contact = (Contact)iter.next();
+            ProtocolProviderService pps = contact.getProtocolProvider();
+            
+            OperationSetWhiteboarding opSetWb = (OperationSetWhiteboarding)
+                pps.getOperationSet(OperationSetWhiteboarding.class);
+
+            String contactDisplayName = contact.getDisplayName();
+            
+            JMenuItem contactItem = new JMenuItem(contactDisplayName);
+            contactItem.setName(contact.getDisplayName() + pps.getProtocolName());
+
+            if (opSetWb != null)
+            {
+                contactItem.addActionListener(this);
+            }
+            else
+            {
+                contactItem.setEnabled(false);
+                contactItem.setToolTipText(
+                        Resources.getString("whiteboardMenuItemNotSupportedTooltip"));
+            }
+            
+            this.add(contactItem);
+        }
     }
 
     /**
@@ -72,6 +103,18 @@ public class WhiteboardMenuItem
      */
     public void actionPerformed (ActionEvent e)
     {
-        session.initWhiteboard (this.metaContact);
+        String itemID = ((JMenuItem)e.getSource()).getName();
+        Iterator i = this.metaContact.getContacts();
+
+        while(i.hasNext()) 
+        {
+            Contact contact = (Contact)i.next();
+
+            String id = contact.getAddress()
+                + contact.getProtocolProvider().getProtocolName();
+
+            if(itemID.equals(id)) 
+                session.initWhiteboard (contact);
+        }
     }
 }
