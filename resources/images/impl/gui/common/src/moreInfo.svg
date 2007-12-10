@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg1313"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/src"
+   sodipodi:docname="moreInfo.svg">
+  <defs
+     id="defs1315">
+    <linearGradient
+       id="linearGradient14399">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop14401" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:0.65486723;"
+         offset="1.0000000"
+         id="stop14403" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient7006">
+      <stop
+         id="stop2072"
+         offset="0.0000000"
+         style="stop-color:#ababab;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop7010" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5925">
+      <stop
+         style="stop-color:#ff8400;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop5927" />
+      <stop
+         id="stop5929"
+         offset="1.0000000"
+         style="stop-color:#ffc768;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5918">
+      <stop
+         id="stop5920"
+         offset="0.0000000"
+         style="stop-color:#143e7b;stop-opacity:1.0000000;" />
+      <stop
+         id="stop5922"
+         offset="1.0000000"
+         style="stop-color:#93aacc;stop-opacity:0.65486723;" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="22.197802"
+     inkscape:cx="8"
+     inkscape:cy="8"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px" />
+  <metadata
+     id="metadata1318">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:#37609b;fill-opacity:1;fill-rule:nonzero;stroke:#143e7b;stroke-width:0.34720781;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect33516"
+       width="2.7695508"
+       height="4.9787350"
+       x="6.7400293"
+       y="7.8975677"
+       ry="0.67025214"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/moreInfo.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:1.0000000;fill:#37609b;fill-opacity:1;fill-rule:nonzero;stroke:#143e7b;stroke-width:0.75817871;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="path33520"
+       sodipodi:cx="85.999420"
+       sodipodi:cy="148.24525"
+       sodipodi:rx="3.9848089"
+       sodipodi:ry="3.9848089"
+       d="M 89.984229,148.24525 A 3.9848089,3.9848089 0 1 1 89.984059,148.20844"
+       sodipodi:start="0.0000000"
+       sodipodi:end="6.2739468"
+       sodipodi:open="true"
+       transform="matrix(0.481029,0.000000,0.000000,0.435978,-33.33900,-59.72077)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/moreInfo.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+  </g>
+</svg>
