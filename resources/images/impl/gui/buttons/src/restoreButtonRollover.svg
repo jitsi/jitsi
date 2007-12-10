@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg3094"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/restoreButtonRollover.png"
+   inkscape:export-xdpi="90.000000"
+   inkscape:export-ydpi="90.000000"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/src"
+   sodipodi:docname="restoreButtonRollover.svg">
+  <defs
+     id="defs3096">
+    <linearGradient
+       id="linearGradient11116">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1;"
+         offset="0"
+         id="stop11118" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop11120" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient3087"
+       x1="-243.00000"
+       y1="213.95547"
+       x2="-213.20975"
+       y2="213.95547"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.362199,0.000000,0.000000,0.362199,90.01427,-69.30573)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="19.324309"
+     inkscape:cx="6.9366669"
+     inkscape:cy="7.7768810"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1016"
+     inkscape:window-height="692"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata3099">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#2f2f2f;stroke-width:0.72448283;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect3126"
+       width="15.275517"
+       height="15.275517"
+       x="0.31236124"
+       y="0.41212118"
+       ry="2.2054026"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/restoreButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:#656565;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#3c3c3c;stroke-width:0.13784535px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 13.931077,9.0303728 L 12.272828,7.0689227 L 10.588923,9.0303728 L 13.931077,9.0303728 z "
+       id="path1615"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/restoreButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       class="fil0 str3"
+       d="M 4.1782392,9.8531370 C 3.8321470,8.5034026 4.8702966,6.0192557 5.7602776,6.6620617 C 6.6249336,7.2865722 6.2875851,8.3051774 7.6450601,8.5193534 C 8.9033792,8.7178777 11.725482,4.8177148 11.516236,3.7288757 C 11.341356,2.8188868 9.1024148,2.6852534 8.5413867,2.7628727 C 7.2246556,2.9450479 6.6577851,3.2648769 6.2633540,3.4852389 C 5.9834140,3.6416328 3.2721983,5.1130047 2.4917896,8.2046967 C 2.0954425,9.7748880 2.7160054,11.464263 3.3083022,12.121104 C 5.7258505,14.802099 11.088577,13.693084 12.423273,10.560381 C 11.445257,11.722719 5.4370619,14.762481 4.1782392,9.8531370 z "
+       id="path1616"
+       style="opacity:1.0000000;fill:url(#linearGradient3087);fill-opacity:1.0000000;fill-rule:evenodd;stroke:#404e67;stroke-width:0.73345309;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:0.66536963"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/restoreButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="cssssssscs" />
+  </g>
+</svg>

@@ -1,0 +1,788 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   id="svg8849"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="addContactIcon.svg"
+   inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src/addContactIcon.png"
+   inkscape:export-xdpi="90.000000"
+   inkscape:export-ydpi="90.000000">
+  <defs
+     id="defs8851">
+    <linearGradient
+       id="linearGradient3964">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.87628865;"
+         offset="0"
+         id="stop3966" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop3968" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3081">
+      <stop
+         style="stop-color:#6c6c6c;stop-opacity:1;"
+         offset="0"
+         id="stop3083" />
+      <stop
+         style="stop-color:#6c6c6c;stop-opacity:0;"
+         offset="1"
+         id="stop3085" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3073">
+      <stop
+         style="stop-color:#6c6c6c;stop-opacity:1;"
+         offset="0"
+         id="stop3075" />
+      <stop
+         style="stop-color:#6c6c6c;stop-opacity:0;"
+         offset="1"
+         id="stop3077" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7006"
+       id="linearGradient29124"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.721869,1.488651,-1.636283,1.877362,-348.3661,-607.77)"
+       x1="256.82996"
+       y1="160.94670"
+       x2="265.52747"
+       y2="149.29527" />
+    <linearGradient
+       id="linearGradient7006">
+      <stop
+         id="stop2072"
+         offset="0.0000000"
+         style="stop-color:#ff8400;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffc768;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop7010" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7006"
+       id="radialGradient30586"
+       cx="85.544739"
+       cy="148.30347"
+       fx="85.544739"
+       fy="148.30347"
+       r="4.2038088"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.497065,1.508478,-1.09767,0.3617,204.6784,-34.43849)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient14399"
+       id="linearGradient33510"
+       x1="100.96832"
+       y1="145.19817"
+       x2="107.10591"
+       y2="151.14543"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(8.171232,0,0,8.248789,-1046.157,-1157.039)" />
+    <linearGradient
+       id="linearGradient14399">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop14401" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:0.65486723;"
+         offset="1.0000000"
+         id="stop14403" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3073"
+       id="linearGradient3079"
+       x1="85.99942"
+       y1="149.3611"
+       x2="85.99942"
+       y2="153.16811"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3081"
+       id="linearGradient3087"
+       x1="-110.23698"
+       y1="74.378044"
+       x2="-211.48506"
+       y2="-11.709903"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3964"
+       id="linearGradient4855"
+       x1="-185.8121"
+       y1="-17.254671"
+       x2="-151.74251"
+       y2="-17.377657"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3964"
+       id="linearGradient6625"
+       x1="-216.00299"
+       y1="47.485451"
+       x2="-216.00299"
+       y2="60.919796"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.722844,0,0,2.073068,-71.21054,-60.93884)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3964"
+       id="linearGradient7502"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0,0.93405,2.073068,0,-320.8538,238.7575)"
+       x1="-216.00299"
+       y1="47.485451"
+       x2="-216.00299"
+       y2="60.919796" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3964"
+       id="linearGradient7506"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.535087,1.357851,-1.458785,1.712408,-323.0305,-547.1501)"
+       x1="279.16541"
+       y1="142.05582"
+       x2="255.24031"
+       y2="155.09239" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7006"
+       id="linearGradient8390"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.721869,1.488651,-1.636283,1.877362,-348.3661,-607.77)"
+       x1="256.82996"
+       y1="160.94670"
+       x2="265.52747"
+       y2="149.29527" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3081"
+       id="linearGradient8392"
+       gradientUnits="userSpaceOnUse"
+       x1="-110.23698"
+       y1="74.378044"
+       x2="-211.48506"
+       y2="-11.709903" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7006"
+       id="radialGradient8394"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.497065,1.508478,-1.09767,0.3617,204.6784,-34.43849)"
+       cx="85.544739"
+       cy="148.30347"
+       fx="85.544739"
+       fy="148.30347"
+       r="4.2038088" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3073"
+       id="linearGradient8396"
+       gradientUnits="userSpaceOnUse"
+       x1="85.99942"
+       y1="149.3611"
+       x2="85.99942"
+       y2="153.16811" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient14399"
+       id="linearGradient8398"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(8.171232,0,0,8.248789,-1046.157,-1157.039)"
+       x1="100.96832"
+       y1="145.19817"
+       x2="107.10591"
+       y2="151.14543" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3964"
+       id="linearGradient8400"
+       gradientUnits="userSpaceOnUse"
+       x1="-185.8121"
+       y1="-17.254671"
+       x2="-151.74251"
+       y2="-17.377657" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3964"
+       id="linearGradient8402"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.535087,1.357851,-1.458785,1.712408,-323.0305,-547.1501)"
+       x1="279.16541"
+       y1="142.05582"
+       x2="255.24031"
+       y2="155.09239" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.92347427"
+     inkscape:cx="-127.51539"
+     inkscape:cy="-25.572138"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1672"
+     inkscape:window-height="973"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata8854">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       sodipodi:type="arc"
+       style="fill:none;fill-opacity:0.82410434;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.66666667"
+       id="path3972"
+       sodipodi:cx="-67.679199"
+       sodipodi:cy="-18.353325"
+       sodipodi:rx="18.408743"
+       sodipodi:ry="18.408743"
+       d="M -49.270456,-18.353325 A 18.408743,18.408743 0 1 1 -49.271242,-18.523392"
+       sodipodi:start="0"
+       sodipodi:end="6.2739468"
+       sodipodi:open="true" />
+    <g
+       id="g8383"
+       transform="matrix(0.975654,0,0,0.999102,-6.089344,-4.349466e-2)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/addContactIcon.png"
+         sodipodi:nodetypes="ccccc"
+         id="path29122"
+         d="M -176.78052,6.8276883 C -169.54751,9.9173323 -147.38942,8.5731823 -139.24417,4.1460123 C -118.75555,18.422826 -94.511419,67.888271 -101.28185,91.326391 C -120.27025,114.55448 -190.89503,113.40518 -209.21427,95.617321 C -222.15571,68.165491 -195.21914,19.962719 -176.78052,6.8276883 z "
+         style="fill:url(#linearGradient8390);fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient8392);stroke-width:3.59594297;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/addContactIcon.png"
+         transform="matrix(8.171233,0,0,8.248782,-860.2644,-1239.511)"
+         sodipodi:open="true"
+         sodipodi:end="6.2739468"
+         sodipodi:start="0"
+         d="M 89.984229,148.24525 A 3.9848089,3.9848089 0 1 1 89.984059,148.20844"
+         sodipodi:ry="3.9848089"
+         sodipodi:rx="3.9848089"
+         sodipodi:cy="148.24525"
+         sodipodi:cx="85.99942"
+         id="path29120"
+         style="opacity:1;fill:url(#radialGradient8394);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient8396);stroke-width:0.43799999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         sodipodi:type="arc" />
+      <path
+         id="rect32040"
+         d="M -197.15963,10.17952 C -204.47995,10.918503 -210.21695,17.199082 -210.21695,24.720626 L -210.21695,49.054721 L -233.95753,49.351481 C -241.90501,49.387991 -248.23771,55.648341 -248.20188,63.595821 L -248.20188,67.156911 C -248.16605,75.104411 -241.60826,81.437771 -233.66077,81.401261 L -210.21695,81.401261 L -210.21695,103.3613 C -210.21695,111.38429 -203.69883,117.90241 -195.67585,117.90241 L -192.70827,117.90241 C -184.68529,117.90241 -178.16716,111.38429 -178.16716,103.3613 L -178.16716,81.104511 L -155.91037,81.104511 C -151.43992,81.083961 -147.24628,78.960801 -144.63359,75.762871 C -142.73119,73.316801 -141.65092,70.213011 -141.66603,66.860161 L -141.66603,63.299071 C -141.70185,55.351581 -147.96289,48.721441 -155.91037,48.757961 L -178.16716,49.054721 L -178.16716,24.720626 C -178.16716,20.709132 -180.00092,16.951734 -182.61852,14.334126 C -185.21447,11.859614 -188.82214,10.17952 -192.70827,10.17952 L -195.67585,10.17952 C -196.17728,10.17952 -196.67161,10.130259 -197.15963,10.17952 z "
+         style="opacity:1;fill:url(#linearGradient8398);fill-opacity:1;fill-rule:nonzero;stroke:#6c6c6c;stroke-width:3.59594297;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         transform="matrix(1.189637,0.850019,-0.961215,1.345259,13.85231,140.0514)"
+         sodipodi:open="true"
+         sodipodi:end="6.2739468"
+         sodipodi:start="0"
+         d="M -149.43568,-17.541174 A 14.889424,14.889424 0 1 1 -149.43631,-17.678728"
+         sodipodi:ry="14.889424"
+         sodipodi:rx="14.889424"
+         sodipodi:cy="-17.541174"
+         sodipodi:cx="-164.3251"
+         id="path3974"
+         style="fill:url(#linearGradient8400);fill-opacity:1;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.66666667"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/addContactIcon.png"
+         sodipodi:nodetypes="ccccc"
+         id="path7504"
+         d="M -170.05788,13.44605 C -163.60948,16.26422 -143.85501,15.03818 -136.59333,11 C -118.32723,24.02239 -96.713023,69.14157 -102.74901,90.5203 C -119.67763,111.70745 -182.6413,110.65913 -198.97334,94.43421 C -210.51094,69.39443 -186.49635,25.42698 -170.05788,13.44605 z "
+         style="fill:url(#linearGradient8402);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.59594297;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <g
+       id="g1569"
+       transform="matrix(-1,0,0,1,-319.5711,0)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <g
+         transform="matrix(0,1,-1,0,-40.462,210.5266)"
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+         id="g2449">
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2245"
+           width="6"
+           height="6"
+           x="92.538002"
+           y="108.52655"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2247"
+           width="6"
+           height="6"
+           x="92.538002"
+           y="118.52655"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2249"
+           width="6"
+           height="6"
+           x="92.538002"
+           y="128.52655"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+      </g>
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+         transform="matrix(0,1,-1,0,-66.49853,259)"
+         id="g2411">
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2257"
+           width="6"
+           height="6"
+           x="80"
+           y="154"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2259"
+           width="6"
+           height="6"
+           x="80"
+           y="164"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2261"
+           width="6"
+           height="6"
+           x="80"
+           y="174"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2263"
+           width="6"
+           height="6"
+           x="80"
+           y="184"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+      </g>
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+         transform="matrix(-1,0,0,-1,-360,153)"
+         id="g2321">
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2323"
+           width="6"
+           height="6"
+           x="-201"
+           y="57"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2325"
+           width="6"
+           height="6"
+           x="-201"
+           y="47"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2327"
+           width="6"
+           height="6"
+           x="-201"
+           y="67"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2329"
+           width="6"
+           height="6"
+           x="-201"
+           y="77"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2331"
+           width="6"
+           height="6"
+           x="-201"
+           y="87"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect2333"
+           width="6"
+           height="6"
+           x="-201"
+           y="97"
+           rx="1.9999999"
+           ry="1.9999999" />
+      </g>
+      <g
+         transform="translate(7,-3.533619)"
+         id="g1425">
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1414"
+           width="6"
+           height="6"
+           x="127"
+           y="-102.00005"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="scale(-1,-1)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1416"
+           width="6"
+           height="6"
+           x="127"
+           y="-92.000053"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="scale(-1,-1)" />
+      </g>
+      <rect
+         transform="scale(-1,-1)"
+         ry="1.9999999"
+         rx="1.9999999"
+         y="-92"
+         x="109"
+         height="6"
+         width="6"
+         id="rect1423"
+         style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <g
+         id="g1445">
+        <g
+           id="g1429"
+           transform="matrix(-1,0,0,-1,-373,151)"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+           inkscape:export-xdpi="90"
+           inkscape:export-ydpi="90">
+          <rect
+             ry="1.9999999"
+             rx="1.9999999"
+             y="57"
+             x="-201"
+             height="6"
+             width="6"
+             id="rect1431"
+             style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+          <rect
+             ry="1.9999999"
+             rx="1.9999999"
+             y="47"
+             x="-201"
+             height="6"
+             width="6"
+             id="rect1433"
+             style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+          <rect
+             ry="1.9999999"
+             rx="1.9999999"
+             y="67"
+             x="-201"
+             height="6"
+             width="6"
+             id="rect1435"
+             style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+          <rect
+             ry="1.9999999"
+             rx="1.9999999"
+             y="77"
+             x="-201"
+             height="6"
+             width="6"
+             id="rect1437"
+             style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+          <rect
+             ry="1.9999999"
+             rx="1.9999999"
+             y="87"
+             x="-201"
+             height="6"
+             width="6"
+             id="rect1439"
+             style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+          <rect
+             ry="1.9999999"
+             rx="1.9999999"
+             y="97"
+             x="-201"
+             height="6"
+             width="6"
+             id="rect1441"
+             style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        </g>
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1443"
+           width="6"
+           height="6"
+           x="172"
+           y="-44"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="scale(-1,-1)" />
+      </g>
+      <g
+         id="g1497">
+        <g
+           id="g1455"
+           transform="translate(-12.53681,-3)">
+          <g
+             inkscape:export-ydpi="90"
+             inkscape:export-xdpi="90"
+             inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+             transform="matrix(-1,0,0,-1,-373,151)"
+             id="g1457">
+            <rect
+               style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="rect1459"
+               width="6"
+               height="6"
+               x="-201"
+               y="57"
+               rx="1.9999999"
+               ry="1.9999999" />
+            <rect
+               style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="rect1461"
+               width="6"
+               height="6"
+               x="-201"
+               y="47"
+               rx="1.9999999"
+               ry="1.9999999" />
+            <rect
+               style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="rect1463"
+               width="6"
+               height="6"
+               x="-201"
+               y="67"
+               rx="1.9999999"
+               ry="1.9999999" />
+            <rect
+               style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="rect1465"
+               width="6"
+               height="6"
+               x="-201"
+               y="77"
+               rx="1.9999999"
+               ry="1.9999999" />
+            <rect
+               style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="rect1467"
+               width="6"
+               height="6"
+               x="-201"
+               y="87"
+               rx="1.9999999"
+               ry="1.9999999" />
+            <rect
+               style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="rect1469"
+               width="6"
+               height="6"
+               x="-201"
+               y="97"
+               rx="1.9999999"
+               ry="1.9999999" />
+          </g>
+          <rect
+             transform="scale(-1,-1)"
+             ry="1.9999999"
+             rx="1.9999999"
+             y="-44"
+             x="172"
+             height="6"
+             width="6"
+             id="rect1471"
+             style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        </g>
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1473"
+           width="6"
+           height="6"
+           x="184.53"
+           y="-32"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="scale(-1,-1)" />
+      </g>
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+         transform="matrix(-1,0,0,-1,-397,144.5074)"
+         id="g1547">
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1549"
+           width="6"
+           height="6"
+           x="-201"
+           y="57"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1551"
+           width="6"
+           height="6"
+           x="-201"
+           y="47"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1553"
+           width="6"
+           height="6"
+           x="-201"
+           y="67"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1555"
+           width="6"
+           height="6"
+           x="-201"
+           y="77"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1557"
+           width="6"
+           height="6"
+           x="-201"
+           y="87"
+           rx="1.9999999"
+           ry="1.9999999" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1559"
+           width="6"
+           height="6"
+           x="-201"
+           y="97"
+           rx="1.9999999"
+           ry="1.9999999" />
+      </g>
+      <g
+         transform="matrix(0,1,-1,0,-113.462,199.5266)"
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/addContactWizardIcon.png"
+         id="g1561">
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1563"
+           width="6"
+           height="6"
+           x="92.538002"
+           y="108.52655"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1565"
+           width="6"
+           height="6"
+           x="92.538002"
+           y="118.52655"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+        <rect
+           style="fill:#ffffff;fill-opacity:0.75649348;stroke:none;stroke-width:1.57000005;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect1567"
+           width="6"
+           height="6"
+           x="92.538002"
+           y="128.52655"
+           rx="1.9999999"
+           ry="1.9999999"
+           transform="matrix(0,1,-1,0,0,0)" />
+      </g>
+    </g>
+  </g>
+</svg>

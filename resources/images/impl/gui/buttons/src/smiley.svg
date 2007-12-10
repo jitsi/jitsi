@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   id="svg1921"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="smily.svg">
+  <defs
+     id="defs1923">
+    <linearGradient
+       id="linearGradient2774">
+      <stop
+         style="stop-color:#aa3741;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2776" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop2778" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient15788">
+      <stop
+         id="stop15790"
+         offset="0.0000000"
+         style="stop-color:#ffc768;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ff8400;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop15792" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15788"
+       id="radialGradient1913"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.635675,-1.961020e-6,1.094146e-6,1.622788,254.0731,-287.8854)"
+       cx="-399.69098"
+       cy="462.25150"
+       fx="-399.69098"
+       fy="462.25150"
+       r="37.197224" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient15050">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop15052" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop15054" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15050"
+       id="linearGradient1911"
+       gradientUnits="userSpaceOnUse"
+       x1="-281.98486"
+       y1="335.07077"
+       x2="-281.98486"
+       y2="350.79114" />
+    <linearGradient
+       id="linearGradient11116">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1;"
+         offset="0"
+         id="stop11118" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop11120" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient1909"
+       gradientUnits="userSpaceOnUse"
+       x1="-336.00000"
+       y1="266.23877"
+       x2="-329.67947"
+       y2="266.23877"
+       gradientTransform="matrix(0.000000,-0.727608,0.727608,0.000000,-170.0531,-217.5186)" />
+    <linearGradient
+       y2="254.02150"
+       x2="-9.0964222"
+       y1="254.02150"
+       x1="-34.628567"
+       gradientTransform="matrix(0.814604,0.000000,0.000000,0.814604,-6.392184,45.16642)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient7820"
+       xlink:href="#linearGradient11116"
+       inkscape:collect="always" />
+    <linearGradient
+       id="linearGradient2212">
+      <stop
+         id="stop2214"
+         offset="0"
+         style="stop-color:#143e7b;stop-opacity:1;" />
+      <stop
+         id="stop2216"
+         offset="1.0000000"
+         style="stop-color:#93aacc;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       y2="258.66934"
+       x2="-27.272772"
+       y1="242.48491"
+       x1="-31.223625"
+       gradientTransform="matrix(0.630906,0.000000,0.000000,0.644661,-11.33490,88.76356)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient7822"
+       xlink:href="#linearGradient15050"
+       inkscape:collect="always" />
+    <linearGradient
+       y2="211.98978"
+       x2="-567.12726"
+       y1="166.56097"
+       x1="-567.31122"
+       gradientTransform="matrix(0.164338,0.000000,0.000000,1.122383,101.0243,-188.2016)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient6344"
+       xlink:href="#linearGradient15929"
+       inkscape:collect="always" />
+    <linearGradient
+       id="linearGradient15929">
+      <stop
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop15931" />
+      <stop
+         id="stop15933"
+         offset="0.50000000"
+         style="stop-color:#ffffff;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop15935" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15929"
+       id="linearGradient2229"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.164338,0.000000,0.000000,1.122383,101.0243,-188.2016)"
+       x1="-567.31122"
+       y1="166.56097"
+       x2="-567.12726"
+       y2="211.98978" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15788"
+       id="radialGradient2239"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.635675,-1.961020e-6,1.094146e-6,1.622788,254.0731,-287.8854)"
+       cx="-399.69098"
+       cy="462.25150"
+       fx="-399.69098"
+       fy="462.25150"
+       r="37.197224" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15050"
+       id="linearGradient2241"
+       gradientUnits="userSpaceOnUse"
+       x1="-281.98486"
+       y1="335.07077"
+       x2="-281.98486"
+       y2="350.79114" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2243"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.000000,-0.727608,0.727608,0.000000,-170.0531,-217.5186)"
+       x1="-336.00000"
+       y1="266.23877"
+       x2="-329.67947"
+       y2="266.23877" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15788"
+       id="radialGradient1358"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.635675,-1.961020e-6,1.094146e-6,1.622788,254.0731,-287.8854)"
+       cx="-399.69098"
+       cy="462.25150"
+       fx="-399.69098"
+       fy="462.25150"
+       r="37.197224" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15050"
+       id="linearGradient1360"
+       gradientUnits="userSpaceOnUse"
+       x1="-281.98486"
+       y1="335.07077"
+       x2="-281.98486"
+       y2="350.79114" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient1362"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.000000,-0.727608,0.727608,0.000000,-170.0531,-217.5186)"
+       x1="-336.00000"
+       y1="266.23877"
+       x2="-329.67947"
+       y2="266.23877" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="9.7482525"
+     inkscape:cx="16.000000"
+     inkscape:cy="16.000000"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1016"
+     inkscape:window-height="692"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata1926">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient2229);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c3c3c3;stroke-width:0.42947698;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect6342"
+       width="23.570522"
+       height="23.570023"
+       x="0.21473849"
+       y="8.2152386"
+       ry="4.4895282"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <g
+       id="g2231"
+       transform="matrix(0.745278,0.000000,0.000000,0.745278,0.332594,7.908474)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.286744,0.000000,0.000000,0.286744,129.3056,-116.3329)"
+         d="M -362.74475 462.25150 A 36.946224 36.466404 0 1 1  -436.63720,462.25150 A 36.946224 36.466404 0 1 1  -362.74475 462.25150 z"
+         sodipodi:ry="36.466404"
+         sodipodi:rx="36.946224"
+         sodipodi:cy="462.25150"
+         sodipodi:cx="-399.69098"
+         id="path1870"
+         style="opacity:1.0000000;fill:url(#radialGradient2239);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#b3b3b3;stroke-width:1.8726680;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.000000,1.055111,-0.853600,0.000000,313.2818,313.6803)"
+         sodipodi:open="true"
+         sodipodi:end="6.2739468"
+         sodipodi:start="0.0000000"
+         d="M -273.91787,347.03445 A 8.0669918,7.9770255 0 1 1 -273.91822,346.96076"
+         sodipodi:ry="7.9770255"
+         sodipodi:rx="8.0669918"
+         sodipodi:cy="347.03445"
+         sodipodi:cx="-281.98486"
+         id="path1872"
+         style="opacity:1.0000000;fill:url(#linearGradient2241);fill-opacity:1.0000000;fill-rule:nonzero;stroke:none;stroke-width:0.39899999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.286744,0.000000,0.000000,0.286744,136.7140,-116.4207)"
+         d="M -407.84793 455.05420 A 6.7174954 7.1973166 0 1 1  -421.28293,455.05420 A 6.7174954 7.1973166 0 1 1  -407.84793 455.05420 z"
+         sodipodi:ry="7.1973166"
+         sodipodi:rx="6.7174954"
+         sodipodi:cy="455.05420"
+         sodipodi:cx="-414.56543"
+         id="path1876"
+         style="opacity:1.0000000;fill:#656565;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#b3b3b3;stroke-width:1.2467583;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         sodipodi:nodetypes="cc"
+         id="path1878"
+         d="M 9.0975544,18.528352 C 9.0975544,18.528352 14.173324,28.466813 20.250906,18.636092"
+         style="fill:none;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#bc1e1e;stroke-width:1.6137973;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         id="path1907"
+         d="M 20.004066,22.510528 L 23.636765,26.807444 L 27.325666,22.510528 L 20.004066,22.510528 z "
+         style="fill:url(#linearGradient2243);fill-opacity:1.0000000;fill-rule:evenodd;stroke:#3c3c3c;stroke-width:0.30197555px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.286744,0.000000,0.000000,0.286744,130.9869,-116.4666)"
+         d="M -407.84793 455.05420 A 6.7174954 7.1973166 0 1 1  -421.28293,455.05420 A 6.7174954 7.1973166 0 1 1  -407.84793 455.05420 z"
+         sodipodi:ry="7.1973166"
+         sodipodi:rx="6.7174954"
+         sodipodi:cy="455.05420"
+         sodipodi:cx="-414.56543"
+         id="path3508"
+         style="opacity:1.0000000;fill:#656565;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#b3b3b3;stroke-width:1.2467583;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+    </g>
+    <rect
+       style="opacity:1.0000000;fill:none;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c3c3c3;stroke-width:0.42947698;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect1340"
+       width="23.570522"
+       height="23.570023"
+       x="27.024734"
+       y="8.2147388"
+       ry="4.4895282"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <g
+       id="g1342"
+       transform="matrix(0.745278,0.000000,0.000000,0.745278,27.14259,7.907975)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.286744,0.000000,0.000000,0.286744,129.3056,-116.3329)"
+         d="M -362.74475 462.25150 A 36.946224 36.466404 0 1 1  -436.63720,462.25150 A 36.946224 36.466404 0 1 1  -362.74475 462.25150 z"
+         sodipodi:ry="36.466404"
+         sodipodi:rx="36.946224"
+         sodipodi:cy="462.25150"
+         sodipodi:cx="-399.69098"
+         id="path1344"
+         style="opacity:1.0000000;fill:url(#radialGradient1358);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#b3b3b3;stroke-width:1.8726680;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.000000,1.055111,-0.853600,0.000000,313.2818,313.6803)"
+         sodipodi:open="true"
+         sodipodi:end="6.2739468"
+         sodipodi:start="0.0000000"
+         d="M -273.91787,347.03445 A 8.0669918,7.9770255 0 1 1 -273.91822,346.96076"
+         sodipodi:ry="7.9770255"
+         sodipodi:rx="8.0669918"
+         sodipodi:cy="347.03445"
+         sodipodi:cx="-281.98486"
+         id="path1346"
+         style="opacity:1.0000000;fill:url(#linearGradient1360);fill-opacity:1.0000000;fill-rule:nonzero;stroke:none;stroke-width:0.39899999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.286744,0.000000,0.000000,0.286744,136.7140,-116.4207)"
+         d="M -407.84793 455.05420 A 6.7174954 7.1973166 0 1 1  -421.28293,455.05420 A 6.7174954 7.1973166 0 1 1  -407.84793 455.05420 z"
+         sodipodi:ry="7.1973166"
+         sodipodi:rx="6.7174954"
+         sodipodi:cy="455.05420"
+         sodipodi:cx="-414.56543"
+         id="path1348"
+         style="opacity:1.0000000;fill:#656565;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#b3b3b3;stroke-width:1.2467583;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         sodipodi:nodetypes="cc"
+         id="path1350"
+         d="M 9.0975544,18.528352 C 9.0975544,18.528352 14.173324,28.466813 20.250906,18.636092"
+         style="fill:none;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#bc1e1e;stroke-width:1.6137973;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         id="path1352"
+         d="M 20.004066,22.510528 L 23.636765,26.807444 L 27.325666,22.510528 L 20.004066,22.510528 z "
+         style="fill:url(#linearGradient1362);fill-opacity:1.0000000;fill-rule:evenodd;stroke:#3c3c3c;stroke-width:0.30197555px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/smily.png"
+         transform="matrix(0.286744,0.000000,0.000000,0.286744,130.9869,-116.4666)"
+         d="M -407.84793 455.05420 A 6.7174954 7.1973166 0 1 1  -421.28293,455.05420 A 6.7174954 7.1973166 0 1 1  -407.84793 455.05420 z"
+         sodipodi:ry="7.1973166"
+         sodipodi:rx="6.7174954"
+         sodipodi:cy="455.05420"
+         sodipodi:cx="-414.56543"
+         id="path1354"
+         style="opacity:1.0000000;fill:#656565;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#b3b3b3;stroke-width:1.2467583;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+    </g>
+  </g>
+</svg>

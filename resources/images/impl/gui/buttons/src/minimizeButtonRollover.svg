@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg3094"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/minimizeButtonRollover.png"
+   inkscape:export-xdpi="90.000000"
+   inkscape:export-ydpi="90.000000"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/src"
+   sodipodi:docname="minimizeButtonRollover.svg">
+  <defs
+     id="defs3096">
+    <linearGradient
+       id="linearGradient3493">
+      <stop
+         id="stop3495"
+         offset="0.0000000"
+         style="stop-color:#ffc768;stop-opacity:1.0000000;" />
+      <stop
+         id="stop3497"
+         offset="1.0000000"
+         style="stop-color:#ff8400;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient11116">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1;"
+         offset="0"
+         id="stop11118" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop11120" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3493"
+       id="radialGradient9330"
+       cx="7.9997759"
+       cy="8.0004930"
+       fx="7.9997759"
+       fy="8.0004930"
+       r="5.0503049"
+       gradientTransform="matrix(0.871539,7.131585e-7,-7.329425e-7,0.895716,1.027892,0.834669)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3493"
+       id="radialGradient15162"
+       cx="-8.0085258"
+       cy="7.9738669"
+       fx="-8.0085258"
+       fy="7.9738669"
+       r="4.9914746"
+       gradientTransform="matrix(1.001708,0.000000,0.000000,1.006944,16.02220,-3.100580e-3)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3493"
+       id="radialGradient15165"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.773627,1.351649e-6,-1.260975e-6,0.721729,14.19562,2.244097)"
+       cx="-8.0085258"
+       cy="7.9738669"
+       fx="-8.0085258"
+       fy="7.9738669"
+       r="4.9914746" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="19.324309"
+     inkscape:cx="6.9366669"
+     inkscape:cy="7.7768810"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1016"
+     inkscape:window-height="692"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata3099">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#3c3c3c;stroke-width:0.72448283;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect3126"
+       width="15.275517"
+       height="15.275517"
+       x="0.36224142"
+       y="0.36224112"
+       ry="2.2054026"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/minimizeButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:none;stroke-width:0.44400001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect2038"
+       width="0.59744418"
+       height="2.0000000"
+       x="10.402555"
+       y="10.000000"
+       ry="0.29872209" />
+    <rect
+       style="opacity:1.0000000;fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:none;stroke-width:0.44400001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect2040"
+       width="1.0997012"
+       height="9.4217520"
+       x="9.9003010"
+       y="2.5782566"
+       ry="0.0000000" />
+    <path
+       style="opacity:1.0000000;fill:url(#radialGradient15165);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#474747;stroke-width:0.71606141;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 4.7131453,3.3561521 C 4.4612288,3.3552033 4.2182305,3.4459181 4.0244711,3.6359228 L 3.6488306,4.0089503 C 3.2613119,4.3889594 3.2642248,4.9938007 3.6488306,5.3767178 L 6.2783143,7.9879103 L 3.6488306,10.599102 C 3.2642248,10.982020 3.2613109,11.617946 3.6488306,11.997956 L 4.0244711,12.370983 C 4.4119908,12.750993 5.0172138,12.722815 5.4018196,12.339898 L 8.0313033,9.7287053 L 10.598180,12.308812 C 10.982785,12.691729 11.588009,12.688821 11.975529,12.308812 L 12.351169,11.935784 C 12.738688,11.555775 12.735774,10.950934 12.351169,10.568017 L 9.7842923,7.9879103 L 12.351169,5.4388890 C 12.735775,5.0559713 12.738689,4.4511312 12.351169,4.0711215 L 11.975529,3.6980940 C 11.588009,3.3180844 10.982786,3.3151763 10.598180,3.6980940 L 8.0313033,6.2471153 L 5.4018196,3.6359228 C 5.2095167,3.4444642 4.9650619,3.3571009 4.7131453,3.3561521 z "
+       id="rect10058" />
+  </g>
+</svg>

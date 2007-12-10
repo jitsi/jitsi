@@ -1,0 +1,1995 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="64px"
+   height="64px"
+   id="svg8168"
+   sodipodi:version="0.32"
+   inkscape:version="0.44.1"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="blueCallButton.svg">
+  <defs
+     id="defs8170">
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient9258"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient9256"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient9254"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient9252"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       id="linearGradient7966">
+      <stop
+         id="stop7968"
+         offset="0"
+         style="stop-color:#d4d4d4;stop-opacity:1;" />
+      <stop
+         id="stop7970"
+         offset="1"
+         style="stop-color:#d4d4d4;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient7960">
+      <stop
+         style="stop-color:#173f7b;stop-opacity:1;"
+         offset="0"
+         id="stop7962" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:0.0000000;"
+         offset="1.0000000"
+         id="stop7964" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient7948">
+      <stop
+         id="stop7950"
+         offset="0"
+         style="stop-color:#143e7b;stop-opacity:1;" />
+      <stop
+         id="stop7952"
+         offset="1.0000000"
+         style="stop-color:#93aacc;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient7942">
+      <stop
+         id="stop7944"
+         offset="0"
+         style="stop-color:#c6c6c6;stop-opacity:1;" />
+      <stop
+         id="stop7946"
+         offset="1"
+         style="stop-color:white;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2789">
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="0"
+         id="stop2791" />
+      <stop
+         style="stop-color:white;stop-opacity:0;"
+         offset="1"
+         id="stop2793" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4354">
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="0"
+         id="stop4356" />
+      <stop
+         style="stop-color:white;stop-opacity:0;"
+         offset="1"
+         id="stop4358" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient15929">
+      <stop
+         id="stop15931"
+         offset="0.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="0.50000000"
+         id="stop15933" />
+      <stop
+         id="stop15935"
+         offset="1.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient11116">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1;"
+         offset="0"
+         id="stop11118" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop11120" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2805">
+      <stop
+         id="stop2807"
+         offset="0"
+         style="stop-color:#143e7b;stop-opacity:1;" />
+      <stop
+         id="stop2809"
+         offset="1.0000000"
+         style="stop-color:#93aacc;stop-opacity:0.0000000;" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4354"
+       id="linearGradient4360"
+       x1="-44.845203"
+       y1="27.3981"
+       x2="-33.22308"
+       y2="38.662273"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.09257,0,0,1.09257,40.34724,-77.72728)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient4686"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient4688"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient4690"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient4692"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2789"
+       id="linearGradient4697"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.532668,0,0,1.532668,-6.674833,-27.25374)"
+       x1="38.38089"
+       y1="22.400967"
+       x2="31.714211"
+       y2="34.969948" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient4708"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.505877,0,0,1.387679,-14.79559,-10.31784)"
+       x1="31.449093"
+       y1="41.570244"
+       x2="31.449154"
+       y2="24.898624" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient4710"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-13.25095,-21.65256)"
+       x1="31.289642"
+       y1="47.139446"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient4713"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-13.25095,-20.18838)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient4715"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-13.25095,-21.65256)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.564920" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7942"
+       id="linearGradient7039"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,44.0703,-20.19755)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7942"
+       id="linearGradient7041"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,44.0703,-21.66173)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.56492" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7942"
+       id="linearGradient7043"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.505877,0,0,1.387679,42.52566,-10.32701)"
+       x1="31.449093"
+       y1="41.570244"
+       x2="31.449154"
+       y2="24.898624" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7942"
+       id="linearGradient7045"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,44.0703,-21.66173)"
+       x1="31.289642"
+       y1="47.139446"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2789"
+       id="linearGradient7055"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.532668,0,0,1.532668,50.64642,-27.26291)"
+       x1="38.38089"
+       y1="22.400967"
+       x2="31.714211"
+       y2="34.969948" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7966"
+       id="linearGradient7955"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.079627,0,0,1.513709,50.68731,-21.82056)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7942"
+       id="linearGradient7958"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.925804,0,0,1.513709,53.08742,-21.82056)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7966"
+       id="linearGradient7973"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1.079627,0,0,1.513709,129.1349,-21.82072)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7942"
+       id="linearGradient7976"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.925804,0,0,1.513709,126.7347,-21.82072)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2789"
+       id="linearGradient12970"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.532668,0,0,1.532668,-6.674833,-27.25374)"
+       x1="38.38089"
+       y1="22.400967"
+       x2="31.714211"
+       y2="34.969948" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient12981"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.505877,0,0,1.387679,-14.79559,-10.31784)"
+       x1="31.449093"
+       y1="41.570244"
+       x2="31.449154"
+       y2="24.898624" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient12983"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-13.25095,-21.65256)"
+       x1="31.289642"
+       y1="47.139446"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient12986"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-13.25095,-20.18838)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient12988"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-13.25095,-21.65256)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.564920" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2027"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.505877,0,0,1.387679,-76.27828,-10.07478)"
+       x1="31.449093"
+       y1="41.570244"
+       x2="31.449154"
+       y2="24.898624" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2029"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-74.73368,-21.4095)"
+       x1="31.289642"
+       y1="47.139446"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2032"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-74.73368,-19.94532)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2034"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-74.73368,-21.4095)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.564920" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient3870"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-130.9151,-19.81724)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient3872"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-130.9151,-21.28142)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.564920" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient3874"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.505877,0,0,1.387679,-132.4598,-9.946708)"
+       x1="31.449093"
+       y1="41.570244"
+       x2="31.449154"
+       y2="24.898624" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient3876"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-130.9151,-21.28142)"
+       x1="31.289642"
+       y1="47.139446"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient3878"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient3880"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient3882"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient3884"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2789"
+       id="linearGradient3886"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.532668,0,0,1.532668,-124.339,-26.8826)"
+       x1="38.38089"
+       y1="22.400967"
+       x2="31.714211"
+       y2="34.969948" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2983"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-200.3484,-19.11856)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2985"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-200.3484,-20.58274)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.564920" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2987"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.505877,0,0,1.387679,-201.893,-9.248021)"
+       x1="31.449093"
+       y1="41.570244"
+       x2="31.449154"
+       y2="24.898624" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2989"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.464185,0,0,1.464185,-200.3484,-20.58274)"
+       x1="31.289642"
+       y1="47.139446"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2991"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient2993"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2995"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.604047,0,0,0.98763,0.960711,4.125694)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2805"
+       id="linearGradient2997"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70441,0,0,0.98763,-0.605259,4.125694)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2789"
+       id="linearGradient2999"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.532668,0,0,1.532668,-193.7723,-26.18392)"
+       x1="38.38089"
+       y1="22.400967"
+       x2="31.714211"
+       y2="34.969948" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.6286466"
+     inkscape:cx="-70.910785"
+     inkscape:cy="29.938678"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:document-units="px"
+     inkscape:grid-bbox="true"
+     inkscape:window-width="1672"
+     inkscape:window-height="989"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata8173">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <g
+       id="g4623"
+       transform="matrix(1.532668,0,0,1.532668,-5.936375,-28.19398)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4625"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4627"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4629"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4631"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4633"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4635"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4637"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4639"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4641"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4643"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4645"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4647"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect4649"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <rect
+       rx="2.8946078"
+       style="fill:url(#linearGradient12986);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient12988);stroke-width:0.92508;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect9658"
+       width="45.928165"
+       height="45.929337"
+       x="9.6374502"
+       y="7.0914073"
+       ry="2.8946078"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       rx="2.8374817"
+       style="fill:url(#linearGradient12981);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient12983);stroke-width:0.9253633;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5284"
+       width="46.005478"
+       height="33.676189"
+       x="9.5601397"
+       y="19.344551"
+       ry="2.8374817"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       class="fil0 str3"
+       d="M 22.326069,34.181864 C 21.357758,30.350095 24.262342,23.297835 26.752379,25.122696 C 29.171563,26.895629 28.227711,29.787354 32.025716,30.395371 C 35.546307,30.958971 43.442128,19.886774 42.856695,16.795666 C 42.367406,14.212302 36.103183,13.832922 34.533504,14.053282 C 30.849492,14.570451 29.263471,15.478419 28.159912,16.104002 C 27.37668,16.547993 19.791102,20.725073 17.607642,29.502097 C 16.498716,33.959718 18.234961,38.755698 19.892114,40.6204 C 23.274084,44.425943 28.716096,45.541618 33.779401,44.594227 C 38.842706,43.646835 43.527304,40.63638 45.394445,36.189662 C 44.026274,37.839543 39.139679,40.82188 34.154877,41.649604 C 29.170075,42.477329 24.087068,41.150437 22.326069,34.181864 z "
+       id="path4593"
+       style="fill:#2a5189;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="csssssssscss" />
+    <path
+       class="fil0 str3"
+       d="M 24.667081,36.299136 C 23.698771,32.467367 26.603354,25.415107 29.093391,27.239968 C 31.512576,29.012901 30.568724,31.904626 34.366729,32.512643 C 37.887319,33.076243 45.78314,22.004046 45.197707,18.912938 C 44.708418,16.329574 38.444196,15.950194 36.874517,16.170554 C 33.190504,16.687723 31.604484,17.595691 30.500925,18.221274 C 29.717693,18.665265 22.132114,22.842345 19.948654,31.619369 C 18.839729,36.07699 20.575974,40.87297 22.233126,42.737672 C 25.615096,46.543215 31.057108,47.65889 36.120413,46.711499 C 41.183719,45.764107 45.868317,42.753652 47.735457,38.306934 C 46.367286,39.956815 41.480691,42.939152 36.49589,43.766876 C 31.511088,44.594601 26.42808,43.267709 24.667081,36.299136 z "
+       id="path1402"
+       style="fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="csssssssscss" />
+    <g
+       id="g2564"
+       transform="matrix(1.532668,0,0,1.532668,-5.706279,-28.13471)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path20627"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient4686);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path2075"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient4688);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <g
+       id="g2568"
+       transform="matrix(-1.532668,0,0,1.532668,70.88596,-28.13487)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path2570"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient4690);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path2572"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient4692);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <rect
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient12970);stroke-width:1.49588394;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7395"
+       width="43.39764"
+       height="34.152649"
+       x="9.8865442"
+       y="9.2672558"
+       ry="1.9999999"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       rx="2" />
+    <g
+       id="g7978"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonDisabled.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         transform="matrix(1.532668,0,0,1.532668,51.38487,-28.20315)"
+         id="g6989">
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect6991"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect6993"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect6995"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect6997"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect6999"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7001"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7003"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7005"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7007"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7009"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7011"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7013"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+        <rect
+           style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect7015"
+           width="30.226336"
+           height="30.225677"
+           x="10.433349"
+           y="23.421028"
+           ry="2.2875211"
+           inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+           inkscape:export-xdpi="90.000000"
+           inkscape:export-ydpi="90.000000"
+           rx="2.2875211" />
+      </g>
+      <rect
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         ry="2.8946078"
+         y="7.0822358"
+         x="66.958702"
+         height="45.929337"
+         width="45.928165"
+         id="rect7017"
+         style="fill:url(#linearGradient7039);fill-opacity:1.0;fill-rule:nonzero;stroke:url(#linearGradient7041);stroke-width:0.92508;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         rx="2.8946078" />
+      <rect
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         ry="2.8374817"
+         y="19.335379"
+         x="66.881386"
+         height="33.676189"
+         width="46.005478"
+         id="rect7019"
+         style="fill:url(#linearGradient7043);fill-opacity:1.0;fill-rule:nonzero;stroke:url(#linearGradient7045);stroke-width:0.9253633;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         rx="2.8374817" />
+      <path
+         sodipodi:nodetypes="csssssssscss"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         style="fill:#989898;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path7021"
+         d="M 79.647321,34.172693 C 78.67901,30.340924 81.583594,23.288664 84.073631,25.113525 C 86.492815,26.886458 85.548963,29.778183 89.346968,30.3862 C 92.867559,30.9498 100.76338,19.877603 100.17794,16.786495 C 99.688658,14.203131 93.424435,13.823751 91.854756,14.044111 C 88.170744,14.56128 86.584723,15.469248 85.481164,16.094831 C 84.697932,16.538822 77.112354,20.715902 74.928894,29.492926 C 73.819968,33.950547 75.556213,38.746527 77.213366,40.611229 C 80.595336,44.416772 86.037348,45.532447 91.100653,44.585056 C 96.163958,43.637664 100.84855,40.627209 102.71569,36.180491 C 101.34752,37.830372 96.460931,40.812709 91.476129,41.640433 C 86.491327,42.468158 81.40832,41.141266 79.647321,34.172693 z "
+         class="fil0 str3" />
+      <path
+         sodipodi:nodetypes="csssssssscss"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         style="fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path7023"
+         d="M 81.988333,36.289965 C 81.020023,32.458196 83.924606,25.405936 86.414643,27.230797 C 88.833828,29.00373 87.889976,31.895455 91.687981,32.503472 C 95.208571,33.067072 103.10439,21.994875 102.51896,18.903767 C 102.02967,16.320403 95.765448,15.941023 94.195769,16.161383 C 90.511756,16.678552 88.925736,17.58652 87.822177,18.212103 C 87.038945,18.656094 79.453366,22.833174 77.269906,31.610198 C 76.160981,36.067819 77.897226,40.863799 79.554378,42.728501 C 82.936348,46.534044 88.37836,47.649719 93.441665,46.702328 C 98.504971,45.754936 103.18957,42.744481 105.05671,38.297763 C 103.68854,39.947644 98.801943,42.929981 93.817142,43.757705 C 88.83234,44.58543 83.749332,43.258538 81.988333,36.289965 z "
+         class="fil0 str3" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path7027"
+         d="M 67.678177,11.056782 C 67.678177,11.056782 70.966982,30.917868 67.532863,50.589706 C 67.532863,50.589706 67.712122,11.014524 67.575089,10.680296"
+         style="fill:url(#linearGradient7958);fill-opacity:1.0;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path7029"
+         d="M 67.702321,11.056782 C 67.702321,11.056782 71.53756,30.917868 67.532863,50.589706 C 67.532863,50.589706 67.741905,11.014524 67.582106,10.680296"
+         style="fill:url(#linearGradient7955);fill-opacity:1.0;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path7033"
+         d="M 112.14399,11.056622 C 112.14399,11.056622 108.85519,30.917708 112.28931,50.589546 C 112.28931,50.589546 112.11005,11.014364 112.24708,10.680136"
+         style="fill:url(#linearGradient7976);fill-opacity:1.0;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path7035"
+         d="M 112.11985,11.056622 C 112.11985,11.056622 108.28461,30.917708 112.28931,50.589546 C 112.28931,50.589546 112.08026,11.014364 112.24006,10.680136"
+         style="fill:url(#linearGradient7973);fill-opacity:1.0;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <rect
+         rx="2"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         ry="1.9999999"
+         y="9.2580853"
+         x="67.207794"
+         height="34.152649"
+         width="43.39764"
+         id="rect7037"
+         style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient7055);stroke-width:1.49588394;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <g
+       id="g9194"
+       transform="matrix(1.532668,0,0,1.532668,-67.41907,-27.95092)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9196"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9198"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9200"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9202"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9204"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9206"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9208"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9210"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9212"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9214"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9216"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9218"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect9220"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <rect
+       rx="2.8946078"
+       style="fill:url(#linearGradient2032);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient2034);stroke-width:0.92508;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect9222"
+       width="45.928165"
+       height="45.929337"
+       x="-51.845249"
+       y="7.3344727"
+       ry="2.8946078"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       rx="2.8374817"
+       style="fill:url(#linearGradient2027);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient2029);stroke-width:0.9253633;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect9224"
+       width="46.005478"
+       height="33.676189"
+       x="-51.922558"
+       y="19.587618"
+       ry="2.8374817"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       class="fil0 str3"
+       d="M -39.156633,34.42493 C -40.124944,30.593161 -37.22036,23.540901 -34.730323,25.365762 C -32.311139,27.138695 -33.254991,30.03042 -29.456986,30.638437 C -25.936395,31.202037 -18.040574,20.12984 -18.626007,17.038732 C -19.115296,14.455368 -25.379519,14.075988 -26.949198,14.296348 C -30.63321,14.813517 -32.219231,15.721485 -33.32279,16.347068 C -34.106022,16.791059 -41.6916,20.968139 -43.87506,29.745163 C -44.983986,34.202784 -43.247741,38.998764 -41.590588,40.863466 C -38.208618,44.669009 -32.766606,45.784684 -27.703301,44.837293 C -22.639996,43.889901 -17.955398,40.879446 -16.088257,36.432728 C -17.456428,38.082609 -22.343023,41.064946 -27.327825,41.89267 C -32.312627,42.720395 -37.395634,41.393503 -39.156633,34.42493 z "
+       id="path9226"
+       style="fill:#2a5189;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="csssssssscss" />
+    <path
+       class="fil0 str3"
+       d="M -36.815621,36.542202 C -37.783931,32.710433 -34.879348,25.658173 -32.389311,27.483034 C -29.970126,29.255967 -30.913978,32.147692 -27.115973,32.755709 C -23.595383,33.319309 -15.699562,22.247112 -16.284995,19.156004 C -16.774284,16.57264 -23.038506,16.19326 -24.608185,16.41362 C -28.292198,16.930789 -29.878218,17.838757 -30.981777,18.46434 C -31.765009,18.908331 -39.350588,23.085411 -41.534048,31.862435 C -42.642973,36.320056 -40.906728,41.116036 -39.249576,42.980738 C -35.867606,46.786281 -30.425594,47.901956 -25.362289,46.954565 C -20.298983,46.007173 -15.614385,42.996718 -13.747245,38.55 C -15.115416,40.199881 -20.002011,43.182218 -24.986812,44.009942 C -29.971614,44.837667 -35.054622,43.510775 -36.815621,36.542202 z "
+       id="path9228"
+       style="fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="csssssssscss" />
+    <g
+       id="g9230"
+       transform="matrix(1.532668,0,0,1.532668,-67.18898,-27.89165)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path9232"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient9252);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path9234"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient9254);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <g
+       id="g9236"
+       transform="matrix(-1.532668,0,0,1.532668,9.403256,-27.89181)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path9238"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient9256);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path9240"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient9258);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <g
+       id="g9262"
+       transform="translate(18.04333,6.987712)">
+      <path
+         style="opacity:0.14285697;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1"
+         d="M -42.21875,10.40625 C -53.25887,11.267623 -63.928258,25.63049 -56.25,35.625 C -51.136269,40.837323 -42.132654,40.094242 -36.5625,35.96875 C -42.766734,39.691555 -53.241986,39.320755 -55.46875,31.09375 C -56.800851,27.079939 -55.76776,19.763193 -50.75,19.25 C -47.693201,20.084979 -47.289001,26.860387 -43.3125,24.125 C -39.858459,21.076147 -35.511805,16.72128 -35.53125,11.96875 C -37.217183,10.420911 -39.999626,10.410896 -42.21875,10.40625 z "
+         id="path9264" />
+      <path
+         style="opacity:0.14285697;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1"
+         d="M -42.25,10.0625 C -51.849703,11.144216 -60.588325,20.738555 -59,30.5625 C -57.562468,39.892198 -45.365648,41.701535 -38.3125,37.46875 C -37.191945,37.103636 -32.975651,33.570437 -35.586195,35.098772 C -41.173292,38.324817 -50.355952,39.917675 -54.125,33.21875 C -56.71944,29.107002 -56.198915,22.078789 -51.71875,19.59375 C -47.820213,19.19904 -48.181267,26.611472 -43.90625,24.84375 C -39.71309,21.93674 -35.797887,17.231327 -35.03125,12.1875 C -36.355697,9.9926513 -40.014582,10.148689 -42.25,10.0625 z "
+         id="path9269" />
+      <path
+         style="opacity:0.14285697;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1"
+         d="M -42.28125,9.75 C -49.643433,10.379236 -56.029219,16.241219 -58.640757,22.971082 C -60.86016,28.419689 -59.180022,35.959943 -53.4375,38.5 C -46.538084,41.680153 -37.186346,39.490143 -32.9375,33 C -37.554169,36.29439 -43.84036,38.802406 -49.46875,36.90625 C -54.634882,34.814281 -56.76726,28.094638 -54.40625,23.15625 C -53.832892,21.434725 -51.937036,18.744794 -49.96875,20.40625 C -48.151861,22.022802 -47.939346,25.42789 -45,25.4375 C -41.763278,24.875602 -39.803818,21.699488 -37.864767,19.294148 C -36.501859,17.058981 -34.289968,14.554994 -34.8125,11.84375 C -36.448075,9.7327836 -39.849486,9.7611272 -42.28125,9.75 z "
+         id="path9274" />
+      <path
+         style="opacity:0.14285697;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1"
+         d="M -54.858951,29.55449 C -55.827261,25.722721 -52.922678,18.670461 -50.432641,20.495322 C -48.013456,22.268255 -48.957308,25.15998 -45.159303,25.767997 C -41.638713,26.331597 -33.742892,15.2594 -34.328325,12.168292 C -34.817614,9.5849278 -41.081836,9.2055478 -42.651515,9.4259078 C -46.335528,9.9430768 -47.921548,10.851045 -49.025107,11.476628 C -49.808339,11.920619 -57.393918,16.097699 -59.577378,24.874723 C -60.686303,29.332344 -58.950058,34.128324 -57.292906,35.993026 C -53.910936,39.798569 -48.468924,40.914244 -43.405619,39.966853 C -38.342313,39.019461 -33.657715,36.009006 -31.790575,31.562288 C -33.158746,33.212169 -38.045341,36.194506 -43.030142,37.02223 C -48.014944,37.849955 -53.097952,36.523063 -54.858951,29.55449 z "
+         id="path9279" />
+    </g>
+    <g
+       id="g3820"
+       transform="matrix(1.532668,0,0,1.532668,-123.6006,-27.82284)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3822"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3824"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3826"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3828"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3830"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3832"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3834"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3836"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3838"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3840"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3842"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3844"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect3846"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <rect
+       rx="2.8946078"
+       style="fill:url(#linearGradient3870);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient3872);stroke-width:0.92508;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3848"
+       width="45.928165"
+       height="45.929337"
+       x="-108.02673"
+       y="7.4625401"
+       ry="2.8946078"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       rx="2.8374817"
+       style="fill:url(#linearGradient3874);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient3876);stroke-width:0.9253633;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3850"
+       width="46.005478"
+       height="33.676189"
+       x="-108.10404"
+       y="19.715683"
+       ry="2.8374817"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       class="fil0 str3"
+       d="M -95.338112,34.552996 C -96.306423,30.721227 -93.401839,23.668967 -90.911802,25.493828 C -88.492618,27.266761 -89.43647,30.158486 -85.638465,30.766503 C -82.117874,31.330103 -74.222053,20.257906 -74.807486,17.166798 C -75.296775,14.583434 -81.560998,14.204054 -83.130677,14.424414 C -86.814689,14.941583 -88.40071,15.849551 -89.504269,16.475134 C -90.287501,16.919125 -97.873079,21.096205 -100.05654,29.873229 C -101.16547,34.33085 -99.42922,39.12683 -97.772067,40.991532 C -94.390097,44.797075 -88.948085,45.91275 -83.88478,44.965359 C -78.821475,44.017967 -74.136877,41.007512 -72.269736,36.560794 C -73.637907,38.210675 -78.524502,41.193012 -83.509304,42.020736 C -88.494106,42.848461 -93.577113,41.521569 -95.338112,34.552996 z "
+       id="path3852"
+       style="fill:#2a5189;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="csssssssscss" />
+    <path
+       class="fil0 str3"
+       d="M -92.9971,36.670268 C -93.96541,32.838499 -91.060827,25.786239 -88.57079,27.6111 C -86.151605,29.384033 -87.095457,32.275758 -83.297452,32.883775 C -79.776862,33.447375 -71.881041,22.375178 -72.466474,19.28407 C -72.955763,16.700706 -79.219985,16.321326 -80.789664,16.541686 C -84.473677,17.058855 -86.059697,17.966823 -87.163256,18.592406 C -87.946488,19.036397 -95.532067,23.213477 -97.715527,31.990501 C -98.824452,36.448122 -97.088207,41.244102 -95.431055,43.108804 C -92.049085,46.914347 -86.607073,48.030022 -81.543768,47.082631 C -76.480462,46.135239 -71.795864,43.124784 -69.928724,38.678066 C -71.296895,40.327947 -76.18349,43.310284 -81.168291,44.138008 C -86.153093,44.965733 -91.236101,43.638841 -92.9971,36.670268 z "
+       id="path3854"
+       style="fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="csssssssscss" />
+    <g
+       id="g3856"
+       transform="matrix(1.532668,0,0,1.532668,-123.3705,-27.76357)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path3858"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient3878);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path3860"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient3880);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <g
+       id="g3862"
+       transform="matrix(-1.532668,0,0,1.532668,-46.77822,-27.76373)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path3864"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient3882);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path3866"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient3884);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <rect
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient3886);stroke-width:1.49588394;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3868"
+       width="43.39764"
+       height="34.152649"
+       x="-107.77763"
+       y="9.6383877"
+       ry="1.9999999"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       rx="2" />
+    <rect
+       rx="2.8946078"
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:white;stroke-width:3.92071056;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.33333333"
+       id="rect2042"
+       width="43.652306"
+       height="43.653423"
+       x="-106.71497"
+       y="9.5164585"
+       ry="2.8946078"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <g
+       id="g2933"
+       transform="matrix(1.532668,0,0,1.532668,-193.0338,-27.12416)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonPressed.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2935"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2937"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2939"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2941"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2943"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2945"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2947"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2949"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2951"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2953"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2955"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2957"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="2.2875211"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         ry="2.2875211"
+         y="23.421028"
+         x="10.433349"
+         height="30.225677"
+         width="30.226336"
+         id="rect2959"
+         style="opacity:0.07692303;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.93436956;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <rect
+       rx="2.8946078"
+       style="fill:url(#linearGradient2983);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient2985);stroke-width:0.92508;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2961"
+       width="45.928165"
+       height="45.929337"
+       x="-177.46001"
+       y="8.1612234"
+       ry="2.8946078"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonPressed.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       rx="2.8374817"
+       style="fill:url(#linearGradient2987);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient2989);stroke-width:0.9253633;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2963"
+       width="46.005478"
+       height="33.676189"
+       x="-177.53731"
+       y="20.414368"
+       ry="2.8374817"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonPressed.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <g
+       id="g3001"
+       transform="translate(0.999732,0.999609)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonPressed.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         sodipodi:nodetypes="csssssssscss"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         style="fill:#2a5189;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path2965"
+         d="M -164.77139,35.25168 C -165.7397,31.419911 -162.83512,24.367651 -160.34508,26.192512 C -157.9259,27.965445 -158.86975,30.85717 -155.07175,31.465187 C -151.55115,32.028787 -143.65533,20.95659 -144.24077,17.865482 C -144.73006,15.282118 -150.99428,14.902738 -152.56396,15.123098 C -156.24797,15.640267 -157.83399,16.548235 -158.93755,17.173818 C -159.72078,17.617809 -167.30636,21.794889 -169.48982,30.571913 C -170.59875,35.029534 -168.8625,39.825514 -167.20535,41.690216 C -163.82338,45.495759 -158.38137,46.611434 -153.31806,45.664043 C -148.25476,44.716651 -143.57016,41.706196 -141.70302,37.259478 C -143.07119,38.909359 -147.95778,41.891696 -152.94258,42.71942 C -157.92739,43.547145 -163.01039,42.220253 -164.77139,35.25168 z "
+         class="fil0 str3" />
+      <path
+         sodipodi:nodetypes="csssssssscss"
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton.png"
+         style="fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path2967"
+         d="M -162.43038,37.368952 C -163.39869,33.537183 -160.49411,26.484923 -158.00407,28.309784 C -155.58489,30.082717 -156.52874,32.974442 -152.73073,33.582459 C -149.21014,34.146059 -141.31432,23.073862 -141.89975,19.982754 C -142.38904,17.39939 -148.65327,17.02001 -150.22294,17.24037 C -153.90696,17.757539 -155.49298,18.665507 -156.59654,19.29109 C -157.37977,19.735081 -164.96535,23.912161 -167.14881,32.689185 C -168.25773,37.146806 -166.52149,41.942786 -164.86434,43.807488 C -161.48237,47.613031 -156.04035,48.728706 -150.97705,47.781315 C -145.91374,46.833923 -141.22914,43.823468 -139.362,39.37675 C -140.73018,41.026631 -145.61677,44.008968 -150.60157,44.836692 C -155.58637,45.664417 -160.66938,44.337525 -162.43038,37.368952 z "
+         class="fil0 str3" />
+    </g>
+    <g
+       id="g2969"
+       transform="matrix(1.532668,0,0,1.532668,-192.8037,-27.06489)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonPressed.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path2971"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient2991);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path2973"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient2993);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <g
+       id="g2975"
+       transform="matrix(-1.532668,0,0,1.532668,-116.2115,-27.06505)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonPressed.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path2977"
+         d="M 10.480552,25.576747 C 10.480552,25.576747 12.626356,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.5027,25.549176 10.413292,25.331106"
+         style="fill:url(#linearGradient2995);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      <path
+         inkscape:export-ydpi="90.000000"
+         inkscape:export-xdpi="90.000000"
+         inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButton1.png"
+         sodipodi:nodetypes="ccc"
+         id="path2979"
+         d="M 10.496305,25.576747 C 10.496305,25.576747 12.998634,38.535252 10.385741,51.370281 C 10.385741,51.370281 10.522132,25.549176 10.41787,25.331106"
+         style="fill:url(#linearGradient2997);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+    </g>
+    <rect
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient2999);stroke-width:1.49588394;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2981"
+       width="43.39764"
+       height="34.152649"
+       x="-177.21091"
+       y="10.337071"
+       ry="1.9999999"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/callButtonPressed.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       rx="2" />
+  </g>
+</svg>

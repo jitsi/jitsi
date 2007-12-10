@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   id="svg2518"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="chatCallButton.svg">
+  <defs
+     id="defs2520">
+    <linearGradient
+       id="linearGradient3866">
+      <stop
+         style="stop-color:#cfcfcf;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop3868" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop3870" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient7063"
+       x1="-710.46875"
+       y1="360.98438"
+       x2="-653.00000"
+       y2="360.98438"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.323225,0.000000,0.000000,0.368720,229.8489,-111.7750)" />
+    <linearGradient
+       id="linearGradient11116">
+      <stop
+         id="stop11118"
+         offset="0"
+         style="stop-color:#143e7b;stop-opacity:1;" />
+      <stop
+         id="stop11120"
+         offset="1.0000000"
+         style="stop-color:#93aacc;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="radialGradient1776"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.368880,-0.320186,0.384490,-0.442964,8.737181,45.17632)"
+       cx="33.372906"
+       cy="38.602745"
+       fx="33.372906"
+       fy="38.602745"
+       r="12.314691" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient1321"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.323225,0.000000,0.000000,0.368720,252.8489,-111.4220)"
+       x1="-700.15729"
+       y1="360.53241"
+       x2="-641.14185"
+       y2="360.98438" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="radialGradient1323"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.368880,-0.320186,0.384490,-0.442964,31.73719,45.52932)"
+       cx="33.372906"
+       cy="38.602745"
+       fx="33.372906"
+       fy="38.602745"
+       r="12.314691" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="9.7482528"
+     inkscape:cx="16.000000"
+     inkscape:cy="6.0012557"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1016"
+     inkscape:window-height="692"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata2523">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="opacity:1.0000000;fill:url(#linearGradient7063);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#646464;stroke-width:0.75782180;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 3.7627816,13.025909 C 1.8843710,13.025909 0.36891110,14.743158 0.36891110,16.885967 L 0.36891110,22.624207 C 0.36891110,24.767021 1.8843744,26.495786 3.7627816,26.495790 L 4.5809526,26.495790 L 4.6313466,31.621089 L 10.368067,26.495790 L 15.237314,26.495790 C 17.115729,26.495790 18.621086,24.767025 18.621089,22.624207 L 18.621089,16.885967 C 18.621089,14.743155 17.115723,13.025909 15.237314,13.025909 L 3.7627816,13.025909 z "
+       id="rect1954"
+       sodipodi:nodetypes="cccccccccccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/chatCallButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       class="fil0 str3"
+       d="M 6.3340688,21.542548 C 5.9937956,20.215500 7.0144937,17.773106 7.8895163,18.405106 C 8.7396404,19.019122 8.4079620,20.020606 9.7426170,20.231180 C 10.979786,20.426371 13.754454,16.591760 13.548726,15.521224 C 13.376785,14.626532 11.175478,14.495143 10.623877,14.571460 C 9.3292806,14.750571 8.7719382,15.065025 8.3841369,15.281682 C 8.1089020,15.435448 5.4432574,16.882087 4.6759685,19.921814 C 4.2862815,21.465613 4.8964146,23.126593 5.4787543,23.772392 C 7.8556670,26.408323 13.128254,25.317948 14.440516,22.237904 C 13.478940,23.380703 7.5717323,26.369370 6.3340688,21.542548 z "
+       id="path1402"
+       style="opacity:1.0000000;fill:url(#radialGradient1776);fill-opacity:1.0000000;fill-rule:evenodd;stroke:#404e67;stroke-width:0.29386291;stroke-linejoin:bevel;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:0.66536963"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/chatCallButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="cssssssscs" />
+    <path
+       style="opacity:1.0000000;fill:url(#linearGradient1321);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#3c3c3c;stroke-width:0.75782180;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 26.762782,13.378911 C 24.884371,13.378911 23.368911,15.096160 23.368911,17.238969 L 23.368911,22.977209 C 23.368911,25.120023 24.884374,26.848788 26.762782,26.848792 L 27.580953,26.848792 L 27.631347,31.974091 L 33.368067,26.848792 L 38.237314,26.848792 C 40.115729,26.848792 41.621086,25.120027 41.621089,22.977209 L 41.621089,17.238969 C 41.621089,15.096157 40.115723,13.378911 38.237314,13.378911 L 26.762782,13.378911 z "
+       id="path1317"
+       sodipodi:nodetypes="cccccccccccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/chatCallButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       class="fil0 str3"
+       d="M 29.334069,21.895550 C 28.993796,20.568502 30.014494,18.126108 30.889516,18.758108 C 31.739640,19.372124 31.407962,20.373608 32.742617,20.584182 C 33.979786,20.779373 36.754454,16.944762 36.548726,15.874226 C 36.376785,14.979534 34.175478,14.848145 33.623877,14.924462 C 32.329281,15.103573 31.771938,15.418027 31.384137,15.634684 C 31.108902,15.788450 28.443257,17.235089 27.675969,20.274816 C 27.286282,21.818615 27.896415,23.479595 28.478754,24.125394 C 30.855667,26.761325 36.128254,25.670950 37.440516,22.590906 C 36.478940,23.733705 30.571732,26.722372 29.334069,21.895550 z "
+       id="path1319"
+       style="opacity:1.0000000;fill:url(#radialGradient1323);fill-opacity:1.0000000;fill-rule:evenodd;stroke:#404e67;stroke-width:0.29386291;stroke-linejoin:bevel;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:0.66536963"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/chatCallButtonRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="cssssssscs" />
+  </g>
+</svg>

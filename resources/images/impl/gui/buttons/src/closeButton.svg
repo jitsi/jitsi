@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg1316"
+   sodipodi:version="0.32"
+   inkscape:version="0.45.1"
+   inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/close.png"
+   inkscape:export-xdpi="90.000000"
+   inkscape:export-ydpi="90.000000"
+   sodipodi:docbase="/home/yana/workspace/IPPISVN/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="closeButton.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs1318">
+    <linearGradient
+       id="linearGradient2058">
+      <stop
+         style="stop-color:#9d9d9d;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2060" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop2062" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3493">
+      <stop
+         id="stop3495"
+         offset="0.0000000"
+         style="stop-color:#ffc768;stop-opacity:1.0000000;" />
+      <stop
+         id="stop3497"
+         offset="1.0000000"
+         style="stop-color:#ff8400;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3493"
+       id="radialGradient15165"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.773627,1.351649e-6,-1.260975e-6,0.721729,14.19437,2.245983)"
+       cx="-8.0085258"
+       cy="7.9738669"
+       fx="-8.0085258"
+       fy="7.9738669"
+       r="4.9914746" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2058"
+       id="linearGradient2064"
+       x1="-3.6953113"
+       y1="8.0018854"
+       x2="13.521026"
+       y2="8.0018854"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3493"
+       id="radialGradient2176"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.773627,1.351649e-6,-1.260975e-6,0.721729,33.195622,2.2440984)"
+       cx="-8.0085258"
+       cy="7.9738669"
+       fx="-8.0085258"
+       fy="7.9738669"
+       r="4.9914746" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="19.324309"
+     inkscape:cx="8"
+     inkscape:cy="4.161678"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1432"
+     inkscape:window-height="843"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata1321">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient2064);fill-opacity:1.0;fill-rule:nonzero;stroke:#646464;stroke-width:0.72448283;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect3126"
+       width="15.275517"
+       height="15.275517"
+       x="0.36098966"
+       y="0.36412707"
+       ry="2.2054026"
+       inkscape:export-filename="/home/yana/workspace/IPPISVN/src/net/java/sip/communicator/impl/gui/resources/lookandfeel/deleteRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:none;stroke-width:0.44400001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect2038"
+       width="0.59744418"
+       height="2.0000000"
+       x="10.401303"
+       y="10.001886"
+       ry="0.29872209"
+       inkscape:export-filename="/home/yana/workspace/IPPISVN/src/net/java/sip/communicator/impl/gui/resources/lookandfeel/deleteRollover.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="opacity:1.0000000;fill:url(#radialGradient15165);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#474747;stroke-width:0.71606141;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 4.7118935,3.3580381 C 4.4599770,3.3570893 4.2169787,3.4478041 4.0232193,3.6378088 L 3.6475788,4.0108363 C 3.2600601,4.3908454 3.2629730,4.9956867 3.6475788,5.3786038 L 6.2770625,7.9897963 L 3.6475788,10.600988 C 3.2629730,10.983906 3.2600591,11.619832 3.6475788,11.999842 L 4.0232193,12.372869 C 4.4107390,12.752879 5.0159620,12.724701 5.4005678,12.341784 L 8.0300515,9.7305913 L 10.596928,12.310698 C 10.981534,12.693615 11.586758,12.690707 11.974278,12.310698 L 12.349918,11.937670 C 12.737437,11.557661 12.734523,10.952820 12.349918,10.569903 L 9.7830405,7.9897963 L 12.349918,5.4407750 C 12.734524,5.0578573 12.737438,4.4530172 12.349918,4.0730075 L 11.974278,3.6999800 C 11.586758,3.3199704 10.981535,3.3170623 10.596928,3.6999800 L 8.0300515,6.2490013 L 5.4005678,3.6378088 C 5.2082649,3.4463502 4.9638101,3.3589869 4.7118935,3.3580381 z "
+       id="rect10058"
+       inkscape:export-filename="/home/yana/workspace/IPPISVN/src/net/java/sip/communicator/impl/gui/resources/lookandfeel/deleteRollover.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#646464;stroke-width:0.72448283;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2168"
+       width="15.275517"
+       height="15.275517"
+       x="19.362242"
+       y="0.36224142"
+       ry="2.2054026"
+       inkscape:export-filename="/home/yana/workspace/IPPISVN/src/net/java/sip/communicator/impl/gui/resources/lookandfeel/delete.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       rx="2.2054026" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.44400001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2170"
+       width="0.59744418"
+       height="2"
+       x="29.402557"
+       y="10.000002"
+       ry="0.29872209"
+       rx="0.29872209"
+       inkscape:export-filename="/home/yana/workspace/IPPISVN/src/net/java/sip/communicator/impl/gui/resources/lookandfeel/delete.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="opacity:1;fill:url(#radialGradient2176);fill-opacity:1;fill-rule:nonzero;stroke:#474747;stroke-width:0.71606141;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 23.713145,3.3561534 C 23.461229,3.3552044 23.218231,3.4459194 23.024471,3.6359234 L 22.648831,4.0089514 C 22.261312,4.3889604 22.264225,4.9938014 22.648831,5.3767184 L 25.278314,7.9879114 L 22.648831,10.599103 C 22.264225,10.982021 22.261311,11.617947 22.648831,11.997957 L 23.024471,12.370984 C 23.411991,12.750994 24.017214,12.722816 24.40182,12.339899 L 27.031303,9.7287064 L 29.59818,12.308813 C 29.982786,12.69173 30.58801,12.688822 30.97553,12.308813 L 31.35117,11.935785 C 31.738689,11.555776 31.735775,10.950935 31.35117,10.568018 L 28.784292,7.9879114 L 31.35117,5.4388904 C 31.735776,5.0559724 31.73869,4.4511324 31.35117,4.0711224 L 30.97553,3.6980954 C 30.58801,3.3180854 29.982787,3.3151774 29.59818,3.6980954 L 27.031303,6.2471164 L 24.40182,3.6359234 C 24.209517,3.4444654 23.965062,3.3571024 23.713145,3.3561534 z "
+       id="path2172"
+       inkscape:export-filename="/home/yana/workspace/IPPISVN/src/net/java/sip/communicator/impl/gui/resources/lookandfeel/delete.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>

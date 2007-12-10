@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="64px"
+   height="64px"
+   id="svg8088"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="yellowHangupButton.svg">
+  <defs
+     id="defs8090">
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5061"
+       id="linearGradient1541"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.358340,0.000000,0.000000,1.358340,-10.02940,-17.40218)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.564920" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5061"
+       id="linearGradient1539"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.358340,0.000000,0.000000,1.358340,-10.02940,-16.04384)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5061"
+       id="linearGradient1536"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.358340,0.000000,0.000000,1.358340,-10.02940,-17.40218)"
+       x1="31.289703"
+       y1="47.525883"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5061"
+       id="linearGradient1534"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.397019,0.000000,0.000000,1.287363,-11.46240,-6.886819)"
+       x1="31.449125"
+       y1="41.978024"
+       x2="31.449125"
+       y2="24.898642" />
+    <linearGradient
+       id="linearGradient15929">
+      <stop
+         id="stop15931"
+         offset="0.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="0.50000000"
+         id="stop15933" />
+      <stop
+         id="stop15935"
+         offset="1.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15929"
+       id="radialGradient1531"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-2.490140e-2,-1.140089,1.708421,-3.731158e-2,-24.83850,69.49117)"
+       cx="33.389854"
+       cy="37.900356"
+       fx="33.389854"
+       fy="37.900356"
+       r="12.314691" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3724"
+       id="linearGradient1528"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.358340,0.000000,0.000000,1.404286,-9.490404,-17.67015)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3724"
+       id="linearGradient1524"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.358340,0.000000,0.000000,1.404286,-9.490404,-17.67015)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       id="linearGradient5061">
+      <stop
+         style="stop-color:#ff5000;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop5063" />
+      <stop
+         id="stop8086"
+         offset="0.50000000"
+         style="stop-color:#ff8400;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffc768;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop5065" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5061"
+       id="linearGradient1520"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1.358329,5.215763e-3,-5.392174e-3,-1.404275,74.77510,79.57477)"
+       x1="17.242729"
+       y1="47.842445"
+       x2="17.268766"
+       y2="41.283470" />
+    <linearGradient
+       id="linearGradient3724">
+      <stop
+         id="stop3726"
+         offset="0.0000000"
+         style="stop-color:#ff8400;stop-opacity:1.0000000;" />
+      <stop
+         id="stop3728"
+         offset="1.0000000"
+         style="stop-color:#e4948f;stop-opacity:0.0000000;" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3724"
+       id="linearGradient1517"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1.358329,5.215763e-3,-5.392174e-3,-1.404275,74.77510,79.57477)"
+       x1="17.298380"
+       y1="33.820702"
+       x2="17.252346"
+       y2="45.417229" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.5000000"
+     inkscape:cx="32.000000"
+     inkscape:cy="32.000000"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:document-units="px"
+     inkscape:grid-bbox="true"
+     inkscape:window-width="724"
+     inkscape:window-height="509"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata8093">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:none;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#646464;stroke-width:2.0558021;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect1481"
+       width="43.444199"
+       height="43.443253"
+       x="11.672799"
+       y="9.7327843"
+       ry="4.9851079"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient1539);fill-opacity:1.0000000;fill-rule:nonzero;stroke:url(#linearGradient1541);stroke-width:0.85820812;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect1483"
+       width="42.608128"
+       height="42.609215"
+       x="11.204415"
+       y="9.2639427"
+       ry="4.1157703"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient1534);fill-opacity:1.0000000;fill-rule:nonzero;stroke:url(#linearGradient1536);stroke-width:0.85847092;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect1485"
+       width="42.679848"
+       height="31.241819"
+       x="11.132699"
+       y="20.631334"
+       ry="4.0345440"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       class="fil0 str3"
+       d="M 22.271386,27.245701 C 24.660776,24.230631 31.487116,21.699194 31.774186,24.716631 C 32.053096,27.648191 29.176166,28.093371 31.204086,31.300191 C 33.083876,34.272771 46.465446,33.735371 48.343686,31.318121 C 49.913406,29.297921 46.112996,24.408731 44.930146,23.385961 C 42.154016,20.985535 40.457946,20.391773 39.282326,19.974665 C 38.447966,19.678627 30.485806,16.789358 22.620426,20.744075 C 18.197356,22.967994 16.006576,26.940111 15.980966,29.571161 C 15.817806,46.335861 47.052756,41.020721 49.293576,39.911321 C 19.930486,39.879141 19.185036,31.140211 22.271386,27.245701 z "
+       id="path1487"
+       style="opacity:1.0000000;fill:url(#radialGradient1531);fill-opacity:1.0000000;fill-rule:evenodd;stroke:#404e67;stroke-width:0.82520026;stroke-linejoin:bevel;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:0.66536963"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       sodipodi:nodetypes="cssssssscs" />
+    <path
+       style="fill:url(#linearGradient1528);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 11.917206,12.830568 C 11.917206,12.830568 16.742546,31.255941 11.704006,49.505751 C 11.704006,49.505751 11.967006,12.791363 11.765956,12.481298"
+       id="path1489"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient1524);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 11.917206,12.830568 C 11.917206,12.830568 16.742546,31.255941 11.704006,49.505751 C 11.704006,49.505751 11.967006,12.791363 11.765956,12.481298"
+       id="path1491"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient1520);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 53.250596,49.156481 C 53.250596,49.156481 48.354546,30.749771 53.322976,12.480750 C 53.322976,12.480750 53.374236,48.845931 53.576476,49.155231"
+       id="path1493"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient1517);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 53.250596,49.156481 C 53.250596,49.156481 48.354546,30.749771 53.322976,12.480750 C 53.322976,12.480750 53.374236,48.845931 53.576476,49.155231"
+       id="path1495"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/hangupButton1.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+  </g>
+</svg>
