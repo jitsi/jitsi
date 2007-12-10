@@ -34,7 +34,7 @@ public class JabberStatusEnum
      */
     public static final JabberStatusEnum FREE_FOR_CHAT
         = new JabberStatusEnum(85, "Free For Chat",
-                loadIcon("resources/images/jabber/jabber16x16-ffc.png"));
+                loadIcon("resources/images/protocol/jabber/jabber16x16-ffc.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -42,7 +42,7 @@ public class JabberStatusEnum
      */
     public static final JabberStatusEnum AVAILABLE
         = new JabberStatusEnum(65, "Available",
-                loadIcon("resources/images/jabber/jabber16x16-online.png"));
+                loadIcon("resources/images/protocol/jabber/jabber16x16-online.png"));
 
     /**
      * The Away  status. Indicates that the user has connectivity but might
@@ -50,7 +50,7 @@ public class JabberStatusEnum
      */
     public static final JabberStatusEnum AWAY
         = new JabberStatusEnum(40, "Away",
-                loadIcon("resources/images/jabber/jabber16x16-away.png"));
+                loadIcon("resources/images/protocol/jabber/jabber16x16-away.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -58,7 +58,7 @@ public class JabberStatusEnum
      */
     public static final JabberStatusEnum DO_NOT_DISTURB
         = new JabberStatusEnum(30, "Do Not Disturb",
-                loadIcon("resources/images/jabber/jabber16x16-dnd.png"));
+                loadIcon("resources/images/protocol/jabber/jabber16x16-dnd.png"));
 
     /**
      * The Offline status. Indicates the user does not seem to be connected
@@ -66,7 +66,7 @@ public class JabberStatusEnum
      */
     public static final JabberStatusEnum OFFLINE
         = new JabberStatusEnum(0, "Offline",
-                loadIcon("resources/images/jabber/jabber16x16-offline.png"));
+                loadIcon("resources/images/protocol/jabber/jabber16x16-offline.png"));
 
     /**
      * The minimal set of states that any implementation must support.

@@ -38,10 +38,10 @@ public class ProtocolIconRssImpl
     static 
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/rss/rss-online.png"));
+            loadIcon("resources/images/protocol/rss/rss-online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/rss/rss64x64.png"));
+            loadIcon("resources/images/protocol/rss/rss64x64.png"));
     }
         
     /**
@@ -77,7 +77,7 @@ public class ProtocolIconRssImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/rss/rss-online.png");
+        return loadIcon("resources/images/protocol/rss/rss-online.png");
     }
     
     /**

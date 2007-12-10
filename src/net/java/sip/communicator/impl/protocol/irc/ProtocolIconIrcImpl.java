@@ -30,10 +30,10 @@ public class ProtocolIconIrcImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/irc/cr16-action-irc_online.png"));
+            loadIcon("resources/images/protocol/irc/cr16-action-irc_online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/irc/cr32-app-irc_protocol.png"));
+            loadIcon("resources/images/protocol/irc/cr32-app-irc_protocol.png"));
     }
  
     /**
@@ -69,7 +69,7 @@ public class ProtocolIconIrcImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/irc/cr16-action-irc_connecting-1.gif");
+        return loadIcon("resources/images/protocol/irc/cr16-action-irc_connecting-1.gif");
     }
     
     /**

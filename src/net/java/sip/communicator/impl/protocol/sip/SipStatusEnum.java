@@ -31,7 +31,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/sip/sip16x16-offline.png"));
+            , loadIcon("resources/images/protocol/sip/sip16x16-offline.png"));
 
     /**
      * The busy status. Indicates that the user has connectivity but is doing
@@ -41,7 +41,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             30,
             "Busy (DND)",
-            loadIcon("resources/images/sip/sip16x16-busy.png"));
+            loadIcon("resources/images/protocol/sip/sip16x16-busy.png"));
     
     /**
      * The On the phone status. Indicates that the user is talking to the phone.
@@ -50,7 +50,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             37,
             "On the phone",
-            loadIcon("resources/images/sip/sip16x16-phone.png"));
+            loadIcon("resources/images/protocol/sip/sip16x16-phone.png"));
     
     /**
      * The Away  status. Indicates that the user has connectivity but might
@@ -60,7 +60,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             40,
             "Away",
-            loadIcon("resources/images/sip/sip16x16-away.png"));
+            loadIcon("resources/images/protocol/sip/sip16x16-away.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -70,7 +70,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/sip/sip16x16-online.png"));
+            , loadIcon("resources/images/protocol/sip/sip16x16-online.png"));
     
     /**
      * The Unknown status. Indicate that we don't know if the user is present
@@ -79,7 +79,7 @@ public class SipStatusEnum
     public static final SipStatusEnum UNKNOWN = new SipStatusEnum(
             1,
             "Unknown",
-            loadIcon("resources/images/sip/sip16x16-offline.png"));
+            loadIcon("resources/images/protocol/sip/sip16x16-offline.png"));
 
     /**
      * Initialize the list of supported status states.

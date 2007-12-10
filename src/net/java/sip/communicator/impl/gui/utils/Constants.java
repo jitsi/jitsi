@@ -344,7 +344,7 @@ public class Constants
      * The default path, where chat window styles could be found.
      */
     public static final String DEFAULT_STYLE_PATH
-        = "net/java/sip/communicator/impl/gui/resources/styles";
+        = "resources/styles";
 
     /*
      * ======================================================================

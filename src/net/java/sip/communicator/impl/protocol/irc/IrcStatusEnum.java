@@ -32,7 +32,7 @@ public class IrcStatusEnum
         = new IrcStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/irc/cr16-action-irc_offline.png"));
+            , loadIcon("resources/images/protocol/irc/cr16-action-irc_offline.png"));
 
     /**
      * The Away status. Indicates that the user has connectivity but might
@@ -42,7 +42,7 @@ public class IrcStatusEnum
         = new IrcStatusEnum(
             40
             , "Away"
-            , loadIcon("resources/images/gibberish/gibberish-away.png"));
+            , loadIcon("resources/images/protocol/gibberish/gibberish-away.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -52,7 +52,7 @@ public class IrcStatusEnum
         = new IrcStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/irc/cr16-action-irc_online.png"));
+            , loadIcon("resources/images/protocol/irc/cr16-action-irc_online.png"));
 
     /**
      * Initialize the list of supported status states.

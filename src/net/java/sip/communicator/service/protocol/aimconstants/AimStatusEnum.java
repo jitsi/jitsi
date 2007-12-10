@@ -29,7 +29,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum ONLINE
         = new AimStatusEnum(65, "Online",
-                loadIcon("resources/images/aim/aim16x16-online.png"));
+                loadIcon("resources/images/protocol/aim/aim16x16-online.png"));
 
     /**
      * The Invisible AIM status. Indicates that the user has connectivity even
@@ -38,7 +38,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum INVISIBLE
         = new AimStatusEnum(45, "Invisible",
-                loadIcon("resources/images/aim/aim16x16-invisible.png"));
+                loadIcon("resources/images/protocol/aim/aim16x16-invisible.png"));
 
     /**
      * The Away AIM status. Indicates that the user has connectivity but might
@@ -46,7 +46,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum AWAY
         = new AimStatusEnum(40, "Away",
-                loadIcon("resources/images/aim/aim16x16-away.png"));
+                loadIcon("resources/images/protocol/aim/aim16x16-away.png"));
 
     /**
      * The Offline AIM status. Indicates the user does not seem to be connected
@@ -54,7 +54,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum OFFLINE
         = new AimStatusEnum(0, "Offline",
-                loadIcon("resources/images/aim/aim16x16-offline.png"));
+                loadIcon("resources/images/protocol/aim/aim16x16-offline.png"));
 
     /**
      * The minimal set of states that any AIM implementation must support.

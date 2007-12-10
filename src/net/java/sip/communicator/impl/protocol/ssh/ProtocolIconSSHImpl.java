@@ -35,10 +35,10 @@ public class ProtocolIconSSHImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/ssh/ssh-online.png"));
+            loadIcon("resources/images/protocol/ssh/ssh-online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/ssh/ssh64x64.png"));
+            loadIcon("resources/images/protocol/ssh/ssh64x64.png"));
     }
         
     /**
@@ -77,7 +77,7 @@ public class ProtocolIconSSHImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/ssh/ssh-online.png");
+        return loadIcon("resources/images/protocol/ssh/ssh-online.png");
     }
     
     /**

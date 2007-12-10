@@ -31,7 +31,7 @@ public class RssStatusEnum
         = new RssStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/rss/rss-offline.png"));
+            , loadIcon("resources/images/protocol/rss/rss-offline.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -41,7 +41,7 @@ public class RssStatusEnum
         = new RssStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/rss/rss-online.png"));
+            , loadIcon("resources/images/protocol/rss/rss-online.png"));
 
     /**
      * Initialize the list of supported status states.

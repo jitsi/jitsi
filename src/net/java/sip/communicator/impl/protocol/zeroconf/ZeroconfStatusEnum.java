@@ -32,7 +32,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/zeroconf/zeroconf-offline.png"));
+            , loadIcon("resources/images/protocol/zeroconf/zeroconf-offline.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -42,7 +42,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             30
             ,"Do Not Disturb",//, "Do Not Disturb",
-            loadIcon("resources/images/zeroconf/zeroconf-dnd.png"));
+            loadIcon("resources/images/protocol/zeroconf/zeroconf-dnd.png"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -53,7 +53,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             45
             , "Invisible"
-            , loadIcon( "resources/images/zeroconf/zeroconf-invisible.png"));
+            , loadIcon( "resources/images/protocol/zeroconf/zeroconf-invisible.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -63,7 +63,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             65
             ,"Available"//, "Online"
-            , loadIcon("resources/images/zeroconf/zeroconf-online.png"));
+            , loadIcon("resources/images/protocol/zeroconf/zeroconf-online.png"));
 
 
     /**

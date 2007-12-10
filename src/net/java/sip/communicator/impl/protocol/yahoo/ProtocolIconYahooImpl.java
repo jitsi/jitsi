@@ -29,10 +29,10 @@ public class ProtocolIconYahooImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            loadIcon("resources/images/yahoo/yahoo16x16.png"));
+            loadIcon("resources/images/protocol/yahoo/yahoo16x16.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/yahoo/yahoo64x64.png"));
+            loadIcon("resources/images/protocol/yahoo/yahoo64x64.png"));
     }
  
     /**
@@ -68,7 +68,7 @@ public class ProtocolIconYahooImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/yahoo/yahoo16x16-connecting.gif");
+        return loadIcon("resources/images/protocol/yahoo/yahoo16x16-connecting.gif");
     }
     
     /**

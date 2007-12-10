@@ -36,7 +36,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/ssh/ssh-offline.png"));
+            , loadIcon("resources/images/protocol/ssh/ssh-offline.png"));
     
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -48,7 +48,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             35
             , "Not Available"
-            , loadIcon("resources/images/ssh/ssh-na.png"));
+            , loadIcon("resources/images/protocol/ssh/ssh-na.png"));
     
     /**
      * The Connecting status. Indicate that the user is connecting to remote
@@ -58,7 +58,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             55
             , "Connecting"            
-            , loadIcon("resources/images/ssh/ssh-connecting.png"));
+            , loadIcon("resources/images/protocol/ssh/ssh-connecting.png"));
    
     /**
      * The Online status. Indicate that the user is able and willing to

@@ -35,7 +35,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum FREE_FOR_CHAT
         = new IcqStatusEnum(85, "Free For Chat",
-                loadIcon("resources/images/icq/icq16x16-ffc.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-ffc.png"));
 
     /**
      * The Online ICQ status. Indicate that the user is able and willing to
@@ -43,7 +43,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum ONLINE
         = new IcqStatusEnum(65, "Online",
-                loadIcon("resources/images/icq/icq16x16-online.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-online.png"));
 
     /**
      * The Invisible ICQ status. Indicates that the user has connectivity even
@@ -52,7 +52,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum INVISIBLE
         = new IcqStatusEnum(45, "Invisible",
-                loadIcon("resources/images/icq/icq16x16-invisible.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-invisible.png"));
 
     /**
      * The Away ICQ status. Indicates that the user has connectivity but might
@@ -60,7 +60,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum AWAY
         = new IcqStatusEnum(40, "Away",
-                loadIcon("resources/images/icq/icq16x16-away.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-away.png"));
 
 
     /**
@@ -71,7 +71,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum NOT_AVAILABLE
         = new IcqStatusEnum(35, "Not Available",
-                loadIcon("resources/images/icq/icq16x16-na.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-na.png"));
 
     /**
      * The DND ICQ status. Indicates that the user has connectivity but prefers
@@ -79,7 +79,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum DO_NOT_DISTURB
         = new IcqStatusEnum(30, "Do Not Disturb",
-                loadIcon("resources/images/icq/icq16x16-dnd.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-dnd.png"));
 
     /**
      * The Occupied ICQ status. Indicates that the user has connectivity and
@@ -87,7 +87,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum OCCUPIED
         = new IcqStatusEnum(25, "Occupied",
-                loadIcon("resources/images/icq/icq16x16-occupied.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-occupied.png"));
 
     /**
      * The Offline ICQ status. Indicates the user does not seem to be connected
@@ -95,7 +95,7 @@ public class IcqStatusEnum
      */
     public static final IcqStatusEnum OFFLINE
         = new IcqStatusEnum(0, "Offline",
-                loadIcon("resources/images/icq/icq16x16-offline.png"));
+                loadIcon("resources/images/protocol/icq/icq16x16-offline.png"));
 
     /**
      * The minimal set of states that any ICQ implementation must support.

@@ -29,10 +29,10 @@ public class ProtocolIconSipImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            loadIcon("resources/images/sip/sip16x16.png"));
+            loadIcon("resources/images/protocol/sip/sip16x16.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/sip/sip64x64.png"));
+            loadIcon("resources/images/protocol/sip/sip64x64.png"));
     }
  
     /**
@@ -68,7 +68,7 @@ public class ProtocolIconSipImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/sip/sip-connecting.gif");
+        return loadIcon("resources/images/protocol/sip/sip-connecting.gif");
     }
     
     /**

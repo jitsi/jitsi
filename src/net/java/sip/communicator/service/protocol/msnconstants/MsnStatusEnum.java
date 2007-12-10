@@ -34,14 +34,14 @@ public class MsnStatusEnum
      */
     public static final MsnStatusEnum ONLINE
         = new MsnStatusEnum(65, "Online",
-                loadIcon("resources/images/msn/msn16x16-online.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-online.png"));
 
     /**
      * The Idle status. Indicates that the user is not using the messanger.
      */
     public static final MsnStatusEnum IDLE
         = new MsnStatusEnum(55, "Idle",
-                loadIcon("resources/images/msn/msn16x16-na.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-na.png"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -50,7 +50,7 @@ public class MsnStatusEnum
      */
     public static final MsnStatusEnum HIDE
         = new MsnStatusEnum(45, "Hide",
-                loadIcon("resources/images/msn/msn16x16-invisible.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-invisible.png"));
 
     /**
      * The Away  status. Indicates that the user has connectivity but might
@@ -58,21 +58,21 @@ public class MsnStatusEnum
      */
     public static final MsnStatusEnum AWAY
         = new MsnStatusEnum(40, "Away",
-                loadIcon("resources/images/msn/msn16x16-away.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-away.png"));
 
     /**
      * The Out to lunch status. Indicates that the user is eating.
      */
     public static final MsnStatusEnum OUT_TO_LUNCH
         = new MsnStatusEnum(39, "Out to lunch",
-                loadIcon("resources/images/msn/msn16x16-lunch.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-lunch.png"));
 
     /**
      * The On the phone status. Indicates that the user is talking to the phone.
      */
     public static final MsnStatusEnum ON_THE_PHONE
         = new MsnStatusEnum(37, "On the phone",
-                loadIcon("resources/images/msn/msn16x16-phone.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-phone.png"));
 
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -82,7 +82,7 @@ public class MsnStatusEnum
      */
     public static final MsnStatusEnum BE_RIGHT_BACK
         = new MsnStatusEnum(35, "Be Right Back",
-                loadIcon("resources/images/msn/msn16x16-brb.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-brb.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -90,7 +90,7 @@ public class MsnStatusEnum
      */
     public static final MsnStatusEnum BUSY
         = new MsnStatusEnum(30, "Busy",
-                loadIcon("resources/images/msn/msn16x16-busy.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-busy.png"));
 
     /**
      * The Offline status. Indicates the user does not seem to be connected
@@ -98,7 +98,7 @@ public class MsnStatusEnum
      */
     public static final MsnStatusEnum OFFLINE
         = new MsnStatusEnum(0, "Offline",
-                loadIcon("resources/images/msn/msn16x16-offline.png"));
+                loadIcon("resources/images/protocol/msn/msn16x16-offline.png"));
 
     /**
      * The minimal set of states that any implementation must support.

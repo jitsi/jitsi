@@ -29,10 +29,10 @@ public class ProtocolIconJabberImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/jabber/jabber16x16-online.png"));
+            loadIcon("resources/images/protocol/jabber/jabber16x16-online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
-            loadIcon("resources/images/jabber/jabber48x48.png"));
+            loadIcon("resources/images/protocol/jabber/jabber48x48.png"));
     }
  
     /**
@@ -68,7 +68,7 @@ public class ProtocolIconJabberImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/jabber/jabber16x16-connecting.gif");
+        return loadIcon("resources/images/protocol/jabber/jabber16x16-connecting.gif");
     }
     
     /**

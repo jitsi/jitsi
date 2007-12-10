@@ -142,7 +142,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
             try
             {
                 bgImage = ImageIO.read(WindowBackground.class
-                        .getResource("resources/aboutWindowBackground.png"));
+                        .getResource(
+                            BrandingResources.getString("aboutWindowBg")));
             }
             catch (IOException e)
             {

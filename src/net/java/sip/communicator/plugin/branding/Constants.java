@@ -53,8 +53,8 @@ public class Constants
      */
     public static void loadSimpleStyle(StyleSheet style)
     {
-        InputStream is = Constants.class
-                .getResourceAsStream("resources/defaultStyle.css");
+        InputStream is = Constants.class.getClassLoader()
+                .getResourceAsStream(BrandingResources.getString("textStyle"));
 
         Reader r = new BufferedReader(new InputStreamReader(is));
         try

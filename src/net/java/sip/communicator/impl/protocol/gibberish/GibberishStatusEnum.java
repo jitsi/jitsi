@@ -31,7 +31,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/gibberish/gibberish-offline.png"));
+            , loadIcon("resources/images/protocol/gibberish/gibberish-offline.png"));
 
     /**
      * An Occupied status. Indicates that the user has connectivity and
@@ -41,7 +41,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             20
             , "Occupied"
-            , loadIcon("resources/images/gibberish/gibberish-occupied.png"));
+            , loadIcon("resources/images/protocol/gibberish/gibberish-occupied.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -51,7 +51,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             30
             , "Do Not Disturb",
-            loadIcon("resources/images/gibberish/gibberish-dnd.png"));
+            loadIcon("resources/images/protocol/gibberish/gibberish-dnd.png"));
 
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -63,7 +63,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             35
             , "Not Available"
-            , loadIcon("resources/images/gibberish/gibberish-na.png"));
+            , loadIcon("resources/images/protocol/gibberish/gibberish-na.png"));
 
     /**
      * The Away status. Indicates that the user has connectivity but might
@@ -73,7 +73,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             40
             , "Away"
-            , loadIcon("resources/images/gibberish/gibberish-away.png"));
+            , loadIcon("resources/images/protocol/gibberish/gibberish-away.png"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -84,7 +84,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             45
             , "Invisible"
-            , loadIcon( "resources/images/gibberish/gibberish-invisible.png"));
+            , loadIcon( "resources/images/protocol/gibberish/gibberish-invisible.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -94,7 +94,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/gibberish/gibberish-online.png"));
+            , loadIcon("resources/images/protocol/gibberish/gibberish-online.png"));
 
     /**
      * The Free For Chat status. Indicates that the user is eager to
@@ -104,7 +104,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             85
             , "Free For Chat"
-            , loadIcon("resources/images/gibberish/gibberish-ffc.png"));
+            , loadIcon("resources/images/protocol/gibberish/gibberish-ffc.png"));
 
     /**
      * Initialize the list of supported status states.

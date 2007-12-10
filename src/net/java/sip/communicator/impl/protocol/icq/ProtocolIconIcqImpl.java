@@ -29,10 +29,10 @@ public class ProtocolIconIcqImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/icq/icq16x16-online.png"));
+            loadIcon("resources/images/protocol/icq/icq16x16-online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/icq/icq64x64.png"));
+            loadIcon("resources/images/protocol/icq/icq64x64.png"));
     }
  
     /**
@@ -68,7 +68,7 @@ public class ProtocolIconIcqImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/icq/cr16-action-icq_connecting-1.gif");
+        return loadIcon("resources/images/protocol/icq/cr16-action-icq_connecting-1.gif");
     }
     
     /**

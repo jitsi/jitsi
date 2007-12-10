@@ -37,10 +37,10 @@ public class ProtocolIconGibberishImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/gibberish/gibberish-online.png"));
+            loadIcon("resources/images/protocol/gibberish/gibberish-online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/gibberish/gibberish64x64.png"));
+            loadIcon("resources/images/protocol/gibberish/gibberish64x64.png"));
     }
         
     /**
@@ -76,7 +76,7 @@ public class ProtocolIconGibberishImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/gibberish/gibberish-online.png");
+        return loadIcon("resources/images/protocol/gibberish/gibberish-online.png");
     }
     
     /**

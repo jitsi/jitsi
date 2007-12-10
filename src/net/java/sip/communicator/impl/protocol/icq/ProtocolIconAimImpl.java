@@ -29,10 +29,10 @@ public class ProtocolIconAimImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/aim/aim16x16-online.png"));
+            loadIcon("resources/images/protocol/aim/aim16x16-online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/aim/aim64x64.png"));
+            loadIcon("resources/images/protocol/aim/aim64x64.png"));
     }
  
     /**
@@ -68,7 +68,7 @@ public class ProtocolIconAimImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/aim/cr16-action-aim_connecting.gif");
+        return loadIcon("resources/images/protocol/aim/cr16-action-aim_connecting.gif");
     }
     
     /**

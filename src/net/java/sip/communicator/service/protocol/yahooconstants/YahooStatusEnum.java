@@ -34,14 +34,14 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum AVAILABLE
         = new YahooStatusEnum(65, "Available",
-                loadIcon("resources/images/yahoo/yahoo16x16-online.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-online.png"));
 
     /**
      * The Idle status. Indicates that the user is not using the messanger.
      */
     public static final YahooStatusEnum IDLE
         = new YahooStatusEnum(55, "Idle",
-                loadIcon("resources/images/yahoo/yahoo16x16-idle.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-idle.png"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -50,7 +50,7 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum INVISIBLE
         = new YahooStatusEnum(45, "Invisible",
-                loadIcon("resources/images/yahoo/yahoo16x16-invisible.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-invisible.png"));
 
     /**
      * The STEPPED_OUT  status. Indicates that the user has connectivity but might
@@ -58,28 +58,28 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum STEPPED_OUT
         = new YahooStatusEnum(40, "Stepped out",
-                loadIcon("resources/images/yahoo/yahoo16x16-away.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-away.png"));
 
     /**
      * The Out to lunch status. Indicates that the user is eating.
      */
     public static final YahooStatusEnum OUT_TO_LUNCH
         = new YahooStatusEnum(39, "Out to lunch",
-                loadIcon("resources/images/yahoo/yahoo16x16-lunch.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-lunch.png"));
 
     /**
      * The Not at home status. Indicates that the user is not at home.
      */
     public static final YahooStatusEnum NOT_AT_HOME
         = new YahooStatusEnum(38, "Not at home",
-                loadIcon("resources/images/yahoo/yahoo16x16-na.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
     
     /**
      * The On the phone status. Indicates that the user is talking to the phone.
      */
     public static final YahooStatusEnum ON_THE_PHONE
         = new YahooStatusEnum(37, "On the phone",
-                loadIcon("resources/images/yahoo/yahoo16x16-phone.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-phone.png"));
 
     /**
      * The Not at desk status. Indicates that the user is not at his desk, but 
@@ -87,7 +87,7 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum NOT_AT_DESK
         = new YahooStatusEnum(36, "Not at desk",
-                loadIcon("resources/images/yahoo/yahoo16x16-na.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
     
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -97,14 +97,14 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum BE_RIGHT_BACK
         = new YahooStatusEnum(35, "Be Right Back",
-                loadIcon("resources/images/yahoo/yahoo16x16-away.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-away.png"));
 
     /**
      * The Not in office status. Indicates that the user is out of the office.
      */
     public static final YahooStatusEnum NOT_IN_OFFICE
         = new YahooStatusEnum(34, "Not in office",
-                loadIcon("resources/images/yahoo/yahoo16x16-na.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
     
     /**
      * The On vacation status. Indicates that the user is somewhere on the 
@@ -112,7 +112,7 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum ON_VACATION
         = new YahooStatusEnum(33, "On vacation",
-                loadIcon("resources/images/yahoo/yahoo16x16-vacation.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-vacation.png"));
     
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -120,7 +120,7 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum BUSY
         = new YahooStatusEnum(30, "Busy",
-                loadIcon("resources/images/yahoo/yahoo16x16-busy.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-busy.png"));
 
     /**
      * The Offline status. Indicates the user does not seem to be connected
@@ -128,7 +128,7 @@ public class YahooStatusEnum
      */
     public static final YahooStatusEnum OFFLINE
         = new YahooStatusEnum(0, "Offline",
-                loadIcon("resources/images/yahoo/yahoo16x16-offline.png"));
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-offline.png"));
 
     /**
      * The minimal set of states that any implementation must support.

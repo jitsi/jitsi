@@ -32,10 +32,10 @@ public class ProtocolIconZeroconfImpl
     static 
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/zeroconf/zeroconf-online.png"));
+            loadIcon("resources/images/protocol/zeroconf/zeroconf-online.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/zeroconf/zeroconf-color-64.png"));
+            loadIcon("resources/images/protocol/zeroconf/zeroconf-color-64.png"));
     }
         
     /**
@@ -74,7 +74,7 @@ public class ProtocolIconZeroconfImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/zeroconf/zeroconf-online.png");
+        return loadIcon("resources/images/protocol/zeroconf/zeroconf-online.png");
     }
     
     /**
