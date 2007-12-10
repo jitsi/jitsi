@@ -1144,8 +1144,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/JainSipApi1.2.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
-            <zipfileset dir="${resources}/images/sip"
-                            prefix="resources/images/sip"/>
+            <zipfileset dir="${resources}/images/protocol/sip"
+                            prefix="resources/images/protocol/sip"/>
         </jar>
     </target>
     <target name="bundle-sip-slick">
@@ -1191,10 +1191,10 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
-            <zipfileset dir="${resources}/images/icq"
-                            prefix="resources/images/icq"/>
-            <zipfileset dir="${resources}/images/aim"
-                            prefix="resources/images/aim"/>
+            <zipfileset dir="${resources}/images/protocol/icq"
+                            prefix="resources/images/protocol/icq"/>
+            <zipfileset dir="${resources}/images/protocol/aim"
+                            prefix="resources/images/protocol/aim"/>
         </jar>
     </target>
 
@@ -1229,8 +1229,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/jabber/jabber.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/jabber"
                 prefix="net/java/sip/communicator/impl/protocol/jabber"/>
-            <zipfileset dir="${resources}/images/jabber"
-                            prefix="resources/images/jabber"/>
+            <zipfileset dir="${resources}/images/protocol/jabber"
+                            prefix="resources/images/protocol/jabber"/>
         </jar>
     </target>
 
@@ -1253,9 +1253,9 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b2.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>            
-            <zipfileset dir="${resources}/images/msn"
-                            prefix="resources/images/msn"/>
+            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
+            <zipfileset dir="${resources}/images/protocol/msn"
+                            prefix="resources/images/protocol/msn"/>
         </jar>
     </target>
 
@@ -1280,8 +1280,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/ssh"
                 prefix="net/java/sip/communicator/impl/protocol/ssh"/>
             <zipfileset src="${lib.noinst}/jsch-0.1.33.jar" prefix=""/>
-            <zipfileset dir="${resources}/images/ssh"
-                            prefix="resources/images/ssh"/>
+            <zipfileset dir="${resources}/images/protocol/ssh"
+                            prefix="resources/images/protocol/ssh"/>
         </jar>
     </target>
 
@@ -1292,8 +1292,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/sshaccregwizz/sshaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sshaccregwizz"
                 prefix="net/java/sip/communicator/plugin/sshaccregwizz"/>
-            <zipfileset dir="${resources}/images/ssh"
-                            prefix="resources/images/ssh"/>
+            <zipfileset dir="${resources}/images/protocol/ssh"
+                            prefix="resources/images/protocol/ssh"/>
         </jar>
     </target>	
 
@@ -1305,8 +1305,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
                 prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
             <zipfileset src="${lib.noinst}/ymsg_network_v0_63.jar" prefix=""/>
-            <zipfileset dir="${resources}/images/yahoo"
-                            prefix="resources/images/yahoo"/>
+            <zipfileset dir="${resources}/images/protocol/yahoo"
+                            prefix="resources/images/protocol/yahoo"/>
         </jar>
     </target>
 
@@ -1329,8 +1329,8 @@ javax.swing.event, javax.swing.border"/>
         <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/gibberish"
                     prefix="net/java/sip/communicator/impl/protocol/gibberish"/>
         <!-- zipfileset src="${lib.noinst}/gibberish_stack.jar" prefix=""/-->
-        <zipfileset dir="${resources}/images/gibberish"
-                prefix="resources/images/gibberish"/>
+        <zipfileset dir="${resources}/images/protocol/gibberish"
+                prefix="resources/images/protocol/gibberish"/>
         </jar>
     </target>
 
@@ -1354,8 +1354,12 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset dir="resources/images"
-                            prefix="resources/images"/>
+            <zipfileset dir="resources/images/logo"
+                prefix="resources/images/logo"/>
+            <zipfileset dir="resources/images/impl/gui"
+                prefix="resources/images/impl/gui"/>
+            <zipfileset dir="resources/styles"
+                prefix="resources/styles"/>
         </jar>
     </target>
 
@@ -1396,8 +1400,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/icqaccregwizz/icqaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/icqaccregwizz"
                 prefix="net/java/sip/communicator/plugin/icqaccregwizz"/>
-            <zipfileset dir="${resources}/images/icq"
-                            prefix="resources/images/icq"/>
+            <zipfileset dir="${resources}/images/protocol/icq"
+                            prefix="resources/images/protocol/icq"/>
         </jar>
     </target>
 
@@ -1408,8 +1412,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/aimaccregwizz/aimaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/aimaccregwizz"
                 prefix="net/java/sip/communicator/plugin/aimaccregwizz"/>
-            <zipfileset dir="${resources}/images/aim"
-                            prefix="resources/images/aim"/>
+            <zipfileset dir="${resources}/images/protocol/aim"
+                            prefix="resources/images/protocol/aim"/>
         </jar>
     </target>
 
@@ -1420,8 +1424,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/jabberaccregwizz/jabberaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/jabberaccregwizz"
                 prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
-            <zipfileset dir="${resources}/images/jabber"
-                            prefix="resources/images/jabber"/>
+            <zipfileset dir="${resources}/images/protocol/jabber"
+                            prefix="resources/images/protocol/jabber"/>
         </jar>
     </target>
 
@@ -1432,8 +1436,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msnaccregwizz"
                 prefix="net/java/sip/communicator/plugin/msnaccregwizz"/>
-            <zipfileset dir="${resources}/images/msn"
-                            prefix="resources/images/msn"/>
+            <zipfileset dir="${resources}/images/protocol/msn"
+                            prefix="resources/images/protocol/msn"/>
         </jar>
     </target>
 
@@ -1444,8 +1448,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/yahooaccregwizz/yahooaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/yahooaccregwizz"
                 prefix="net/java/sip/communicator/plugin/yahooaccregwizz"/>
-            <zipfileset dir="${resources}/images/yahoo"
-                            prefix="resources/images/yahoo"/>
+            <zipfileset dir="${resources}/images/protocol/yahoo"
+                            prefix="resources/images/protocol/yahoo"/>
         </jar>
     </target>
 
@@ -1456,8 +1460,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
                 prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
-            <zipfileset dir="${resources}/images/sip"
-                            prefix="resources/images/sip"/>
+            <zipfileset dir="${resources}/images/protocol/sip"
+                            prefix="resources/images/protocol/sip"/>
         </jar>
     </target>
 
@@ -1469,8 +1473,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/gibberishaccregwizz/gibberishaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/gibberishaccregwizz"
                 prefix="net/java/sip/communicator/plugin/gibberishaccregwizz"/>
-            <zipfileset dir="${resources}/images/gibberish"
-                            prefix="resources/images/gibberish"/>
+            <zipfileset dir="${resources}/images/protocol/gibberish"
+                            prefix="resources/images/protocol/gibberish"/>
         </jar>
     </target>
 
@@ -1548,13 +1552,17 @@ javax.swing.event, javax.swing.border"/>
             </jar>
         </target>
 
-    <!-- BUNDLE-PLUGIN-SPLASH SCREEN -->
+    <!-- BUNDLE-PLUGIN-BRANDING -->
         <target name="bundle-plugin-branding">
             <!-- Creates a bundle for the Splash Screen plugin.-->
         <jar compress="false" destfile="${bundles.dest}/branding.jar"
             manifest="${src}/net/java/sip/communicator/plugin/branding/branding.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/branding"
                 prefix="net/java/sip/communicator/plugin/branding"/>
+            <zipfileset dir="${resources}/images/plugin/branding"
+                prefix="resources/images/plugin/branding"/>
+            <zipfileset dir="${resources}/styles"
+                prefix="resources/styles"/>
             </jar>
         </target>
 
@@ -1619,8 +1627,8 @@ javax.swing.event, javax.swing.border"/>
 
         <!-- LIBRARY FOR FAVICON SUPPORT -->
         <zipfileset src="${lib.noinst}/aclibico-2.1.jar" prefix=""/>
-        <zipfileset dir="${resources}/images/rss"
-                prefix="resources/images/rss"/>
+        <zipfileset dir="${resources}/images/protocol/rss"
+                prefix="resources/images/protocol/rss"/>
         </jar>
     </target>
 	
@@ -1643,8 +1651,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/rssaccregwizz/rssaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/rssaccregwizz"
                 prefix="net/java/sip/communicator/plugin/rssaccregwizz"/>
-            <zipfileset dir="${resources}/images/rss"
-                            prefix="resources/images/rss"/>
+            <zipfileset dir="${resources}/images/protocol/rss"
+                            prefix="resources/images/protocol/rss"/>
         </jar>
     </target>
 
@@ -1655,8 +1663,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/zeroconf/zeroconf.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/zeroconf"
                 prefix="net/java/sip/communicator/impl/protocol/zeroconf"/>
-            <zipfileset dir="${resources}/images/zeroconf"
-                            prefix="resources/images/zeroconf"/>
+            <zipfileset dir="${resources}/images/protocol/zeroconf"
+                            prefix="resources/images/protocol/zeroconf"/>
         </jar>
     </target>
 
@@ -1667,8 +1675,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/zeroconfaccregwizz/zeroconfaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/zeroconfaccregwizz"
                 prefix="net/java/sip/communicator/plugin/zeroconfaccregwizz"/>
-            <zipfileset dir="${resources}/images/zeroconf"
-                            prefix="resources/images/zeroconf"/>
+            <zipfileset dir="${resources}/images/protocol/zeroconf"
+                            prefix="resources/images/protocol/zeroconf"/>
         </jar>
     </target>
 
@@ -1680,8 +1688,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/irc"
                         prefix="net/java/sip/communicator/impl/protocol/irc"/>
             <zipfileset src="${lib.noinst}/pircbot.jar" prefix=""/>
-            <zipfileset dir="${resources}/images/irc"
-                    prefix="resources/images/irc"/>
+            <zipfileset dir="${resources}/images/protocol/irc"
+                    prefix="resources/images/protocol/irc"/>
             </jar>
         </target>
 
@@ -1693,8 +1701,8 @@ javax.swing.event, javax.swing.border"/>
                 manifest="${src}/net/java/sip/communicator/plugin/ircaccregwizz/ircaccregwizz.manifest.mf">
                 <zipfileset dir="${dest}/net/java/sip/communicator/plugin/ircaccregwizz"
                     prefix="net/java/sip/communicator/plugin/ircaccregwizz"/>
-                <zipfileset dir="${resources}/images/irc"
-                    prefix="resources/images/irc"/>
+                <zipfileset dir="${resources}/images/protocol/irc"
+                    prefix="resources/images/protocol/irc"/>
             </jar>
     </target>
 
@@ -1718,8 +1726,8 @@ javax.swing.event, javax.swing.border"/>
                     prefix="net/java/sip/communicator/plugin/mailbox" />
             <zipfileset dir="${resources}/sounds/mailbox"
                     prefix="resources/sounds"/>
-            <zipfileset dir="${resources}/images/mailbox"
-                    prefix="resources/images"/>
+            <zipfileset dir="${resources}/images/plugin/mailbox"
+                    prefix="resources/images/plugin/mailbox"/>
         </jar>
     </target>
 
