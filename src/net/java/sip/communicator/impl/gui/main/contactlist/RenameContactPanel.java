@@ -7,12 +7,12 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.MetaContact;
 
 /**
  * The <tt>RenameContactPanel</tt> is where the user could change the name of
