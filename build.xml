@@ -1576,6 +1576,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/systray"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/systray"
                 prefix="net/java/sip/communicator/impl/systray"/>
+            <zipfileset dir="${resources}/images/impl/gui/common"
+                prefix="resources/images/impl/gui/common"/>
         </jar>
     </target>
 
