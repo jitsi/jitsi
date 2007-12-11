@@ -1,6 +1,13 @@
 #!/bin/bash
 
-TEMP=`getopt -o V --long version -n 'SIP Communicator' -- "$@"`
+function print_help() {
+	echo "SIP Communicator option summary"
+	echo -e "\t-h, --help\t show this help message"
+	echo -e "\t-v, --verbose\t verbose output"
+	echo -e "\t-V, --version\t show version"
+}
+
+TEMP=`getopt -o hVv -l help -l version -l verbose -n 'SIP Communicator' -- "$@"`
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
@@ -8,7 +15,9 @@ eval set -- "$TEMP"
 
 while true ; do
         case "$1" in
+				-h|--help) print_help; exit 0;;
                 -V|--version) echo "SIP Communicator version _SC_VERSION_"; exit 0;;
+                -v|--verbose) VERBOSE="yes" ; shift ;;
                 --) shift ; break ;;
                 *) echo "Internal error!" ; exit 1 ;;
         esac
@@ -16,8 +25,12 @@ done
 
 javabin=`which java`
 
-SCDIR=/usr/share/sip-communicator
+SCDIR=/usr/lib/sip-communicator
 LIBPATH=$SCDIR/lib
+CLASSPATH=$LIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar:$LIBPATH/felix.jar:$SCDIR/sc-bundles/util.jar
+FELIX_CONFIG=$LIBPATH/felix.client.run.properties
+LOG_CONFIG=$LIBPATH/logging.properties
+COMMAND="$javabin -classpath $CLASSPATH -Dfelix.config.properties=file:$FELIX_CONFIG -Djava.util.logging.config.file=$LOG_CONFIG org.apache.felix.main.Main"
 
 #set add LIBPATH to LD_LIBRARY_PATH for any sc natives (e.g. jmf .so's)
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBPATH/native
@@ -32,6 +45,10 @@ cd $SCDIR
 
 if [ -f $javabin ]
 then
-        $javabin -classpath	"$LIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar:$LIBPATH/felix.jar:$SCDIR/sc-bundles/util.jar" -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
-        exit $?
+	if [ $VERBOSE ] ; then
+		exec $COMMAND
+	else
+		exec $COMMAND > /dev/null 2>&1
+	fi
+	exit $?
 fi

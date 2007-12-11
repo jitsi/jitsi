@@ -1,5 +1,5 @@
 ?package(sip-communicator):needs="x11"                   \
-  section="Apps/Net"                                     \
+  section="Applications/Network/Communication"           \
   title="SIP Communicator"                               \
   longtitle="SIP Communicator, VoIP and IM client"       \
   command="/usr/bin/sip-communicator"                    \

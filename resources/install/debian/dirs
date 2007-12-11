@@ -4,7 +4,7 @@ usr/share/doc/sip-communicator
 usr/share/man/man1
 usr/share/menu
 usr/share/pixmaps
-usr/share/sip-communicator
-usr/share/sip-communicator/lib
-usr/share/sip-communicator/lib/bundle
-usr/share/sip-communicator/sc-bundles
+usr/lib/sip-communicator
+usr/lib/sip-communicator/lib
+usr/lib/sip-communicator/lib/bundle
+usr/lib/sip-communicator/sc-bundles
