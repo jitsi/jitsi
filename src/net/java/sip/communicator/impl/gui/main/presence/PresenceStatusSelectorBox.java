@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.impl.gui.main.presence.message.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -113,6 +114,11 @@ public class PresenceStatusSelectorBox
                 .getBytesInImage(status.getStatusIcon())),
                 new ItemActionListener());
         }
+
+        this.addSeparator();
+
+        this.add(new StatusMessageMenu(protocolProvider));
+
         this.setSelectedStatus(offlineStatus);
     }
 
@@ -127,7 +133,6 @@ public class PresenceStatusSelectorBox
         {
             if (e.getSource() instanceof JMenuItem)
             {
-
                 JMenuItem menuItem = (JMenuItem) e.getSource();
 
                 LoginManager loginManager = mainFrame.getLoginManager();

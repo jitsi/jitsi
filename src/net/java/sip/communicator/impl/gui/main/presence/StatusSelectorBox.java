@@ -27,23 +27,27 @@ public abstract class StatusSelectorBox
     extends SIPCommMenu
 {
     /**
+     * Starts the connecting animation.
      * 
-     * @param images
+     * @param images the animated image to play
      */
     public void startConnecting(BufferedImage[] images){}
 
     /**
-     * 
+     * Updates the current status.
      */
     public void updateStatus(){}
 
     /**
+     * Returns the account index (In case of more than one account for one and
+     * the same protocol).
      * 
-     * @return
+     * @return the account index
      */
     public int getAccountIndex(){return -1;}
 
     /**
+     * Sets the account index.
      * 
      * @param index
      */

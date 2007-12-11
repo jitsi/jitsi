@@ -123,30 +123,22 @@ public class SystrayServiceJdicImpl
         // background.
         if (osName.startsWith("Windows"))
         {
-            logoIcon = new ImageIcon(
-                    Resources.getImage("trayIconWindows"));
-            envelopeIcon = new ImageIcon(
-                    Resources.getImage("messageIconWindows"));
+            logoIcon = Resources.getImage("trayIconWindows");
+            envelopeIcon = Resources.getImage("messageIconWindows");
         }
         // If we're running under MacOSX, we use a special black and 
         // white icons without background.
         else if (osName.startsWith("Mac OS X"))
         {
-            logoIcon = new ImageIcon(
-                    Resources.getImage("trayIconMacOSX"));
-            logoIconWhite = new ImageIcon(
-                    Resources.getImage("trayIconMacOSXWhite"));
-            envelopeIcon = new ImageIcon(
-                    Resources.getImage("messageIconMacOSX"));
-            envelopeIconWhite = new ImageIcon(
-                    Resources.getImage("messageIconMacOSXWhite"));
+            logoIcon = Resources.getImage("trayIconMacOSX");
+            logoIconWhite = Resources.getImage("trayIconMacOSXWhite");
+            envelopeIcon = Resources.getImage("messageIconMacOSX");
+            envelopeIconWhite = Resources.getImage("messageIconMacOSXWhite");
         }
         else
         {
-            logoIcon = new ImageIcon(
-                    Resources.getImage("trayIcon"));
-            envelopeIcon = new ImageIcon(
-                    Resources.getImage("messageIcon"));
+            logoIcon = Resources.getImage("trayIcon");
+            envelopeIcon = Resources.getImage("messageIcon");
         }
 
         currentIcon = logoIcon;

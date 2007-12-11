@@ -39,15 +39,15 @@ public class TrayMenu
         
     private JMenuItem settingsItem = new JMenuItem(
             Resources.getString("settings"),
-            new ImageIcon(Resources.getImage("settingsMenuIcon")));
+            Resources.getImage("settingsMenuIcon"));
     
     private JMenuItem closeItem = new JMenuItem(
             Resources.getString("close"),
-            new ImageIcon(Resources.getImage("closeMenuIcon")));
+            Resources.getImage("closeMenuIcon"));
     
     private JMenuItem addContactMenuItem = new JMenuItem(
             Resources.getString("addContact"),
-            new ImageIcon(Resources.getImage("addContactIcon")));
+            Resources.getImage("addContactIcon"));
         
     private StatusSubMenu statusMenu;
     

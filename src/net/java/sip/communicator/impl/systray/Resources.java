@@ -7,8 +7,12 @@
 
 package net.java.sip.communicator.impl.systray;
 
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+
+import javax.imageio.*;
+import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
 /**
@@ -31,43 +35,82 @@ public class Resources
     
     /**
      * Returns an internationalized string corresponding to the given key.
+     * 
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
-    public static String getString(String key) 
+    public static String getString(String key)
     {
-        try 
+        try
         {
-            return RESOURCE_BUNDLE.getString(key);
+            String resourceString = RESOURCE_BUNDLE.getString(key);
 
-        } catch (MissingResourceException e) 
+            int mnemonicIndex = resourceString.indexOf('&');
+
+            if(mnemonicIndex > -1)
+            {
+                String firstPart = resourceString.substring(0, mnemonicIndex);
+                String secondPart = resourceString.substring(mnemonicIndex + 1);
+
+                resourceString = firstPart.concat(secondPart);
+            }
+
+            return resourceString;
+        }
+        catch (MissingResourceException e)
         {
             return '!' + key + '!';
         }
-    }   
-    
-    /**
-     * Loads an image from a given image identifier.
-     * @param key The key of the image.
-     * @return The image for the given identifier.
-     */
-    public static byte[] getImage(String key) 
-    {
-        byte[] image = new byte[100000];
-
-        String path=Resources.getString(key);
-        
-        try 
-        {    
-            Resources.class.getClassLoader()
-                    .getResourceAsStream(path).read(image);
-            
-        } catch (IOException e) 
-        {
-            log.error("Failed to load image:" + key, e);
-        }
-        
-        return image;
     }
 
+    /**
+     * Returns an internationalized string corresponding to the given key.
+     * 
+     * @param key The key of the string.
+     * @return An internationalized string corresponding to the given key.
+     */
+    public static char getMnemonic(String key)
+    {
+        try
+        {
+            String resourceString = RESOURCE_BUNDLE.getString(key);
+
+            int mnemonicIndex = resourceString.indexOf('&');
+
+            if(mnemonicIndex > -1)
+                return resourceString.charAt(mnemonicIndex + 1);
+        }
+        catch (MissingResourceException e)
+        {
+            return 0;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Loads an image from a given image identifier.
+     * 
+     * @param imageID The identifier of the image.
+     * @return The image for the given identifier.
+     */
+    public static ImageIcon getImage(String imageID)
+    {
+        BufferedImage image = null;
+
+        String path = Resources.getString(imageID);
+        try
+        {
+            image =
+                ImageIO.read(Resources.class.getClassLoader()
+                    .getResourceAsStream(path));
+
+        }
+        catch (IOException e)
+        {
+            log.error("Failed to load image:" + path, e);
+        }
+
+        return new ImageIcon(image);
+    }
 }

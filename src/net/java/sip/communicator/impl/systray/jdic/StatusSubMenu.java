@@ -52,11 +52,10 @@ public class StatusSubMenu
     {
         
         parentSystray = tray;
-        
+
         this.setText(Resources.getString("setStatus"));
-        this.setIcon(
-                new ImageIcon(Resources.getImage("statusMenuIcon")));
-        
+        this.setIcon(Resources.getImage("statusMenuIcon"));
+
         /* makes the menu look better */
         this.setPreferredSize(new java.awt.Dimension(28, 24));
 

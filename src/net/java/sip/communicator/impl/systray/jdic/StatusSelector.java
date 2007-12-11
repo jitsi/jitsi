@@ -13,6 +13,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -47,6 +48,8 @@ public class StatusSelector
     private Logger logger = Logger.getLogger(
             StatusSelector.class.getName());
 
+    private StatusMessageMenu statusMessageMenu;
+
     /**
      * Creates an instance of StatusSelector
      * 
@@ -58,34 +61,38 @@ public class StatusSelector
                             ProtocolProviderService provider,
                             OperationSetPresence presence)
     {
-              
         this.parentSystray = jdicSystray;
         this.provider = provider;
         this.presence = presence;
-        
+
+        this.statusMessageMenu = new StatusMessageMenu(provider);
         /* the parent item */
-        
+
         this.setText(provider.getAccountID().getUserID());
         this.setIcon(new ImageIcon(
                 presence.getPresenceStatus().getStatusIcon()));
-                
+
         /* the submenu itself */
-                
+
         Iterator statusIterator = this.presence.getSupportedStatusSet();
-        
+
         while(statusIterator.hasNext()) 
         {
             PresenceStatus status = (PresenceStatus) statusIterator.next();
 
             ImageIcon icon = new ImageIcon(status.getStatusIcon());
             JMenuItem item = new JMenuItem(status.getStatusName(),icon);
-            
+
             item.addActionListener(this);
-            
+
             this.add(item);
         }
+
+        this.addSeparator();
+
+        this.add(statusMessageMenu);
     }
-    
+
     /**
      * Change the status of the protocol according to
      * the menu item selected
@@ -93,7 +100,6 @@ public class StatusSelector
      */
     public void actionPerformed(ActionEvent evt)
     {
-
         JMenuItem menuItem = (JMenuItem) evt.getSource();
 
         Iterator statusSet = presence.getSupportedStatusSet();
@@ -110,14 +116,14 @@ public class StatusSelector
                     && !presence.getPresenceStatus().equals(status))
                 {
                     if (status.isOnline()) 
-                    {   
+                    {
                         new PublishPresenceStatusThread(status).start();
                     }
-                    else 
+                    else
                     {
                         new ProviderUnRegistration(this.provider).start();
                     }
-                }                        
+                }
                 else if (this.provider.getRegistrationState()
                             != RegistrationState.REGISTERED
                         && this.provider.getRegistrationState()
@@ -175,28 +181,28 @@ public class StatusSelector
             try {
                 presence.publishPresenceStatus(status, "");
             }
-            catch (IllegalArgumentException e1) 
+            catch (IllegalArgumentException e1)
             {
 
                 logger.error("Error - changing status", e1);
             }
-            catch (IllegalStateException e1) 
+            catch (IllegalStateException e1)
             {
 
                 logger.error("Error - changing status", e1);
             }
-            catch (OperationFailedException e1) 
+            catch (OperationFailedException e1)
             {
                 
-                if (e1.getErrorCode() 
-                    == OperationFailedException.GENERAL_ERROR) 
+                if (e1.getErrorCode()
+                    == OperationFailedException.GENERAL_ERROR)
                 {
                     logger.error(
                         "General error occured while "
                         + "publishing presence status.",
                         e1);
                 }
-                else if (e1.getErrorCode() 
+                else if (e1.getErrorCode()
                         == OperationFailedException
                             .NETWORK_FAILURE) 
                 {
