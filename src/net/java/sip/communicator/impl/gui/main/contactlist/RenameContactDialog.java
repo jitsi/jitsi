@@ -8,17 +8,13 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>RenameContactDialog</tt> is the dialog containing the form for
