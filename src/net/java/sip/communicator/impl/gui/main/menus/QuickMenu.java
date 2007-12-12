@@ -48,7 +48,7 @@ public class QuickMenu
 {
 
     private Logger logger = Logger.getLogger(QuickMenu.class.getName());
-    
+
     private JButton infoButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_INFO_ICON)));
 
@@ -64,12 +64,14 @@ public class QuickMenu
     private JButton soundButton = new JButton(
         new ImageIcon(ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
 
+    private static int BUTTON_SIZE = 28;
+
     private ConfigurationWindow configDialog;
 
     private MainFrame mainFrame;
 
     private int movedDownButtons = 0;
-    
+
     /**
      * Create an instance of the <tt>QuickMenu</tt>.
      * @param mainFrame The parent <tt>MainFrame</tt> window.
@@ -80,15 +82,20 @@ public class QuickMenu
 
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
-                
+
         this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
         this.setFloatable(true);
 
-        this.infoButton.setPreferredSize(new Dimension(28, 28));
-        this.configureButton.setPreferredSize(new Dimension(28, 28));
-        this.searchButton.setPreferredSize(new Dimension(28, 28));
-        this.addButton.setPreferredSize(new Dimension(28, 28));
-        this.soundButton.setPreferredSize(new Dimension(28, 28));
+        this.infoButton.setPreferredSize(
+            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+        this.configureButton.setPreferredSize(
+            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+        this.searchButton.setPreferredSize(
+            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+        this.addButton.setPreferredSize(
+            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+        this.soundButton.setPreferredSize(
+            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
 
         this.infoButton.setToolTipText(
             Messages.getI18NString("userInfo").getText());
@@ -97,7 +104,7 @@ public class QuickMenu
         this.searchButton.setToolTipText(
             Messages.getI18NString("showOfflineUsers").getText());
         this.addButton.setToolTipText(
-            Messages.getI18NString("addContact").getText());        
+            Messages.getI18NString("addContact").getText());
         this.soundButton.setToolTipText(
             Messages.getI18NString("soundOnOff").getText());
 
@@ -112,7 +119,6 @@ public class QuickMenu
      */
     private void init()
     {
-        
         this.add(addButton);
         this.add(configureButton);
         this.add(infoButton);
@@ -124,13 +130,13 @@ public class QuickMenu
         this.searchButton.setName("search");
         this.infoButton.setName("info");
         this.soundButton.setName("sound");
-        
+
         this.addButton.addActionListener(this);
         this.configureButton.addActionListener(this);
         this.searchButton.addActionListener(this);
         this.infoButton.addActionListener(this);
         this.soundButton.addActionListener(this);
-        
+
         this.addButton.addComponentListener(this);
         this.configureButton.addComponentListener(this);
         this.searchButton.addComponentListener(this);
@@ -337,7 +343,7 @@ public class QuickMenu
                 .equals(UIService.CONTAINER_MAIN_TOOL_BAR))
             return;
         
-        this.remove(c);    
+        this.remove(c);
     }
 
     public void componentHidden(ComponentEvent e)
@@ -348,9 +354,8 @@ public class QuickMenu
      * the toolbar when buttons are aligned on more than one row.
      */
     public void componentMoved(ComponentEvent e)
-    {        
+    {
         int compCount = this.getComponentCount();
-        int buttonHeight = this.infoButton.getHeight();
 
         int biggestY = 0;
         for (int i = 0; i < compCount; i ++)
@@ -365,7 +370,7 @@ public class QuickMenu
         }
         
         this.setPreferredSize(
-            new Dimension(this.getWidth(), biggestY + buttonHeight));
+            new Dimension(this.getWidth(), biggestY + BUTTON_SIZE));
         
         ((JPanel)this.getParent()).revalidate();
         ((JPanel)this.getParent()).repaint();
