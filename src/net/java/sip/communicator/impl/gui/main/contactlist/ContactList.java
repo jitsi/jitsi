@@ -642,7 +642,8 @@ public class ContactList
                     contactRightButtonMenu.setVisible(true);
                 }
                 // Left click on the contact label opens Chat window
-                else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+                else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
+                    && e.getClickCount() > 1)
                 {
                     fireContactListEvent(contact,
                         ContactListEvent.CONTACT_SELECTED, e.getClickCount());

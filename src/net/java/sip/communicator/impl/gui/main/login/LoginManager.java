@@ -81,8 +81,9 @@ public class LoginManager
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory, String user, String passwd)
     {
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
 
-        Hashtable accountProperties = new Hashtable();
         accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
 
         AccountID accountID = providerFactory.installAccount(user,

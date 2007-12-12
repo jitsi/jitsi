@@ -1,0 +1,7 @@
+Bundle-Name: Contact Event Handler service
+Bundle-Description: Contact Event Handler service
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.protocol
+Export-Package: net.java.sip.communicator.service.contacteventhandler

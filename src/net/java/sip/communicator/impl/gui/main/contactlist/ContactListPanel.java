@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -127,13 +128,53 @@ public class ContactListPanel
      */
     public void contactClicked(ContactListEvent evt)
     {
-        if (evt.getClickCount() > 1)
+        MetaContact metaContact = evt.getSourceContact();
+
+        // Searching for the right proto contact to use as default for the
+        // chat conversation.
+        Contact defaultContact = metaContact.getDefaultContact();
+
+        ProtocolProviderService defaultProvider
+            = defaultContact.getProtocolProvider();
+
+        OperationSetBasicInstantMessaging
+            defaultIM = (OperationSetBasicInstantMessaging)
+                defaultProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class);
+
+        ProtocolProviderService protoContactProvider;
+        OperationSetBasicInstantMessaging protoContactIM;
+
+        if (defaultContact.getPresenceStatus().getStatus() < 1
+                && (!defaultIM.isOfflineMessagingSupported()
+                        || !defaultProvider.isRegistered()))
         {
-            SwingUtilities
-                .invokeLater(new RunMessageWindow(evt.getSourceContact()));
+            Iterator<Contact> protoContacts = metaContact.getContacts();
+
+            while(protoContacts.hasNext())
+            {
+                Contact contact = protoContacts.next();
+
+                protoContactProvider = contact.getProtocolProvider();
+
+                protoContactIM = (OperationSetBasicInstantMessaging)
+                    protoContactProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class);
+
+                if(protoContactIM.isOfflineMessagingSupported()
+                        && protoContactProvider.isRegistered())
+                {
+                    defaultContact = contact;
+                }
+            }
         }
+
+        ContactEventHandler contactHandler = mainFrame
+            .getContactHandler(defaultContact.getProtocolProvider());
+
+        contactHandler.contactClicked(defaultContact, evt.getClickCount());
     }
-    
+
     /**
      * Implements the ContactListListener.groupSelected method.
      */
@@ -145,8 +186,12 @@ public class ContactListPanel
      */
     public void protocolContactClicked(ContactListEvent evt)
     {
-        SwingUtilities.invokeLater(new RunMessageWindow(evt.getSourceContact(),
-                evt.getSourceProtoContact()));
+        Contact protoContact = evt.getSourceProtoContact();
+
+        ContactEventHandler contactHandler = mainFrame
+            .getContactHandler(protoContact.getProtocolProvider());
+
+        contactHandler.contactClicked(protoContact, evt.getClickCount());
     }
 
     /**
@@ -296,29 +341,29 @@ public class ContactListPanel
     public void messageDelivered(MessageDeliveredEvent evt)
     {
         Contact contact = evt.getDestinationContact();
-        
+
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
                 
         logger.trace("MESSAGE DELIVERED to contact: "
             + evt.getDestinationContact().getAddress());
-        
-        Message msg = evt.getSourceMessage();        
-        
+
+        Message msg = evt.getSourceMessage();
+
         ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
         MetaContactChatPanel chatPanel = null;
-        
+
         if(chatWindowManager.isChatOpenedForContact(metaContact))
             chatPanel = chatWindowManager.getContactChat(metaContact);
-            
+
         if (chatPanel != null)
-        {   
+        {
             ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
 
             logger.trace("MESSAGE DELIVERED: process message to chat for contact: "
                     + evt.getDestinationContact().getAddress());
-            
+
             chatPanel.processMessage(this.mainFrame
                     .getAccount(protocolProvider), evt.getTimestamp(),
                     Constants.OUTGOING_MESSAGE, msg.getContent(),

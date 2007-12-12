@@ -28,9 +28,10 @@ import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -77,7 +78,11 @@ public class MainFrame
 
     private HistoryWindowManager historyWindowManager
         = new HistoryWindowManager();
-    
+
+    private Hashtable<ProtocolProviderService, ContactEventHandler>
+        providerContactHandlers
+            = new Hashtable<ProtocolProviderService, ContactEventHandler>();
+
     /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
@@ -317,13 +322,21 @@ public class MainFrame
     {
         logger.trace("Add the following protocol provider to the gui: "
             + protocolProvider.getAccountID().getAccountAddress());
-        
+
         this.protocolProviders.put(protocolProvider,
                 new Integer(initiateProviderIndex(protocolProvider)));
 
         this.addProtocolSupportedOperationSets(protocolProvider);
 
         this.addAccount(protocolProvider);
+
+        ContactEventHandler contactHandler
+            = this.getContactHandlerForProvider(protocolProvider);
+
+        if (contactHandler == null)
+            contactHandler = new DefaultContactEventHandler(this);
+
+        this.addProviderContactHandler(protocolProvider, contactHandler);
     }
 
     /**
@@ -1108,4 +1121,61 @@ public class MainFrame
                 tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
         }
     };
+
+    /**
+     * 
+     * @param protocolProvider
+     * @param contactHandler
+     */
+    public void addProviderContactHandler(
+        ProtocolProviderService protocolProvider,
+        ContactEventHandler contactHandler)
+    {
+        providerContactHandlers.put(protocolProvider, contactHandler);
+    }
+
+    /**
+     * Returns the <tt>ContactEventHandler</tt> registered for this protocol
+     * provider.
+     * 
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> for which
+     * we are searching a <tt>ContactEventHandler</tt>.
+     * @return the <tt>ContactEventHandler</tt> registered for this protocol
+     * provider
+     */
+    public ContactEventHandler getContactHandler(
+        ProtocolProviderService protocolProvider)
+    {
+        return providerContactHandlers.get(protocolProvider);
+    }
+
+    /**
+     * 
+     * @param protocolProvider
+     * @return
+     */
+    private ContactEventHandler getContactHandlerForProvider(
+        ProtocolProviderService protocolProvider)
+    {
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + ProtocolProviderFactory.PROTOCOL
+            + "=" + protocolProvider.getProtocolName()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                ContactEventHandler.class.getName(), osgiFilter);
+        }
+        catch (InvalidSyntaxException ex){
+            logger.error("GuiActivator : " + ex);
+        }
+
+        if(serRefs == null)
+            return null;
+
+        return (ContactEventHandler) GuiActivator.bundleContext
+            .getService(serRefs[0]);
+    }
 }

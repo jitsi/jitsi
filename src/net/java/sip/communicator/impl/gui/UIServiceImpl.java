@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -43,11 +42,14 @@ public class UIServiceImpl
 
     private AccountRegWizardContainerImpl wizardContainer;
 
-    private Map registeredPlugins = new Hashtable();
+    private Map<ContainerID, Vector<Object>> registeredPlugins
+        = new Hashtable<ContainerID, Vector<Object>>();
 
-    private Vector pluginComponentListeners = new Vector();
+    private Vector<PluginComponentListener>
+        pluginComponentListeners = new Vector<PluginComponentListener>();
 
-    private static final List supportedContainers = new ArrayList();
+    private static final List<ContainerID> supportedContainers
+        = new ArrayList<ContainerID>();
     static
     {
         supportedContainers.add(UIService.CONTAINER_MAIN_TOOL_BAR);
@@ -61,13 +63,12 @@ public class UIServiceImpl
         supportedContainers.add(UIService.CONTAINER_CHAT_HELP_MENU);
     }
 
-    private static final Hashtable exportedWindows = new Hashtable();
+    private static final Hashtable<WindowID, ExportedWindow> exportedWindows
+        = new Hashtable<WindowID, ExportedWindow>();
 
     private MainFrame mainFrame;
 
     private LoginManager loginManager;
-
-    private ContactListPanel contactListPanel;
 
     private ConfigurationFrame configurationFrame;
 
@@ -90,8 +91,6 @@ public class UIServiceImpl
         this.mainFrame = new MainFrame();
 
         this.loginManager = new LoginManager(mainFrame);
-
-        this.contactListPanel = mainFrame.getContactListPanel();
 
         this.popupDialog = new PopupDialogImpl();
 
@@ -728,6 +727,10 @@ public class UIServiceImpl
         return this.configurationFrame;
     }
 
+    /**
+     * Returns an instance of <tt>AuthenticationWindow</tt> for the given
+     * protocol provider, realm and user credentials.
+     */
     public ExportedWindow getAuthenticationWindow(
         ProtocolProviderService protocolProvider,
         String realm, UserCredentials userCredentials)

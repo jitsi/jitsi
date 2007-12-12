@@ -75,9 +75,9 @@ public class GuiActivator implements BundleActivator
 
             logger.info("UI Service...[  STARTED ]");
 
-            bundleContext.registerService(UIService.class.getName(),
-                    this.uiService, null);
-            
+            bundleContext.registerService(  UIService.class.getName(),
+                                            this.uiService, null);
+
             logger.info("UI Service ...[REGISTERED]");
 
             this.uiService.loadApplicationGui();

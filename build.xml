@@ -877,7 +877,7 @@
         bundle-irc,bundle-plugin-ircaccregwizz,
         bundle-pluginmanager,bundle-notification,
         bundle-ssh,bundle-plugin-sshaccregwizz,
-    	bundle-plugin-exampleplugin"/>
+    	bundle-plugin-exampleplugin,bundle-contacteventhandler"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1745,7 +1745,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-
     <!-- BUNDLE-PLUGIN-WHITEBOARD -->
     <target name="bundle-plugin-whiteboard">
     <!-- Creates a bundle for the Whiteboard plugin.-->
@@ -1755,4 +1754,14 @@ javax.swing.event, javax.swing.border"/>
                prefix="net/java/sip/communicator/plugin/whiteboard"/>
        </jar>
    </target>
+
+    <!-- BUNDLE-CONTACT-EVENT-HANDLER -->
+    <target name="bundle-contacteventhandler">
+    <!-- Creates a bundle for the ContactEventHandler service.-->
+        <jar compress="false" destfile="${bundles.dest}/contacteventhandler.jar"
+           manifest="src/net/java/sip/communicator/service/contacteventhandler/contact.event.handler.manifest.mf">
+           <zipfileset dir="${dest}/net/java/sip/communicator/service/contacteventhandler"
+               prefix="net/java/sip/communicator/service/contacteventhandler"/>
+        </jar>
+    </target>
 </project>
