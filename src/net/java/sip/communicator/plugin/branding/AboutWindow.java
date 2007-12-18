@@ -8,7 +8,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.browserlauncher.BrowserLauncherService;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 
 import org.osgi.framework.ServiceReference;
@@ -16,6 +17,8 @@ import org.osgi.framework.ServiceReference;
 public class AboutWindow extends JDialog implements HyperlinkListener,
         ActionListener, ExportedWindow
 {
+    private Logger logger = Logger.getLogger(AboutWindow.class.getName());
+    
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel = new JLabel(
@@ -141,12 +144,13 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         {
             try
             {
-                bgImage = ImageIO.read(WindowBackground.class
+                bgImage = ImageIO.read(WindowBackground.class.getClassLoader()
                         .getResource(
                             BrandingResources.getString("aboutWindowBg")));
             }
             catch (IOException e)
             {
+                logger.error("Error cannot obtain background image", e);
                 bgImage = null;
             }
             this.setPreferredSize(new Dimension(bgImage.getWidth(this),
