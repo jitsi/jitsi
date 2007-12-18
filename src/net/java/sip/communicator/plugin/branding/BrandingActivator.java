@@ -18,7 +18,10 @@ public class BrandingActivator implements BundleActivator, BundleListener
 {
     private WelcomeWindow welcomeWindow;
     private static BundleContext bundleContext;
+
     private JMenuItem aboutEntry;
+
+    private JMenuItem chatAboutEntry;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -76,29 +79,42 @@ public class BrandingActivator implements BundleActivator, BundleListener
 
         // add menu entry to file menu
         // Add your menu item to the help menu
-        if (aboutEntry == null)
-        {
-            aboutEntry = new JMenuItem(Resources.getString("aboutMenuEntry"));
-            aboutEntry.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
 
-                    AboutWindow aboutWindow = new AboutWindow(null);
-                    aboutWindow.setVisible(true);
-                }
-            });
-        }
+        aboutEntry
+            = new JMenuItem(Resources.getString("aboutMenuEntry"));
+
+        aboutEntry.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                AboutWindow aboutWindow = new AboutWindow(null);
+                aboutWindow.setVisible(true);
+            }
+        });
+
+        chatAboutEntry
+            = new JMenuItem(Resources.getString("aboutMenuEntry"));
+
+        chatAboutEntry.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                AboutWindow aboutWindow = new AboutWindow(null);
+                aboutWindow.setVisible(true);
+            }
+        });
+
         // Check if the help menu is a supported container.
         if (uiService.isContainerSupported(UIService.CONTAINER_HELP_MENU))
         {
             uiService.addComponent(UIService.CONTAINER_HELP_MENU, aboutEntry);
         }
+
         // Check if the help menu is a supported container.
         if (uiService.isContainerSupported(UIService.CONTAINER_CHAT_HELP_MENU))
         {
             uiService.addComponent(UIService.CONTAINER_CHAT_HELP_MENU,
-                    aboutEntry);
+                    chatAboutEntry);
         }
     }
 
@@ -117,16 +133,24 @@ public class BrandingActivator implements BundleActivator, BundleListener
         UIService uiService = (UIService) bundleContext
                 .getService(uiServiceRef);
 
-        // Check if the tools menu is a supported container.
-        boolean isContainerSupported = uiService
-                .isContainerSupported(UIService.CONTAINER_HELP_MENU);
-
-        if (isContainerSupported)
+        // Check if the tools menu is a supported container and remove the about
+        // entry added before.
+        if (uiService.isContainerSupported(UIService.CONTAINER_HELP_MENU))
         {
             // add menu entry to file menu
             // Add your menu item to the help menu
-            uiService
-                    .removeComponent(UIService.CONTAINER_HELP_MENU, aboutEntry);
+            uiService.removeComponent(
+                UIService.CONTAINER_HELP_MENU, aboutEntry);
+        }
+
+        // Check if the chat menu is a supported container and remove the about
+        // entry added before.
+        if (uiService.isContainerSupported(UIService.CONTAINER_CHAT_HELP_MENU))
+        {
+            // add menu entry to file menu
+            // Add your menu item to the help menu
+            uiService.removeComponent(
+                UIService.CONTAINER_CHAT_HELP_MENU, chatAboutEntry);
         }
     }
 
