@@ -78,9 +78,9 @@ public class WhiteboardShapeImage
         this.whiteboardPoint = p;
         this.width = width;
         this.height = height;
-        ImageIcon ii = new ImageIcon (bytes);
+        this.bytes = Base64.decode(bytes);
+        ImageIcon ii = new ImageIcon (this.bytes);
         this.image = ii.getImage ();
-        this.bytes = bytes;
 
         this.recalculateSelectionPoints();
     }
@@ -302,9 +302,9 @@ public class WhiteboardShapeImage
      * displayed as the object background.
      */
     public void setBackgroundImage (byte[] background)
-    {
-        this.bytes = background;
-        ImageIcon ii = new ImageIcon (bytes);
+    {       
+        this.bytes = Base64.decode(background);
+        ImageIcon ii = new ImageIcon (this.bytes);
         this.image = ii.getImage ();
     }
     

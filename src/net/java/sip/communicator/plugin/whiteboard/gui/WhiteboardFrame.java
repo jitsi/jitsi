@@ -971,7 +971,7 @@ public class WhiteboardFrame
             }
         });
 
-//        toolBar.add(imageButton);
+        toolBar.add(imageButton);
 
         buttonGroup.add(polygonButton);
         polygonButton.setToolTipText(Resources.getString("polygon"));
