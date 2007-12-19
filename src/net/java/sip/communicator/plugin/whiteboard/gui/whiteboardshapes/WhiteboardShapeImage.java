@@ -15,7 +15,6 @@ import net.java.sip.communicator.service.protocol.WhiteboardPoint;
 import java.awt.geom.*;
 import java.util.List;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
-import net.java.sip.communicator.util.Base64;
 
 /**
  * a WhiteboardShapeCircle, in XML :
@@ -78,7 +77,7 @@ public class WhiteboardShapeImage
         this.whiteboardPoint = p;
         this.width = width;
         this.height = height;
-        this.bytes = Base64.decode(bytes);
+        this.bytes = bytes;
         ImageIcon ii = new ImageIcon (this.bytes);
         this.image = ii.getImage ();
 
@@ -303,7 +302,7 @@ public class WhiteboardShapeImage
      */
     public void setBackgroundImage (byte[] background)
     {       
-        this.bytes = Base64.decode(background);
+        this.bytes = background;
         ImageIcon ii = new ImageIcon (this.bytes);
         this.image = ii.getImage ();
     }
@@ -317,7 +316,7 @@ public class WhiteboardShapeImage
      */
     public byte[] getBackgroundImage ()
     {
-        return Base64.encode (bytes);
+        return bytes;
     }
 
     /**

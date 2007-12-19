@@ -91,9 +91,7 @@ public class WhiteboardObjectImageJabberImpl
                 this.setWhiteboardPoint (new WhiteboardPoint (x, y));
                 this.setWidth (width);
                 this.setHeight (height);
-                byte[] b = img.getBytes ();
-                img = new String (Base64.decode (b));
-                this.setBackgroundImage ( img.getBytes ());
+                this.setBackgroundImage(Base64.decode(img));
             }
         }
         catch (ParserConfigurationException ex)
