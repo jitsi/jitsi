@@ -61,6 +61,11 @@ public class UIServiceImpl
         supportedContainers.add(UIService.CONTAINER_CALL_HISTORY);
         supportedContainers.add(UIService.CONTAINER_MAIN_TABBED_PANE);
         supportedContainers.add(UIService.CONTAINER_CHAT_HELP_MENU);
+        supportedContainers.add(UIService.CONTAINER_CHAT_WINDOW_SOUTH);
+        supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_EAST);
+        supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_WEST);
+        supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_SOUTH);
+        supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_NORTH);
     }
 
     private static final Hashtable<WindowID, ExportedWindow> exportedWindows

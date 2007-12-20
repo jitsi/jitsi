@@ -32,6 +32,7 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -49,6 +50,7 @@ import org.osgi.framework.*;
  */
 public class MainFrame
     extends SIPCommFrame
+    implements PluginComponentListener
 {
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
 
@@ -105,6 +107,8 @@ public class MainFrame
         this.setTitle(Messages.getI18NString("sipCommunicator").getText());
 
         this.init();
+
+        this.initPluginComponents();
     }
 
     /**
@@ -128,7 +132,7 @@ public class MainFrame
         this.mainPanel.add(contactListPanel, BorderLayout.CENTER);
         this.mainPanel.add(statusPanel, BorderLayout.SOUTH);
 
-        this.getContentPane().add(mainPanel);
+        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     }
     
     /**
@@ -1177,5 +1181,108 @@ public class MainFrame
 
         return (ContactEventHandler) GuiActivator.bundleContext
             .getService(serRefs[0]);
+    }
+
+    /**
+     * Initialize plugin components already registered for this container.
+     */
+    private void initPluginComponents()
+    {
+        Iterator pluginComponents = GuiActivator.getUIService()
+                .getComponentsForContainer(
+                    UIService.CONTAINER_CONTACT_LIST_SOUTH);
+
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component) pluginComponents.next();
+
+            this.getContentPane().add(o, BorderLayout.SOUTH);
+        }
+
+        pluginComponents = GuiActivator.getUIService()
+                .getComponentsForContainer(
+                    UIService.CONTAINER_CONTACT_LIST_NORTH);
+
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component) pluginComponents.next();
+
+            this.getContentPane().add(o, BorderLayout.NORTH);
+        }
+
+        pluginComponents = GuiActivator.getUIService()
+                .getComponentsForContainer(
+                    UIService.CONTAINER_CONTACT_LIST_EAST);
+
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component) pluginComponents.next();
+
+            this.getContentPane().add(o, BorderLayout.EAST);
+        }
+
+        pluginComponents = GuiActivator.getUIService()
+                .getComponentsForContainer(
+                    UIService.CONTAINER_CONTACT_LIST_WEST);
+
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component) pluginComponents.next();
+
+            this.getContentPane().add(o, BorderLayout.WEST);
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+    /**
+     * Adds the associated with this <tt>PluginComponentEvent</tt> component
+     * to the appropriate container.
+     */
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+
+        if (event.getContainerID().equals(
+            UIService.CONTAINER_CONTACT_LIST_SOUTH))
+        {
+            this.getContentPane().add(c, BorderLayout.SOUTH);
+        }
+        else if (event.getContainerID().equals(
+            UIService.CONTAINER_CONTACT_LIST_NORTH))
+        {
+            this.getContentPane().add(c, BorderLayout.NORTH);
+        }
+        else if (event.getContainerID().equals(
+            UIService.CONTAINER_CONTACT_LIST_EAST))
+        {
+            this.getContentPane().add(c, BorderLayout.EAST);
+        }
+        else if (event.getContainerID().equals(
+            UIService.CONTAINER_CONTACT_LIST_WEST))
+        {
+            this.getContentPane().add(c, BorderLayout.WEST);
+        }
+
+        this.pack();
+    }
+
+    /**
+     * Removes the associated with this <tt>PluginComponentEvent</tt> component
+     * from this container.
+     */
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+
+        ContainerID containerID = event.getContainerID();
+
+        if (containerID.equals(UIService.CONTAINER_CONTACT_LIST_SOUTH)
+            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_NORTH)
+            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_EAST)
+            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_WEST))
+        {
+            this.getContentPane().remove(c);
+        }
     }
 }

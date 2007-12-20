@@ -117,12 +117,43 @@ public interface UIService
      */
     public static final ContainerID CONTAINER_CHAT_SETTINGS_MENU 
         = new ContainerID("ChatSettingsMenu");
+
     /**
      * Chat window "help menu" container.
      */
     public static final ContainerID CONTAINER_CHAT_HELP_MENU 
         = new ContainerID("ChatHelpMenu");
-      
+
+    /**
+     * Chat window "south area" container.
+     */
+    public static final ContainerID CONTAINER_CHAT_WINDOW_SOUTH
+        = new ContainerID("ChatWindowSouth");
+
+    /**
+     * Indicates the west area on the left of the contact list.
+     */
+    public static final ContainerID CONTAINER_CONTACT_LIST_WEST
+        = new ContainerID("ContactListWest");
+
+    /**
+     * Indicates the east area on the right of the contact list.
+     */
+    public static final ContainerID CONTAINER_CONTACT_LIST_EAST
+        = new ContainerID("ContactListEast");
+
+    /**
+     * Indicates the north area on the top of the contact list.
+     */
+    public static final ContainerID CONTAINER_CONTACT_LIST_NORTH
+        = new ContainerID("ContactListNorth");
+
+    /**
+     * Indicates the south area on the bottom of the contact list.
+     */
+    public static final ContainerID CONTAINER_CONTACT_LIST_SOUTH
+        = new ContainerID("ContactListSouth");
+
     /**
      * Call history panel container.
      */

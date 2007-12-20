@@ -13,6 +13,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -20,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -37,7 +39,8 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatWindow
     extends SIPCommFrame
-    implements ExportedWindow
+    implements  ExportedWindow,
+                PluginComponentListener
 {
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
 
@@ -84,6 +87,8 @@ public class ChatWindow
         this.setSizeAndLocation();
 
         this.getContentPane().add(menusPanel, BorderLayout.NORTH);
+
+        this.initPluginComponents();
 
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
             KeyEvent.ALT_DOWN_MASK), new ForwordTabAction());
@@ -625,4 +630,45 @@ public class ChatWindow
         
         this.toFront();
     }
+
+    /**
+     * Initialize plugin components already registered for this container.
+     */
+    private void initPluginComponents()
+    {
+        Iterator pluginComponents = GuiActivator.getUIService()
+                .getComponentsForContainer(UIService.CONTAINER_CHAT_WINDOW_SOUTH);
+
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component) pluginComponents.next();
+
+            this.add(o, BorderLayout.SOUTH);
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+
+        if (event.getContainerID().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH))
+        {
+            this.getContentPane().add(c, BorderLayout.SOUTH);
+
+            this.pack();
+        }
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+
+        if (event.getContainerID().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH))
+        {
+            this.getContentPane().remove(c);
+        }
+    }
+
 }
