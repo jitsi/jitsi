@@ -36,7 +36,7 @@ public class PluginManagerActivator implements BundleActivator
         ServiceReference uiServiceRef
             = bc.getServiceReference(UIService.class.getName());
         
-        uiService = (UIService) bc.getService(uiServiceRef);        
+        uiService = (UIService) bc.getService(uiServiceRef);
         
         ConfigurationWindow configWindow = uiService.getConfigurationWindow();
         
@@ -44,7 +44,7 @@ public class PluginManagerActivator implements BundleActivator
         {
             PluginManagerConfigForm pluginManager
                         = new PluginManagerConfigForm();
-                    
+
             configWindow.addConfigurationForm(pluginManager);
         }
     }

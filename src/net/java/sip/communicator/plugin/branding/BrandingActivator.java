@@ -17,6 +17,7 @@ import org.osgi.framework.*;
 public class BrandingActivator implements BundleActivator, BundleListener
 {
     private WelcomeWindow welcomeWindow;
+
     private static BundleContext bundleContext;
 
     private JMenuItem aboutEntry;

@@ -31,8 +31,7 @@ public class Resources
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle(BUNDLE_NAME);
-    
-    
+
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
