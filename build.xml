@@ -1354,11 +1354,11 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset dir="resources/images/logo"
+            <zipfileset dir="${resources}/images/logo"
                 prefix="resources/images/logo"/>
-            <zipfileset dir="resources/images/impl/gui"
+            <zipfileset dir="${resources}/images/impl/gui"
                 prefix="resources/images/impl/gui"/>
-            <zipfileset dir="resources/styles"
+            <zipfileset dir="${resources}/styles"
                 prefix="resources/styles"/>
         </jar>
     </target>
@@ -1749,7 +1749,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-whiteboard">
     <!-- Creates a bundle for the Whiteboard plugin.-->
         <jar compress="false" destfile="${bundles.dest}/whiteboard.jar"
-           manifest="src/net/java/sip/communicator/plugin/whiteboard/whiteboard.manifest.mf">
+           manifest="${src}/net/java/sip/communicator/plugin/whiteboard/whiteboard.manifest.mf">
            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/whiteboard"
                prefix="net/java/sip/communicator/plugin/whiteboard"/>
        </jar>
@@ -1759,7 +1759,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-contacteventhandler">
     <!-- Creates a bundle for the ContactEventHandler service.-->
         <jar compress="false" destfile="${bundles.dest}/contacteventhandler.jar"
-           manifest="src/net/java/sip/communicator/service/contacteventhandler/contact.event.handler.manifest.mf">
+           manifest="${src}/net/java/sip/communicator/service/contacteventhandler/contact.event.handler.manifest.mf">
            <zipfileset dir="${dest}/net/java/sip/communicator/service/contacteventhandler"
                prefix="net/java/sip/communicator/service/contacteventhandler"/>
         </jar>
