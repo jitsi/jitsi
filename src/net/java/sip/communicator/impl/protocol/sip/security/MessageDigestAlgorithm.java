@@ -58,6 +58,12 @@ public class MessageDigestAlgorithm
                                     String entity_body,
                                     String qop_value)
     {
+    	logger.debug("trying to authenticate using : " + algorithm + ", "
+    			+ username_value + ", " + realm_value + ", " + (passwd != null
+				&& passwd.trim().length() > 0) + ", " + nonce_value + ", "
+				+ nc_value + ", " + cnonce_value + ", " + method + ", "
+				+ digest_uri_value + ", " + entity_body + ", " + qop_value); 
+    	
         if (username_value == null || realm_value == null || passwd == null
             || method == null || digest_uri_value == null || nonce_value == null)
             throw new NullPointerException(
