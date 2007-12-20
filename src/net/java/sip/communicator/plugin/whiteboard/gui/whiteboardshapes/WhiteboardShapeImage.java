@@ -184,11 +184,11 @@ public class WhiteboardShapeImage
      */
     public void translate (double deltaX, double deltaY)
     {
-        double x = whiteboardPoint.getX ();
-        double y = whiteboardPoint.getY ();
+        double cx = whiteboardPoint.getX ();
+        double cy = whiteboardPoint.getY ();
 
-        x += deltaX;
-        y += deltaY;
+        this.getWhiteboardPoint().setX(cx + deltaX);
+        this.getWhiteboardPoint().setY(cy + deltaY);
 
         this.recalculateSelectionPoints();
     }
