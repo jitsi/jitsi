@@ -56,7 +56,6 @@ public class WhiteboardObjectTextJabberImpl
     {
         super ();
 
-        this.setID ("");
         this.setWhiteboardPoint (new WhiteboardPoint (0, 0));
         this.setFontName (fontName);
         this.setFontSize (fontSize);
