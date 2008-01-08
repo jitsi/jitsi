@@ -676,7 +676,7 @@
             <!-- The following two configure felix telling it that it's running
                  as a test environment-->
             <sysproperty key="felix.config.properties"
-                value="file:./lib/felix.unit.test.properties"/>
+                value="file:${lib}/felix.unit.test.properties"/>
 
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
@@ -688,7 +688,7 @@
 
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
-                value="lib/logging.properties"/>
+                value="${lib}/logging.properties"/>
 
             <!-- Tell all protocol testers their account details. -->
             <syspropertyset id="accounts">

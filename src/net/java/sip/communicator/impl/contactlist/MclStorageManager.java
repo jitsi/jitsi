@@ -65,7 +65,7 @@ public class MclStorageManager
     private BundleContext     bundleContext = null;
 
     /**
-     * The file acces service that we'll be using in order to obtain a reference
+     * The file access service that we'll be using in order to obtain a reference
      * to the contact list file.
      */
     private FileAccessService faService = null;
@@ -98,7 +98,7 @@ public class MclStorageManager
     private FailSafeTransaction contactlistTrans = null;
 
     /**
-     * A regerence to the MetaContactListServiceImpl that created and started us.
+     * A reference to the MetaContactListServiceImpl that created and started us.
      */
     private MetaContactListServiceImpl mclServiceImpl = null;
 
@@ -209,7 +209,7 @@ public class MclStorageManager
      * other words that it has successfully found and read the xml contact list
      * file.
      *
-     * @return true if the storage manager has been successfully initialialized
+     * @return true if the storage manager has been successfully initialized
      * and false otherwise.
      */
     boolean isStarted()
@@ -239,7 +239,7 @@ public class MclStorageManager
      * @param mclServiceImpl a reference to the currently valid instance of the
      * <tt>MetaContactListServiceImpl</tt> that we could use to pass parsed
      * contacts and contact groups.
-     * @throws IOException if the contact lsit file specified file does not
+     * @throws IOException if the contact list file specified file does not
      * exist and could not be created.
      * @throws XMLException if there is a problem with the file syntax.
      */
@@ -344,10 +344,10 @@ public class MclStorageManager
             logger.error("Error finding configuration for default parsers", ex);
         }
 
-        this.launchStorageThread();
         mclServiceImpl.addMetaContactListListener(this);
         this.mclServiceImpl = mclServiceImpl;
         started = true;
+        this.launchStorageThread();
     }
 
     /**
@@ -545,11 +545,11 @@ public class MclStorageManager
      * file and calls corresponding "add" methods
      * belonging to <tt>mclServiceImpl</tt> for every meta contact and meta
      * contact group stored in the (conteactlist.xml) file that correspond to a
-     * provider carying the specified <tt>accountID</tt>.
+     * provider caring the specified <tt>accountID</tt>.
      *
      * @param accountID the identifier of the account whose contacts we're
      * interested in.
-     * @throws XMLException if a problem occurs while parsing contact lsit
+     * @throws XMLException if a problem occurs while parsing contact list
      * contents.
      */
     void extractContactsForAccount(String accountID)
@@ -590,7 +590,7 @@ public class MclStorageManager
     }
 
     /**
-     * Parses <tt>groupNode</tt> and all of its subnodes, createing
+     * Parses <tt>groupNode</tt> and all of its subnodes, creating
      * corresponding instances through <tt>mclServiceImpl</tt> as children of
      * <tt>parentGroup</tt>
      *
@@ -598,7 +598,7 @@ public class MclStorageManager
      * creating new contacts and groups.
      * @param accountID a String identifier of the account whose contacts we're
      * interested in.
-     * @param groupNode teh XML <tt>Element</tt> that points to the group we're
+     * @param groupNode the XML <tt>Element</tt> that points to the group we're
      * currently parsing.
      * @param parentGroup the <tt>MetaContactGroupImpl</tt> where we should be
      * creating children.
@@ -839,11 +839,11 @@ public class MclStorageManager
      * Returns all proto contacts that are encapsulated inside the meta contact
      * represented by <tt>metaContactNode</tt> and that originate from the
      * account with id - <tt>accountID</tt>. The returned list contains contact
-     * contact descriptors as elements. In case the meta cotnact does
+     * contact descriptors as elements. In case the meta contact does
      * not contain proto contacts originating from the specified account, an
      * empty list is returned.
      * <p>
-     * @param metaContactNode the Element whose proto contacts we'd likde to
+     * @param metaContactNode the Element whose proto contacts we'd like to
      * extract.
      * @param accountID the id of the account whose contacts we're interested in.
      * @param protoGroups a map binding proto group UIDs to protogroups, that
@@ -1118,7 +1118,7 @@ public class MclStorageManager
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
-            proberly triggerred by a net operation - we could not do much.
+            probably triggered by a net operation - we could not do much.
             so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after adding contact "
                          + evt.getSourceMetaContact(), ex);
@@ -1168,7 +1168,7 @@ public class MclStorageManager
         catch (IOException ex)
         {
             /**given we're being invoked from an event dispatch thread that was
-                 proberly triggerred by a net operation - we could not do much.
+                 probably triggered by a net operation - we could not do much.
              so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after adding contact "
                          + evt.getSourceMetaContactGroup(), ex);
@@ -1201,7 +1201,7 @@ public class MclStorageManager
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
-            probably triggerred by a net operation - we could not do much.
+            probably triggered by a net operation - we could not do much.
             so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after removing group "
                          + evt.getSourceMetaContactGroup(), ex);
@@ -1251,7 +1251,7 @@ public class MclStorageManager
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
-            probably triggerred by a net operation - we could not do much.
+            probably triggered by a net operation - we could not do much.
             so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after moving "
                          + evt.getSourceMetaContact(), ex);
@@ -1333,7 +1333,7 @@ public class MclStorageManager
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
-            probably triggerred by a net operation - we could not do much.
+            probably triggered by a net operation - we could not do much.
             so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after removing "
                          + evt.getSourceMetaContact(), ex);
@@ -1371,7 +1371,7 @@ public class MclStorageManager
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
-            probably triggerred by a net operation - we could not do much.
+            probably triggered by a net operation - we could not do much.
             so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after rename of "
                          + evt.getSourceMetaContact(), ex);
@@ -1412,7 +1412,7 @@ public class MclStorageManager
         catch (IOException ex)
         {
             /**given we're being invoked from an event dispatch thread that was
-                 probably triggerred by a net operation - we could not do much.
+                 probably triggered by a net operation - we could not do much.
              so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after removing proto contact "
                          + evt.getProtoContact(), ex);
@@ -1422,7 +1422,7 @@ public class MclStorageManager
 
     /**
      * We simply ignore - we're not interested in this kind of events.
-     * @param evt the <tt>MetaContactGroupEvent</tt> containind details of this
+     * @param evt the <tt>MetaContactGroupEvent</tt> containing details of this
      * event.
      */
     public void childContactsReordered(MetaContactGroupEvent evt)
@@ -1475,7 +1475,7 @@ public class MclStorageManager
                 catch (IOException ex)
                 {
                     /**given we're being invoked from an event dispatch thread
-                     * that was proberly triggerred by a net operation - we
+                     * that was probably triggered by a net operation - we
                      * could not do much. so ... log and @todo one day we'll
                      * have a global error dispatcher */
                     logger.error("Writing CL failed after adding contact "
@@ -1499,7 +1499,7 @@ public class MclStorageManager
         catch (IOException ex)
         {
             /**given we're being invoked from an event dispatch thread that was
-                 probably triggerred by a net operation - we could not do much.
+                 probably triggered by a net operation - we could not do much.
              so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after removing proto group "
                          + evt.getSourceProtoGroup().getGroupName(), ex);
@@ -1538,7 +1538,7 @@ public class MclStorageManager
         catch (IOException ex)
         {
             /**given we're being invoked from an event dispatch thread that was
-                 probably triggerred by a net operation - we could not do much.
+                 probably triggered by a net operation - we could not do much.
              so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after adding proto contact "
                          + evt.getProtoContact(), ex);
@@ -1593,7 +1593,7 @@ public class MclStorageManager
         catch (IOException ex)
         {
             /**given we're being invoked from an event dispatch thread that was
-                 probably triggerred by a net operation - we could not do much.
+                 probably triggered by a net operation - we could not do much.
              so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after moving proto contact "
                          + evt.getProtoContact(), ex);

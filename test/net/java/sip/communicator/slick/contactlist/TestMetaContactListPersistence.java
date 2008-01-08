@@ -71,7 +71,7 @@ public class TestMetaContactListPersistence extends TestCase
     /**
      * In this test we only create a meta contact and move it somewhere else.
      * This is a delicate operation since any underlying storage method would
-     * have to not only move the meta contact itslef but also make sure that all
+     * have to not only move the meta contact itself but also make sure that all
      * proto contacts have been moved to protogroups accordingly. We don't do
      * any real testing inside this method. The testing would be happening
      * during reload and it would fail if the contacts moved in this method
@@ -112,6 +112,12 @@ public class TestMetaContactListPersistence extends TestCase
     public void testReloadMetaContactListBundle()
         throws Exception
     {
+        Object o = new Object();
+        synchronized(o){
+            // wait other operations to finish before reloading
+            o.wait(1000);
+        }
+        
         Bundle metaClBundle = findMetaClBundle();
 
         //uninstall the meta contact list service
@@ -217,7 +223,7 @@ public class TestMetaContactListPersistence extends TestCase
     }
 
     /**
-     * Register the remaing protocol providers and make sure that they too are
+     * Register the remaining protocol providers and make sure that they too are
      * properly loaded inside the contact list. We also need to verify that
      * proto contacts that have been merged in a single meta contact are still
      * merged.
