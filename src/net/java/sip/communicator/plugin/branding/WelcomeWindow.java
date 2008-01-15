@@ -26,8 +26,6 @@ public class WelcomeWindow extends JDialog
 
     private JPanel textPanel = new JPanel();
 
-    private static final Color DARK_BLUE = new Color(23, 65, 125);
-
     private JPanel loadingPanel = new JPanel(new BorderLayout());
 
     private JLabel loadingLabel = new JLabel(
@@ -49,7 +47,7 @@ public class WelcomeWindow extends JDialog
         this.textPanel.setOpaque(false);
 
         this.titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
-        this.titleLabel.setForeground(DARK_BLUE);
+        this.titleLabel.setForeground(Constants.TITLE_COLOR);
         this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
@@ -57,7 +55,7 @@ public class WelcomeWindow extends JDialog
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12));
-        this.logoArea.setForeground(DARK_BLUE);
+        this.logoArea.setForeground(Constants.TITLE_COLOR);
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
         this.logoArea.setWrapStyleWord(true);

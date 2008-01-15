@@ -59,7 +59,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.textPanel.setOpaque(false);
 
         this.titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
-        this.titleLabel.setForeground(Constants.DARK_BLUE);
+        this.titleLabel.setForeground(Constants.TITLE_COLOR);
         this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
@@ -67,7 +67,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 14));
-        this.logoArea.setForeground(Constants.DARK_BLUE);
+        this.logoArea.setForeground(Constants.TITLE_COLOR);
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
         this.logoArea.setWrapStyleWord(true);

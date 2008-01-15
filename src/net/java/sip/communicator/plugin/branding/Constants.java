@@ -29,7 +29,8 @@ public class Constants
     /**
      * Dark blue color used in the About Window.
      */
-    public static final Color DARK_BLUE = new Color(23, 65, 125);
+    public static final Color TITLE_COLOR
+        = new Color(Resources.getColor("controlDarkShadow"));
 
     /*
      * ======================================================================

@@ -9,6 +9,8 @@ package net.java.sip.communicator.plugin.branding;
 import java.text.*;
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * The Messages class manages the access to the internationalization properties
  * files.
@@ -17,11 +19,19 @@ import java.util.*;
  */
 public class Resources
 {
+    private static Logger log = Logger.getLogger(Resources.class);
+
     private static final String RESOUCRE_LOCATION
         = "net.java.sip.communicator.plugin.branding.resources";
 
     private static final ResourceBundle resourceBundle 
         = ResourceBundle.getBundle(RESOUCRE_LOCATION);
+
+    private static final String COLOR_BUNDLE_NAME
+        = "resources.colors.colorResources";
+
+    private static final ResourceBundle COLOR_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(COLOR_BUNDLE_NAME);
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -64,9 +74,32 @@ public class Resources
         }
         catch (MissingResourceException e)
         {
+            log.error("Missing string resource.", e);
+
             resourceString = '!' + key + '!';
         }
 
         return resourceString;
+    }
+
+    /**
+     * Returns an int RGB color corresponding to the given key.
+     *
+     * @param key The key of the string.
+     *
+     * @return An internationalized string corresponding to the given key.
+     */
+    public static int getColor(String key)
+    {
+        try
+        {
+            return Integer.parseInt(COLOR_RESOURCE_BUNDLE.getString(key), 16);
+        }
+        catch (MissingResourceException e)
+        {
+            log.error("Missing color resource.", e);
+
+            return 0xFFFFFF;
+        }
     }
 }
