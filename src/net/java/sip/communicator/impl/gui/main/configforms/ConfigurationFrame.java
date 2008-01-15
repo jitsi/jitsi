@@ -85,7 +85,7 @@ public class ConfigurationFrame
 
         buttonsPanel.setBorder(
             BorderFactory.createMatteBorder(1, 0, 0, 0,
-                Constants.BLUE_GRAY_BORDER_COLOR));
+                Constants.BORDER_COLOR));
         
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
