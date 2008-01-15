@@ -41,7 +41,7 @@ public class ConfigFormList
         this.addListSelectionListener(this);
         
         this.setBorder(BorderFactory
-            .createLineBorder(Constants.BLUE_GRAY_BORDER_COLOR));
+            .createLineBorder(Constants.BORDER_COLOR));
     }
 
     /**

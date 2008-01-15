@@ -142,7 +142,7 @@ public class ChatSendPanel
 
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.setColor(Constants.MOVER_START_COLOR);
+        g2.setColor(Constants.GRADIENT_DARK_COLOR);
         g2.setStroke(new BasicStroke(1f));
 
         g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,

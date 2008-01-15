@@ -30,86 +30,70 @@ public class Constants {
     /**
      *  The incoming call flag.
      */
-    public static final int INCOMING_CALL = 1;    
-    
+    public static final int INCOMING_CALL = 1;
+
     /**
      * The outgoing call flag.
      */
-    public static final int OUTGOING_CALL = 2;    
-    
+    public static final int OUTGOING_CALL = 2;
+
     /**
      * The Incoming & outcoming flag.
      */
-    public static final int INOUT_CALL = 3;    
+    public static final int INOUT_CALL = 3;
     
     /*
      * ======================================================================
      * -------------------- FONTS AND COLOR CONSTANTS ------------------------
      * ======================================================================
      */
-
-    /**
-     * The color used to paint the background of an incoming call history
-     * record.
-     */
-    public static final Color HISTORY_DATE_COLOR
-        = new Color(255, 201, 102);
-
     /**
      * The color used to paint the background of an incoming call history
      * record.
      */
     public static final Color HISTORY_IN_CALL_COLOR
-        = new Color(249, 255, 197);
+        = new Color(Resources.getColor("historyIncomingCallBackground"));
 
     /**
      * The color used to paint the background of an outgoing call history
      * record.
      */
     public static final Color HISTORY_OUT_CALL_COLOR
-        = new Color(243, 244, 247);
-
+        = new Color(Resources.getColor("historyOutgoingCallBackground"));
 
     /**
      * The end color used to paint a gradient selected background of some
      * components.
      */
-    public static final Color SELECTED_END_COLOR
-        = new Color(209, 212, 225);
+    public static final Color SELECTED_COLOR
+        = new Color(Resources.getColor("listSelectionColor"));
 
     /**
      * The start color used to paint a gradient mouse over background of some
      * components.
      */
-    public static final Color MOVER_START_COLOR = new Color(230,
-            230, 230);
+    public static final Color GRADIENT_DARK_COLOR
+        = new Color(Resources.getColor("gradientDarkColor"));
 
     /**
      * The end color used to paint a gradient mouse over background of some
      * components.
      */
-    public static final Color MOVER_END_COLOR = new Color(255,
-            255, 255);
-
-    /**
-     * Gray color used to paint some borders, like the button border for
-     * example.
-     */
-    public static final Color GRAY_COLOR = new Color(154, 154,
-            154);
+    public static final Color GRADIENT_LIGHT_COLOR
+        = new Color(Resources.getColor("gradientLightColor"));
 
     /**
      * A color between blue and gray used to paint some borders.
      */
-    public static final Color BLUE_GRAY_BORDER_COLOR = new Color(142, 160, 188);
+    public static final Color BORDER_COLOR
+        = new Color(Resources.getColor("borderColor"));
 
     /**
      * A color between blue and gray (darker than the other one), used to paint
      * some borders.
      */
-    public static final Color BLUE_GRAY_BORDER_DARKER_COLOR = new Color(131, 149,
-            178);
-
+    public static final Color LIST_SELECTION_BORDER_COLOR
+        = new Color(Resources.getColor("listSelectionBorderColor"));
 
     /*
      * ======================================================================
@@ -130,8 +114,8 @@ public class Constants {
     /**
      * The default <tt>Font</tt> object used through this ui implementation.
      */
-    public static final Font FONT = new Font(Constants.FONT_NAME, Font.PLAIN,
-            new Integer(Constants.FONT_SIZE).intValue());
+    public static final Font FONT = new Font(Constants.FONT_NAME,
+            Font.PLAIN, new Integer(Constants.FONT_SIZE).intValue());
  
  
 }

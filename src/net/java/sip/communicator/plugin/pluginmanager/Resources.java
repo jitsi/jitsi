@@ -27,8 +27,14 @@ public class Resources {
     private static final String BUNDLE_NAME
         = "net.java.sip.communicator.plugin.pluginmanager.resources";
 
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
+    private static final String COLOR_BUNDLE_NAME
+        = "resources.colors.colorResources";
+
+    private static final ResourceBundle RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(BUNDLE_NAME);
+
+    private static final ResourceBundle COLOR_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(COLOR_BUNDLE_NAME);
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -83,5 +89,26 @@ public class Resources {
         }
 
         return image;
+    }
+
+    /**
+     * Returns an int RGB color corresponding to the given key.
+     *
+     * @param key The key of the string.
+     *
+     * @return An internationalized string corresponding to the given key.
+     */
+    public static int getColor(String key)
+    {
+        try
+        {
+            return Integer.parseInt(COLOR_RESOURCE_BUNDLE.getString(key), 16);
+        }
+        catch (MissingResourceException e)
+        {
+            log.error("Missing color resource.", e);
+
+            return 0xFFFFFF;
+        }
     }
 }

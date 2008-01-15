@@ -56,6 +56,6 @@ public class SIPCommSelectorMenuUI
         int menuWidth = menuItem.getWidth();
         int menuHeight = menuItem.getHeight();
 
-        g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);       
+        g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
     }
 }

@@ -26,16 +26,16 @@ public class PluginListCellRenderer extends JPanel
     implements TableCellRenderer
 {
     /**
-     * The start color used to paint a gradient selected background.
-     */
-    private static final Color SELECTED_END_COLOR
-        = new Color(240, 240, 240);
-
-    /**
      * The end color used to paint a gradient selected background.
      */
     private static final Color SELECTED_START_COLOR
-        = new Color(209, 212, 225);
+        = new Color(Resources.getColor("listSelectionColor"));
+
+    /**
+     * The start color used to paint a gradient selected background.
+     */
+    private static final Color SELECTED_END_COLOR
+        = new Color(Resources.getColor("gradientLightColor"));
     
     private JPanel mainPanel = new JPanel(new BorderLayout());
     

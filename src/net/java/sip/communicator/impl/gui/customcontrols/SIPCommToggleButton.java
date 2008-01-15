@@ -149,7 +149,6 @@ public class SIPCommToggleButton extends JToggleButton {
 
         if (this.bgRolloverImage != null && this.getModel().isRollover()) {
 
-            g.setColor(Constants.GRAY_COLOR);
             g.drawImage(this.bgRolloverImage, 0, 0, this);
 
             if (this.iconImage != null) {
@@ -183,7 +182,7 @@ public class SIPCommToggleButton extends JToggleButton {
             if (this.pressedImage != null) {
                 g.drawImage(this.pressedImage, 0, 0, this);
             } else if (this.bgRolloverImage != null){
-                g.setColor(Constants.GRAY_COLOR);
+
                 g.drawImage(this.bgRolloverImage, 0, 0, this);
 
                 if (this.iconImage != null) {

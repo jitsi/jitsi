@@ -32,7 +32,7 @@ public class SIPCommMenuItemUI
 
     public void paint(Graphics g, JComponent c)
     {
-        AntialiasingManager.activateAntialiasing(g);        
+        AntialiasingManager.activateAntialiasing(g);
         super.paint(g, c);
     }
     
@@ -65,11 +65,11 @@ public class SIPCommMenuItemUI
                 g.setColor(SIPCommLookAndFeel.getControlDarkShadow());
                 g.drawRoundRect(0, 0, menuWidth - 1, menuHeight - 1, 5, 5);
             }
-            else {                
-                g.setColor(menuItem.getBackground());                
+            else {
+                g.setColor(menuItem.getBackground());
                 g.fillRoundRect(0, 0, menuWidth, menuHeight, 5, 5);
             }
-            g.setColor(oldColor);            
+            g.setColor(oldColor);
         }
     }
 }

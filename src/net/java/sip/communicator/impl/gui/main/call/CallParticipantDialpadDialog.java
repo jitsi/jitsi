@@ -68,15 +68,15 @@ public class CallParticipantDialpadDialog
             Graphics2D g2 = (Graphics2D) g;
 
             GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                    Constants.MOVER_START_COLOR, this.getWidth() / 2,
+                    Constants.GRADIENT_DARK_COLOR, this.getWidth() / 2,
                     getHeight(),
-                    Color.WHITE);
+                    Constants.GRADIENT_LIGHT_COLOR);
 
             g2.setPaint(p);
             
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
 
-            g2.setColor(Constants.LIGHT_GRAY_COLOR);
+            g2.setColor(Constants.GRADIENT_DARK_COLOR);
 
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
         }

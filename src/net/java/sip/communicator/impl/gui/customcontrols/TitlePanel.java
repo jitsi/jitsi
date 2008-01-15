@@ -62,22 +62,22 @@ public class TitlePanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
 
         GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                Constants.MOVER_START_COLOR, this.getWidth() / 2,
+                Constants.GRADIENT_DARK_COLOR, this.getWidth() / 2,
                 Constants.GRADIENT_SIZE,
-                Constants.MOVER_END_COLOR);
+                Constants.GRADIENT_LIGHT_COLOR);
 
         GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
                 .getHeight()
                 - Constants.GRADIENT_SIZE,
-                Constants.MOVER_END_COLOR, this.getWidth() / 2,
-                this.getHeight(), Constants.MOVER_START_COLOR);
+                Constants.GRADIENT_LIGHT_COLOR, this.getWidth() / 2,
+                this.getHeight(), Constants.GRADIENT_DARK_COLOR);
 
         g2.setPaint(p);
         g2
                 .fillRect(0, 0, this.getWidth(),
                         Constants.GRADIENT_SIZE);
 
-        g2.setColor(Constants.MOVER_END_COLOR);
+        g2.setColor(Constants.GRADIENT_LIGHT_COLOR);
         g2.fillRect(0, Constants.GRADIENT_SIZE, this.getWidth(),
                 this.getHeight() - Constants.GRADIENT_SIZE);
 
@@ -85,7 +85,7 @@ public class TitlePanel extends JPanel {
         g2.fillRect(0, this.getHeight() - Constants.GRADIENT_SIZE
                 - 1, this.getWidth(), this.getHeight() - 1);
 
-        g2.setColor(Constants.BLUE_GRAY_BORDER_COLOR);
+        g2.setColor(Constants.BORDER_COLOR);
         g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1, 5, 5);
     }
 

@@ -54,7 +54,7 @@ public class LabelTableCellRenderer extends JLabel
         }
 
         if(isSelected)
-            this.setBackground(Constants.SELECTED_END_COLOR);
+            this.setBackground(Constants.SELECTED_COLOR);
         else
             this.setBackground(UIManager.getColor("Table.background"));
 

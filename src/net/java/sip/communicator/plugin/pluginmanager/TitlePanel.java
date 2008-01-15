@@ -23,7 +23,8 @@ public class TitlePanel extends JPanel
     /**
      * A color between blue and gray used to paint some borders.
      */
-    public static final Color BLUE_GRAY_BORDER_COLOR = new Color(142, 160, 188);
+    public static final Color BORDER_COLOR
+        = new Color(Resources.getColor("borderColor"));
 
     /**
      * The size of the gradient used for painting the background.
@@ -33,14 +34,14 @@ public class TitlePanel extends JPanel
     /**
      * The start color used to paint a gradient mouse over background.
      */
-    private static final Color MOVER_START_COLOR = new Color(230,
-            230, 230);
+    private static final Color GRADIENT_DARK_COLOR
+        = new Color(Resources.getColor("gradientDarkColor"));
 
     /**
      * The end color used to paint a gradient mouse over background.
      */
-    private static final Color MOVER_END_COLOR = new Color(255,
-            255, 255);
+    private static final Color GRADIENT_LIGHT_COLOR
+        = new Color(Resources.getColor("gradientLightColor"));
 
     private JLabel titleLabel = new JLabel();
 
@@ -83,20 +84,20 @@ public class TitlePanel extends JPanel
         Graphics2D g2 = (Graphics2D) g;
 
         GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                MOVER_START_COLOR, this.getWidth() / 2,
+                GRADIENT_DARK_COLOR, this.getWidth() / 2,
                 GRADIENT_SIZE,
-                MOVER_END_COLOR);
+                GRADIENT_LIGHT_COLOR);
 
         GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
                 .getHeight()
                 - GRADIENT_SIZE,
-                MOVER_END_COLOR, this.getWidth() / 2,
-                this.getHeight(), MOVER_START_COLOR);
+                GRADIENT_LIGHT_COLOR, this.getWidth() / 2,
+                this.getHeight(), GRADIENT_DARK_COLOR);
 
         g2.setPaint(p);
         g2.fillRect(0, 0, this.getWidth(), GRADIENT_SIZE);
 
-        g2.setColor(MOVER_END_COLOR);
+        g2.setColor(GRADIENT_LIGHT_COLOR);
         g2.fillRect(0, GRADIENT_SIZE, this.getWidth(),
                 this.getHeight() - GRADIENT_SIZE);
 
@@ -104,7 +105,7 @@ public class TitlePanel extends JPanel
         g2.fillRect(0, this.getHeight() - GRADIENT_SIZE
                 - 1, this.getWidth(), this.getHeight() - 1);
 
-        g2.setColor(BLUE_GRAY_BORDER_COLOR);
+        g2.setColor(BORDER_COLOR);
         g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1, 5, 5);
     }
 

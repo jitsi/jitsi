@@ -145,7 +145,7 @@ public class ConfigFormListCellRenderer
                     - SELECTED_GRADIENT_SIZE, this
                     .getWidth(), this.getHeight() - 1);
 
-            g2.setColor(Constants.BLUE_GRAY_BORDER_DARKER_COLOR);
+            g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
             g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
                     5, 5);
         }

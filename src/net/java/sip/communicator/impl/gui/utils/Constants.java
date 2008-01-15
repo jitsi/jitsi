@@ -182,84 +182,53 @@ public class Constants
      * -------------------- FONTS AND COLOR CONSTANTS ------------------------
      * ======================================================================
      */
-
-    /**
-     * The color used to paint the background of an incoming call history
-     * record.
-     */
-    public static final Color HISTORY_DATE_COLOR
-        = new Color(255, 201, 102);
-
     /**
      * The color used to paint the background of an incoming call history
      * record.
      */
     public static final Color HISTORY_IN_CALL_COLOR
-        = new Color(249, 255, 197);
+        = new Color(ColorResources.getColor("historyIncomingCallBackground"));
 
     /**
      * The color used to paint the background of an outgoing call history
      * record.
      */
     public static final Color HISTORY_OUT_CALL_COLOR
-        = new Color(243, 244, 247);
-
-    /**
-     * The start color used to paint a gradient selected background of some
-     * components.
-     */
-    public static final Color SELECTED_START_COLOR
-        = new Color(151, 169, 198);
+        = new Color(ColorResources.getColor("historyOutgoingCallBackground"));
 
     /**
      * The end color used to paint a gradient selected background of some
      * components.
      */
-    public static final Color SELECTED_END_COLOR
-        = new Color(209, 212, 225);
+    public static final Color SELECTED_COLOR
+        = new Color(ColorResources.getColor("listSelectionColor"));
 
     /**
      * The start color used to paint a gradient mouse over background of some
      * components.
      */
-    public static final Color MOVER_START_COLOR = new Color(230,
-            230, 230);
+    public static final Color GRADIENT_DARK_COLOR
+        = new Color(ColorResources.getColor("gradientDarkColor"));
 
     /**
      * The end color used to paint a gradient mouse over background of some
      * components.
      */
-    public static final Color MOVER_END_COLOR = new Color(255,
-            255, 255);
-
-    /**
-     * Gray color used to paint some borders, like the button border for
-     * example.
-     */
-    public static final Color GRAY_COLOR = new Color(154, 154,
-            154);
+    public static final Color GRADIENT_LIGHT_COLOR
+        = new Color(ColorResources.getColor("gradientLightColor"));
 
     /**
      * A color between blue and gray used to paint some borders.
      */
-    public static final Color BLUE_GRAY_BORDER_COLOR = new Color(142, 160, 188);
+    public static final Color BORDER_COLOR
+        = new Color(ColorResources.getColor("borderColor"));
 
     /**
      * A color between blue and gray (darker than the other one), used to paint
      * some borders.
      */
-    public static final Color BLUE_GRAY_BORDER_DARKER_COLOR = new Color(131, 149,
-            178);
-
-    /**
-     * Light gray color used in the look and feel.
-     */
-    public static final Color LIGHT_GRAY_COLOR = new Color(200, 200, 200);
-
-    /**
-     * Dark blue color used in the About Window.
-     */
-    public static final Color DARK_BLUE = new Color(23, 65, 125);
+    public static final Color LIST_SELECTION_BORDER_COLOR
+        = new Color(ColorResources.getColor("listSelectionBorderColor"));
 
     /*
      * ======================================================================

@@ -257,10 +257,10 @@ public class ContactListCellRenderer extends JPanel
         if (!this.isLeaf) {
 
             GradientPaint p = new GradientPaint(0, 0,
-                    Constants.SELECTED_END_COLOR,
+                    Constants.SELECTED_COLOR,
                     this.getWidth(),
                     this.getHeight(),
-                    Constants.MOVER_END_COLOR);
+                    Constants.GRADIENT_LIGHT_COLOR);
 
             g2.setPaint(p);            
             g2.fillRoundRect(1, 1, this.getWidth(), this.getHeight() - 1, 7, 7);
@@ -268,10 +268,10 @@ public class ContactListCellRenderer extends JPanel
 
         if (this.isSelected) {
 
-            g2.setColor(Constants.SELECTED_END_COLOR);
+            g2.setColor(Constants.SELECTED_COLOR);
             g2.fillRoundRect(1, 0, this.getWidth(), this.getHeight(), 7, 7);
 
-            g2.setColor(Constants.BLUE_GRAY_BORDER_DARKER_COLOR);
+            g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
             g2.setStroke(new BasicStroke(1.5f));
             g2.drawRoundRect(1, 0, this.getWidth() - 1, this.getHeight() - 1,
                     7, 7);

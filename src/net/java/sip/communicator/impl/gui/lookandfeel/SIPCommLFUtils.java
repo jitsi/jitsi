@@ -61,7 +61,7 @@ public class SIPCommLFUtils {
 
        Graphics2D g2 = (Graphics2D) g;
 
-       g2.setColor(Constants.BLUE_GRAY_BORDER_COLOR);
+       g2.setColor(Constants.BORDER_COLOR);
        g2.setStroke(new BasicStroke(1.5f));
 
        g2.drawRoundRect(x, y, w - 1, h - 1, r1, r2);

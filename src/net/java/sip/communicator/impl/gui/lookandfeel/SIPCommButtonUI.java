@@ -42,7 +42,7 @@ public class SIPCommButtonUI extends MetalButtonUI {
         
         b.setOpaque(false);
         b.setBorderPainted(false);
-        b.setFocusPainted(true);        
+        b.setFocusPainted(true);
         b.setRolloverEnabled(true);
     }
 
