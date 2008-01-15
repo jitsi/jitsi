@@ -213,6 +213,9 @@ public class SIPCommDefaultTheme
                 "TabbedPane.selected", SELECTION_BACKGROUND,
                 "TabbedPane.tabAreaInsets", new Insets(2, 2, 0, 6),
                 "TabbedPane.unselectedBackground", SELECTION_BACKGROUND,
+                "TabbedPane.shadow", CONTROL_SHADOW,
+                "TabbedPane.darkShadow", CONTROL_DARK_SHADOW,
+                "TabbedPane.highlight", CONTROL_COLOR,
 
                 "TextField.border", textFieldBorder,
                 "TextField.margin", new InsetsUIResource(3, 3, 3, 3),

@@ -1452,7 +1452,7 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             
             if (closeIndexStatus == OVER) {
                 closeIndexStatus = PRESSED;
-                tabScroller.tabPanel.repaint();                
+                tabScroller.tabPanel.repaint();
             }
             else if (maxIndexStatus == OVER) {
                 maxIndexStatus = PRESSED;

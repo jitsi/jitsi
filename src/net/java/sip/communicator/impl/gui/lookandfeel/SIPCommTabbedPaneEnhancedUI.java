@@ -32,9 +32,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
     private static final Color whiteColor = Color.white;
 
-    private static final Color highlightedColor = new Color(249, 117, 10);
-
-    private static final int TAB_OVERLAP = 10;
+    private static final int TAB_OVERLAP = 0;
 
     private static final int PREFERRED_WIDTH = 150;
     
@@ -154,7 +152,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
         g2.drawImage(middleImg, x + leftImg.getWidth(), y,
             w - leftImg.getWidth() - rightImg.getWidth() + tabOverlap,
             leftImg.getHeight(), null);
-        g2.drawImage(rightImg, x + w - rightImg.getWidth() + tabOverlap, y, null);                
+        g2.drawImage(rightImg, x + w - rightImg.getWidth() + tabOverlap, y, null);
     }
 
     protected void paintText(Graphics g, int tabPlacement, Font font,
@@ -188,7 +186,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
                 title = title.substring(0, title.length() - 4)
                         .concat("...");
 
-            titleWidth = SwingUtilities.computeStringWidth(metrics, title);            
+            titleWidth = SwingUtilities.computeStringWidth(metrics, title);
         }
         
         textRect.width = titleWidth;
@@ -206,7 +204,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
                     g.setColor(whiteColor);
                 else {
                     if (this.isTabHighlighted(tabIndex)) {
-                        g.setColor(highlightedColor);
+                        g.setColor(UIManager.getColor("TabbedPane.highlight"));
                     } else
                         g.setColor(tabPane.getForegroundAt(tabIndex));
                 }
