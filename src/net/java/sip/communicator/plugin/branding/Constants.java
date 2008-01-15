@@ -42,9 +42,9 @@ public class Constants
      * The default <tt>Font</tt> object used through this ui implementation.
      */
     public static final Font FONT
-        = new Font( BrandingResources.getString("fontName"),
-                    Font.PLAIN,
-                    new Integer(BrandingResources.getString("fontSize"))
+        = new Font( BrandingResources.getApplicationString("fontName"),
+                Font.PLAIN,
+                new Integer(BrandingResources.getApplicationString("fontSize"))
                         .intValue());
 
     /**
@@ -55,7 +55,8 @@ public class Constants
     public static void loadSimpleStyle(StyleSheet style)
     {
         InputStream is = Constants.class.getClassLoader()
-                .getResourceAsStream(BrandingResources.getString("textStyle"));
+                .getResourceAsStream(
+                    BrandingResources.getResourceString("textStyle"));
 
         Reader r = new BufferedReader(new InputStreamReader(is));
         try

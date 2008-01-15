@@ -12,7 +12,7 @@ public class WelcomeWindow extends JDialog
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel
-        = new JLabel(BrandingResources.getString("productName"));
+        = new JLabel(BrandingResources.getApplicationString("productName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
@@ -66,8 +66,9 @@ public class WelcomeWindow extends JDialog
 
         this.rightsArea.setContentType("text/html");
         this.rightsArea.appendToEnd(Resources.getString("welcomeMessage",
-            new String[]{   BrandingResources.getString("productName"),
-                            BrandingResources.getString("productWebSite")}));
+            new String[]{
+                BrandingResources.getApplicationString("productName"),
+                BrandingResources.getApplicationString("productWebSite")}));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 50));
         this.rightsArea
@@ -177,7 +178,8 @@ public class WelcomeWindow extends JDialog
             try
             {
                 bgImage = ImageIO.read(WindowBackground.class.getClassLoader()
-                    .getResource(BrandingResources.getString("splashScreenBg")));
+                    .getResource(
+                        BrandingResources.getResourceString("splashScreenBg")));
             }
             catch (IOException e)
             {

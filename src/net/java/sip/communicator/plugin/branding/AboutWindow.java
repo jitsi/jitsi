@@ -22,7 +22,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel = new JLabel(
-        BrandingResources.getString("productName"));
+        BrandingResources.getApplicationString("productName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
@@ -46,7 +46,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         this.setTitle(  Resources.getString("aboutWindowTitle",
                         new String[]{BrandingResources
-                                        .getString("productName")}));
+                                        .getApplicationString("productName")}));
 
         this.setModal(false);
 
@@ -145,8 +145,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
             try
             {
                 bgImage = ImageIO.read(WindowBackground.class.getClassLoader()
-                        .getResource(
-                            BrandingResources.getString("aboutWindowBg")));
+                        .getResource(BrandingResources
+                            .getResourceString("aboutWindowBg")));
             }
             catch (IOException e)
             {

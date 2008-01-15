@@ -104,7 +104,7 @@ public class MainFrame
 
         this.setInitialBounds();
 
-        this.setTitle(Messages.getI18NString("sipCommunicator").getText());
+        this.setTitle(ApplicationProperties.getProperty("productName"));
 
         this.init();
 

@@ -23,13 +23,19 @@ public class BrandingResources
     private static final ResourceBundle resourceBundle 
         = ResourceBundle.getBundle(RESOUCRE_LOCATION);
 
+    private static final String APPLICATION_RESUORCE_LOCATION
+        = "resources.application";
+
+    private static final ResourceBundle applicationBundle 
+        = ResourceBundle.getBundle(APPLICATION_RESUORCE_LOCATION);
+
     /**
-     * Returns an internationalized string corresponding to the given key.
+     * Returns the resource string corresponding to the given key.
      *
      * @param key The key of the string.
-     * @return An internationalized string corresponding to the given key.
+     * @return the resource string corresponding to the given key
      */
-    public static String getString(String key)
+    public static String getResourceString(String key)
     {
         try
         {
@@ -40,33 +46,22 @@ public class BrandingResources
             return '!' + key + '!';
         }
     }
-    
-    /**
-     * Returns an internationalized string corresponding to the given key,
-     * by replacing all occurences of '?' with the given string param.
-     * @param key The key of the string.
-     * @param params the params, that should replace {1}, {2}, etc. in the
-     * string given by the key parameter 
-     * @return An internationalized string corresponding to the given key,
-     * by replacing all occurences of {#number} with the given string param.
-     */
-    public static String getString(String key, String[] params)
-    {
-        String resourceString;
 
+    /**
+     * Returns the application property string corresponding to the given key.
+     *
+     * @param key The key of the string.
+     * @return the application property string corresponding to the given key
+     */
+    public static String getApplicationString(String key)
+    {
         try
         {
-            resourceString = resourceBundle.getString(key);
-
-            resourceString = MessageFormat.format(
-                resourceString, (Object[]) params);
-
+            return applicationBundle.getString(key);
         }
         catch (MissingResourceException e)
         {
-            resourceString = '!' + key + '!';
+            return '!' + key + '!';
         }
-
-        return resourceString;
     }
 }
