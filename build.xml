@@ -1360,7 +1360,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images/impl/gui"/>
             <zipfileset dir="${resources}/styles"
                 prefix="resources/styles"/>
-            <zipfileset dir="resources/colors"
+            <zipfileset dir="${resources}/colors"
                 prefix="resources/colors"/>
         </jar>
     </target>
