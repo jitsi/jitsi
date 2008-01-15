@@ -32,7 +32,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
     private static final Color whiteColor = Color.white;
 
-    private static final int TAB_OVERLAP = 0;
+    private static final int TAB_OVERLAP = 10;
 
     private static final int PREFERRED_WIDTH = 150;
     
