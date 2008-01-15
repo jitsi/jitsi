@@ -1360,6 +1360,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images/impl/gui"/>
             <zipfileset dir="${resources}/styles"
                 prefix="resources/styles"/>
+            <zipfileset dir="resources/colors"
+                prefix="resources/colors"/>
         </jar>
     </target>
 
@@ -1600,6 +1602,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/pluginmanager/pluginmanager.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/pluginmanager"
                 prefix="net/java/sip/communicator/plugin/pluginmanager"/>
+            <zipfileset dir="${resources}/colors"
+                prefix="resources/colors"/>
         </jar>
     </target>
 
@@ -1611,6 +1615,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/extendedcallhistorysearch"
                 prefix="net/java/sip/communicator/plugin/extendedcallhistorysearch"/>
             <zipfileset src="${lib.noinst}/jcalendar-1.3.2.jar" prefix=""/>
+            <zipfileset dir="${resources}/images/plugin/extendedcallhistorysearch"
+                prefix="resources/images/plugin/extendedcallhistorysearch"/>
         </jar>
     </target>
 
@@ -1749,9 +1755,11 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-whiteboard">
     <!-- Creates a bundle for the Whiteboard plugin.-->
         <jar compress="false" destfile="${bundles.dest}/whiteboard.jar"
-           manifest="${src}/net/java/sip/communicator/plugin/whiteboard/whiteboard.manifest.mf">
-           <zipfileset dir="${dest}/net/java/sip/communicator/plugin/whiteboard"
-               prefix="net/java/sip/communicator/plugin/whiteboard"/>
+            manifest="${src}/net/java/sip/communicator/plugin/whiteboard/whiteboard.manifest.mf">
+                   <zipfileset dir="${dest}/net/java/sip/communicator/plugin/whiteboard"
+                       prefix="net/java/sip/communicator/plugin/whiteboard"/>
+            <zipfileset dir="${resources}/images/plugin/whiteboard"
+                prefix="resources/images/plugin/whiteboard"/>
        </jar>
    </target>
 
