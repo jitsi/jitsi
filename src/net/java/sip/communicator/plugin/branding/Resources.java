@@ -21,11 +21,11 @@ public class Resources
 {
     private static Logger log = Logger.getLogger(Resources.class);
 
-    private static final String RESOUCRE_LOCATION
+    private static final String RESOURCE_LOCATION
         = "net.java.sip.communicator.plugin.branding.resources";
 
     private static final ResourceBundle resourceBundle 
-        = ResourceBundle.getBundle(RESOUCRE_LOCATION);
+        = ResourceBundle.getBundle(RESOURCE_LOCATION);
 
     private static final String COLOR_BUNDLE_NAME
         = "resources.colors.colorResources";
