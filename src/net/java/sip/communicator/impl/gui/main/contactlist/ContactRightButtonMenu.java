@@ -497,9 +497,23 @@ public class ContactRightButtonMenu
             MetaContactGroup group
                 = mainFrame.getGroupByID(
                         itemName.substring(moveToPrefix.length()));
-
-            if(group != null) {
-                mainFrame.getContactList().moveMetaContact(contactItem, group);
+            
+            try
+            {
+                if(group != null) {
+                    mainFrame.getContactList().
+                        moveMetaContact(contactItem, group);
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorDialog(
+                        mainFrame,
+                        Messages.getI18NString(
+                            "moveToGroup").getText(),
+                        Messages.getI18NString(
+                            "moveContactError").getText(),
+                        ex).showDialog();
             }
         }
         else if (itemName.startsWith(removeContactPrefix)) {
@@ -569,30 +583,42 @@ public class ContactRightButtonMenu
             this.contact = contact;
         }
         public void run() {
-            if(Constants.REMOVE_CONTACT_ASK) {
-                String message = "<HTML>Are you sure you want to remove <B>"
-                    + contact.getDisplayName()
-                    + "</B><BR>from your contact list?</html>";
-    
-                MessageDialog dialog = new MessageDialog(
-                        mainFrame,
-                        Messages.getI18NString("removeContact").getText(),
-                        message,
-                        Messages.getI18NString("remove").getText());
-    
-                int returnCode = dialog.showDialog();
-                
-                if (returnCode == MessageDialog.OK_RETURN_CODE) {
-                    mainFrame.getContactList().removeContact(contact);
+            try
+            {
+                if(Constants.REMOVE_CONTACT_ASK) {
+                    String message = "<HTML>Are you sure you want to remove <B>"
+                        + contact.getDisplayName()
+                        + "</B><BR>from your contact list?</html>";
+
+                    MessageDialog dialog = new MessageDialog(
+                            mainFrame,
+                            Messages.getI18NString("removeContact").getText(),
+                            message,
+                            Messages.getI18NString("remove").getText());
+
+                    int returnCode = dialog.showDialog();
+
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) {
+                        mainFrame.getContactList().removeContact(contact);
+                    }
+                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                        mainFrame.getContactList().removeContact(contact);
+
+                        Constants.REMOVE_CONTACT_ASK = false;
+                    }
                 }
-                else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                else {
                     mainFrame.getContactList().removeContact(contact);
-    
-                    Constants.REMOVE_CONTACT_ASK = false;
                 }
             }
-            else {
-                mainFrame.getContactList().removeContact(contact);
+            catch (Exception ex)
+            {
+                new ErrorDialog(mainFrame,
+                                    Messages.getI18NString(
+                                    "removeContact").getText(),
+                                    ex.getMessage(),
+                                    ex)
+                                .showDialog();
             }
         }
     }

@@ -49,16 +49,28 @@ public class MetaContactListException
     public static final int CODE_UNKNOWN_ERROR  = 5;
 
     /**
-     * An error code indicating the nature of this excepiton.
+     * An error code indicating the nature of this exception.
      */
     private int errCode = CODE_UNKNOWN_ERROR;
+    
+    /**
+     * Indicates that the exception was caused by the fact that we tried to
+     * remove a group that cannot be removed or an error occur during remove.
+     */
+    public static final int CODE_REMOVE_GROUP_ERROR  = 6;
+    
+   /**
+     * Indicates that the exception was caused by the fact that we tried to
+     * move a contact that cannot be moved or an error occur during move.
+     */
+    public static final int CODE_MOVE_CONTACT_ERROR  = 7;
 
     /**
      * Creates a MetaContactListException with the specified message cause and
      * code.
      * @param message a human readable message describing the exception.
      * @param cause the Exception/Error (if any) that caused this Exception.
-     * @param code one of the statuc CODE_XXX variable, describing the nature
+     * @param code one of the status CODE_XXX variable, describing the nature
      * of the exception.
      */
     public MetaContactListException(String message, Exception cause, int code)
@@ -71,7 +83,7 @@ public class MetaContactListException
      * Creates a MetaContactListException with the specified message error code.
      *
      * @param message a human readable message describing the exception.
-     * @param code one of the statuc CODE_XXX variable, describing the nature
+     * @param code one of the status CODE_XXX variable, describing the nature
      * of the exception.
      */
     public MetaContactListException(String message, int code)

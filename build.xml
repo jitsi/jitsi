@@ -1354,7 +1354,15 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset dir="${resources}"
+            <zipfileset dir="${resources}/images/logo"
+                prefix="resources/images/logo"/>
+            <zipfileset dir="${resources}/images/impl/gui"
+                prefix="resources/images/impl/gui"/>
+            <zipfileset dir="${resources}/styles"
+                prefix="resources/styles"/>
+            <zipfileset dir="${resources}/colors"
+                prefix="resources/colors"/>
+            <zipfileset dir="${resources}" includes="application.properties"
                 prefix="resources"/>
         </jar>
     </target>
@@ -1555,7 +1563,13 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/branding/branding.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/branding"
                 prefix="net/java/sip/communicator/plugin/branding"/>
-            <zipfileset dir="${resources}"
+            <zipfileset dir="${resources}/images/plugin/branding"
+                prefix="resources/images/plugin/branding"/>
+            <zipfileset dir="${resources}/styles"
+                prefix="resources/styles"/>
+            <zipfileset dir="${resources}/colors"
+                prefix="resources/colors"/>
+            <zipfileset dir="${resources}" includes="application.properties"
                 prefix="resources"/>
             </jar>
         </target>

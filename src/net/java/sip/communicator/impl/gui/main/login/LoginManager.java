@@ -152,9 +152,13 @@ public class LoginManager
 
             for (int i = 0; i < accountsList.size(); i++)
             {
-                hasRegisteredAccounts = true;
-
                 accountID = (AccountID) accountsList.get(i);
+                
+                boolean isHidden = 
+                    accountID.getAccountProperties().get("HIDDEN_PROTOCOL") != null;
+                
+                if(!isHidden)
+                    hasRegisteredAccounts = true;
 
                 serRef = providerFactory.getProviderForAccount(accountID);
 

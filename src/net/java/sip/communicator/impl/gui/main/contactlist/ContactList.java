@@ -18,6 +18,8 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -871,8 +873,21 @@ public class ContactList
                 }
                 else if (!contactDest.contains(draggedElement.getMetaContact()))
                 {
-                    mainFrame.getContactList().moveMetaContact(
-                        draggedElement.getMetaContact(), contactDest);
+                    try
+                    {
+                        mainFrame.getContactList().moveMetaContact(
+                            draggedElement.getMetaContact(), contactDest);
+                    }
+                    catch (Exception ex)
+                    {
+                        new ErrorDialog(
+                                mainFrame,
+                                Messages.getI18NString(
+                                    "moveToGroup").getText(),
+                                Messages.getI18NString(
+                                    "moveContactError").getText(),
+                                ex).showDialog();
+                    }
                 }
             }
 

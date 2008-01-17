@@ -35,6 +35,8 @@ public class StatusPanel
     private GlobalStatusSelectorBox globalStatusBox;
 
     private MainFrame mainFrame;
+    
+    private int hiddenProviders = 0;
 
     /**
      * Creates an instance of <tt>StatusPanel</tt>.
@@ -74,8 +76,15 @@ public class StatusPanel
         }
 
         protocolStatusCombo.addComponentListener(this);
+        
+        boolean isHidden = 
+            protocolProvider.getAccountID().
+                getAccountProperties().get("HIDDEN_PROTOCOL") != null;
+        
+        if(isHidden)
+            hiddenProviders++;
 
-        if (protocolStatusCombos.size() == 1)
+        if (protocolStatusCombos.size() - hiddenProviders == 1)
         {
             this.globalStatusBox = new GlobalStatusSelectorBox(mainFrame);
 
@@ -88,9 +97,13 @@ public class StatusPanel
 
         this.protocolStatusCombos.put(protocolProvider, protocolStatusCombo);
 
-        this.add(protocolStatusCombo);
+        if(!isHidden)
+        {
+            this.add(protocolStatusCombo);
 
-        this.getParent().validate();
+            this.getParent().validate();
+        }
+            
     }
 
     /**
@@ -104,13 +117,24 @@ public class StatusPanel
         StatusSelectorBox protocolStatusCombo =
             (StatusSelectorBox) this.protocolStatusCombos.get(pps);
 
+        boolean isHidden = 
+            pps.getAccountID().getAccountProperties().
+                get("HIDDEN_PROTOCOL") != null;
+        
+        if(isHidden)
+            hiddenProviders--;
+        
         this.protocolStatusCombos.remove(pps);
 
-        if (protocolStatusCombos.size() == 1 && globalStatusBox != null)
+        if (protocolStatusCombos.size() - hiddenProviders == 1 && 
+            globalStatusBox != null)
         {
             this.remove(globalStatusBox);
         }
 
+        if(protocolStatusCombo == null)
+            return;
+            
         this.remove(protocolStatusCombo);
 
         this.revalidate();
@@ -127,6 +151,9 @@ public class StatusPanel
         StatusSelectorBox protocolStatusCombo =
             (StatusSelectorBox) this.protocolStatusCombos.get(protocolProvider);
 
+        if(protocolStatusCombo == null)
+            return;
+        
         protocolStatusCombo.setAccountIndex(mainFrame
             .getProviderIndex(protocolProvider));
 
@@ -142,10 +169,12 @@ public class StatusPanel
      */
     public void startConnecting(ProtocolProviderService protocolProvider)
     {
-
         StatusSelectorBox selectorBox =
             (StatusSelectorBox) protocolStatusCombos.get(protocolProvider);
-
+     
+        if(selectorBox == null)
+            return;
+        
         BufferedImage[] animatedImage =
             ImageLoader.getAnimatedImage(protocolProvider.getProtocolIcon()
                 .getConnectingIcon());
@@ -333,7 +362,7 @@ public class StatusPanel
      * in the <tt>StatusPanel</tt>.
      * 
      * @param pps The protocol provider to check.
-     * @return True if the protcol has already its StatusSelectorBox in the
+     * @return True if the protocol has already its StatusSelectorBox in the
      *         StatusPanel, False otherwise.
      */
     public boolean containsAccount(ProtocolProviderService pps)

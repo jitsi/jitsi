@@ -962,30 +962,46 @@ public class MetaContactListServiceImpl
         ( (MetaContactGroupImpl) newMetaGroup).addMetaContact(
             (MetaContactImpl) metaContact);
 
-        //first make sure that the new meta contact group path is resolved
-        //against all protocols that the MetaContact requires. then move
-        //the meta contact in there and move all prot contacts inside it.
-        Iterator contacts = metaContact.getContacts();
-
-        while (contacts.hasNext())
+        try
         {
-            Contact protoContact = (Contact) contacts.next();
+            //first make sure that the new meta contact group path is resolved
+            //against all protocols that the MetaContact requires. then move
+            //the meta contact in there and move all prot contacts inside it.
+            Iterator contacts = metaContact.getContacts();
 
-            ContactGroup protoGroup = resolveProtoPath(protoContact
-                .getProtocolProvider(), (MetaContactGroupImpl) newMetaGroup);
-
-            //get a persistent or non persistent presence operation set
-            OperationSetPersistentPresence opSetPresence
-                = (OperationSetPersistentPresence) protoContact
-                .getProtocolProvider().getSupportedOperationSets()
-                .get(OperationSetPersistentPresence.class.getName());
-
-            if (opSetPresence == null)
+            while (contacts.hasNext())
             {
-                /** @todo handle non persistent presence operation sets */
-            }
+                Contact protoContact = (Contact) contacts.next();
 
-            opSetPresence.moveContactToGroup(protoContact, protoGroup);
+                ContactGroup protoGroup = resolveProtoPath(protoContact
+                    .getProtocolProvider(), (MetaContactGroupImpl) newMetaGroup);
+
+                //get a persistent or non persistent presence operation set
+                OperationSetPersistentPresence opSetPresence
+                    = (OperationSetPersistentPresence) protoContact
+                    .getProtocolProvider().getSupportedOperationSets()
+                    .get(OperationSetPersistentPresence.class.getName());
+
+                if (opSetPresence == null)
+                {
+                    /** @todo handle non persistent presence operation sets */
+                }
+
+                opSetPresence.moveContactToGroup(protoContact, protoGroup);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.error("Cannot move contact", ex);
+            
+            // now move the contact to prevoius parent
+            ((MetaContactGroupImpl)newMetaGroup).
+                removeMetaContact( (MetaContactImpl) metaContact);
+
+            currentParent.addMetaContact((MetaContactImpl) metaContact);
+            
+            throw new MetaContactListException(ex.getMessage(),
+                MetaContactListException.CODE_MOVE_CONTACT_ERROR);
         }
 
         //fire the mved event.
@@ -1105,27 +1121,35 @@ public class MetaContactListServiceImpl
                                                " is not an instance of MetaContactGroupImpl");
         }
 
-        //remove all proto groups and then remove the meta group as well.
-        Iterator protoGroups
-            = ( (MetaContactGroupImpl) groupToRemove).getContactGroups();
-
-        while (protoGroups.hasNext())
+        try
         {
-            ContactGroup protoGroup = (ContactGroup) protoGroups.next();
+            //remove all proto groups and then remove the meta group as well.
+            Iterator protoGroups
+                = ( (MetaContactGroupImpl) groupToRemove).getContactGroups();
 
-            OperationSetPersistentPresence opSetPersPresence
-                = (OperationSetPersistentPresence) protoGroup
-                .getProtocolProvider().getSupportedOperationSets().get(
-                    OperationSetPersistentPresence.class.getName());
-
-            if (opSetPersPresence == null)
+            while (protoGroups.hasNext())
             {
-                /** @todo handle removal of non persistent proto groups */
-                return;
-            }
+                ContactGroup protoGroup = (ContactGroup) protoGroups.next();
 
-            opSetPersPresence.removeServerStoredContactGroup(protoGroup);
+                OperationSetPersistentPresence opSetPersPresence
+                    = (OperationSetPersistentPresence) protoGroup
+                    .getProtocolProvider().getSupportedOperationSets().get(
+                        OperationSetPersistentPresence.class.getName());
+
+                if (opSetPersPresence == null)
+                {
+                    /** @todo handle removal of non persistent proto groups */
+                    return;
+                }
+
+                opSetPersPresence.removeServerStoredContactGroup(protoGroup);
+            }
+        }catch(Exception ex)
+        {
+            throw new MetaContactListException(ex.getMessage(), 
+                MetaContactListException.CODE_REMOVE_GROUP_ERROR);
         }
+        
 
         MetaContactGroupImpl parentMetaGroup = (MetaContactGroupImpl)
             findParentMetaContactGroup( (MetaContactGroupImpl) groupToRemove);

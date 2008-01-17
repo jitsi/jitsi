@@ -198,32 +198,44 @@ public class GroupRightButtonMenu
         }
         public void run()
         {
-            if(Constants.REMOVE_CONTACT_ASK) {
+            try
+            {
+                if(Constants.REMOVE_CONTACT_ASK) {
                 String message = "<HTML>Are you sure you want to remove <B>"
-                    + this.group.getGroupName()
+                        + this.group.getGroupName()
                     + "</B><BR>from your contact list?</html>";
 
-                MessageDialog dialog = new MessageDialog(
-                        mainFrame,
-                        Messages.getI18NString("removeGroup").getText(),
-                        message,
-                        Messages.getI18NString("remove").getText());
+                    MessageDialog dialog = new MessageDialog(
+                            mainFrame,
+                            Messages.getI18NString("removeGroup").getText(),
+                            message,
+                            Messages.getI18NString("remove").getText());
 
-                int returnCode = dialog.showDialog();
-                
-                if (returnCode == MessageDialog.OK_RETURN_CODE) {
-                    mainFrame.getContactList()
+                    int returnCode = dialog.showDialog();
+
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) {
+                        mainFrame.getContactList()
+                                    .removeMetaContactGroup(group);
+                    }
+                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                        mainFrame.getContactList()
                                 .removeMetaContactGroup(group);
+
+                        Constants.REMOVE_CONTACT_ASK = false;
+                    }
                 }
-                else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                    mainFrame.getContactList()
-                            .removeMetaContactGroup(group);
-                    
-                    Constants.REMOVE_CONTACT_ASK = false;
+                else {
+                    mainFrame.getContactList().removeMetaContactGroup(group);
                 }
             }
-            else {
-                mainFrame.getContactList().removeMetaContactGroup(group);
+            catch (Exception ex)
+            {
+                new ErrorDialog(mainFrame,
+                                    Messages.getI18NString(
+                                    "removeGroup").getText(),
+                                    ex.getMessage(),
+                                    ex)
+                                .showDialog();
             }
         }
     }
