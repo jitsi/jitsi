@@ -115,9 +115,13 @@ public class SIPCommDefaultTheme
         = new ColorUIResource(ColorResources
             .getColor("menuDisabledForeground"));
 
-    private static final ColorUIResource TABBED_PANE_HIGHLIGHT
+    private static final ColorUIResource TAB_TITLE_HIGHLIGHT
         = new ColorUIResource(ColorResources
-            .getColor("tabbedPaneHighlight"));
+            .getColor("tabTitleHighlight"));
+
+    private static final ColorUIResource TAB_TITLE
+        = new ColorUIResource(ColorResources
+            .getColor("tabTitle"));
 
     private static final FontUIResource BASIC_FONT
         = new FontUIResource(Constants.FONT);
@@ -219,7 +223,8 @@ public class SIPCommDefaultTheme
                 "TabbedPane.unselectedBackground", SELECTION_BACKGROUND,
                 "TabbedPane.shadow", CONTROL_SHADOW,
                 "TabbedPane.darkShadow", CONTROL_DARK_SHADOW,
-                "TabbedPane.highlight", TABBED_PANE_HIGHLIGHT,
+                "TabbedPane.tabTitleHighlight", TAB_TITLE_HIGHLIGHT,
+                "TabbedPane.foreground", TAB_TITLE,
 
                 "TextField.border", textFieldBorder,
                 "TextField.margin", new InsetsUIResource(3, 3, 3, 3),

@@ -204,7 +204,8 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
                     g.setColor(whiteColor);
                 else {
                     if (this.isTabHighlighted(tabIndex)) {
-                        g.setColor(UIManager.getColor("TabbedPane.highlight"));
+                        g.setColor(
+                            UIManager.getColor("TabbedPane.tabTitleHighlight"));
                     } else
                         g.setColor(tabPane.getForegroundAt(tabIndex));
                 }
