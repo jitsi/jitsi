@@ -762,8 +762,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="false"/>
 
-            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}"/-->
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome"/>
                 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
@@ -1585,7 +1585,12 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/systray"
                 prefix="net/java/sip/communicator/impl/systray"/>
             <zipfileset dir="${resources}/images/impl/gui/common"
+                includes="renameDialogIcon.png"
                 prefix="resources/images/impl/gui/common"/>
+            <zipfileset dir="${resources}/images/impl/gui/buttons"
+                prefix="resources/images/impl/gui/buttons"/>
+            <zipfileset dir="${resources}/images/impl/systray"
+                prefix="resources/images/impl/systray"/>
         </jar>
     </target>
 
