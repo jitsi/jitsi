@@ -79,10 +79,6 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     private BufferedImage maxImgI;
 
-    private SIPCommButton closeB;
-
-    private SIPCommButton maxB;
-
     private int overTabIndex = -1;
 
     private int closeIndexStatus = INACTIVE;
@@ -116,12 +112,6 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
         maxImgI = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
                 BufferedImage.TYPE_4BYTE_ABGR);
-
-        closeB = new SIPCommButton(closeImgB, closeImgB);
-        closeB.setSize(BUTTONSIZE, BUTTONSIZE);
-
-        maxB = new SIPCommButton(closeImgB, closeImgB);
-        maxB.setSize(BUTTONSIZE, BUTTONSIZE);
 
         actionPopupMenu = new JPopupMenu();
 
