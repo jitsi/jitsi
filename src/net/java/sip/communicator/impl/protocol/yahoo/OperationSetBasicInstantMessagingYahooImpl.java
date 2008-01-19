@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import ymsg.network.event.*;
+import ymsg.support.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -50,6 +51,12 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * The provider that created us.
      */
     private ProtocolProviderServiceYahooImpl yahooProvider = null;
+
+    /**
+     * Message decoder allows to convert Yahoo formated messages, which can
+     * contains some specials characters, to HTML or to plain text.
+     */
+     private MessageDecoder messageDecoder = new MessageDecoder();
 
     /**
      * A reference to the persistent presence operation set that we use
@@ -375,20 +382,20 @@ public class OperationSetBasicInstantMessagingYahooImpl
          */
          public void newMailReceived(SessionNewMailEvent ev)
          {
+             // why, if I provide mail@yahoo.FR when registering my account,
+             // SC later tells me that my email address is mail@yahoo.COM ??
+             // because of this users will always be sent on yahoo.com mail
+             // login page rather than their usual (yahoo.XXX) login page.
              String myEmail = yahooProvider.getAccountID().getAccountAddress();
 
-             // we don't process incoming event without email.
+             // we don't process incoming email event without source address.
+             // it allows us to avoid some spams
              if ((ev.getEmailAddress() == null)
                     || (ev.getEmailAddress().indexOf('@') < 0))
              {
                  return;
              }
 
-             // this was intended to obtain the user server i.e. mail.yahoo.com,
-             // or mail.yahoo.fr so that the login page is in the preferred user
-             // language. but it always gives yahoo.com, even if the account
-             // is registered with yahoo.fr ...
-             // perhaps because the pps always login on yahoo.com ?
              String yahooMailLogon = "http://mail."
                      + myEmail.substring(myEmail.indexOf("@") + 1);
 
@@ -442,12 +449,77 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             logger.debug("Message received : " + ev);
 
-            String formattedMessage = processLinks(ev.getMessage());
+            // to keep things simple, we can decodeToText()
+            //String formattedMessage = processLinks(
+            //        messageDecoder.decodeToText(ev.getMessage()));
 
+            // original yahoo client uses an ugly mix of magic code and html
+            // to format decorated messages, leading to malformed and sometimes
+            // unreadable messages in SC. The jYMSG lib handles a part
+            // of the problem. We try to fix remaining wrong
+            // use of the "size" attribute, in the html <font> element
+            String formattedMessage = processLinks(
+                    messageDecoder.decodeToHTML(ev.getMessage()));
+
+            // this workaround is intended for jYMSG lib 0.6. If the lib is
+            // updated or the yahoo miss usage is fixed it could not
+            // works anymore. the following code replaces any "size" attribute
+            // in font element by an appropriate CSS rule. it does nothing
+            // if the jYMSG lib omitted the size information
+            Pattern p1 = Pattern.compile("<font.*>",
+                                    Pattern.CASE_INSENSITIVE);
+            Matcher m1 = p1.matcher(new String(formattedMessage));
+            StringBuilder goodFormat = new StringBuilder(formattedMessage);
+            int fontsize;
+            while (m1.find())
+            {
+                String yfont = m1.group();
+                Pattern p2 = Pattern.compile("size=\".*\"",
+                                    Pattern.CASE_INSENSITIVE);
+                Matcher m2 = p2.matcher(yfont);
+                String replace = null;
+                if (m2.find())
+                {
+                    // 16px is the default html fontsize...
+                    fontsize = 16;
+                    String str = m2.group();
+                    int open = str.indexOf('"');
+                    int clos = str.indexOf('"', open + 1);
+                    int yfontsize;
+                    try 
+                    {
+                        yfontsize = Integer.parseInt(str.substring(open + 1, clos));
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.debug(ex);
+                        yfontsize = 0;
+                    }
+                    if (yfontsize != 0)
+                    {
+                        fontsize = (int) (yfontsize * 16.0 / 10.0);
+                    }
+                    replace = m2.replaceFirst(
+                            "style=\"font-size:" + fontsize + "px\"");
+                }
+                if (replace != null)
+                {
+                    goodFormat.replace(m1.start(), m1.end(), replace);
+                    m1 = p1.matcher(new String(goodFormat));
+                }
+            }
+            if (ev.getMessage().contains("<font"))
+            {
+                // to see the difference :
+                logger.debug("original message: " + ev.getMessage());
+                logger.debug("jYMSG decoded message: " + formattedMessage);
+                logger.debug("final message: " + goodFormat);
+            }
+            
             //As no indications in the protocol is it html or not. No harm
             //to set all messages html - doesn't affect the appearance of the gui
             Message newMessage = createMessage(
-                formattedMessage.getBytes(),
+                goodFormat.toString().getBytes(),
                 CONTENT_TYPE_HTML,
                 DEFAULT_MIME_ENCODING,
                 null);
