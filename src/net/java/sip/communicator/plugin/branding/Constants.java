@@ -27,10 +27,18 @@ public class Constants
      */
 
     /**
-     * Dark blue color used in the About Window.
+     * Dark blue color used in the about window and the splash screen.
      */
     public static final Color TITLE_COLOR
-        = new Color(Resources.getColor("controlDarkShadow"));
+        = new Color(Integer.parseInt(
+            Resources.getColor("splashScreenTitleColor"), 16));
+
+    /**
+     * Text color used in the about window and the splash screen.
+     */
+    public static final String TEXT_COLOR
+        = Resources.getColor("splashScreenTextColor");
+
 
     /*
      * ======================================================================

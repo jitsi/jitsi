@@ -63,7 +63,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-        this.versionLabel.setForeground(Color.GRAY);
+        this.versionLabel.setForeground(Constants.TITLE_COLOR);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 14));
@@ -78,7 +78,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         this.rightsArea.setContentType("text/html");
 
-        this.rightsArea.appendToEnd(Resources.getString("copyright"));
+        this.rightsArea.appendToEnd(Resources.getString("copyright",
+            new String[]{Constants.TEXT_COLOR}));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 20));
         this.rightsArea
@@ -89,11 +90,12 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.rightsArea.addHyperlinkListener(this);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.appendToEnd(Resources.getString("license"));
+        this.licenseArea.appendToEnd(Resources.getString("license",
+            new String[]{Constants.TEXT_COLOR}));
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
-        this.licenseArea.setBorder(BorderFactory.createEmptyBorder(10, 180, 0,
-                0));
+        this.licenseArea.setBorder(
+            BorderFactory.createEmptyBorder(10, 180, 0, 0));
         this.licenseArea.setOpaque(false);
         this.licenseArea.setEditable(false);
         this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -167,9 +169,9 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
             g2.drawImage(bgImage, 0, 0, null);
 
-            g2.setColor(new Color(255, 255, 255, 100));
-
-            g2.fillRect(0, 0, getWidth(), getHeight());
+//            g2.setColor(new Color(255, 255, 255, 100));
+//
+//            g2.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 

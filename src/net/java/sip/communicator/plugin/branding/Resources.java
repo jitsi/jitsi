@@ -89,17 +89,17 @@ public class Resources
      *
      * @return An internationalized string corresponding to the given key.
      */
-    public static int getColor(String key)
+    public static String getColor(String key)
     {
         try
         {
-            return Integer.parseInt(COLOR_RESOURCE_BUNDLE.getString(key), 16);
+            return COLOR_RESOURCE_BUNDLE.getString(key);
         }
         catch (MissingResourceException e)
         {
             log.error("Missing color resource.", e);
 
-            return 0xFFFFFF;
+            return "FFFFFF";
         }
     }
 }

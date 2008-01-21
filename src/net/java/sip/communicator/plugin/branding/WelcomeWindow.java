@@ -51,42 +51,44 @@ public class WelcomeWindow extends JDialog
         this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-        this.versionLabel.setForeground(Color.GRAY);
+        this.versionLabel.setForeground(Constants.TITLE_COLOR);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12));
         this.logoArea.setForeground(Constants.TITLE_COLOR);
+        this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12));
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
         this.logoArea.setWrapStyleWord(true);
         this.logoArea.setEditable(false);
         this.logoArea.setPreferredSize(new Dimension(100, 20));
         this.logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 180, 0, 0));
+        this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 190, 0, 0));
 
         this.rightsArea.setContentType("text/html");
         this.rightsArea.appendToEnd(Resources.getString("welcomeMessage",
             new String[]{
+                Constants.TEXT_COLOR,
                 BrandingResources.getApplicationString("productName"),
-                BrandingResources.getApplicationString("productWebSite")}));
+                BrandingResources.getApplicationString("productWebSite")
+                }));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 50));
         this.rightsArea
-                .setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
+                .setBorder(BorderFactory.createEmptyBorder(0, 190, 0, 0));
         this.rightsArea.setOpaque(false);
         this.rightsArea.setEditable(false);
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.appendToEnd(Resources.getString("license", new String[]
-        {
-            "<a href=http://sip-communicator.org>"
-                    + "http://sip-communicator.org</a>"
-        }));
+        this.licenseArea.appendToEnd(Resources.getString("license",
+            new String[]
+                       {
+                            Constants.TEXT_COLOR
+                       }));
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
         this.licenseArea.setBorder(BorderFactory
-                .createEmptyBorder(0, 180, 0, 0));
+                .createEmptyBorder(0, 190, 0, 0));
         this.licenseArea.setOpaque(false);
         this.licenseArea.setEditable(false);
         this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -201,9 +203,9 @@ public class WelcomeWindow extends JDialog
 
             g2.drawImage(bgImage, 0, 0, null);
 
-            g2.setColor(new Color(255, 255, 255, 170));
-
-            g2.fillRect(0, 0, getWidth(), getHeight());
+//            g2.setColor(new Color(255, 255, 255, 170));
+//
+//            g2.fillRect(0, 0, getWidth(), getHeight());
             
             g2.setColor(new Color(150, 150, 150));
             
