@@ -84,10 +84,12 @@ public class SIPCommButton extends JButton {
      * 
      * @param g The Graphics object.
      */
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
         AntialiasingManager.activateAntialiasing(g);
 
-        if (this.bgImage != null) {
+        if (this.bgImage != null)
+        {
             // If there's no icon, we make grey the backgroundImage
             // when disabled.
             if (this.iconImage == null && !isEnabled()) {

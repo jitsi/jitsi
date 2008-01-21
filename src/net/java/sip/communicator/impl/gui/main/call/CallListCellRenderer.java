@@ -54,25 +54,23 @@ public class CallListCellRenderer extends JPanel
 
         super(new BorderLayout(5, 5));
 
-        this.setBackground(Color.WHITE);
-        
-        this.setOpaque(true);
-        
+        this.setOpaque(false);
+
         this.dataPanel.setOpaque(false);
-        
+
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
+
         this.nameLabel.setIconTextGap(2);
-        
+
         this.nameLabel.setPreferredSize(new Dimension(10, 25));
-        
+
         this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
-        
+
         this.dataPanel.add(nameLabel, BorderLayout.CENTER);
-        
-        this.add(dataPanel, BorderLayout.CENTER);        
+
+        this.add(dataPanel, BorderLayout.CENTER);
     }
 
     /**

@@ -43,7 +43,8 @@ public class Images
         catch (MissingResourceException exc)
         {
             logger.warn("Failed to find image for path " + key, exc);
-            return '!' + key + '!';
         }
+
+        return null;
     }
 }

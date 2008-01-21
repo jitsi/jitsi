@@ -9,10 +9,12 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -34,41 +36,41 @@ public class DialPanel
     
     private JComboBox phoneNumberCombo;
 
-    private JButton oneButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.ONE_DIAL_BUTTON)));
+    private DialButton oneButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.ONE_DIAL_BUTTON));
 
-    private JButton twoButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.TWO_DIAL_BUTTON)));
+    private DialButton twoButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.TWO_DIAL_BUTTON));
 
-    private JButton threeButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.THREE_DIAL_BUTTON)));
+    private DialButton threeButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.THREE_DIAL_BUTTON));
 
-    private JButton fourButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.FOUR_DIAL_BUTTON)));
+    private DialButton fourButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.FOUR_DIAL_BUTTON));
 
-    private JButton fiveButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.FIVE_DIAL_BUTTON)));
+    private DialButton fiveButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.FIVE_DIAL_BUTTON));
 
-    private JButton sixButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.SIX_DIAL_BUTTON)));
+    private DialButton sixButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.SIX_DIAL_BUTTON));
 
-    private JButton sevenButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.SEVEN_DIAL_BUTTON)));
+    private DialButton sevenButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.SEVEN_DIAL_BUTTON));
 
-    private JButton eightButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.EIGHT_DIAL_BUTTON)));
+    private DialButton eightButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.EIGHT_DIAL_BUTTON));
 
-    private JButton nineButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.NINE_DIAL_BUTTON)));
+    private DialButton nineButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.NINE_DIAL_BUTTON));
 
-    private JButton starButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.STAR_DIAL_BUTTON)));
+    private DialButton starButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.STAR_DIAL_BUTTON));
 
-    private JButton zeroButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.ZERO_DIAL_BUTTON)));
+    private DialButton zeroButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.ZERO_DIAL_BUTTON));
 
-    private JButton diezButton = new JButton(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.DIEZ_DIAL_BUTTON)));
+    private DialButton diezButton = new DialButton(
+        ImageLoader.getImage(ImageLoader.DIEZ_DIAL_BUTTON));
 
     private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
 
@@ -91,7 +93,7 @@ public class DialPanel
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        this.dialPadPanel.setPreferredSize(new Dimension(140, 140));
+        this.dialPadPanel.setPreferredSize(new Dimension(150, 150));
 
         this.init();
     }
@@ -390,5 +392,48 @@ public class DialPanel
 
     public void mouseReleased(MouseEvent e)
     {
+    }
+    
+    private class DialButton extends SIPCommButton
+    {
+        /**
+         * Creates an instance of <tt>MsgToolbarButton</tt>.
+         * @param iconImage The icon to display on this button.
+         */
+        public DialButton(Image iconImage)
+        {
+            super(  ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG),
+                    ImageLoader.getImage(ImageLoader.DIAL_BUTTON_ROLLOVER_BG),
+                    iconImage, null);
+        }
+    }
+
+    public void paintComponent(Graphics g)
+    {
+        // do the superclass behavior first
+        super.paintComponent(g);
+
+        g.setColor(new Color(
+            ColorResources.getColor("contactListBackground")));
+
+        // paint the background with the chosen color
+        g.fillRect(0, 0, getWidth(), getHeight());
+
+        BufferedImage bgImage
+            = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
+
+        // If we haven't specified a background image, we return.
+        if (bgImage == null)
+            return;
+
+        // paint the image
+        Graphics2D g2 = (Graphics2D) g;
+
+//            g2.setPaint(texture);
+
+        g2.drawImage(bgImage,
+                    this.getWidth() - bgImage.getWidth(),
+                    this.getHeight() - bgImage.getHeight(),
+                    this);
     }
 }

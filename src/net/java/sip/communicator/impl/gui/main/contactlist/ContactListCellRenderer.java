@@ -54,23 +54,23 @@ public class ContactListCellRenderer extends JPanel
         super(new BorderLayout());
 
         this.mainFrame = mainFrame;
-        this.setBackground(Color.WHITE);
 
         buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new GridLayout(1, 0));
-        
-        this.buttonsPanel.setOpaque(false);
+
         this.buttonsPanel.setName("buttonsPanel");
 
-        this.setOpaque(true);
+        this.setOpaque(false);
+        this.nameLabel.setOpaque(false);
+        this.buttonsPanel.setOpaque(false);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
+
         this.nameLabel.setIconTextGap(2);
-        
+
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
-        
-        this.add(nameLabel, BorderLayout.CENTER);        
+
+        this.add(nameLabel, BorderLayout.CENTER);
     }
 
     /**

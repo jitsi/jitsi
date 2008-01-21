@@ -85,6 +85,8 @@ public class ContactList
 
         this.setModel(listModel);
 
+        this.setOpaque(false);
+
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.getSelectionModel().setSelectionMode(

@@ -24,17 +24,19 @@ public class CallList
     
     public CallList()
     {
+        this.setOpaque(false);
+
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.getSelectionModel().setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
 
         this.setCellRenderer(new CallListCellRenderer());
-        
+
         this.setModel(listModel);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
+
         this.addMouseListener(this);
     }
     

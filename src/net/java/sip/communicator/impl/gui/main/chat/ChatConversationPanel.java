@@ -10,6 +10,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
@@ -121,7 +122,11 @@ public class ChatConversationPanel
 
         this.setWheelScrollingEnabled(true);
 
-        this.getViewport().add(chatEditorPane);
+        this.setViewport(new ScrollPaneBackground());
+
+        this.chatEditorPane.setOpaque(false);
+
+        this.getViewport().setView(chatEditorPane);
 
         this.getVerticalScrollBar().setUnitIncrement(30);
 
@@ -1126,5 +1131,54 @@ public class ChatConversationPanel
             processedMessage = new StringBuffer(message);
         }
         return processedMessage.toString();
+    }
+
+    private class ScrollPaneBackground extends JViewport
+    {
+        BufferedImage bgImage;
+
+        TexturePaint texture;
+
+        public ScrollPaneBackground()
+        {
+            bgImage = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
+//            Rectangle rect
+//                = new Rectangle(0, 0,
+//                                bgImage.getWidth(null),
+//                                bgImage.getHeight(null));
+
+//            texture = new TexturePaint(bgImage, rect);
+        }
+
+        public void paintComponent(Graphics g)
+        {
+            // do the superclass behavior first
+            super.paintComponent(g);
+
+            g.setColor(new Color(
+                ColorResources.getColor("contactListBackground")));
+
+            // paint the background with the choosen color
+            g.fillRect(0, 0, getWidth(), getHeight());
+
+            // paint the image
+            if (bgImage != null)
+            {
+                Graphics2D g2 = (Graphics2D) g;
+
+//                g2.setPaint(texture);
+
+                g2.drawImage(bgImage,
+                            this.getWidth() - bgImage.getWidth(),
+                            this.getHeight() - bgImage.getHeight(),
+                            this);
+            }
+        }
+
+        public void setView(JComponent view)
+        {
+            view.setOpaque(false);
+            super.setView(view);
+        }
     }
 }

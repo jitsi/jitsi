@@ -39,9 +39,7 @@ public class ChatRoomsListCellRenderer extends JPanel
     {
         super(new BorderLayout());
 
-        this.setBackground(Color.WHITE);
-
-        this.setOpaque(true);
+        this.setOpaque(false);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         

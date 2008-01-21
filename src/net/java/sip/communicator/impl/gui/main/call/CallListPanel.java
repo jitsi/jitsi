@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -80,13 +81,14 @@ public class CallListPanel
      */
     private void initPanels()
     {
-        this.scrollPane.getViewport().add(callList);
-     
+        this.scrollPane.setViewport(new ScrollPaneBackground());
+        this.scrollPane.getViewport().setView(callList);
+
         this.searchPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.searchPanel.add(searchLabel, BorderLayout.WEST);
         this.searchPanel.add(searchComboBox, BorderLayout.CENTER);
         this.searchPanel.add(pluginPanel, BorderLayout.NORTH);
-        
+
         this.add(searchPanel, BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);
     }
@@ -178,7 +180,7 @@ public class CallListPanel
         
         String allItem = Messages.getI18NString("all").getText();
 
-        if(!comboModel.contains(allItem)) {            
+        if(!comboModel.contains(allItem)) {
             searchComboBox.addItem(allItem);
         }
         
@@ -266,7 +268,7 @@ public class CallListPanel
             
             new LoadLastCallsFromHistory().start();
             
-            filteredSearch = false;            
+            filteredSearch = false;
         }
     }
     
@@ -379,5 +381,54 @@ public class CallListPanel
             return;
         
         this.pluginPanel.remove(c);
+    }
+    
+    private class ScrollPaneBackground extends JViewport
+    {
+        BufferedImage bgImage;
+
+        TexturePaint texture;
+
+        public ScrollPaneBackground()
+        {
+            bgImage = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
+//            Rectangle rect
+//                = new Rectangle(0, 0,
+//                                bgImage.getWidth(null),
+//                                bgImage.getHeight(null));
+
+//            texture = new TexturePaint(bgImage, rect);
+        }
+
+        public void paintComponent(Graphics g)
+        {
+            // do the superclass behavior first
+            super.paintComponent(g);
+
+            g.setColor(new Color(
+                ColorResources.getColor("contactListBackground")));
+
+            // paint the background with the choosen color
+            g.fillRect(0, 0, getWidth(), getHeight());
+
+            // paint the image
+            if (bgImage != null)
+            {
+                Graphics2D g2 = (Graphics2D) g;
+
+//                g2.setPaint(texture);
+
+                g2.drawImage(bgImage,
+                            this.getWidth() - bgImage.getWidth(),
+                            this.getHeight() - bgImage.getHeight(),
+                            this);
+            }
+        }
+
+        public void setView(JComponent view)
+        {
+            view.setOpaque(false);
+            super.setView(view);
+        }
     }
 }

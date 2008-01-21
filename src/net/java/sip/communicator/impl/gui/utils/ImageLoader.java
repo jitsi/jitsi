@@ -204,6 +204,13 @@ public class ImageLoader {
      * ============================APPLICATION ICONS =========================
      * -----------------------------------------------------------------------
      */
+    
+    /**
+     * The background of the main window and chat window.
+     */
+    public static final ImageID MAIN_WINDOW_BACKGROUND
+        = new ImageID("MAIN_WINDOW_BACKGROUND");
+
     /**
      * An empty 16x16 icon used for alignment.
      */
@@ -568,8 +575,17 @@ public class ImageLoader {
     public static final ImageID LEAVE_ICON
         = new ImageID("LEAVE_ICON");
 
-    public static final ImageID WINDOW_LOGO
-        = new ImageID("WINDOW_LOGO");
+    /**
+     * Background image of the dial button.
+     */
+    public static final ImageID DIAL_BUTTON_BG
+        = new ImageID("DIAL_BUTTON_BG");
+
+    /**
+     * Background image when rollover on the dial button.
+     */
+    public static final ImageID DIAL_BUTTON_ROLLOVER_BG
+        = new ImageID("DIAL_BUTTON_ROLLOVER_BG");
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
@@ -1050,22 +1066,30 @@ public class ImageLoader {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static BufferedImage getImage(ImageID imageID) {
+    public static BufferedImage getImage(ImageID imageID)
+    {
         BufferedImage image = null;
 
-        if (loadedImages.containsKey(imageID)) {
-
+        if (loadedImages.containsKey(imageID))
+        {
             image = (BufferedImage) loadedImages.get(imageID);
-        } else {
+        }
+        else
+        {
             String path = Images.getString(imageID.getId());
 
-            try {
+            if (path == null)
+                return null;
+
+            try
+            {
                 image = ImageIO.read(ImageLoader.class.getClassLoader()
                         .getResource(path));
 
                 loadedImages.put(imageID, image);
-
-            } catch (Exception exc) {
+            }
+            catch (Exception exc)
+            {
                 log.error("Failed to load image:" + path, exc);
             }
         }

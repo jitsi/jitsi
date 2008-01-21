@@ -52,6 +52,8 @@ public class ChatRoomsList
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        this.setOpaque(false);
+
         this.setModel(listModel);
         this.setCellRenderer(new ChatRoomsListCellRenderer());
 
