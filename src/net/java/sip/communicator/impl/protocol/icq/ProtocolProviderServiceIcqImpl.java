@@ -339,6 +339,13 @@ public class ProtocolProviderServiceIcqImpl
                                                proxyUsername, proxyPassword));
                 }
             }
+            else
+            {
+                aimConnection = aimSession.openConnection(
+                        new AimConnectionProperties(
+                            new Screenname(getAccountID().getUserID())
+                            , password));
+            }
 
             aimConnStateListener = new AimConnStateListener();
             aimConnection.addStateListener(aimConnStateListener);
