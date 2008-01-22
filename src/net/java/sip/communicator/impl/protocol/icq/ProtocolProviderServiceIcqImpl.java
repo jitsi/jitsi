@@ -271,10 +271,6 @@ public class ProtocolProviderServiceIcqImpl
             session = new DefaultAppSession();
             aimSession = session.openAimSession(
                 new Screenname(getAccountID().getUserID()));
-            aimConnection = aimSession.openConnection(
-                new AimConnectionProperties(
-                    new Screenname(getAccountID().getUserID())
-                    , password));
                     
             String proxyAddress =
                 (String)getAccountID().getAccountProperties().get(
@@ -311,17 +307,37 @@ public class ProtocolProviderServiceIcqImpl
                         ProtocolProviderFactory.PROXY_PASSWORD);
 
                 if(proxyType.equals("http"))
+                {
+                    // If we are using http proxy, sometimes
+                    // default port 5190 is forbidden, so force
+                    // http/https port
+                    AimConnectionProperties connProps = 
+                        new AimConnectionProperties(
+                            new Screenname(getAccountID().getUserID())
+                            , password);
+                    connProps.setLoginHost("login.icq.com");
+                    connProps.setLoginPort(443);
+                    aimConnection = aimSession.openConnection(connProps);
                     aimConnection.setProxy(
                         AimProxyInfo.forHttp(proxyAddress, proxyPort,
-                                             proxyUsername, proxyPassword));
-                else if(proxyType.equals("socks4"))
+                                            proxyUsername, proxyPassword));
+                }
+                else
+                {
+                    aimConnection = aimSession.openConnection(
+                        new AimConnectionProperties(
+                            new Screenname(getAccountID().getUserID())
+                            , password));
+
+                    if(proxyType.equals("socks4"))
                     aimConnection.setProxy(
                         AimProxyInfo.forSocks4(proxyAddress, proxyPort,
                                                proxyUsername));
-                else if(proxyType.equals("socks5"))
-                    aimConnection.setProxy(
-                        AimProxyInfo.forSocks5(proxyAddress, proxyPort,
+                    else if(proxyType.equals("socks5"))
+                        aimConnection.setProxy(
+                            AimProxyInfo.forSocks5(proxyAddress, proxyPort,
                                                proxyUsername, proxyPassword));
+                }
             }
 
             aimConnStateListener = new AimConnStateListener();

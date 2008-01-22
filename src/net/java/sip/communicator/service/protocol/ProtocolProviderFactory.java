@@ -455,7 +455,9 @@ public abstract class ProtocolProviderFactory
                             Base64.decode(storedPropertyValue));
                     }
                 }
-                accountProperties.put(propertyName, storedPropertyValue);
+                
+                if(storedPropertyValue != null)
+                    accountProperties.put(propertyName, storedPropertyValue);
             }
             try
             {
