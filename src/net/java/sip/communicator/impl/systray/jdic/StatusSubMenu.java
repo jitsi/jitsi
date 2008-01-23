@@ -149,7 +149,12 @@ public class StatusSubMenu
                     = (ProtocolProviderService) SystrayActivator.bundleContext
                         .getService(protocolProviderRefs[i]);
 
-                this.addAccount(provider);
+                boolean isHidden = 
+                    provider.getAccountID().getAccountProperties().
+                        get("HIDDEN_PROTOCOL") != null;
+                
+                if(!isHidden)
+                    this.addAccount(provider);
             }
         }
     }

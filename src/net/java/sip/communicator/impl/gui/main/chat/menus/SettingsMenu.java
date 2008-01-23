@@ -114,7 +114,7 @@ public class SettingsMenu
                         ConfigurationManager.ENTER_COMMAND);
             else
                 ConfigurationManager.setSendMessageCommand(
-                        ConfigurationManager.ENTER_COMMAND);
+                        ConfigurationManager.CTRL_ENTER_COMMAND);
         }
         else if (item.getName().equals("autopopup"))
         {
