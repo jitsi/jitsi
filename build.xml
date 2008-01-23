@@ -877,7 +877,7 @@
         bundle-irc,bundle-plugin-ircaccregwizz,
         bundle-pluginmanager,bundle-notification,
         bundle-ssh,bundle-plugin-sshaccregwizz,
-    	bundle-plugin-exampleplugin,bundle-contacteventhandler"/>
+        bundle-contacteventhandler,bundle-plugin-contactinfo"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1785,4 +1785,23 @@ javax.swing.event, javax.swing.border"/>
                prefix="net/java/sip/communicator/service/contacteventhandler"/>
         </jar>
     </target>
+
+<!-- BUNDLE-PLUGIN-CONTACTINFO -->
+    <target name="bundle-plugin-contactinfo">
+        <!-- Creates a bundle for the plugin Contact Info.-->
+        <jar compress="false" destfile="${bundles.dest}/contactinfo.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/contactinfo/contactinfo.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/contactinfo"
+                prefix="net/java/sip/communicator/plugin/contactinfo"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-ACCOUNTINFO -->
+    <!--target name="bundle-plugin-accountinfo">
+        <jar compress="false" destfile="${bundles.dest}/accountinfo.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/accountinfo/accountinfo.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/accountinfo"
+                prefix="net/java/sip/communicator/plugin/accountinfo"/>
+        </jar>
+    </target-->
 </project>

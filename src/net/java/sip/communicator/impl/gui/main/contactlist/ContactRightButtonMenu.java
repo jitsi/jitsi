@@ -49,9 +49,6 @@ public class ContactRightButtonMenu
     private I18NString moveSubcontactString
         = Messages.getI18NString("moveSubcontact");
     
-    private I18NString userInfoString
-        = Messages.getI18NString("userInfo");
-    
     private I18NString addSubcontactString
         = Messages.getI18NString("addSubcontact");
     
@@ -78,9 +75,6 @@ public class ContactRightButtonMenu
 
     private SIPCommMenu moveSubcontactMenu
         = new SIPCommMenu(moveSubcontactString.getText());
-    
-    private SIPCommMenu userInfoMenu
-        = new SIPCommMenu(userInfoString.getText());
     
     private SIPCommMenu addSubcontactMenu
         = new SIPCommMenu(addSubcontactString.getText());
@@ -119,8 +113,6 @@ public class ContactRightButtonMenu
     private String addSubcontactPrefix = "addSubcontact:";
     
     private String moveSubcontactPrefix = "moveSubcontact:";
-    
-    private String infoSubcontactPrefix = "infoSubcontact:";
     
     private Contact contactToMove;
     
@@ -166,9 +158,6 @@ public class ContactRightButtonMenu
         
         this.moveSubcontactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.MOVE_CONTACT_ICON)));
-        
-        this.userInfoMenu.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.INFO_16x16_ICON)));
 
         //Initialize the addSubcontact menu.
         Iterator providers = this.mainFrame.getProtocolProviders();
@@ -255,7 +244,6 @@ public class ContactRightButtonMenu
             
             JMenuItem contactItem = new JMenuItem(contactDisplayName);
             JMenuItem contactItem1 = new JMenuItem(contactDisplayName);
-            JMenuItem contactItem2 = new JMenuItem(contactDisplayName);
 
             Icon protocolIcon = new ImageIcon(
                     createContactStatusImage(contact));
@@ -269,25 +257,14 @@ public class ContactRightButtonMenu
             contactItem1.setName(moveSubcontactPrefix + contact.getAddress()
                     + protocolProvider.getProtocolName());
             
-            contactItem2.setName(infoSubcontactPrefix + contact.getAddress()
-                    + protocolProvider.getProtocolName());
-            
             contactItem.addActionListener(this);
             contactItem1.addActionListener(this);
-            contactItem2.addActionListener(this);
-            
+
             this.removeContactMenu.add(contactItem);
             this.moveSubcontactMenu.add(contactItem1);
 
             OperationSetWebContactInfo wContactInfo
                 = mainFrame.getWebContactInfoOpSet(protocolProvider);
-            
-            if(wContactInfo == null) {
-                contactItem2.setEnabled(false);
-                contactItem2.setToolTipText(
-                        Messages.getI18NString("dontSupportWebInfo").getText());
-            }
-            this.userInfoMenu.add(contactItem2);
         }
 
         this.add(sendMessageItem);
@@ -311,7 +288,6 @@ public class ContactRightButtonMenu
         this.addSeparator();
 
         this.add(viewHistoryItem);
-        this.add(userInfoMenu);
         
         this.initPluginComponents();
 
@@ -322,14 +298,12 @@ public class ContactRightButtonMenu
         this.addSubcontactMenu.setName("addSubcontact");
         this.renameContactItem.setName("renameContact");
         this.viewHistoryItem.setName("viewHistory");
-        this.userInfoMenu.setName("userInfo");
 
         this.sendMessageItem.addActionListener(this);
         this.callItem.addActionListener(this);
         this.sendFileItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
         this.viewHistoryItem.addActionListener(this);
-        this.userInfoMenu.addActionListener(this);
 
         // Disable all menu items that do nothing.
         if (contactItem.getDefaultContact(OperationSetFileTransfer.class)
@@ -340,7 +314,7 @@ public class ContactRightButtonMenu
             this.callItem.setEnabled(false);
         if (contactItem.getDefaultContact(OperationSetBasicInstantMessaging.class)
                 == null)
-            this.sendMessageItem.setEnabled(false);        
+            this.sendMessageItem.setEnabled(false);
     }
     
     private void initPluginComponents()
@@ -375,7 +349,6 @@ public class ContactRightButtonMenu
         this.removeContactMenu.setMnemonic(removeContactString.getMnemonic());
         this.renameContactItem.setMnemonic(renameContactString.getMnemonic());
         this.viewHistoryItem.setMnemonic(viewHistoryString.getMnemonic());
-        this.userInfoMenu.setMnemonic(userInfoString.getMnemonic());
         this.moveSubcontactMenu.setMnemonic(moveSubcontactString.getMnemonic());
     }
 
@@ -477,23 +450,8 @@ public class ContactRightButtonMenu
                 history.setVisible(true);
             }
         }
-        else if (itemName.startsWith(infoSubcontactPrefix)) {
-                        
-            Contact contact = getContactFromMetaContact(
-                    itemName.substring(infoSubcontactPrefix.length()));
-            
-            ProtocolProviderService contactProvider
-                = contact.getProtocolProvider();
-
-            OperationSetWebContactInfo wContactInfo
-                = mainFrame.getWebContactInfoOpSet(contactProvider);
-
-            GuiActivator.getBrowserLauncher().openURL(
-                    wContactInfo.getWebContactInfo(contact)
-                        .toString());
-        }
-        else if (itemName.startsWith(moveToPrefix)) {
-            
+        else if (itemName.startsWith(moveToPrefix))
+        {
             MetaContactGroup group
                 = mainFrame.getGroupByID(
                         itemName.substring(moveToPrefix.length()));
