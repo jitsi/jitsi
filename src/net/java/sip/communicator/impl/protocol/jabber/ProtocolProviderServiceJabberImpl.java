@@ -585,6 +585,13 @@ public class ProtocolProviderServiceJabberImpl
             supportedOperationSets.put(
                 OperationSetMultiUserChat.class.getName(),
                 multiUserChat);
+            
+            OperationSetServerStoredContactInfo contactInfo =
+                new OperationSetServerStoredContactInfoJabberImpl(this);
+
+            supportedOperationSets.put(
+                OperationSetServerStoredContactInfo.class.getName(),
+                contactInfo);
 
             // TODO: this is the "main" feature to advertise when a client
             // support muc. We have to add some features for
