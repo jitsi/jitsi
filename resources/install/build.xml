@@ -62,6 +62,25 @@
                 casesensitive="false" trim="true"/>
     </condition>
 
+    <!-- Put here the release directory -->
+    <property name="macosx.app.dir" value="${release}/macosx"/>
+    <!-- Put here the resource directory -->
+    <property name="macosx.resrc.dir" value="${inst.resrc}/macosx"/>
+    <!-- Put here the Application name -->
+    <property name="macosx.app.name" value="SIP Communicator"/>
+
+    <!-- The release directory for Debian packages -->
+    <property name="debian.dir" value="${release}/debian"/>
+    <property name="debian.binary.dir" value="${debian.dir}/binary"/>
+    <!-- Can we build debian packages? -->
+    <condition property="dpkg.build.present">
+      <available file="/usr/bin/dpkg-buildpackage"/>
+    </condition>
+    <!-- Can we deploy debian packages? -->
+    <condition property="dpkg.scan.present">
+      <available file="/usr/bin/dpkg-scanpackages"/>
+    </condition>
+
     <!-- default Ant target does nothing except print helpful options -->
     <target name="ant-usage"
             description="simply execute 'ant' to discover the most useful targets.">
@@ -208,6 +227,260 @@
 
         <!-- Delete the temp directory-->
         <delete dir="${windows.app.dir}/tmp"/>
+    </target>
+
+    <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
+    <target name="macosx" depends="make"
+            description="Create an .app package for MACOSX">
+
+      <taskdef name="jarbundler"
+               classname="net.sourceforge.jarbundler.JarBundler"/>
+
+       <mkdir dir="${macosx.app.dir}"/>
+
+      <property name="macosx.stubfile"
+                value="${macosx.resrc.dir}/JavaApplicationStub"/>
+      <condition property="macosx.stubfile"
+                 value="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub">
+        <equals arg1="${os.name}"
+                arg2="Mac OS X"
+                casesensitive="false"
+                trim="true"/>
+      </condition>
+
+      <!-- Prepare the logging.properties file for macosx -->
+      <copy file="${inst.resrc}/logging.properties"
+              tofile="${macosx.resrc.dir}/logging.properties"
+              overwrite="true"/>
+      <replace file="${macosx.resrc.dir}/logging.properties"
+            token="java.util.logging.FileHandler.pattern = %h/.sip-communicator/log"
+            value="java.util.logging.FileHandler.pattern = log"/>
+
+      <!-- Prepare the felix.client.run.properties file for macosx -->
+      <copy file="${lib}/felix.client.run.properties"
+            tofile="${macosx.resrc.dir}/felix.client.run.properties"
+            overwrite="true"/>
+      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
+            token="org.osgi.framework.system.packages="
+            value="org.osgi.framework.system.packages= com.growl;"/>
+      <echo file="${macosx.resrc.dir}/felix.client.run.properties"
+            append="true">felix.auto.start.70= reference:file:sc-bundles/growlnotification.jar
+      </echo>
+
+      <!-- We copy macosx-specific bundles from
+           sc-bundles/os-specific/macosx to sc-bundles -->
+      <copy todir="${bundles.dest}">
+            <fileset dir="${bundles.dest.mac}">
+                <include name="**/*.jar"/>
+            </fileset>
+      </copy>
+
+      <!-- Delete the old .app if it exists -->
+      <delete dir="${macosx.app.dir}/${macosx.app.name}.app"
+              quiet="yes" failonerror="false"/>
+
+      <!-- This creates the .app for MacOSX -->
+      <jarbundler dir="${macosx.app.dir}"
+                  name="${macosx.app.name}"
+                  shortname="SIP Communicator"
+                  signature="sipc"
+                  mainclass="org.apache.felix.main.Main"
+                  icon="resources/images/logo/sc_logo_128x128.icns"
+                  jvmversion="1.5+"
+                  version="${sip-communicator.version}"
+                  build="draft"
+                  infostring="SIP Communicator"
+                  bundleid="org.sip-communicator"
+                  stubfile="${macosx.stubfile}"
+                  extraclasspath="/System/Library/Java"
+                  workingdirectory="$APP_PACKAGE/Contents/Resources/Java">
+
+        <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+        <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
+        <javaproperty name="apple.awt.showGrowBox" value="false"/>
+        <javaproperty name="java.library.path"
+                      value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
+
+        <!-- Tell felix to run sip-communicator -->
+        <javaproperty name="felix.config.properties"
+                      value="file:felix.client.run.properties"/>
+        <!-- Tell java.util.logging about our logging preferences -->
+        <javaproperty name="java.util.logging.config.file"
+                      value="logging.properties"/>
+
+        <jarfileset dir=".">
+            <include name="lib/*.jar" />
+            <include name="lib/os-specific/mac/*.jar" />
+            <include name="lib/bundle/*.jar" />
+            <exclude name="lib/bundle/junit.jar" />
+            <include name="lib/native/mac/*.jnilib" />
+            <include name="${bundles.dest}/*.jar" />
+            <exclude name="${bundles.dest}/*-slick.jar" />
+            <include name="resources/images/logo/sc_logo_128x128.icns" />
+        </jarfileset>
+        <javafilelist dir="${macosx.resrc.dir}"
+                      files="logging.properties"/>
+        <javafilelist dir="${macosx.resrc.dir}"
+                      files="felix.client.run.properties"/>
+      </jarbundler>
+      <mkdir dir="${macosx.app.dir}/${macosx.app.name}.app/Contents/Resources/Java/log"/>
+    </target>
+
+    <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
+    <target name="dmg" depends="macosx"
+            if="is.running.macos"
+            description="Create a .dmg package for MACOSX (only works on MACOSX)">
+      <property name="macosx.dmg.name"
+                value="${macosx.app.name}-${sip-communicator.version}.dmg"/>
+      <property name="macosx.dmg.tmpname"
+                value="${macosx.app.name}-tmp.dmg"/>
+      <delete file="${macosx.app.dir}/${macosx.dmg.name}"
+              quiet="yes" failonerror="false"/>
+
+      <!-- Create a temporary Disk Image -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="create"/>
+        <arg value="-srcfolder"/>
+        <arg value="${macosx.app.dir}/${macosx.app.name}.app"/>
+        <arg value="-volname"/>
+        <arg value="${macosx.app.name}"/>
+        <arg value="-ov"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
+        <arg value="-format"/>
+        <arg value="UDRW"/>
+      </exec>
+      <!-- Attach the temporary image -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="attach"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
+        <arg value="-mountroot"/>
+        <arg value="${release}/"/>
+      </exec>
+      <!-- Copy the background, icon and DS_Store files -->
+      <mkdir dir="${release}/${macosx.app.name}/.background"/>
+      <copy file="${macosx.resrc.dir}/dmg-background.png"
+              tofile="${release}/${macosx.app.name}/.background/background.png"
+              overwrite="true"/>
+      <copy file="${macosx.resrc.dir}/dmg-VolumeIcon.icns"
+              tofile="${release}/${macosx.app.name}/.VolumeIcon.icns"
+              overwrite="true"/>
+      <copy file="${macosx.resrc.dir}/dmg-DS_Store"
+              tofile="${release}/${macosx.app.name}/.DS_Store"
+              overwrite="true"/>
+      <exec executable="/Developer/Tools/SetFile" os="Mac OS X">
+        <arg value="-a"/>
+        <arg value="C"/>
+        <arg value="${release}/${macosx.app.name}"/>
+      </exec>
+      <!-- Add a symbolic link to the Applications directory -->
+      <symlink link="${release}/${macosx.app.name}" resource="/Applications"/>
+      <!-- Detach the temporary image -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="detach"/>
+        <arg value="${release}/${macosx.app.name}"/>
+      </exec>
+      <!-- Compress it to a new image -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="convert"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
+        <arg value="-format"/>
+        <arg value="UDZO"/>
+        <arg value="-o"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.name}"/>
+      </exec>
+      <!-- Delete the temporary image -->
+      <delete file="${macosx.app.dir}/${macosx.dmg.tmpname}"
+              quiet="yes" failonerror="false"/>
+    </target>
+
+    <!-- Create a Debian package - This needs dpkg utilities -->
+    <target name="deb" depends="make"
+            if="dpkg.build.present"
+            description="Create a .deb package for Debian (needs dpkg utilities)">
+
+      <!-- Prepare the changelog file for the version number -->
+      <copy file="${inst.resrc}/debian/changelog.tmpl"
+          tofile="${inst.resrc}/debian/changelog"
+          overwrite="true"/>
+      <replace file="${inst.resrc}/debian/changelog"
+          token="_VERSION_"
+          value="${sip-communicator.version}"/>
+
+      <!-- Put the current date in the changelog -->
+      <tstamp>
+        <format property="date"
+                pattern="EEE, d MMM yyyy HH:mm:ss Z"
+                locale="en,US"/>
+      </tstamp>
+      <replace file="${inst.resrc}/debian/changelog"
+          token="_DATE_"
+          value="${date}"/>
+
+      <!-- Put correct version in the sip-communicator executable file -->
+      <copy file="${inst.resrc}/debian/sip-communicator.sh.tmpl"
+          tofile="${inst.resrc}/debian/sip-communicator.sh"
+             overwrite="true"/>
+      <replace file="${inst.resrc}/debian/sip-communicator.sh"
+          token="_SC_VERSION_"
+          value="${sip-communicator.version}"/>
+
+      <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
+        <arg value="-rfakeroot"/>
+        <arg value="-tc"/>
+        <arg value="-us"/>
+        <arg value="-uc"/>
+        <arg value="-b"/>
+        <arg value="-d"/>
+      </exec>
+
+      <mkdir dir="${debian.dir}"/>
+      <move todir="${debian.dir}">
+        <fileset dir="${resources}">
+          <include name="sip-communicator*"/>
+        </fileset>
+      </move>
+
+      <!-- Delete the temporary file -->
+      <delete quiet="yes" failonerror="false">
+        <fileset dir="${inst.resrc}/debian/">
+          <include name="changelog"/>
+          <include name="sip-communicator.sh"/>
+        </fileset>
+      </delete>
+
+    </target>
+
+    <!-- Prepare to deploy the Debian package - This needs dpkg utilities -->
+    <target name="deb-rel" depends="deb"
+            if="dpkg.scan.present"
+            description="Prepare to deploy Debian package (needs dpkg utilities)">
+
+      <mkdir dir="${debian.binary.dir}"/>
+      <move todir="${debian.binary.dir}">
+        <fileset dir="${debian.dir}">
+          <include name="sip-communicator*"/>
+        </fileset>
+      </move>
+
+      <exec executable="/usr/bin/dpkg-scanpackages"
+          dir="${debian.dir}"
+          output="${debian.binary.dir}/dpkg-scanpackages.out"
+          errorproperty="dpkg-scanpackages.err">
+        <arg value="binary"/>
+        <arg value="/dev/null"/>
+      </exec>
+
+      <exec executable="/bin/gzip"
+          dir="${debian.dir}"
+          input="${debian.binary.dir}/dpkg-scanpackages.out"
+          output="${debian.binary.dir}/Packages.gz">
+        <arg value="-9c"/>
+      </exec>
+
+      <!-- Delete the temporary file -->
+      <delete file="${debian.binary.dir}/dpkg-scanpackages.out"
+              quiet="yes" failonerror="false"/>
+
     </target>
 
 </project>
