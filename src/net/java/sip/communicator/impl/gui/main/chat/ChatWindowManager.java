@@ -311,7 +311,7 @@ public class ChatWindowManager
             {
                 return (MetaContactChatPanel) getChat(metaContact);
             }
-            else         
+            else
                 return createChat(metaContact, protocolContact);
         }
     }

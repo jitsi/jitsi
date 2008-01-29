@@ -39,19 +39,18 @@ public class ContactRightButtonMenu
                 PluginComponentListener,
                 ContactListListener
 {
-
     private I18NString allContactsString
         = Messages.getI18NString("allContacts");
-    
+
     private I18NString moveToString
         = Messages.getI18NString("moveToGroup");
-    
+
     private I18NString moveSubcontactString
         = Messages.getI18NString("moveSubcontact");
-    
+
     private I18NString addSubcontactString
         = Messages.getI18NString("addSubcontact");
-    
+
     private I18NString removeContactString
         = Messages.getI18NString("removeContact");
 
@@ -60,22 +59,24 @@ public class ContactRightButtonMenu
 
     private I18NString sendMessageString
         = Messages.getI18NString("sendMessage");
-    
+
     private I18NString sendFileString
         = Messages.getI18NString("sendFile");
-    
+
     private I18NString renameContactString
         = Messages.getI18NString("renameContact");
-    
+
     private I18NString viewHistoryString
-    = Messages.getI18NString("viewHistory");
-    
-    
+        = Messages.getI18NString("viewHistory");
+
+    private I18NString sendSmsString
+        = Messages.getI18NString("sendSms");
+
     private SIPCommMenu moveToMenu = new SIPCommMenu(moveToString.getText());
 
     private SIPCommMenu moveSubcontactMenu
         = new SIPCommMenu(moveSubcontactString.getText());
-    
+
     private SIPCommMenu addSubcontactMenu
         = new SIPCommMenu(addSubcontactString.getText());
 
@@ -94,6 +95,10 @@ public class ContactRightButtonMenu
         sendFileString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_FILE_16x16_ICON)));
 
+    private JMenuItem sendSmsItem = new JMenuItem(
+        sendSmsString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+
     private JMenuItem renameContactItem = new JMenuItem(
         renameContactString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
@@ -105,19 +110,19 @@ public class ContactRightButtonMenu
     private MetaContact contactItem;
 
     private MainFrame mainFrame;
-    
+
     private String moveToPrefix = "moveTo:";
-    
+
     private String removeContactPrefix = "removeContact:";
-    
+
     private String addSubcontactPrefix = "addSubcontact:";
-    
+
     private String moveSubcontactPrefix = "moveSubcontact:";
-    
+
     private Contact contactToMove;
-    
+
     private boolean moveAllContacts = false;
-    
+
     private MoveSubcontactMessageDialog moveDialog;
 
     private ContactList guiContactList;
@@ -126,19 +131,21 @@ public class ContactRightButtonMenu
      * @param contactList The contact list over which this menu is shown.
      * @param contactItem The MetaContact for which the menu is opened.
      */
-    public ContactRightButtonMenu(ContactList contactList,
-                                MetaContact contactItem) {
+    public ContactRightButtonMenu(  ContactList contactList,
+                                    MetaContact contactItem)
+    {
         super();
 
         this.mainFrame = contactList.getMainFrame();
 
         this.guiContactList = contactList;
-        
+
         this.contactItem = contactItem;
 
         this.setLocation(getLocation());
 
         this.init();
+
         this.initMnemonics();
     }
 
@@ -155,7 +162,7 @@ public class ContactRightButtonMenu
 
         this.removeContactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.DELETE_16x16_ICON)));
-        
+
         this.moveSubcontactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.MOVE_CONTACT_ICON)));
 
@@ -268,6 +275,7 @@ public class ContactRightButtonMenu
         }
 
         this.add(sendMessageItem);
+        this.add(sendSmsItem);
         this.add(callItem);
         this.add(sendFileItem);
 
@@ -293,6 +301,7 @@ public class ContactRightButtonMenu
 
         this.sendMessageItem.setName("sendMessage");
         this.callItem.setName("call");
+        this.sendSmsItem.setName("sendSms");
         this.sendFileItem.setName("sendFile");
         this.moveToMenu.setName("moveToGroup");
         this.addSubcontactMenu.setName("addSubcontact");
@@ -301,6 +310,7 @@ public class ContactRightButtonMenu
 
         this.sendMessageItem.addActionListener(this);
         this.callItem.addActionListener(this);
+        this.sendSmsItem.addActionListener(this);
         this.sendFileItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
         this.viewHistoryItem.addActionListener(this);
@@ -309,14 +319,23 @@ public class ContactRightButtonMenu
         if (contactItem.getDefaultContact(OperationSetFileTransfer.class)
                 == null)
             this.sendFileItem.setEnabled(false);
+
         if (contactItem.getDefaultContact(OperationSetBasicTelephony.class)
                 == null)
             this.callItem.setEnabled(false);
+
         if (contactItem.getDefaultContact(OperationSetBasicInstantMessaging.class)
                 == null)
             this.sendMessageItem.setEnabled(false);
+
+        if (contactItem.getDefaultContact(OperationSetSmsMessaging.class)
+                == null)
+            this.sendSmsItem.setEnabled(false);
     }
-    
+
+    /**
+     * Initializes plug-in components for this container.
+     */
     private void initPluginComponents()
     {
         Iterator pluginComponents = GuiActivator.getUIService()
@@ -338,11 +357,15 @@ public class ContactRightButtonMenu
         
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
-    
+
+    /**
+     * Initializes menu items mnemonics.
+     */
     private void initMnemonics()
     {
         this.sendMessageItem.setMnemonic(sendMessageString.getMnemonic());
         this.callItem.setMnemonic(sendMessageString.getMnemonic());
+        this.sendSmsItem.setMnemonic(sendSmsString.getMnemonic());
         this.sendFileItem.setMnemonic(sendFileString.getMnemonic());
         this.moveToMenu.setMnemonic(moveToString.getMnemonic());
         this.addSubcontactMenu.setMnemonic(addSubcontactString.getMnemonic());
@@ -354,21 +377,22 @@ public class ContactRightButtonMenu
 
     /**
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
-     * selected and makes the appropriate operations.
+     * selected and performs the appropriate operations.
      */
-    public void actionPerformed(ActionEvent e){
-
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
         String itemText = menuItem.getText();
         Contact cont = null;
 
-        if (itemName.startsWith(addSubcontactPrefix)) {
-            
+        if (itemName.startsWith(addSubcontactPrefix))
+        {
             ProtocolProviderService pps
                 = mainFrame.getProtocolProviderForAccount(itemText);
 
-            if(pps != null) {
+            if(pps != null)
+            {
                 AddContactDialog dialog = new AddContactDialog(
                         mainFrame,
                         contactItem, pps);
@@ -389,15 +413,25 @@ public class ContactRightButtonMenu
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
                     contactItem));
         }
+        else if (itemName.equalsIgnoreCase("sendSms"))
+        {
+            Contact defaultSmsContact
+                = contactItem.getDefaultContact(OperationSetSmsMessaging.class);
+
+            ContactListPanel clistPanel = mainFrame.getContactListPanel();
+            SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
+                    contactItem, defaultSmsContact));
+        }
         else if (itemName.equalsIgnoreCase("call"))
         {
             cont = contactItem.getDefaultContact(
                     OperationSetBasicTelephony.class);
+
             if (cont != null)
             {
-                Vector v = new Vector();
-                v.add(cont);
-                mainFrame.getCallManager().createCall(v);
+                Vector<Contact> contacts = new Vector<Contact>();
+                contacts.add(cont);
+                mainFrame.getCallManager().createCall(contacts);
                 // wow, it's really tricky, I wonder there isn't a simple method
                 // CallManager#createCall(Contact contact);
             }
@@ -422,8 +456,8 @@ public class ContactRightButtonMenu
             
             dialog.requestFocusInFiled();
         }
-        else if (itemName.equalsIgnoreCase("viewHistory")) {
-
+        else if (itemName.equalsIgnoreCase("viewHistory"))
+        {
             HistoryWindow history;
 
             HistoryWindowManager historyWindowManager
@@ -440,7 +474,8 @@ public class ContactRightButtonMenu
 
                 history.toFront();
             }
-            else {
+            else
+            {
                 history = new HistoryWindow(
                     this.mainFrame, this.contactItem);
 
@@ -455,7 +490,7 @@ public class ContactRightButtonMenu
             MetaContactGroup group
                 = mainFrame.getGroupByID(
                         itemName.substring(moveToPrefix.length()));
-            
+
             try
             {
                 if(group != null) {
@@ -474,37 +509,43 @@ public class ContactRightButtonMenu
                         ex).showDialog();
             }
         }
-        else if (itemName.startsWith(removeContactPrefix)) {
+        else if (itemName.startsWith(removeContactPrefix))
+        {
             Contact contact = getContactFromMetaContact(
                     itemName.substring(removeContactPrefix.length()));
 
-            if(contact != null) {
-                new RemoveContactThread(contact).start();                
+            if(contact != null)
+            {
+                new RemoveContactThread(contact).start();
             }
-            else {
+            else
+            {
                 new RemoveAllContactsThread().start();
             }
         }
-        else if(itemName.startsWith(moveSubcontactPrefix)) {
+        else if(itemName.startsWith(moveSubcontactPrefix))
+        {
             Contact contact = getContactFromMetaContact(
                     itemName.substring(moveSubcontactPrefix.length()));
 
             guiContactList.addExcContactListListener(this);
             guiContactList.setCursor(
                     Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-            
+
             this.moveDialog = new MoveSubcontactMessageDialog(mainFrame, this);
-            
+
             this.moveDialog.setVisible(true);
-                        
-            if(contact != null) {
-                this.contactToMove = contact;                
+
+            if(contact != null)
+            {
+                this.contactToMove = contact;
             }
-            else {
+            else
+            {
                 this.moveAllContacts = true;
             }
         }
-    }   
+    }
 
     /**
      * Obtains the <tt>Contact</tt> corresponding to the given address
@@ -518,13 +559,15 @@ public class ContactRightButtonMenu
     {
         Iterator i = contactItem.getContacts();
 
-        while(i.hasNext()) {
+        while(i.hasNext())
+        {
             Contact contact = (Contact)i.next();
 
             String id = contact.getAddress()
                 + contact.getProtocolProvider().getProtocolName();
 
-            if(itemID.equals(id)) {
+            if(itemID.equals(id))
+            {
                 return contact;
             }
         }
@@ -537,10 +580,13 @@ public class ContactRightButtonMenu
     private class RemoveContactThread extends Thread
     {
         private Contact contact;
-        public RemoveContactThread(Contact contact) {
+        public RemoveContactThread(Contact contact)
+        {
             this.contact = contact;
         }
-        public void run() {
+
+        public void run()
+        {
             try
             {
                 if(Constants.REMOVE_CONTACT_ASK) {
@@ -620,30 +666,32 @@ public class ContactRightButtonMenu
             }
         }
     }
-    
+
     public void groupSelected(ContactListEvent evt)
-    {   
+    {
         this.moveDialog.dispose();
-        
+
         MetaContactGroup sourceGroup = evt.getSourceGroup();
-        
+
         guiContactList.removeExcContactListListener(this);
-        
+
         guiContactList.setCursor(
                 Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
-        if(moveAllContacts) {
+
+        if(moveAllContacts)
+        {
             mainFrame.getContactList()
                 .moveMetaContact(contactItem, sourceGroup);
         }
-        else if(contactToMove != null) {
+        else if(contactToMove != null)
+        {
             new MoveSubcontactThread(sourceGroup).start();
         }
     }
 
     /**
      * Implements ContactListListener.contactSelected method in order
-     * to move the choosen subcontact when a meta contact is selected.
+     * to move the chosen sub-contact when a meta contact is selected.
      */
     public void contactClicked(ContactListEvent evt)
     {
@@ -652,7 +700,7 @@ public class ContactRightButtonMenu
 
     /**
      * Implements ContactListListener.contactSelected method in order
-     * to move the choosen subcontact when a meta contact is selected.
+     * to move the chosen sub-contact when a meta contact is selected.
      */
     public void protocolContactClicked(ContactListEvent evt)
     {
@@ -660,10 +708,10 @@ public class ContactRightButtonMenu
     }
     
     /**
-     * Moves the previously choosen subcontact in the given toMetaContact.
+     * Moves the previously chosen sub-contact in the given toMetaContact.
      * 
      * @param toMetaContact the MetaContact, where to move the previously
-     * choosen subcontact.
+     * chosen sub-contact.
      */
     private void moveContact(MetaContact toMetaContact)
     {        
@@ -692,25 +740,25 @@ public class ContactRightButtonMenu
     }
     
     /**
-     * Moves the previously choosen contact in the given meta group or meta
+     * Moves the previously chosen contact in the given meta group or meta
      * contact.
      */
     private class MoveSubcontactThread extends Thread
     {
         private MetaContact metaContact;
-        
+
         private MetaContactGroup metaGroup;
-        
+
         public MoveSubcontactThread(MetaContact metaContact)
         {
             this.metaContact = metaContact;
         }
-        
+
         public MoveSubcontactThread(MetaContactGroup metaGroup)
         {
             this.metaGroup = metaGroup;
         }
-        
+
         public void run()
         {
             if(metaContact != null) {
@@ -723,9 +771,10 @@ public class ContactRightButtonMenu
             }
         }
     }
-    
+
     /**
-     * 
+     * Moves all sub-contacts contained in the previously selected meta contact
+     * in the given meta contact.
      */
     private class MoveAllSubcontactsThread extends Thread
     {
@@ -747,7 +796,10 @@ public class ContactRightButtonMenu
             }
         }
     }
-    
+
+    /**
+     * Adds the according plug-in component to this container.
+     */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         Component c = (Component) event.getSource();
@@ -767,6 +819,9 @@ public class ContactRightButtonMenu
         }
     }
 
+    /**
+     * Removes the according plug-in component from this container.
+     */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         Component c = (Component) event.getSource();
@@ -839,7 +894,7 @@ public class ContactRightButtonMenu
     /**
      * Obtains the status icon for the given protocol contact and
      * adds to it the account index information.
-     * @param protoContact the proto contact for which to create the image
+     * @param protoContact the protocol contact for which to create the image
      * @return the indexed status image
      */
     public Image createContactStatusImage(Contact protoContact)

@@ -34,7 +34,7 @@ public class ChatSendPanel
 
     private JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-    private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
+    private JPanel sendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private JLabel statusLabel = new JLabel();
 
@@ -55,7 +55,7 @@ public class ChatSendPanel
 
         this.statusPanel.add(statusLabel);
 
-        this.sendPanel.add(sendButton, BorderLayout.EAST);
+        this.sendPanel.add(sendButton);
 
         this.add(statusPanel, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.EAST);

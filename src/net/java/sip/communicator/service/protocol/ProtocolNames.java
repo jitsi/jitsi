@@ -73,6 +73,10 @@ public interface ProtocolNames
     /**
      * The RSS protocol.
      */
-    public static final String RSS = "RSS"; 
+    public static final String RSS = "RSS";
 
+    /**
+     * The Gibberish protocol.
+     */
+    public static final String GIBBERISH = "Gibberish";
 }

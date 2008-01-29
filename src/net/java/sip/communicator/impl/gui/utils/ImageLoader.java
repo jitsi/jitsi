@@ -587,6 +587,12 @@ public class ImageLoader {
     public static final ImageID DIAL_BUTTON_ROLLOVER_BG
         = new ImageID("DIAL_BUTTON_ROLLOVER_BG");
 
+    /**
+     * Icon used in the chat window for the "Send as SMS" option.
+     */
+    public static final ImageID SEND_SMS_ICON
+        = new ImageID("SEND_SMS_ICON");
+
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**

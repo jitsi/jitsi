@@ -588,5 +588,4 @@ public interface UIService
      */
     public Iterator getComponentsForContainer(ContainerID containerID)
         throws IllegalArgumentException;
-    
 }

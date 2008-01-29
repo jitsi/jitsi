@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
@@ -18,18 +19,19 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommCheckBoxUI extends MetalCheckBoxUI {
-
+public class SIPCommCheckBoxUI extends MetalCheckBoxUI
+{
     /**
      * Creates a new SIPCommCheckBoxUI instance.
      */
-    public static ComponentUI createUI(JComponent x) {
+    public static ComponentUI createUI(JComponent x)
+    {
         return new SIPCommCheckBoxUI();
     }
 
-    public void paint(Graphics g, JComponent c) {
+    public void paint(Graphics g, JComponent c)
+    {
         AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);        
+        super.paint(g, c);
     }
 }
-    

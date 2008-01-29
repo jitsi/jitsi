@@ -7,7 +7,6 @@
 
 package net.java.sip.communicator.impl.gui.main.chat;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
@@ -39,7 +38,7 @@ public class MetaContactChatPanel
 
     private static final Logger logger = Logger
         .getLogger(MetaContactChatPanel.class.getName());
-    
+
     private MetaContact metaContact;
 
     private Date firstHistoryMsgTimestamp;
@@ -51,6 +50,14 @@ public class MetaContactChatPanel
 
     private JLabel sendViaLabel = new JLabel(
         Messages.getI18NString("sendVia").getText());
+
+    private JCheckBox sendSmsCheckBox = new JCheckBox(
+        Messages.getI18NString("sendAsSms").getText());
+        /* There is some problem when adding the icon to the check box, the 
+         * check box disappears.
+         * 
+         * new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_SMS_ICON))
+         */
 
     private ProtocolContactSelectorBox contactSelectorBox;
     
@@ -72,16 +79,16 @@ public class MetaContactChatPanel
         this.metaContact = metaContact;
 
         ChatContact chatContact = new ChatContact(metaContact, protocolContact);
-        
+
         //Add the contact to the list of contacts contained in this panel
         getChatContactListPanel().addContact(chatContact);
 
-        //Obtains the MetaContactListService and adds itself to it as a
-        //listener of all events concerning the contact list.
+        // Obtain the MetaContactListService and add this class to it as a
+        // listener of all events concerning the contact list.
         chatWindow.getMainFrame().getContactList()
             .addMetaContactListListener(this);
-        
-        //Detect contact properties changes (photo) and updates them
+
+        // Detect contact properties changes (photo) and updates them
         Iterator iter = metaContact.getContacts(); 
         while (iter.hasNext()) 
         { 
@@ -92,25 +99,29 @@ public class MetaContactChatPanel
             if(opsPresence != null) 
                 opsPresence.addSubsciptionListener(this); 
         }
-        
-        //Initializes the "send via" selector box and adds it to the send panel
+
+        // Initialize the "send via" selector box and adds it to the send panel.
         contactSelectorBox = new ProtocolContactSelectorBox(
             this, metaContact, protocolContact);
 
-        getChatSendPanel().getSendPanel()
-            .add(contactSelectorBox, BorderLayout.CENTER);
-        getChatSendPanel().getSendPanel()
-            .add(sendViaLabel, BorderLayout.WEST);
-     
-        //Enables to change the protocol provider by simply pressing the Ctrl-P
+        getChatSendPanel().getSendPanel().add(contactSelectorBox, 0);
+        getChatSendPanel().getSendPanel().add(sendViaLabel, 0);
+
+        // Initialize the "send as SMS" check box.
+        getChatSendPanel().getSendPanel().add(sendSmsCheckBox, 0);
+        if (protocolContact.getProtocolProvider()
+            .getOperationSet(OperationSetSmsMessaging.class) != null)
+            sendSmsCheckBox.setSelected(true);
+
+        //Enables to change the protocol provider by simply pressing the CTRL-P
         //key combination
         ActionMap amap = this.getActionMap();
-        
+
         amap.put("ChangeProtocol", new ChangeProtocolAction());
-        
+
         InputMap imap = this.getInputMap(
             JComponent.WHEN_IN_FOCUSED_WINDOW); 
-        
+
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
             KeyEvent.CTRL_DOWN_MASK), "ChangeProtocol");
     }
@@ -236,7 +247,7 @@ public class MetaContactChatPanel
     }
 
     /**
-     * Returns the datetime of the last message in history fot this chat.
+     * Returns the datetime of the last message in history for this chat.
      */
     public Date getLastHistoryMsgTimestamp()
     {
@@ -326,73 +337,16 @@ public class MetaContactChatPanel
      * area, through it.
      */
     protected void sendMessage(String text)
-    {   
-        Contact contact = (Contact) contactSelectorBox.getMenu()
-            .getSelectedObject();
-     
-        OperationSetBasicInstantMessaging im
-            = (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
-    
-        OperationSetTypingNotifications tn
-            = (OperationSetTypingNotifications) contact.getProtocolProvider()
-                .getOperationSet(OperationSetTypingNotifications.class);
+    {
+        if (sendSmsCheckBox.isSelected())
+        {
+            this.sendSmsMessage(text);
 
-        Message msg = im.createMessage(text);
-    
-        if (tn != null)
-        {
-            // Send TYPING STOPPED event before sending the message
-            getChatWritePanel().stopTypingTimer();
+            return;
         }
-    
-        try
-        {   
-            im.sendInstantMessage(contact, msg);
-        }
-        catch (IllegalStateException ex)
-        {
-            logger.error("Failed to send message.", ex);
-            
-            this.refreshWriteArea();
-    
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.OUTGOING_MESSAGE,
-                    msg.getContent(),
-                    msg.getContentType());
-    
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.ERROR_MESSAGE,
-                    Messages.getI18NString("msgSendConnectionProblem")
-                        .getText(), "text");
-        }
-        catch (Exception ex)
-        {
-            logger.error("Failed to send message.", ex);
-            
-            this.refreshWriteArea();
-    
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.OUTGOING_MESSAGE,
-                    msg.getContent(), msg.getContentType());
-    
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.ERROR_MESSAGE,
-                    Messages.getI18NString("msgDeliveryInternalError")
-                        .getText(), "text");
-        }
+
+        this.sendInstantMessage(text);
     }
-
-    public void metaContactAdded(MetaContactEvent evt)
-    {}
 
     /**
      * Implements <tt>MetaContactListListener.metaContactRenamed</tt> method.
@@ -459,6 +413,9 @@ public class MetaContactChatPanel
             contactSelectorBox.addProtoContact(evt.getProtoContact());
         }
     }
+
+    public void metaContactAdded(MetaContactEvent evt)
+    {}
 
     public void metaContactRemoved(MetaContactEvent evt)
     {}
@@ -745,5 +702,149 @@ public class MetaContactChatPanel
 
     public void inviteChatContact(String contactAddress, String reason)
     {
+    }
+
+    private void sendSmsMessage(String text)
+    {
+        Contact contact = (Contact) contactSelectorBox.getMenu()
+            .getSelectedObject();
+
+        OperationSetSmsMessaging smsOpSet
+            = (OperationSetSmsMessaging) contact.getProtocolProvider()
+                .getOperationSet(OperationSetSmsMessaging.class);
+
+        if (smsOpSet == null)
+        {
+            logger.error("Failed to send SMS.");
+
+            this.refreshWriteArea();
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    text, "plain/text");
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    Messages.getI18NString("sendSmsNotSupported")
+                        .getText(), "plain/text");
+
+            return;
+        }
+
+        Message message  = smsOpSet.createMessage(text);
+
+        try
+        {
+            smsOpSet.sendSmsMessage(contact, message);
+        }
+        catch (IllegalStateException ex)
+        {
+            logger.error("Failed to send SMS.", ex);
+
+            this.refreshWriteArea();
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    message.getContent(),
+                    message.getContentType());
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    Messages.getI18NString("msgSendConnectionProblem")
+                        .getText(), "text");
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to send SMS.", ex);
+
+            this.refreshWriteArea();
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    message.getContent(), message.getContentType());
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    Messages.getI18NString("msgDeliveryInternalError")
+                        .getText(), "text");
+        }
+    }
+
+    private void sendInstantMessage(String text)
+    {
+        Contact contact = (Contact) contactSelectorBox.getMenu()
+            .getSelectedObject();
+
+        OperationSetBasicInstantMessaging im
+            = (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
+
+        OperationSetTypingNotifications tn
+            = (OperationSetTypingNotifications) contact.getProtocolProvider()
+                .getOperationSet(OperationSetTypingNotifications.class);
+
+        Message msg = im.createMessage(text);
+
+        if (tn != null)
+        {
+            // Send TYPING STOPPED event before sending the message
+            getChatWritePanel().stopTypingTimer();
+        }
+
+        try
+        {
+            im.sendInstantMessage(contact, msg);
+        }
+        catch (IllegalStateException ex)
+        {
+            logger.error("Failed to send message.", ex);
+
+            this.refreshWriteArea();
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    msg.getContent(),
+                    msg.getContentType());
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    Messages.getI18NString("msgSendConnectionProblem")
+                        .getText(), "text");
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to send message.", ex);
+
+            this.refreshWriteArea();
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    msg.getContent(), msg.getContentType());
+
+            this.processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    Messages.getI18NString("msgDeliveryInternalError")
+                        .getText(), "text");
+        }
     }
 }
