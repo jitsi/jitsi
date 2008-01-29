@@ -23,13 +23,19 @@ public class MessageReceivedEvent
      * conversation message sent by another contact.
      */
     public static final int CONVERSATION_MESSAGE_RECEIVED = 1;
-    
+
     /**
-     * An event type indicting that the message being received is a system
+     * An event type indicating that the message being received is a system
      * message being sent by the server or a system administrator.
      */
     public static final int SYSTEM_MESSAGE_RECEIVED = 2;
-        
+
+    /**
+     * an event type indicating that the message being received is an SMS
+     * message.
+     */
+    public static final int SMS_MESSAGE_RECEIVED = 3;
+
     /**
      * The contact that has sent this message.
      */
@@ -39,7 +45,7 @@ public class MessageReceivedEvent
      * A timestamp indicating the exact date when the event occurred.
      */
     private Date timestamp = null;
-    
+
     /**
      * The type of message event that this instance represents.
      */
