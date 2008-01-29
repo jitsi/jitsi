@@ -111,7 +111,12 @@ public class MetaContactChatPanel
         getChatSendPanel().getSendPanel().add(sendSmsCheckBox, 0);
         if (protocolContact.getProtocolProvider()
             .getOperationSet(OperationSetSmsMessaging.class) != null)
+        {
+            sendSmsCheckBox.setEnabled(true);
             sendSmsCheckBox.setSelected(true);
+        }
+        else
+            sendSmsCheckBox.setEnabled(false);
 
         //Enables to change the protocol provider by simply pressing the CTRL-P
         //key combination

@@ -109,6 +109,11 @@ public class Constants
     public static final String SYSTEM_MESSAGE = "SystemMessage";
 
     /**
+     * The message type representing sms messages.
+     */
+    public static final String SMS_MESSAGE = "SmsMessage";
+
+    /**
      * The message type representing error messages.
      */
     public static final String ERROR_MESSAGE = "ErrorMessage";

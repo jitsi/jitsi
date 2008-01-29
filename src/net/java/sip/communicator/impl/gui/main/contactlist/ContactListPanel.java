@@ -311,6 +311,10 @@ public class ContactListPanel
             {
                 messageType = Constants.SYSTEM_MESSAGE;
             }
+            else if(eventType == MessageReceivedEvent.SMS_MESSAGE_RECEIVED)
+            {
+                messageType = Constants.SMS_MESSAGE;
+            }
 
             chatPanel.processMessage(protocolContact.getDisplayName(), date,
                 messageType, message.getContent(),
@@ -318,17 +322,17 @@ public class ContactListPanel
 
             // Opens the chat panel with the new message.
             chatWindowManager.openChat(chatPanel, false);
-         
+
             // Fire notification
             String title = Messages.getI18NString("msgReceived",
                 new String[]{evt.getSourceContact().getDisplayName()}).getText();
-            
+
             NotificationManager.fireChatNotification(
                                             protocolContact,
                                             NotificationManager.INCOMING_MESSAGE,
                                             title,
                                             message.getContent());
-            
+
             chatPanel.treatReceivedMessage(protocolContact);
         }
         else

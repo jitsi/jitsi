@@ -256,10 +256,24 @@ public class ChatConversationPanel
                             + msgHeaderID
                             + "\" date=\""
                             + msgDate + "\">";
-            
+
             endHeaderTag = "</h2>";
 
             chatString += timeString + contactName + " at "
+                + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
+                + startPlainTextTag + formatMessage(message, contentType)
+                + endPlainTextTag + endDivTag;
+        }
+        else if (messageType.equals(Constants.SMS_MESSAGE))
+        {
+            chatString      = "<h2 identifier=\""
+                            + msgHeaderID
+                            + "\" date=\""
+                            + msgDate + "\">";
+
+            endHeaderTag = "</h2>";
+
+            chatString += "SMS: " + timeString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
                 + startPlainTextTag + formatMessage(message, contentType)
                 + endPlainTextTag + endDivTag;
