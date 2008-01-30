@@ -30,6 +30,7 @@
 -->
 <project name="sip-communicator-installer" basedir="." default="ant-usage">
 
+    <property file="${inst.resrc}/ant-build-config.properties"/>
     <!-- Load installer properties -->
     <!-- USERS NEED TO UPDATE THIS FILE -->
     <property file="${inst.resrc}/installers.properties"/>
@@ -66,8 +67,6 @@
     <property name="macosx.app.dir" value="${release}/macosx"/>
     <!-- Put here the resource directory -->
     <property name="macosx.resrc.dir" value="${inst.resrc}/macosx"/>
-    <!-- Put here the Application name -->
-    <property name="macosx.app.name" value="SIP Communicator"/>
 
     <!-- The release directory for Debian packages -->
     <property name="debian.dir" value="${release}/debian"/>
@@ -108,7 +107,7 @@
 
         <izpack
                input="${generic.app.dir}/tmp-installer-generic.xml"
-               output="${generic.app.dir}/sip-communicator-${sip-communicator.version}.jar"
+               output="${generic.app.dir}/${package.name}-${sip-communicator.version}.jar"
                installerType="standard"
                izPackDir="${izpack.dir}/"
                basedir="${sc.basedir}"/>
@@ -145,7 +144,7 @@
     
         <!-- create izpack installer jar file -->
         <izpack input="${linux.app.dir}/tmp/tmp-installer-linux.xml"
-                output="${linux.app.dir}/tmp/sip-communicator-${sip-communicator.version}-linux.jar"
+                output="${linux.app.dir}/tmp/${package.name}-${sip-communicator.version}-linux.jar"
                 installerType="standard"
                 basedir="${sc.basedir}"
                 izPackDir="${izpack.dir}/"/>
@@ -155,7 +154,7 @@
              basedir="${linux.app.dir}/tmp"/>
         <gzip zipfile="${linux.app.dir}/tmp/install.tar.gz"
               src="${linux.app.dir}/tmp/install.tar"/>
-        <concat destfile="${linux.app.dir}/sip-communicator-${sip-communicator.version}-linux.bin"
+        <concat destfile="${linux.app.dir}/${package.name}-${sip-communicator.version}-linux.bin"
                 binary="true">
             <fileset dir="${inst.resrc}/linux/">
                 <include name="sfx-header"/>
@@ -164,7 +163,7 @@
                 <include name="install.tar.gz"/>
             </fileset>
         </concat>
-        <chmod file="${linux.app.dir}/sip-communicator-${sip-communicator.version}-linux.bin" perm="+x"/>
+        <chmod file="${linux.app.dir}/${package.name}-${sip-communicator.version}-linux.bin" perm="+x"/>
 
         <!-- Delete the temp directory-->
         <delete dir="${linux.app.dir}/tmp"/>
@@ -205,7 +204,7 @@
                basedir="${sc.basedir}"
                izPackDir="${izpack.dir}/"/>
 
-        <zip destfile="${windows.app.dir}/sip-communicator-${sip-communicator.version}-windows.zip"
+        <zip destfile="${windows.app.dir}/${package.name}-${sip-communicator.version}-windows.zip"
                 basedir="${windows.app.dir}/tmp"/>
 
         <!--exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
@@ -276,13 +275,13 @@
       </copy>
 
       <!-- Delete the old .app if it exists -->
-      <delete dir="${macosx.app.dir}/${macosx.app.name}.app"
+      <delete dir="${macosx.app.dir}/${application.name}.app"
               quiet="yes" failonerror="false"/>
 
       <!-- This creates the .app for MacOSX -->
       <jarbundler dir="${macosx.app.dir}"
-                  name="${macosx.app.name}"
-                  shortname="SIP Communicator"
+                  name="${application.name}"
+                  shortname="${application.name}"
                   signature="sipc"
                   mainclass="org.apache.felix.main.Main"
                   icon="resources/images/logo/sc_logo_128x128.icns"
@@ -300,7 +299,7 @@
         <javaproperty name="apple.awt.showGrowBox" value="false"/>
         <javaproperty name="java.library.path"
                       value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
-
+      	cp: target `debian/sip-communicator/usr/share/pixmaps/' is not a directory: No such file or directory
         <!-- Tell felix to run sip-communicator -->
         <javaproperty name="felix.config.properties"
                       value="file:felix.client.run.properties"/>
@@ -323,7 +322,7 @@
         <javafilelist dir="${macosx.resrc.dir}"
                       files="felix.client.run.properties"/>
       </jarbundler>
-      <mkdir dir="${macosx.app.dir}/${macosx.app.name}.app/Contents/Resources/Java/log"/>
+      <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/log"/>
     </target>
 
     <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
@@ -331,9 +330,9 @@
             if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
       <property name="macosx.dmg.name"
-                value="${macosx.app.name}-${sip-communicator.version}.dmg"/>
+                value="${package.name}-${sip-communicator.version}.dmg"/>
       <property name="macosx.dmg.tmpname"
-                value="${macosx.app.name}-tmp.dmg"/>
+                value="${package.name}-tmp.dmg"/>
       <delete file="${macosx.app.dir}/${macosx.dmg.name}"
               quiet="yes" failonerror="false"/>
 
@@ -341,9 +340,9 @@
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
         <arg value="create"/>
         <arg value="-srcfolder"/>
-        <arg value="${macosx.app.dir}/${macosx.app.name}.app"/>
+        <arg value="${macosx.app.dir}/${application.name}.app"/>
         <arg value="-volname"/>
-        <arg value="${macosx.app.name}"/>
+        <arg value="${application.name}"/>
         <arg value="-ov"/>
         <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
         <arg value="-format"/>
@@ -357,27 +356,27 @@
         <arg value="${release}/"/>
       </exec>
       <!-- Copy the background, icon and DS_Store files -->
-      <mkdir dir="${release}/${macosx.app.name}/.background"/>
+      <mkdir dir="${release}/${application.name}/.background"/>
       <copy file="${macosx.resrc.dir}/dmg-background.png"
-              tofile="${release}/${macosx.app.name}/.background/background.png"
+              tofile="${release}/${application.name}/.background/background.png"
               overwrite="true"/>
       <copy file="${macosx.resrc.dir}/dmg-VolumeIcon.icns"
-              tofile="${release}/${macosx.app.name}/.VolumeIcon.icns"
+              tofile="${release}/${application.name}/.VolumeIcon.icns"
               overwrite="true"/>
       <copy file="${macosx.resrc.dir}/dmg-DS_Store"
-              tofile="${release}/${macosx.app.name}/.DS_Store"
+              tofile="${release}/${application.name}/.DS_Store"
               overwrite="true"/>
       <exec executable="/Developer/Tools/SetFile" os="Mac OS X">
         <arg value="-a"/>
         <arg value="C"/>
-        <arg value="${release}/${macosx.app.name}"/>
+        <arg value="${release}/${application.name}"/>
       </exec>
       <!-- Add a symbolic link to the Applications directory -->
-      <symlink link="${release}/${macosx.app.name}" resource="/Applications"/>
+      <symlink link="${release}/${application.name}" resource="/Applications"/>
       <!-- Detach the temporary image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
         <arg value="detach"/>
-        <arg value="${release}/${macosx.app.name}"/>
+        <arg value="${release}/${application.name}"/>
       </exec>
       <!-- Compress it to a new image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
@@ -405,48 +404,70 @@
       <replace file="${inst.resrc}/debian/changelog"
           token="_VERSION_"
           value="${sip-communicator.version}"/>
+      <replace file="${inst.resrc}/debian/changelog"
+          token="_PACKAGE_NAME_"
+          value="${package.name}"/>
+
+    <!-- Prepare the changelog file for the version number -->
+    <copy file="${inst.resrc}/debian/control.tmpl"
+        tofile="${inst.resrc}/debian/control"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/control"
+        token="_PACKAGE_NAME_"
+        value="${package.name}"/>
+
+    <!-- Prepare the changelog file for the version number -->
+    <copy file="${inst.resrc}/debian/rules.tmpl"
+        tofile="${inst.resrc}/debian/rules"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/rules"
+        token="_PACKAGE_NAME_"
+        value="${package.name}"/>
+    <chmod file="${inst.resrc}/debian/rules" perm="+x"/>
 
       <!-- Put the current date in the changelog -->
-      <tstamp>
+    <tstamp>
         <format property="date"
-                pattern="EEE, d MMM yyyy HH:mm:ss Z"
-                locale="en,US"/>
-      </tstamp>
-      <replace file="${inst.resrc}/debian/changelog"
-          token="_DATE_"
-          value="${date}"/>
+            pattern="EEE, d MMM yyyy HH:mm:ss Z"
+            locale="en,US"/>
+    </tstamp>
+    <replace file="${inst.resrc}/debian/changelog"
+        token="_DATE_"
+        value="${date}"/>
 
-      <!-- Put correct version in the sip-communicator executable file -->
-      <copy file="${inst.resrc}/debian/sip-communicator.sh.tmpl"
-          tofile="${inst.resrc}/debian/sip-communicator.sh"
-             overwrite="true"/>
-      <replace file="${inst.resrc}/debian/sip-communicator.sh"
-          token="_SC_VERSION_"
-          value="${sip-communicator.version}"/>
+    <!-- Put correct version in the sip-communicator executable file -->
+    <copy file="${inst.resrc}/debian/sip-communicator.sh.tmpl"
+        tofile="${inst.resrc}/debian/sip-communicator.sh"
+           overwrite="true"/>
+    <replace file="${inst.resrc}/debian/sip-communicator.sh"
+        token="_SC_VERSION_"
+        value="${sip-communicator.version}"/>
 
-      <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
+    <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
         <arg value="-rfakeroot"/>
         <arg value="-tc"/>
         <arg value="-us"/>
         <arg value="-uc"/>
         <arg value="-b"/>
         <arg value="-d"/>
-      </exec>
+    </exec>
 
-      <mkdir dir="${debian.dir}"/>
-      <move todir="${debian.dir}">
+    <mkdir dir="${debian.dir}"/>
+        <move todir="${debian.dir}">
         <fileset dir="${resources}">
-          <include name="sip-communicator*"/>
+            <include name="${package.name}*"/>
         </fileset>
-      </move>
+    </move>
 
-      <!-- Delete the temporary file -->
-      <delete quiet="yes" failonerror="false">
+    <!-- Delete the temporary file -->
+    <delete quiet="yes" failonerror="false">
         <fileset dir="${inst.resrc}/debian/">
-          <include name="changelog"/>
-          <include name="sip-communicator.sh"/>
+            <include name="changelog"/>
+            <include name="control"/>
+            <include name="rules"/>
+            <include name="sip-communicator.sh"/>
         </fileset>
-      </delete>
+    </delete>
 
     </target>
 
