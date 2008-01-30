@@ -59,10 +59,7 @@ public class Sounds {
     
     public static String DIAL_STAR
         = "resources/sounds/one_1.wav";
-    
-    public static String DIALING
-        = "resources/sounds/dialing.wav";
-    
+
     public static String BUSY
         = "resources/sounds/busy.wav";
 
