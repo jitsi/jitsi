@@ -104,7 +104,7 @@ public class MainFrame
 
         this.setInitialBounds();
 
-        this.setTitle(ApplicationProperties.getProperty("productName"));
+        this.setTitle(ApplicationProperties.getProperty("applicationName"));
 
         this.init();
 

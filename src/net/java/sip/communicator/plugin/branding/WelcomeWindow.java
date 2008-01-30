@@ -12,7 +12,7 @@ public class WelcomeWindow extends JDialog
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel
-        = new JLabel(BrandingResources.getApplicationString("productName"));
+        = new JLabel(BrandingResources.getApplicationString("applicationName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
@@ -68,8 +68,8 @@ public class WelcomeWindow extends JDialog
         this.rightsArea.appendToEnd(Resources.getString("welcomeMessage",
             new String[]{
                 Constants.TEXT_COLOR,
-                BrandingResources.getApplicationString("productName"),
-                BrandingResources.getApplicationString("productWebSite")
+                BrandingResources.getApplicationString("applicationName"),
+                BrandingResources.getApplicationString("applicationWebSite")
                 }));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 50));
