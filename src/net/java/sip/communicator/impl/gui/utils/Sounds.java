@@ -17,7 +17,7 @@ import java.util.*;
 public class Sounds {
     
     public static String INCOMING_MESSAGE
-        = "resources/sounds/ship-sink.wav";
+        = "resources/sounds/incomingMessage.wav";
     
     public static String OUTGOING_CALL
         = "resources/sounds/ring.wav";
@@ -73,20 +73,5 @@ public class Sounds {
         = ResourceBundle.getBundle(BUNDLE_NAME);
 
     private Sounds() {
-    }
-
-    /**
-     * Returns a sound path corresponding to the given sound key.
-     * @param key The key of the sound.
-     * @return A sound path corresponding to the given sound key.
-     */
-    public static String getString(String key) {
-        try {
-            return RESOURCE_BUNDLE.getString(key);
-
-        } catch (MissingResourceException e) {
-
-            return '!' + key + '!';
-        }
     }
 }
