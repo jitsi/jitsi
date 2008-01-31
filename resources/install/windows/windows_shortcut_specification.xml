@@ -1,11 +1,11 @@
 <shortcuts>
 		<!--skipIfNotSupported/-->
-	<programGroup defaultName="SIP Communicator" location="applications"/>
+	<programGroup defaultName="@APP_NAME@" location="applications"/>
 	<shortcut
-		name="SIP Communicator"
+		name="@APP_NAME@"
 		target="$INSTALL_PATH\run.bat"
 		workingDirectory="$INSTALL_PATH"
-		description="This starts SIP Communicator Application"
+		description="This starts @APP_NAME@ Application"
 		iconFile="$INSTALL_PATH\sc-logo.ico"
 		iconIndex="0"
 		initialState="noShow"
@@ -17,10 +17,10 @@
 		<createForPack name="run" />
   	</shortcut>
 	<shortcut
-		name="Uninstall SIP Communicator"
+		name="Uninstall @APP_NAME@"
 		target="$INSTALL_PATH\uninstall.bat"
 		workingDirectory="$INSTALL_PATH"
-		description="This uninstalls SIP Communicator"
+		description="This uninstalls @APP_NAME@"
 		iconFile="$INSTALL_PATH\sc-logo.ico"
 		iconIndex="0"
 		initialState="noShow"

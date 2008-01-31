@@ -1,11 +1,11 @@
 <installation version="1.0">
 	<info>
-		<appname>sip-communicator</appname>
+		<appname>@PKG_NAME@</appname>
 		<appversion>@VERSION@</appversion>
 		<authors>
-			<author name="SIP Communicator" email="sc@sip-communicator.org" />
+			<author name="@APP_NAME@" email="@APP_EMAIL@" />
 		</authors>
-		<url>http://sip-communicator.org/</url>
+		<url>@APP_WEB@</url>
 		<javaversion>1.4</javaversion>
 		<uninstaller/>
 	</info>
@@ -48,8 +48,8 @@
 	<resources>
             <res id="InfoPanel.info" src="resources/install/doc/readme.txt" parse="yes"/>
             <res id="LicencePanel.licence" src="resources/install/doc/License.txt"/>
-            <res src="resources/install/windows/windows_shortcut_specification.xml" id="shortcutSpec.xml"/>\
-            <res src="resources/install/linux/linux_shortcut_specification.xml" id="Unix_shortcutSpec.xml"/>
+            <res src="@DEST_DIR@/generic/tmp-windows_shortcut_specification.xml" id="shortcutSpec.xml"/>\
+            <res src="@DEST_DIR@/generic/tmp-linux_shortcut_specification.xml" id="Unix_shortcutSpec.xml"/>
             <res id="Installer.image.0" src="resources/install/doc/welcome.png" />
 	</resources>
 
@@ -93,8 +93,12 @@
                     <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" os="windows" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" os="windows" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/generic/uninstall.sh"  os="linux"  override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/uninstall.bat" os="windows" override="true"/>
                     <executable targetfile="$INSTALL_PATH/run.sh" stage="never" os="linux"/>
+                    <executable targetfile="$INSTALL_PATH/uninstall.sh" stage="never" os="linux"/>
                     <executable targetfile="$INSTALL_PATH/run.bat" stage="never" os="windows"/>
+                    <executable targetfile="$INSTALL_PATH/uninstall.bat" stage="never" os="windows"/>
 		</pack>
 	</packs>
 

@@ -1,2 +1,2 @@
 export JAVA_HOME=jre
-${JAVA_HOME}/bin/java -jar -jar Uninstaller/uninstaller.jar
+${JAVA_HOME}/bin/java -jar Uninstaller/uninstaller.jar

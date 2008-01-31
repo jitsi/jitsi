@@ -99,9 +99,24 @@
                 
         <filter token="VERSION" value="${sip-communicator.version}" />
         <filter token="BUILDDATE" value="${build.date}" />
+        <filter token="PKG_NAME" value="${package.name}" />
+        <filter token="APP_NAME" value="${application.name}" />
+        <filter token="APP_EMAIL" value="${application.email}" />
+        <filter token="APP_WEB" value="${application.web}" />
+        <filter token="DEST_DIR" value="${release}" />
         <copy 
             tofile="${generic.app.dir}/tmp-installer-generic.xml" 
             file="${inst.resrc}/generic/installer-generic.xml" 
+            filtering="yes" 
+        />
+        <copy 
+            tofile="${generic.app.dir}/tmp-windows_shortcut_specification.xml" 
+            file="${inst.resrc}/windows/windows_shortcut_specification.xml" 
+            filtering="yes" 
+        />
+        <copy 
+            tofile="${generic.app.dir}/tmp-linux_shortcut_specification.xml" 
+            file="${inst.resrc}/linux/linux_shortcut_specification.xml" 
             filtering="yes" 
         />
 
@@ -111,6 +126,12 @@
                installerType="standard"
                izPackDir="${izpack.dir}/"
                basedir="${sc.basedir}"/>
+               
+        <delete quiet="yes" failonerror="false">
+            <fileset dir="${generic.app.dir}">
+                <include name="tmp-*"/>
+            </fileset>
+        </delete>
     </target>
 
     <target name="clean-install-linux">
@@ -121,24 +142,36 @@
 
     <target name="build-installation-linux"
             depends="clean-install-linux,define-izpack-task,version">
-        <copy todir="${linux.app.dir}/tmp">
+        
+        <filter token="VERSION" value="${sip-communicator.version}" />
+        <filter token="BUILDDATE" value="${build.date}" />
+        <filter token="PKG_NAME" value="${package.name}" />
+        <filter token="APP_NAME" value="${application.name}" />
+        <filter token="APP_EMAIL" value="${application.email}" />
+        <filter token="APP_WEB" value="${application.web}" />
+        <filter token="DEST_DIR" value="${release}" />
+        
+        <copy todir="${linux.app.dir}/tmp" filtering="yes" >
             <fileset dir="${inst.resrc}/linux">
                 <include name="setup.sh"/>
                 <include name="inst_path"/>
             </fileset>
-    </copy>
+        </copy>
         <!-- copy the jre -->
         <copy todir="${linux.app.dir}/tmp/jre">
             <fileset dir="${linux.jre.path}">
                 <include name="**/*"/>
             </fileset>
-    </copy>
+        </copy>
     
-        <filter token="VERSION" value="${sip-communicator.version}" />
-        <filter token="BUILDDATE" value="${build.date}" />
         <copy 
             tofile="${linux.app.dir}/tmp/tmp-installer-linux.xml" 
             file="${inst.resrc}/linux/installer-linux.xml" 
+            filtering="yes" 
+        />
+        <copy 
+            tofile="${linux.app.dir}/tmp-linux_shortcut_specification.xml" 
+            file="${inst.resrc}/linux/linux_shortcut_specification.xml" 
             filtering="yes" 
         />
     
@@ -167,6 +200,11 @@
 
         <!-- Delete the temp directory-->
         <delete dir="${linux.app.dir}/tmp"/>
+        <delete quiet="yes" failonerror="false">
+            <fileset dir="${linux.app.dir}">
+                <include name="tmp-*"/>
+            </fileset>
+        </delete>
     </target>
 
     <target name="clean-install-windows">
@@ -178,7 +216,22 @@
 
     <target name="build-installation-windows"
             depends="clean-install-windows,define-izpack-task,version">
-        <copy todir="${windows.app.dir}/tmp">
+                
+        <filter token="VERSION" value="${sip-communicator.version}" />
+        <filter token="BUILDDATE" value="${build.date}" />
+        <filter token="PKG_NAME" value="${package.name}" />
+        <filter token="APP_NAME" value="${application.name}" />
+        <filter token="APP_EMAIL" value="${application.email}" />
+        <filter token="APP_WEB" value="${application.web}" />
+        <filter token="DEST_DIR" value="${release}" />
+            
+        <copy 
+            tofile="${windows.app.dir}/tmp-windows_shortcut_specification.xml" 
+            file="${inst.resrc}/windows/windows_shortcut_specification.xml" 
+            filtering="yes" 
+        />
+
+        <copy todir="${windows.app.dir}/tmp" filtering="yes">
             <fileset dir="${inst.resrc}/windows">
                 <include name="launcher.ini"/>
                 <include name="setup-sip-communicator.exe"/>
@@ -189,8 +242,6 @@
         <copy file="${windows.jre.file}"
               tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
 
-        <filter token="VERSION" value="${sip-communicator.version}" />
-        <filter token="BUILDDATE" value="${build.date}" />
         <copy 
             tofile="${windows.app.dir}/tmp/tmp-installer-windows.xml" 
             file="${inst.resrc}/windows/installer-windows.xml" 
@@ -207,25 +258,36 @@
         <zip destfile="${windows.app.dir}/${package.name}-${sip-communicator.version}-windows.zip"
                 basedir="${windows.app.dir}/tmp"/>
 
-        <!--exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
+        <exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
             <arg line="a -y data.7z *"/>
         </exec>
 
-        <concat destfile="${windows.app.dir}/sip-communicator-${sip-communicator.version}.exe"
+        <copy 
+            tofile="${windows.app.dir}/tmp/7zip.conf" 
+            file="${inst.resrc}/windows/7zip.conf" 
+            filtering="yes" 
+        />
+        
+        <concat destfile="${windows.app.dir}/${package.name}-${sip-communicator.version}.exe"
                 binary="true">
             <fileset dir="${inst.resrc}/windows">
                 <include name="7zS.sfx"/>
             </fileset>
-            <fileset dir="${inst.resrc}/windows">
+            <fileset dir="${windows.app.dir}/tmp">
                 <include name="7zip.conf"/>
             </fileset>
             <fileset dir="${windows.app.dir}/tmp">
                 <include name="data.7z"/>
             </fileset>
-      </concat-->
+      </concat>
 
         <!-- Delete the temp directory-->
         <delete dir="${windows.app.dir}/tmp"/>
+        <delete quiet="yes" failonerror="false">
+            <fileset dir="${windows.app.dir}">
+                <include name="tmp-*"/>
+            </fileset>
+        </delete>
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
