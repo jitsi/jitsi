@@ -258,7 +258,7 @@
         <zip destfile="${windows.app.dir}/${package.name}-${sip-communicator.version}-windows.zip"
                 basedir="${windows.app.dir}/tmp"/>
 
-        <exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
+        <!--exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
             <arg line="a -y data.7z *"/>
         </exec>
 
@@ -279,7 +279,7 @@
             <fileset dir="${windows.app.dir}/tmp">
                 <include name="data.7z"/>
             </fileset>
-      </concat>
+      </concat-->
 
         <!-- Delete the temp directory-->
         <delete dir="${windows.app.dir}/tmp"/>
