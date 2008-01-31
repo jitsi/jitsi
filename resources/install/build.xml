@@ -361,7 +361,7 @@
         <javaproperty name="apple.awt.showGrowBox" value="false"/>
         <javaproperty name="java.library.path"
                       value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
-      	cp: target `debian/sip-communicator/usr/share/pixmaps/' is not a directory: No such file or directory
+
         <!-- Tell felix to run sip-communicator -->
         <javaproperty name="felix.config.properties"
                       value="file:felix.client.run.properties"/>
