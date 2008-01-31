@@ -108,7 +108,7 @@ public class MetaContactChatPanel
         getChatSendPanel().getSendPanel().add(sendViaLabel, 0);
 
         // Initialize the "send as SMS" check box.
-        getChatSendPanel().getSendPanel().add(sendSmsCheckBox, 0);
+        // getChatSendPanel().getSendPanel().add(sendSmsCheckBox, 0);
         if (protocolContact.getProtocolProvider()
             .getOperationSet(OperationSetSmsMessaging.class) != null)
         {
