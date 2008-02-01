@@ -212,12 +212,6 @@ public class ImageLoader {
         = new ImageID("MAIN_WINDOW_BACKGROUND");
 
     /**
-     * An empty 16x16 icon used for alignment.
-     */
-    public static final ImageID EMPTY_16x16_ICON
-        = new ImageID("EMPTY_16x16_ICON");
-
-    /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
      */
     public static final ImageID ACCOUNT_ICON
@@ -398,12 +392,6 @@ public class ImageLoader {
     public static final ImageID DEFAULT_USER_PHOTO
         = new ImageID("DEFAULT_USER_PHOTO");
 
-    /**
-     * The image used in the chat window, when a contact has no photo
-     * specified.
-     */
-    public static final ImageID DEFAULT_CHAT_USER_PHOTO
-        = new ImageID("DEFAULT_CHAT_USER_PHOTO");
 
     /**
      * The minimize button icon in the <tt>CallPanel</tt>.
@@ -449,12 +437,6 @@ public class ImageLoader {
      */
     public static final ImageID ADD_TO_CHAT_ICON
         = new ImageID("ADD_TO_CHAT_ICON");
-
-    /**
-     * The image used as a separator in all toolbars.
-     */
-    public static final ImageID TOOLBAR_DIVIDER
-        = new ImageID("TOOLBAR_DIVIDER");
 
     /**
      * The image used for decoration of the "Add contact" window.
@@ -744,11 +726,6 @@ public class ImageLoader {
     public static final ImageID CLOSE_ICON = new ImageID("CLOSE_ICON");
 
     /**
-     * Quit icon.
-     */
-    public static final ImageID QUIT_ICON = new ImageID("QUIT_ICON");
-
-    /**
      * Left flash icon.
      */
     public static final ImageID PREVIOUS_ICON = new ImageID("PREVIOUS_ICON");
@@ -851,11 +828,6 @@ public class ImageLoader {
     public static final ImageID GROUPS_16x16_ICON
         = new ImageID("GROUPS_16x16_ICON");
 
-    /**
-     * Info 16x16 image.
-     */
-    public static final ImageID INFO_16x16_ICON
-        = new ImageID("INFO_16x16_ICON");
 
     /**
      * Add contact 16x16 image.
@@ -864,22 +836,11 @@ public class ImageLoader {
         = new ImageID("ADD_CONTACT_16x16_ICON");
 
     /**
-     * Add contact 16x16 image.
-     */
-    public static final ImageID ADD_GROUP_16x16_ICON
-        = new ImageID("ADD_GROUP_16x16_ICON");
-
-    /**
      * Rename 16x16 image.
      */
     public static final ImageID RENAME_16x16_ICON
         = new ImageID("RENAME_16x16_ICON");
 
-    /**
-     * Remove 16x16 image.
-     */
-    public static final ImageID REMOVE_16x16_ICON
-        = new ImageID("REMOVE_16x16_ICON");
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -893,13 +854,6 @@ public class ImageLoader {
      */
     public static final ImageID TOOLBAR_DRAG_ICON = new ImageID(
             "TOOLBAR_DRAG_ICON");
-
-    /**
-     * The background image of <tt>LoginWindow</tt> and <tt>WelcomeWindow</tt>
-     * frames.
-     */
-    public static final ImageID LOGIN_WINDOW_LOGO = new ImageID(
-            "LOGIN_WINDOW_LOGO");
 
     /**
      * The background image of the <tt>AuthenticationWindow</tt>.
