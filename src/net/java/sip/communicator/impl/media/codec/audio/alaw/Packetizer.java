@@ -21,7 +21,7 @@ public class Packetizer
 {
     public Packetizer()
     {
-        packetSize = 480;
+        packetSize = 160;
         supportedInputFormats = new AudioFormat[]
             {
             new AudioFormat(
