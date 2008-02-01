@@ -1343,6 +1343,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/pluginmanager"/>
             <zipfileset dir="${resources}/colors"
                 prefix="resources/colors"/>
+            <zipfileset dir="${resources}/images/plugin/pluginmanager"
+                prefix="resources/images/plugin/pluginmanager"/>
         </jar>
     </target>
 
