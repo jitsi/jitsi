@@ -8,6 +8,7 @@ package net.java.sip.communicator.slick.protocol.sip;
 
 import java.net.*;
 import java.util.*;
+import java.io.*;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -416,11 +417,20 @@ public class TestOperationSetBasicInstantMessaging
                     body.getBytes(), contentType, encoding, subject);
 
         assertEquals("message body", body, msg.getContent());
-        assertTrue("message body bytes"
-                   , Arrays.equals(body.getBytes(), msg.getRawData()));
-        assertEquals("message length", body.length(), msg.getSize());
-        assertEquals("message content type", contentType, msg.getContentType());
         assertEquals("message encoding", encoding, msg.getEncoding());
+        try {
+        	assertTrue("message body bytes"
+                   , Arrays.equals(body.getBytes(encoding), msg.getRawData()));
+            assertEquals("message length", body.getBytes(encoding).length,
+        			msg.getSize());
+        } catch (UnsupportedEncodingException e) {
+        	logger.warn("The current content encoding isn't supported", e);
+        	assertTrue("message body bytes"
+                    	, Arrays.equals(body.getBytes(), msg.getRawData()));
+            assertEquals("message length", body.getBytes().length,
+            			msg.getSize());
+        }
+        assertEquals("message content type", contentType, msg.getContentType());
         assertNotNull("message uid", msg.getMessageUID());
 
         //a further test on message uid.
