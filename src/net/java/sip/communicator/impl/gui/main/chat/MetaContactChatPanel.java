@@ -628,14 +628,14 @@ public class MetaContactChatPanel
     public void contactModified(ContactPropertyChangeEvent evt)
     {
         Contact sourceContact = evt.getSourceContact();
-        
+
         ChatContact chatContact = findChatContactByContact(sourceContact);
-        
+
         if(chatContact != null)
         {
             ChatContactPanel chatContactPanel
                 = getChatContactListPanel().getChatContactPanel(chatContact);
-     
+
             chatContactPanel.setContactPhoto(chatContact.getImage());
         }
     }
