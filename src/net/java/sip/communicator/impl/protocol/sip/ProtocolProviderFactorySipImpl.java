@@ -235,6 +235,9 @@ public class ProtocolProviderFactorySipImpl
         //unregister the protocol provider
         ServiceReference serRef = getProviderForAccount(accountID);
 
+        if (serRef == null)
+            return false;
+
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) SipActivator.getBundleContext()
                 .getService(serRef);
