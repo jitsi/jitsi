@@ -61,8 +61,6 @@ public class ChatContactListPanel
         this.contactsPanel.setLayout(
             new BoxLayout(contactsPanel, BoxLayout.Y_AXIS));
 
-        //this.setMinimumSize(new Dimension(150, 100));
-
         this.contactsPanel.setLayout(new BoxLayout(this.contactsPanel,
                 BoxLayout.Y_AXIS));
 
@@ -144,7 +142,7 @@ public class ChatContactListPanel
             
             chatContacts.remove(chatContact);
             
-            chatContactPanel.removeMouseListener(this);            
+            chatContactPanel.removeMouseListener(this);
         }
     }
 
@@ -213,19 +211,19 @@ public class ChatContactListPanel
             // Reduce all other chat contact panels before expanding the
             // selected one.
             Iterator chatContactPanels = chatContacts.values().iterator();
-            
+
             while(chatContactPanels.hasNext())
             {
                 ChatContactPanel panel
                     = (ChatContactPanel) chatContactPanels.next();
-                
+
                 panel.setSelected(false);
             }
-            
+
             ChatContactPanel chatContactPanel = (ChatContactPanel) e.getSource();
-            
+
             chatContactPanel.setSelected(true);
-            
+
             this.requestFocus();
         }
     }
@@ -240,7 +238,6 @@ public class ChatContactListPanel
     
     public void keyPressed(KeyEvent e)
     {
-        
         if (e.getKeyCode() == KeyEvent.VK_DOWN)
         {
             Iterator contacts = chatContacts.keySet().iterator();
@@ -248,54 +245,53 @@ public class ChatContactListPanel
             while(contacts.hasNext())
             {
                 ChatContact chatContact = (ChatContact) contacts.next();
-                
+
                 if(chatContact.isSelected())
-                {                    
+                {
                     if(contacts.hasNext())
                     {
                         ((ChatContactPanel) chatContacts.get(chatContact))
                             .setSelected(false);
-                    
+
                         ((ChatContactPanel) chatContacts.get(
                             contacts.next())).setSelected(true);
                     }
-                    
+
                     break;
-                }   
+                }
             }
         }
         else if (e.getKeyCode() == KeyEvent.VK_UP)
         {
             ChatContact previousChatContact = null;
-            
+
             Iterator contacts = chatContacts.keySet().iterator();
-            
+
             while(contacts.hasNext())
             {
                 ChatContact chatContact = (ChatContact) contacts.next();
-                
+
                 if(chatContact.isSelected())
                 {
                     if(previousChatContact != null)
                     {
                         ((ChatContactPanel) chatContacts.get(chatContact))
                             .setSelected(false);
-                    
+
                         ((ChatContactPanel) chatContacts.get(previousChatContact))
                             .setSelected(true);
-                    
                     }
-                    
+
                     break;
                 }
-                
+
                 previousChatContact = chatContact;
             }
         }
     }
 
     public void keyReleased(KeyEvent e)
-    {   
+    {
     }
 }
 

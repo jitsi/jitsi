@@ -98,8 +98,8 @@ public abstract class ChatPanel
 
         this.topSplitPane.setResizeWeight(1.0D);
         this.messagePane.setResizeWeight(1.0D);
-        this.chatContactListPanel.setPreferredSize(new Dimension(120, 100));
-        this.chatContactListPanel.setMinimumSize(new Dimension(120, 100));
+        this.chatContactListPanel.setPreferredSize(new Dimension(150, 100));
+        this.chatContactListPanel.setMinimumSize(new Dimension(150, 100));
         this.writeMessagePanel.setPreferredSize(new Dimension(500, 100));
         this.writeMessagePanel.setMinimumSize(new Dimension(500, 100));
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));

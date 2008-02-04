@@ -91,7 +91,6 @@ public class ChatContactPanel
         // menu.
         this.addMouseListener(this);
 
-        this.setPreferredSize(new Dimension(100, 55));
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.setOpaque(false);
@@ -324,15 +323,17 @@ public class ChatContactPanel
     public void setSelected(boolean isSelected)
     {
         chatContact.setSelected(isSelected);
-        
+
         if(isSelected)
         {
+            this.setPreferredSize(new Dimension(145, 55));
             this.buttonsPanel.setVisible(true);
             this.mainPanel.revalidate();
             this.mainPanel.repaint();
         }
         else
         {
+            this.setPreferredSize(new Dimension(145, 25));
             this.buttonsPanel.setVisible(false);
             this.mainPanel.revalidate();
             this.mainPanel.repaint();
