@@ -419,16 +419,16 @@ public class TestOperationSetBasicInstantMessaging
         assertEquals("message body", body, msg.getContent());
         assertEquals("message encoding", encoding, msg.getEncoding());
         try {
-        	assertTrue("message body bytes"
+            assertTrue("message body bytes"
                    , Arrays.equals(body.getBytes(encoding), msg.getRawData()));
             assertEquals("message length", body.getBytes(encoding).length,
-        			msg.getSize());
+                    msg.getSize());
         } catch (UnsupportedEncodingException e) {
         	logger.warn("The current content encoding isn't supported", e);
-        	assertTrue("message body bytes"
-                    	, Arrays.equals(body.getBytes(), msg.getRawData()));
+            assertTrue("message body bytes"
+                    , Arrays.equals(body.getBytes(), msg.getRawData()));
             assertEquals("message length", body.getBytes().length,
-            			msg.getSize());
+                    msg.getSize());
         }
         assertEquals("message content type", contentType, msg.getContentType());
         assertNotNull("message uid", msg.getMessageUID());
