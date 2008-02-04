@@ -23,7 +23,16 @@ package net.java.sip.communicator.plugin.sshaccregwizz;
 public class SSHAccountRegistration
 {
     private String accountID;
+    
+    /**
+     * Stored public keys[SSH] of remote server
+     */
     private String knownHostsFile;
+    
+    /**
+     * Identity file is a private[default] key of the user which is one 
+     * of the methods of authentication
+     */
     private String identityFile;
     
     /**

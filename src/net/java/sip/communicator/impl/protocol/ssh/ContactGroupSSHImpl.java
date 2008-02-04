@@ -20,8 +20,8 @@ import net.java.sip.communicator.util.*;
  * the SSH protocol is not a real one, we simply store all group details
  * in class fields. You should know that when implementing a real protocol,
  * the contact group implementation would rather encapsulate group objects from
- * the protocol stack and group property values should be returned by consulting
- * the encapsulated object.
+ * the protocol stack and group property values should be returned by 
+ * consulting the encapsulated object.
  *
  * @author Shobhit Jindal
  */
@@ -162,7 +162,8 @@ public class ContactGroupSSHImpl
 
     /**
      * Adds the specified contact group to the contained by this group.
-     * @param subgroup the ContactGroupSSHImpl to add as a subgroup to this group.
+     * @param subgroup the ContactGroupSSHImpl to add as a subgroup to this 
+     * group.
      */
     public void addSubgroup(ContactGroupSSHImpl subgroup)
     {
@@ -432,15 +433,16 @@ public class ContactGroupSSHImpl
     }
 
     /**
-     * Specifies whether or not this contact group is being stored by the server.
+     * Specifies whether or not this contact group is being stored by the 
+     * server.
      * Non persistent contact groups are common in the case of simple,
      * non-persistent presence operation sets. They could however also be seen
      * in persistent presence operation sets when for example we have received
      * an event from someone not on our contact list and the contact that we
      * associated with that user is placed in a non persistent group. Non
-     * persistent contact groups are volatile even when coming from a persistent
-     * presence op. set. They would only exist until the application is closed
-     * and will not be there next time it is loaded.
+     * persistent contact groups are volatile even when coming from a 
+     * persistent presence op. set. They would only exist until the 
+     * application is closed and will not be there next time it is loaded.
      *
      * @param isPersistent true if the contact group is to be persistent and
      * false otherwise.

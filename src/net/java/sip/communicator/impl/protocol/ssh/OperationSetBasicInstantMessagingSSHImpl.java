@@ -51,31 +51,18 @@ public class OperationSetBasicInstantMessagingSSHImpl
     private ProtocolProviderServiceSSHImpl parentProvider = null;
     
     /**
-     * The test command given after each command to determine the reply length 
-     * of the command
-     */
-    private final String testCommand = Resources.getString("testCommand");
-    
-    
-    private String testCommandResponse = Resources
-                                            .getString("testCommandResponse");
-    
-    /**
      * Creates an instance of this operation set keeping a reference to the
      * parent protocol provider and presence operation set.
      *
      * @param provider The provider instance that creates us.
-     * @param opSetPersPresence the currently valid
-     * <tt>OperationSetPersistentPresenceSSHImpl</tt> instance.
      */
     public OperationSetBasicInstantMessagingSSHImpl(
-            ProtocolProviderServiceSSHImpl        provider,
-            OperationSetPersistentPresenceSSHImpl opSetPersPresence)
-//            OperationSetFileTransferSSHImpl fileTransfer)
+            ProtocolProviderServiceSSHImpl        provider)
     {
-        this.opSetPersPresence = opSetPersPresence;
         this.parentProvider = provider;
-//        this.fileTransfer = fileTransfer;
+        
+        this.opSetPersPresence = (OperationSetPersistentPresenceSSHImpl)
+                provider.getOperationSet(OperationSetPersistentPresence.class);
     }
     
     /**
@@ -237,8 +224,9 @@ public class OperationSetBasicInstantMessagingSSHImpl
                     sshContact,
                     null,
                     message.substring(message.indexOf(' ', firstSpace+1) + 1),
-                    message.substring(firstSpace+1, message.indexOf(' ', firstSpace+1))
-                    );
+                    message.substring(
+                        firstSpace+1, 
+                        message.indexOf(' ', firstSpace+1)));
             
             return true;
         }
@@ -248,7 +236,8 @@ public class OperationSetBasicInstantMessagingSSHImpl
             sshContact.getFileTransferOperationSet().sendFile(
                     null,
                     sshContact,
-                    message.substring(firstSpace+1, message.indexOf(' ', firstSpace+1)),
+                    message.substring(firstSpace+1, message.indexOf(' ', 
+                                                                firstSpace+1)),
                     message.substring(message.indexOf(' ', firstSpace+1) + 1));
             
             return true;
@@ -398,7 +387,7 @@ public class OperationSetBasicInstantMessagingSSHImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        return false;
+        return MessageSSHImpl.contentType.equals(contentType);
     }
     
 }

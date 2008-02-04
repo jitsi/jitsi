@@ -52,13 +52,13 @@ public class OperationSetFileTransferSSHImpl
     
     /** Creates a new instance of OperationSetFileTransferSSHImpl */
     public OperationSetFileTransferSSHImpl(
-            ProtocolProviderServiceSSHImpl        parentProvider,
-            OperationSetPersistentPresenceSSHImpl opSetPersPresence,
-            OperationSetBasicInstantMessagingSSHImpl instantMessaging)
+            ProtocolProviderServiceSSHImpl        parentProvider)
     {
         this.parentProvider = parentProvider;
-        this.opSetPersPresence = opSetPersPresence;
-        this.instantMessaging = instantMessaging;
+        this.opSetPersPresence = (OperationSetPersistentPresenceSSHImpl)
+                parentProvider.getOperationSet(OperationSetPersistentPresence.class);
+        this.instantMessaging = (OperationSetBasicInstantMessagingSSHImpl)
+                parentProvider.getOperationSet(OperationSetBasicInstantMessaging.class);
     }
     
     /**
@@ -91,16 +91,14 @@ public class OperationSetFileTransferSSHImpl
     {
         if(toContact == null)
         {
-            ContactSSHFileTransferDaemon fileTransferDaemon
-                    = new ContactSSHFileTransferDaemon(
+            SSHFileTransferDaemon fileTransferDaemon
+                    = new SSHFileTransferDaemon(
                     (ContactSSH)fromContact,
-                    opSetPersPresence,
-                    instantMessaging,
                     parentProvider);
             
             if(localPath.endsWith(System.getProperty("file.separator")))
-                localPath += remotePath.substring(remotePath.lastIndexOf('/')
-                                + 1);
+                localPath += remotePath.substring(remotePath.lastIndexOf(
+                        System.getProperty("file.separator")) + 1);
                 
                 fileTransferDaemon.downloadFile(
                     remotePath,
@@ -110,11 +108,9 @@ public class OperationSetFileTransferSSHImpl
         }
         else if(fromContact == null)
         {
-            ContactSSHFileTransferDaemon fileTransferDaemon
-                    = new ContactSSHFileTransferDaemon(
+            SSHFileTransferDaemon fileTransferDaemon
+                    = new SSHFileTransferDaemon(
                     (ContactSSH) toContact,
-                    opSetPersPresence,
-                    instantMessaging,
                     parentProvider);
             
             fileTransferDaemon.uploadFile(
@@ -125,7 +121,7 @@ public class OperationSetFileTransferSSHImpl
         }
         
         // code should not reach here
-        //assert false;
+        // assert false;
         logger.error("we should not be here !");
     }
 

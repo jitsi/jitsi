@@ -180,7 +180,7 @@ public class ProtocolProviderFactorySSHImpl
         //properties we have in it.
         
         Hashtable properties = new Hashtable();
-        properties.put(PROTOCOL, "SSH");
+        properties.put(PROTOCOL, ProtocolNames.SSH);
         properties.put(USER_ID, userIDStr);
         
         ProtocolProviderServiceSSHImpl sshProtocolProvider

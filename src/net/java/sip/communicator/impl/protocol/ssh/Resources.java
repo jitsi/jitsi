@@ -60,14 +60,19 @@ public class Resources
      */
     public static byte[] getImage(ImageID imageID)
     {
-        byte[] image = new byte[100000];
+        byte[] image= null;
+        InputStream inputStream;
         
         String path = Resources.getString(imageID.getId());
+        
         try
         {
-            Resources.class.getClassLoader()
-                .getResourceAsStream(path).read(image);
+            inputStream = Resources.class.getClassLoader()
+                .getResourceAsStream(path);
             
+            image = new byte[inputStream.available()];
+            
+            inputStream.read(image);
         }
         catch (IOException exc)
         {

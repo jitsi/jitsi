@@ -28,9 +28,9 @@ public class MessageSSHImpl
     private String textContent = null;
 
     /**
-     * The content type of the message. (text/plain if null)
+     * The content type of the message. 
      */
-    private String contentType = null;
+    public static String contentType = "text/plain";
 
     /**
      * The message encoding. (UTF8 if null).

@@ -4,19 +4,21 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  *
- * OperationSetContactTimerSSHImpl.java
+ * ContactTimerSSHImpl.java
  *
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  */
 
 package net.java.sip.communicator.impl.protocol.ssh;
 
+import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Timer Task to update the reachability status of SSH Contact in contact list
+ * Timer Task to update the reachability status of SSH Contact in contact list.
+ * (Reachability of remote machine from user's machine)
  * The timer is started at either of the two places
  * - A new contact - OperationSetPersistentPresenceSSHImpl
  *                                                  .createUnresolvedContact
@@ -24,7 +26,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Shobhit Jindal
  */
-public class OperationSetContactTimerSSHImpl
+public class ContactTimerSSHImpl
         extends TimerTask
 {
     private static final Logger logger
@@ -50,62 +52,47 @@ public class OperationSetContactTimerSSHImpl
     {
         try
         {
-/*            InetAddress remoteMachine = InetAddress.getByName(
+            InetAddress remoteMachine = InetAddress.getByName(
                     sshContact.getSSHConfigurationForm().getHostName());
-
+            
             //check if machine is reachable
             if(remoteMachine.isReachable(
                     sshContact.getSSHConfigurationForm().getUpdateInterval()))
             {
-                if(
-                        ! sshContact.getPresenceStatus().equals(SSHStatusEnum
-                                                                .ONLINE)
-                        &&
-                        ! sshContact.getPresenceStatus().equals(SSHStatusEnum
-                                                                .CONNECTING)
-                        &&
-                        ! sshContact.getPresenceStatus().equals(SSHStatusEnum
-                                                                .CONNECTED)
-                   )
-*/
-            
-            Socket socket = new Socket(
-                    sshContact.getSSHConfigurationForm().getHostName(),
-                    sshContact.getSSHConfigurationForm().getPort());
-            
-            
-            socket.close();
-            
-            if (sshContact.getPresenceStatus().equals(SSHStatusEnum.OFFLINE)
+                if (sshContact.getPresenceStatus().equals(SSHStatusEnum.OFFLINE)
                 || sshContact.getPresenceStatus().equals(SSHStatusEnum
-                                                                .NOT_AVAILABLE))
-            {
-                // change status to online
-                persistentPresence.changeContactPresenceStatus(
-                        sshContact, SSHStatusEnum.ONLINE);
-                
-                logger.debug("SSH Host " + sshContact.getSSHConfigurationForm()
-                        .getHostName() + ": Online");
+                        .NOT_AVAILABLE))
+                {
+                    // change status to online
+                    persistentPresence.changeContactPresenceStatus(
+                            sshContact, SSHStatusEnum.ONLINE);
+                    
+                    logger.debug("SSH Host " + sshContact
+                		.getSSHConfigurationForm().getHostName() + ": Online");
+                }
+            
             }
+            else throw new IOException();
+            
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             if (sshContact.getPresenceStatus().equals(SSHStatusEnum.ONLINE)
-                || sshContact.getPresenceStatus().equals(SSHStatusEnum
-                                                                .NOT_AVAILABLE))
+            || sshContact.getPresenceStatus().equals(
+                    SSHStatusEnum.NOT_AVAILABLE))
             {
                 persistentPresence.changeContactPresenceStatus(
                         sshContact, SSHStatusEnum.OFFLINE);
                 
                 logger.debug("SSH Host " + sshContact.getSSHConfigurationForm()
-                        .getHostName() + ": Offline");
+                .getHostName() + ": Offline");
             }
         }
     }
     /**
-     * Creates a new instance of OperationSetContactTimerSSHImpl
+     * Creates a new instance of ContactTimerSSHImpl
      */
-    public OperationSetContactTimerSSHImpl(ContactSSH sshContact)
+    public ContactTimerSSHImpl(ContactSSH sshContact)
     {
         super();
         this.sshContact = sshContact;

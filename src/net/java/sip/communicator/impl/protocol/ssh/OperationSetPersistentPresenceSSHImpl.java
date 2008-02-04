@@ -68,7 +68,7 @@ public class OperationSetPersistentPresenceSSHImpl
     /**
      * The currently active status message.
      */
-    private String statusMessage = "Default Status Message";
+    private String statusMessage = "Online";
     
     /**
      * Our default presence status.
@@ -1044,7 +1044,7 @@ public class OperationSetPersistentPresenceSSHImpl
         
         String osgiQuery = "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
-                + "=SSH)"
+                + "=" + ProtocolNames.SSH + ")"
                 + "(" + ProtocolProviderFactory.USER_ID
                 + "=" + sshUserID + ")"
                 + ")";

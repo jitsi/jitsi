@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  *
- * ContactSSHReaderDaemon.java
+ * SSHReaderDaemon.java
  *
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
@@ -22,11 +22,11 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Shobhit Jindal
  */
-public class ContactSSHReaderDaemon
+public class SSHReaderDaemon
         extends Thread
 {
     private static final Logger logger =
-            Logger.getLogger(ContactSSHReaderDaemon.class);
+            Logger.getLogger(SSHReaderDaemon.class);
     
     /**
      * A Buffer to aggregate replies to be sent as one message
@@ -75,12 +75,14 @@ public class ContactSSHReaderDaemon
     
     private int bytesRead;
     
-    char buffer[] = new char[1024], buf;
+    int bufferCount;
+    
+    char buf;
     
     /**
-     * Creates a new instance of ContactSSHReaderDaemon
+     * Creates a new instance of SSHReaderDaemon
      */
-    public ContactSSHReaderDaemon(ContactSSH sshContact)
+    public SSHReaderDaemon(ContactSSH sshContact)
     {
         this.sshContact = (ContactSSHImpl)sshContact;
         instantMessaging = (OperationSetBasicInstantMessagingSSHImpl) sshContact
@@ -97,7 +99,8 @@ public class ContactSSHReaderDaemon
         shellInputStream = sshContact.getShellInputStream();
         shellReader = sshContact.getShellReader();
         replyBuffer = new StringBuffer();
-       
+
+        
         try
         {
             do
@@ -109,11 +112,14 @@ public class ContactSSHReaderDaemon
                     // wait if more data is available
                     // for a slower connection this value need to be raised
                     // to avoid splitting of messages
-                    Thread.sleep(50);
+                    Thread.sleep(250);
                     continue;
                 }
                 
+                bufferCount = 0;
+                
 //                if(replyBuffer > 0)
+                
                 do
                 {
                     // store the responses in a buffer
@@ -123,7 +129,7 @@ public class ContactSSHReaderDaemon
                     
                     bytesAvailable = shellInputStream.available();
                     
-                }while(bytesAvailable > 0 );
+                }while(bytesAvailable > 0  && bufferCount<16384);
                 
                 message = replyBuffer.toString();
                 
@@ -186,9 +192,11 @@ public class ContactSSHReaderDaemon
             
 //                    logger.debug(shellReader.readLine());
             
+            bufferCount++;
+            
             bytesAvailable--;
             
-        }while(bytesAvailable>0);
+        }while(bytesAvailable>0 && bufferCount<32700);
     }
     
     public void isActive(boolean isActive)

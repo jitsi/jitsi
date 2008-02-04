@@ -200,11 +200,11 @@ interface ContactSSH
     public void savePersistentDetails ();
     
     /*
-     * Returns the OperationSetContactInfo associated with this contact
+     * Returns the SSHContactInfo associated with this contact
      *
      * @return sshConfigurationForm
      */
-    public OperationSetContactInfo getSSHConfigurationForm ();
+    public SSHContactInfo getSSHConfigurationForm ();
     
     /**
      * Returns the JSch Stack identified associated with this contact

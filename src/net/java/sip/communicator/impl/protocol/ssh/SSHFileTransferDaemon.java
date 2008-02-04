@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  *
- * ContactSSHFileTransferDaemon.java
+ * SSHFileTransferDaemon.java
  *
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
@@ -23,11 +23,11 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Shobhit Jindal
  */
-public class ContactSSHFileTransferDaemon
+public class SSHFileTransferDaemon
         extends Thread
 {
     private static final Logger logger =
-            Logger.getLogger(ContactSSHFileTransferDaemon .class);
+            Logger.getLogger(SSHFileTransferDaemon .class);
     
     /**
      * The contact of the remote machine
@@ -96,23 +96,23 @@ public class ContactSSHFileTransferDaemon
     private OperationSetBasicInstantMessagingSSHImpl instantMessaging = null;
     
     /**
-     * Creates a new instance of ContactSSHFileTransferDaemon
+     * Creates a new instance of SSHFileTransferDaemon
+     * 
      * 
      * @param sshContact The contact of the remote machine
-     * @param opSetPersPresence The current ssh presence operation set
-     * @param instantMessaging The current ssh instant messaging operation set
      * @param ppService  The current ssh protocol provider
      */
-    public ContactSSHFileTransferDaemon(
+    public SSHFileTransferDaemon(
             ContactSSH sshContact,
-            OperationSetPersistentPresenceSSHImpl opSetPersPresence,
-            OperationSetBasicInstantMessagingSSHImpl instantMessaging,
             ProtocolProviderServiceSSHImpl ppService)
     {
         super();
         this.sshContact = sshContact;
-        this.opSetPersPresence = opSetPersPresence;
-        this.instantMessaging = instantMessaging;
+        this.opSetPersPresence = (OperationSetPersistentPresenceSSHImpl)
+                ppService.getOperationSet(OperationSetPersistentPresence.class);
+        this.instantMessaging = (OperationSetBasicInstantMessagingSSHImpl)
+                ppService.getOperationSet(
+                    OperationSetBasicInstantMessaging.class);
         this.ppService = ppService;
     }
     
@@ -225,7 +225,6 @@ public class ContactSSHFileTransferDaemon
                     instantMessaging.createMessage(ex.getMessage()),
                     sshContact);
             
-            ex.printStackTrace();
             logger.error(ex.getMessage());
             
             try
@@ -405,7 +404,7 @@ public class ContactSSHFileTransferDaemon
         }
         
         String file=null;
-        for(int i=0;;i++)
+        for(int i=0;true;i++)
         {
             scpInputStream.read(buffer, i, 1);
             if(buffer[i]==(byte)0x0a)
@@ -433,10 +432,8 @@ public class ContactSSHFileTransferDaemon
             
             foo = scpInputStream.read(buffer, 0, foo);
             if(foo<0)
-            {
-                // error
                 break;
-            }
+            
             fileOutputStream.write(buffer, 0, foo);
             filesize-=foo;
             if(filesize==0L) break;

@@ -74,6 +74,11 @@ public interface ProtocolNames
      * The RSS protocol.
      */
     public static final String RSS = "RSS";
+    
+    /**
+     * The SSH protocol.
+     */
+    public static final String SSH = "SSH";
 
     /**
      * The Gibberish protocol.

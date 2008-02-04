@@ -38,7 +38,7 @@ public class ProtocolProviderServiceSSHImpl
     /**
      * The name of this protocol.
      */
-    public static final String SSH_PROTOCOL_NAME = "SSH";
+    public static final String SSH_PROTOCOL_NAME = ProtocolNames.SSH;
     
 //    /**
 //     * The identifier for SSH Stack
@@ -167,8 +167,7 @@ public class ProtocolProviderServiceSSHImpl
             //initialize the IM operation set
             basicInstantMessaging = new 
                 OperationSetBasicInstantMessagingSSHImpl(
-                    this,
-                    persistentPresence);
+                    this);
             
             supportedOperationSets.put(
                     OperationSetBasicInstantMessaging.class.getName(),
@@ -176,9 +175,7 @@ public class ProtocolProviderServiceSSHImpl
             
             //initialze the file transfer operation set
             fileTranfer = new OperationSetFileTransferSSHImpl(
-                    this,
-                    persistentPresence,
-                    basicInstantMessaging);
+                    this);
             
             supportedOperationSets.put(
                     OperationSetFileTransfer.class.getName(),
@@ -242,7 +239,7 @@ public class ProtocolProviderServiceSSHImpl
      * a new jsch session is also created if the current one is invalid
      *
      * @param sshContact the contact of the remote machine
-     * @param Message the first message
+     * @param firstMessage the first message
      */
     public void connectShell(
             final ContactSSH sshContact,
@@ -370,7 +367,8 @@ public class ProtocolProviderServiceSSHImpl
      *
      * @param sshContact ID of SSH Contact
      *
-     * @throws JSchException if a JSch is unable to create a SSH Session with the remote machine
+     * @throws JSchException if a JSch is unable to create a SSH Session with 
+     * the remote machine
      * @throws InterruptedException if the thread is interrupted before session
      *         connected or is timed out
      * @throws OperationFailedException if not of above reasons :-)

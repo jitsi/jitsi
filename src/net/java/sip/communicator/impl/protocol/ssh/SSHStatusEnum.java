@@ -40,8 +40,8 @@ public class SSHStatusEnum
     
     /**
      * The Not Available status. Indicates that the user has connectivity
-     * but might not be able to immediately act (i.e. even less immediately than
-     * when in an Away status ;-P ) upon initiation of communication.
+     * but might not be able to immediately act (i.e. even less immediately 
+     * than when in an Away status ;-P ) upon initiation of communication.
      *
      */
     public static final SSHStatusEnum NOT_AVAILABLE
@@ -68,7 +68,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/ssh/ssh-online.png"));
+            , loadIcon("resources/images/protocol/ssh/ssh-online.png"));
 
 
     /**
@@ -79,7 +79,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             70
             , "Connecting"            
-            , loadIcon("resources/images/ssh/ssh-connected.png"));
+            , loadIcon("resources/images/protocol/ssh/ssh-connected.png"));
     
     /**
      * The File Transfer status. Indicate that the user is transfering a file
@@ -89,7 +89,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             75
             , "Transfering File"            
-            , loadIcon("resources/images/ssh/ssh-filetransfer.png"));
+            , loadIcon("resources/images/protocol/ssh/ssh-filetransfer.png"));
     
     /**
      * Initialize the list of supported status states.
@@ -131,7 +131,7 @@ public class SSHStatusEnum
     /**
      * Loads an image from a given image path.
      * @param imagePath The path to the image resource.
-     * @return The image extracted from the resource at the specified path.
+     * @return The image extracted from the resource at the specified path.    
      */
     public static byte[] loadIcon(String imagePath)
     {

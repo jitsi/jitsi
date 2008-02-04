@@ -45,7 +45,7 @@ public class ContactSSHImpl
     /**
      * Interface for user to provide details about machine
      */
-    private OperationSetContactInfo sshConfigurationForm;
+    private SSHContactInfo sshConfigurationForm;
     
     /**
      * A Timer Daemon to update the status of this contact
@@ -55,7 +55,7 @@ public class ContactSSHImpl
     /**
      * A Daemon to retrieve and fire messages received from remote machine
      */
-    private ContactSSHReaderDaemon contactSSHReaderDaemon;
+    private SSHReaderDaemon contactSSHReaderDaemon;
     
     /**
      * The id of the contact.
@@ -175,7 +175,7 @@ public class ContactSSHImpl
         this.parentProvider = parentProvider;
         
         this.sshConfigurationForm =
-                new OperationSetContactInfo(this);
+                new SSHContactInfo(this);
         
         this.savePersistentDetails();
     }
@@ -195,7 +195,7 @@ public class ContactSSHImpl
         shellReader = new InputStreamReader(shellInputStream);
         shellWriter = new PrintWriter(shellOutputStream);
         
-        contactSSHReaderDaemon = new ContactSSHReaderDaemon(this);
+        contactSSHReaderDaemon = new SSHReaderDaemon(this);
         contactSSHReaderDaemon.setDaemon(true);
         contactSSHReaderDaemon.isActive(true);
         contactSSHReaderDaemon.start();
@@ -249,7 +249,8 @@ public class ContactSSHImpl
             jsch = null;
         }
         
-        ((OperationSetPersistentPresenceSSHImpl)getParentPresenceOperationSet()).
+        ((OperationSetPersistentPresenceSSHImpl)
+        getParentPresenceOperationSet()).
                 changeContactPresenceStatus(this, SSHStatusEnum.ONLINE);
     }
     
@@ -277,7 +278,8 @@ public class ContactSSHImpl
 //        String line = shellReader.readLine();
 ////        logger.debug("SSH FROM: " + this.contactID + ": " +  line);
 //
-//        // null is never returned normally, the reading attempt returs a string
+//        // null is never returned normally, the reading attempt returs a 
+//        // string
 //        // or blocks until one line is available
 //        if(line == null)
 //        {
@@ -295,7 +297,7 @@ public class ContactSSHImpl
      */
     public void startTimerTask()
     {
-        timer.scheduleAtFixedRate(new OperationSetContactTimerSSHImpl(this),
+        timer.scheduleAtFixedRate(new ContactTimerSSHImpl(this),
                 2000, sshConfigurationForm.getUpdateInterval()*1000);
     }
     
@@ -310,7 +312,8 @@ public class ContactSSHImpl
     
     
     /**
-     * Saves the details of contact in persistentData seperated by detailsSeperator
+     * Saves the details of contact in persistentData seperated by
+     * detailsSeperator
      * Passowrd is saved unsecurely using Base64 encoding
      */
     public void savePersistentDetails()
@@ -396,17 +399,18 @@ public class ContactSSHImpl
      *
      * @param isConnectionInProgress
      */
-    public synchronized void setConnectionInProgress(boolean isConnectionInProgress)
+    public synchronized void setConnectionInProgress(
+            boolean isConnectionInProgress)
     {
         this.isConnectionInProgress = isConnectionInProgress;
     }
     
     /**
-     * Returns the OperationSetContactInfo associated with this contact
-     *
+     * Returns the SSHContactInfo associated with this contact
+     * 
      * @return sshConfigurationForm
      */
-    public OperationSetContactInfo getSSHConfigurationForm()
+    public SSHContactInfo getSSHConfigurationForm()
     {
         return this.sshConfigurationForm;
     }
@@ -704,8 +708,8 @@ public class ContactSSHImpl
     }
     
     /**
-     * Returns the BasicInstant Messaging operation set that this contact belongs
-     * to.
+     * Returns the BasicInstant Messaging operation set that this contact 
+     * belongs to.
      *
      * @return the <tt>OperationSetBasicInstantMessagingSSHImpl</tt> that
      * this contact belongs to.
@@ -785,7 +789,8 @@ public class ContactSSHImpl
 //    /**
 //     * Sets the Input Stream associated with SSH Channel of this contact
 //     *
-//     * @param shellInputStream to be associated with SSH Channel of this contact
+//     * @param shellInputStream to be associated with SSH Channel of 
+//     * this contact
 //     */
 //    public void setShellInputStream(InputStream shellInputStream)
 //    {
@@ -882,16 +887,6 @@ public class ContactSSHImpl
         this.sshConfigurationForm.setPasswordField(password);
         savePersistentDetails();
     }
-
-    /**
-     * Return the current status message of this contact.
-     * 
-     * @return null as the protocol has no support of status messages
-     */
-    public String getStatusMessage()
-    {
-        return null;
-    }
     
 //    /**
 //     * Sets the PS1 prompt of the current shell of Contact
@@ -912,4 +907,13 @@ public class ContactSSHImpl
 //    {
 //        return this.sshPrompt;
 //    }
+
+    /**
+     * Return the current status message of this contact.
+     * 
+     * @return the current status message
+     */
+    public String getStatusMessage() {
+        return presenceStatus.getStatusName();
+    }
 }

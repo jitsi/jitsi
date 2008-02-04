@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  *
- * OperationSetContactInfo.java
+ * SSHContactInfo.java
  *
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
@@ -12,19 +12,20 @@
 
 package net.java.sip.communicator.impl.protocol.ssh;
 
+import java.text.ParseException;
 import net.java.sip.communicator.service.gui.*;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.text.*;
 
 /**
  *
  * @author Shobhit Jindal
  */
-class OperationSetContactInfo extends JDialog
-        implements ConfigurationForm
-{
+class SSHContactInfo extends JDialog
+        implements ConfigurationForm {
     private ContactSSH sshContact;
     
     private JPanel mainPanel = new JPanel();
@@ -43,7 +44,8 @@ class OperationSetContactInfo extends JDialog
     private JLabel password = new JLabel("Password: ");
     private JTextField passwordField = new JPasswordField();
     private JLabel port = new JLabel("Port: ");
-    private JTextField portField = new JTextField("22");
+    
+    private JFormattedTextField portField;
     private JLabel secs = new JLabel("secs");
     private JLabel statusUpdate = new JLabel("Update Interval: ");
     private JLabel terminalType = new JLabel("Terminal Type: ");
@@ -75,12 +77,11 @@ class OperationSetContactInfo extends JDialog
 //    private ContactGroup contactGroup = null;
     
     /**
-     * Creates a new instance of OperationSetContactInfo
+     * Creates a new instance of SSHContactInfo
      * 
      * @param sshContact the concerned contact
      */
-    public OperationSetContactInfo(ContactSSH sshContact)
-    {
+    public SSHContactInfo(ContactSSH sshContact) {
         super(new JFrame(), true);
         this.sshContact = sshContact;
         initForm();
@@ -108,9 +109,17 @@ class OperationSetContactInfo extends JDialog
     /**
      * initialize the form.
      */
-    public void initForm()
-    {
+    public void initForm() {
         updateTimer.setValue(new Integer(30));
+        MaskFormatter maskFormatter = new MaskFormatter();
+        try {
+            maskFormatter.setMask("#####");
+        } catch (ParseException ex) {
+            ex.printStackTrace();
+        }
+        maskFormatter.setAllowsInvalid(false);
+        portField = new JFormattedTextField(maskFormatter);
+        portField.setValue(new Integer(22));
         
         userNameField.setEnabled(false);
         passwordField.setEditable(false);
@@ -120,9 +129,9 @@ class OperationSetContactInfo extends JDialog
         
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         machinePanel.setLayout(new BoxLayout(machinePanel, BoxLayout.X_AXIS));
-        detailNamesPanel.setLayout(new BoxLayout(detailNamesPanel, 
+        detailNamesPanel.setLayout(new BoxLayout(detailNamesPanel,
                 BoxLayout.Y_AXIS));
-        detailFieldsPanel.setLayout(new BoxLayout(detailFieldsPanel, 
+        detailFieldsPanel.setLayout(new BoxLayout(detailFieldsPanel,
                 BoxLayout.Y_AXIS));
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.X_AXIS));
         
@@ -162,10 +171,8 @@ class OperationSetContactInfo extends JDialog
         mainPanel.add(doneButton);
         mainPanel.add(emptyPanel11);
         
-        addDetailsCheckBox.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
+        addDetailsCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
                 addDetailsCheckBox.setEnabled(false);
                 userNameField.setEnabled(true);
                 passwordField.setEditable(true);
@@ -177,12 +184,9 @@ class OperationSetContactInfo extends JDialog
             }
         });
         
-        doneButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                if(machineIDField.getText().equals(""))
-                {
+        doneButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                if(machineIDField.getText().equals("")) {
                     machineIDField.setText("Field needed");
                     return;
                 }
@@ -192,27 +196,25 @@ class OperationSetContactInfo extends JDialog
 //                    .getParentPresenceOperationSet())
 //                    .addContactToList(contactGroup, sshContact);
                 setVisible(false);
-            }
+            }        
         });
     }
     
     /**
      * Return the ssh icon
-     * 
+     *
      * @return the ssh icon
      */
-    public byte[] getIcon()
-    {
+    public byte[] getIcon() {
         return Resources.getImage(Resources.SSH_LOGO);
     }
     
     /**
      * Return the main panel
-     * 
+     *
      * @return the main panel
      */
-    public Object getForm()
-    {
+    public Object getForm() {
         return mainPanel;
     }
 //
@@ -231,8 +233,7 @@ class OperationSetContactInfo extends JDialog
      *
      * @param userName to be associated
      */
-    public void setUserNameField(String userName)
-    {
+    public void setUserNameField(String userName) {
         this.userNameField.setText(userName);
     }
     
@@ -241,68 +242,61 @@ class OperationSetContactInfo extends JDialog
      *
      * @param password to be associated
      */
-    public void setPasswordField(String password)
-    {
+    public void setPasswordField(String password) {
         this.passwordField.setText(password);
     }
     
     /**
      * Return the hostname
-     * 
+     *
      * @return the hostname
      */
-    public String getHostName()
-    {
+    public String getHostName() {
         return this.machineIDField.getText();
     }
     
     /**
      * Return the username
-     * 
+     *
      * @return the username
      */
-    public String getUserName()
-    {
+    public String getUserName() {
         return this.userNameField.getText();
     }
     
     /**
      * Return the password
-     * 
+     *
      * @return the password in a clear form
      */
-    public String getPassword()
-    {
+    public String getPassword() {
         return this.passwordField.getText();
     }
     
     /**
      * Return the terminal type
-     * 
+     *
      * @return the terminal type
      */
-    public String getTerminalType()
-    {
+    public String getTerminalType() {
         return this.terminalTypeField.getText();
     }
     
     /**
      * Return the port
-     * 
+     *
      * @return the port value
      */
-    public int getPort()
-    {
-        return Integer.parseInt(this.portField.getText());
+    public int getPort() {
+        return Integer.parseInt(this.portField.getText().trim());
     }
     
     /**
      * Return the update interval
-     * 
+     *
      * @return the update interval
      */
-    public int getUpdateInterval()
-    {
+    public int getUpdateInterval() {
         return Integer.parseInt(String.valueOf(this.updateTimer.getValue()));
     }
     
@@ -311,8 +305,7 @@ class OperationSetContactInfo extends JDialog
      *
      * @param hostName to be associated
      */
-    public void setHostNameField(String hostName)
-    {
+    public void setHostNameField(String hostName) {
         this.machineIDField.setText(hostName);
     }
     
@@ -321,8 +314,7 @@ class OperationSetContactInfo extends JDialog
      *
      * @param termType to be associated
      */
-    public void setTerminalType(String termType)
-    {
+    public void setTerminalType(String termType) {
         this.terminalTypeField.setText(termType);
     }
     
@@ -331,8 +323,7 @@ class OperationSetContactInfo extends JDialog
      *
      * @param interval to be associated
      */
-    public void setUpdateInterval(Integer interval)
-    {
+    public void setUpdateInterval(Integer interval) {
         this.updateTimer.setValue(interval);
     }
     
@@ -341,8 +332,7 @@ class OperationSetContactInfo extends JDialog
      *
      * @param port to be associated
      */
-    public void setPort(String port)
-    {
+    public void setPort(String port) {
         this.portField.setText(port);
     }
 }

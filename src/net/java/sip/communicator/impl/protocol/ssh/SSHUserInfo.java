@@ -74,7 +74,7 @@ class SSHUserInfo
                 str,
                 "Warning",
                 JOptionPane.DEFAULT_OPTION,
-                JOptionPane.WARNING_MESSAGE,
+                JOptionPane.QUESTION_MESSAGE,
                 null, options, options[0]);
         return foo==0;
     }
