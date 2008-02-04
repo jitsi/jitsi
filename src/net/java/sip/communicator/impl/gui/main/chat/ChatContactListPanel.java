@@ -33,7 +33,7 @@ public class ChatContactListPanel
                 KeyListener
 {
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-    
+
     private JScrollPane contactsScrollPane = new JScrollPane();
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
@@ -43,13 +43,12 @@ public class ChatContactListPanel
         ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ROLLOVER_BUTTON),
         ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON), null);
 
-    
     private JPanel contactsPanel = new JPanel();
-    
+
     private LinkedHashMap chatContacts = new LinkedHashMap(); 
-    
+
     private ChatPanel chatPanel;
-    
+
     /**
      * Creates an instance of <tt>ChatContactListPanel</tt>.
      */
@@ -58,40 +57,44 @@ public class ChatContactListPanel
         super(new BorderLayout(5, 5));
 
         this.chatPanel = chat;
-               
+
         this.contactsPanel.setLayout(
             new BoxLayout(contactsPanel, BoxLayout.Y_AXIS));
-        
-        this.setMinimumSize(new Dimension(150, 100));
+
+        //this.setMinimumSize(new Dimension(150, 100));
 
         this.contactsPanel.setLayout(new BoxLayout(this.contactsPanel,
                 BoxLayout.Y_AXIS));
 
+        this.contactsScrollPane.setHorizontalScrollBarPolicy(
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         this.mainPanel.add(contactsPanel, BorderLayout.NORTH);
+
         this.contactsScrollPane.getViewport().add(this.mainPanel);
-        
+
         this.add(contactsScrollPane, BorderLayout.CENTER);
 
         if(chatPanel instanceof ConferenceChatPanel)
         {
             this.buttonPanel.add(addToChatButton);
             this.add(buttonPanel, BorderLayout.SOUTH);
-            
+
             addToChatButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
                     ChatInviteDialog inviteDialog
                         = new ChatInviteDialog(chatPanel);
-                    
+
                     inviteDialog.setVisible(true);
                 }
             });
         }
-        
+
         this.addKeyListener(this);
     }
-    
+
     /**
      * Adds a <tt>ChatContact</tt> to the list of contacts contained in the
      * chat.

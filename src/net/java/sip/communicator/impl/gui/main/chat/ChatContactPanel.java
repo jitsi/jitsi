@@ -56,6 +56,8 @@ public class ChatContactPanel
             .getImage(ImageLoader.CHAT_CONTACT_SEND_FILE_BUTTON), ImageLoader
             .getImage(ImageLoader.CHAT_SEND_FILE_ROLLOVER_BUTTON));
 
+    private JPanel personPhotoPanel = new JPanel(new BorderLayout());
+
     private JLabel personPhotoLabel = new JLabel();
 
     private JLabel personNameLabel = new JLabel();
@@ -89,11 +91,13 @@ public class ChatContactPanel
         // menu.
         this.addMouseListener(this);
 
+        this.setPreferredSize(new Dimension(100, 55));
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.setOpaque(false);
         this.mainPanel.setOpaque(false);
         this.buttonsPanel.setOpaque(false);
+        this.personPhotoPanel.setOpaque(false);
 
         this.personNameLabel.setText(chatContact.getName());
         this.personNameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
@@ -115,13 +119,17 @@ public class ChatContactPanel
         this.buttonsPanel.add(infoButton);
         this.buttonsPanel.add(callButton);
         this.buttonsPanel.add(sendFileButton);
-        
+
         this.buttonsPanel.setVisible(false);
-        
+
         this.mainPanel.add(buttonsPanel, BorderLayout.NORTH);
         this.mainPanel.add(personNameLabel, BorderLayout.CENTER);
 
-        this.add(personPhotoLabel, BorderLayout.WEST);
+        this.personPhotoPanel.setBorder(
+            BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        this.personPhotoPanel.add(personPhotoLabel, BorderLayout.NORTH);
+
+        this.add(personPhotoPanel, BorderLayout.WEST);
         this.add(mainPanel, BorderLayout.CENTER);
 
         // Disabled all unused buttons.
@@ -301,7 +309,7 @@ public class ChatContactPanel
     public void setContactPhoto(ImageIcon contactPhoto)
     {
         this.contactPhotoIcon = contactPhoto;
-        
+
         this.personPhotoLabel.setIcon(contactPhotoIcon);
     }
     
