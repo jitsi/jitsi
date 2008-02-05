@@ -1319,6 +1319,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images/impl/gui/buttons"/>
             <zipfileset dir="${resources}/images/impl/systray"
                 prefix="resources/images/impl/systray"/>
+            <zipfileset dir="${resources}" includes="application.properties"
+                prefix="resources"/>
         </jar>
     </target>
 

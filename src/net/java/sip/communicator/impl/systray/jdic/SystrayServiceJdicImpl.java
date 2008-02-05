@@ -143,7 +143,7 @@ public class SystrayServiceJdicImpl
 
         currentIcon = logoIcon;
         trayIcon = new TrayIcon(logoIcon,
-                                Resources.getString("systrayToolTip"),
+                                Resources.getApplicationString("applicationName"),
                                 menu);
 
         trayIcon.setIconAutoSize(true);

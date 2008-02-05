@@ -32,6 +32,12 @@ public class Resources
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle(BUNDLE_NAME);
 
+    private static final String APPLICATION_RESUORCE_LOCATION
+        = "resources.application";
+
+    private static final ResourceBundle applicationBundle 
+        = ResourceBundle.getBundle(APPLICATION_RESUORCE_LOCATION);
+
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
@@ -111,5 +117,23 @@ public class Resources
         }
 
         return new ImageIcon(image);
+    }
+
+    /**
+     * Returns the application property string corresponding to the given key.
+     *
+     * @param key The key of the string.
+     * @return the application property string corresponding to the given key
+     */
+    public static String getApplicationString(String key)
+    {
+        try
+        {
+            return applicationBundle.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
+            return '!' + key + '!';
+        }
     }
 }
