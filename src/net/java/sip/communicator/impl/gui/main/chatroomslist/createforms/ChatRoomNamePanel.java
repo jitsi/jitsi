@@ -44,7 +44,7 @@ public class ChatRoomNamePanel
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
     
     private JPanel rightPanel = new JPanel(new BorderLayout());
     
@@ -65,29 +65,36 @@ public class ChatRoomNamePanel
     public ChatRoomNamePanel(WizardContainer wizard)
     {
         super(new BorderLayout());
-        
+
         this.parentWizard = wizard;
-        
-        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
-        
+
+        this.setBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        this.iconLabel.setBorder(
+            BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
         this.infoLabel.setEditable(false);
-                
+
         this.dataPanel.add(nameLabel, BorderLayout.WEST);
-        
+
         this.dataPanel.add(textField, BorderLayout.CENTER);
-        
+
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-        
+
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
         this.labelsPanel.add(dataPanel);
-        
+
+        this.rightPanel.setBorder(
+            BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
-        
+
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
-        
+
         this.textField.getDocument().addDocumentListener(this);
     }
 

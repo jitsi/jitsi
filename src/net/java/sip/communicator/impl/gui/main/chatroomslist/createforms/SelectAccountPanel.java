@@ -46,7 +46,7 @@ public class SelectAccountPanel extends JPanel
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
-    private JPanel rightPanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
@@ -73,12 +73,16 @@ public class SelectAccountPanel extends JPanel
     {
         super(new BorderLayout());
 
+        this.setBorder(BorderFactory
+            .createEmptyBorder(10, 10, 10, 10));
+
         this.setPreferredSize(new Dimension(600, 400));
+
         this.newChatRoom = newChatRoom;
 
         this.protocolProvidersList = protocolProvidersList;
 
-        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
+        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
         this.infoLabel.setEditable(false);
 
@@ -86,6 +90,9 @@ public class SelectAccountPanel extends JPanel
 
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
+
+        this.rightPanel.setBorder(
+            BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         this.rightPanel.add(tablePane, BorderLayout.CENTER);

@@ -40,11 +40,9 @@ public class SelectGroupPanel
     private JLabel infoTitleLabel = new JLabel(
             Messages.getI18NString("selectGroupWizardTitle").getText());
     
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
     
-    private JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
-    
-    private JPanel rightNorthPanel = new JPanel();
+    private JPanel rightPanel = new JPanel(new BorderLayout());
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
@@ -67,31 +65,31 @@ public class SelectGroupPanel
 
         this.parentWizard = wizard;
 
+        this.setBorder(BorderFactory
+            .createEmptyBorder(10, 10, 10, 10));
+
         this.setPreferredSize(new Dimension(500, 200));
 
-        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
-
-        this.rightNorthPanel.setLayout(
-            new BoxLayout(rightNorthPanel, BoxLayout.Y_AXIS));
+        this.iconLabel.setBorder(
+            BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
         this.groupCombo.setPreferredSize(new Dimension(300, 22));
         this.groupCombo.addItemListener(this);
 
         this.infoLabel.setEditable(false);
-        
+
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-        
+
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
-        
-        this.rightNorthPanel.add(labelsPanel);
-        this.rightNorthPanel.add(groupPanel);
-        
-        this.rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
-        
-        this.rightPanel.add(rightNorthPanel, BorderLayout.NORTH);
-        
+        this.labelsPanel.add(groupPanel);
+
+        this.rightPanel.setBorder(
+            BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
+        this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
+
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
 
