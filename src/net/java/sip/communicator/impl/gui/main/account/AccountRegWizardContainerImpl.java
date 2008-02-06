@@ -43,7 +43,7 @@ public class AccountRegWizardContainerImpl
     ConfigurationService configService = GuiActivator.getConfigurationService();
 
     private static final String RESOURCE_NAME 
-        = "net.java.sip.communicator.impl.gui.main.login.login";
+        = "resources.login";
 
     private static final ResourceBundle LOGIN_RESOURCE_BUNDLE
         = ResourceBundle.getBundle(RESOURCE_NAME);
