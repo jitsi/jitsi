@@ -111,10 +111,7 @@ public class MetaContactChatPanel
         // getChatSendPanel().getSendPanel().add(sendSmsCheckBox, 0);
         if (protocolContact.getProtocolProvider()
             .getOperationSet(OperationSetSmsMessaging.class) != null)
-        {
             sendSmsCheckBox.setEnabled(true);
-            sendSmsCheckBox.setSelected(true);
-        }
         else
             sendSmsCheckBox.setEnabled(false);
 
@@ -851,5 +848,16 @@ public class MetaContactChatPanel
                     Messages.getI18NString("msgDeliveryInternalError")
                         .getText(), "text");
         }
+    }
+
+    /**
+     * Changes the "Send as SMS" check box state.
+     * 
+     * @param isSmsSelected <code>true</code> to set the "Send as SMS" check box
+     * selected, <code>false</code> - otherwise. 
+     */
+    public void setSmsSelected(boolean isSmsSelected)
+    {
+        sendSmsCheckBox.setSelected(isSmsSelected);
     }
 }

@@ -420,7 +420,7 @@ public class ContactRightButtonMenu
 
             ContactListPanel clistPanel = mainFrame.getContactListPanel();
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
-                    contactItem, defaultSmsContact));
+                    contactItem, defaultSmsContact, true));
         }
         else if (itemName.equalsIgnoreCase("call"))
         {

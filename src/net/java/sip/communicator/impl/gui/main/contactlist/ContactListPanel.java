@@ -220,6 +220,8 @@ public class ContactListPanel
 
         private Contact protocolContact;
 
+        private boolean isSmsSelected = false;
+
         /**
          * Creates an instance of <tt>RunMessageWindow</tt> by specifying the 
          * 
@@ -244,22 +246,38 @@ public class ContactListPanel
         }
 
         /**
+         * Creates a chat window 
+         * 
+         * @param metaContact
+         * @param protocolContact
+         * @param isSmsSelected
+         */
+        public RunMessageWindow(MetaContact metaContact, 
+            Contact protocolContact, boolean isSmsSelected)
+        {
+            this.metaContact = metaContact;
+            this.protocolContact = protocolContact;
+            this.isSmsSelected = isSmsSelected;
+        }
+
+        /**
          * Opens a chat window 
          */
         public void run()
         {
             MetaContactChatPanel chatPanel;
-            
+
             if(protocolContact != null)
                 chatPanel = chatWindowManager
                     .getContactChat(metaContact, protocolContact);
             else
                 chatPanel = chatWindowManager.getContactChat(metaContact);
 
+            chatPanel.setSmsSelected(isSmsSelected);
+
             chatWindowManager.openChat(chatPanel, true);
         }
     }
-    
 
     /**
      * When a message is received determines whether to open a new chat window
