@@ -85,7 +85,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Hashtable which contains the contacts with which we want to subscribe
-     * or with which we successfuly subscribed
+     * or with which we successfully subscribed
      * Index : String, Content : ContactSipImpl
      */
     private Hashtable subscribedContacts = new Hashtable();
@@ -187,7 +187,10 @@ public class OperationSetPresenceSipImpl
      * The id used in <tt><tuple></tt>  and <tt><person></tt> elements
      * of pidf documents.
      */
-    private static long tupleid = (long) Math.random();
+    private static String tupleid = 
+        String.valueOf("t" + (long)(Math.random() * 10000));
+    private static String personid = 
+        String.valueOf("p" + (long)(Math.random() * 10000));
 
     // XML documents types
     private static final String PIDF_XML        = "pidf+xml";
@@ -280,7 +283,7 @@ public class OperationSetPresenceSipImpl
      * Returns a PresenceStatus instance representing the state this provider is
      * currently in. Note that PresenceStatus instances returned by this method
      * MUST adequately represent all possible states that a provider might
-     * enter duruing its lifecycle, includindg those that would not be visible
+     * enter during its lifecycle, including those that would not be visible
      * to others (e.g. Initializing, Connecting, etc ..) and those that will be
      * sent to contacts/buddies (On-Line, Eager to chat, etc.).
      *
@@ -554,7 +557,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Requests the provider to enter into a status corresponding to the
-     * specified paramters.
+     * specified parameters.
      *
      * @param status the PresenceStatus as returned by
      *   getRequestableStatusSet
@@ -980,7 +983,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Returns the set of PresenceStatus objects that a user of this service
      * may request the provider to enter. Note that the provider would most
-     * probaby enter more states than those returned by this method as they
+     * probably enter more states than those returned by this method as they
      * only depict instances that users may request to enter. (e.g. a user
      * may not request a "Connecting..." state - it is a temporary state
      * that the provider enters while trying to enter the "Connected" state).
@@ -1184,7 +1187,7 @@ public class OperationSetPresenceSipImpl
      * @param contact The contact concerned by this subscription
      * @param expires The expires value
      *
-     * @return a valid sip request reprensenting this message.
+     * @return a valid sip request representing this message.
      *
      * @throws OperationFailedException if the message can't be generated
      */
@@ -3116,7 +3119,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Registers a listener that would get notifications any time a new
-     * subscription was succesfully added, has failed or was removed.
+     * subscription was successfully added, has failed or was removed.
      *
      * @param listener the SubscriptionListener to register
      */
@@ -3145,7 +3148,7 @@ public class OperationSetPresenceSipImpl
      * stored groups.
      *
      * @param listener a ServerStoredGroupChangeListener impl that would
-     *   receive events upong group changes.
+     *   receive events upon group changes.
      */
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
                                                         listener)
@@ -3486,7 +3489,7 @@ public class OperationSetPresenceSipImpl
      *
      * @param document the document as a String
      *
-     * @return a <tt>Document</tt> reprensenting the document or null if an
+     * @return a <tt>Document</tt> representing the document or null if an
      * error occur
      */
     private Document convertDocument(String document) {
@@ -3555,7 +3558,7 @@ public class OperationSetPresenceSipImpl
 
          // <person>
          Element person = doc.createElement(NS_PERSON_ELT);
-         person.setAttribute(ID_ATTRIBUTE, "p" + String.valueOf(tupleid++));
+         person.setAttribute(ID_ATTRIBUTE, personid);
          presence.appendChild(person);
 
          // <activities>
@@ -3578,8 +3581,7 @@ public class OperationSetPresenceSipImpl
 
          // <tuple>
          Element tuple = doc.createElement(TUPLE_ELEMENT);
-         tuple.setAttribute(ID_ATTRIBUTE, String
-                 .valueOf(tupleid++));
+         tuple.setAttribute(ID_ATTRIBUTE, tupleid);
          presence.appendChild(tuple);
 
          // <status>
@@ -3670,10 +3672,10 @@ public class OperationSetPresenceSipImpl
          NodeList personList = presence.getElementsByTagNameNS(ANY_NS,
                  PERSON_ELEMENT);
 
-         if (personList.getLength() > 1) {
-             logger.error("more than one person in this document");
-             return;
-         }
+         //if (personList.getLength() > 1) {
+         //    logger.error("more than one person in this document");
+         //    return;
+         //}
 
          if (personList.getLength() > 0) {
              Node personNode = personList.item(0);
@@ -4314,7 +4316,7 @@ public class OperationSetPresenceSipImpl
          /**
           * Default constructor
           *
-          * @param contact The watcher conecerned by this timeout
+          * @param contact The watcher concerned by this timeout
           */
          public watcherTimeoutTask(ContactSipImpl contact) {
              this.contact = contact;
@@ -4424,7 +4426,7 @@ public class OperationSetPresenceSipImpl
      implements RegistrationStateChangeListener
      {
          /**
-          * The method is called by a ProtocolProvider implementation whenver
+          * The method is called by a ProtocolProvider implementation whenever
           * a change in the registration state of the corresponding provider had
           * occurred. The method is particularly interested in events stating
           * that the SIP provider has unregistered so that it would fire

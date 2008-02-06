@@ -79,7 +79,7 @@ public class SipRegistrarConnection
     private Request registerRequest = null;
 
     /**
-     * The next long to use as a cseq header velue.
+     * The next long to use as a cseq header value.
      */
     private long nextCSeqValue = 1;
 
@@ -131,7 +131,7 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Sends the REGISTER request to the server speciied in the constructor.
+     * Sends the REGISTER request to the server specified in the constructor.
      *
      * @throws OperationFailedException with the corresponding error code
      * if registration or construction of the Register request fail.
@@ -384,7 +384,7 @@ public class SipRegistrarConnection
      * notify listeners and (in the case of a new registration) schedule
      * reregistration.
      *
-     * @param clientTransatcion the ClientTransaction that we crated when
+     * @param clientTransatcion the ClientTransaction that we created when
      * sending the register request.
      * @param response the OK Response that we've just received.
      */
@@ -564,32 +564,32 @@ public class SipRegistrarConnection
         }
         try
         {
+            //check whether there's a cached authorization header for this
+            //call id and if so - attach it to the request.
+            // add authorization header
+            CallIdHeader call = (CallIdHeader)unregisterRequest
+                .getHeader(CallIdHeader.NAME);
+            String callid = call.getCallId();
+
+            AuthorizationHeader authorization = sipProvider
+                .getSipSecurityManager()
+                    .getCachedAuthorizationHeader(callid);
+
+            if(authorization != null)
+                unregisterRequest.addHeader(authorization);
+            
+            
             unregisterTransaction.sendRequest();
-            logger.debug("sent request: " + unregisterRequest);
+            logger.info("sent request: " + unregisterRequest);
 
             //if we're currently registered we'll wait for an ok response
             //before changing the status. otherwise we set it immediately.
             if(!getRegistrationState().equals(RegistrationState.REGISTERED))
             {
-                logger.trace("Setting state to UNREGISTERED.");
+                logger.info("Setting state to UNREGISTERED.");
                 setRegistrationState(
                     RegistrationState.UNREGISTERED
                     , RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
-
-                //check whether there's a cached authorization header for this
-                //call id and if so - attach it to the request.
-                // add authorization header
-                CallIdHeader call = (CallIdHeader)unregisterRequest
-                    .getHeader(CallIdHeader.NAME);
-                String callid = call.getCallId();
-
-                AuthorizationHeader authorization = sipProvider
-                    .getSipSecurityManager()
-                        .getCachedAuthorizationHeader(callid);
-
-                if(authorization != null)
-                    unregisterRequest.addHeader(authorization);
-
 
                 //kill the registration tran in case it is still active
                 if (regTrans != null
@@ -627,7 +627,7 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Sets our registraton state to <tt>newState</tt> and dispatches an event
+     * Sets our registration state to <tt>newState</tt> and dispatches an event
      * through the protocol provider service impl.
      * <p>
      * @param newState a reference to the RegistrationState that we're currently
@@ -728,8 +728,8 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Returns the next long to use as a cseq header velue.
-     * @return the next long to use as a cseq header velue.
+     * Returns the next long to use as a cseq header value.
+     * @return the next long to use as a cseq header value.
      */
     private long getNextCSeqValue()
     {
@@ -739,7 +739,7 @@ public class SipRegistrarConnection
     /**
      * Handles a NOT_IMPLEMENTED response sent in reply of our register request.
      *
-     * @param transatcion the transaction that our initial register reqeust
+     * @param transatcion the transaction that our initial register request
      * belongs to.
      * @param response our initial register request.
      */
@@ -765,10 +765,10 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Returns the listening point that should be used for communiction with our
+     * Returns the listening point that should be used for communication with our
      * current registrar.
      *
-     * @return the listening point that should be used for communiction with our
+     * @return the listening point that should be used for communication with our
      * current registrar.
      */
     ListeningPoint getRegistrarListeningPoint()
@@ -854,12 +854,12 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Attempts to re-ogenerate the corresponding request with the proper
+     * Attempts to re-generate the corresponding request with the proper
      * credentials and terminates the call if it fails.
      *
      * @param clientTransaction the corresponding transaction
      * @param response the challenge
-     * @param jainSipProvider the provider that received the challende
+     * @param jainSipProvider the provider that received the challenge
      */
     private void processAuthenticationChallenge(
                         ClientTransaction clientTransaction,
@@ -898,7 +898,7 @@ public class SipRegistrarConnection
      *
      * @param clientTransaction the corresponding transaction
      * @param response the challenge
-     * @param jainSipProvider the provider that received the challende
+     * @param jainSipProvider the provider that received the challenge
      */
     private void processForbidden(
                         ClientTransaction clientTransaction,

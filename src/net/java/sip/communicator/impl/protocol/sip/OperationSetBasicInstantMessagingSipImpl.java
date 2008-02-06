@@ -33,10 +33,15 @@ public class OperationSetBasicInstantMessagingSipImpl
         Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
 
     /**
-     * A list of listeneres registered for message events.
+     * A list of listeners registered for message events.
      */
     private Vector messageListeners = new Vector();
 
+    /**
+     * A list of processors registered for incoming sip messages.
+     */
+    private Vector messageProcessors = new Vector();
+    
     /**
      * The provider that created us.
      */
@@ -77,7 +82,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     }
 
     /**
-     * Registeres a MessageListener with this operation set so that it gets
+     * Registers a MessageListener with this operation set so that it gets
      * notifications of successful message delivery, failure or reception of
      * incoming messages..
      *
@@ -95,7 +100,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     }
 
     /**
-     * Unregisteres <tt>listener</tt> so that it won't receive any further
+     * Unregisters <tt>listener</tt> so that it won't receive any further
      * notifications upon successful message delivery, failure or reception of
      * incoming messages..
      *
@@ -106,6 +111,39 @@ public class OperationSetBasicInstantMessagingSipImpl
         synchronized (this.messageListeners)
         {
             this.messageListeners.remove(listener);
+        }
+    }
+    
+    /**
+     * Registers a SipMessageListener with this operation set so that it gets
+     * notifications of successful message delivery, failure or reception of
+     * incoming messages..
+     *
+     * @param listener the <tt>SipMessageListener</tt> to register.
+     */
+    void addMessageProcessor(SipMessageProcessor processor)
+    {
+        synchronized (this.messageProcessors)
+        {
+            if (!this.messageProcessors.contains(processor))
+            {
+                this.messageProcessors.add(processor);
+            }
+        }
+    }
+
+    /**
+     * Unregisters <tt>listener</tt> so that it won't receive any further
+     * notifications upon successful message delivery, failure or reception of
+     * incoming messages..
+     *
+     * @param listener the <tt>SipMessageListener</tt> to unregister.
+     */
+    void removeMessageProcessor(SipMessageProcessor processor)
+    {
+        synchronized (this.messageProcessors)
+        {
+            this.messageProcessors.remove(processor);
         }
     }
 
@@ -139,7 +177,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     }
 
     /**
-     * Determines wheter the protocol provider (or the protocol itself) support
+     * Determines whether the protocol provider (or the protocol itself) support
      * sending and receiving offline messages. Most often this method would
      * return true for protocols that support offline messages and false for
      * those that don't. It is however possible for a protocol to support these
@@ -158,7 +196,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     }
     
     /**
-     * Determines wheter the protocol supports the supplied content type
+     * Determines whether the protocol supports the supplied content type
      *
      * @param contentType the type we want to check
      * @return <tt>true</tt> if the protocol supports it and
@@ -228,7 +266,12 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
-
+        
+        sendRequestMessage(mes, to, message);
+    }
+    
+    void sendRequestMessage(Request mes, Contact to, Message message)
+    {
         //Transaction
         ClientTransaction messageTransaction;
         SipProvider jainSipProvider
@@ -289,10 +332,10 @@ public class OperationSetBasicInstantMessagingSipImpl
      * @param to the <tt>Contact</tt> to send <tt>message</tt> to
      * @param message the <tt>Message</tt> to send.
      * @return a Message Request destinated to the contact
-     * @throws OperationFailedException if an error occured during
+     * @throws OperationFailedException if an error occurred during
      * the creation of the request
      */
-    private Request createMessage(Contact to, Message message)
+    Request createMessage(Contact to, Message message)
         throws OperationFailedException
     {
         // Address
@@ -560,7 +603,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -584,7 +627,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Delivers the specified event to all registered message listeners.
      * @param evt the <tt>EventObject</tt> that we'd like delivered to all
-     * registered message listerners.
+     * registered message listeners.
      */
     private void fireMessageEvent(EventObject evt)
     {
@@ -726,6 +769,19 @@ public class OperationSetBasicInstantMessagingSipImpl
          */
         public void processRequest(RequestEvent requestEvent)
         {
+            synchronized (messageProcessors)
+            {
+                Iterator iter = messageProcessors.iterator();
+                while (iter.hasNext())
+                {
+                    SipMessageProcessor listener
+                        = (SipMessageProcessor)iter.next();
+                    
+                    if(!listener.processMessage(requestEvent))
+                        return;
+                }
+            }
+            
             // get the content
             String content = null;
 
@@ -907,7 +963,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                     responseEvent.getSource();
 
                 try
-                {
+                {        
                     processAuthenticationChallenge(clientTransaction,
                         responseEvent.getResponse(),
                         sourceProvider);
