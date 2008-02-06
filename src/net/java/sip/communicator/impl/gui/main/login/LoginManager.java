@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -46,12 +47,6 @@ public class LoginManager
     private MainFrame mainFrame;
 
     private boolean manuallyDisconnected = false;
-
-    private static final String RESOURCE_NAME 
-        = "net.java.sip.communicator.impl.gui.main.login.login";
-
-    private static final ResourceBundle LOGIN_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(RESOURCE_NAME);
 
     /**
      * Creates an instance of the <tt>LoginManager</tt>, by specifying the main
@@ -199,7 +194,7 @@ public class LoginManager
         // we return and when the requested wizard is added in the gui we will
         // directly show it.
         String preferredWizardName
-            = LOGIN_RESOURCE_BUNDLE.getString("preferredAccountWizard");
+            = LoginProperties.getProperty("preferredAccountWizard");
 
         if (preferredWizardName != null && preferredWizardName.length() > 0)
             return;
