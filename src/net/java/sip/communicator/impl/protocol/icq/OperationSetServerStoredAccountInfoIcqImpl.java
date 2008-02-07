@@ -490,6 +490,10 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         if(!newDetailValue.getClass().equals(currentDetailValue.getClass()))
             throw new ClassCastException("New value to be replaced is not as the current one");
 
+        // if values are the same no change 
+        if(currentDetailValue.equals(newDetailValue))
+            return true;
+        
         boolean isFound = false;
         Vector alreadySetDetails = new Vector();
         Iterator iter = infoRetreiver.getDetails(uin, currentDetailValue.getClass());
@@ -503,7 +507,6 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 // most of the multiple details require saving at one time, like Spoken Language
                 // we are placing it at the right place. replacing the old one
                 alreadySetDetails.add(newDetailValue);
-        logger.info("ooooooooooooo found old " + item);
             }
             else
                 alreadySetDetails.add(item);
@@ -571,7 +574,6 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 case 0x0154 : cmd.setNickName(((StringDetail)newDetailValue).getString()); break;
                 case 0x0140 : cmd.setFirstName(((StringDetail)newDetailValue).getString()); break;
                 case 0x014A :
-                    logger.info("ooooo replacing last name " + ((StringDetail)newDetailValue).getString());
                     cmd.setLastName(((StringDetail)newDetailValue).getString()); break;
                 case 0x015E : cmd.setEmail(((StringDetail)newDetailValue).getString(), false); break;
                 case 0x0190 : cmd.setHomeCity(((StringDetail)newDetailValue).getString()); break;
@@ -676,7 +678,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
     /**
      * Waiting for Acknowledge package and success byte.
-     * To set that the operation was succesful
+     * To set that the operation was successful
      */
     private class SuccessResponseListener
         implements SnacRequestListener
