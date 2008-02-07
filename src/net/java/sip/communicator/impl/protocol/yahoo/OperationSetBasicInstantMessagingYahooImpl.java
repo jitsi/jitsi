@@ -469,9 +469,6 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
             // now, we try to fix a wrong usage of the size attribute in the
             // <font> HTML element
-            // TODO : it will good to use a better regex which takes in account
-            // the "<font" opening tag. So, we will not miss an important message
-            // containing the string 'size="x">'...
             // here, the zero 0 correspond to 10px
             formattedMessage =
                     formattedMessage.replaceAll("(<font) (.*) size=\"0\">",
