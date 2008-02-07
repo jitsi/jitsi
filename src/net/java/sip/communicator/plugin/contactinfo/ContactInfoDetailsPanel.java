@@ -192,8 +192,8 @@ public class ContactInfoDetailsPanel
         labelsPanel.add(new JLabel(Resources.getString("middleNameNS")));
         labelsPanel.add(new JLabel(Resources.getString("lastNameNS")));
         labelsPanel.add(new JLabel(Resources.getString("genderNS")));
-        labelsPanel.add(new JLabel(Resources.getString("ageNS")));
         labelsPanel.add(new JLabel(Resources.getString("bdayNS")));
+        labelsPanel.add(new JLabel(Resources.getString("ageNS")));
         labelsPanel.add(new JLabel(Resources.getString("emailNS")));
         labelsPanel.add(new JLabel(Resources.getString("phoneNS")));
 
