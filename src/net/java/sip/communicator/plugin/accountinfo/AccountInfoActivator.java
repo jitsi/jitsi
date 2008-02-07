@@ -44,7 +44,7 @@ public class AccountInfoActivator
         UIService uiService = (UIService) bc.getService(uiServiceRef);
 
         ConfigurationWindow configWindow = uiService.getConfigurationWindow();
-        configWindow.addConfigurationForm(new AccountInfoForm());
+//        configWindow.addConfigurationForm(new AccountInfoForm());
     }
 
     public void stop(BundleContext bc) throws Exception
