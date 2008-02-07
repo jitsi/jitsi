@@ -40,7 +40,7 @@ public class InfoRetreiver
 
     /**
      * As all the Full User Info comes in
-     * sequences of 8 packets acording to the
+     * sequences of 8 packets according to the
      * requestID we keep the stored Info so far.
      */
     private static Hashtable retreivedInfo = new Hashtable();
@@ -132,9 +132,13 @@ public class InfoRetreiver
             icqProvider.getAimConnection().getInfoService().getOscarConnection()
                 .sendSnacRequest(infoRequest, responseRetriever);
 
-            responseRetriever.waitForLastInfo(10000);
+            responseRetriever.waitForLastInfo(60000);
 
             result = responseRetriever.result;
+            
+            if(result == null)
+                result = new LinkedList();
+            
             retreivedDetails.put(uin, result);
         }
         
@@ -160,34 +164,42 @@ public class InfoRetreiver
 
             if (snac instanceof MetaBasicInfoCmd)
             {
+                logger.info("received basic info");
                 readBasicUserInfo((MetaBasicInfoCmd)snac);
             }
             else if (snac instanceof MetaMoreInfoCmd)
             {
+                logger.info("received meta more info");
                 readMoreUserInfo((MetaMoreInfoCmd)snac);
             }
             else if (snac instanceof MetaEmailInfoCmd)
             {
+                logger.info("received email info");
                 readEmailUserInfo((MetaEmailInfoCmd)snac);
             }
             else if (snac instanceof MetaHomepageCategoryInfoCmd)
             {
+                logger.info("received home page info");
                 readHomePageUserInfo((MetaHomepageCategoryInfoCmd)snac);
             }
             else if (snac instanceof MetaWorkInfoCmd)
             {
+                logger.info("received work info");
                 readWorkUserInfo((MetaWorkInfoCmd)snac);
             }
             else if (snac instanceof MetaNotesInfoCmd)
             {
+                logger.info("received notes info");
                 readUserAboutInfo((MetaNotesInfoCmd)snac);
             }
             else if (snac instanceof MetaInterestsInfoCmd)
             {
+                logger.info("received interest info");
                 readInterestsUserInfo((MetaInterestsInfoCmd)snac);
             }
             else if (snac instanceof MetaAffiliationsInfoCmd)
             {
+                logger.info("received affiliations info");
                 readAffilationsUserInfo((MetaAffiliationsInfoCmd)snac);
 
                 result =

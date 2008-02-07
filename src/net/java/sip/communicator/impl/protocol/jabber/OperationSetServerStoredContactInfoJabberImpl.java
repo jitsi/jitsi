@@ -30,6 +30,9 @@ public class OperationSetServerStoredContactInfoJabberImpl
     
     // here is kept all the details retreived so far
     private Hashtable retreivedDetails = new Hashtable();
+    
+    private static final String TAG_FN_OPEN = "<FN>";
+    private static final String TAG_FN_CLOSE = "</FN>";
 
     protected OperationSetServerStoredContactInfoJabberImpl(
         ProtocolProviderServiceJabberImpl provider)
@@ -135,6 +138,10 @@ public class OperationSetServerStoredContactInfoJabberImpl
 
                 String tmp = null;
                 
+                tmp = checkForFullName(card);
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.DisplayNameDetail(tmp));
+                
                 tmp = card.getFirstName();
                 if(tmp != null)
                     result.add(new ServerStoredDetails.FirstNameDetail(tmp));
@@ -150,51 +157,98 @@ public class OperationSetServerStoredContactInfoJabberImpl
                 tmp = card.getNickName();
                 if(tmp != null)
                     result.add(new ServerStoredDetails.NicknameDetail(tmp));
+
+                // Home Details
+                // addrField one of 
+                // POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
+                // LOCALITY, REGION, PCODE, CTRY
+                tmp = card.getAddressFieldHome("STREET");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.AddressDetail(tmp));
                 
-//                addrField one of 
-//                POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, 
-//                EXTADR, STREET, LOCALITY, REGION, PCODE, CTRY
-//                String[] types = new String[]{"POSTAL", "PARCEL", "DOM", "INTL", 
-//                                                "PREF", "POBOX", "EXTADR", 
-//                                                "STREET", "LOCALITY", "REGION", 
-//                                                "PCODE", "CTRY"};
-//                for (String t : types)
-//                {
-//                    System.out.println("getAddressFieldHome(" + t + ") - " + card.getAddressFieldHome(t));
-//                }
+                tmp = card.getAddressFieldHome("LOCALITY");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.CityDetail(tmp));
                 
-                //phoneType one of 
-//                VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
-//                types = new String[]{"VOICE", "FAX", "PAGER", "MSG", "CELL", 
-//                                "VIDEO", "BBS", "MODEM", "ISDN", "PCS", "PREF"};
-//                for (String t : types)
-//                {
-//                    System.out.println("getPhoneHome(" + t + ") - " + card.getPhoneHome(t));
-//                }
+                tmp = card.getAddressFieldHome("REGION");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.ProvinceDetail(tmp));
+                
+                tmp = card.getAddressFieldHome("PCODE");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.PostalCodeDetail(tmp));
+                
+//                tmp = card.getAddressFieldHome("CTRY");
+//                if(tmp != null)
+//                    result.add(new ServerStoredDetails.CountryDetail(tmp);
+                
+                // phoneType one of 
+                //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
+                
+                tmp = card.getPhoneHome("VOICE");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.PhoneNumberDetail(tmp));
+                
+                tmp = card.getPhoneHome("FAX");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.FaxDetail(tmp));
+                
+                tmp = card.getPhoneHome("PAGER");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.PagerDetail(tmp));
+                
+                tmp = card.getPhoneHome("CELL");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.MobilePhoneDetail(tmp));
                 
                 tmp = card.getEmailHome();
                 if(tmp != null)
                     result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
-                
-                    // addrField one of 
-//                    POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
-//                    LOCALITY, REGION, PCODE, CTRY
-//                types = new String[]{"POSTAL", "PARCEL", "DOM", "INTL", "PREF", 
-//                "POBOX", "EXTADR", "STREET", "LOCALITY", "REGION", "PCODE", "CTRY"};
-//                for (String t : types)
-//                {
-//                    System.out.println("getAddressFieldWork(" + t + ") - " + card.getAddressFieldWork(t));
-//                }
-                                
-                // phoneType one of 
-//                VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
-//                types = new String[]{"VOICE", "FAX", "PAGER", "MSG", "CELL", 
-//                        "VIDEO", "BBS", "MODEM", "ISDN", "PCS", "PREF"};
-//                for (String t : types)
-//                {
-//                    System.out.println("getPhoneWork(" + t + ") - " + card.getPhoneWork(t));
-//                }
 
+                // Work Details
+                // addrField one of 
+                // POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
+                // LOCALITY, REGION, PCODE, CTRY
+                tmp = card.getAddressFieldWork("STREET");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.WorkAddressDetail(tmp));
+                
+                tmp = card.getAddressFieldWork("LOCALITY");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.WorkCityDetail(tmp));
+                
+                tmp = card.getAddressFieldWork("REGION");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.WorkProvinceDetail(tmp));
+                
+                tmp = card.getAddressFieldWork("PCODE");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.WorkPostalCodeDetail(tmp));
+                
+//                tmp = card.getAddressFieldWork("CTRY");
+//                if(tmp != null)
+//                    result.add(new ServerStoredDetails.WorkCountryDetail(tmp);
+                
+                // phoneType one of 
+                //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
+                
+                tmp = card.getPhoneWork("VOICE");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.WorkPhoneDetail(tmp));
+                
+                tmp = card.getPhoneWork("FAX");
+                if(tmp != null)
+                    result.add(new WorkFaxDetail(tmp));
+                
+                tmp = card.getPhoneWork("PAGER");
+                if(tmp != null)
+                    result.add(new WorkPagerDetail(tmp));
+                
+                tmp = card.getPhoneWork("CELL");
+                if(tmp != null)
+                    result.add(new ServerStoredDetails.WorkMobilePhoneDetail(tmp));
+
+                    
                 tmp = card.getEmailWork();
                 if(tmp != null)
                     result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
@@ -225,6 +279,24 @@ public class OperationSetServerStoredContactInfoJabberImpl
         return new LinkedList(result);
     }
     
+    private String checkForFullName(VCard card)
+    {
+        String vcardXml = card.toXML();
+        
+        int indexOpen = vcardXml.indexOf(TAG_FN_OPEN);
+        
+        if(indexOpen == -1)
+            return null;
+        
+        int indexClose = vcardXml.indexOf(TAG_FN_CLOSE, indexOpen);
+        
+        // something is wrong!
+        if(indexClose == -1)
+            return null;
+        
+        return vcardXml.substring(indexOpen + TAG_FN_OPEN.length(), indexClose);
+    }
+    
     /**
      * Work department
      */
@@ -234,6 +306,32 @@ public class OperationSetServerStoredContactInfoJabberImpl
         public WorkDepartmentNameDetail(String workDepartmentName)
         {
             super("Work Department Name", workDepartmentName);
+        }
+    }
+    
+    /**
+     * Fax at work
+     */
+    public static class WorkFaxDetail
+        extends ServerStoredDetails.FaxDetail
+    {
+        public WorkFaxDetail(String number)
+        {
+            super(number);
+            super.detailDisplayName = "WorkFax";
+        }
+    }
+    
+    /**
+     * Pager at work
+     */
+    public static class WorkPagerDetail
+        extends ServerStoredDetails.PhoneNumberDetail
+    {
+        public WorkPagerDetail(String number)
+        {
+            super(number);
+            super.detailDisplayName = "WorkPager";
         }
     }
 }

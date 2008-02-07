@@ -472,7 +472,8 @@ public class ProtocolProviderServiceIcqImpl
                 this.infoRetreiver = new InfoRetreiver(this, screenname);
 
                 OperationSetServerStoredContactInfo serverStoredContactInfo =
-                    new OperationSetServerStoredContactInfoIcqImpl(infoRetreiver);
+                    new OperationSetServerStoredContactInfoIcqImpl
+                        (infoRetreiver, this);
 
                 supportedOperationSets.put(
                     OperationSetServerStoredContactInfo.class.getName(),

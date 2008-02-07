@@ -99,6 +99,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      */
     public Iterator getAllAvailableDetails()
     {
+        assertConnected();
+        
         return infoRetreiver.getContactDetails(uin).iterator();
     }
 
@@ -113,6 +115,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      */
     public Iterator getDetails(Class detailClass)
     {
+        assertConnected();
+        
         return infoRetreiver.getDetails(uin, detailClass);
     }
 
@@ -128,6 +132,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      */
     public Iterator getDetailsAndDescendants(Class detailClass)
     {
+        assertConnected();
+        
         return infoRetreiver.getDetailsAndDescendants(uin, detailClass);
     }
 
@@ -169,6 +175,24 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     {
         return supportedTypes.get(detailClass) != null;
     }
+    
+    /**
+     * Utility method throwing an exception if the icq stack is not properly
+     * initialized.
+     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * not registered and initialized.
+     */
+    private void assertConnected() throws IllegalStateException
+    {
+        if (icqProvider == null)
+            throw new IllegalStateException(
+                "The icq provider must be non-null and signed on the ICQ "
+                +"service before being able to communicate.");
+        if (!icqProvider.isRegistered())
+            throw new IllegalStateException(
+                "The icq provider must be signed on the ICQ service before "
+                +"being able to communicate.");
+    }
 
     /**
      * Adds the specified detail to the list of details registered on-line
@@ -194,6 +218,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     public void addDetail(GenericDetail detail) throws IllegalArgumentException,
         OperationFailedException, ArrayIndexOutOfBoundsException
     {
+        assertConnected();
+        
         if(!isDetailClassSupported(detail.getClass()))
             throw new IllegalArgumentException(
                 "implementation does not support such details " +
@@ -335,6 +361,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     public boolean removeDetail(GenericDetail detail) throws
         OperationFailedException
     {
+        assertConnected();
+        
         // as there is no remove method for the details we will
         // set it with empty or default value
 
@@ -457,6 +485,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                                  GenericDetail newDetailValue) throws
         ClassCastException, OperationFailedException
     {
+        assertConnected();
+        
         if(!newDetailValue.getClass().equals(currentDetailValue.getClass()))
             throw new ClassCastException("New value to be replaced is not as the current one");
 
