@@ -564,7 +564,7 @@ public class ServerStoredDetails
         public static final GenderDetail MALE = new GenderDetail("Male");
         public static final GenderDetail FEMALE = new GenderDetail("Female");
 
-        private GenderDetail(String gender)
+        public GenderDetail(String gender)
         {
             super("Gender",  gender);
         }
