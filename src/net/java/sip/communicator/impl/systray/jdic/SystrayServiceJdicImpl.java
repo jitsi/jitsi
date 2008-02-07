@@ -323,6 +323,9 @@ public class SystrayServiceJdicImpl
         else if (messageType == SystrayService.WARNING_MESSAGE_TYPE)
             trayMsgType = TrayIcon.WARNING_MESSAGE_TYPE;
 
+        // remove eventual html code before showing the popup message
+        messageContent = messageContent.replaceAll("</?\\w++[^>]*+>", "");
+
         if(messageContent.length() > 40)
             messageContent = messageContent.substring(0, 40).concat("...");
 

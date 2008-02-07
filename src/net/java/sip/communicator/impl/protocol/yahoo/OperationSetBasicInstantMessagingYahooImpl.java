@@ -453,73 +453,38 @@ public class OperationSetBasicInstantMessagingYahooImpl
             //String formattedMessage = processLinks(
             //        messageDecoder.decodeToText(ev.getMessage()));
 
-            // original yahoo client uses an ugly mix of magic code and html
-            // to format decorated messages, leading to malformed and sometimes
-            // unreadable messages in SC. The jYMSG lib handles a part
-            // of the problem. We try to fix remaining wrong
-            // use of the "size" attribute, in the html <font> element
-            String formattedMessage = processLinks(
-                    messageDecoder.decodeToHTML(ev.getMessage()));
+            String formattedMessage = ev.getMessage();
+            logger.debug("original message received : " + formattedMessage);
 
-            // this workaround is intended for jYMSG lib 0.6. If the lib is
-            // updated or the yahoo miss usage is fixed it could not
-            // works anymore. the following code replaces any "size" attribute
-            // in font element by an appropriate CSS rule. it does nothing
-            // if the jYMSG lib omitted the size information
-            Pattern p1 = Pattern.compile("<font.*>",
-                                    Pattern.CASE_INSENSITIVE);
-            Matcher m1 = p1.matcher(new String(formattedMessage));
-            StringBuilder goodFormat = new StringBuilder(formattedMessage);
-            int fontsize;
-            while (m1.find())
+            // if the message is decorated by Yahoo, we try to "decode" it first.
+            if (formattedMessage.startsWith("\u001b"))
             {
-                String yfont = m1.group();
-                Pattern p2 = Pattern.compile("size=\".*\"",
-                                    Pattern.CASE_INSENSITIVE);
-                Matcher m2 = p2.matcher(yfont);
-                String replace = null;
-                if (m2.find())
-                {
-                    // 16px is the default html fontsize...
-                    fontsize = 16;
-                    String str = m2.group();
-                    int open = str.indexOf('"');
-                    int clos = str.indexOf('"', open + 1);
-                    int yfontsize;
-                    try 
-                    {
-                        yfontsize = Integer.parseInt(str.substring(open + 1, clos));
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.debug(ex);
-                        yfontsize = 0;
-                    }
-                    if (yfontsize != 0)
-                    {
-                        fontsize = (int) (yfontsize * 16.0 / 10.0);
-                    }
-                    replace = m2.replaceFirst(
-                            "style=\"font-size:" + fontsize + "px\"");
-                }
-                if (replace != null)
-                {
-                    goodFormat.replace(m1.start(), m1.end(), replace);
-                    m1 = p1.matcher(new String(goodFormat));
-                }
+                formattedMessage = processLinks(
+                        messageDecoder.decodeToHTML(formattedMessage));
             }
-            if (ev.getMessage().contains("<font"))
+            else
             {
-                // to see the difference :
-                logger.debug("original message: " + ev.getMessage());
-                logger.debug("jYMSG decoded message: " + formattedMessage);
-                logger.debug("final message: " + goodFormat);
+                formattedMessage = processLinks(formattedMessage);
             }
-            
+
+            // now, we try to fix a wrong usage of the size attribute in the
+            // <font> HTML element
+            // TODO : it will good to use a better regex which takes in account
+            // the "<font" opening tag. So, we will not miss an important message
+            // containing the string 'size="x">'...
+            // here, the zero 0 correspond to 10px
+            formattedMessage =
+                    formattedMessage.replaceAll("(<font) (.*) size=\"0\">",
+                    "$1 $2 size=\"10\">");
+            formattedMessage = 
+                    formattedMessage.replaceAll("(<font) (.*) size=\"(\\d+)\">",
+                    "$1 $2 style=\"font-size: $3px;\">");
+
+            logger.debug("formatted Message : " + formattedMessage);
             //As no indications in the protocol is it html or not. No harm
             //to set all messages html - doesn't affect the appearance of the gui
             Message newMessage = createMessage(
-                goodFormat.toString().getBytes(),
+                formattedMessage.getBytes(),
                 CONTENT_TYPE_HTML,
                 DEFAULT_MIME_ENCODING,
                 null);
