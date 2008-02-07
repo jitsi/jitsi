@@ -605,7 +605,8 @@
         bundle-irc,bundle-plugin-ircaccregwizz,
         bundle-pluginmanager,bundle-notification,
         bundle-ssh,bundle-plugin-sshaccregwizz,
-        bundle-contacteventhandler,bundle-plugin-contactinfo"/>
+        bundle-contacteventhandler,bundle-plugin-contactinfo,
+        bundle-plugin-accountinfo"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1531,11 +1532,13 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-PLUGIN-ACCOUNTINFO -->
-    <!--target name="bundle-plugin-accountinfo">
+    <target name="bundle-plugin-accountinfo">
         <jar compress="false" destfile="${bundles.dest}/accountinfo.jar"
             manifest="${src}/net/java/sip/communicator/plugin/accountinfo/accountinfo.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/accountinfo"
                 prefix="net/java/sip/communicator/plugin/accountinfo"/>
+            <zipfileset dir="${resources}/images/plugin/accountinfo"
+                prefix="resources/images/plugin/accountinfo"/>
         </jar>
-    </target-->
+    </target>
 </project>
