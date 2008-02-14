@@ -221,4 +221,13 @@ public class ConfigurationFrame
     {
         this.toFront();
     }
+    
+    /**
+     * The source of the window
+     * @return the source of the window
+     */
+    public Object getSource()
+    {
+        return this;
+    }
 }

@@ -239,5 +239,13 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
     }
-
+    
+    /**
+     * The source of the window
+     * @return the source of the window
+     */
+    public Object getSource()
+    {
+        return this;
+    }
 }

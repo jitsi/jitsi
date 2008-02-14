@@ -606,7 +606,7 @@
         bundle-pluginmanager,bundle-notification,
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
-        bundle-plugin-accountinfo"/>
+        bundle-plugin-accountinfo,bundle-plugin-chatalerter"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1528,6 +1528,17 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/contactinfo/contactinfo.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/contactinfo"
                 prefix="net/java/sip/communicator/plugin/contactinfo"/>
+        </jar>
+    </target>
+    
+    <!-- BUNDLE-PLUGIN-CHATALERTER -->
+    <target name="bundle-plugin-chatalerter">
+        <!-- Creates a bundle for the plugin Chat Alerter.-->
+        <jar compress="false" destfile="${bundles.dest}/chatalerter.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/chatalerter/chatalerter.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/chatalerter"
+                prefix="net/java/sip/communicator/plugin/chatalerter"/>
+            <zipfileset src="${lib.noinst}/jdic_misc.jar" prefix=""/>
         </jar>
     </target>
 

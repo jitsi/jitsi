@@ -254,4 +254,13 @@ public class PopupDialogImpl
     public void maximize()
     {   
     }
+
+    /**
+     * The source of the window
+     * @return the source of the window
+     */
+    public Object getSource()
+    {
+        return this;
+    }
 }

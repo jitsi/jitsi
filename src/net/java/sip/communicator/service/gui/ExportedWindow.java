@@ -92,4 +92,10 @@ public interface ExportedWindow
      * Maximizes the window.
      */
     public void maximize();
+    
+    /**
+     * The source of the window
+     * @return the source of the window
+     */
+    public Object getSource();
 }
