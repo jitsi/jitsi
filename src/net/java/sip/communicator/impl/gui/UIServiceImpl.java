@@ -787,8 +787,8 @@ public class UIServiceImpl
     /**
      * Sets the look&feel and the theme.
      */
-    private void setDefaultThemePack() {
-
+    private void setDefaultThemePack()
+    {
         SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
         SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
 

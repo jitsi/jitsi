@@ -33,7 +33,7 @@ public class DialPanel
                 MouseListener
 {
     private Logger logger = Logger.getLogger(DialPanel.class);
-    
+
     private JComboBox phoneNumberCombo;
 
     private DialButton oneButton = new DialButton(
@@ -72,10 +72,14 @@ public class DialPanel
     private DialButton diezButton = new DialButton(
         ImageLoader.getImage(ImageLoader.DIEZ_DIAL_BUTTON));
 
-    private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
+    private int hgap = SizeProperties.getSize("dialPadHorizontalGap");
+
+    private int vgap = SizeProperties.getSize("dialPadVerticalGap");
+
+    private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, hgap, vgap));
 
     private CallManager callManager;
-    
+
     private CallParticipant callParticipant;
 
     /**
@@ -86,14 +90,17 @@ public class DialPanel
         super(new FlowLayout(FlowLayout.CENTER));
 
         this.callManager = callManager;
-        
+
         this.dialPadPanel.setOpaque(false);
 
         this.phoneNumberCombo = callManager.getCallComboBox();
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        this.dialPadPanel.setPreferredSize(new Dimension(150, 150));
+        int width = SizeProperties.getSize("dialPadWidth");
+        int height = SizeProperties.getSize("dialPadHeight");
+
+        this.dialPadPanel.setPreferredSize(new Dimension(width, height));
 
         this.init();
     }
@@ -342,51 +349,51 @@ public class DialPanel
 
         if (buttonName.equals("one"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_ONE).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_ONE).play();
         }
         else if (buttonName.equals("two"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_TWO).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_TWO).play();
         }
         else if (buttonName.equals("three"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_THREE).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_THREE).play();
         }
         else if (buttonName.equals("four"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_FOUR).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_FOUR).play();
         }
         else if (buttonName.equals("five"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_FIVE).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_FIVE).play();
         }
         else if (buttonName.equals("six"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_SIX).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_SIX).play();
         }
         else if (buttonName.equals("seven"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_SEVEN).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_SEVEN).play();
         }
         else if (buttonName.equals("eight"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_EIGHT).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_EIGHT).play();
         }
         else if (buttonName.equals("nine"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_NINE).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_NINE).play();
         }
         else if (buttonName.equals("zero"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_ZERO).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_ZERO).play();
         }
         else if (buttonName.equals("diez"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_DIEZ).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_DIEZ).play();
         }
         else if (buttonName.equals("star"))
         {
-            audioNotifier.createAudio(Sounds.DIAL_STAR).play();
+            audioNotifier.createAudio(SoundProperties.DIAL_STAR).play();
         }
     }
 
@@ -414,7 +421,7 @@ public class DialPanel
         super.paintComponent(g);
 
         g.setColor(new Color(
-            ColorResources.getColor("contactListBackground")));
+            ColorProperties.getColor("contactListBackground")));
 
         // paint the background with the chosen color
         g.fillRect(0, 0, getWidth(), getHeight());

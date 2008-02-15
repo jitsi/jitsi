@@ -7,16 +7,21 @@
 
 package net.java.sip.communicator.impl.gui.main.menus;
 
-import java.util.*;
+import java.awt.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.presence.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
- * The main menu.
+ * The main menu bar. This is the menu bar that appears on top of the main
+ * window. It contains a file menu, tools menu, view menu and help menu.
+ * <p>
+ * Note that this container allows also specifying a custom background by
+ * modifying the menuBackgroundImage.png in the resources/images/impl/gui/common
+ * folder.
  * 
  * @author Yana Stamcheva
  */
@@ -48,7 +53,7 @@ public class MainMenu
         this.toolsMenu = new ToolsMenu(mainFrame);
         this.viewMenu = new ViewMenu(mainFrame);
         this.helpMenu = new HelpMenu(mainFrame);
-        
+
         this.init();
     }
 
@@ -80,7 +85,11 @@ public class MainMenu
     }
     
     /**
-     * Returns TRUE if there are selected menus, otherwise returns false.
+     * Returns <code>true</code> if there are selected menus, otherwise - 
+     * returns <code>false</code>.
+     * 
+     * @return <code>true</code> if there are selected menus, otherwise - 
+     * returns <code>false</code>.
      */
     public boolean hasSelectedMenus()
     {
@@ -96,8 +105,28 @@ public class MainMenu
         return false;
     }
 
+    /**
+     * Returns the <tt>ViewMenu</tt>, contained in this menu bar.
+     * 
+     * @return the <tt>ViewMenu</tt>, contained in this menu bar.
+     */
     public ViewMenu getViewMenu()
     {
         return viewMenu;
+    }
+
+    /**
+     * Paints the MENU_BACKGROUND image on the background of this container.
+     * 
+     * @param g the Graphics object that does the painting
+     */
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+
+        Image backgroundImage
+            = ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
+
+        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
     }
 }

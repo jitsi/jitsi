@@ -128,59 +128,11 @@ public class Constants
      */
     public static final String HISTORY_OUTGOING_MESSAGE = "HistoryOutgoingMessage";
 
-    /*
-     * ===================================================================
-     * ------------------------ SIZE CONSTANTS ---------------------------
-     * ===================================================================
-     */
-
-    /**
-     * The minimum height of the main application window.
-     */
-    public static final int MAINFRAME_MIN_HEIGHT = 200;
-
-    /**
-     * The minimum width of the main application window.
-     */
-    public static final int MAINFRAME_MIN_WIDTH = 80;
-
-    /**
-     * The size of the gradient used for painting the selected background of
-     * some components.
-     */
-    public static final int SELECTED_GRADIENT_SIZE = 5;
-
-    /**
-     * The size of the gradient used for painting the background of some
-     * components.
-     */
-    public static final int GRADIENT_SIZE = 10;
-
-    /**
-     * The height of the <tt>HistoryWindow</tt>.
-     */
-    public static final int HISTORY_WINDOW_HEIGHT = 450;
-
-    /**
-     * The width of the <tt>HistoryWindow</tt>.
-     */
-    public static final int HISTORY_WINDOW_WIDTH = 450;
-
     /**
      * The size of the buffer that indicates how many messages will be stored
      * in the conversation area in the chat window.
      */
     public static final int CHAT_BUFFER_SIZE = 3000;
-
-    /**
-     * The maximum width of the <tt>ConfigurationFrame</tt>.
-     */
-    public static final int CONFIG_FRAME_MAX_WIDTH = 800;
-
-    /**
-     * The maximum height of the <tt>ConfigurationFrame</tt>.
-     */
-    public static final int CONFIG_FRAME_MAX_HEIGHT = 600;
 
     /*
      * ======================================================================
@@ -192,48 +144,48 @@ public class Constants
      * record.
      */
     public static final Color HISTORY_IN_CALL_COLOR
-        = new Color(ColorResources.getColor("historyIncomingCallBackground"));
+        = new Color(ColorProperties.getColor("historyIncomingCallBackground"));
 
     /**
      * The color used to paint the background of an outgoing call history
      * record.
      */
     public static final Color HISTORY_OUT_CALL_COLOR
-        = new Color(ColorResources.getColor("historyOutgoingCallBackground"));
+        = new Color(ColorProperties.getColor("historyOutgoingCallBackground"));
 
     /**
      * The end color used to paint a gradient selected background of some
      * components.
      */
     public static final Color SELECTED_COLOR
-        = new Color(ColorResources.getColor("listSelectionColor"));
+        = new Color(ColorProperties.getColor("listSelectionColor"));
 
     /**
      * The start color used to paint a gradient mouse over background of some
      * components.
      */
     public static final Color GRADIENT_DARK_COLOR
-        = new Color(ColorResources.getColor("gradientDarkColor"));
+        = new Color(ColorProperties.getColor("gradientDarkColor"));
 
     /**
      * The end color used to paint a gradient mouse over background of some
      * components.
      */
     public static final Color GRADIENT_LIGHT_COLOR
-        = new Color(ColorResources.getColor("gradientLightColor"));
+        = new Color(ColorProperties.getColor("gradientLightColor"));
 
     /**
      * A color between blue and gray used to paint some borders.
      */
     public static final Color BORDER_COLOR
-        = new Color(ColorResources.getColor("borderColor"));
+        = new Color(ColorProperties.getColor("borderColor"));
 
     /**
      * A color between blue and gray (darker than the other one), used to paint
      * some borders.
      */
     public static final Color LIST_SELECTION_BORDER_COLOR
-        = new Color(ColorResources.getColor("listSelectionBorderColor"));
+        = new Color(ColorProperties.getColor("listSelectionBorderColor"));
 
     /*
      * ======================================================================

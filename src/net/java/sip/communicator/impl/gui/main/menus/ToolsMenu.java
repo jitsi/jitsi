@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
@@ -49,7 +50,10 @@ public class ToolsMenu
     public ToolsMenu(MainFrame parentWindow) {
 
         super(Messages.getI18NString("tools").getText());
-        
+
+        this.setForeground(
+            new Color(ColorProperties.getColor("toolsMenuForeground")));
+
         this.parentWindow = parentWindow;
 
         this.add(configMenuItem);

@@ -24,6 +24,12 @@ public class TitlePanel extends JPanel {
     private JLabel titleLabel = new JLabel();
 
     /**
+     * The size of the gradient used for painting the background of some
+     * components.
+     */
+    private static final int GRADIENT_SIZE = 10;
+
+    /**
      * Creates an instance of <tt>TitlePanel</tt>.
      */
     public TitlePanel() {
@@ -63,26 +69,24 @@ public class TitlePanel extends JPanel {
 
         GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
                 Constants.GRADIENT_DARK_COLOR, this.getWidth() / 2,
-                Constants.GRADIENT_SIZE,
+                GRADIENT_SIZE,
                 Constants.GRADIENT_LIGHT_COLOR);
 
         GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
                 .getHeight()
-                - Constants.GRADIENT_SIZE,
+                - GRADIENT_SIZE,
                 Constants.GRADIENT_LIGHT_COLOR, this.getWidth() / 2,
                 this.getHeight(), Constants.GRADIENT_DARK_COLOR);
 
         g2.setPaint(p);
-        g2
-                .fillRect(0, 0, this.getWidth(),
-                        Constants.GRADIENT_SIZE);
+        g2.fillRect(0, 0, this.getWidth(), GRADIENT_SIZE);
 
         g2.setColor(Constants.GRADIENT_LIGHT_COLOR);
-        g2.fillRect(0, Constants.GRADIENT_SIZE, this.getWidth(),
-                this.getHeight() - Constants.GRADIENT_SIZE);
+        g2.fillRect(0, GRADIENT_SIZE, this.getWidth(),
+                this.getHeight() - GRADIENT_SIZE);
 
         g2.setPaint(p1);
-        g2.fillRect(0, this.getHeight() - Constants.GRADIENT_SIZE
+        g2.fillRect(0, this.getHeight() - GRADIENT_SIZE
                 - 1, this.getWidth(), this.getHeight() - 1);
 
         g2.setColor(Constants.BORDER_COLOR);

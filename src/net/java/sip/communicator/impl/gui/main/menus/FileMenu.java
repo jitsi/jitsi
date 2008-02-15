@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.menus;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -86,6 +87,9 @@ public class FileMenu
     public FileMenu(MainFrame parentWindow) {
 
         super(Messages.getI18NString("file").getText());
+
+        this.setForeground(
+            new Color(ColorProperties.getColor("fileMenuForeground")));
 
         this.parentWindow = parentWindow;
 

@@ -64,7 +64,11 @@ public class QuickMenu
     private JButton soundButton = new JButton(
         new ImageIcon(ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
 
-    private static int BUTTON_SIZE = 28;
+    private static int BUTTON_HEIGHT
+        = SizeProperties.getSize("mainToolbarButtonHeight");
+
+    private static int BUTTON_WIDTH
+        = SizeProperties.getSize("mainToolbarButtonWidth");
 
     private ConfigurationWindow configDialog;
 
@@ -83,19 +87,23 @@ public class QuickMenu
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 
+        System.out.println("BUTTON WIDTH===========" + BUTTON_WIDTH);
+        System.out.println("BUTTON HEIGHT===========" + BUTTON_HEIGHT);
+        this.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
         this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
         this.setFloatable(true);
 
         this.infoButton.setPreferredSize(
-            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         this.configureButton.setPreferredSize(
-            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         this.searchButton.setPreferredSize(
-            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         this.addButton.setPreferredSize(
-            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         this.soundButton.setPreferredSize(
-            new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+            new Dimension(BUTTON_HEIGHT, BUTTON_HEIGHT));
 
         this.infoButton.setToolTipText(
             Messages.getI18NString("userInfo").getText());
@@ -370,7 +378,7 @@ public class QuickMenu
         }
         
         this.setPreferredSize(
-            new Dimension(this.getWidth(), biggestY + BUTTON_SIZE));
+            new Dimension(this.getWidth(), biggestY + BUTTON_HEIGHT));
         
         ((JPanel)this.getParent()).revalidate();
         ((JPanel)this.getParent()).repaint();
@@ -411,7 +419,7 @@ public class QuickMenu
                         .setCurrentContactGroup(
                             (MetaContactGroup)selectedValue);
                 }
-            }            
+            }
         }
     }
 

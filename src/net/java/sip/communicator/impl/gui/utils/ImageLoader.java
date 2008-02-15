@@ -575,6 +575,24 @@ public class ImageLoader {
     public static final ImageID SEND_SMS_ICON
         = new ImageID("SEND_SMS_ICON");
 
+    /**
+     * Tool bar background image.
+     */
+    public static final ImageID TOOL_BAR_BACKGROUND
+        = new ImageID("TOOL_BAR_BACKGROUND");
+
+    /**
+     * Main menu background image.
+     */
+    public static final ImageID MENU_BACKGROUND
+        = new ImageID("MENU_BACKGROUND");
+
+    /**
+     * Title bar background image.
+     */
+    public static final ImageID WINDOW_TITLE_BAR
+        = new ImageID("WINDOW_TITLE_BAR");
+
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**

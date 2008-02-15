@@ -66,7 +66,7 @@ public class MainFrame
 
     private MainTabbedPane tabbedPane;
 
-    private QuickMenu quickMenu;
+    private JComponent quickMenu;
 
     private LinkedHashMap protocolProviders = new LinkedHashMap();
 
@@ -96,13 +96,24 @@ public class MainFrame
         multiUserChatManager = new MultiUserChatManager(this);
 
         tabbedPane = new MainTabbedPane(this);
-        quickMenu = new QuickMenu(this);
+
+        boolean isToolBarExtended
+            = new Boolean(ApplicationProperties
+                    .getProperty("isToolBarExteneded")).booleanValue();
+
+        if (isToolBarExtended)
+            quickMenu = new ExtendedQuickMenu(this);
+        else
+            quickMenu = new QuickMenu(this);
+
         statusPanel = new StatusPanel(this);
         menu = new MainMenu(this);
 
         this.addWindowListener(new MainFrameWindowAdapter());
 
-        this.setInitialBounds();
+        this.initBounds();
+
+        this.initTitleFont();
 
         this.setTitle(ApplicationProperties.getProperty("applicationName"));
 
@@ -123,29 +134,55 @@ public class MainFrame
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
             KeyEvent.ALT_DOWN_MASK), new BackwordTabAction());
 
-        this.setJMenuBar(menu);
-        
         this.contactListPanel.add(tabbedPane, BorderLayout.CENTER);
         this.contactListPanel.add(callManager, BorderLayout.SOUTH);
-        
+
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+
         this.mainPanel.add(quickMenu, BorderLayout.NORTH);
         this.mainPanel.add(contactListPanel, BorderLayout.CENTER);
         this.mainPanel.add(statusPanel, BorderLayout.SOUTH);
 
-        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+        JPanel allPanel = new JPanel(new BorderLayout());
+
+        allPanel.add(menu, BorderLayout.NORTH);
+        allPanel.add(mainPanel, BorderLayout.CENTER);
+
+        this.getContentPane().add(allPanel, BorderLayout.CENTER);
+        this.getContentPane().add(new LogoBar(), BorderLayout.NORTH);
     }
     
     /**
      * Sets frame size and position.
      */
-    private void setInitialBounds()
+    private void initBounds()
     {
-        this.setSize(200, 450);
-        this.contactListPanel.setPreferredSize(new Dimension(300, 600));
-        this.contactListPanel.setMinimumSize(new Dimension(80, 200));
+        int width = SizeProperties.getSize("mainWindowWidth");
+        int height = SizeProperties.getSize("mainWindowHeight");
+
+        this.setSize(width, height);
 
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
                 - this.getWidth(), 50);
+    }
+
+    /**
+     * Initialize main window font.
+     */
+    private void initTitleFont()
+    {
+        JComponent layeredPane = this.getLayeredPane();
+
+        Font font = new Font(
+            ApplicationProperties.getProperty("fontName"),
+            Font.BOLD,
+            new Integer(ApplicationProperties.getProperty("titleFontSize"))
+                .intValue());
+
+        for (int i = 0; i < layeredPane.getComponentCount(); i++)
+        {
+            layeredPane.getComponent(i).setFont(font);
+        }
     }
 
     /**
@@ -530,15 +567,6 @@ public class MainFrame
     public CallManager getCallManager()
     {
         return callManager;
-    }
-
-    /**
-     * Returns the quick menu, placed above the main tabbed pane.
-     * @return QuickMenu The quick menu, placed above the main tabbed pane.
-     */
-    public QuickMenu getQuickMenu()
-    {
-        return quickMenu;
     }
 
     /**
@@ -1298,6 +1326,46 @@ public class MainFrame
             || containerID.equals(UIService.CONTAINER_CONTACT_LIST_WEST))
         {
             this.getContentPane().remove(c);
+        }
+    }
+
+    /**
+     * The logo bar is positioned on the top of the window and is meant to
+     * contain the application logo.
+     */
+    private class LogoBar
+        extends JPanel
+    {
+        /**
+         * Creates the logo bar and specify the size.
+         */
+        public LogoBar()
+        {
+            int width = SizeProperties.getSize("logoBarWidth");
+            int height = SizeProperties.getSize("logoBarHeight");
+
+            this.setMinimumSize(new Dimension(width, height));
+            this.setPreferredSize(new Dimension(width, height));
+        }
+
+        /**
+         * Paints the logo bar.
+         * 
+         * @param g the <tt>Graphics</tt> object used to paint the background
+         * image of this logo bar.
+         */
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+
+            Image backgroundImage
+                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+
+            g.setColor(new Color(
+                ColorProperties.getColor("logoBarBackground")));
+
+            g.fillRect(0, 0, this.getWidth(), this.getHeight());
+            g.drawImage(backgroundImage, 0, 0, null);
         }
     }
 }

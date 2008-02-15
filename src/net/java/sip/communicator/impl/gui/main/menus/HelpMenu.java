@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 
@@ -39,12 +40,14 @@ public class HelpMenu
      */
     public HelpMenu(MainFrame mainFrame)
     {
-
         super(Messages.getI18NString("help").getText());
 
         this.mainFrame = mainFrame;
 
         this.setMnemonic(Messages.getI18NString("help").getMnemonic());
+
+        this.setForeground(
+            new Color(ColorProperties.getColor("helpMenuForeground")));
 
         this.initPluginComponents();
     }

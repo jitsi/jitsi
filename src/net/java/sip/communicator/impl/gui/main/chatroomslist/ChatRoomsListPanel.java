@@ -136,7 +136,7 @@ public class ChatRoomsListPanel
             super.paintComponent(g);
 
             g.setColor(new Color(
-                ColorResources.getColor("contactListBackground")));
+                ColorProperties.getColor("contactListBackground")));
 
             // paint the background with the choosen color
             g.fillRect(0, 0, getWidth(), getHeight());

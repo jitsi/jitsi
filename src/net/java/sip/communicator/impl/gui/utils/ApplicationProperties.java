@@ -20,7 +20,7 @@ public class ApplicationProperties
     /**
      * Logger for this class.
      */
-    private static Logger log = Logger.getLogger(ColorResources.class);
+    private static Logger log = Logger.getLogger(ApplicationProperties.class);
 
     /**
      * Name of the bundle where we will search for color resources.

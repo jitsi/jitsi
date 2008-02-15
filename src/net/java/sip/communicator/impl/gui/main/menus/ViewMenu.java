@@ -52,7 +52,10 @@ public class ViewMenu
     public ViewMenu(MainFrame mainFrame) {
 
         super(Messages.getI18NString("view").getText());
-        
+
+        this.setForeground(
+            new Color(ColorProperties.getColor("viewMenuForeground")));
+
         this.mainFrame = mainFrame;
 
         this.hideCallPanelItem.setSelected(
