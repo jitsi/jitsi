@@ -29,7 +29,7 @@ public class SIPCommDefaultTheme
      * thumb shadow, tabbed pane focus, toolbar docking foreground
      */
     private static final ColorUIResource PRIMARY_CONTROL_DARK_SHADOW =
-        new ColorUIResource(ColorResources.getColor("primaryControlDarkShadow"));
+        new ColorUIResource(ColorProperties.getColor("primaryControlDarkShadow"));
 
     /**
      * Used for desktop color, menu selected background, focus color, slider
@@ -37,17 +37,17 @@ public class SIPCommDefaultTheme
      * scroll bar thumb
      */
     private static final ColorUIResource PRIMARY_CONTROL_SHADOW =
-        new ColorUIResource(ColorResources.getColor("primaryControlShadow"));
+        new ColorUIResource(ColorProperties.getColor("primaryControlShadow"));
 
     /**
      * Used for progress bar border, tooltip border inactive, tooltip foreground
      * inactive, scroll bar dark shadow.
      */
     private static final ColorUIResource CONTROL_DARK_SHADOW =
-        new ColorUIResource(ColorResources.getColor("controlDarkShadow"));
+        new ColorUIResource(ColorProperties.getColor("controlDarkShadow"));
 
     private static final ColorUIResource CONTROL_SHADOW =
-        new ColorUIResource(ColorResources.getColor("controlShadow"));
+        new ColorUIResource(ColorProperties.getColor("controlShadow"));
 
     /**
      * Used for window title inactive background, menu background, tooltip
@@ -55,7 +55,7 @@ public class SIPCommDefaultTheme
      * scroll bar background, tabbed pane tab area background.
      */
     private static final ColorUIResource CONTROL_COLOR =
-        new ColorUIResource(ColorResources.getColor("controlColor"));
+        new ColorUIResource(ColorProperties.getColor("controlColor"));
 
     /**
      * Used for text hightlight color, window title background, scroll bar thumb
@@ -63,64 +63,64 @@ public class SIPCommDefaultTheme
      * ToolBar.floatingForeground
      */
     private static final ColorUIResource PRIMARY_CONTROL_COLOR
-        = new ColorUIResource(ColorResources.getColor("primaryControlColor"));
+        = new ColorUIResource(ColorProperties.getColor("primaryControlColor"));
 
     // Used to paint a gradient for a check box or a radio button.
     private static final ColorUIResource BUTTON_GRADIENT_DARK_COLOR
-        = new ColorUIResource(ColorResources.getColor("buttonGradientDark"));
+        = new ColorUIResource(ColorProperties.getColor("buttonGradientDark"));
 
     private static final ColorUIResource BUTTON_GRADIENT_LIGHT_COLOR
-        = new ColorUIResource(ColorResources.getColor("buttonGradientLight"));
+        = new ColorUIResource(ColorProperties.getColor("buttonGradientLight"));
 
     private static final ColorUIResource SLIDER_GRADIENT_DARK_COLOR
-        = new ColorUIResource(ColorResources.getColor("sliderGradientDark"));
+        = new ColorUIResource(ColorProperties.getColor("sliderGradientDark"));
 
     private static final ColorUIResource SLIDER_GRADIENT_LIGHT_COLOR
-        = new ColorUIResource(ColorResources.getColor("sliderGradientLight"));
+        = new ColorUIResource(ColorProperties.getColor("sliderGradientLight"));
 
     private static final ColorUIResource SELECTION_FOREGROUND
-        = new ColorUIResource(ColorResources.getColor("selectionForeground"));
+        = new ColorUIResource(ColorProperties.getColor("selectionForeground"));
 
     private static final ColorUIResource SELECTION_BACKGROUND
-        = new ColorUIResource(ColorResources.getColor("selectionBackground"));
+        = new ColorUIResource(ColorProperties.getColor("selectionBackground"));
 
     private static final ColorUIResource SPLIT_PANE_DEVIDER_FOCUS_COLOR
-        = new ColorUIResource(ColorResources
+        = new ColorUIResource(ColorProperties
             .getColor("splitPaneDeviderFocused"));
 
     private static final ColorUIResource TABBED_PANE_HIGHLIGHT_COLOR
-        = new ColorUIResource(ColorResources
+        = new ColorUIResource(ColorProperties
             .getColor("tabbedPaneBorderHighlight"));
 
     private static final ColorUIResource TABLE_GRID_COLOR
-        = new ColorUIResource(ColorResources.getColor("tableGrid"));
+        = new ColorUIResource(ColorProperties.getColor("tableGrid"));
 
     private static final ColorUIResource SCROLL_BAR_TRACK_HIGHLIGHT
-        = new ColorUIResource(ColorResources
+        = new ColorUIResource(ColorProperties
             .getColor("scrollBarTrackHighlight"));
 
     private static final ColorUIResource SCROLL_BAR_DARK_SHADOW
-        = new ColorUIResource(ColorResources.getColor("scrollBarDarkShadow"));
+        = new ColorUIResource(ColorProperties.getColor("scrollBarDarkShadow"));
 
     private static final ColorUIResource DESKTOP_BACKGROUND_COLOR
-        = new ColorUIResource(ColorResources.getColor("desktopBackgroundColor"));
+        = new ColorUIResource(ColorProperties.getColor("desktopBackgroundColor"));
 
     private static final ColorUIResource CONTROL_TEXT_COLOR
-        = new ColorUIResource(ColorResources.getColor("textColor"));
+        = new ColorUIResource(ColorProperties.getColor("textColor"));
 
     private static final ColorUIResource INACTIVE_CONTROL_TEXT_COLOR
-        = new ColorUIResource(ColorResources.getColor("inactiveTextColor"));
+        = new ColorUIResource(ColorProperties.getColor("inactiveTextColor"));
 
     private static final ColorUIResource MENU_DISABLED_FOREGROUND
-        = new ColorUIResource(ColorResources
+        = new ColorUIResource(ColorProperties
             .getColor("menuDisabledForeground"));
 
     private static final ColorUIResource TAB_TITLE_HIGHLIGHT
-        = new ColorUIResource(ColorResources
+        = new ColorUIResource(ColorProperties
             .getColor("tabTitleHighlight"));
 
     private static final ColorUIResource TAB_TITLE
-        = new ColorUIResource(ColorResources
+        = new ColorUIResource(ColorProperties
             .getColor("tabTitle"));
 
     private static final FontUIResource BASIC_FONT
