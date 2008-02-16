@@ -1095,6 +1095,10 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources"/>
             <zipfileset dir="${resources}" includes="login.properties"
                 prefix="resources"/>
+            <zipfileset dir="${resources}" includes="lookandfeel.properties"
+                prefix="resources"/>
+            <zipfileset dir="${resources}/size" includes="size.properties"
+                prefix="resources/size"/>
         </jar>
     </target>
 
