@@ -42,6 +42,11 @@ public class ContactListModel
 
     private Vector closedGroups = new Vector();
 
+    private Image msgReceivedImage
+        = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
+
+    ImageIcon statusIcon = new ImageIcon();
+
     /**
      * A list of all contacts that are currently "active". An "active" contact
      * is a contact that has been sent a message. The list is used to indicate
@@ -219,30 +224,19 @@ public class ContactListModel
      */
     public ImageIcon getMetaContactStatusIcon(MetaContact contact)
     {
-        BufferedImage statusImage = Constants.getStatusIcon(this
-                .getMetaContactStatus(contact));
-
-        WritableRaster raster = statusImage.copyData( null );
-        BufferedImage statusImageCopy = new BufferedImage(
-                statusImage.getColorModel(),
-                raster,
-                statusImage.isAlphaPremultiplied(), null );
-
-        Graphics g = statusImageCopy.createGraphics();
-
-        g.drawImage(statusImage, 0, 0, null);
+        Image statusImage;
 
         if(activeContacts.contains(contact))
         {
-            Image msgReceivedImage
-                = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
-
-            g.drawImage(msgReceivedImage, 0,
-                5,
-                null);
+            statusImage = msgReceivedImage;
+        }
+        else
+        {
+            statusImage = Constants.getStatusIcon(this
+                .getMetaContactStatus(contact));
         }
 
-        ImageIcon statusIcon = new ImageIcon(statusImageCopy);
+        statusIcon.setImage(statusImage);
 
         return statusIcon;
     }
