@@ -9,8 +9,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -42,7 +41,7 @@ public class ContactListModel
     private MetaContactGroup rootGroup;
 
     private Vector closedGroups = new Vector();
-    
+
     /**
      * A list of all contacts that are currently "active". An "active" contact
      * is a contact that has been sent a message. The list is used to indicate
@@ -222,29 +221,29 @@ public class ContactListModel
     {
         BufferedImage statusImage = Constants.getStatusIcon(this
                 .getMetaContactStatus(contact));
-     
+
         WritableRaster raster = statusImage.copyData( null );
         BufferedImage statusImageCopy = new BufferedImage(
                 statusImage.getColorModel(),
                 raster,
                 statusImage.isAlphaPremultiplied(), null );
-        
-        Graphics g = statusImageCopy.getGraphics();
-        
+
+        Graphics g = statusImageCopy.createGraphics();
+
         g.drawImage(statusImage, 0, 0, null);
-        
+
         if(activeContacts.contains(contact))
-        {   
+        {
             Image msgReceivedImage
                 = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
-            
+
             g.drawImage(msgReceivedImage, 0,
                 5,
                 null);
         }
-        
+
         ImageIcon statusIcon = new ImageIcon(statusImageCopy);
-        
+
         return statusIcon;
     }
 
