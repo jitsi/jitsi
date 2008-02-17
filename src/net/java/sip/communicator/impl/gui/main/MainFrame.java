@@ -139,17 +139,21 @@ public class MainFrame
 
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 
-        this.mainPanel.add(quickMenu, BorderLayout.NORTH);
         this.mainPanel.add(contactListPanel, BorderLayout.CENTER);
         this.mainPanel.add(statusPanel, BorderLayout.SOUTH);
 
-        JPanel allPanel = new JPanel(new BorderLayout());
+        JPanel menusPanel = new JPanel(new BorderLayout(0, 5));
 
-        allPanel.add(menu, BorderLayout.NORTH);
-        allPanel.add(mainPanel, BorderLayout.CENTER);
+        menusPanel.add(menu, BorderLayout.CENTER);
+        menusPanel.add(quickMenu, BorderLayout.SOUTH);
 
-        this.getContentPane().add(allPanel, BorderLayout.CENTER);
-        this.getContentPane().add(new LogoBar(), BorderLayout.NORTH);
+        JPanel northPanel = new JPanel(new BorderLayout());
+
+        northPanel.add(new LogoBar(), BorderLayout.NORTH);
+        northPanel.add(menusPanel, BorderLayout.CENTER);
+
+        this.getContentPane().add(northPanel, BorderLayout.NORTH);
+        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     }
     
     /**
