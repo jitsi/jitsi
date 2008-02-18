@@ -81,6 +81,13 @@ public class GroupRightButtonMenu
             ProtocolProviderService pps 
                 = (ProtocolProviderService)providers.next();
             
+            boolean isHidden = 
+                    pps.getAccountID().getAccountProperties().
+                        get("HIDDEN_PROTOCOL") != null;
+            
+            if(isHidden)
+                continue;
+            
             String protocolName = pps.getProtocolName();
             
             AccountMenuItem menuItem = new AccountMenuItem(pps,

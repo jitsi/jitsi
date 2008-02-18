@@ -168,6 +168,13 @@ public class AccountsConfigurationForm extends JPanel
             for (int i = 0; i < accountsList.size(); i ++) {
                 accountID = (AccountID) accountsList.get(i);
 
+                boolean isHidden = 
+                    accountID.getAccountProperties().
+                        get("HIDDEN_PROTOCOL") != null;
+            
+                if(isHidden)
+                    continue;
+                
                 serRef = providerFactory
                         .getProviderForAccount(accountID);
 
