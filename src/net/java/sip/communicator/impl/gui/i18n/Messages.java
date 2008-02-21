@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class Messages {
     private static final String BUNDLE_NAME 
-        = "net.java.sip.communicator.impl.gui.i18n.messages";
+        = "resources.languages.impl.gui.resources";
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle(BUNDLE_NAME);
