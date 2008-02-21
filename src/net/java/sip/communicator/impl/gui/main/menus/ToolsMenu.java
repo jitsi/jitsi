@@ -52,7 +52,7 @@ public class ToolsMenu
         super(Messages.getI18NString("tools").getText());
 
         this.setForeground(
-            new Color(ColorProperties.getColor("toolsMenuForeground")));
+            new Color(ColorProperties.getColor("mainMenuForeground")));
 
         this.parentWindow = parentWindow;
 

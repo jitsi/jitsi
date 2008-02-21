@@ -47,7 +47,7 @@ public class HelpMenu
         this.setMnemonic(Messages.getI18NString("help").getMnemonic());
 
         this.setForeground(
-            new Color(ColorProperties.getColor("helpMenuForeground")));
+            new Color(ColorProperties.getColor("mainMenuForeground")));
 
         this.initPluginComponents();
     }

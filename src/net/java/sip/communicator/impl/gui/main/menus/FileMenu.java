@@ -89,7 +89,7 @@ public class FileMenu
         super(Messages.getI18NString("file").getText());
 
         this.setForeground(
-            new Color(ColorProperties.getColor("fileMenuForeground")));
+            new Color(ColorProperties.getColor("mainMenuForeground")));
 
         this.parentWindow = parentWindow;
 
@@ -104,9 +104,9 @@ public class FileMenu
 
         this.add(createChatRoomItem);
         this.add(searchForChatRoomsItem);
-        
+
         this.addSeparator();
-        
+
         this.add(closeMenuItem);
 
         //this.addContactItem.setIcon(new ImageIcon(ImageLoader
@@ -118,7 +118,7 @@ public class FileMenu
         this.createGroupItem.setName("createGroup");
         this.createChatRoomItem.setName("createChatRoom");
         this.searchForChatRoomsItem.setName("searchForChatRooms");
-        
+
         this.newAccountMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
         this.addContactItem.addActionListener(this);
