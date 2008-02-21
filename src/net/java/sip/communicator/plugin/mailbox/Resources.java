@@ -16,20 +16,41 @@ import javax.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The Messages class manages the access to the internationalization properties
- * files.
- *
+ * The <tt>Resources</tt> class manages the access to the internationalization
+ * properties files and the image resources used in this plugin.
+ * 
  * @author Ryan Ricard
  */
 public class Resources
 {
     private static Logger logger = Logger.getLogger(Resources.class);
 
-    private static final String RESOUCRE_LOCATION
+    /**
+     * The name of the resource, where internationalization strings for this
+     * plugin are stored.
+     */
+    private static final String STRING_RESOURCE_NAME
+        = "resources.languages.plugin.mailbox.resources";
+
+    /**
+     * The name of the resource, where paths to images used in this bundle are
+     * stored.
+     */
+    private static final String IMAGE_RESOURCE_NAME
         = "net.java.sip.communicator.plugin.mailbox.resources";
 
-    private static final ResourceBundle resourceBundle 
-        = ResourceBundle.getBundle(RESOUCRE_LOCATION);
+    /**
+     * The string resource bundle.
+     */
+    private static final ResourceBundle STRING_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
+
+    /**
+     * The image resource bundle.
+     */
+    private static final ResourceBundle IMAGE_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(IMAGE_RESOURCE_NAME);
+
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -41,7 +62,7 @@ public class Resources
     {
         try
         {
-            return resourceBundle.getString(key);
+            return STRING_RESOURCE_BUNDLE.getString(key);
         }
         catch (MissingResourceException e)
         {
@@ -55,35 +76,11 @@ public class Resources
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static ImageIcon getImage(String imageID) 
-    {
-        BufferedImage image = null;
-
-        String path = Resources.getString(imageID);
-        try
-        {
-            image = ImageIO.read(Resources.class.getClassLoader()
-                    .getResourceAsStream(path));
-        }
-        catch (IOException exc)
-        {
-            logger.error("Failed to load image:" + path, exc);
-        }
-
-        return new ImageIcon(image);
-    }
-
-    /**
-     * Loads an image from a given image identifier.
-     *
-     * @param imageID The identifier of the image.
-     * @return The image for the given identifier.
-     */
     public static byte[] getImageInBytes(String imageID)
     {
         byte[] image = new byte[100000];
 
-        String path = Resources.getString(imageID);
+        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID);
         
         logger.debug("Loading imageID=" + imageID + " from path=" + path);
 
