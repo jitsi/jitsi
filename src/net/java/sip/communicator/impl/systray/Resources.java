@@ -27,7 +27,7 @@ public class Resources
     private static Logger log = Logger.getLogger(Resources.class);
     
     private static final String BUNDLE_NAME 
-        = "net.java.sip.communicator.impl.systray.resources";
+        = "resources.languages.impl.systray.resources";
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle(BUNDLE_NAME);
