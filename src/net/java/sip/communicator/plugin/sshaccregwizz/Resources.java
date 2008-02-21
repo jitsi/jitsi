@@ -20,9 +20,9 @@ import java.util.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The Messages class manages the access to the internationalization
- * properties files.
- *
+ * The <tt>Resources</tt> class manages the access to the internationalization
+ * properties files and the image resources used in this plugin.
+ * 
  * @author Shobhit Jindal
  */
 public class Resources
@@ -30,11 +30,31 @@ public class Resources
 
     private static Logger log = Logger.getLogger(Resources.class);
 
-    private static final String BUNDLE_NAME
+    /**
+     * The name of the resource, where internationalization strings for this
+     * plugin are stored.
+     */
+    private static final String STRING_RESOURCE_NAME
+        = "resources.languages.plugin.sshaccregwizz.resources";
+
+    /**
+     * The name of the resource, where paths to images used in this bundle are
+     * stored.
+     */
+    private static final String IMAGE_RESOURCE_NAME
         = "net.java.sip.communicator.plugin.sshaccregwizz.resources";
 
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-        .getBundle(BUNDLE_NAME);
+    /**
+     * The string resource bundle.
+     */
+    private static final ResourceBundle STRING_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
+
+    /**
+     * The image resource bundle.
+     */
+    private static final ResourceBundle IMAGE_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(IMAGE_RESOURCE_NAME);
 
     public static ImageID SSH_LOGO = new ImageID("protocolIcon");
     
@@ -49,8 +69,7 @@ public class Resources
     {
         try
         {
-            return RESOURCE_BUNDLE.getString(key);
-
+            return STRING_RESOURCE_BUNDLE.getString(key);
         }
         catch (MissingResourceException exc)
         {
@@ -60,6 +79,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
+     * 
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -67,23 +87,23 @@ public class Resources
     {
         byte[] image=null;
         InputStream inputStream;
-        
-        String path = Resources.getString(imageID.getId());
-        
+
+        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID.getId());
+
         try
         {
             inputStream = Resources.class.getClassLoader()
                 .getResourceAsStream(path);
-            
+
             image = new byte[inputStream.available()];
-            
+
             inputStream.read(image);
         }
         catch (IOException exc)
         {
             log.error("Failed to load image:" + path, exc);
         }
-        
+
         return image;
     }
 
@@ -104,5 +124,4 @@ public class Resources
             return id;
         }
     }
-
 }

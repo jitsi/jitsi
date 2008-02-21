@@ -26,20 +26,20 @@ public class PluginManagerActivator implements BundleActivator
     private static ConfigurationService configService;
    
     /**
-     * Starts this bundle and adds the <tt>PluginManagerConfigForm</tt> contained
+     * Starts this bundle and adds the <td>PluginManagerConfigForm</tt> contained
      * in it to the configuration window obtained from the <tt>UIService</tt>.
      */
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
-        
+
         ServiceReference uiServiceRef
             = bc.getServiceReference(UIService.class.getName());
-        
+
         uiService = (UIService) bc.getService(uiServiceRef);
-        
+
         ConfigurationWindow configWindow = uiService.getConfigurationWindow();
-        
+
         if(configWindow != null)
         {
             PluginManagerConfigForm pluginManager

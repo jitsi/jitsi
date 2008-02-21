@@ -63,7 +63,7 @@ public class RssAccountRegistrationWizard
      */
     public byte[] getIcon()
     {
-        return Resources.getImage(Resources.GIBBERISH_LOGO);
+        return Resources.getImage(Resources.RSS_LOGO);
     }
 
     /**
