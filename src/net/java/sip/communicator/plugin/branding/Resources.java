@@ -22,7 +22,7 @@ public class Resources
     private static Logger log = Logger.getLogger(Resources.class);
 
     private static final String RESOURCE_LOCATION
-        = "net.java.sip.communicator.plugin.branding.resources";
+        = "resources.languages.plugin.branding.resources";
 
     private static final ResourceBundle resourceBundle 
         = ResourceBundle.getBundle(RESOURCE_LOCATION);
