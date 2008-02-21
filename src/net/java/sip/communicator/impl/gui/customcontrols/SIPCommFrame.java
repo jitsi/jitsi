@@ -130,7 +130,7 @@ public abstract class SIPCommFrame
             = GuiActivator.getConfigurationService();
 
         String className = this.getClass().getName();
-        
+
         String widthString = configService.getString(
             className + ".width");
 
@@ -145,21 +145,31 @@ public abstract class SIPCommFrame
 
         int width = 0;
         int height = 0;
-        
+
+        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+
         if(widthString != null && heightString != null)
-        {   
+        {
             width = new Integer(widthString).intValue();
             height = new Integer(heightString).intValue();
-            
-            if(width > 0 && height > 0)
+
+            if(width > 0 && height > 0
+                && width <= screenWidth && height <= screenHeight)
                 this.setSize(width, height);
         }
-        
+
+        int x = 0;
+        int y = 0;
+
         if(xString != null && yString != null)
-        {   
-            this.setLocation(new Integer(xString).intValue(),
-                new Integer(yString).intValue());
-        }        
+        {
+            x = new Integer(xString).intValue();
+            y = new Integer(yString).intValue();
+
+            if (x >= 0 && y >= 0)
+            this.setLocation(x, y);
+        }
         else
         {
             this.setCenterLocation();
@@ -191,7 +201,7 @@ public abstract class SIPCommFrame
             this.pack();
             this.setSizeAndLocation();
         }
-        
+
         super.setVisible(isVisible);
     }
     
