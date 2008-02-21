@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.MainFrame.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -49,7 +50,7 @@ public class ChatWindow
     private MainFrame mainFrame;
 
     private SIPCommTabbedPane chatTabbedPane = null;
-    
+
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
      * of the main application window.
@@ -58,7 +59,6 @@ public class ChatWindow
      */
     public ChatWindow(MainFrame mainFrame)
     {
-
         this.mainFrame = mainFrame;
 
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -74,19 +74,25 @@ public class ChatWindow
                 public void closeOperation(MouseEvent e)
                 {
                     int tabIndex = chatTabbedPane.getOverTabIndex();
-                    
+
                     ChatPanel chatPanel
                         = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
-                    
+
                     ChatWindow.this.mainFrame
                         .getChatWindowManager().closeChat(chatPanel);
                 }
             });
         }
-        
+
         this.setSizeAndLocation();
 
-        this.getContentPane().add(menusPanel, BorderLayout.NORTH);
+        JPanel northPanel = new JPanel(new BorderLayout());
+
+        northPanel.add(new LogoBar(), BorderLayout.NORTH);
+        northPanel.add(menusPanel, BorderLayout.CENTER);
+
+        this.getContentPane().setLayout(new BorderLayout(5, 5));
+        this.getContentPane().add(northPanel, BorderLayout.NORTH);
 
         this.initPluginComponents();
 
@@ -144,10 +150,10 @@ public class ChatWindow
             addChatTab(chatPanel);
         else
             addSimpleChat(chatPanel);
-        
+
         chatPanel.setShown(true);
     }
-    
+
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
      * 
@@ -572,7 +578,7 @@ public class ChatWindow
                 chatRightMenu.setVisible(false);
             }
             else if (writePanelRightMenu.isVisible())
-            {                
+            {
                 writePanelRightMenu.setVisible(false);
             }
             else if (selectedMenu != null
@@ -582,7 +588,7 @@ public class ChatWindow
                 menuSelectionManager.clearSelectedPath();
             }
             else
-            {            
+            {
                 mainFrame.getChatWindowManager().closeChat(chatPanel);
             }
         }
@@ -678,5 +684,41 @@ public class ChatWindow
     public Object getSource()
     {
         return this;
+    }
+
+    private class LogoBar
+    extends JPanel
+    {
+        /**
+         * Creates the logo bar and specify the size.
+         */
+        public LogoBar()
+        {
+            int width = SizeProperties.getSize("logoBarWidth");
+            int height = SizeProperties.getSize("logoBarHeight");
+
+            this.setMinimumSize(new Dimension(width, height));
+            this.setPreferredSize(new Dimension(width, height));
+        }
+
+        /**
+         * Paints the logo bar.
+         * 
+         * @param g the <tt>Graphics</tt> object used to paint the background
+         * image of this logo bar.
+         */
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+
+            Image backgroundImage
+                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+
+            g.setColor(new Color(
+                ColorProperties.getColor("logoBarBackground")));
+
+            g.fillRect(0, 0, this.getWidth(), this.getHeight());
+            g.drawImage(backgroundImage, 0, 0, null);
+        }
     }
 }
