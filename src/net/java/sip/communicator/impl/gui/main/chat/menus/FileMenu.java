@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -51,8 +52,11 @@ public class FileMenu extends SIPCommMenu
     public FileMenu(ChatWindow parentWindow) {
 
         super(Messages.getI18NString("file").getText());
-        
+
         this.parentWindow = parentWindow;
+
+        this.setForeground(new Color(
+            ColorProperties.getColor("chatMenuBarForeground")));
 
         this.add(saveMenuItem);
         this.add(printMenuItem);

@@ -1,5 +1,6 @@
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -23,27 +24,26 @@ public class SettingsMenu
     extends SIPCommMenu
     implements  ActionListener
 {
-    
     private I18NString typingNotifString
         = Messages.getI18NString("enableTypingNotifications");
-    
+
     private I18NString useCtrlEnterString
         = Messages.getI18NString("useCtrlEnterToSend");
-    
+
     private I18NString autoPopupString
         = Messages.getI18NString("autoPopup");
 
     private JCheckBoxMenuItem typingNotificationsItem 
         = new JCheckBoxMenuItem(typingNotifString.getText());
-        
+
     private JCheckBoxMenuItem sendingMessageCommandItem 
         = new JCheckBoxMenuItem(useCtrlEnterString.getText());
-    
+
     private JCheckBoxMenuItem autoPopupItem 
         = new JCheckBoxMenuItem(autoPopupString.getText());
-    
+
     private ChatWindow chatWindow;
-    
+
     /**
      * Creates an instance of <tt>SettingsMenu</tt> by specifying the
      * <tt>ChatWindow</tt>.
@@ -53,46 +53,48 @@ public class SettingsMenu
     public SettingsMenu(ChatWindow chatWindow)
     {
         super(Messages.getI18NString("settings").getText());
-        
+
         this.chatWindow = chatWindow;
-        
+
+        this.setForeground(new Color(
+            ColorProperties.getColor("chatMenuBarForeground")));
+
         typingNotificationsItem.setName("typingNotifications");
         sendingMessageCommandItem.setName("sendingMessageCommand");
         autoPopupItem.setName("autopopup");
-        
+
         this.setMnemonic(Messages.getI18NString("settings").getMnemonic());
-        
+
         this.typingNotificationsItem.setMnemonic(
             typingNotifString.getMnemonic());
-        
+
         this.sendingMessageCommandItem.setMnemonic(
             useCtrlEnterString.getMnemonic());
-        
+
         this.autoPopupItem.setMnemonic(
             autoPopupString.getMnemonic());
-                
+
         this.add(typingNotificationsItem);
         this.add(sendingMessageCommandItem);
         this.add(autoPopupItem);
-        
+
         this.typingNotificationsItem.addActionListener(this);
         this.sendingMessageCommandItem.addActionListener(this);
         this.autoPopupItem.addActionListener(this);
-        
+
         this.autoPopupItem.setSelected(
                 ConfigurationManager.isAutoPopupNewMessage());
-        
+
         this.typingNotificationsItem.setSelected(
                 ConfigurationManager.isSendTypingNotifications());
-        
+
         if(ConfigurationManager.getSendMessageCommand()
-                == ConfigurationManager.ENTER_COMMAND)   
+                == ConfigurationManager.ENTER_COMMAND)
             this.sendingMessageCommandItem.setSelected(true);
         else
             this.sendingMessageCommandItem.setSelected(false);
-        
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
      */

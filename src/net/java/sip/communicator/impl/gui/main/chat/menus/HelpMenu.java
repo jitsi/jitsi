@@ -7,7 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.Iterator;
 
@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
@@ -48,7 +49,8 @@ public class HelpMenu
 
         this.chatWindow = chatWindow;
 
-        this.chatWindow = chatWindow;
+        this.setForeground(new Color(
+            ColorProperties.getColor("chatMenuBarForeground")));
 
         this.setMnemonic(Messages.getI18NString("help").getMnemonic());
 

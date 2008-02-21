@@ -7,10 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
+import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 /**
  * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where 
  * all menus are added.
@@ -77,5 +80,20 @@ public class MessageWindowMenuBar extends JMenuBar {
             }
         }
         return null;
+    }
+
+    /**
+     * Paints the MENU_BACKGROUND image on the background of this container.
+     * 
+     * @param g the Graphics object that does the painting
+     */
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+
+        Image backgroundImage
+            = ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
+
+        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
     }
 }
