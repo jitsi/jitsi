@@ -49,7 +49,7 @@ public class ContactRssImpl
     /***
      * Stores the contact's display image to avoid downloading it multiple times.
      */
-    private byte[] icon;     
+    private byte[] icon;
     
     /**
      * This contact's URL (URL of the RSS feed).
@@ -205,7 +205,7 @@ public class ContactRssImpl
     {
         if (icon != null)
             return icon;
-            
+
         Image selectedIcon;
 
         //we use these to get the best possible icon in case our favicon is a
@@ -226,6 +226,7 @@ public class ContactRssImpl
         {
             URL location = new URL(feedLocation.getProtocol() + "://"
                    + feedLocation.getHost() + "/favicon.ico");
+
             ICOFile favicon = new ICOFile(location);
 
             logger.trace("Icon has " + favicon.getImageCount() + " pages");
