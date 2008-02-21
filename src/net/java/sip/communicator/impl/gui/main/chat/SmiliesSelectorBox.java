@@ -57,6 +57,8 @@ public class SmiliesSelectorBox extends JMenuBar
 
         this.selectorBox.setUI(new SIPCommChatSelectorMenuUI());
 
+        this.setOpaque(false);
+        this.selectorBox.setOpaque(false);
         this.setPreferredSize(
             new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
 
