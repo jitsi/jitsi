@@ -7,15 +7,16 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="32px"
    height="32px"
    id="svg1390"
    sodipodi:version="0.32"
-   inkscape:version="0.42.2"
-   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
-   sodipodi:docname="fontButton.svg">
+   inkscape:version="0.45.1"
+   sodipodi:docbase="/home/yana/workspace/GlobaleSC/resources/images/impl/gui/buttons/src"
+   sodipodi:docname="fontButton.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
   <defs
      id="defs1392">
     <linearGradient
@@ -76,6 +77,16 @@
          offset="1.0000000"
          style="stop-color:#f8f8f8;stop-opacity:1.0000000;" />
     </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15929"
+       id="linearGradient2177"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.164338,0,0,1.122383,127.51859,-215.20164)"
+       x1="-567.31122"
+       y1="166.56097"
+       x2="-567.12726"
+       y2="211.98978" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -84,15 +95,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="13.786111"
+     inkscape:zoom="9.0954413"
      inkscape:cx="27.653581"
      inkscape:cy="19.451082"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1016"
-     inkscape:window-height="692"
+     inkscape:window-width="1432"
+     inkscape:window-height="843"
      inkscape:window-x="0"
      inkscape:window-y="0" />
   <metadata
@@ -118,9 +129,9 @@
        x="0.21468206"
        y="8.1749716"
        ry="4.4895282"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/paste.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000" />
+       inkscape:export-filename="/home/yana/workspace/GlobaleSC/resources/images/impl/gui/buttons/msgToolbarBg.png"
+       inkscape:export-xdpi="105"
+       inkscape:export-ydpi="105" />
     <rect
        style="opacity:1.0000000;fill:none;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c3c3c3;stroke-width:0.42947698;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
        id="rect1380"
@@ -144,8 +155,20 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1452"
-         x="6.9218750"
-         y="5.0000000"
+         x="6.921875"
+         y="5"
          style="font-size:16.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#ff8400;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#cbcbcb;stroke-width:0.30000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans">A</tspan></text>
+    <rect
+       style="opacity:1;fill:url(#linearGradient2177);fill-opacity:1;fill-rule:nonzero;stroke:#858585;stroke-width:0.42947698;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2175"
+       width="23.570522"
+       height="23.570023"
+       x="26.708963"
+       y="-18.784761"
+       ry="4.4895282"
+       inkscape:export-filename="/home/yana/workspace/GlobaleSC/resources/images/impl/gui/buttons/msgToolBarRolloverBg.png"
+       inkscape:export-xdpi="105"
+       inkscape:export-ydpi="105"
+       rx="4.4895282" />
   </g>
 </svg>
