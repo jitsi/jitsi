@@ -75,7 +75,7 @@ public class ContactListPanel
 
         this.getVerticalScrollBar().setUnitIncrement(30);
 
-        this.setPreferredSize(new Dimension(300, 600));
+        this.setPreferredSize(new Dimension(200, 450));
         this.setMinimumSize(new Dimension(80, 200));
 
     }

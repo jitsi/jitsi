@@ -62,18 +62,21 @@ public class CallListPanel
     public CallListPanel(MainFrame mainFrame)
     {
         super(new BorderLayout());
-    
+
         this.mainFrame = mainFrame;
-        
+
         this.callHistory = GuiActivator.getCallHistoryService();
-    
+
         this.searchComboBox.addActionListener(this);
-        
+
         new LoadLastCallsFromHistory().start();
-        
+
         this.initPanels();
-        
+
         this.initPluginComponents();
+
+        this.setPreferredSize(new Dimension(200, 450));
+        this.setMinimumSize(new Dimension(80, 200));
     }
     
     /**

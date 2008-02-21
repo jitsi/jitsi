@@ -61,6 +61,9 @@ public class ChatRoomsListPanel
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
+
+        this.setPreferredSize(new Dimension(200, 450));
+        this.setMinimumSize(new Dimension(80, 200));
     }
 
     /**
