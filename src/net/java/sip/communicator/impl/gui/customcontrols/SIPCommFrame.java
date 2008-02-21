@@ -168,7 +168,9 @@ public abstract class SIPCommFrame
             y = new Integer(yString).intValue();
 
             if (x >= 0 && y >= 0)
-            this.setLocation(x, y);
+                this.setLocation(x, y);
+            else
+                this.setCenterLocation();
         }
         else
         {
