@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -33,9 +32,8 @@ public class SIPCommMenu
      * Creates an instance of <tt>SIPCommMenu</tt>.
      */
     public SIPCommMenu()
-    {        
+    {
         this.setUI(new SIPCommSelectorMenuUI());
-        this.setPreferredSize(new Dimension(28, 24));
     }
 
     /**

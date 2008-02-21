@@ -25,8 +25,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class SmiliesSelectorBox extends JMenuBar
-    implements ActionListener {
-
+    implements ActionListener
+{
     private ChatWindow chatWindow;
 
     private ArrayList imageList;
@@ -34,32 +34,39 @@ public class SmiliesSelectorBox extends JMenuBar
     private int gridRowCount = 0;
 
     private int gridColCount = 0;
-    
+
     private SIPCommMenu selectorBox = new SIPCommMenu();
-    
+
+    private static int BUTTON_HEIGHT
+        = SizeProperties.getSize("mainToolbarButtonHeight");
+
+    private static int BUTTON_WIDTH
+        = SizeProperties.getSize("mainToolbarButtonWidth");
+
     /**
      * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes
      * the panel with the smiley icons given by the incoming imageList.
      * 
      * @param imageList The pack of smiley icons.
      */
-    public SmiliesSelectorBox(ArrayList imageList, ChatWindow chatWindow) {
-
+    public SmiliesSelectorBox(ArrayList imageList, ChatWindow chatWindow)
+    {
         this.imageList = imageList;
 
         this.chatWindow = chatWindow;
-        
+
         this.selectorBox.setUI(new SIPCommChatSelectorMenuUI());
-        
-        this.selectorBox.setPreferredSize(new Dimension(24, 24));
-        
-        //Should explicetly remove any border in order to align correctly the
+
+        this.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
+        //Should explicitly remove any border in order to align correctly the
         //icon.
         this.selectorBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        
+
         this.selectorBox.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SMILIES_ICON)));
-        
+
         this.calculateGridDimensions(imageList.size());
 
         this.selectorBox.getPopupMenu().setLayout(new GridLayout(
@@ -140,5 +147,22 @@ public class SmiliesSelectorBox extends JMenuBar
                 chatPanel.requestFocusInWriteArea();
             }
         }
+    }
+
+    /**
+     * Sets the given text to this smiley selector box. The given text will be
+     * position by default on the bottom of the icon.
+     * 
+     * @param text the text to be added to this selector box.
+     */
+    public void setText(String text)
+    {
+        this.selectorBox.setText(text);
+
+        this.selectorBox.setFont(getFont().deriveFont(Font.BOLD, 10f));
+        this.selectorBox.setVerticalTextPosition(SwingConstants.BOTTOM);
+        this.selectorBox.setHorizontalTextPosition(SwingConstants.CENTER);
+        this.selectorBox.setForeground(
+            new Color(ColorProperties.getColor("chatMenuBarForeground")));
     }
 }

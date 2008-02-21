@@ -51,7 +51,9 @@ public class AccountSelectorBox
     public AccountSelectorBox(CallManager callManager)
     {
         this.callManager = callManager;
-        
+
+        this.menu.setPreferredSize(new Dimension(28, 24));
+
         this.add(menu);
     }
 

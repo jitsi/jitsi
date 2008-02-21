@@ -66,9 +66,15 @@ public class MainToolBar
 
     private ChatToolbarButton fontButton = new ChatToolbarButton(ImageLoader
         .getImage(ImageLoader.FONT_ICON));
-    
-    SmiliesSelectorBox smiliesBox;
-    
+
+    private static int BUTTON_HEIGHT
+        = SizeProperties.getSize("mainToolbarButtonHeight");
+
+    private static int BUTTON_WIDTH
+        = SizeProperties.getSize("mainToolbarButtonWidth");
+
+    private SmiliesSelectorBox smiliesBox;
+
     private ChatWindow messageWindow;
 
     /**
@@ -94,10 +100,10 @@ public class MainToolBar
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
         this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
 
-        this.add(saveButton);
-        this.add(printButton);
-
-        this.addSeparator();
+//        this.add(saveButton);
+//        this.add(printButton);
+//
+//        this.addSeparator();
 
         this.add(cutButton);
         this.add(copyButton);
@@ -114,12 +120,12 @@ public class MainToolBar
 
         this.addSeparator();
 
-        this.add(sendFileButton);
+//        this.add(sendFileButton);
         this.add(historyButton);
 
-        this.addSeparator();
-
-        this.add(fontButton);
+//        this.addSeparator();
+//
+//        this.add(fontButton);
 
         this.saveButton.setName("save");
         this.saveButton.setToolTipText(
@@ -169,19 +175,40 @@ public class MainToolBar
         this.printButton.addActionListener(this);
         this.cutButton.addActionListener(this);
         this.copyButton.addActionListener(this);
-        this.pasteButton.addActionListener(this);        
+        this.pasteButton.addActionListener(this);
         this.previousButton.addActionListener(this);
         this.nextButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
         this.historyButton.addActionListener(this);
         this.fontButton.addActionListener(this);
 
+        this.saveButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.printButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.cutButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.copyButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.pasteButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.previousButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.nextButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.sendFileButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.historyButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.fontButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
         // Disable all buttons that do nothing.
         this.saveButton.setEnabled(false);
         this.printButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
         this.fontButton.setEnabled(false);
-        
+
         this.initPluginComponents();
     }
 

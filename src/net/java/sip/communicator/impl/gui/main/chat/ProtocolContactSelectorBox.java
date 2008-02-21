@@ -47,13 +47,15 @@ public class ProtocolContactSelectorBox
         MetaContact metaContact, Contact protocolContact)
     {
         this.chatPanel = chatPanel;
-        
+
         this.metaContact = metaContact;
-        
+
         this.currentProtoContact = protocolContact;
-        
+
+        this.menu.setPreferredSize(new Dimension(28, 24));
+
         this.add(menu);
-        
+
         Iterator protocolContacts = metaContact.getContacts();
         while (protocolContacts.hasNext()) {
             Contact contact = (Contact) protocolContacts.next();

@@ -24,9 +24,10 @@ public class SIPCommChatSelectorMenuUI
 {
     private Image menuBgImage
         = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_BUTTON_BG);
+
     private Image menuRolloverImage
         = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_ROLLOVER_BUTTON_BG);
-            
+
     /**
      * Creates a new SIPCommChatSelectorMenuUI instance.
      */
@@ -52,12 +53,19 @@ public class SIPCommChatSelectorMenuUI
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
     {
         AntialiasingManager.activateAntialiasing(g);
-        
+
         super.paintBackground(g, menuItem, bgColor);
-        
-        int menuWidth = menuItem.getWidth();
-        int menuHeight = menuItem.getHeight();
-        
-        g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
+
+        boolean isToolBarExtended
+            = new Boolean(ApplicationProperties
+                .getProperty("isToolBarExteneded")).booleanValue();
+
+        if (!isToolBarExtended)
+        {
+            int menuWidth = menuItem.getWidth();
+            int menuHeight = menuItem.getHeight();
+
+            g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
+        }
     }
 }

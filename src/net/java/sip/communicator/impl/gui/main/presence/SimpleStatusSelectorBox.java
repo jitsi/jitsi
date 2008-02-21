@@ -73,6 +73,8 @@ public class SimpleStatusSelectorBox
         this.protocolProvider = protocolProvider;
         this.accountIndex = accountIndex;
 
+        this.setPreferredSize(new Dimension(28, 24));
+
         this.onlineIcon = new ImageIcon(
                 ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
                         .getIcon(ProtocolIcon.ICON_SIZE_16x16)));

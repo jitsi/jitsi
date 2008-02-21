@@ -97,6 +97,8 @@ public class ExtendedMainToolBar
         this.smiliesBox = new SmiliesSelectorBox(
             ImageLoader.getDefaultSmiliesPack(), messageWindow);
 
+        this.smiliesBox.setText(Messages.getI18NString("smiley").getText());
+
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         this.setPreferredSize(new Dimension(300, BUTTON_HEIGHT));

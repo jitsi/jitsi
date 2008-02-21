@@ -778,8 +778,10 @@ public class UIServiceImpl
      * The <tt>RunApplication</tt> implements the Runnable interface and is used to
      * shows the main application window in a separate thread.
      */
-    private class RunApplicationGui implements Runnable {
-        public void run() {
+    private class RunApplicationGui implements Runnable
+    {
+        public void run()
+        {
             mainFrame.setVisible(true);
         }
     }

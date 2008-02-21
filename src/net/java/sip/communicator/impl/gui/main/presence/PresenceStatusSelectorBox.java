@@ -70,10 +70,11 @@ public class PresenceStatusSelectorBox
     public PresenceStatusSelectorBox(MainFrame mainFrame,
         ProtocolProviderService protocolProvider, int accountIndex)
     {
-
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
         this.accountIndex = accountIndex;
+
+        this.setPreferredSize(new Dimension(28, 24));
 
         this.presence = mainFrame.getProtocolPresenceOpSet(protocolProvider);
 

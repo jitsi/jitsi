@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.presence;
 
+import java.awt.Dimension;
 import java.awt.image.*;
 import java.util.*;
 
@@ -107,5 +108,6 @@ public abstract class StatusSelectorBox
                     statusName);
         }
 
+        this.setPreferredSize(new Dimension(28, 24));
     }
 }
