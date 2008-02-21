@@ -6,25 +6,24 @@
 
 package net.java.sip.communicator.plugin.whiteboard.gui;
 
-import java.awt.event.*;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.*;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.*;
+
+import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.whiteboard.*;
 import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
  * The frame for the Whiteboard
