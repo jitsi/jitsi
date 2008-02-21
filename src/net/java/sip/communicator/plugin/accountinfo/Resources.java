@@ -16,31 +16,54 @@ import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
 /**
- * The Messages class manages the access to the internationalization
- * properties files.
+ * The <tt>Resources</tt> class manages the access to the internationalization
+ * properties files and the image resources used in this plugin.
+ * 
  * @author Yana Stamcheva
  */
 public class Resources {
 
     private static Logger log = Logger.getLogger(Resources.class);
 
-    private static final String BUNDLE_NAME
+    /**
+     * The name of the resource, where internationalization strings for this
+     * plugin are stored.
+     */
+    private static final String STRING_RESOURCE_NAME
+        = "resources.languages.plugin.accountinfo.resources";
+
+    /**
+     * The name of the resource, where paths to images used in this bundle are
+     * stored.
+     */
+    private static final String IMAGE_RESOURCE_NAME
         = "net.java.sip.communicator.plugin.accountinfo.resources";
 
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
+    /**
+     * The string resource bundle.
+     */
+    private static final ResourceBundle STRING_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
+
+    /**
+     * The image resource bundle.
+     */
+    private static final ResourceBundle IMAGE_RESOURCE_BUNDLE
+        = ResourceBundle.getBundle(IMAGE_RESOURCE_NAME);
 
     /**
      * Returns an internationalized string corresponding to the given key.
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
-    public static String getString(String key) {
-        try {
-            return RESOURCE_BUNDLE.getString(key);
-
-        } catch (MissingResourceException e) {
-
+    public static String getString(String key)
+    {
+        try
+        {
+            return STRING_RESOURCE_BUNDLE.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
             return '!' + key + '!';
         }
     }
@@ -50,15 +73,18 @@ public class Resources {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static ImageIcon getImage(String imageID) {
+    public static ImageIcon getImage(String imageID)
+    {
         BufferedImage image = null;
 
-        String path = Resources.getString(imageID);
-        try {
+        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID);
+        try
+        {
             image = ImageIO.read(Resources.class.getClassLoader()
                     .getResourceAsStream(path));
-
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             log.error("Failed to load image:" + path, e);
         }
 
@@ -70,15 +96,20 @@ public class Resources {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static byte[] getImageInBytes(String imageID) {
+    public static byte[] getImageInBytes(String imageID)
+    {
         byte[] image = new byte[100000];
 
-        String path = Resources.getString(imageID);
-        try {
+        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID);
+
+        try
+        {
             Resources.class.getClassLoader()
                     .getResourceAsStream(path).read(image);
 
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             log.error("Failed to load image:" + path, e);
         }
 
