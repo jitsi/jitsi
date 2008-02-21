@@ -14,7 +14,6 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -31,73 +30,83 @@ import net.java.sip.communicator.service.gui.event.*;
  * 
  * @author Yana Stamcheva
  */
-public class MainToolBar
-    extends SIPCommToolBar
-    implements  ActionListener,
+public class ExtendedMainToolBar
+    extends MainToolBar
+    implements  MouseListener,
                 PluginComponentListener
 {
+    private ToolBarButton copyButton = new ToolBarButton(
+        Messages.getI18NString("copy").getText(),
+        ImageLoader.getImage(ImageLoader.COPY_ICON));
 
-    private ChatToolbarButton copyButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.COPY_ICON));
+    private ToolBarButton cutButton = new ToolBarButton(
+        Messages.getI18NString("cut").getText(),
+        ImageLoader.getImage(ImageLoader.CUT_ICON));
 
-    private ChatToolbarButton cutButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.CUT_ICON));
+    private ToolBarButton pasteButton = new ToolBarButton(
+        Messages.getI18NString("paste").getText(),
+        ImageLoader.getImage(ImageLoader.PASTE_ICON));
 
-    private ChatToolbarButton pasteButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.PASTE_ICON));
+    private ToolBarButton saveButton = new ToolBarButton(
+        Messages.getI18NString("save").getText(),
+        ImageLoader.getImage(ImageLoader.SAVE_ICON));
 
-    private ChatToolbarButton saveButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.SAVE_ICON));
+    private ToolBarButton printButton = new ToolBarButton(
+        Messages.getI18NString("print").getText(),
+        ImageLoader.getImage(ImageLoader.PRINT_ICON));
 
-    private ChatToolbarButton printButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.PRINT_ICON));
-
-    private ChatToolbarButton previousButton = new ChatToolbarButton(
+    private ToolBarButton previousButton = new ToolBarButton(
+        Messages.getI18NString("back").getText(),
         ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
 
-    private ChatToolbarButton nextButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.NEXT_ICON));
+    private ToolBarButton nextButton = new ToolBarButton(
+        Messages.getI18NString("next").getText(),
+        ImageLoader.getImage(ImageLoader.NEXT_ICON));
 
-    private ChatToolbarButton historyButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.HISTORY_ICON));
+    private ToolBarButton historyButton = new ToolBarButton(
+        Messages.getI18NString("history").getText(),
+        ImageLoader.getImage(ImageLoader.HISTORY_ICON));
 
-    private ChatToolbarButton sendFileButton = new ChatToolbarButton(
+    private ToolBarButton sendFileButton = new ToolBarButton(
+        Messages.getI18NString("sendFile").getText(),
         ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
-    private ChatToolbarButton fontButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.FONT_ICON));
-    
-    SmiliesSelectorBox smiliesBox;
-    
-    private ChatWindow messageWindow;
+    private ToolBarButton fontButton = new ToolBarButton(
+        Messages.getI18NString("font").getText(),
+        ImageLoader.getImage(ImageLoader.FONT_ICON));
 
-    /**
-     * Empty constructor to be used from inheritors.
-     */
-    public MainToolBar()
-    {
-    }
+    private static int BUTTON_HEIGHT
+        = SizeProperties.getSize("mainToolbarButtonHeight");
+
+    private static int BUTTON_WIDTH
+        = SizeProperties.getSize("mainToolbarButtonWidth");
+
+    private SmiliesSelectorBox smiliesBox;
+
+    private ChatWindow messageWindow;
 
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
      * 
      * @param messageWindow The parent <tt>ChatWindow</tt>.
      */
-    public MainToolBar(ChatWindow messageWindow) {
-
+    public ExtendedMainToolBar(ChatWindow messageWindow)
+    {
         this.messageWindow = messageWindow;
-        
+
         this.smiliesBox = new SmiliesSelectorBox(
             ImageLoader.getDefaultSmiliesPack(), messageWindow);
-        
+
         this.setRollover(true);
-        this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
-        this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        this.setPreferredSize(new Dimension(300, BUTTON_HEIGHT));
 
-        this.add(saveButton);
-        this.add(printButton);
+//        this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
 
-        this.addSeparator();
+//        this.add(saveButton);
+//        this.add(printButton);
+//
+//        this.addSeparator();
 
         this.add(cutButton);
         this.add(copyButton);
@@ -114,12 +123,12 @@ public class MainToolBar
 
         this.addSeparator();
 
-        this.add(sendFileButton);
+//        this.add(sendFileButton);
         this.add(historyButton);
 
-        this.addSeparator();
-
-        this.add(fontButton);
+//        this.addSeparator();
+//
+//        this.add(fontButton);
 
         this.saveButton.setName("save");
         this.saveButton.setToolTipText(
@@ -165,16 +174,37 @@ public class MainToolBar
         this.fontButton.setToolTipText(
             Messages.getI18NString("font").getText());
 
-        this.saveButton.addActionListener(this);
-        this.printButton.addActionListener(this);
-        this.cutButton.addActionListener(this);
-        this.copyButton.addActionListener(this);
-        this.pasteButton.addActionListener(this);        
-        this.previousButton.addActionListener(this);
-        this.nextButton.addActionListener(this);
-        this.sendFileButton.addActionListener(this);
-        this.historyButton.addActionListener(this);
-        this.fontButton.addActionListener(this);
+        this.saveButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.printButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.cutButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.copyButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.pasteButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.previousButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.nextButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.sendFileButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.historyButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.fontButton.setPreferredSize(
+            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
+        this.saveButton.addMouseListener(this);
+        this.printButton.addMouseListener(this);
+        this.cutButton.addMouseListener(this);
+        this.copyButton.addMouseListener(this);
+        this.pasteButton.addMouseListener(this);
+        this.previousButton.addMouseListener(this);
+        this.nextButton.addMouseListener(this);
+        this.sendFileButton.addMouseListener(this);
+        this.historyButton.addMouseListener(this);
+        this.fontButton.addMouseListener(this);
 
         // Disable all buttons that do nothing.
         this.saveButton.setEnabled(false);
@@ -189,10 +219,9 @@ public class MainToolBar
      * Handles the <tt>ActionEvent</tt>, when one of the toolbar buttons is
      * clicked.
      */
-    public void actionPerformed(ActionEvent e)
+    public void mousePressed(MouseEvent e)
     {
-
-        AbstractButton button = (AbstractButton) e.getSource();
+        JLabel button = (JLabel) e.getSource();
         String buttonText = button.getName();
 
         ChatPanel chatPanel = messageWindow.getCurrentChatPanel();
@@ -273,16 +302,6 @@ public class MainToolBar
     }
 
     /**
-     * Returns the button used to show the history window.
-     * 
-     * @return the button used to show the history window.
-     */
-    public ChatToolbarButton getHistoryButton()
-    {
-        return historyButton;
-    }
-    
-    /**
      * Returns TRUE if there are selected menus in this toolbar, otherwise
      * returns FALSE.
      * @return TRUE if there are selected menus in this toolbar, otherwise
@@ -292,7 +311,7 @@ public class MainToolBar
     {
         if(smiliesBox.isMenuSelected())
             return true;
-
+        
         return false;
     }
 
@@ -354,7 +373,6 @@ public class MainToolBar
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
-
     /**
      * Implements the <code>PluginComponentListener.pluginComponentAdded</code>
      * method.
@@ -387,4 +405,46 @@ public class MainToolBar
         }
     }
 
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+
+        Image backgroundImage
+            = ImageLoader.getImage(ImageLoader.TOOL_BAR_BACKGROUND);
+
+        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+    }
+
+    private class ToolBarButton extends JLabel
+    {
+        private Image iconImage;
+
+        public ToolBarButton(String text, Image iconImage)
+        {
+            super(text, new ImageIcon(iconImage), JLabel.CENTER);
+
+            this.setFont(getFont().deriveFont(Font.BOLD, 10f));
+            this.setForeground(new Color(
+                ColorProperties.getColor("toolBarForeground")));
+
+            this.setVerticalTextPosition(SwingConstants.BOTTOM);
+            this.setHorizontalTextPosition(SwingConstants.CENTER);
+        }
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {
+    }
+
+    public void mouseExited(MouseEvent e)
+    {
+    }
+
+    public void mouseReleased(MouseEvent e)
+    {
+    }
 }

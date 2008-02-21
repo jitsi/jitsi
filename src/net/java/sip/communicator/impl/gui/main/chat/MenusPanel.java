@@ -8,10 +8,12 @@
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>MenusPanel</tt> is the panel, containing all toolbars in the chat
@@ -22,7 +24,6 @@ import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 public class MenusPanel
     extends JPanel
 {
-
     private MessageWindowMenuBar menuBar;
 
     private EditTextToolBar editTextToolBar = new EditTextToolBar();
@@ -42,13 +43,21 @@ public class MenusPanel
 
         this.parentWindow = parentWindow;
 
-        mainToolBar = new MainToolBar(this.parentWindow);
+        boolean isToolBarExtended
+            = new Boolean(ApplicationProperties
+                    .getProperty("isToolBarExteneded")).booleanValue();
+
+        if (isToolBarExtended)
+            mainToolBar = new ExtendedMainToolBar(this.parentWindow);
+        else
+            mainToolBar = new MainToolBar(this.parentWindow);
+
         menuBar = new MessageWindowMenuBar(this.parentWindow);
 
-        this.setLayout(new GridLayout(0, 1));
+        this.setLayout(new BorderLayout(5, 5));
 
-        this.add(menuBar);
-        this.add(mainToolBar);
+        this.add(menuBar, BorderLayout.NORTH);
+        this.add(mainToolBar, BorderLayout.CENTER);
         // this.add(editTextToolBar);
     }
 
