@@ -54,8 +54,13 @@ public class WelcomeWindow extends JDialog
         this.versionLabel.setForeground(Constants.TITLE_COLOR);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
+        int logoAreaFontSize = new Integer(
+            BrandingResources.getApplicationString("aboutLogoFontSize"))
+                .intValue();
+
+        this.logoArea.setFont(
+            Constants.FONT.deriveFont(Font.BOLD, logoAreaFontSize));
         this.logoArea.setForeground(Constants.TITLE_COLOR);
-        this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12));
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
         this.logoArea.setWrapStyleWord(true);
@@ -203,12 +208,8 @@ public class WelcomeWindow extends JDialog
 
             g2.drawImage(bgImage, 0, 0, null);
 
-//            g2.setColor(new Color(255, 255, 255, 170));
-//
-//            g2.fillRect(0, 0, getWidth(), getHeight());
-            
             g2.setColor(new Color(150, 150, 150));
-            
+
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 5, 5);
         }
     }

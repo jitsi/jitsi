@@ -87,7 +87,7 @@ public class Resources
      *
      * @param key The key of the string.
      *
-     * @return An internationalized string corresponding to the given key.
+     * @return an int RGB color corresponding to the given key.
      */
     public static String getColor(String key)
     {

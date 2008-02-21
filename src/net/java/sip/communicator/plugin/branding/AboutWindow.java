@@ -28,7 +28,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
             + System.getProperty("sip-communicator.version"));
 
     private JTextArea logoArea = new JTextArea(
-            "Open Source VoIP & Instant Messaging");
+            Resources.getString("logoMessage"));
 
     private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
 
@@ -66,7 +66,12 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.versionLabel.setForeground(Constants.TITLE_COLOR);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.logoArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 14));
+        int logoAreaFontSize = new Integer(
+            BrandingResources.getApplicationString("aboutLogoFontSize")).intValue();
+
+        this.logoArea.setFont(
+            Constants.FONT.deriveFont(Font.BOLD, logoAreaFontSize));
+
         this.logoArea.setForeground(Constants.TITLE_COLOR);
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
