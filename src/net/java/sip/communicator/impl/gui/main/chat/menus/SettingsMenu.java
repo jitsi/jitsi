@@ -57,7 +57,7 @@ public class SettingsMenu
         this.chatWindow = chatWindow;
 
         this.setForeground(new Color(
-            ColorProperties.getColor("chatMenuBarForeground")));
+            ColorProperties.getColor("chatMenuForeground")));
 
         typingNotificationsItem.setName("typingNotifications");
         sendingMessageCommandItem.setName("sendingMessageCommand");

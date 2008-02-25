@@ -444,9 +444,12 @@ public class ExtendedQuickMenu
         g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
     }
 
-    private class ToolBarButton extends JLabel
+    private class ToolBarButton
+        extends JLabel
     {
         private Image iconImage;
+
+        private boolean isMouseOver = false;
 
         public ToolBarButton(String text, Image iconImage)
         {
@@ -459,18 +462,45 @@ public class ExtendedQuickMenu
             this.setVerticalTextPosition(SwingConstants.BOTTOM);
             this.setHorizontalTextPosition(SwingConstants.CENTER);
         }
-    }
 
+        public void setMouseOver(boolean isMouseOver)
+        {
+            this.isMouseOver = isMouseOver;
+            this.repaint();
+        }
+
+        public void paintComponent(Graphics g)
+        {
+            Graphics2D g2 = (Graphics2D) g;
+
+            AntialiasingManager.activateAntialiasing(g2);
+
+            super.paintComponent(g2);
+
+            g2.setStroke(new BasicStroke(1.5f));
+
+            g2.setColor(new Color(0x646464));
+
+            if (isMouseOver)
+                g.drawRoundRect(0, 0, this.getWidth() - 1,
+                                this.getHeight() - 3, 5, 5);
+        }
+    }
+    
     public void mouseClicked(MouseEvent e)
     {
     }
 
     public void mouseEntered(MouseEvent e)
     {
+        ToolBarButton button = (ToolBarButton) e.getSource();
+        button.setMouseOver(true);
     }
 
     public void mouseExited(MouseEvent e)
     {
+        ToolBarButton button = (ToolBarButton) e.getSource();
+        button.setMouseOver(false);
     }
 
     public void mouseReleased(MouseEvent e)

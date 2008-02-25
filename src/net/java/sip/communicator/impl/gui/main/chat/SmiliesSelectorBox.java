@@ -165,6 +165,6 @@ public class SmiliesSelectorBox extends JMenuBar
         this.selectorBox.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.selectorBox.setHorizontalTextPosition(SwingConstants.CENTER);
         this.selectorBox.setForeground(
-            new Color(ColorProperties.getColor("chatMenuBarForeground")));
+            new Color(ColorProperties.getColor("chatMenuForeground")));
     }
 }
