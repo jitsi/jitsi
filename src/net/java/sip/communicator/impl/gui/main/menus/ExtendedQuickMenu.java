@@ -56,7 +56,7 @@ public class ExtendedQuickMenu
         Messages.getI18NString("settings").getText(),
         ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON));
 
-    private ToolBarButton searchButton = new ToolBarButton(
+    private ToolBarButton hideShowButton = new ToolBarButton(
         Messages.getI18NString("showOffline").getText(),
         ImageLoader.getImage(ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON));
 
@@ -97,7 +97,7 @@ public class ExtendedQuickMenu
             new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         this.configureButton.setPreferredSize(
             new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.searchButton.setPreferredSize(
+        this.hideShowButton.setPreferredSize(
             new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         this.addButton.setPreferredSize(
             new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -108,8 +108,8 @@ public class ExtendedQuickMenu
             Messages.getI18NString("userInfo").getText());
         this.configureButton.setToolTipText(
             Messages.getI18NString("configure").getText());
-        this.searchButton.setToolTipText(
-            Messages.getI18NString("showOfflineUsers").getText());
+        this.hideShowButton.setToolTipText(
+            Messages.getI18NString("hideOfflineContacts").getText());
         this.addButton.setToolTipText(
             Messages.getI18NString("addContact").getText());
         this.soundButton.setToolTipText(
@@ -129,24 +129,24 @@ public class ExtendedQuickMenu
         this.add(addButton);
         this.add(configureButton);
         this.add(infoButton);
-        this.add(searchButton);
+        this.add(hideShowButton);
         this.add(soundButton);
 
         this.addButton.setName("add");
         this.configureButton.setName("config");
-        this.searchButton.setName("search");
+        this.hideShowButton.setName("search");
         this.infoButton.setName("info");
         this.soundButton.setName("sound");
 
         this.addButton.addMouseListener(this);
         this.configureButton.addMouseListener(this);
-        this.searchButton.addMouseListener(this);
+        this.hideShowButton.addMouseListener(this);
         this.infoButton.addMouseListener(this);
         this.soundButton.addMouseListener(this);
 
         this.addButton.addComponentListener(this);
         this.configureButton.addComponentListener(this);
-        this.searchButton.addComponentListener(this);
+        this.hideShowButton.addComponentListener(this);
         this.infoButton.addComponentListener(this);
         this.soundButton.addComponentListener(this);
     }
@@ -200,12 +200,11 @@ public class ExtendedQuickMenu
         if (buttonName.equals("add"))
         {
             AddContactWizard wizard = new AddContactWizard(mainFrame);
-            
+
             wizard.setVisible(true);
         }
         else if (buttonName.equals("config"))
         {
-
             configDialog = GuiActivator.getUIService().getConfigurationWindow();
 
             configDialog.setVisible(true);
@@ -217,7 +216,7 @@ public class ExtendedQuickMenu
 
             ContactListModel listModel
                 = (ContactListModel) contactList.getModel();
-            
+
             Object selectedObject = null;
             int currentlySelectedIndex = contactList.getSelectedIndex();
             if(currentlySelectedIndex != -1)
@@ -225,9 +224,30 @@ public class ExtendedQuickMenu
                 selectedObject
                     = listModel.getElementAt(currentlySelectedIndex);
             }
-            
+
+            if(ConfigurationManager.isShowOffline())
+            {
+                button.setText(
+                    "<html><center>"
+                    + Messages.getI18NString("showOffline").getText()
+                    + "</center></html>");
+
+                button.setToolTipText(Messages
+                    .getI18NString("showOfflineContacts").getText());
+            }
+            else
+            {
+                button.setText(
+                    "<html><center>"
+                    + Messages.getI18NString("hideOffline").getText()
+                    + "</center></html>");
+
+                button.setToolTipText(Messages
+                    .getI18NString("hideOfflineContacts").getText());
+            }
+
             contactList.setShowOffline(!ConfigurationManager.isShowOffline());
-            
+
             if (selectedObject != null)
             {
                 if (selectedObject instanceof MetaContact)
@@ -241,7 +261,7 @@ public class ExtendedQuickMenu
                         listModel.indexOf(
                                 (MetaContactGroup) selectedObject));
                 }
-            }           
+            }
         }
         else if (buttonName.equals("info"))
         {
@@ -453,7 +473,9 @@ public class ExtendedQuickMenu
 
         public ToolBarButton(String text, Image iconImage)
         {
-            super(text, new ImageIcon(iconImage), JLabel.CENTER);
+            super(  "<html><center>" + text + "</center></html>",
+                new ImageIcon(iconImage),
+                JLabel.CENTER);
 
             this.setFont(getFont().deriveFont(Font.BOLD, 10f));
             this.setForeground(new Color(
