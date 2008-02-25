@@ -161,7 +161,7 @@ public class SIPAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService finish() {
-        firstWizardPage = null;
+        //firstWizardPage = null;
         ProtocolProviderFactory factory
             = SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
 
