@@ -1570,6 +1570,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/contactinfo"/>
             <zipfileset dir="${resources}/languages/plugin/contactinfo"
                 prefix="resources/languages/plugin/contactinfo"/>
+            <zipfileset dir="${resources}/images/plugin/contactinfo"
+                prefix="resources/images/plugin/contactinfo"/>
         </jar>
     </target>
     
