@@ -557,28 +557,46 @@ public class MclStorageManager
     {
         if(!isStarted())
             return;
+        
+        //we don't want to receive meta contact events triggerred by ourselves
+        //so we stop listening. it is possible but very unlikely that other
+        //events, not triggerred by us are received while we're off the channel
+        //but that would be a very bizzare case ..... I guess we got to live
+        //with the risk.
+        this.mclServiceImpl.removeMetaContactListListener(this);
+        
         try
         {
-            //we don't want to receive meta contact events triggerred by ourselves
-            //so we stop listening. it is possible but very unlikely that other
-            //events, not triggerred by us are received while we're off the channel
-            //but that would be a very bizzare case ..... I guess we got to live
-            //with the risk.
-            this.mclServiceImpl.removeMetaContactListListener(this);
-
             Element root = findMetaContactGroupNode(
                 mclServiceImpl.getRoot().getMetaUID());
 
-            //parse the group node and extract all its child groups and contacts
-            processGroupXmlNode(mclServiceImpl, accountID, root
+            if(root == null)
+            {
+                // If there is no root, there is definitely something wrong
+                // really broken file will create it again
+                logger.fatal("The contactlist file is recreated cause its broken");
+                
+                DocumentBuilderFactory factory =
+                    DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                contactListDocument = builder.newDocument();
+                
+                initVirginDocument(mclServiceImpl, contactListDocument);
+
+                //write the contact list so that it is there for the parser
+                storeContactList0();
+            }
+            else
+            {
+                // if there is root lets parse it
+                //parse the group node and extract all its child groups and contacts
+                processGroupXmlNode(mclServiceImpl, accountID, root
                                 , null, null);
-
-            //now save the contact list in case it has changed
-            scheduleContactListStorage();
-
-            //now that we're done updating the contact list we can start listening
-            //again
-            this.mclServiceImpl.addMetaContactListListener(this);
+                
+                //now save the contact list in case it has changed
+                scheduleContactListStorage();
+            }
+             
         }catch(Throwable exc)
         {
             // catch everything because we MUST NOT disturb the thread
@@ -586,6 +604,12 @@ public class MclStorageManager
             //exceptions or others of the sort
             throw new XMLException("Failed to extract contacts for account "
                                    +accountID, exc);
+        }
+        finally
+        {
+            //now that we're done updating the contact list we can start listening
+            //again
+            this.mclServiceImpl.addMetaContactListListener(this);
         }
     }
 
