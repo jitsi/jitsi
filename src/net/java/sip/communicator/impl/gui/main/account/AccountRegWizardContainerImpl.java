@@ -101,8 +101,19 @@ public class AccountRegWizardContainerImpl
 
             ArrayList accountsList = providerFactory.getRegisteredAccounts();
 
-            if (accountsList != null && accountsList.size() > 0)
-                hasRegisteredAccounts = true;
+            AccountID accountID;
+            for (int i = 0; i < accountsList.size(); i++)
+            {
+                accountID = (AccountID) accountsList.get(i);
+                boolean isHidden = accountID.getAccountProperties().
+                    get("HIDDEN_PROTOCOL") != null;
+                
+                if(!isHidden)
+                {
+                    hasRegisteredAccounts = true;
+                    break;
+                }
+            }
         }
 
         String preferredWizardName
