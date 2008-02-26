@@ -12,6 +12,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -72,12 +73,14 @@ public class ChatContact
         this.address = contact.getAddress();
         this.isMultiChatContact = false;
         this.protocolProvider = contact.getProtocolProvider();
-        
+
         if(metaContact != null)
             name = metaContact.getDisplayName();
         else
             name = contact.getDisplayName();
-        
+
+        if (name == null || name.length() < 1)
+            name = Messages.getI18NString("unknown").getText();
     }
     
     /**
@@ -90,10 +93,13 @@ public class ChatContact
     public ChatContact(ChatRoomMember chatRoomMember)
     {
         this.sourceContact = chatRoomMember;
-        this.name = chatRoomMember.getName();
         this.address = chatRoomMember.getContactAddress();
         this.isMultiChatContact = true;
         this.protocolProvider = chatRoomMember.getProtocolProvider();
+        this.name = chatRoomMember.getName();
+
+        if (name == null || name.length() < 1)
+            name = Messages.getI18NString("unknown").getText();
     }
 
     /**

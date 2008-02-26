@@ -241,7 +241,9 @@ public class MetaContactChatPanel
     }
 
     /**
-     * Returns the datetime of the first message in history fot this chat.
+     * Returns the date of the first message in history for this chat.
+     * 
+     * @return the date of the first message in history for this chat.
      */
     public Date getFirstHistoryMsgTimestamp()
     {
@@ -249,7 +251,9 @@ public class MetaContactChatPanel
     }
 
     /**
-     * Returns the datetime of the last message in history for this chat.
+     * Returns the date of the last message in history for this chat.
+     * 
+     * @return the date of the last message in history for this chat.
      */
     public Date getLastHistoryMsgTimestamp()
     {
@@ -258,10 +262,17 @@ public class MetaContactChatPanel
     
     /**
      * Returns the name of this chat.
+     * 
+     * @return the name of this chat
      */
     public String getChatName()
     {
-        return metaContact.getDisplayName();
+        String displayName = metaContact.getDisplayName();
+
+        if (displayName != null && displayName.length() > 0)
+            return metaContact.getDisplayName();
+
+        return Messages.getI18NString("unknown").getText();
     }
     
     /**
