@@ -87,8 +87,6 @@ public class QuickMenu
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 
-        System.out.println("BUTTON WIDTH===========" + BUTTON_WIDTH);
-        System.out.println("BUTTON HEIGHT===========" + BUTTON_HEIGHT);
         this.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
 
         this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
