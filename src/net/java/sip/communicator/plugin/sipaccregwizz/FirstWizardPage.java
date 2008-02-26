@@ -325,8 +325,14 @@ public class FirstWizardPage
     public void pageNext()
     {
         String uin = uinField.getText();
+        int indexOfSeparator = uin.indexOf('@'); 
+        if (indexOfSeparator > -1) {
+            uin = uin.substring(0, indexOfSeparator);
+        }
+        
+        String server = serverField.getText();
 
-        if (!wizard.isModification() && isExistingAccount(uin))
+        if (!wizard.isModification() && isExistingAccount(uin, server))
         {
             nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
             uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
@@ -562,7 +568,7 @@ public class FirstWizardPage
         }
     }
 
-    private boolean isExistingAccount(String accountName)
+    private boolean isExistingAccount(String accountName, String serverName)
     {
         ProtocolProviderFactory factory =
             SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
@@ -573,7 +579,8 @@ public class FirstWizardPage
         {
             AccountID accountID = (AccountID) registeredAccounts.get(i);
 
-            if (accountName.equalsIgnoreCase(accountID.getUserID()))
+            if (accountName.equalsIgnoreCase(accountID.getUserID())
+                    && serverName.equalsIgnoreCase(accountID.getService()))
                 return true;
         }
         return false;

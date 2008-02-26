@@ -105,9 +105,7 @@ public class ProtocolProviderFactorySipImpl
         String serverAddress = (String)accountProperties.get(SERVER_ADDRESS);
 
         if(serverAddress == null)
-            throw new NullPointerException(
-                        serverAddress
-                        + " is not a valid ServerAddress");
+            throw new NullPointerException("null is not a valid ServerAddress");
 
         AccountID accountID =
             new SipAccountID(userIDStr, accountProperties, serverAddress);
