@@ -468,7 +468,8 @@ public class Wizard
         nextButton.addActionListener(wizardController);
         cancelButton.addActionListener(wizardController);
 
-        backButton.setMnemonic(Messages.getI18NString("back").getMnemonic());
+        backButton
+            .setMnemonic(Messages.getI18NString("previous").getMnemonic());
         nextButton.setMnemonic(Messages.getI18NString("next").getMnemonic());
         cancelButton
             .setMnemonic(Messages.getI18NString("cancel").getMnemonic());
@@ -509,7 +510,7 @@ public class Wizard
 
     static
     {
-        BACK_TEXT = Messages.getI18NString("back").getText();
+        BACK_TEXT = Messages.getI18NString("previous").getText();
         NEXT_TEXT = Messages.getI18NString("next").getText();
         CANCEL_TEXT = Messages.getI18NString("cancel").getText();
         FINISH_TEXT = Messages.getI18NString("finish").getText();
