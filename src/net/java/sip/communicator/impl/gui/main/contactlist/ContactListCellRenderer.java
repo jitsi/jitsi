@@ -14,6 +14,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -91,15 +92,22 @@ public class ContactListCellRenderer extends JPanel
 
             MetaContact contactItem = (MetaContact) value;
 
-            toolTipText += "<b>"+contactItem.getDisplayName()+"</b>";
+            String displayName = contactItem.getDisplayName();
 
-            this.nameLabel.setText(contactItem.getDisplayName());
+            if (displayName == null || displayName.length() < 1)
+            {
+                displayName = Messages.getI18NString("unknown").getText();
+            }
+
+            toolTipText += "<b>"+displayName+"</b>";
+
+            this.nameLabel.setText(displayName);
 
             this.nameLabel.setIcon(listModel
                     .getMetaContactStatusIcon(contactItem));
-            
+
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
-            
+
             this.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
             // We should set the bounds of the cell explicitely in order to
@@ -112,14 +120,14 @@ public class ContactListCellRenderer extends JPanel
             int buttonsPanelWidth = 0;
             while (i.hasNext()) {
                 Contact protocolContact = (Contact) i.next();
-                
+
                 Image protocolStatusIcon
                     = ImageLoader.getBytesInImage(
                             protocolContact.getPresenceStatus().getStatusIcon());
 
                 int providerIndex = mainFrame.getProviderIndex(
                         protocolContact.getProtocolProvider());
-                
+
                 Image img;
                 if(providerIndex > 0) {
                     img = createIndexedImage(protocolStatusIcon, providerIndex);
@@ -131,7 +139,7 @@ public class ContactListCellRenderer extends JPanel
                     = new ContactProtocolButton(img);
 
                 contactProtocolButton.setProtocolContact(protocolContact);
-                
+
                 contactProtocolButton.setBounds(buttonsPanelWidth,
                         16, 
                         CONTACT_PROTOCOL_BUTTON_WIDTH,//the width is fixed in 
