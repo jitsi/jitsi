@@ -6,11 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>SIPCommMenu</tt> is very similar to a JComboBox. The main
@@ -27,7 +29,9 @@ public class SIPCommMenu
     private Object selectedItem;
 
     private Object selectedObject;
-        
+
+    private boolean isMouseOver;
+
     /**
      * Creates an instance of <tt>SIPCommMenu</tt>.
      */
@@ -94,5 +98,38 @@ public class SIPCommMenu
     public Object getSelectedObject()
     {
         return this.selectedObject;
+    }
+
+    /**
+     * Sets the isMouseOver property value and repaints this component.
+     * 
+     * @param isMouseOver <code>true</code> to indicate that the mouse is over
+     * this component, <code>false</code> - otherwise.
+     */
+    public void setMouseOver(boolean isMouseOver)
+    {
+        this.isMouseOver = isMouseOver;
+        this.repaint();
+    }
+
+    /**
+     * Overwrites the <tt>paintComponent(Graphics g)</tt> method in order to
+     * provide a new look and the mouse moves over this component.
+     */
+    public void paintComponent(Graphics g)
+    {
+        Graphics2D g2 = (Graphics2D) g;
+
+        AntialiasingManager.activateAntialiasing(g2);
+
+        super.paintComponent(g2);
+
+        g2.setStroke(new BasicStroke(1.5f));
+
+        g2.setColor(new Color(0x646464));
+
+        if (isMouseOver)
+            g.drawRoundRect(0, 0, this.getWidth() - 1,
+                            this.getHeight() - 3, 5, 5);
     }
 }

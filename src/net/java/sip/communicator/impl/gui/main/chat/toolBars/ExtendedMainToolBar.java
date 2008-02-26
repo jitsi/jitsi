@@ -99,6 +99,7 @@ public class ExtendedMainToolBar
             ImageLoader.getDefaultSmiliesPack(), messageWindow);
 
         this.smiliesBox.setText(Messages.getI18NString("smiley").getText());
+        this.smiliesBox.setRollover(true);
 
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));

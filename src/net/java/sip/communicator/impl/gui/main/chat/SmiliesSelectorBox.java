@@ -43,6 +43,9 @@ public class SmiliesSelectorBox extends JMenuBar
     private static int BUTTON_WIDTH
         = SizeProperties.getSize("mainToolbarButtonWidth");
 
+    private SelectorBoxRolloverListener rolloverListener
+        = new SelectorBoxRolloverListener();
+
     /**
      * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes
      * the panel with the smiley icons given by the incoming imageList.
@@ -166,5 +169,37 @@ public class SmiliesSelectorBox extends JMenuBar
         this.selectorBox.setHorizontalTextPosition(SwingConstants.CENTER);
         this.selectorBox.setForeground(
             new Color(ColorProperties.getColor("chatMenuForeground")));
+    }
+
+    /**
+     * Enables or disabled the roll-over effect, when user moves the mouse over
+     * this smilies selector box.
+     * 
+     * @param isRollover <code>true</code> to enable the roll-over,
+     * <code>false</code> - otherwise.
+     */
+    public void setRollover(boolean isRollover)
+    {
+        if(isRollover)
+            selectorBox.addMouseListener(rolloverListener);
+        else
+            selectorBox.removeMouseListener(rolloverListener);
+    }
+
+    /**
+     * Handles <tt>MouseEvent</tt>s and changes the state of the contained
+     * selector box in order to make a roll-over effect.
+     */
+    private class SelectorBoxRolloverListener extends MouseAdapter
+    {
+        public void mouseEntered(MouseEvent e)
+        {
+            selectorBox.setMouseOver(true);
+        }
+
+        public void mouseExited(MouseEvent e)
+        {
+            selectorBox.setMouseOver(false);
+        }
     }
 }
