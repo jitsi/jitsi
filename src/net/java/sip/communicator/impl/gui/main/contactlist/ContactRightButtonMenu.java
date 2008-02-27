@@ -589,10 +589,10 @@ public class ContactRightButtonMenu
         {
             try
             {
-                if(Constants.REMOVE_CONTACT_ASK) {
-                    String message = "<HTML>Are you sure you want to remove <B>"
-                        + contact.getDisplayName()
-                        + "</B><BR>from your contact list?</html>";
+                if(Constants.REMOVE_CONTACT_ASK)
+                {
+                    String message = Messages.getI18NString("removeContactText",
+                        new String[]{contact.getDisplayName()}).getText();
 
                     MessageDialog dialog = new MessageDialog(
                             mainFrame,
@@ -633,11 +633,11 @@ public class ContactRightButtonMenu
     private class RemoveAllContactsThread extends Thread
     {
         public void run() {
-            if(Constants.REMOVE_CONTACT_ASK) {
+            if(Constants.REMOVE_CONTACT_ASK)
+            {
                 String message
-                    = "<HTML>Are you sure you want to remove <B>"
-                    + allContactsString.getText()
-                    + "</B><BR>from your contact list?</html>";
+                    = Messages.getI18NString("removeContactText",
+                        new String[]{contactItem.getDisplayName()}).getText();
 
                 MessageDialog dialog
                     = new MessageDialog(mainFrame,

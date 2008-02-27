@@ -40,7 +40,7 @@ public class MessageDialog
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.WARNING_ICON)));
 
-    private JTextArea messageArea = new JTextArea();
+    private StyledHTMLEditorPane messageArea = new StyledHTMLEditorPane();
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -80,8 +80,9 @@ public class MessageDialog
 
         this.getContentPane().setLayout(new BorderLayout(5, 5));
 
-        this.messageArea.setLineWrap(true);
-        this.messageArea.setWrapStyleWord(true);
+        this.messageArea.setOpaque(false);
+        this.messageArea.setEditable(false);
+        this.messageArea.setContentType("text/html");
 
         this.messagePanel.setBorder(
             BorderFactory.createEmptyBorder(10, 10, 0, 10));

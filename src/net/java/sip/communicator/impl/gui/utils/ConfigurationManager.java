@@ -31,7 +31,7 @@ public class ConfigurationManager
     
     private static boolean isApplicationVisible = true;
     
-    private static boolean isApplicationVisibleSaved = false;
+    private static boolean isQuitWarningShown = true;
     
     private static boolean isSendTypingNotifications = true;
     
@@ -84,14 +84,14 @@ public class ConfigurationManager
             isApplicationVisible = new Boolean(isVisible).booleanValue();
         }
 
-        // Load the "showApplicationSaved" property.
-        String isVisibleSaved = configService.getString(
-            "net.java.sip.communicator.impl.systray.showApplicationSaved");
+        // Load the "showAppQuitWarning" property.
+        String quitWarningShown = configService.getString(
+            "net.java.sip.communicator.impl.gui.quitWarningShown");
 
-        if(isVisible != null && isVisible != "")
+        if(quitWarningShown != null && quitWarningShown != "")
         {
-            isApplicationVisibleSaved
-                = new Boolean(isVisibleSaved).booleanValue();
+            isQuitWarningShown
+                = new Boolean(quitWarningShown).booleanValue();
         }
 
         // Load the "sendTypingNotifications" property.
@@ -154,15 +154,16 @@ public class ConfigurationManager
     }
 
     /**
-     * Return TRUE if "showApplicationSaved" property is true, otherwise -
-     * return FALSE. Indicates to the user interface whether the main
-     * application window should shown or hidden on startup.
-     * @return TRUE if "showApplicationSaved" property is true, otherwise -
-     * return FALSE.
+     * Return TRUE if "quitWarningShown" property is true, otherwise -
+     * return FALSE. Indicates to the user interface whether the quit warning
+     * dialog should be shown when user clicks on the X button.
+     * @return TRUE if "quitWarningShown" property is true, otherwise -
+     * return FALSE. Indicates to the user interface whether the quit warning
+     * dialog should be shown when user clicks on the X button.
      */
-    public static boolean isApplicationVisibleSaved()
+    public static boolean isQuitWarningShown()
     {
-        return isApplicationVisibleSaved;
+        return isQuitWarningShown;
     }
 
     /**
@@ -257,19 +258,20 @@ public class ConfigurationManager
     }
 
     /**
-     * Updates the "showApplicationSaved" property through the
+     * Updates the "showAppQuitWarning" property through the
      * <tt>ConfigurationService</tt>.
      * 
-     * @param isSaved <code>true</code> to indicate that the
-     * application visible property is saved, <code>false</code> otherwise.
+     * @param isWarningShown indicates if the message warning the user that the
+     * application would not be closed if she clicks the X button would be
+     * shown again.
      */
-    public static void setApplicationVisibleSaved(boolean isSaved)
+    public static void setQuitWarningShown(boolean isWarningShown)
     {
-        isApplicationVisibleSaved = isSaved;
-            
+        isQuitWarningShown = isWarningShown;
+
         configService.setProperty(
-                "net.java.sip.communicator.impl.systray.showApplicationSaved",
-                new Boolean(isSaved));
+                "net.java.sip.communicator.impl.gui.quitWarningShown",
+                new Boolean(isQuitWarningShown));
     }
 
     /**

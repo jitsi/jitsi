@@ -685,7 +685,7 @@ public class MainFrame
                 {
                     public void run()
                     {
-                        if(!ConfigurationManager.isApplicationVisibleSaved())
+                        if(ConfigurationManager.isQuitWarningShown())
                         {
                             MessageDialog dialog
                                 = new MessageDialog(
@@ -700,7 +700,7 @@ public class MainFrame
                             if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
                             {
                                 ConfigurationManager
-                                    .setApplicationVisibleSaved(true);
+                                    .setQuitWarningShown(false);
                             }
                         }
                     }

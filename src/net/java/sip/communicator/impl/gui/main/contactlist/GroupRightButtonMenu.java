@@ -155,7 +155,7 @@ public class GroupRightButtonMenu
         if(itemName.equals("removeGroup"))
         {   
             if(group != null) 
-                new RemoveGroupThread(group).start();                
+                new RemoveGroupThread(group).start();
         }
         else if(itemName.equals("renameGroup"))
         {
@@ -208,9 +208,8 @@ public class GroupRightButtonMenu
             try
             {
                 if(Constants.REMOVE_CONTACT_ASK) {
-                String message = "<HTML>Are you sure you want to remove <B>"
-                        + this.group.getGroupName()
-                    + "</B><BR>from your contact list?</html>";
+                    String message = Messages.getI18NString("removeContactText",
+                        new String[]{group.getGroupName()}).getText();
 
                     MessageDialog dialog = new MessageDialog(
                             mainFrame,
