@@ -24,7 +24,9 @@ import net.java.sip.communicator.service.contactlist.*;
  */
 public class CallComboBox
     extends SIPCommSmartComboBox
-    implements ActionListener, DocumentListener
+    implements  ActionListener,
+                DocumentListener,
+                FocusListener
 {
     private CallManager callManager;
 
@@ -45,6 +47,8 @@ public class CallComboBox
         textField.getActionMap().put("createCall", new CreateCallAction());
         textField.getInputMap().put(
             KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "createCall");
+
+        textField.addFocusListener(this);
     }
 
     /**
@@ -116,7 +120,9 @@ public class CallComboBox
                     .getContactList().getSelectedValue();
 
             if (o == null || !(o instanceof MetaContact))
+            {
                 callManager.getCallButton().setEnabled(false);
+            }
         }
     }
 
@@ -139,5 +145,14 @@ public class CallComboBox
                     setPopupVisible(true);
             }
         }
+    }
+
+    public void focusGained(FocusEvent e)
+    {
+        this.handleChange();
+    }
+
+    public void focusLost(FocusEvent e)
+    {
     }
 }
