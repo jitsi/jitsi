@@ -65,7 +65,6 @@ public class ContactListModel
      */
     public ContactListModel(MetaContactListService contactList)
     {
-
         this.contactList = contactList;
 
         this.rootGroup = this.contactList.getRoot();
@@ -80,7 +79,6 @@ public class ContactListModel
      */
     public void contentChanged(int startIndex, int endIndex)
     {
-
         fireContentsChanged(this, startIndex, endIndex);
     }
 
@@ -93,7 +91,6 @@ public class ContactListModel
      */
     public void contentAdded(final int startIndex, final int endIndex)
     {
-
         fireIntervalAdded(this, startIndex, endIndex);
     }
 
@@ -105,7 +102,6 @@ public class ContactListModel
      */
     public void contentRemoved(final int startIndex, final int endIndex)
     {
-
         fireIntervalRemoved(this, startIndex, endIndex);
     }
 
@@ -116,7 +112,9 @@ public class ContactListModel
      */
     public int getSize()
     {
-        return this.getContactListSize(rootGroup);
+        int size = this.getContactListSize(rootGroup);
+
+        return size;
     }
 
     /**
@@ -178,8 +176,19 @@ public class ContactListModel
         }
         else
         {
-            //count the closed group
-            size++;
+            // If offline contacts are shown we just count the closed group;
+            if(showOffline)
+            {
+                //count the closed group
+                size++;
+            }
+            else
+            {
+                // If offline contacts are not shown we'll count the group
+                // only if it contains online contacts.
+                if( containsOnlineContacts(group))
+                    size++;
+            }
         }
 
         return size;
