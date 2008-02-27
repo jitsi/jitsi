@@ -235,6 +235,7 @@ public class ContactMsnImpl
             return;
 
         this.isResolved = true;
+        this.isPersistent = true;
         contact = entry;
     }
 

@@ -217,12 +217,12 @@ public class OperationSetPersistentPresenceMsnImpl
      * be added to the server stored contact list. The volatile contact would
      * remain in the list until it is really added to the contact list or
      * until the application is terminated.
-     * @param id the address of the contact to create.
+     * @param contact the msn contact.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
-    public ContactMsnImpl createVolatileContact(String id)
+    public ContactMsnImpl createVolatileContact(MsnContact contact)
     {
-        return ssContactList.createVolatileContact(id);
+        return ssContactList.createVolatileContact(contact);
     }
 
     /**

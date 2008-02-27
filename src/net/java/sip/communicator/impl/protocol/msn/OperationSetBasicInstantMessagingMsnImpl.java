@@ -31,7 +31,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
         Logger.getLogger(OperationSetBasicInstantMessagingMsnImpl.class);
 
     /**
-     * A list of listeneres registered for message events.
+     * A list of listeners registered for message events.
      */
     private Vector messageListeners = new Vector();
 
@@ -60,7 +60,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
     }
 
     /**
-     * Registeres a MessageListener with this operation set so that it gets
+     * Registers a MessageListener with this operation set so that it gets
      * notifications of successful message delivery, failure or reception of
      * incoming messages..
      *
@@ -78,7 +78,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
     }
 
     /**
-     * Unregisteres <tt>listener</tt> so that it won't receive any further
+     * Unregisters <tt>listener</tt> so that it won't receive any further
      * notifications upon successful message delivery, failure or reception of
      * incoming messages..
      *
@@ -93,7 +93,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
     }
 
     /**
-     * Determines wheter the protocol provider (or the protocol itself) support
+     * Determines whether the protocol provider (or the protocol itself) support
      * sending and receiving offline messages. Most often this method would
      * return true for protocols that support offline messages and false for
      * those that don't. It is however possible for a protocol to support these
@@ -112,7 +112,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
     }
     
     /**
-     * Determines wheter the protocol supports the supplied content type
+     * Determines whether the protocol supports the supplied content type
      *
      * @param contentType the type we want to check
      * @return <tt>true</tt> if the protocol supports it and
@@ -176,8 +176,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
                "The specified contact is not an MSN contact."
                + to);
 
-
-        if(to.getPresenceStatus().equals(MsnStatusEnum.OFFLINE))
+        if( to.isPersistent() &&
+            to.getPresenceStatus().equals(MsnStatusEnum.OFFLINE))
         {
             MessageDeliveryFailedEvent evt =
                 new MessageDeliveryFailedEvent(
@@ -226,7 +226,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -255,7 +255,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
     /**
      * Delivers the specified event to all registered message listeners.
      * @param evt the <tt>EventObject</tt> that we'd like delivered to all
-     * registered message listerners.
+     * registered message listeners.
      */
     private void fireMessageEvent(EventObject evt)
     {
@@ -303,8 +303,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
                 logger.debug("received a message from an unknown contact: "
                                    + contact);
                 //create the volatile contact
-                sourceContact = opSetPersPresence
-                    .createVolatileContact(contact.getEmail().getEmailAddress());
+                sourceContact = opSetPersPresence.
+                    createVolatileContact(contact);
             }
 
             MessageReceivedEvent msgReceivedEvt
@@ -367,7 +367,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
                                     + " &lt;" + message.getFromAddr() + "&gt;");
                  //create the volatile contact
                  sourceContact = opSetPersPresence
-                     .createVolatileContact(message.getFromAddr());
+                     .createVolatileContact(contact);
              }
              MessageReceivedEvent msgReceivedEvt
                  = new MessageReceivedEvent(

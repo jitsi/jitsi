@@ -17,10 +17,21 @@ public class VolatileContact
     implements MsnContact
 {
     private String contactId = null;
+    private String displayName = null;
+    private String emailAddress = null;
 
+    VolatileContact(String id, String emailAddress, String displayName)
+    {
+        this.contactId = id;
+        this.emailAddress = emailAddress;
+        this.displayName = displayName;
+    }
+    
     VolatileContact(String id)
     {
         this.contactId = id;
+        this.emailAddress = id;
+        this.displayName = id;
     }
 
     public MsnContactList getContactList(){return null;}
@@ -32,7 +43,7 @@ public class VolatileContact
 
     public String getFriendlyName()
     {
-        return contactId;
+        return displayName;
     }
 
     public boolean isInList(MsnList msnList){return false;}
@@ -41,9 +52,9 @@ public class VolatileContact
 
     public boolean belongGroup(MsnGroup msnGroup){return false;}
 
-    public Email getEmail(){return null;}
+    public Email getEmail(){return Email.parseStr(emailAddress);}
 
-    public String getDisplayName(){return "";}
+    public String getDisplayName(){return displayName;}
 
     public MsnUserStatus getStatus(){return null;}
 

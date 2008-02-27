@@ -36,7 +36,7 @@ public class ServerStoredContactListMsnImpl
     private static final String VOLATILE_GROUP_NAME = "NotInContactList";
 
     /**
-     * The root contagroup. The container for all msn buddies and groups.
+     * The root group. The container for all msn buddies and groups.
      */
     private RootContactGroupMsnImpl rootGroup = new RootContactGroupMsnImpl();
 
@@ -236,7 +236,7 @@ public class ServerStoredContactListMsnImpl
     }
 
     /**
-     * Retrns a reference to the provider that created us.
+     * Returns a reference to the provider that created us.
      * @return a reference to a ProtocolProviderServiceImpl instance.
      */
     ProtocolProviderServiceMsnImpl getParentProvider()
@@ -311,7 +311,7 @@ public class ServerStoredContactListMsnImpl
      *
      * @param child the contact whose parent group we're looking for.
      * @return the <tt>ContactGroup</tt> containing the specified
-     * <tt>contact</tt> or <tt>null</tt> if no such groupo or contact
+     * <tt>contact</tt> or <tt>null</tt> if no such group or contact
      * exist.
      */
     public ContactGroup findContactGroup(ContactMsnImpl child)
@@ -412,10 +412,13 @@ public class ServerStoredContactListMsnImpl
      * @param id the address of the contact to create.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
-    ContactMsnImpl createVolatileContact(String id)
+    ContactMsnImpl createVolatileContact(MsnContact contact)
     {
         //First create the new volatile contact;
-        VolatileContact volatileBuddy = new VolatileContact(id);
+        VolatileContact volatileBuddy = 
+            new VolatileContact(contact.getId(), 
+                                contact.getEmail().getEmailAddress(),
+                                contact.getDisplayName());
 
         ContactMsnImpl newVolatileContact
             = new ContactMsnImpl(volatileBuddy, this, false, false);
@@ -457,7 +460,7 @@ public class ServerStoredContactListMsnImpl
      * isResolved field would be updated instead of creating the whole contact
      * again.
      *
-     * @param parentGroup the group where the unersolved contact is to be
+     * @param parentGroup the group where the unresolved contact is to be
      * created
      * @param id the Address of the contact to create.
      * @return the newly created unresolved <tt>ContactImpl</tt>
@@ -611,15 +614,31 @@ public class ServerStoredContactListMsnImpl
         }
         else
         {
-            logger.trace("Will Move from " +  contact.getParentContactGroup()
-                + " to : " + newParent + " - contact: " + contact);
-            contactListModListenerImpl.waitForMove(contact.getAddress());
-            msnProvider.getMessenger().moveFriend(
-                contact.getSourceContact().getEmail(),
-                ( (ContactGroupMsnImpl) contact.getParentContactGroup()).
-                    getSourceGroup().getGroupId(),
-                newParent.getSourceGroup().getGroupId()
-                );
+            if( !contact.isPersistent() &&
+                !contact.getParentContactGroup().isPersistent())
+            {
+                try
+                {
+                    addContact(newParent, contact.getAddress());
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Failed to add contact from " +
+                        "NotInContactList group to new group: " + newParent, ex);
+                }
+            }
+            else
+            {
+                logger.trace("Will Move from " +  contact.getParentContactGroup()
+                    + " to : " + newParent + " - contact: " + contact);
+                contactListModListenerImpl.waitForMove(contact.getAddress());
+                msnProvider.getMessenger().moveFriend(
+                    contact.getSourceContact().getEmail(),
+                    ( (ContactGroupMsnImpl) contact.getParentContactGroup()).
+                        getSourceGroup().getGroupId(),
+                    newParent.getSourceGroup().getGroupId()
+                    );
+            }
         }
     }
 
@@ -716,7 +735,7 @@ public class ServerStoredContactListMsnImpl
     }
 
     /**
-     * Wiats for init in the contact list and populates the contacts and fills or
+     * Waits for init in the contact list and populates the contacts and fills or
      * resolves our contact list
      */
     private class ContactListListener
@@ -888,7 +907,7 @@ public class ServerStoredContactListMsnImpl
     /**
      * Waits for adding contact and if pointed
      * copy the contact in the specified group
-     * This listner emulates fireing event for adding buddy in group.
+     * This listener emulates firing event for adding buddy in group.
      * The msn does not support adding a contact directly to a group.
      * The contact first must be added to the list then it is copied to a group
      */
@@ -940,7 +959,7 @@ public class ServerStoredContactListMsnImpl
     }
 
     /**
-     * Imulates firing adding contact in group and moving contact to group.
+     * Emulates firing adding contact in group and moving contact to group.
      * When moving contact it is first adding to the new group then
      * it is removed from the old one.
      */
@@ -971,7 +990,7 @@ public class ServerStoredContactListMsnImpl
             ContactMsnImpl contact =
                     findContactById(newContact.getEmail().getEmailAddress());
 
-            if(contact != null)
+            if(contact != null && contact.isPersistent())
             {
                 contact.setResolved(newContact);
                 fireContactResolved(contact.getParentContactGroup(), contact);
@@ -1054,11 +1073,27 @@ public class ServerStoredContactListMsnImpl
                             new ContactMsnImpl(
                             contact, ServerStoredContactListMsnImpl.this, true, true);
                     }
+                    else
+                    {
+                        if(!contactToAdd.isPersistent())
+                        {
+                            logger.info("hummm");
+                            
+                            waitAddInGroup.remove(contactID);
+                            contactToAdd.setResolved(contact);
+                            dstGroup.addContact(contactToAdd);
 
-                    waitAddInGroup.remove(contactID);
-                    dstGroup.addContact(contactToAdd);
+                            fireContactMoved(contactToAdd.getParentContactGroup(), 
+                                dstGroup, contactToAdd);
+                        }
+                        else
+                        {
+                            waitAddInGroup.remove(contactID);
+                            dstGroup.addContact(contactToAdd);
 
-                    fireContactAdded(dstGroup, contactToAdd);
+                            fireContactAdded(dstGroup, contactToAdd);
+                        }
+                    }
                 }
                 else
                 {
@@ -1188,7 +1223,7 @@ public class ServerStoredContactListMsnImpl
 
     /**
      * Sets the messenger instance impl of the lib
-     * which comunicates with the server
+     * which communicates with the server
      * @param messenger MsnMessenger
      */
     void setMessenger(MsnMessenger messenger)
@@ -1205,7 +1240,7 @@ public class ServerStoredContactListMsnImpl
     }
     
     /**
-     * when there is no image for contact we must retreive it 
+     * when there is no image for contact we must retrieve it 
      * add contacts for image update
      *
      * @param c ContactJabberImpl
@@ -1213,7 +1248,7 @@ public class ServerStoredContactListMsnImpl
     protected void addContactForImageUpdate(ContactMsnImpl c)
     {
         // Get the MSnObject
-	MsnObject avatar = c.getSourceContact().getAvatar(); 
+        MsnObject avatar = c.getSourceContact().getAvatar(); 
         
         if (avatar != null) 
         {
@@ -1224,7 +1259,7 @@ public class ServerStoredContactListMsnImpl
     }
 
     /**
-     * used for debuging. Printing the serverside lists that msn supports
+     * used for debugging. Printing the serverside lists that msn supports
      */
     public void printList()
     {
