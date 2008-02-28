@@ -864,7 +864,7 @@ public class ServerStoredContactListMsnImpl
         public void contactRemoveCompleted(MsnMessenger messenger, MsnContact contact){}
         public void groupAddCompleted(MsnMessenger messenger, MsnGroup group){}
         public void groupRemoveCompleted(MsnMessenger messenger, MsnGroup group){}
-    }
+        }
 
     /**
      * Waits for removing a group
@@ -1072,13 +1072,16 @@ public class ServerStoredContactListMsnImpl
                         contactToAdd =
                             new ContactMsnImpl(
                             contact, ServerStoredContactListMsnImpl.this, true, true);
+                        
+                        waitAddInGroup.remove(contactID);
+                        dstGroup.addContact(contactToAdd);
+
+                        fireContactAdded(dstGroup, contactToAdd);
                     }
                     else
                     {
                         if(!contactToAdd.isPersistent())
                         {
-                            logger.info("hummm");
-                            
                             waitAddInGroup.remove(contactID);
                             contactToAdd.setResolved(contact);
                             dstGroup.addContact(contactToAdd);
