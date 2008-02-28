@@ -37,7 +37,7 @@
     <property name="log" value="log"/>
     <property name="release.src" value="${release}/install"/>
     <property name="resources" value="${dest}/resources"/>
-    <property name="inst.resrc" value="${basedir}/resources/install"/>
+    <property name="inst.resrc" value="${sc.basedir}/resources/install"/>
     <property name="path" value="${lib}/native/windows;${system.PATH}"/>
 
     <!-- set the build label property and make it take the cc bild into account -->
@@ -271,8 +271,8 @@
             </fileset>
         </copy>
         <copy todir="${resources}">
-           <fileset dir="${basedir}/resources">
-                        <include name="**/*"/>
+           <fileset dir="${sc.basedir}/resources">
+                <include name="**/*"/>
            </fileset>
         </copy>
     </target>
@@ -282,10 +282,10 @@
              convert property file encoding from UTF-8 to ASCII,
              save converted files in ${dest} dir -->
         <native2ascii
-            src="${basedir}/resources/languages"
-            dest="${dest}/resources/languages"
+            src="${sc.basedir}/resources/languages"
+            dest="${resources}/languages"
             encoding="UTF-8"
-            includes="**/*.properties*"/>
+            includes="**/*.properties"/>
     </target>
 
     <!-- JAVADOC -->
