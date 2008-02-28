@@ -12,6 +12,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -126,6 +127,152 @@ public class SIPCommDefaultTheme
     private static final FontUIResource BASIC_FONT
         = new FontUIResource(Constants.FONT);
 
+    Object fieldInputMap = new UIDefaults.LazyInputMap(
+        new Object[]
+           {
+            "meta C", DefaultEditorKit.copyAction,
+            "ctrl C", DefaultEditorKit.copyAction,
+            "meta V", DefaultEditorKit.pasteAction,
+            "ctrl V", DefaultEditorKit.pasteAction,
+            "meta X", DefaultEditorKit.cutAction,
+            "ctrl X", DefaultEditorKit.cutAction,
+            "COPY", DefaultEditorKit.copyAction,
+            "PASTE", DefaultEditorKit.pasteAction,
+            "CUT", DefaultEditorKit.cutAction,
+            "shift LEFT", DefaultEditorKit.selectionBackwardAction,
+            "shift KP_LEFT", DefaultEditorKit.selectionBackwardAction,
+            "shift RIGHT", DefaultEditorKit.selectionForwardAction,
+            "shift KP_RIGHT", DefaultEditorKit.selectionForwardAction,
+            "ctrl LEFT", DefaultEditorKit.previousWordAction,
+            "ctrl KP_LEFT", DefaultEditorKit.previousWordAction,
+            "ctrl RIGHT", DefaultEditorKit.nextWordAction,
+            "ctrl KP_RIGHT", DefaultEditorKit.nextWordAction,
+            "ctrl shift LEFT", DefaultEditorKit.selectionPreviousWordAction,
+            "ctrl shift KP_LEFT", DefaultEditorKit.selectionPreviousWordAction,
+            "ctrl shift RIGHT", DefaultEditorKit.selectionNextWordAction,
+            "ctrl shift KP_RIGHT", DefaultEditorKit.selectionNextWordAction,
+            "ctrl A", DefaultEditorKit.selectAllAction,
+            "HOME", DefaultEditorKit.beginLineAction,
+            "END", DefaultEditorKit.endLineAction,
+            "shift HOME", DefaultEditorKit.selectionBeginLineAction,
+            "shift END", DefaultEditorKit.selectionEndLineAction,
+            "BACK_SPACE", DefaultEditorKit.deletePrevCharAction,
+            "ctrl H", DefaultEditorKit.deletePrevCharAction,
+            "DELETE", DefaultEditorKit.deleteNextCharAction,
+            "RIGHT", DefaultEditorKit.forwardAction,
+            "LEFT", DefaultEditorKit.backwardAction,
+            "KP_RIGHT", DefaultEditorKit.forwardAction,
+            "KP_LEFT", DefaultEditorKit.backwardAction,
+            "ENTER", JTextField.notifyAction,
+            "ctrl BACK_SLASH", "unselect"/*DefaultEditorKit.unselectAction*/,
+            "control shift O", "toggle-componentOrientation"/*DefaultEditorKit.toggleComponentOrientation*/
+           });
+
+    Object passwordInputMap = new UIDefaults.LazyInputMap(
+        new Object[]
+           {
+            "meta C", DefaultEditorKit.copyAction,
+            "ctrl C", DefaultEditorKit.copyAction,
+            "meta V", DefaultEditorKit.pasteAction,
+            "ctrl V", DefaultEditorKit.pasteAction,
+            "meta X", DefaultEditorKit.cutAction,
+            "ctrl X", DefaultEditorKit.cutAction,
+            "COPY", DefaultEditorKit.copyAction,
+            "PASTE", DefaultEditorKit.pasteAction,
+            "CUT", DefaultEditorKit.cutAction,
+            "shift LEFT", DefaultEditorKit.selectionBackwardAction,
+            "shift KP_LEFT", DefaultEditorKit.selectionBackwardAction,
+            "shift RIGHT", DefaultEditorKit.selectionForwardAction,
+            "shift KP_RIGHT", DefaultEditorKit.selectionForwardAction,
+            "ctrl LEFT", DefaultEditorKit.beginLineAction,
+            "ctrl KP_LEFT", DefaultEditorKit.beginLineAction,
+            "ctrl RIGHT", DefaultEditorKit.endLineAction,
+            "ctrl KP_RIGHT", DefaultEditorKit.endLineAction,
+            "ctrl shift LEFT", DefaultEditorKit.selectionBeginLineAction,
+            "ctrl shift KP_LEFT", DefaultEditorKit.selectionBeginLineAction,
+            "ctrl shift RIGHT", DefaultEditorKit.selectionEndLineAction,
+            "ctrl shift KP_RIGHT", DefaultEditorKit.selectionEndLineAction,
+            "ctrl A", DefaultEditorKit.selectAllAction,
+            "HOME", DefaultEditorKit.beginLineAction,
+            "END", DefaultEditorKit.endLineAction,
+            "shift HOME", DefaultEditorKit.selectionBeginLineAction,
+            "shift END", DefaultEditorKit.selectionEndLineAction,
+            "BACK_SPACE", DefaultEditorKit.deletePrevCharAction,
+            "ctrl H", DefaultEditorKit.deletePrevCharAction,
+            "DELETE", DefaultEditorKit.deleteNextCharAction,
+            "RIGHT", DefaultEditorKit.forwardAction,
+            "LEFT", DefaultEditorKit.backwardAction,
+            "KP_RIGHT", DefaultEditorKit.forwardAction,
+            "KP_LEFT", DefaultEditorKit.backwardAction,
+            "ENTER", JTextField.notifyAction,
+            "ctrl BACK_SLASH", "unselect"/*DefaultEditorKit.unselectAction*/,
+            "control shift O", "toggle-componentOrientation"/*DefaultEditorKit.toggleComponentOrientation*/
+    });
+
+    Object multilineInputMap = new UIDefaults.LazyInputMap(
+        new Object[]
+           {
+            "meta C", DefaultEditorKit.copyAction,
+            "ctrl C", DefaultEditorKit.copyAction,
+            "meta V", DefaultEditorKit.pasteAction,
+            "ctrl V", DefaultEditorKit.pasteAction,
+            "meta X", DefaultEditorKit.cutAction,
+            "ctrl X", DefaultEditorKit.cutAction,
+            "COPY", DefaultEditorKit.copyAction,
+            "PASTE", DefaultEditorKit.pasteAction,
+            "CUT", DefaultEditorKit.cutAction,
+            "shift LEFT", DefaultEditorKit.selectionBackwardAction,
+            "shift KP_LEFT", DefaultEditorKit.selectionBackwardAction,
+            "shift RIGHT", DefaultEditorKit.selectionForwardAction,
+            "shift KP_RIGHT", DefaultEditorKit.selectionForwardAction,
+            "ctrl LEFT", DefaultEditorKit.previousWordAction,
+            "ctrl KP_LEFT", DefaultEditorKit.previousWordAction,
+            "ctrl RIGHT", DefaultEditorKit.nextWordAction,
+            "ctrl KP_RIGHT", DefaultEditorKit.nextWordAction,
+            "ctrl shift LEFT", DefaultEditorKit.selectionPreviousWordAction,
+            "ctrl shift KP_LEFT", DefaultEditorKit.selectionPreviousWordAction,
+            "ctrl shift RIGHT", DefaultEditorKit.selectionNextWordAction,
+            "ctrl shift KP_RIGHT", DefaultEditorKit.selectionNextWordAction,
+            "ctrl A", DefaultEditorKit.selectAllAction,
+            "HOME", DefaultEditorKit.beginLineAction,
+            "END", DefaultEditorKit.endLineAction,
+            "shift HOME", DefaultEditorKit.selectionBeginLineAction,
+            "shift END", DefaultEditorKit.selectionEndLineAction,
+
+            "UP", DefaultEditorKit.upAction,
+            "KP_UP", DefaultEditorKit.upAction,
+            "DOWN", DefaultEditorKit.downAction,
+            "KP_DOWN", DefaultEditorKit.downAction,
+            "PAGE_UP", DefaultEditorKit.pageUpAction,
+            "PAGE_DOWN", DefaultEditorKit.pageDownAction,
+            "shift PAGE_UP", "selection-page-up",
+            "shift PAGE_DOWN", "selection-page-down",
+            "ctrl shift PAGE_UP", "selection-page-left",
+            "ctrl shift PAGE_DOWN", "selection-page-right",
+            "shift UP", DefaultEditorKit.selectionUpAction,
+            "shift KP_UP", DefaultEditorKit.selectionUpAction,
+            "shift DOWN", DefaultEditorKit.selectionDownAction,
+            "shift KP_DOWN", DefaultEditorKit.selectionDownAction,
+            "ENTER", DefaultEditorKit.insertBreakAction,
+            "BACK_SPACE", DefaultEditorKit.deletePrevCharAction,
+            "ctrl H", DefaultEditorKit.deletePrevCharAction,
+            "DELETE", DefaultEditorKit.deleteNextCharAction,
+            "RIGHT", DefaultEditorKit.forwardAction,
+            "LEFT", DefaultEditorKit.backwardAction, 
+            "KP_RIGHT", DefaultEditorKit.forwardAction,
+            "KP_LEFT", DefaultEditorKit.backwardAction,
+            "TAB", DefaultEditorKit.insertTabAction,
+            "ctrl BACK_SLASH", "unselect"/*DefaultEditorKit.unselectAction*/,
+            "ctrl HOME", DefaultEditorKit.beginAction,
+            "ctrl END", DefaultEditorKit.endAction,
+            "ctrl shift HOME", DefaultEditorKit.selectionBeginAction,
+            "ctrl shift END", DefaultEditorKit.selectionEndAction,
+            "ctrl T", "next-link-action",
+            "ctrl shift T", "previous-link-action",
+            "ctrl SPACE", "activate-link-action",
+            "control shift O", "toggle-componentOrientation"/*DefaultEditorKit.toggleComponentOrientation*/
+});
+
     public SIPCommDefaultTheme()
     {
     }
@@ -229,8 +376,14 @@ public class SIPCommDefaultTheme
                 "TextField.border", textFieldBorder,
                 "TextField.margin", new InsetsUIResource(3, 3, 3, 3),
 
+                "TextField.focusInputMap", fieldInputMap,
+                "TextArea.focusInputMap", multilineInputMap,
+                "TextPane.focusInputMap", multilineInputMap,
+                "EditorPane.focusInputMap", multilineInputMap,
+
                 "PasswordField.border", textFieldBorder,
                 "PasswordField.margin", new InsetsUIResource(3, 3, 3, 3),
+                "PasswordField.focusInputMap", passwordInputMap,
 
                 "FormattedTextField.border", textFieldBorder,
                 "FormattedTextField.margin", new InsetsUIResource(3, 3, 3, 3),
