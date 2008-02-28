@@ -36,8 +36,8 @@
     <property name="release" value="release"/>
     <property name="log" value="log"/>
     <property name="release.src" value="${release}/install"/>
-    <property name="resources" value="${sc.basedir}/resources"/>
-    <property name="inst.resrc" value="${resources}/install"/>
+    <property name="resources" value="${dest}/resources"/>
+    <property name="inst.resrc" value="${basedir}/resources/install"/>
     <property name="path" value="${lib}/native/windows;${system.PATH}"/>
 
     <!-- set the build label property and make it take the cc bild into account -->
@@ -257,6 +257,7 @@
                 <include name="**/*.themerc"/>
                 <include name="**/gtkrc"/>
                 <include name="**/*.css"/>
+                <include name="**/*.properties"/>
             </fileset>
             <fileset dir="${src2}">
                 <include name="**/*.jpeg"/>
@@ -266,7 +267,13 @@
                 <include name="**/*.png"/>
                 <include name="**/*.jpg"/>
                 <include name="**/*.xml"/>
+                <include name="**/*.properties"/>
             </fileset>
+        </copy>
+        <copy todir="${resources}">
+           <fileset dir="${basedir}/resources">
+                        <include name="**/*"/>
+           </fileset>
         </copy>
     </target>
 
@@ -274,9 +281,11 @@
         <!-- internal target -
              convert property file encoding from UTF-8 to ASCII,
              save converted files in ${dest} dir -->
-        <native2ascii src="${src}" dest="${dest}" encoding="UTF-8"
-            includes="**/*.properties*" />
-
+        <native2ascii
+            src="${basedir}/resources/languages"
+            dest="${dest}/resources/languages"
+            encoding="UTF-8"
+            includes="**/*.properties*"/>
     </target>
 
     <!-- JAVADOC -->
@@ -492,7 +501,7 @@
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                     value="${user.home}"/-->
-                
+
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
@@ -1000,7 +1009,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
-	
+    
     <!-- BUNDLE-SSH -->
     <target name="bundle-ssh">
         <!-- Creates a bundle containing the SSH impl of the protocol provider.-->
@@ -1417,7 +1426,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images/protocol/rss"/>
         </jar>
     </target>
-	
+    
     <!-- BUNDLE-RSS-SLICK -->
     <!-- Creates a bundle containing the slick for the Gibberish protocol
          provider.-->
