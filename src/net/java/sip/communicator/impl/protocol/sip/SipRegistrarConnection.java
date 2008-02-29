@@ -474,6 +474,17 @@ public class SipRegistrarConnection
      */
     public void unregister() throws OperationFailedException
     {
+        unregister(true);
+    }
+    
+    /**
+     * Sends a unregistered request to the registrar thus ending our
+     * registration.
+     * @throws OperationFailedException with the corresponding code if sending
+     * or constructing the request fails.
+     */
+    private void unregister(boolean sendUnregister) throws OperationFailedException
+    {
         if (getRegistrationState() == RegistrationState.UNREGISTERED)
         {
             logger.trace("Trying to unregister when already unresgistered");
@@ -496,6 +507,9 @@ public class SipRegistrarConnection
         setRegistrationState(RegistrationState.UNREGISTERING,
                 RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
 
+        if(!sendUnregister)
+            return;
+        
         //We are apparently registered so send a un-Register request.
         Request unregisterRequest = (Request) registerRequest.clone();
         try
@@ -876,6 +890,13 @@ public class SipRegistrarConnection
                     , clientTransaction
                     , jainSipProvider);
 
+            if(retryTran == null)
+            {
+                logger.trace("No password supplied or error occured!");
+                unregister(false);
+                return;
+            }
+            
             retryTran.sendRequest();
             return;
         }

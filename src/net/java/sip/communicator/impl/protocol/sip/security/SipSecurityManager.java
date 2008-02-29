@@ -196,6 +196,9 @@ public class SipSecurityManager
                     logger.trace("We don't seem to have a good pass! Get one.");
 
                     ccEntry = createCcEntryWithNewCredentials(realm);
+                    
+                    if(ccEntry == null)
+                        return null;
                 }
             }
             else
@@ -483,10 +486,15 @@ public class SipSecurityManager
         UserCredentials defaultCredentials = new UserCredentials();
         defaultCredentials.setUserName(accountID.getUserID());
 
-        ccEntry.userCredentials =
+        UserCredentials newCredentials = 
             getSecurityAuthority().obtainCredentials(
                 realm,
                 defaultCredentials);
+
+        if(newCredentials.getPassword() == null)
+            return null;
+        
+        ccEntry.userCredentials = newCredentials;
 
         //store the password if the user wants us to
         if( ccEntry.userCredentials != null

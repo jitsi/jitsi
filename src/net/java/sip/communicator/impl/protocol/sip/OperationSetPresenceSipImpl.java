@@ -1,5 +1,5 @@
 /*
-u * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
@@ -610,7 +610,7 @@ public class OperationSetPresenceSipImpl
             } else {
                 req = createPublish(this.subscriptionDuration, true);
             }
-
+            
             ClientTransaction transac = null;
             try {
                 transac = this.parentProvider
@@ -976,6 +976,20 @@ public class OperationSetPresenceSipImpl
         if (ifmHeader != null) {
             req.setHeader(ifmHeader);
         }
+        
+        //check whether there's a cached authorization header for this
+        //call id and if so - attach it to the request.
+        // add authorization header
+        CallIdHeader call = (CallIdHeader)req
+            .getHeader(CallIdHeader.NAME);
+        String callid = call.getCallId();
+
+        AuthorizationHeader authorization = parentProvider
+            .getSipSecurityManager()
+                .getCachedAuthorizationHeader(callid);
+
+        if(authorization != null)
+            req.addHeader(authorization);
 
         return req;
     }
@@ -1373,6 +1387,19 @@ public class OperationSetPresenceSipImpl
         }
 
         req.setHeader(expHeader);
+        
+        //check whether there's a cached authorization header for this
+        //call id and if so - attach it to the request.
+        // add authorization header
+        CallIdHeader call = (CallIdHeader)req.getHeader(CallIdHeader.NAME);
+        String callid = call.getCallId();
+
+        AuthorizationHeader authorization = parentProvider
+            .getSipSecurityManager()
+                .getCachedAuthorizationHeader(callid);
+
+        if(authorization != null)
+            req.addHeader(authorization);
 
         return req;
     }
@@ -1483,6 +1510,19 @@ public class OperationSetPresenceSipImpl
         req.setHeader(maxForwards);
         req.setHeader(evHeader);
         req.setHeader(contactHeader);
+        
+        //check whether there's a cached authorization header for this
+        //call id and if so - attach it to the request.
+        // add authorization header
+        CallIdHeader call = (CallIdHeader)req.getHeader(CallIdHeader.NAME);
+        String callid = call.getCallId();
+
+        AuthorizationHeader authorization = parentProvider
+            .getSipSecurityManager()
+                .getCachedAuthorizationHeader(callid);
+
+        if(authorization != null)
+            req.addHeader(authorization);
 
         // create the transaction (then add the via header as recommended
         // by the jain-sip documentation at:
@@ -2295,6 +2335,19 @@ public class OperationSetPresenceSipImpl
         req.setHeader(evHeader);
         req.setHeader(sStateHeader);
         req.setHeader(contactHeader);
+        
+        //check whether there's a cached authorization header for this
+        //call id and if so - attach it to the request.
+        // add authorization header
+        CallIdHeader call = (CallIdHeader)req.getHeader(CallIdHeader.NAME);
+        String callid = call.getCallId();
+
+        AuthorizationHeader authorization = parentProvider
+            .getSipSecurityManager()
+                .getCachedAuthorizationHeader(callid);
+
+        if(authorization != null)
+            req.addHeader(authorization);
 
         // create the transaction (then add the via header as recommended
         // by the jain-sip documentation at:
@@ -2939,6 +2992,12 @@ public class OperationSetPresenceSipImpl
                     response
                     , clientTransaction
                     , jainSipProvider);
+            
+            if(retryTran == null)
+            {
+                logger.trace("No password supplied or error occured!");
+                return;
+            }
 
             retryTran.sendRequest();
             return;

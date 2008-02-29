@@ -193,6 +193,20 @@ public class OperationSetBasicTelephonySipImpl
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
+        
+        //check whether there's a cached authorization header for this
+        //call id and if so - attach it to the request.
+        // add authorization header
+        CallIdHeader call = (CallIdHeader)invite.
+            getHeader(CallIdHeader.NAME);
+        String callid = call.getCallId();
+
+        AuthorizationHeader authorization = protocolProvider
+            .getSipSecurityManager()
+                .getCachedAuthorizationHeader(callid);
+
+        if(authorization != null)
+            invite.addHeader(authorization);
 
         //Transaction
         ClientTransaction inviteTransaction;
@@ -802,6 +816,12 @@ public class OperationSetBasicTelephonySipImpl
                     response
                     , clientTransaction
                     , jainSipProvider);
+            
+            if(retryTran == null)
+            {
+                logger.trace("No password supplied or error occured!");
+                return;
+            }
 
             //There is a new dialog that will be started with this request. Get
             //that dialog and record it into the Call objet for later use (by

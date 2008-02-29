@@ -272,6 +272,19 @@ public class OperationSetBasicInstantMessagingSipImpl
     
     void sendRequestMessage(Request mes, Contact to, Message message)
     {
+        //check whether there's a cached authorization header for this
+        //call id and if so - attach it to the request.
+        // add authorization header
+        CallIdHeader call = (CallIdHeader)mes.getHeader(CallIdHeader.NAME);
+        String callid = call.getCallId();
+
+        AuthorizationHeader authorization = sipProvider
+            .getSipSecurityManager()
+                .getCachedAuthorizationHeader(callid);
+
+        if(authorization != null)
+            mes.addHeader(authorization);
+        
         //Transaction
         ClientTransaction messageTransaction;
         SipProvider jainSipProvider
@@ -1089,6 +1102,12 @@ public class OperationSetBasicInstantMessagingSipImpl
                         , clientTransaction
                         , jainSipProvider);
 
+                if(retryTran == null)
+                {
+                    logger.trace("No password supplied or error occured!");
+                    return;
+                }
+                
                 retryTran.sendRequest();
                 return;
             }
