@@ -86,6 +86,8 @@ public class GlobalStatusSelectorBox
     {
         this.mainFrame = mainFrame;
 
+        this.setPreferredSize(new Dimension(28, 24));
+
         String tooltip = "<html><b>"
             + "Set global status"
             + "</b></html>";
