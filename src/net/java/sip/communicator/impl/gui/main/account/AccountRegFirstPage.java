@@ -268,6 +268,8 @@ public class AccountRegFirstPage extends JPanel
             break;
         }
 
+        wizard.setModification(false);
+
         this.wizardContainer.setCurrentWizard(wizard);
     }
 

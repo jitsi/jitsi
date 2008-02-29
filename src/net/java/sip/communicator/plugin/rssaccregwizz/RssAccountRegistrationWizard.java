@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.protocol.*;
 public class RssAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
-
     /**
      * The first page of the rss account registration wizard.
      */
@@ -217,6 +216,7 @@ public class RssAccountRegistrationWizard
 
     /**
      * Returns the identifier of the page to show last in the wizard.
+     * 
      * @return the identifier of the page to show last in the wizard.
      */
     public Object getLastPageIdentifier()
@@ -224,4 +224,27 @@ public class RssAccountRegistrationWizard
         return firstWizardPage.getIdentifier();
     }
 
+    /**
+     * Indicates if this wizard is modifying an existing account or is creating
+     * a new one.
+     * 
+     * @return <code>true</code> to indicate that this wizard is currently in
+     * modification mode, <code>false</code> - otherwise.
+     */
+    public boolean isModification()
+    {
+        return isModification;
+    }
+
+    /**
+     * Sets the modification property to indicate if this wizard is opened for
+     * a modification.
+     * 
+     * @param isModification indicates if this wizard is opened for modification
+     * or for creating a new account. 
+     */
+    public void setModification(boolean isModification)
+    {
+        this.isModification = isModification;
+    }
 }

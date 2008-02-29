@@ -120,4 +120,22 @@ public interface AccountRegistrationWizard {
      * @return the preferred dimensions of this wizard.
      */
     public Dimension getSize();
+
+    /**
+     * Sets the modification property to indicate if this wizard is opened for
+     * a modification.
+     * 
+     * @param isModification indicates if this wizard is opened for modification
+     * or for creating a new account. 
+     */
+    public void setModification(boolean isModification);
+
+    /**
+     * Indicates if this wizard is modifying an existing account or is creating
+     * a new one.
+     * 
+     * @return <code>true</code> to indicate that this wizard is currently in
+     * modification mode, <code>false</code> - otherwise.
+     */
+    public boolean isModification();
 }

@@ -273,6 +273,8 @@ public class AccountRegWizardContainerImpl
 
         this.setCurrentWizard(wizard);
 
+        wizard.setModification(true);
+
         Iterator i = wizard.getPages();
 
         Object identifier = null;

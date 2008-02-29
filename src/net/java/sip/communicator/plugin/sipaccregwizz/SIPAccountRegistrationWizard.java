@@ -335,4 +335,15 @@ public class SIPAccountRegistrationWizard
         return firstWizardPage.getIdentifier();
     }
 
+    /**
+     * Sets the modification property to indicate if this wizard is opened for
+     * a modification.
+     * 
+     * @param isModification indicates if this wizard is opened for modification
+     * or for creating a new account. 
+     */
+    public void setModification(boolean isModification)
+    {
+        this.isModification = isModification;
+    }
 }
