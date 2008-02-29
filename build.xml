@@ -273,7 +273,7 @@
         <copy todir="${resources}">
            <fileset dir="${sc.basedir}/resources">
                 <include name="**/*"/>
-		<exclude name="**/languages/**"/>
+                <exclude name="**/languages/**"/>
            </fileset>
         </copy>
     </target>
