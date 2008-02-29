@@ -273,14 +273,15 @@
         <copy todir="${resources}">
            <fileset dir="${sc.basedir}/resources">
                 <include name="**/*"/>
+		<exclude name="**/languages/**"/>
            </fileset>
         </copy>
     </target>
 
     <target name="native2ascii">
         <!-- internal target -
-             convert property file encoding from UTF-8 to ASCII,
-             save converted files in ${dest} dir -->
+             convert language property files encoding from UTF-8 to ASCII,
+             save converted files in ${resources}/languages dir -->
         <native2ascii
             src="${sc.basedir}/resources/languages"
             dest="${resources}/languages"
