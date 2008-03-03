@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.launcher;
 
+import java.awt.*;
+
+import javax.swing.*;
+
 import org.apache.felix.main.*;
 
 /**
@@ -22,7 +26,35 @@ public class SIPCommunicator
      */
     public static void main(String[] args)
         throws Exception
-    {   
-        Main.main(args);        
+    {
+        String version = System.getProperty("java.version");
+        String vmVendor = System.getProperty("java.vendor");
+        String osName = System.getProperty("os.name");
+
+        if (version.startsWith("1.4") || vmVendor.startsWith("Gnu"))
+        {
+            String os = "";
+
+            if (osName.startsWith("Mac"))
+                os = ChangeJVMFrame.MAC_OSX;
+            else if (osName.startsWith("Linux"))
+                os = ChangeJVMFrame.LINUX;
+            else if (osName.startsWith("Windows"))
+                os = ChangeJVMFrame.WINDOWS;
+
+            ChangeJVMFrame changeJVMFrame = new ChangeJVMFrame(os);
+
+            changeJVMFrame.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2
+                    - changeJVMFrame.getWidth()/2,
+                Toolkit.getDefaultToolkit().getScreenSize().height/2
+                    - changeJVMFrame.getHeight()/2
+                );
+            changeJVMFrame.setVisible(true);
+
+            return;
+        }
+
+        Main.main(args);
     }
 }

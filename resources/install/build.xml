@@ -345,7 +345,7 @@
                   name="${application.name}"
                   shortname="${application.name}"
                   signature="sipc"
-                  mainclass="org.apache.felix.main.Main"
+                  mainclass="net.java.sip.communicator.launcher.SIPCommunicator"
                   icon="resources/images/logo/sc_logo_128x128.icns"
                   jvmversion="1.5+"
                   version="${sip-communicator.version}"

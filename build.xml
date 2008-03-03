@@ -481,7 +481,7 @@
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
          <!-- forking prevents from debugging -->
-        <java classname="org.apache.felix.main.Main"
+        <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
             fork="true"
             failonerror="true"
             classpathref="project.class.path">
