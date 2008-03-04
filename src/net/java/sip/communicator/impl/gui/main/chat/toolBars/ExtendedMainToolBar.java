@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
-import net.java.sip.communicator.impl.gui.main.menus.ExtendedQuickMenu.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -76,10 +75,10 @@ public class ExtendedMainToolBar
         Messages.getI18NString("font").getText(),
         ImageLoader.getImage(ImageLoader.FONT_ICON));
 
-    private static int BUTTON_HEIGHT
+    private static int DEFAULT_BUTTON_HEIGHT
         = SizeProperties.getSize("mainToolbarButtonHeight");
 
-    private static int BUTTON_WIDTH
+    private static int DEFAULT_BUTTON_WIDTH
         = SizeProperties.getSize("mainToolbarButtonWidth");
 
     private SmiliesSelectorBox smiliesBox;
@@ -103,13 +102,13 @@ public class ExtendedMainToolBar
 
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        this.setPreferredSize(new Dimension(300, BUTTON_HEIGHT));
+        this.setPreferredSize(new Dimension(300, DEFAULT_BUTTON_HEIGHT));
 
 //        this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
 
 //        this.add(saveButton);
 //        this.add(printButton);
-//
+
 //        this.addSeparator();
 
         this.add(cutButton);
@@ -178,26 +177,28 @@ public class ExtendedMainToolBar
         this.fontButton.setToolTipText(
             Messages.getI18NString("font").getText());
 
+        int buttonWidth = calculateButtonWidth();
+
         this.saveButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.printButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.cutButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.copyButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.pasteButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.previousButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.nextButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.sendFileButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.historyButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.fontButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
 
         this.saveButton.addMouseListener(this);
         this.printButton.addMouseListener(this);
@@ -480,5 +481,58 @@ public class ExtendedMainToolBar
 
     public void mouseReleased(MouseEvent e)
     {
+    }
+    
+    private int calculateButtonWidth()
+    {
+        int width = DEFAULT_BUTTON_WIDTH;
+
+        FontMetrics fontMetrics
+            = copyButton.getFontMetrics(copyButton.getFont());
+
+        int textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("copy").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("cut").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("paste").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("back").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("next").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("history").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("smiley").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        // Return the width by 
+        return width + 5;
     }
 }

@@ -68,10 +68,10 @@ public class ExtendedQuickMenu
         Messages.getI18NString("sound").getText(),
         ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON));
 
-    private static int BUTTON_HEIGHT
+    private static int DEFAULT_BUTTON_HEIGHT
         = SizeProperties.getSize("mainToolbarButtonHeight");
 
-    private static int BUTTON_WIDTH
+    private static int DEFAULT_BUTTON_WIDTH
         = SizeProperties.getSize("mainToolbarButtonWidth");
 
     private ConfigurationWindow configDialog;
@@ -93,16 +93,18 @@ public class ExtendedQuickMenu
 
         this.setFloatable(true);
 
+        int buttonWidth = calculateButtonWidth();
+
         this.infoButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.configureButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.hideShowButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.addButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
         this.soundButton.setPreferredSize(
-            new Dimension(BUTTON_HEIGHT, BUTTON_HEIGHT));
+            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
 
         this.infoButton.setToolTipText(
             Messages.getI18NString("userInfo").getText());
@@ -397,7 +399,7 @@ public class ExtendedQuickMenu
         }
         
         this.setPreferredSize(
-            new Dimension(this.getWidth(), biggestY + BUTTON_HEIGHT));
+            new Dimension(this.getWidth(), biggestY + DEFAULT_BUTTON_HEIGHT));
         
         ((JPanel)this.getParent()).revalidate();
         ((JPanel)this.getParent()).repaint();
@@ -527,5 +529,46 @@ public class ExtendedQuickMenu
 
     public void mouseReleased(MouseEvent e)
     {
+    }
+
+    private int calculateButtonWidth()
+    {
+        int width = DEFAULT_BUTTON_WIDTH;
+
+        FontMetrics fontMetrics
+            = infoButton.getFontMetrics(infoButton.getFont());
+
+        int textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("info").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("settings").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("showOffline").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("add").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        textWidth = fontMetrics.stringWidth(
+            Messages.getI18NString("sound").getText());
+
+        if (textWidth > width)
+            width = textWidth;
+
+        // Return the width by 
+        return width + 5;
     }
 }
