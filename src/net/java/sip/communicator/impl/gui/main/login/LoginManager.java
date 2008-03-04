@@ -62,39 +62,6 @@ public class LoginManager
     }
 
     /**
-     * In the given <tt>ProtocolProviderFactory</tt> creates an account for
-     * the given user and password.
-     *
-     * @param providerFactory The <tt>ProtocolProviderFactory</tt> where the
-     *            new account is created.
-     * @param user The user identifier for this account.
-     * @param passwd The password for this account.
-     *
-     * @return The <tt>ProtocolProviderService</tt> of the newly created
-     *         account.
-     */
-    public ProtocolProviderService installAccount(
-        ProtocolProviderFactory providerFactory, String user, String passwd)
-    {
-        Hashtable<String, String> accountProperties
-            = new Hashtable<String, String>();
-
-        accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
-
-        AccountID accountID = providerFactory.installAccount(user,
-            accountProperties);
-
-        ServiceReference serRef = providerFactory
-            .getProviderForAccount(accountID);
-
-        ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) GuiActivator.bundleContext
-                .getService(serRef);
-
-        return protocolProvider;
-    }
-
-    /**
      * Registers the given protocol provider.
      * 
      * @param protocolProvider the ProtocolProviderService to register.
