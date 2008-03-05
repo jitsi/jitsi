@@ -47,7 +47,7 @@ public class ContactSipImpl
     /**
      * The presence status of the contact.
      */
-    private PresenceStatus presenceStatus = SipStatusEnum.UNKNOWN;
+    private PresenceStatus presenceStatus;
 
     /**
      * Determines whether this contact is persistent, i.e. member of the contact

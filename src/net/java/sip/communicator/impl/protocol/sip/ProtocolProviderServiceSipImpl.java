@@ -289,8 +289,9 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The logo corresponding to the jabber protocol.
      */
-    private ProtocolIconSipImpl sipIcon
-        = new ProtocolIconSipImpl();
+    private ProtocolIconSipImpl protocolIcon;
+
+    private SipStatusEnum sipStatusEnum;
 
     /**
      * Registers the specified listener with this provider so that it would
@@ -384,6 +385,19 @@ public class ProtocolProviderServiceSipImpl
     public String getProtocolName()
     {
         return ProtocolNames.SIP;
+    }
+
+    /**
+     * Returns the protocol display name. This is the name that would be used
+     * by the GUI to display the protocol name.
+     * 
+     * @return a String containing the display name of the protocol this service
+     * is implementing
+     */
+    public String getProtocolDisplayName()
+    {
+        return (String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.PROTOCOL);
     }
 
     /**
@@ -560,12 +574,22 @@ public class ProtocolProviderServiceSipImpl
             if (!NSPVALUE_DEBUG_LOG.startsWith(logDir)) {
                 NSPVALUE_DEBUG_LOG = logDir + NSPVALUE_DEBUG_LOG;
             }
-            
+
             if (!NSPVALUE_SERVER_LOG.startsWith(logDir)) {
                 NSPVALUE_SERVER_LOG = logDir + NSPVALUE_SERVER_LOG;
             }
-            
+
             this.accountID = accountID;
+
+            String protocolIconPath = (String) accountID.getAccountProperties()
+                .get(ProtocolProviderFactory.PROTOCOL_ICON_PATH);
+
+            if (protocolIconPath == null)
+                protocolIconPath = "resources/images/protocol/sip";
+
+            this.protocolIcon = new ProtocolIconSipImpl(protocolIconPath);
+
+            this.sipStatusEnum = new SipStatusEnum(protocolIconPath);
 
             sipFactory = SipFactory.getInstance();
             sipFactory.setPathName("gov.nist");
@@ -1827,7 +1851,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Extracts all properties concerning the usage of an outbound proxy for
      * this account.
-     * @param accountID the acount whose ourbound proxy we are currently
+     * @param accountID the account whose outbound proxy we are currently
      * initializing.
      * @param jainSipProperties the properties that we will be passing to the
      * jain sip stack when initialize it (that's where we'll put all proxy
@@ -2206,6 +2230,16 @@ public class ProtocolProviderServiceSipImpl
      */
     public ProtocolIcon getProtocolIcon()
     {
-        return sipIcon;
+        return protocolIcon;
+    }
+
+    /**
+     * Returns the current instance of <tt>SipStatusEnum</tt>.
+     * 
+     * @return the current instance of <tt>SipStatusEnum</tt>.
+     */
+    SipStatusEnum getSipStatusEnum()
+    {
+        return sipStatusEnum;
     }
 }

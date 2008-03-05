@@ -20,7 +20,6 @@ import javax.swing.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.service.gui.*;
 
@@ -625,7 +624,19 @@ public class ProtocolProviderServiceSSHImpl
     {
         return SSH_PROTOCOL_NAME;
     }
-    
+
+    /**
+     * Returns the protocol display name. This is the name that would be used
+     * by the GUI to display the protocol name.
+     * 
+     * @return a String containing the display name of the protocol this service
+     * is implementing
+     */
+    public String getProtocolDisplayName()
+    {
+        return SSH_PROTOCOL_NAME;
+    }
+
     /**
      * Returns the state of the registration of this protocol provider with
      * the corresponding registration service.

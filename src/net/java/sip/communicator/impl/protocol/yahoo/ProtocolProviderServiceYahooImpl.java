@@ -266,6 +266,18 @@ public class ProtocolProviderServiceYahooImpl
     }
 
     /**
+     * Returns the protocol display name. This is the name that would be used
+     * by the GUI to display the protocol name.
+     * 
+     * @return a String containing the display name of the protocol this service
+     * is implementing
+     */
+    public String getProtocolDisplayName()
+    {
+        return ProtocolNames.YAHOO;
+    }
+
+    /**
      * Returns an array containing all operation sets supported by the
      * current implementation.
      *

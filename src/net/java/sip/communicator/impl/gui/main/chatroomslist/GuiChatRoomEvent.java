@@ -85,7 +85,7 @@ public class GuiChatRoomEvent
         buff.append(getSourceChatRoom().getName());
         buff.append(", eventID=").append(getEventID());
         buff.append(", ProtocolProvider=")
-            .append(getProtocolProvider().getProtocolName());
+            .append(getProtocolProvider().getProtocolDisplayName());
         return buff.toString();
     }
 

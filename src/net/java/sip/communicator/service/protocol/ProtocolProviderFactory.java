@@ -39,6 +39,11 @@ public abstract class ProtocolProviderFactory
     public static final String PROTOCOL = "PROTOCOL_NAME";
 
     /**
+     * The name of a property representing the path to protocol icons.
+     */
+    public static final String PROTOCOL_ICON_PATH = "PROTOCOL_ICON_PATH";
+
+    /**
      * The name of a property which represents the AccountID of a
      * ProtocolProvider and that, together with a password is used to login
      * on the protocol network..

@@ -81,7 +81,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Our default presence status.
      */
-    private PresenceStatus presenceStatus = SipStatusEnum.OFFLINE;
+    private PresenceStatus presenceStatus;
 
     /**
      * Hashtable which contains the contacts with which we want to subscribe
@@ -183,6 +183,8 @@ public class OperationSetPresenceSipImpl
      */
     private Transformer transformer = null;
 
+    private SipStatusEnum sipStatusEnum = null;
+
     /**
      * The id used in <tt><tuple></tt>  and <tt><person></tt> elements
      * of pidf documents.
@@ -277,6 +279,9 @@ public class OperationSetPresenceSipImpl
             this.subscriptionDuration = subscriptionExpiration;
         }
         this.presenceEnabled = isPresenceEnabled;
+
+        this.sipStatusEnum = parentProvider.getSipStatusEnum();
+        this.presenceStatus = sipStatusEnum.getStatus(SipStatusEnum.OFFLINE);
     }
 
     /**
@@ -1005,8 +1010,9 @@ public class OperationSetPresenceSipImpl
      * @return Iterator a PresenceStatus array containing "enterable"
      * status instances.
      */
-    public Iterator getSupportedStatusSet() {
-        return SipStatusEnum.supportedStatusSet();
+    public Iterator getSupportedStatusSet()
+    {
+        return sipStatusEnum.getSupportedStatusSet();
     }
 
     /**
@@ -1861,7 +1867,7 @@ public class OperationSetPresenceSipImpl
 
                     // we probably won't be able to communicate with the contact
                     changePresenceStatusForContact(contact,
-                            SipStatusEnum.UNKNOWN);
+                            sipStatusEnum.getStatus(SipStatusEnum.UNKNOWN));
                     this.subscribedContacts.remove(idheader.getCallId());
                     contact.setClientDialog(null);
                 }
@@ -1879,10 +1885,10 @@ public class OperationSetPresenceSipImpl
                         .TEMPORARILY_UNAVAILABLE)
                 {
                     changePresenceStatusForContact(contact,
-                            SipStatusEnum.OFFLINE);
+                        sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
                 } else {
                     changePresenceStatusForContact(contact,
-                            SipStatusEnum.UNKNOWN);
+                        sipStatusEnum.getStatus(SipStatusEnum.UNKNOWN));
                 }
 
                 this.subscribedContacts.remove(idheader.getCallId());
@@ -1893,7 +1899,8 @@ public class OperationSetPresenceSipImpl
 
                 // we'll never be able to resolve this contact
                 contact.setResolvable(false);
-                changePresenceStatusForContact(contact, SipStatusEnum.UNKNOWN);
+                changePresenceStatusForContact(contact,
+                    sipStatusEnum.getStatus(SipStatusEnum.UNKNOWN));
                 this.subscribedContacts.remove(idheader.getCallId());
                 contact.setClientDialog(null);
             }
@@ -2203,7 +2210,8 @@ public class OperationSetPresenceSipImpl
         }
 
         // we don't remove the contact
-        changePresenceStatusForContact(contact, SipStatusEnum.UNKNOWN);
+        changePresenceStatusForContact(contact,
+            sipStatusEnum.getStatus(SipStatusEnum.UNKNOWN));
         contact.setResolved(false);
     }
 
@@ -3727,7 +3735,7 @@ public class OperationSetPresenceSipImpl
          // the namespace used by servers and clients are often wrong so we just
          // ignore namespaces here
 
-         SipStatusEnum personStatus = null;
+         PresenceStatus personStatus = null;
          NodeList personList = presence.getElementsByTagNameNS(ANY_NS,
                  PERSON_ELEMENT);
 
@@ -3766,15 +3774,18 @@ public class OperationSetPresenceSipImpl
                          {
                              String statusname = statusNode.getLocalName();
                              if (statusname.equals(AWAY_ELEMENT)) {
-                                 personStatus = SipStatusEnum.AWAY;
+                                 personStatus = sipStatusEnum
+                                     .getStatus(SipStatusEnum.AWAY);
                                  break;
                              }
                              else if (statusname.equals(BUSY_ELEMENT)) {
-                                 personStatus = SipStatusEnum.BUSY;
+                                 personStatus = sipStatusEnum
+                                     .getStatus(SipStatusEnum.BUSY);
                                  break;
                              }
                              else if (statusname.equals(OTP_ELEMENT)) {
-                                 personStatus = SipStatusEnum.ON_THE_PHONE;
+                                 personStatus = sipStatusEnum
+                                     .getStatus(SipStatusEnum.ON_THE_PHONE);
                                  break;
                              }
                          }
@@ -3916,8 +3927,10 @@ public class OperationSetPresenceSipImpl
              }
              
              // if we use RPID, simply ignore the standard PIDF status
-             if (personStatus != null) {
-                 newPresenceStates = setStatusForContacts(personStatus,
+             if (personStatus != null)
+             {
+                 newPresenceStates = setStatusForContacts(
+                         personStatus,
                          sipcontact,
                          newPresenceStates);
                  continue;
@@ -3987,9 +4000,9 @@ public class OperationSetPresenceSipImpl
 
                  String state = getTextContent(note);
 
-                 Iterator states = SipStatusEnum.supportedStatusSet();
+                 Iterator states = sipStatusEnum.getSupportedStatusSet();
                  while (states.hasNext()) {
-                     SipStatusEnum current = (SipStatusEnum) states.next();
+                     PresenceStatus current = (PresenceStatus) states.next();
 
                      if (current.getStatusName().equalsIgnoreCase(state)) {
                          changed = true;
@@ -4005,14 +4018,14 @@ public class OperationSetPresenceSipImpl
                  if (getTextContent(basic).equalsIgnoreCase(ONLINE_STATUS))
                  {
                      newPresenceStates = setStatusForContacts(
-                             SipStatusEnum.ONLINE,
+                             sipStatusEnum.getStatus(SipStatusEnum.ONLINE),
                              sipcontact,
                              newPresenceStates);
                  } else if (getTextContent(basic).equalsIgnoreCase(
                          OFFLINE_STATUS))
                  {
                      newPresenceStates = setStatusForContacts(
-                             SipStatusEnum.OFFLINE,
+                             sipStatusEnum.getStatus(SipStatusEnum.OFFLINE),
                              sipcontact,
                              newPresenceStates);
                  }
@@ -4030,7 +4043,7 @@ public class OperationSetPresenceSipImpl
          while (iter.hasNext()) {
              Object tab[] = (Object[]) iter.next();
              ContactSipImpl contact = (ContactSipImpl) tab[0];
-             SipStatusEnum status = (SipStatusEnum) tab[2];
+             PresenceStatus status = (PresenceStatus) tab[2];
              
              changePresenceStatusForContact(contact, status);
          }
@@ -4091,7 +4104,7 @@ public class OperationSetPresenceSipImpl
       * @return a Vector containing a list of <contact, priority, status>
       *  ordered by priority (highest first). Null if a parameter is null.
       */
-     private Vector setStatusForContacts(SipStatusEnum presenceState,
+     private Vector setStatusForContacts(PresenceStatus presenceState,
              Vector contacts, Vector curStatus)
      {
          // test parameters
@@ -4133,7 +4146,7 @@ public class OperationSetPresenceSipImpl
                      // same contact and same priority
                      // consider the reachability of the status
                      } else {
-                         SipStatusEnum curPresence = (SipStatusEnum) tab2[2];
+                         PresenceStatus curPresence = (PresenceStatus) tab2[2];
                          if (curPresence.getStatus() >=
                              presenceState.getStatus())
                          {
@@ -4506,7 +4519,8 @@ public class OperationSetPresenceSipImpl
                   // this will not be called by anyone else, so call it
                   // the method will terminate every active subscription
                   try {
-                      publishPresenceStatus(SipStatusEnum.OFFLINE, "");
+                      publishPresenceStatus(
+                          sipStatusEnum.getStatus(SipStatusEnum.OFFLINE), "");
                   } catch (OperationFailedException e) {
                       logger.error("can't set the offline mode", e);
                   }

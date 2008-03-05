@@ -33,7 +33,7 @@ public class SipAccountID
                     ? userID.substring(0, userID.indexOf("@"))
                     : userID
                 , accountProperties
-                , ProtocolNames.SIP
+                , (String) accountProperties.get(ProtocolProviderFactory.PROTOCOL)
                 , serverName);
     }
 

@@ -64,6 +64,11 @@ public class OperationSetBasicInstantMessagingSipImpl
     private Hashtable sentMsg = null;
 
     /**
+     * Gives access to presence states for the Sip protocol.
+     */
+    private SipStatusEnum sipStatusEnum;
+
+    /**
      * Creates an instance of this operation set.
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
@@ -79,6 +84,8 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         sipProvider.registerMethodProcessor(Request.MESSAGE,
                                             new SipMessageListener());
+
+        this.sipStatusEnum = sipProvider.getSipStatusEnum();
     }
 
     /**
@@ -232,7 +239,8 @@ public class OperationSetBasicInstantMessagingSipImpl
         assertConnected();
 
         // no offline message
-        if (to.getPresenceStatus().equals(SipStatusEnum.OFFLINE))
+        if (to.getPresenceStatus().equals(
+                sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
         {
             logger.debug("trying to send a message to an offline contact");
             MessageDeliveryFailedEvent evt =

@@ -125,7 +125,7 @@ public class SelectAccountPanel
             if(opSet == null)
                 continue;
 
-            String pName = pps.getProtocolName();
+            String pName = pps.getProtocolDisplayName();
 
             Image protocolImage = null;
             try
@@ -229,7 +229,7 @@ public class SelectAccountPanel
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
-            String pName = sourcePProvider.getProtocolName();
+            String pName = sourcePProvider.getProtocolDisplayName();
 
             Image protocolImage = null;
             try

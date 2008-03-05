@@ -102,6 +102,16 @@ public class MockProvider
     /**
      * Mock implementation of the corresponding ProtocolProviderService method.
      *
+     * @return a String describing this mock protocol.
+     */
+    public String getProtocolDisplayName()
+    {
+        return PROTO_NAME;
+    }
+
+    /**
+     * Mock implementation of the corresponding ProtocolProviderService method.
+     *
      * @return a Registered RegistrationState.
      */
     public RegistrationState getRegistrationState()

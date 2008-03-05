@@ -128,7 +128,7 @@ public class SelectAccountPanel extends JPanel
             if(opSet == null)
                 continue;
 
-            String pName = pps.getProtocolName();
+            String pName = pps.getProtocolDisplayName();
 
             Image protocolImage = null;
             try

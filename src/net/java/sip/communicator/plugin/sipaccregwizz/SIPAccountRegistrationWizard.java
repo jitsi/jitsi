@@ -219,6 +219,12 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
                 registration.getSubscriptionExpiration());
 
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL,
+            "YOHOHOOHOHOH");
+
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL_ICON_PATH,
+            "resources/images/protocol/sip/yohoho");
+
         if(isModification)
         {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());

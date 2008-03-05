@@ -262,7 +262,19 @@ public class ProtocolProviderServiceZeroconfImpl
     {
         return ProtocolNames.ZEROCONF;
     }
-    
+
+    /**
+     * Returns the protocol display name. This is the name that would be used
+     * by the GUI to display the protocol name.
+     * 
+     * @return a String containing the display name of the protocol this service
+     * is implementing
+     */
+    public String getProtocolDisplayName()
+    {
+        return ProtocolNames.ZEROCONF;
+    }
+
     /**
      * Returns the state of the registration of this protocol provider with
      * the corresponding registration service.

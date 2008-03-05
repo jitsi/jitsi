@@ -52,14 +52,15 @@ public class SipActivator
 
         sipProviderFactory = new ProtocolProviderFactorySipImpl();
 
-        //load all icq providers
+        //load all sip providers
         sipProviderFactory.loadStoredAccounts();
 
-        //reg the icq account man.
+        //reg the sip account man.
         sipPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     sipProviderFactory,
                     hashtable);
+
         logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
     }
 

@@ -182,7 +182,7 @@ public class AccountsConfigurationForm extends JPanel
                     = (ProtocolProviderService) GuiActivator.bundleContext
                         .getService(serRef);
 
-                String pName = protocolProvider.getProtocolName();
+                String pName = protocolProvider.getProtocolDisplayName();
                 
                 Image protocolImage = null;
                 try
@@ -357,7 +357,7 @@ public class AccountsConfigurationForm extends JPanel
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
-            String pName = pps.getProtocolName();
+            String pName = pps.getProtocolDisplayName();
             
             Image protocolImage = null;
             try

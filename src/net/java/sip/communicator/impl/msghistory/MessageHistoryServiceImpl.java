@@ -886,7 +886,8 @@ public class MessageHistoryServiceImpl
      */
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider " + provider.getProtocolName());
+        logger.debug("Adding protocol provider "
+                + provider.getProtocolDisplayName());
 
         // check whether the provider has a basic im operation set
         OperationSetBasicInstantMessaging opSetIm

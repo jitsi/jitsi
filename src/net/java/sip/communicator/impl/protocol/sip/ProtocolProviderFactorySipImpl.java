@@ -69,7 +69,7 @@ public class ProtocolProviderFactorySipImpl
     }
 
     /**
-     * Initializaed and creates an account corresponding to the specified
+     * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter.
      *
@@ -107,6 +107,9 @@ public class ProtocolProviderFactorySipImpl
         if(serverAddress == null)
             throw new NullPointerException("null is not a valid ServerAddress");
 
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.SIP);
+
         AccountID accountID =
             new SipAccountID(userIDStr, accountProperties, serverAddress);
 
@@ -114,7 +117,6 @@ public class ProtocolProviderFactorySipImpl
         if( registeredAccounts.containsKey(accountID) )
             throw new IllegalStateException(
                 "An account for id " + userIDStr + " was already installed!");
-
 
         //first store the account and only then load it as the load generates
         //an osgi event, the osgi event triggers (trhgough the UI) a call to
@@ -166,12 +168,15 @@ public class ProtocolProviderFactorySipImpl
         if(accountProperties == null)
             throw new NullPointerException("The specified property map was null");
 
-        String serverAddress = (String)accountProperties.get(SERVER_ADDRESS);
+        String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
 
         if(serverAddress == null)
             throw new NullPointerException(
                         serverAddress
                         + " is not a valid ServerAddress");
+
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.SIP);
 
         AccountID accountID =
             new SipAccountID(userIDStr, accountProperties, serverAddress);

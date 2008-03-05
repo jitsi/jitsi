@@ -912,12 +912,11 @@ public class MainFrame
         while(pproviders.hasNext()) {
             pps = (ProtocolProviderService)pproviders.next();
 
-            if(pps.getProtocolName().equals(
-                    protocolProvider.getProtocolName())
+            if(pps.getProtocolDisplayName().equals(
+                    protocolProvider.getProtocolDisplayName())
                     && !pps.equals(protocolProvider)) {
 
-                int index  = ((Integer)protocolProviders.get(pps))
-                                        .intValue();
+                int index  = ((Integer)protocolProviders.get(pps)).intValue();
 
                 if(accountIndex < index) {
                     accountIndex = index;
@@ -952,8 +951,8 @@ public class MainFrame
             ProtocolProviderService pps
                 = (ProtocolProviderService)pproviders.next();
 
-            if(pps.getProtocolName().equals(
-                    removedProvider.getProtocolName())) {
+            if(pps.getProtocolDisplayName().equals(
+                    removedProvider.getProtocolDisplayName())) {
 
                 sameProtocolProvidersCount++;
                 if(sameProtocolProvidersCount > 1) {

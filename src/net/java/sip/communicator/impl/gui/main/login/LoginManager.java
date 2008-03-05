@@ -254,10 +254,9 @@ public class LoginManager
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                                 .REASON_NON_EXISTING_USER_ID)
             {
-
                 String msgText = Messages.getI18NString("nonExistingUserId",
                     new String[]
-                    { protocolProvider.getProtocolName() }).getText();
+                    { protocolProvider.getProtocolDisplayName() }).getText();
 
                 new ErrorDialog(null,
                     Messages.getI18NString("error").getText(),
@@ -299,7 +298,7 @@ public class LoginManager
 
             String msgText = Messages.getI18NString("connectionExpiredMessage",
                 new String[]
-                { protocolProvider.getProtocolName() }).getText();
+                { protocolProvider.getProtocolDisplayName() }).getText();
 
             new ErrorDialog(null,
                 Messages.getI18NString("error").getText(),
@@ -338,7 +337,7 @@ public class LoginManager
                 {
                     String msgText = Messages.getI18NString(
                         "limitReachedForIp", new String[]
-                        { protocolProvider.getProtocolName() }).getText();
+                        { protocolProvider.getProtocolDisplayName() }).getText();
 
                     new ErrorDialog(null,
                         Messages.getI18NString("error").getText(),
