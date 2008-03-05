@@ -90,14 +90,24 @@ public interface ProtocolProviderService
 
     /**
      * Returns the short name of the protocol that the implementation of this
-     * provider is based upon (like SIP, Jabber, ICQ/AIM,  or others for
+     * provider is based upon (like SIP, Jabber, ICQ/AIM, or others for
      * example). If the name of the protocol has been enumerated in
      * ProtocolNames then the value returned by this method must be the same as
      * the one in ProtocolNames.
+     * 
      * @return a String containing the short name of the protocol this service
      * is implementing (most often that would be a name in ProtocolNames).
      */
     public String getProtocolName();
+
+    /**
+     * Returns the protocol display name. This is the name that would be used
+     * by the GUI to display the protocol name.
+     * 
+     * @return a String containing the display name of the protocol this service
+     * is implementing
+     */
+    public String getProtocolDisplayName();
 
     /**
      * Returns the protocol logo icon.
