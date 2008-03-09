@@ -116,7 +116,7 @@ public class OperationSetPresenceSipImpl
      * The default expiration value of a request as defined for the presence
      * package in rfc3856
      */
-    private static final int PRESENCE_DEFAULT_EXPIRE = 3600;
+    private static final int PRESENCE_DEFAULT_EXPIRE = 600;
 
     /**
      * The minimal Expires value for a SUBSCRIBE
