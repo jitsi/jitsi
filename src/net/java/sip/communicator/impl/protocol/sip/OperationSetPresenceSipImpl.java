@@ -114,9 +114,10 @@ public class OperationSetPresenceSipImpl
 
     /**
      * The default expiration value of a request as defined for the presence
-     * package in rfc3856
+     * package in rfc3856. This is the value used when there is no Expires
+     * header in the received subscription requests.
      */
-    private static final int PRESENCE_DEFAULT_EXPIRE = 600;
+    private static final int PRESENCE_DEFAULT_EXPIRE = 3600;
 
     /**
      * The minimal Expires value for a SUBSCRIBE
@@ -129,7 +130,8 @@ public class OperationSetPresenceSipImpl
     private static final int REFRESH_MARGIN = 60;
 
     /**
-     * User chosen expiration value of any subscription
+     * User chosen expiration value of any of our subscriptions.
+     * Currently, the value is the default value defined in the rfc.
      */
     private int subscriptionDuration = PRESENCE_DEFAULT_EXPIRE;
 
