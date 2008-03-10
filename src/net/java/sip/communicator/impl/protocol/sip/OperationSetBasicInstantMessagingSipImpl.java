@@ -62,6 +62,11 @@ public class OperationSetBasicInstantMessagingSipImpl
      * Hashtable containing the message sent
      */
     private Hashtable sentMsg = null;
+    
+    /**
+     * It can be implemented in some servers.
+     */
+    private boolean offlineMessageSupported = false;
 
     /**
      * Gives access to presence states for the Sip protocol.
@@ -81,6 +86,13 @@ public class OperationSetBasicInstantMessagingSipImpl
         this.sentMsg = new Hashtable(3);
         provider.addRegistrationStateChangeListener(new
             RegistrationStateListener());
+        
+        Object isOffMsgsSupported = provider.getAccountID().
+            getAccountProperties().get("OFFLINE_MSG_SUPPORTED");
+        
+        if(isOffMsgsSupported != null && 
+            Boolean.valueOf((String)isOffMsgsSupported).booleanValue())
+            offlineMessageSupported = true;
 
         sipProvider.registerMethodProcessor(Request.MESSAGE,
                                             new SipMessageListener());
@@ -199,7 +211,7 @@ public class OperationSetBasicInstantMessagingSipImpl
      */
     public boolean isOfflineMessagingSupported()
     {
-        return false;
+        return offlineMessageSupported;
     }
     
     /**
@@ -238,9 +250,10 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         assertConnected();
 
-        // no offline message
+        // offline message
         if (to.getPresenceStatus().equals(
-                sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
+                sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))
+            && !offlineMessageSupported)
         {
             logger.debug("trying to send a message to an offline contact");
             MessageDeliveryFailedEvent evt =
@@ -657,6 +670,10 @@ public class OperationSetBasicInstantMessagingSipImpl
         {
             listeners = new ArrayList(this.messageListeners).iterator();
         }
+        
+        logger.debug("Dispatching Message Listeners="
+                     + messageListeners.size()
+                     + " evt=" + evt);
 
         while (listeners.hasNext())
         {
