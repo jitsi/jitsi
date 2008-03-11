@@ -483,9 +483,9 @@ public class FirstWizardPage
         serverField.setText(serverAddress);
         serverField.setEnabled(false);
         serverPortField.setText(serverPort);
-        proxyField.setText(proxyAddress);
-        proxyPortField.setText(proxyPort);
+	proxyField.setText(proxyAddress);
         transportCombo.setSelectedItem(preferredTransport);
+	proxyPortField.setText(proxyPort);
 
         if (!(serverPort.equals(DEFAULT_PORT)
                 || serverPort.equals(DEFAULT_TLS_PORT))
