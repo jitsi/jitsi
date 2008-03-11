@@ -152,7 +152,8 @@ public class AccountRegSummaryPage
 
         ProtocolProviderService protocolProvider = wizard.finish();
 
-        this.wizardContainer.saveAccountWizard(protocolProvider, wizard);
+        if (protocolProvider != null)
+            this.wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
         this.wizardContainer.unregisterWizardPages();
         this.wizardContainer.removeWizzardIcon();
