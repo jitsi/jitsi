@@ -616,8 +616,7 @@
         bundle-pluginmanager,bundle-notification,
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
-        bundle-plugin-accountinfo,bundle-plugin-chatalerter,
-        bundle-updatecheckplugin"/>
+        bundle-plugin-accountinfo,bundle-plugin-chatalerter"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
