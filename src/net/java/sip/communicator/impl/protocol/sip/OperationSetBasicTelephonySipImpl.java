@@ -658,7 +658,8 @@ public class OperationSetBasicTelephonySipImpl
         {
             //Need to use dialog generated ACKs so that the remote UA core
             //sees them - Fixed by M.Ranganathan
-            ack = clientTransaction.getDialog().createRequest(Request.ACK);
+            CSeqHeader cseq = ((CSeqHeader)ok.getHeader(CSeqHeader.NAME));
+            ack = clientTransaction.getDialog().createAck(cseq.getSeqNumber());
 
             //Content should it be necessary.
 
@@ -675,6 +676,15 @@ public class OperationSetBasicTelephonySipImpl
                 , "Failed to create a content type header for the ACK request");
             logger.error(
                 "Failed to create a content type header for the ACK request"
+                , ex);
+        }
+        catch (InvalidArgumentException ex)
+        {
+            //Shouldn't happen
+            callParticipant.setState(CallParticipantState.FAILED
+                , "Failed ACK request, problem with the supplied cseq");
+            logger.error(
+                "Failed ACK request, problem with the supplied cseq"
                 , ex);
         }
         catch (SipException ex)
