@@ -2999,10 +2999,10 @@ public class OperationSetPresenceSipImpl
 
             ClientTransaction retryTran
                 = this.parentProvider.getSipSecurityManager().handleChallenge(
-                    response
-                    , clientTransaction
-                    , jainSipProvider);
-            
+                    response,
+                    clientTransaction,
+                    jainSipProvider);
+
             if(retryTran == null)
             {
                 logger.trace("No password supplied or error occured!");

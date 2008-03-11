@@ -103,7 +103,7 @@ public class ContactSipImpl
     {
         this.contactID = id;
         this.parentProvider = parentProvider;
-        
+
         this.presenceStatus = parentProvider.getSipStatusEnum()
             .getStatus(SipStatusEnum.UNKNOWN);
     }

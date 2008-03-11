@@ -17,7 +17,6 @@ import net.java.sip.communicator.service.protocol.*;
 public class SipAccountID
     extends AccountID
 {
-
     /**
      * Creates a SIP account id from the specified ide and account properties.
      *
@@ -53,4 +52,14 @@ public class SipAccountID
         return "sip:" + getUserID() + "@" + getService();
     }
 
+    /**
+     * Adds a property to the map of properties for this account identifier.
+     * 
+     * @param key the key of the property
+     * @param value the property value
+     */
+    public void putProperty(Object key, Object value)
+    {
+        accountProperties.put(key, value);
+    }
 }

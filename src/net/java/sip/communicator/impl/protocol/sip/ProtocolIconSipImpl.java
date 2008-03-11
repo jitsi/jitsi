@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
 public class ProtocolIconSipImpl
     implements ProtocolIcon
 {
-    private static Logger logger = Logger.getLogger(ProtocolIconSipImpl.class); 
+    private static Logger logger = Logger.getLogger(ProtocolIconSipImpl.class);
 
     private String iconPath;
 

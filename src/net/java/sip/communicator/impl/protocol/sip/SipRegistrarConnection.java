@@ -346,16 +346,18 @@ public class SipRegistrarConnection
         catch (TransactionUnavailableException ex)
         {
             logger.error("Could not create a register transaction!\n"
-                          + "Check that the Registrar address is correct!"
-                          , ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED
-                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                , ex.getMessage());
+                          + "Check that the Registrar address is correct!",
+                          ex);
+
+            setRegistrationState(RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
+                ex.getMessage());
+
             throw new OperationFailedException(
                 "Could not create a register transaction!\n"
-                + "Check that the Registrar address is correct!"
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
+                + "Check that the Registrar address is correct!",
+                OperationFailedException.NETWORK_FAILURE,
+                ex);
         }
         try
         {
@@ -503,7 +505,7 @@ public class SipRegistrarConnection
                 "Could not find the initial register request."
                 , OperationFailedException.INTERNAL_ERROR);
         }
-        
+
         setRegistrationState(RegistrationState.UNREGISTERING,
                 RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
 
@@ -886,9 +888,9 @@ public class SipRegistrarConnection
 
             ClientTransaction retryTran
                 = sipProvider.getSipSecurityManager().handleChallenge(
-                    response
-                    , clientTransaction
-                    , jainSipProvider);
+                    response,
+                    clientTransaction,
+                    jainSipProvider);
 
             if(retryTran == null)
             {
@@ -896,9 +898,29 @@ public class SipRegistrarConnection
                 unregister(false);
                 return;
             }
-            
+
             retryTran.sendRequest();
             return;
+        }
+        catch (OperationFailedException exc)
+        {
+            if(exc.getErrorCode()
+                == OperationFailedException.AUTHENTICATION_CANCELED)
+            {
+                this.setRegistrationState(
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                    "User has canceled the authentication process.");
+            }
+            else
+            {
+                //tell the others we couldn't register
+                this.setRegistrationState(
+                    RegistrationState.AUTHENTICATION_FAILED,
+                    RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
+                    "We failed to authenticate with the server."
+                );
+            }
         }
         catch (Exception exc)
         {

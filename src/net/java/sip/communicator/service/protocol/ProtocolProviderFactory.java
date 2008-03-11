@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
@@ -16,7 +17,7 @@ import net.java.sip.communicator.util.*;
  * The ProtocolProviderFactory is what actually creates instances of a
  * ProtocolProviderService implementation. A provider factory  would register,
  * persistently store, and remove when necessary, ProtocolProviders. The way
- * things are in the SIP Communicator, a user account is representedy (in a 1:1
+ * things are in the SIP Communicator, a user account is represented (in a 1:1
  * relationship) by  an AccountID and a ProtocolProvider. In other words - one
  * would have as many protocol providers installed in a given moment as they
  * would user account registered through the various services.
@@ -172,9 +173,20 @@ public abstract class ProtocolProviderFactory
      * The name of the property under which we store the chosen default
      * subscription expiration value for SIMPLE.
      */
-    public static final String SUBSCRIPTION_EXPIRATION = 
-                                    "SUBSCRIPTION_EXPIRATION";
+    public static final String SUBSCRIPTION_EXPIRATION
+                                                = "SUBSCRIPTION_EXPIRATION";
     
+    /**
+     * Indicates if the server address has been validated.
+     */
+    public static final String SERVER_ADDRESS_VALIDATED
+                                                = "SERVER_ADDRESS_VALIDATED";
+    
+    /**
+     * Indicates if the proxy address has been validated.
+     */
+    public static final String PROXY_ADDRESS_VALIDATED
+                                                = "PROXY_ADDRESS_VALIDATED";
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
@@ -252,36 +264,63 @@ public abstract class ProtocolProviderFactory
      * like to store.
      */
     protected void storeAccount(BundleContext bundleContext,
-                                AccountID accountID)
+        AccountID accountID)
     {
         String sourcePackageName = getFactoryImplPackageName();
 
-        //create a unique node name fo the properties node that will contain
-        //this account's properties.
-        String accNodeName
-            = "acc" + Long.toString(System.currentTimeMillis());
+        String accountNodeName = null;
 
         ServiceReference confReference
             = bundleContext.getServiceReference(
-                ConfigurationService.class.getName());
+                    ConfigurationService.class.getName());
+
         ConfigurationService configurationService
             = (ConfigurationService) bundleContext.getService(confReference);
 
-        //set a value for the persistent node so that we could later retrieve it
-        //as a property
-        configurationService.setProperty(
-            sourcePackageName //prefix
-            + "." + accNodeName
-            , accNodeName);
+        // First check if such accountID already exist in the configuration.
+        List accounts = configurationService
+            .getPropertyNamesByPrefix(sourcePackageName, true);
 
-        //register the account in the configuration service.
-        //we register all the properties in the following hierarchy
-        //net.java.sip.communicator.impl.protocol.PROTO_NAME.ACC_ID.PROP_NAME
-        configurationService.setProperty(
-            sourcePackageName //prefix
-            + "." + accNodeName // node name for the account id
-            + "." + ACCOUNT_UID // propname
-            , accountID.getAccountUniqueID()); // value
+        Iterator accountsIter = accounts.iterator();
+
+        while(accountsIter.hasNext())
+        {
+            String accountRootPropName
+                = (String) accountsIter.next();
+
+            String accountIDString
+                = configurationService.getString(
+                        accountRootPropName + ".ACCOUNT_UID");
+
+            if(accountIDString.equals(accountID.getAccountUniqueID()))
+            {
+                accountNodeName
+                    = configurationService.getString(accountRootPropName);
+            }
+        }
+
+        //Create a unique node name of the properties node that will contain
+        //this account's properties.
+        if (accountNodeName == null)
+        {
+            accountNodeName = "acc" + Long.toString(System.currentTimeMillis());
+
+            //set a value for the persistent node so that we could later
+            // retrieve it as a property
+            configurationService.setProperty(
+                sourcePackageName //prefix
+                + "." + accountNodeName,
+                accountNodeName);
+
+            //register the account in the configuration service.
+            //we register all the properties in the following hierarchy
+            //net.java.sip.communicator.impl.protocol.PROTO_NAME.ACC_ID.PROP_NAME
+            configurationService.setProperty(
+                sourcePackageName//prefix
+                + "." + accountNodeName // node name for the account id
+                + "." + ACCOUNT_UID, // propname
+                accountID.getAccountUniqueID()); // value
+        }
 
         //store the rest of the properties
         Iterator accountPropKeys
@@ -300,15 +339,13 @@ public abstract class ProtocolProviderFactory
 
             configurationService.setProperty(
                 sourcePackageName //prefix
-                + "." + accNodeName // a uniew node name for the account id
-                + "." + propKey // propname
-                , propValue); // value
-
+                + "." + accountNodeName // a uniew node name for the account id
+                + "." + propKey, // propname
+                propValue); // value
         }
 
         logger.debug("Stored account for id " + accountID.getAccountUniqueID()
-                     + " for package " + getFactoryImplPackageName());
-
+            + " for package " + getFactoryImplPackageName());
     }
 
     /**
@@ -487,9 +524,10 @@ public abstract class ProtocolProviderFactory
      *
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
+     * 
      * @return the AccountID of the newly loaded account
      */
-    protected abstract AccountID loadAccount(Map accountProperties);
+    protected abstract AccountID loadAccount(   Map accountProperties);
 
 
     /**

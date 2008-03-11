@@ -494,29 +494,54 @@ public class LoginManager
             }
             catch (OperationFailedException ex)
             {
-
                 int errorCode = ex.getErrorCode();
+
+                String errorMessage = "";
 
                 if (errorCode == OperationFailedException.GENERAL_ERROR)
                 {
                     logger.error("Provider could not be registered"
                         + " due to the following general error: ", ex);
+
+                    errorMessage = Messages.getI18NString("loginGeneralError",
+                        new String[]{
+                        protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService()
+                        }).getText();
                 }
                 else if (errorCode == OperationFailedException.INTERNAL_ERROR)
                 {
                     logger.error("Provider could not be registered"
                         + " due to the following internal error: ", ex);
+
+                    errorMessage = Messages.getI18NString("loginInternalError",
+                        new String[]{
+                        protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService()
+                        }).getText();
                 }
                 else if (errorCode == OperationFailedException.NETWORK_FAILURE)
                 {
                     logger.error("Provider could not be registered"
                         + " due to a network failure: " + ex);
+
+                    errorMessage = Messages.getI18NString("loginNetworkError",
+                        new String[]{
+                        protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService()
+                        }).getText();
                 }
                 else if (errorCode
                         == OperationFailedException.INVALID_ACCOUNT_PROPERTIES)
                 {
                     logger.error("Provider could not be registered"
                         + " due to an invalid account property: ", ex);
+
+                    errorMessage = Messages.getI18NString("loginInvalidPropsError",
+                        new String[]{
+                        protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService()
+                        }).getText();
                 }
                 else
                 {
@@ -525,12 +550,8 @@ public class LoginManager
 
                 new ErrorDialog(mainFrame,
                     Messages.getI18NString("error").getText(),
-                    Messages.getI18NString("loginNotSucceeded",
-                        new String[]{
-                            protocolProvider.getAccountID().getUserID(),
-                            protocolProvider.getAccountID().getService()
-                        }).getText(),
-                        ex).showDialog();
+                    errorMessage,
+                    ex).showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
@@ -541,11 +562,11 @@ public class LoginManager
                 new ErrorDialog(
                     mainFrame,
                     Messages.getI18NString("error").getText(),
-                    Messages.getI18NString("loginNotSucceeded",
-                        new String[]
-                        { protocolProvider.getAccountID().getUserID(),
-                            protocolProvider.getAccountID().getService() })
-                        .getText())
+                    Messages.getI18NString("loginGeneralError",
+                        new String[]{
+                        protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService()
+                        }).getText())
                     .showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);

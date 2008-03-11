@@ -109,13 +109,18 @@ public class OperationFailedException
      * room join error.
      */
     public static final int REGISTRATION_REQUIRED = 13;
-    
+
     /**
      * Indicates that we are currently not joined to the chat room, over which
      * we try to perform an operation.
      */
     public static final int CHAT_ROOM_NOT_JOINED = 14;
-    
+
+    /**
+     * Indicates that the authentication process has been canceled.
+     */
+    public static final int AUTHENTICATION_CANCELED = 15;
+
     /**
      * The error code of the exception
      */

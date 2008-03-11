@@ -123,8 +123,8 @@ public class ProtocolProviderFactorySipImpl
         //the register() method and it needs to acces the configuration service
         //and check for a password.
         this.storeAccount(
-            SipActivator.getBundleContext()
-            , accountID);
+            SipActivator.getBundleContext(),
+            accountID);
 
         try
         {
@@ -178,7 +178,7 @@ public class ProtocolProviderFactorySipImpl
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.SIP);
 
-        AccountID accountID =
+        SipAccountID accountID =
             new SipAccountID(userIDStr, accountProperties, serverAddress);
 
         //get a reference to the configuration service and register whatever
@@ -194,6 +194,11 @@ public class ProtocolProviderFactorySipImpl
         try
         {
             sipProtocolProvider.initialize(userIDStr, accountID);
+
+            // We store again the account in order to store all properties added
+            // during the protocol provider initialization.
+            this.storeAccount(
+                SipActivator.getBundleContext(), accountID);
         }
         catch (OperationFailedException ex)
         {

@@ -92,6 +92,11 @@ public class ProtocolProviderServiceSipImpl
     private SipStack jainSipStack;
 
     /**
+     * The properties of the jainSipStack.
+     */
+    private Properties jainSipStackProperties;
+
+    /**
      * The default listening point that we use for UDP communication..
      */
     private ListeningPoint udpListeningPoint = null;
@@ -513,12 +518,25 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
+
         //init the security manager before doing the actual registration to
         //avoid being asked for credentials before being ready to provide them
         sipSecurityManager.setSecurityAuthority(authority);
 
-        //connecto to the Registrar.
-        sipRegistrarConnection.register();
+        // We check here if the sipRegistrarConnection is initialized. This is
+        // needed in case that in the initialization process we had no internet
+        // connection.
+        if (sipRegistrarConnection == null)
+            initRegistrarConnection((SipAccountID) accountID);
+
+        // The same here, we check if the outbound proxy is initialized in case
+        // through the initialization process there was no internet connection.
+        if (outboundProxySocketAddress == null)
+            initOutboundProxy((SipAccountID)accountID, jainSipStackProperties);
+
+        //connect to the Registrar.
+        if (sipRegistrarConnection != null)
+            sipRegistrarConnection.register();
     }
 
     /**
@@ -550,7 +568,9 @@ public class ProtocolProviderServiceSipImpl
      * about to create
      * @param accountID the identifier of the account that this protocol
      * provider represents.
-     *
+     * @param isInstall indicates if this initialization is made due to a new
+     * account installation or just an existing account loading
+     * 
      * @throws OperationFailedException with code INTERNAL_ERROR if we fail
      * initializing the SIP Stack.
      * @throws java.lang.IllegalArgumentException if one or more of the account
@@ -559,7 +579,7 @@ public class ProtocolProviderServiceSipImpl
      * @see net.java.sip.communicator.service.protocol.AccountID
      */
     protected void initialize(String    sipAddress,
-                              AccountID accountID)
+                              SipAccountID accountID)
         throws OperationFailedException, IllegalArgumentException
     {
         synchronized (initializationLock)
@@ -593,34 +613,41 @@ public class ProtocolProviderServiceSipImpl
 
             sipFactory = SipFactory.getInstance();
             sipFactory.setPathName("gov.nist");
-            Properties properties = new Properties();
+            this.jainSipStackProperties = new Properties();
 
             //init the proxy
-            initOutboundProxy(accountID, properties);
+            initOutboundProxy(accountID, jainSipStackProperties);
 
             // If you want to use UDP then uncomment this.
-            properties.setProperty(JSPNAME_STACK_NAME, "SIP Communicator:"
+            jainSipStackProperties.setProperty(
+                JSPNAME_STACK_NAME, "SIP Communicator:"
                 + getAccountID().getAccountUniqueID());
 
             // NIST SIP specific properties
-            properties.setProperty(NSPNAME_DEBUG_LOG, NSPVALUE_DEBUG_LOG);
-            properties.setProperty(NSPNAME_SERVER_LOG, NSPVALUE_SERVER_LOG);
+            jainSipStackProperties
+                .setProperty(NSPNAME_DEBUG_LOG, NSPVALUE_DEBUG_LOG);
+
+            jainSipStackProperties
+                .setProperty(NSPNAME_SERVER_LOG, NSPVALUE_SERVER_LOG);
 
             // Drop the client connection after we are done with the transaction.
-            properties.setProperty( NSPNAME_CACHE_CLIENT_CONNECTIONS
-                                   , NSPVALUE_CACHE_CLIENT_CONNECTIONS);
+            jainSipStackProperties
+                .setProperty(   NSPNAME_CACHE_CLIENT_CONNECTIONS,
+                                NSPVALUE_CACHE_CLIENT_CONNECTIONS);
 
             // Log level
-            properties.setProperty(NSPNAME_TRACE_LEVEL, NSPVALUE_TRACE_LEVEL);
+            jainSipStackProperties
+                .setProperty(NSPNAME_TRACE_LEVEL, NSPVALUE_TRACE_LEVEL);
 
             // deliver unsolicited NOTIFY
-            properties.setProperty(NSPNAME_DELIVER_UNSOLICITED_NOTIFY,
-                    NSPVALUE_DELIVER_UNSOLICITED_NOTIFY);
+            jainSipStackProperties
+                .setProperty(   NSPNAME_DELIVER_UNSOLICITED_NOTIFY,
+                                NSPVALUE_DELIVER_UNSOLICITED_NOTIFY);
 
             try
             {
                 // Create SipStack object
-                jainSipStack = new SipStackImpl(properties);
+                jainSipStack = new SipStackImpl(jainSipStackProperties);
                 logger.debug("Created stack: " + jainSipStack);
             }
             catch (PeerUnavailableException exc)
@@ -1711,7 +1738,7 @@ public class ProtocolProviderServiceSipImpl
      * @throws java.lang.IllegalArgumentException if one or more account
      * properties have invalid values.
      */
-    private void initRegistrarConnection(AccountID accountID)
+    private void initRegistrarConnection(SipAccountID accountID)
         throws IllegalArgumentException
     {
         //First init the registrar address
@@ -1728,19 +1755,65 @@ public class ProtocolProviderServiceSipImpl
         }
 
         InetAddress registrarAddress = null;
+
         try
         {
             registrarAddress = InetAddress.getByName(registrarAddressStr);
+
+            // We should set here the property to indicate that the server
+            // address is validated. When we load stored accounts we check
+            // this property in order to prevent checking again the server
+            // address. And this is needed because in the case we don't have
+            // network while loading the application we still want to have our
+            // accounts loaded.
+            accountID.putProperty(
+                ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED,
+                Boolean.toString(true));
+
         }
         catch (UnknownHostException ex)
         {
             logger.error(registrarAddressStr
                 + " appears to be an either invalid or inaccessible address: "
                 , ex);
-            throw new IllegalArgumentException(
-                registrarAddressStr
-                + " appears to be an either invalid or inaccessible address: "
-                + ex.getMessage());
+
+            String serverValidatedString
+                = (String) accountID.getAccountProperties()
+                    .get(ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED);
+
+            boolean isServerValidated = false;
+            if (serverValidatedString != null)
+                isServerValidated = new Boolean(serverValidatedString)
+                    .booleanValue();
+
+            // We should check here if the server address was already validated. 
+            // When we load stored accounts we want to prevent checking again the
+            // server address. This is needed because in the case we don't have
+            // network while loading the application we still want to have our
+            // accounts loaded.
+            if (serverValidatedString == null || !isServerValidated)
+            {
+                throw new IllegalArgumentException(
+                    registrarAddressStr
+                    + " appears to be an either invalid or inaccessible address: "
+                    + ex.getMessage());
+            }
+        }
+
+        // If the registrar address is null we don't need to continue.
+        // If we still have problems with initializing the registrar we are
+        // telling the user. We'll enter here only if the server has been
+        // already validated (this means that the account is already created
+        // and we're trying to login, but we have no internet connection).
+        if(registrarAddress == null)
+        {
+            fireRegistrationStateChanged(
+                RegistrationState.UNREGISTERED,
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                "Invalid or inaccessible server address.");
+
+            return;
         }
 
         //init registrar port
@@ -1857,7 +1930,7 @@ public class ProtocolProviderServiceSipImpl
      * jain sip stack when initialize it (that's where we'll put all proxy
      * properties).
      */
-    private void initOutboundProxy(AccountID accountID,
+    private void initOutboundProxy(SipAccountID accountID,
                                    Hashtable jainSipProperties)
     {
         //First init the proxy address
@@ -1866,24 +1939,53 @@ public class ProtocolProviderServiceSipImpl
 
         InetAddress proxyAddress = null;
 
-
         try
         {
-            proxyAddress = InetAddress.getByName(proxyAddressStr);
+                proxyAddress = InetAddress.getByName(proxyAddressStr);
+
+            // We should set here the property to indicate that the proxy
+            // address is validated. When we load stored accounts we check
+            // this property in order to prevent checking again the proxy
+            // address. this is needed because in the case we don't have
+            // network while loading the application we still want to have
+            // our accounts loaded.
+            accountID.putProperty(
+                ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED,
+                Boolean.toString(true));
         }
         catch (UnknownHostException ex)
         {
             logger.error(proxyAddressStr
                 + " appears to be an either invalid or inaccessible address"
                 , ex);
-            throw new IllegalArgumentException(
-                proxyAddressStr
-                + " appears to be an either invalid or inaccessible address "
-                + ex.getMessage());
+
+            String proxyValidatedString = (String) accountID
+            .getAccountProperties().get(
+                ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED);
+
+            boolean isProxyValidated = false;
+            if (proxyValidatedString != null)
+                isProxyValidated
+                    = new Boolean(proxyValidatedString).booleanValue();
+
+            // We should check here if the proxy address was already validated. 
+            // When we load stored accounts we want to prevent checking again the
+            // proxy address. This is needed because in the case we don't have
+            // network while loading the application we still want to have our
+            // accounts loaded.
+            if (proxyValidatedString == null || !isProxyValidated)
+            {
+                throw new IllegalArgumentException(
+                    proxyAddressStr
+                    + " appears to be an either invalid or inaccessible address "
+                    + ex.getMessage());
+            }
         }
 
-        //return if no proxy is specified.
-        if(proxyAddressStr == null || proxyAddressStr.length() == 0)
+        // Return if no proxy is specified or if the proxyAddress is null.
+        if(proxyAddressStr == null
+                || proxyAddressStr.length() == 0
+                || proxyAddress == null)
         {
             return;
         }
@@ -1953,8 +2055,8 @@ public class ProtocolProviderServiceSipImpl
         proxyStringBuffer.append(proxyTransport);
 
         //done parsing. init properties.
-        jainSipProperties.put(JSPNAME_OUTBOUND_PROXY
-                              , proxyStringBuffer.toString());
+        jainSipProperties.put(  JSPNAME_OUTBOUND_PROXY,
+                                proxyStringBuffer.toString());
 
         //store a reference to our sip proxy so that we can use it when
         //constructing via and contact headers.
