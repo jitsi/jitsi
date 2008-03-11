@@ -51,7 +51,9 @@ public class ErrorDialog
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JPanel messagePanel = new JPanel(new BorderLayout(20, 15));
+    private JPanel infoMessagePanel = new JPanel();
+
+    private JPanel messagePanel = new JPanel(new BorderLayout());
 
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
 
@@ -84,8 +86,13 @@ public class ErrorDialog
 
         this.setTitle(title);
 
-        this.messagePanel.add(msgTextArea, BorderLayout.NORTH);
+        this.infoMessagePanel.setLayout(
+            new BoxLayout(infoMessagePanel, BoxLayout.Y_AXIS));
 
+        this.infoMessagePanel.add(msgTextArea);
+
+        this.msgTextArea.setLineWrap(true);
+        this.msgTextArea.setWrapStyleWord(true);
         this.msgTextArea.setText(message);
 
         this.init();
@@ -113,21 +120,21 @@ public class ErrorDialog
 
         this.htmlMsgEditorPane.addHyperlinkListener(this);
 
-        this.messagePanel.add(htmlMsgEditorPane, BorderLayout.NORTH);
-
         String startDivTag = "<DIV id=\"message\">";
         String endDivTag = "</DIV>";
 
-        String msgString = startDivTag + message
-                + " <A href=''>more info</A>" + endDivTag;
+        String msgString = startDivTag
+                            + " <A href=''>more info</A>"
+                            + endDivTag;
 
         htmlMsgEditorPane.appendToEnd(msgString);
+
+        this.infoMessagePanel.add(htmlMsgEditorPane);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         pw.close();
-
 
         String stackTrace = sw.toString();
 
@@ -181,6 +188,8 @@ public class ErrorDialog
         this.okButton.addActionListener(this);
 
         this.mainPanel.add(iconLabel, BorderLayout.WEST);
+
+        this.messagePanel.add(infoMessagePanel, BorderLayout.NORTH);
 
         this.mainPanel.add(messagePanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
