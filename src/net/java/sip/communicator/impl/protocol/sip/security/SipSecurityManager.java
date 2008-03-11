@@ -12,8 +12,10 @@ import javax.sip.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.impl.netaddr.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -76,7 +78,7 @@ public class SipSecurityManager
     }
 
     /**
-     * Uses securityAuthority to determinie a set of valid user credentials
+     * Uses securityAuthority to determine a set of valid user credentials
      * for the specified Response (Challenge) and appends it to the challenged
      * request so that it could be retransmitted.
      *
@@ -196,9 +198,11 @@ public class SipSecurityManager
                     logger.trace("We don't seem to have a good pass! Get one.");
 
                     ccEntry = createCcEntryWithNewCredentials(realm);
-                    
+
                     if(ccEntry == null)
-                        return null;
+                        throw new OperationFailedException(
+                            "User has canceled the authentication process.",
+                            OperationFailedException.AUTHENTICATION_CANCELED);
                 }
             }
             else
@@ -217,6 +221,11 @@ public class SipSecurityManager
                         accountID, null);
 
                     ccEntry = createCcEntryWithNewCredentials(realm);
+
+                    if(ccEntry == null)
+                        throw new OperationFailedException(
+                            "User has canceled the authentication process.",
+                            OperationFailedException.AUTHENTICATION_CANCELED);
                 }
                 else
                 {
@@ -470,7 +479,7 @@ public class SipSecurityManager
     }
 
     /**
-     * Obtains user credentials from the security suthority for the speicified
+     * Obtains user credentials from the security authority for the specified
      * <tt>realm</tt> and creates a new CredentialsCacheEntry with them.
      *
      * @param realm the realm that we'd like to obtain a
@@ -491,9 +500,13 @@ public class SipSecurityManager
                 realm,
                 defaultCredentials);
 
+        // in case user has canceled the login window
+        if(newCredentials == null)
+            return null;
+
         if(newCredentials.getPassword() == null)
             return null;
-        
+
         ccEntry.userCredentials = newCredentials;
 
         //store the password if the user wants us to
