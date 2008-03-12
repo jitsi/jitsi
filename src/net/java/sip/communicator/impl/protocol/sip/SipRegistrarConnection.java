@@ -458,8 +458,36 @@ public class SipRegistrarConnection
         }
         else
         {
+            int scheduleTime = grantedExpiration;
+            
+            // registration schedule interval can be forced 
+            // with setting property REGISTRATION_ANTICIPATION to value in seconds
+            // this does not change expiration header
+            String regAnticipObj = 
+                (String)sipProvider.getAccountID().getAccountProperties().
+                    get("REGISTRATION_ANTICIPATION");
+            
+            if(regAnticipObj != null)
+            {
+                try
+                {
+                    int registrationAnticipation = 
+                        Integer.valueOf(regAnticipObj).intValue();
+                    
+                    if(registrationAnticipation < grantedExpiration)
+                    {
+                        scheduleTime = registrationAnticipation;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.error("Wrong value for REGISTRATION_ANTICIPATION");
+                }
+            }
+            
+            
             //schedule a reregistration.
-            scheduleReRegistration(grantedExpiration);
+            scheduleReRegistration(scheduleTime);
 
             setRegistrationState(
                 RegistrationState.REGISTERED
