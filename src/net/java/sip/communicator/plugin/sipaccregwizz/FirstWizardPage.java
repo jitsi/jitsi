@@ -484,6 +484,9 @@ public class FirstWizardPage
         serverField.setEnabled(false);
         serverPortField.setText(serverPort);
 	proxyField.setText(proxyAddress);
+	
+	// The order of the next two fields is important, as a changelister of the
+	// transportCombo sets the proxyPortField to its default
         transportCombo.setSelectedItem(preferredTransport);
 	proxyPortField.setText(proxyPort);
 
