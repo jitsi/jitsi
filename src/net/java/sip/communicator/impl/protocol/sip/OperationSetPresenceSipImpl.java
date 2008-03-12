@@ -597,14 +597,14 @@ public class OperationSetPresenceSipImpl
         }
 
         // in the offline status, the protocol provider is already unregistered
-        if (!status.equals(SipStatusEnum.OFFLINE)) {
+        if (!status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
             assertConnected();
         }
 
         // now inform our distant presence agent if we have one
         if (this.useDistantPA) {
             Request req = null;
-            if (status.equals(SipStatusEnum.OFFLINE)) {
+            if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
                 // unpublish our state
                 req = createPublish(0, false);
                 
@@ -655,7 +655,8 @@ public class OperationSetPresenceSipImpl
 
                     ClientTransaction transac = null;
                     try {
-                        if (status.equals(SipStatusEnum.OFFLINE)) {
+                        if (status.equals(sipStatusEnum.getStatus(
+                                                SipStatusEnum.OFFLINE))) {
                             transac = createNotify(contact,
                                     getPidfPresenceStatus(me),
                                     SubscriptionStateHeader.TERMINATED,
@@ -684,7 +685,7 @@ public class OperationSetPresenceSipImpl
                     }
                 }
 
-                if (status.equals(SipStatusEnum.OFFLINE)) {
+                if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
                     this.ourWatchers.removeAllElements();
                 }
             }
@@ -692,7 +693,7 @@ public class OperationSetPresenceSipImpl
 
         // must be done in last to avoid some problem when terminating a
         // subscription of a contact who is also one of our watchers
-        if (status.equals(SipStatusEnum.OFFLINE)) {
+        if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
             unsubscribeToAllContact();
         }
     }
@@ -3635,14 +3636,14 @@ public class OperationSetPresenceSipImpl
          person.appendChild(activities);
 
          // the correct activity
-         if (contact.getPresenceStatus().equals(SipStatusEnum.AWAY)) {
+         if (contact.getPresenceStatus().equals(sipStatusEnum.getStatus(SipStatusEnum.AWAY))) {
              Element away = doc.createElement(NS_AWAY_ELT);
              activities.appendChild(away);
-         } else if (contact.getPresenceStatus().equals(SipStatusEnum.BUSY)) {
+         } else if (contact.getPresenceStatus().equals(sipStatusEnum.getStatus(SipStatusEnum.BUSY))) {
              Element busy = doc.createElement(NS_BUSY_ELT);
              activities.appendChild(busy);
          } else if (contact.getPresenceStatus()
-                 .equals(SipStatusEnum.ON_THE_PHONE))
+                 .equals(sipStatusEnum.getStatus(SipStatusEnum.ON_THE_PHONE)))
          {
              Element otp = doc.createElement(NS_OTP_ELT);
              activities.appendChild(otp);
@@ -3659,7 +3660,7 @@ public class OperationSetPresenceSipImpl
 
          // <basic>
          Element basic = doc.createElement(BASIC_ELEMENT);
-         if (contact.getPresenceStatus().equals(SipStatusEnum.OFFLINE)) {
+         if (contact.getPresenceStatus().equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
              basic.appendChild(doc.createTextNode(OFFLINE_STATUS));
          } else {
              basic.appendChild(doc.createTextNode(ONLINE_STATUS));
