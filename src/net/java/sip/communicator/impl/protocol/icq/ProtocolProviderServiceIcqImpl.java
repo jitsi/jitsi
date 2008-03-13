@@ -634,26 +634,6 @@ public class ProtocolProviderServiceIcqImpl
             = joustSimStateToRegistrationState(newJoustSimState
                                                , newJoustSimStateInfo);
 
-        if(newJoustSimStateInfo instanceof LoginFailureStateInfo)
-        {
-            LoginFailureInfo loginFailure =
-                ((LoginFailureStateInfo)newJoustSimStateInfo)
-                    .getLoginFailureInfo();
-
-            if(loginFailure instanceof AuthFailureInfo)
-            {
-                AuthFailureInfo afi = (AuthFailureInfo)loginFailure;
-                logger.debug("AuthFailureInfo code : " +
-                             afi.getErrorCode());
-                int code =  ConnectionClosedListener
-                    .convertAuthCodeToReasonCode(afi);
-                reasonCode = ConnectionClosedListener
-                    .convertCodeToRegistrationStateChangeEvent(code);
-                reason = ConnectionClosedListener
-                    .convertCodeToStringReason(code);
-            }
-        }
-
         fireRegistrationStateChanged(oldRegistrationState, newRegistrationState
                                      , reasonCode, reason);
 
@@ -760,7 +740,7 @@ public class ProtocolProviderServiceIcqImpl
                 if(service != null)
                 {
                     int discconectCode = service.getOscarConnection()
-                        .getLastCloseCode();
+                        .getLastCloseCode();                    
                     reasonCode = ConnectionClosedListener
                         .convertCodeToRegistrationStateChangeEvent(
                             discconectCode);
@@ -779,6 +759,26 @@ public class ProtocolProviderServiceIcqImpl
                     logger.debug("The aim Connection failed! "
                                  + event.getNewStateInfo());
                 }
+            
+            if(event.getNewStateInfo() instanceof LoginFailureStateInfo)
+            {
+                LoginFailureInfo loginFailure =
+                    ((LoginFailureStateInfo)event.getNewStateInfo())
+                        .getLoginFailureInfo();
+
+                if(loginFailure instanceof AuthFailureInfo)
+                {
+                    AuthFailureInfo afi = (AuthFailureInfo)loginFailure;
+                    logger.debug("AuthFailureInfo code : " +
+                                 afi.getErrorCode());
+                    int code =  ConnectionClosedListener
+                        .convertAuthCodeToReasonCode(afi);
+                    reasonCode = ConnectionClosedListener
+                        .convertCodeToRegistrationStateChangeEvent(code);
+                    reasonStr = ConnectionClosedListener
+                        .convertCodeToStringReason(code);
+                }
+            }
 
             //as a side note - if this was an AuthenticationFailed error
             //set the stored password to null so that we don't use it any more.
