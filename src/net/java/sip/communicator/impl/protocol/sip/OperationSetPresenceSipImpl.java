@@ -4588,6 +4588,50 @@ public class OperationSetPresenceSipImpl
                     // start polling the offline contacts
                     timer.schedule(pollingTask, pollingTaskPeriod,
                         pollingTaskPeriod);
+               } else if(evt.getNewState() == 
+                       RegistrationState.CONNECTION_FAILED)
+               {
+                    // if connection failed we have lost network connectivity 
+                    // we must fire that all contacts has gone offline
+                    Iterator groupsIter = getServerStoredContactListRoot()
+                                                                .subgroups();
+                    while(groupsIter.hasNext())
+                    {
+                        ContactGroupSipImpl group
+                            = (ContactGroupSipImpl)groupsIter.next();
+
+                        Iterator contactsIter = group.contacts();
+
+                        while(contactsIter.hasNext())
+                        {
+                            ContactSipImpl contact
+                                = (ContactSipImpl)contactsIter.next();
+                            
+                            PresenceStatus oldContactStatus
+                                = contact.getPresenceStatus();
+
+                            contact.setResolved(false);
+                            contact.setClientDialog(null);
+                            
+                            if(!oldContactStatus.isOnline())
+                                continue;
+
+                            contact.setPresenceStatus(
+                                sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
+
+                            fireContactPresenceStatusChangeEvent(
+                                  contact
+                                , contact.getParentContactGroup()
+                                , oldContactStatus);
+                        }
+                    }
+                    
+                    // stop any task associated with the timer
+                    if (timer != null) {
+                        timer.cancel();
+                    }
+                    
+                    waitedCallIds.clear();
                }
           }
      }
