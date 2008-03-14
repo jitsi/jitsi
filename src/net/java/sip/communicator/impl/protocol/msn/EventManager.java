@@ -229,7 +229,7 @@ public class EventManager
                 if(!connected && msnProvider.isRegistered())
                 {
                     msnProvider.unregister(false);
-                    msnProvider.reconnect();
+                    msnProvider.reconnect(SecurityAuthority.CONNECTION_FAILED);
                 }
             }
         }, 20000);

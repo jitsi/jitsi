@@ -197,7 +197,8 @@ public class SipSecurityManager
                     //obtain new credentials
                     logger.trace("We don't seem to have a good pass! Get one.");
 
-                    ccEntry = createCcEntryWithNewCredentials(realm);
+                    ccEntry = createCcEntryWithNewCredentials(
+                        realm, SecurityAuthority.AUTHENTICATION_REQUIRED);
 
                     if(ccEntry == null)
                         throw new OperationFailedException(
@@ -220,7 +221,8 @@ public class SipSecurityManager
                     SipActivator.getProtocolProviderFactory().storePassword(
                         accountID, null);
 
-                    ccEntry = createCcEntryWithNewCredentials(realm);
+                    ccEntry = createCcEntryWithNewCredentials(
+                        realm, SecurityAuthority.WRONG_PASSWORD);
 
                     if(ccEntry == null)
                         throw new OperationFailedException(
@@ -488,7 +490,9 @@ public class SipSecurityManager
      * @return a newly created <tt>CredentialsCacheEntry</tt> corresponding to
      * the specified <tt>realm</tt>.
      */
-    private CredentialsCacheEntry createCcEntryWithNewCredentials(String realm)
+    private CredentialsCacheEntry createCcEntryWithNewCredentials(
+                                                                String realm,
+                                                                int reasonCode)
     {
         CredentialsCacheEntry ccEntry = new CredentialsCacheEntry();
 
@@ -498,7 +502,8 @@ public class SipSecurityManager
         UserCredentials newCredentials = 
             getSecurityAuthority().obtainCredentials(
                 realm,
-                defaultCredentials);
+                defaultCredentials,
+                reasonCode);
 
         // in case user has canceled the login window
         if(newCredentials == null)

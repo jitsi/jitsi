@@ -37,7 +37,7 @@ public class AuthenticationWindow
     private JLabel passwdLabel = new JLabel(
         Messages.getI18NString("passwd").getText());
 
-    private JLabel uinValueLabel;
+    private JComponent uinValue;
 
     private JPasswordField passwdField = new JPasswordField(15);
 
@@ -68,21 +68,28 @@ public class AuthenticationWindow
 
     private String realm;
 
+    private boolean isUserNameEditable = false;
+
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      * @param mainFrame the parent <tt>MainFrame</tt> window.
      * @param protocolProvider the protocol provider.
      * @param realm the realm
      * @param userCredentials the user credentials
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not.
      */
     public AuthenticationWindow(MainFrame mainFrame,
                 ProtocolProviderService protocolProvider,
                 String realm,
-                UserCredentials userCredentials) {
-
+                UserCredentials userCredentials,
+                boolean isUserNameEditable)
+    {
         this.userCredentials = userCredentials;
 
         this.realm = realm;
+
+        this.isUserNameEditable = isUserNameEditable;
 
         ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
 
@@ -124,20 +131,52 @@ public class AuthenticationWindow
     }
 
     /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     * @param mainFrame the parent <tt>MainFrame</tt> window.
+     * @param protocolProvider the protocol provider.
+     * @param realm the realm
+     * @param userCredentials the user credentials
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not.
+     * @param errorMessage an error message explaining a reason for opening
+     * the authentication dialog (when a wrong password was provided, etc.)
+     */
+    public AuthenticationWindow(MainFrame mainFrame,
+                ProtocolProviderService protocolProvider,
+                String realm,
+                UserCredentials userCredentials,
+                boolean isUserNameEditable,
+                String errorMessage)
+    {
+        this(  mainFrame,
+                protocolProvider,
+                realm,
+                userCredentials,
+                isUserNameEditable);
+
+        this.realmTextArea.setForeground(Color.RED);
+        this.realmTextArea.setText(errorMessage);
+    }
+
+    /**
      * Constructs the <tt>LoginWindow</tt>.
      */
-    private void init() {
+    private void init()
+    {
+        if(!isUserNameEditable)
+            this.uinValue = new JLabel(userCredentials.getUserName());
+        else
+            this.uinValue = new JTextField(userCredentials.getUserName());
 
-        this.uinValueLabel = new JLabel(userCredentials.getUserName());
         if(userCredentials.getPassword() != null) {
             this.passwdField.setText(userCredentials.getPassword().toString());
         }
 
+        this.realmTextArea.setEditable(false);
         this.realmTextArea.setOpaque(false);
         this.realmTextArea.setLineWrap(true);
         this.realmTextArea.setWrapStyleWord(true);
         this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
-        this.realmTextArea.setEditable(false);
         this.realmTextArea.setText(
             Messages.getI18NString("securityAuthorityRealm",
                 new String[]{realm}).getText());
@@ -151,7 +190,7 @@ public class AuthenticationWindow
 
         this.rememberPassCheckBox.setOpaque(false);
 
-        this.textFieldsPanel.add(uinValueLabel);
+        this.textFieldsPanel.add(uinValue);
         this.textFieldsPanel.add(passwdField);
         this.textFieldsPanel.add(rememberPassCheckBox);
 

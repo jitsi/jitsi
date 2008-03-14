@@ -8,12 +8,13 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 
 import java.io.*;
 import java.util.*;
-import java.nio.channels.*;
 
-import net.java.sip.communicator.impl.protocol.msn.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.*;
+
 import ymsg.network.*;
 import ymsg.network.event.*;
 
@@ -108,17 +109,20 @@ public class ProtocolProviderServiceYahooImpl
 
         this.authority = authority;
 
-        connectAndLogin(authority);
+        connectAndLogin(authority, SecurityAuthority.AUTHENTICATION_REQUIRED);
     }
 
     /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
+     * @param authReasonCode the authentication reason code, which should
+     * indicate why are making an authentication request
      * @throws XMPPException if we cannot connect to the server - network problem
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
-    private void connectAndLogin(SecurityAuthority authority)
+    private void connectAndLogin(   SecurityAuthority authority,
+                                    int authReasonCode)
         throws OperationFailedException
     {
         synchronized(initializationLock)
@@ -135,8 +139,10 @@ public class ProtocolProviderServiceYahooImpl
                 credentials.setUserName(getAccountID().getUserID());
 
                 //request a password from the user
-                credentials = authority.obtainCredentials(ProtocolNames.YAHOO
-                    , credentials);
+                credentials = authority.obtainCredentials(
+                    ProtocolNames.YAHOO,
+                    credentials,
+                    authReasonCode);
 
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
@@ -151,7 +157,6 @@ public class ProtocolProviderServiceYahooImpl
                     return;
                 }
                 password = new String(pass);
-
 
                 if (credentials.isPasswordPersistent())
                 {
@@ -192,7 +197,11 @@ public class ProtocolProviderServiceYahooImpl
                 fireRegistrationStateChanged(
                     getRegistrationState(),
                     RegistrationState.AUTHENTICATION_FAILED,
-                    RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED, null);
+                    RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
+                    null);
+
+                // Try to re-register and ask the user to retype the password.
+                reregister(SecurityAuthority.WRONG_PASSWORD);
             }
             catch (IOException ex)
             {
@@ -201,6 +210,26 @@ public class ProtocolProviderServiceYahooImpl
                     RegistrationState.CONNECTION_FAILED,
                     RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
             }
+        }
+    }
+
+    /**
+     * Reconnects if fails fire connection failed.
+     * @param reasonCode the appropriate <tt>SecurityAuthority</tt> reasonCode,
+     * which would specify the reason for which we're re-calling the login.
+     */
+    void reregister(int reasonCode)
+    {
+        try
+        {
+            connectAndLogin(authority, reasonCode);
+        }
+        catch (OperationFailedException ex)
+        {
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
         }
     }
 

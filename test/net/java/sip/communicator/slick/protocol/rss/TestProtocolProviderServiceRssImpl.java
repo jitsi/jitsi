@@ -225,11 +225,28 @@ public class TestProtocolProviderServiceRssImpl
      * @author Mihai Balan
      */
     public class NullSecurityAuthority
-    	implements SecurityAuthority
+        implements SecurityAuthority
     {
-    	public UserCredentials obtainCredentials(String realm,
-    		UserCredentials defaultValues) {
-    	    return null;
-    	}
+        public UserCredentials obtainCredentials(String realm,
+            UserCredentials defaultValues,
+            int reasonCode)
+        {
+            return null;
+        }
+
+        public UserCredentials obtainCredentials(String realm,
+            UserCredentials defaultValues)
+        {
+            return null;
+        }
+
+        public void setUserNameEditable(boolean isUserNameEditable)
+        {
+        }
+
+        public boolean isUserNameEditable()
+        {
+            return false;
+        }
     }
 }

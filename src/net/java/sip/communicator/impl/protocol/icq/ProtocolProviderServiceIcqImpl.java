@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.gibberish.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -101,7 +100,12 @@ public class ProtocolProviderServiceIcqImpl
      *  Property whether we are using AIM or ICQ service
      */
     boolean USING_ICQ = true;
-    
+
+    /**
+     * Used when we need to re-register
+     */
+    private SecurityAuthority authority = null;
+
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -206,17 +210,55 @@ public class ProtocolProviderServiceIcqImpl
                 "The register method needs a valid non-null authority impl "
                 + " in order to be able and retrieve passwords.");
 
+        // Keep the authority in case we need to re-register.
+        this.authority = authority;
+
+        connectAndLogin(authority, SecurityAuthority.AUTHENTICATION_REQUIRED);
+    }
+
+    /**
+     * Reconnects if fails fire connection failed.
+     * @param reasonCode the appropriate <tt>SecurityAuthority</tt> reasonCode,
+     * which would specify the reason for which we're re-calling the login.
+     */
+    void reconnect(int reasonCode)
+    {
+        try
+        {
+            connectAndLogin(authority, reasonCode);
+        }
+        catch (OperationFailedException ex)
+        {
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+        }
+    }
+
+    /**
+     * Connects and logins to the server
+     * @param authority SecurityAuthority
+     * @throws  OperationFailedException if login parameters
+     *          as server port are not correct
+     */
+    private void connectAndLogin(SecurityAuthority authority, int reasonCode)
+        throws OperationFailedException
+    {
         synchronized(initializationLock)
         {
             ProtocolProviderFactoryIcqImpl protocolProviderFactory = null;
-            
+
             if(USING_ICQ)
-                protocolProviderFactory = IcqActivator.getIcqProtocolProviderFactory();
+                protocolProviderFactory
+                    = IcqActivator.getIcqProtocolProviderFactory();
             else
-                protocolProviderFactory = IcqActivator.getAimProtocolProviderFactory();
-            
+                protocolProviderFactory
+                    = IcqActivator.getAimProtocolProviderFactory();
+
             //verify whether a password has already been stored for this account
-            String password = protocolProviderFactory.loadPassword(getAccountID());
+            String password
+                = protocolProviderFactory.loadPassword(getAccountID());
 
             //decode
             if( password == null )
@@ -226,9 +268,11 @@ public class ProtocolProviderServiceIcqImpl
                 credentials.setUserName(this.getAccountID().getUserID());
 
                 //request a password from the user
-                credentials = authority.obtainCredentials(getProtocolName()
-                                                          , credentials);
-                
+                credentials = authority.obtainCredentials(
+                    getProtocolName(),
+                    credentials,
+                    reasonCode);
+
                 // in case user has canceled the login window
                 if(credentials == null)
                 {
@@ -791,13 +835,18 @@ public class ProtocolProviderServiceIcqImpl
                 else
                     IcqActivator.getAimProtocolProviderFactory().storePassword(
                         getAccountID(), null);
+
+                reconnect(SecurityAuthority.WRONG_PASSWORD);
             }
 
             //now tell all interested parties about what happened.
-            fireRegistrationStateChanged(oldState, event.getOldStateInfo()
-                , newState, event.getNewStateInfo()
-                , reasonCode, reasonStr);
-
+            fireRegistrationStateChanged(
+                oldState,
+                event.getOldStateInfo(),
+                newState,
+                event.getNewStateInfo(),
+                reasonCode,
+                reasonStr);
         }
     }
 

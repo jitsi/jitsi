@@ -328,13 +328,16 @@ public interface UIService
      * @param realm the realm
      * @param userCredentials the <tt>UserCredentials</tt>, where the username
      * and password details are stored
+     * @param isUserNameEditable indicates if the user name could be changed
+     * by user.
      * @return an <tt>ExportableComponent</tt> that corresponds to an
      * authentication window for the given protocol provider and user information.
      */
     public ExportedWindow getAuthenticationWindow(
         ProtocolProviderService protocolProvider,
         String realm,
-        UserCredentials userCredentials);
+        UserCredentials userCredentials,
+        boolean isUserNameEditable);
     
     /**
      * Returns the <tt>ConfigurationWindow</tt> implementation for this

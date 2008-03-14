@@ -519,7 +519,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 {
                     logger.error("unregistering.");
 //                    fireUnregisterd();
-                    jabberProvider.reregister();
+                    jabberProvider
+                        .reregister(SecurityAuthority.CONNECTION_FAILED);
                     failedKeepalivePackets = 0;
                 }
             }

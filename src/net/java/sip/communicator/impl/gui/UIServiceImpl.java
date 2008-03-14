@@ -738,10 +738,15 @@ public class UIServiceImpl
      */
     public ExportedWindow getAuthenticationWindow(
         ProtocolProviderService protocolProvider,
-        String realm, UserCredentials userCredentials)
+        String realm,
+        UserCredentials userCredentials,
+        boolean isUserNameEditable)
     {
-        return new AuthenticationWindow(mainFrame, protocolProvider,
-            realm, userCredentials);
+        return new AuthenticationWindow(mainFrame,
+                                        protocolProvider,
+                                        realm,
+                                        userCredentials,
+                                        isUserNameEditable);
     }
 
     /**

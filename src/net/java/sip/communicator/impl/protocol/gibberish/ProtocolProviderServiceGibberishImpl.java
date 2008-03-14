@@ -326,8 +326,9 @@ public class ProtocolProviderServiceGibberishImpl
             credentials.setUserName(getAccountID().getUserID());
 
             //request a password from the user
-            credentials = authority.obtainCredentials("Gibberish"
-                                                      , credentials);
+            credentials = authority.obtainCredentials(
+                    "Gibberish",
+                    credentials);
 
             //extract the password the user passed us.
             char[] pass = credentials.getPassword();

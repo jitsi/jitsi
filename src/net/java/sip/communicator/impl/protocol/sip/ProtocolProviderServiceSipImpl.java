@@ -519,6 +519,10 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
+        // Enable the user name modification. Setting this property to true we'll
+        // allow the user to change the user name stored in the given authority.
+        authority.setUserNameEditable(true);
+
         //init the security manager before doing the actual registration to
         //avoid being asked for credentials before being ready to provide them
         sipSecurityManager.setSecurityAuthority(authority);

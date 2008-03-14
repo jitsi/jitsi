@@ -30,6 +30,8 @@ public class ProviderRegistration
      */
     private ProtocolProviderService protocolProvider;
 
+    private boolean isUserNameEditable = false;
+
     /**
      * The logger for this class.
      */
@@ -90,17 +92,63 @@ public class ProviderRegistration
      *
      * @param realm the realm that the credentials are needed for
      * @param userCredentials the values to propose the user by default
-     *
+     * @param reasonCode the reason for which we're asking for credentials
      * @return The Credentials associated with the speciefied realm
      */
-    public UserCredentials obtainCredentials(String realm,
-            UserCredentials userCredentials)
+    public UserCredentials obtainCredentials(
+            String realm,
+            UserCredentials userCredentials,
+            int reasonCode)
     {
-        ExportedWindow loginWindow = SystrayActivator.getUIService()
-            .getAuthenticationWindow(protocolProvider, realm, userCredentials);
+        ExportedWindow loginWindow
+            = SystrayActivator.getUIService()
+                .getAuthenticationWindow(protocolProvider,
+                                        realm,
+                                        userCredentials,
+                                        isUserNameEditable);
 
         loginWindow.setVisible(true);
 
         return userCredentials;
+    }
+
+    /**
+     * Used to login to the protocol providers
+     *
+     * @param realm the realm that the credentials are needed for
+     * @param userCredentials the values to propose the user by default
+     * @return The Credentials associated with the speciefied realm
+     */
+    public UserCredentials obtainCredentials(
+            String realm,
+            UserCredentials userCredentials)
+    {
+        return obtainCredentials(   realm,
+                                    userCredentials,
+                                    SecurityAuthority.AUTHENTICATION_REQUIRED);
+    }
+    /**
+     * Sets the userNameEditable property, which should indicate to the
+     * implementations of this interface if the user name could be changed by
+     * user or not.
+     * 
+     * @param isUserNameEditable indicates if the user name could be changed by
+     * user in the implementation of this interface.
+     */
+    public void setUserNameEditable(boolean isUserNameEditable)
+    {
+        this.isUserNameEditable = isUserNameEditable;
+    }
+
+    /**
+     * Indicates if the user name is currently editable, i.e. could be changed
+     * by user or not.
+     * 
+     * @return <code>true</code> if the user name could be changed,
+     * <code>false</code> - otherwise.
+     */
+    public boolean isUserNameEditable()
+    {
+        return isUserNameEditable;
     }
  }

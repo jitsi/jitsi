@@ -262,18 +262,18 @@ public class LoginManager
                     Messages.getI18NString("error").getText(),
                     msgText).showDialog();
             }
-            else if (evt.getReasonCode() == RegistrationStateChangeEvent
-                                                .REASON_AUTHENTICATION_FAILED)
-            {
-                String msgText = Messages.getI18NString("authenticationFailed",
-                    new String[]
-                    { accountID.getUserID(), accountID.getService() })
-                    .getText();
-
-                new ErrorDialog(null,
-                    Messages.getI18NString("error").getText(),
-                    msgText).showDialog();
-            }
+//            else if (evt.getReasonCode() == RegistrationStateChangeEvent
+//                                                .REASON_AUTHENTICATION_FAILED)
+//            {
+//                String msgText = Messages.getI18NString("authenticationFailed",
+//                    new String[]
+//                    { accountID.getUserID(), accountID.getService() })
+//                    .getText();
+//
+//                new ErrorDialog(null,
+//                    Messages.getI18NString("error").getText(),
+//                    msgText).showDialog();
+//            }
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))

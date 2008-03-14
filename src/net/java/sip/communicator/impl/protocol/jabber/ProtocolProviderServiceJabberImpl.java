@@ -17,11 +17,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smack.filter.*;
-import org.jivesoftware.smack.packet.*;
-
 import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
 
 /**
  * An implementation of the protocol provider service over the Jabber protocol
@@ -150,7 +146,8 @@ public class ProtocolProviderServiceJabberImpl
 
         try
         {
-            connectAndLogin(authority);
+            connectAndLogin(authority,
+                            SecurityAuthority.AUTHENTICATION_REQUIRED);
         }
         catch (XMPPException ex)
         {
@@ -174,9 +171,13 @@ public class ProtocolProviderServiceJabberImpl
                 {
                     JabberActivator.getProtocolProviderFactory().
                         storePassword(getAccountID(), null);
-                    reason
-                        = RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED;
+                    reason = RegistrationStateChangeEvent
+                        .REASON_AUTHENTICATION_FAILED;
+
                     regState = RegistrationState.AUTHENTICATION_FAILED;
+
+                    // Try to reregister and to ask user for a new password.
+                    reregister(SecurityAuthority.WRONG_PASSWORD);
                 }
 
             fireRegistrationStateChanged(
@@ -185,9 +186,11 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Connects and logins again to the server
+     * Connects and logins again to the server.
+     * 
+     * @param authReasonCode indicates the reason of the re-authentication.
      */
-    void reregister()
+    void reregister(int authReasonCode)
     {
         try
         {
@@ -199,7 +202,8 @@ public class ProtocolProviderServiceJabberImpl
 
             this.reconnecting = true;
 
-            connectAndLogin(authority);
+            connectAndLogin(authority,
+                            authReasonCode);
         }
         catch(OperationFailedException ex)
         {
@@ -228,11 +232,13 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
+     * @param reasonCode the authentication reason code. Indicates the reason of
+     * this authentication.
      * @throws XMPPException if we cannot connect to the server - network problem
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
-    private void connectAndLogin(SecurityAuthority authority)
+    private void connectAndLogin(SecurityAuthority authority, int reasonCode)
         throws XMPPException, OperationFailedException
     {
         synchronized(initializationLock)
@@ -249,8 +255,10 @@ public class ProtocolProviderServiceJabberImpl
                 credentials.setUserName(getAccountID().getUserID());
 
                 //request a password from the user
-                credentials = authority.obtainCredentials(ProtocolNames.JABBER
-                    , credentials);
+                credentials = authority.obtainCredentials(
+                    ProtocolNames.JABBER,
+                    credentials,
+                    reasonCode);
 
                 // in case user has canceled the login window
                 if(credentials == null)
@@ -425,7 +433,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         RegistrationState currRegState = getRegistrationState();
 
-        if(connection != null)
+        if(connection != null && connection.isConnected())
             connection.disconnect();
 
         if(fireEvent)
@@ -801,7 +809,7 @@ public class ProtocolProviderServiceJabberImpl
                          exception.getLocalizedMessage());
 
             if(!reconnecting)
-                reregister();
+                reregister(SecurityAuthority.CONNECTION_FAILED);
             else
                 reconnecting = false;
         }

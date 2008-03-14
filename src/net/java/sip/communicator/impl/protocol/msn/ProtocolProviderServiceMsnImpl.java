@@ -7,6 +7,8 @@
  */
 package net.java.sip.communicator.impl.protocol.msn;
 
+import java.io.*;
+import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
 
@@ -107,18 +109,21 @@ public class ProtocolProviderServiceMsnImpl
 
         this.authority = authority;
 
-        connectAndLogin(authority);
+        connectAndLogin(authority, SecurityAuthority.AUTHENTICATION_REQUIRED);
     }
     
     /**
      * Reconnects if fails fire connection failed.
+     * @param reasonCode the appropriate <tt>SecurityAuthority</tt> reasonCode,
+     * which would specify the reason for which we're re-calling the login.
      */
-    void reconnect()
+    void reconnect(int reasonCode)
     {
         try
         {
-            connectAndLogin(authority);
-        } catch (OperationFailedException ex)
+            connectAndLogin(authority, reasonCode);
+        }
+        catch (OperationFailedException ex)
         {
             fireRegistrationStateChanged(
                 getRegistrationState(),
@@ -133,7 +138,7 @@ public class ProtocolProviderServiceMsnImpl
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
-    private void connectAndLogin(SecurityAuthority authority)
+    private void connectAndLogin(SecurityAuthority authority, int reasonCode)
         throws OperationFailedException
     {
         synchronized(initializationLock)
@@ -150,8 +155,10 @@ public class ProtocolProviderServiceMsnImpl
                 credentials.setUserName(getAccountID().getUserID());
 
                 //request a password from the user
-                credentials = authority.obtainCredentials(ProtocolNames.MSN
-                    , credentials);
+                credentials = authority.obtainCredentials(
+                        ProtocolNames.MSN,
+                        credentials,
+                        reasonCode);
 
                 // in case user has canceled the login window
                 if(credentials == null)
@@ -177,14 +184,12 @@ public class ProtocolProviderServiceMsnImpl
                 }
                 password = new String(pass);
 
-
                 if (credentials.isPasswordPersistent())
                 {
                     MsnActivator.getProtocolProviderFactory()
                         .storePassword(getAccountID(), password);
                 }
             }
-
 
             messenger = MsnMessengerFactory.createMsnMessenger(
                 getAccountID().getUserID(),
@@ -501,21 +506,36 @@ public class ProtocolProviderServiceMsnImpl
 //                    getRegistrationState(),
 //                    RegistrationState.UNREGISTERED,
 //                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
-
         }
 
-        public void exceptionCaught(MsnMessenger msnMessenger, Throwable throwable)
+        public void exceptionCaught(MsnMessenger msnMessenger,
+                                    Throwable throwable)
         {
             if(throwable instanceof IncorrectPasswordException)
             {
                 unregister(false);
                 MsnActivator.getProtocolProviderFactory().
                     storePassword(getAccountID(), null);
+
                 fireRegistrationStateChanged(
                     getRegistrationState(),
                     RegistrationState.AUTHENTICATION_FAILED,
                     RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
                     "Incorrect Password");
+
+                // We try to reconnect and ask user to retype password.
+                reconnect(SecurityAuthority.WRONG_PASSWORD);
+            }
+            else if(throwable instanceof UnknownHostException
+                    || throwable instanceof SocketException)
+            {
+                unregister(false);
+
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                    "A network error occured. Could not connect to server.");
             }
             else
             {
@@ -523,7 +543,6 @@ public class ProtocolProviderServiceMsnImpl
                 {
                     MsnProtocolException exception =
                         (MsnProtocolException)throwable;
-
 
                     logger.error("Error in Msn lib ", exception);
 
@@ -553,6 +572,10 @@ public class ProtocolProviderServiceMsnImpl
                                     RegistrationState.AUTHENTICATION_FAILED,
                                     RegistrationStateChangeEvent.
                                     REASON_AUTHENTICATION_FAILED, null);
+
+                                // We try to reconnect and ask user to retype
+                                // password.
+                                reconnect(SecurityAuthority.WRONG_PASSWORD);
                             }
                             break;
                     }

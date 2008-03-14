@@ -341,7 +341,10 @@ public class ProtocolProviderServiceIrcImpl
 
             //request a password from the user
             credentials
-                = authority.obtainCredentials(ProtocolNames.IRC, credentials);
+                = authority.obtainCredentials(
+                    ProtocolNames.IRC,
+                    credentials,
+                    SecurityAuthority.AUTHENTICATION_REQUIRED);
 
             //extract the password the user passed us.
             char[] pass = credentials.getPassword();
