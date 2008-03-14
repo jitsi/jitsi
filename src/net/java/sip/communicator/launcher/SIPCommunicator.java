@@ -8,8 +8,6 @@ package net.java.sip.communicator.launcher;
 
 import java.awt.*;
 
-import javax.swing.*;
-
 import org.apache.felix.main.*;
 
 /**
