@@ -237,6 +237,13 @@ public class ImageLoader {
         = new ImageID("QUICK_MENU_SHOW_OFFLINE_ICON");
 
     /**
+     * The icon on the "Hide/Show offline contacts" button in the
+     * <tt>QuickMenu</tt>.
+     */
+    public static final ImageID QUICK_MENU_HIDE_OFFLINE_ICON
+        = new ImageID("QUICK_MENU_HIDE_OFFLINE_ICON");
+
+    /**
      * The icon on the "Info" button in the <tt>QuickMenu</tt>.
      */
     public static final ImageID QUICK_MENU_INFO_ICON
