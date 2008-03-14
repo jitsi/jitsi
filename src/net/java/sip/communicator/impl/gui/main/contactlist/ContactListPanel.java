@@ -296,7 +296,7 @@ public class ContactListPanel
     {
         logger.trace("MESSAGE RECEIVED from contact: "
             + evt.getSourceContact().getAddress());
-        
+
         Contact protocolContact = evt.getSourceContact();
         Date date = evt.getTimestamp();
         Message message = evt.getSourceMessage();
@@ -304,17 +304,17 @@ public class ContactListPanel
 
         MetaContact metaContact = mainFrame.getContactList()
                 .findMetaContactByContact(protocolContact);
-        
+
         if(metaContact != null)
-        {            
+        {
             // Show an envelope on the sender contact in the contact list and
             // in the systray.
             ContactListModel clistModel
                 = (ContactListModel) contactList.getModel();
-            
+
             clistModel.addActiveContact(metaContact);
             contactList.refreshContact(metaContact);
-            
+
             // Obtain the corresponding chat panel.
             MetaContactChatPanel chatPanel
                 = chatWindowManager.getContactChat( metaContact,
