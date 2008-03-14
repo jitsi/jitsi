@@ -234,6 +234,9 @@ public class ExtendedQuickMenu
                     + Messages.getI18NString("showOffline").getText()
                     + "</center></html>");
 
+                button.setIcon(new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON)));
+
                 button.setToolTipText(Messages
                     .getI18NString("showOfflineContacts").getText());
             }
@@ -243,6 +246,9 @@ public class ExtendedQuickMenu
                     "<html><center>"
                     + Messages.getI18NString("hideOffline").getText()
                     + "</center></html>");
+
+                button.setIcon(new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON)));
 
                 button.setToolTipText(Messages
                     .getI18NString("hideOfflineContacts").getText());
