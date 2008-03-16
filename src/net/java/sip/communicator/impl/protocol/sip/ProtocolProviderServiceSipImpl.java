@@ -241,6 +241,16 @@ public class ProtocolProviderServiceSipImpl
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
+    
+    /**
+     * Keep-alive method can be - register,options or udp 
+     */
+    public static final String KEEP_ALIVE_METHOD = "KEEP_ALIVE_METHOD";
+    
+    /**
+     * The interval for keep-alive
+     */
+    public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
 
     /**
      * The default maxForwards header that we use in our requests.
@@ -777,7 +787,7 @@ public class ProtocolProviderServiceSipImpl
             this.supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 opSetBasicIM);
-
+            
             // init DTMF (from JM Heitz)
             OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);
             this.supportedOperationSets.put(
@@ -1129,11 +1139,11 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-
+        
         logger.debug("Found one processor for method " + method
                      + ", processor is=" + processor.toString());
-
-        processor.processResponse(responseEvent);
+            
+            processor.processResponse(responseEvent);
     }
 
     /**
@@ -1176,11 +1186,11 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-
+        
         logger.debug("Found one processor for method " + request.getMethod()
                      + ", processor is=" + processor.toString());
-
-        processor.processTimeout(timeoutEvent);
+            
+            processor.processTimeout(timeoutEvent);
     }
 
     /**
@@ -1222,11 +1232,11 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-
+        
         logger.debug("Found one processor for method " + request.getMethod()
                      + ", processor is=" + processor.toString());
-
-        processor.processTransactionTerminated(transactionTerminatedEvent);
+            
+            processor.processTransactionTerminated(transactionTerminatedEvent);
     }
 
     /**
@@ -1338,11 +1348,11 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-
+        
         logger.debug("Found one processor for method " + method
                      + ", processor is=" + processor.toString());
-
-        processor.processRequest(requestEvent);
+            
+            processor.processRequest(requestEvent);
     }
 
     /**
@@ -2096,7 +2106,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public void unregisterMethodProcessor(String      method)
     {
-        this.methodProcessors.remove(method);
+            this.methodProcessors.remove(method);
     }
 
     /**

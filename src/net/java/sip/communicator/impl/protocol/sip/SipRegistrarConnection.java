@@ -460,28 +460,38 @@ public class SipRegistrarConnection
         {
             int scheduleTime = grantedExpiration;
             
-            // registration schedule interval can be forced 
-            // with setting property REGISTRATION_ANTICIPATION to value in seconds
+            // registration schedule interval can be forced to keep alive
+            // with setting property KEEP_ALIVE_METHOD to register and 
+            // setting the interval with property KEEP_ALIVE_INTERVAL
+            // to value in seconds, both properties are account props
             // this does not change expiration header
-            String regAnticipObj = 
+            String keepAliveMethod = 
                 (String)sipProvider.getAccountID().getAccountProperties().
-                    get("REGISTRATION_ANTICIPATION");
+                    get("KEEP_ALIVE_METHOD");
             
-            if(regAnticipObj != null)
+            if(keepAliveMethod != null &&
+                keepAliveMethod.equalsIgnoreCase("register"))
             {
-                try
+                String keepAliveInterval = 
+                    (String)sipProvider.getAccountID().getAccountProperties().
+                        get("KEEP_ALIVE_INTERVAL");
+            
+                if(keepAliveInterval != null)
                 {
-                    int registrationAnticipation = 
-                        Integer.valueOf(regAnticipObj).intValue();
-                    
-                    if(registrationAnticipation < grantedExpiration)
+                    try
                     {
-                        scheduleTime = registrationAnticipation;
+                        int registrationInterval = 
+                            Integer.valueOf(keepAliveInterval).intValue();
+
+                        if(registrationInterval < grantedExpiration)
+                        {
+                            scheduleTime = registrationInterval;
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.error("Wrong value for REGISTRATION_ANTICIPATION");
+                    catch (Exception ex)
+                    {
+                        logger.error("Wrong value for KEEP_ALIVE_INTERVAL");
+                    }
                 }
             }
             
