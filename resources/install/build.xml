@@ -231,9 +231,16 @@
             filtering="yes" 
         />
 
+        <!-- Copy with replacing some parameters in text files -->
         <copy todir="${windows.app.dir}/tmp" filtering="yes">
             <fileset dir="${inst.resrc}/windows">
                 <include name="launcher.ini"/>
+            </fileset>
+        </copy>
+        
+        <!-- Copy other needed files to tmp folder -->
+        <copy todir="${windows.app.dir}/tmp">
+            <fileset dir="${inst.resrc}/windows">
                 <include name="setup-sip-communicator.exe"/>
             </fileset>
         </copy>
