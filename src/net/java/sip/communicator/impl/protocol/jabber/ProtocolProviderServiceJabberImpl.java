@@ -316,7 +316,7 @@ public class ProtocolProviderServiceJabberImpl
                 // check to see is there SRV records for this server domain
                 try
                 {
-                    String hosts[] =
+                    InetSocketAddress hosts[] =
                         NetworkUtils.getSRVRecords(
                             "_xmpp-client._tcp." + serviceName);
 
@@ -324,7 +324,7 @@ public class ProtocolProviderServiceJabberImpl
                     {
                         logger.trace("Will set server address from SRV records "
                            + hosts[0]);
-                        serverAddress = hosts[0];
+                        serverAddress = hosts[0].getHostName();
                     }
                 }
                 catch (ParseException ex1)

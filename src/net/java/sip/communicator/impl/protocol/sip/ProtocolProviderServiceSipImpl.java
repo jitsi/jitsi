@@ -21,6 +21,7 @@ import gov.nist.javax.sip.*;
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.message.*;
+import gov.nist.javax.sip.stack.*;
 import net.java.sip.communicator.impl.protocol.sip.security.*;
 
 /**
@@ -845,7 +846,7 @@ public class ProtocolProviderServiceSipImpl
             //init the security manager
             this.sipSecurityManager = new SipSecurityManager(accountID);
             sipSecurityManager.setHeaderFactory(headerFactory);
-
+            
             isInitialized = true;
         }
     }
@@ -915,6 +916,17 @@ public class ProtocolProviderServiceSipImpl
                 tlsJainSipProvider
                     = jainSipStack.createSipProvider(tlsListeningPoint);
                 tlsJainSipProvider.addSipListener(this);
+                
+                // set our custom address resolver managing SRV records
+                AddressResolverImpl addressResolver = 
+                    new AddressResolverImpl();
+                
+                ((SIPTransactionStack)udpJainSipProvider.getSipStack()).
+                    setAddressResolver(addressResolver);
+                ((SIPTransactionStack)tcpJainSipProvider.getSipStack()).
+                    setAddressResolver(addressResolver);
+                ((SIPTransactionStack)tlsJainSipProvider.getSipStack()).
+                    setAddressResolver(addressResolver);
             }
             catch (ObjectInUseException ex)
             {
@@ -1767,7 +1779,7 @@ public class ProtocolProviderServiceSipImpl
                 .get(ProtocolProviderFactory.USER_ID);
             registrarAddressStr = userID.substring( userID.indexOf("@")+1);
         }
-
+        
         InetAddress registrarAddress = null;
 
         try
@@ -1955,7 +1967,40 @@ public class ProtocolProviderServiceSipImpl
 
         try
         {
-                proxyAddress = InetAddress.getByName(proxyAddressStr);
+            // first check for srv records exists
+            try
+            {
+                String lookupStr = null;
+
+                String proxyTransport = (String) accountID.getAccountProperties()
+                            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+                
+                if(proxyTransport == null)
+                    proxyTransport = getDefaultTransport();
+                
+                if(proxyTransport.equalsIgnoreCase(ListeningPoint.UDP))
+                    lookupStr = "_sip._udp." + proxyAddressStr;
+                else if(proxyTransport.equalsIgnoreCase(ListeningPoint.TCP))
+                    lookupStr = "_sip._tcp." + proxyAddressStr;
+                else if(proxyTransport.equalsIgnoreCase(ListeningPoint.TLS))
+                    lookupStr = "_sips._tcp." + proxyAddressStr;
+
+                InetSocketAddress hosts[] = NetworkUtils.getSRVRecords(lookupStr);
+
+                if(hosts != null && hosts.length > 0)
+                {
+                    logger.trace("Will set server address from SRV records "
+                       + hosts[0]);
+
+                    proxyAddressStr = hosts[0].getHostName();
+                }
+            }
+            catch (Exception ex)
+            {
+                // no SRV record or error looking for it
+            }
+
+            proxyAddress = InetAddress.getByName(proxyAddressStr);
 
             // We should set here the property to indicate that the proxy
             // address is validated. When we load stored accounts we check

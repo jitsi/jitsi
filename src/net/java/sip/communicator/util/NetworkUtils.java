@@ -154,11 +154,11 @@ public class NetworkUtils
      * The records are ordered against the SRV record priority
      * @param domain the name of the domain we'd like to resolve (_proto._tcp
      * included).
-     * @return an array of Strings containing records returned by the DNS
-     * server.
-     * @throws ParseException if <tt>domain</tt> is not a valide domain name.
+     * @return an array of InetSocketAddress containing records returned by the DNS
+     * server - address and port .
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
-    public static String[] getSRVRecords(String domain)
+    public static InetSocketAddress[] getSRVRecords(String domain)
         throws ParseException
     {
         Record[] records = null;
@@ -202,10 +202,11 @@ public class NetworkUtils
         });
 
         /* put sorted host names in an array, get rid of any trailing '.' */
-        String[] sortedHostNames = new String[pvhn.length];
+        InetSocketAddress[] sortedHostNames = new InetSocketAddress[pvhn.length];
         for (int i = 0; i < pvhn.length; i++)
         {
-            sortedHostNames[i] = pvhn[i][3];
+            sortedHostNames[i] = 
+                new InetSocketAddress(pvhn[i][3], Integer.valueOf(pvhn[i][2]));
         }
 
         if (logger.isTraceEnabled())
