@@ -82,7 +82,7 @@ public class OperationSetDTMFSipImpl
 
         //here we add the body
         ContentType ct = new ContentType("application", "dtmf-relay");
-        String content = "Signal=" + dtmftone + "\r\nDuration=250\r\n\r\n";
+        String content = "Signal=" + dtmftone + "\r\nDuration=250\r\n";
         ContentLength cl = new ContentLength(content.length());
         info.setContentLength(cl);
 

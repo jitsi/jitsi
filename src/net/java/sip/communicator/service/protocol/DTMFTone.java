@@ -16,67 +16,67 @@ public final class DTMFTone
     /**
      * The "A" DTMF Tone
      */
-    public static final DTMFTone DTMF_A=new DTMFTone("_A");
+    public static final DTMFTone DTMF_A=new DTMFTone("A");
     /**
      * The "B" DTMF Tone
      */
-    public static final DTMFTone DTMF_B=new DTMFTone("_B");
+    public static final DTMFTone DTMF_B=new DTMFTone("B");
     /**
      * The "C" DTMF Tone
      */
-    public static final DTMFTone DTMF_C=new DTMFTone("_C");
+    public static final DTMFTone DTMF_C=new DTMFTone("C");
     /**
      * The "D" DTMF Tone
      */
-    public static final DTMFTone DTMF_D=new DTMFTone("_D");
+    public static final DTMFTone DTMF_D=new DTMFTone("D");
     /**
      * The "0" DTMF Tone
      */
-    public static final DTMFTone DTMF_0=new DTMFTone("_0");
+    public static final DTMFTone DTMF_0=new DTMFTone("0");
     /**
      * The "1" DTMF Tone
      */
-    public static final DTMFTone DTMF_1=new DTMFTone("_1");
+    public static final DTMFTone DTMF_1=new DTMFTone("1");
     /**
      * The "2" DTMF Tone
      */
-    public static final DTMFTone DTMF_2=new DTMFTone("_2");
+    public static final DTMFTone DTMF_2=new DTMFTone("2");
     /**
      * The "3" DTMF Tone
      */
-    public static final DTMFTone DTMF_3=new DTMFTone("_3");
+    public static final DTMFTone DTMF_3=new DTMFTone("3");
     /**
      * The "4" DTMF Tone
      */
-    public static final DTMFTone DTMF_4=new DTMFTone("_4");
+    public static final DTMFTone DTMF_4=new DTMFTone("4");
     /**
      * The "5" DTMF Tone
      */
-    public static final DTMFTone DTMF_5=new DTMFTone("_5");
+    public static final DTMFTone DTMF_5=new DTMFTone("5");
     /**
      * The "6" DTMF Tone
      */
-    public static final DTMFTone DTMF_6=new DTMFTone("_6");
+    public static final DTMFTone DTMF_6=new DTMFTone("6");
     /**
      * The "7" DTMF Tone
      */
-    public static final DTMFTone DTMF_7=new DTMFTone("_7");
+    public static final DTMFTone DTMF_7=new DTMFTone("7");
     /**
      * The "8" DTMF Tone
      */
-    public static final DTMFTone DTMF_8=new DTMFTone("_8");
+    public static final DTMFTone DTMF_8=new DTMFTone("8");
     /**
      * The "9" DTMF Tone
      */
-    public static final DTMFTone DTMF_9=new DTMFTone("_9");
+    public static final DTMFTone DTMF_9=new DTMFTone("9");
     /**
      * The "*" DTMF Tone
      */
-    public static final DTMFTone DTMF_STAR=new DTMFTone("_STAR");
+    public static final DTMFTone DTMF_STAR=new DTMFTone("*");
     /**
      * The "#" DTMF Tone
      */
-    public static final DTMFTone DTMF_SHARP=new DTMFTone("_SHARP");
+    public static final DTMFTone DTMF_SHARP=new DTMFTone("#");
 
 
     /**
