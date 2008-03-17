@@ -6,24 +6,16 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import javax.sip.*;
 import javax.sip.message.*;
+import javax.sip.address.*;
+import javax.sip.header.*;
 import java.text.*;
-import net.java.sip.communicator.util.*;
 import java.util.*;
-import javax.sip.address.SipURI;
-import javax.sip.header.CSeqHeader;
-import javax.sip.header.CallIdHeader;
-import javax.sip.header.ContactHeader;
-import javax.sip.header.FromHeader;
-import javax.sip.header.MaxForwardsHeader;
-import javax.sip.header.ToHeader;
-import javax.sip.header.UserAgentHeader;
-import net.java.sip.communicator.service.protocol.RegistrationState;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
+import java.net.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Handles OPTIONS requests by replying with an OK response containing
