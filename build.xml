@@ -205,7 +205,7 @@
         <!--internal-target- compiles the entire project source tree -->
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
-            source="1.5" target="1.5">
+            source="1.5" target="1.5" memoryMaximumSize="400M" fork="true">
             <src path="${src}"/>
             <src path="${src2}"/>
             <include name="**/*.java" />
