@@ -1285,7 +1285,7 @@ public class MainFrame
 
         String osgiFilter = "("
             + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_MAIN_TABBED_PANE.getID()+")";
+            + "="+Container.CONTAINER_CONTACT_LIST.getID()+")";
 
         try
         {
