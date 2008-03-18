@@ -17,6 +17,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -32,6 +33,7 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1287,27 +1289,43 @@ public class MainFrame
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
 
-        if (event.getContainerID().equals(
+        if (c.getContainer().equals(Container.CONTAINER_CONTACT_LIST))
+        {
+            Object constraints = null;
+
+            if (c.getConstraints() != null)
+                constraints = UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+            else
+                constraints = BorderLayout.SOUTH;
+
+            this.getContentPane().add((Component) c.getComponent(), constraints);
+        }
+        else if (c.getContainer().equals(
             UIService.CONTAINER_CONTACT_LIST_SOUTH))
         {
-            this.getContentPane().add(c, BorderLayout.SOUTH);
+            this.getContentPane().add(  (Component) c.getComponent(),
+                                        BorderLayout.SOUTH);
         }
-        else if (event.getContainerID().equals(
+        else if (c.getContainer().equals(
             UIService.CONTAINER_CONTACT_LIST_NORTH))
         {
-            this.getContentPane().add(c, BorderLayout.NORTH);
+            this.getContentPane().add(  (Component) c.getComponent(),
+                                        BorderLayout.NORTH);
         }
-        else if (event.getContainerID().equals(
+        else if (c.getContainer().equals(
             UIService.CONTAINER_CONTACT_LIST_EAST))
         {
-            this.getContentPane().add(c, BorderLayout.EAST);
+            this.getContentPane().add(  (Component) c.getComponent(),
+                                        BorderLayout.EAST);
         }
-        else if (event.getContainerID().equals(
+        else if (c.getContainer().equals(
             UIService.CONTAINER_CONTACT_LIST_WEST))
         {
-            this.getContentPane().add(c, BorderLayout.WEST);
+            this.getContentPane().add(  (Component) c.getComponent(),
+                                        BorderLayout.WEST);
         }
 
         this.pack();
@@ -1319,16 +1337,17 @@ public class MainFrame
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
 
-        ContainerID containerID = event.getContainerID();
+        Container containerID = c.getContainer();
 
-        if (containerID.equals(UIService.CONTAINER_CONTACT_LIST_SOUTH)
+        if (containerID.equals(Container.CONTAINER_CONTACT_LIST)
+            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_SOUTH)
             || containerID.equals(UIService.CONTAINER_CONTACT_LIST_NORTH)
             || containerID.equals(UIService.CONTAINER_CONTACT_LIST_EAST)
             || containerID.equals(UIService.CONTAINER_CONTACT_LIST_WEST))
         {
-            this.getContentPane().remove(c);
+            this.getContentPane().remove((Component) c.getComponent());
         }
     }
 

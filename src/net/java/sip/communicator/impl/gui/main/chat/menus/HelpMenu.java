@@ -9,17 +9,18 @@ package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Iterator;
+import java.util.*;
 
-import javax.swing.*;
+import org.osgi.framework.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
 /**
@@ -63,13 +64,43 @@ public class HelpMenu
     private void initPluginComponents()
     {
         Iterator pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(UIService.CONTAINER_CHAT_HELP_MENU);
+                .getComponentsForContainer(Container.CONTAINER_CHAT_HELP_MENU);
 
         while (pluginComponents.hasNext())
         {
             Component o = (Component) pluginComponents.next();
 
             this.add(o);
+        }
+
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CHAT_HELP_MENU.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            exc.printStackTrace();
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent component = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);;
+
+            this.add((Component)component.getComponent());
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);
@@ -85,11 +116,11 @@ public class HelpMenu
 
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
 
-        if (event.getContainerID().equals(UIService.CONTAINER_CHAT_HELP_MENU))
+        if (c.getContainer().equals(Container.CONTAINER_CHAT_HELP_MENU))
         {
-            this.add(c);
+            this.add((Component) c.getComponent());
 
             this.revalidate();
             this.repaint();
@@ -98,11 +129,11 @@ public class HelpMenu
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
 
-        if (event.getContainerID().equals(UIService.CONTAINER_CHAT_HELP_MENU))
+        if (c.getContainer().equals(Container.CONTAINER_CHAT_HELP_MENU))
         {
-            this.remove(c);
+            this.remove((Component) c.getComponent());
         }
     }
 

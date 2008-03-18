@@ -13,15 +13,20 @@ import java.util.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.MainFrame.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -652,28 +657,72 @@ public class ChatWindow
             this.add(o, BorderLayout.SOUTH);
         }
 
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CHAT_WINDOW.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin component reference.", exc);
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent c = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);
+
+            Object borderLayoutConstraint = UIServiceImpl
+                .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+
+            this.add((Component)c.getComponent(), borderLayoutConstraint);
+        }
+
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
 
-        if (event.getContainerID().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH))
+        if (c.getContainer().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH))
         {
-            this.getContentPane().add(c, BorderLayout.SOUTH);
+            this.getContentPane().add(  (Component) c.getComponent(),
+                                        BorderLayout.SOUTH);
 
             this.pack();
+        }
+        else if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
+        {
+            Object borderLayoutConstraints = UIServiceImpl
+                .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+
+            this.add((Component) c.getComponent(), borderLayoutConstraints);
         }
     }
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
 
-        if (event.getContainerID().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH))
+        if (c.getContainer().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH)
+            || c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
         {
-            this.getContentPane().remove(c);
+            this.getContentPane().remove((Component) c.getComponent());
+
+            this.pack();
         }
     }
 

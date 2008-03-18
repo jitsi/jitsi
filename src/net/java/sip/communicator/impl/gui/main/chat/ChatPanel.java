@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
+import java.awt.Container;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.*;

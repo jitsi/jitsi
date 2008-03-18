@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.gui;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+
 /**
  * The <tt>UIService</tt> offers generic access to the graphical user interface
  * for all modules that would like to interact with the user.
@@ -16,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Through the <tt>UIService</tt> all modules can add their own components in
  * different menus, toolbars, etc. within the ui. Each <tt>UIService</tt>
  * implementation should export its supported "plugable" containers - a set of
- * <tt>ContainerID</tt>s corresponding to different "places" in the application,
+ * <tt>Container</tt>s corresponding to different "places" in the application,
  * where a module can add a component.
  * <p>
  * The <tt>UIService</tt> provides also methods that would allow to other
@@ -42,149 +43,183 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public interface UIService
 {
-    /*
-     * ContainerID-s
-     */
     /**
      * Main application window "file menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_FILE_MENU}
      */
-    public static final ContainerID CONTAINER_FILE_MENU 
-        = new ContainerID("File");
+    public static final Container CONTAINER_FILE_MENU 
+        = new Container("File");
     /**
      * Main application window "tools menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_TOOLS_MENU}
      */
-    public static final ContainerID CONTAINER_TOOLS_MENU 
-        = new ContainerID("Tools");
+    public static final Container CONTAINER_TOOLS_MENU 
+        = new Container("Tools");
     /**
      * Main application window "view menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_VIEW_MENU}
      */
-    public static final ContainerID CONTAINER_VIEW_MENU 
-        = new ContainerID("View");
+    public static final Container CONTAINER_VIEW_MENU 
+        = new Container("View");
     /**
      * Main application window "help menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_HELP_MENU}
      */    
-    public static final ContainerID CONTAINER_HELP_MENU 
-        = new ContainerID("Help");
+    public static final Container CONTAINER_HELP_MENU 
+        = new Container("Help");
     /**
      * Main application window "settings menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_SETTINGS_MENU}
      */
-    public static final ContainerID CONTAINER_SETTINGS_MENU 
-        = new ContainerID("Settings");
+    public static final Container CONTAINER_SETTINGS_MENU 
+        = new Container("Settings");
     /**
      * Main application window main toolbar container.
+     * @deprecated replaced by {@link Container#CONTAINER_MAIN_TOOL_BAR}
      */
-    public static final ContainerID CONTAINER_MAIN_TOOL_BAR 
-        = new ContainerID("MainToolBar");
+    public static final Container CONTAINER_MAIN_TOOL_BAR 
+        = new Container("MainToolBar");
     /**
      * Main application window main tabbedpane container.
+     * @deprecated replaced by {@link Container#CONTAINER_MAIN_TABBED_PANE}
      */
-    public static final ContainerID CONTAINER_MAIN_TABBED_PANE
-        = new ContainerID("MainTabbedPane");
+    public static final Container CONTAINER_MAIN_TABBED_PANE
+        = new Container("MainTabbedPane");
     /**
      * Chat window toolbar container.
+     * @deprecated replaced by {@link Container#CONTAINER_CHAT_TOOL_BAR}
      */
-    public static final ContainerID CONTAINER_CHAT_TOOL_BAR 
-        = new ContainerID("ChatToolBar");
+    public static final Container CONTAINER_CHAT_TOOL_BAR 
+        = new Container("ChatToolBar");
     /**
      * Main application window "right button menu" over a contact container.
+     * @deprecated replaced by {@link Container#CONTAINER_CONTACT_RIGHT_BUTTON_MENU}
      */
-    public static final ContainerID CONTAINER_CONTACT_RIGHT_BUTTON_MENU
-        = new ContainerID("ContactRightButtonMenu");
+    public static final Container CONTAINER_CONTACT_RIGHT_BUTTON_MENU
+        = new Container("ContactRightButtonMenu");
     
     /**
      * Main application window "right button menu" over a group container.
+     * @deprecated replaced by {@link Container#CONTAINER_GROUP_RIGHT_BUTTON_MENU}
      */
-    public static final ContainerID CONTAINER_GROUP_RIGHT_BUTTON_MENU
-        = new ContainerID("GroupRightButtonMenu");
+    public static final Container CONTAINER_GROUP_RIGHT_BUTTON_MENU
+        = new Container("GroupRightButtonMenu");
         
     /**
      * Chat window "menu bar" container.
+     * @deprecated replaced by {@link Container#CONTAINER_CHAT_MENU_BAR}
      */
-    public static final ContainerID CONTAINER_CHAT_MENU_BAR 
-        = new ContainerID("ChatMenuBar");
+    public static final Container CONTAINER_CHAT_MENU_BAR 
+        = new Container("ChatMenuBar");
     /**
      * Chat window "file menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_CHAT_FILE_MENU}
      */
-    public static final ContainerID CONTAINER_CHAT_FILE_MENU 
-        = new ContainerID("ChatFileMenu");
+    public static final Container CONTAINER_CHAT_FILE_MENU 
+        = new Container("ChatFileMenu");
     /**
      * Chat window "edit menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_CHAT_EDIT_MENU}
      */
-    public static final ContainerID CONTAINER_CHAT_EDIT_MENU 
-        = new ContainerID("ChatEditMenu");
+    public static final Container CONTAINER_CHAT_EDIT_MENU 
+        = new Container("ChatEditMenu");
     /**
      * Chat window "settings menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_CHAT_SETTINGS_MENU}
      */
-    public static final ContainerID CONTAINER_CHAT_SETTINGS_MENU 
-        = new ContainerID("ChatSettingsMenu");
+    public static final Container CONTAINER_CHAT_SETTINGS_MENU 
+        = new Container("ChatSettingsMenu");
 
     /**
      * Chat window "help menu" container.
+     * @deprecated replaced by {@link Container#CONTAINER_CHAT_HELP_MENU}
      */
-    public static final ContainerID CONTAINER_CHAT_HELP_MENU 
-        = new ContainerID("ChatHelpMenu");
+    public static final Container CONTAINER_CHAT_HELP_MENU 
+        = new Container("ChatHelpMenu");
 
     /**
      * Chat window "south area" container.
+     * @deprecated replaced by {@link Container#CONTAINER_CHAT_WINDOW}
+     * The south location is now indicated with the help of the constraints,
+     * defined in the <tt>Container<tt>.
      */
-    public static final ContainerID CONTAINER_CHAT_WINDOW_SOUTH
-        = new ContainerID("ChatWindowSouth");
+    public static final Container CONTAINER_CHAT_WINDOW_SOUTH
+        = new Container("ChatWindowSouth");
 
     /**
      * Indicates the west area on the left of the contact list.
+     * @deprecated replaced by {@link Container#CONTAINER_CONTACT_LIST}
+     * The west location is now indicated with the help of the constraints,
+     * defined in the <tt>Container<tt>.
      */
-    public static final ContainerID CONTAINER_CONTACT_LIST_WEST
-        = new ContainerID("ContactListWest");
+    public static final Container CONTAINER_CONTACT_LIST_WEST
+        = new Container("ContactListWest");
 
     /**
      * Indicates the east area on the right of the contact list.
+     * @deprecated replaced by {@link Container#CONTAINER_CONTACT_LIST}
+     * The east location is now indicated with the help of the constraints,
+     * defined in the <tt>Container<tt>.
      */
-    public static final ContainerID CONTAINER_CONTACT_LIST_EAST
-        = new ContainerID("ContactListEast");
+    public static final Container CONTAINER_CONTACT_LIST_EAST
+        = new Container("ContactListEast");
 
     /**
      * Indicates the north area on the top of the contact list.
+     * @deprecated replaced by {@link Container#CONTAINER_CONTACT_LIST}
+     * The north location is now indicated with the help of the constraints,
+     * defined in the <tt>Container<tt>.
      */
-    public static final ContainerID CONTAINER_CONTACT_LIST_NORTH
-        = new ContainerID("ContactListNorth");
+    public static final Container CONTAINER_CONTACT_LIST_NORTH
+        = new Container("ContactListNorth");
 
     /**
      * Indicates the south area on the bottom of the contact list.
+     * @deprecated replaced by {@link Container#CONTAINER_CONTACT_LIST}
+     * The south location is now indicated with the help of the constraints,
+     * defined in the <tt>Container<tt>.
      */
-    public static final ContainerID CONTAINER_CONTACT_LIST_SOUTH
-        = new ContainerID("ContactListSouth");
+    public static final Container CONTAINER_CONTACT_LIST_SOUTH
+        = new Container("ContactListSouth");
 
     /**
      * Call history panel container.
+     * @deprecated replaced by {@link Container#CONTAINER_CALL_HISTORY}
      */
-    public static final ContainerID CONTAINER_CALL_HISTORY
-        = new ContainerID("CallHistoryPanel");
+    public static final Container CONTAINER_CALL_HISTORY
+        = new Container("CallHistoryPanel");
     
     /*
      * Constraints
      */
     /**
      * Indicates the most left/top edge of a container.
+     * @deprecated replaced by {@link Container#START}
      */
     public static final String START = "Start";
     /**
      * Indicates the most right/bottom edge of a container.
+     * @deprecated replaced by {@link Container#END}
      */
     public static final String END = "End";
     /**
      * Indicates the top edge of a container.
+     * @deprecated replaced by {@link Container#TOP}
      */
     public static final String TOP = "Top";
     /**
      * Indicates the bottom edge of a container.
+     * @deprecated replaced by {@link Container#BOTTOM}
      */
     public static final String BOTTOM = "Bottom";
     /**
      * Indicates the left edge of a container.
+     * @deprecated replaced by {@link Container#LEFT}
      */
     public static final String LEFT = "Left";
     /**
      * Indicates the right edge of a container.
+     * @deprecated replaced by {@link Container#RIGHT}
      */
     public static final String RIGHT = "Right";
     
@@ -393,7 +428,7 @@ public interface UIService
     public AccountRegistrationWizardContainer getAccountRegWizardContainer();
     
     /**
-     * Adds the specified UI component to the container given by ContainerID. 
+     * Adds the specified UI component to the container given by Container. 
      * The method is meant to be used by plugins or bundles that would like to
      * add components to the user interface. The <tt>containerID</tt> is used 
      * by the implementation to determine the place where the component should
@@ -403,13 +438,13 @@ public interface UIService
      * library used by it. If this is not the case and adding the requested
      * object would not be possible the implementation MUST through a
      * ClassCastException exception. Implementations of this service MUST
-     * understand and know how to handle all ContainerID-s defined by this
+     * understand and know how to handle all Container-s defined by this
      * interface, they MAY also define additional constraints. In case the
      * addComponent method is called with a <tt>containerID</tt> that the
      * implementation does not understand it MUST through a
      * java.lang.IllegalArgumentException. 
      * <br>
-     * @param containerID One of the CONTAINER_XXX ContainerID-s. 
+     * @param containerID One of the CONTAINER_XXX Container-s. 
      * @param component The component to be added.
      * @throws ClassCastException if <tt>component</tt> is not an
      * instance of a class supported by the service implementation. An SWT impl
@@ -418,12 +453,19 @@ public interface UIService
      * @throws IllegalArgumentException if the specified <tt>containerID</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all CONTAINER_XXX containerID-s.
+     * 
+     * @deprecated replaced by {@link PluginComponent}
+     * This method should not be used anymore. Instead plugin
+     * components should implement the <tt>PluginComponent</tt> interface and
+     * should register their implementations of this interface through the OSGI
+     * bundle context.
+     * @see PluginComponent
      */
-    public void addComponent(ContainerID containerID, Object component)
+    public void addComponent(Container containerID, Object component)
         throws ClassCastException, IllegalArgumentException;
     
     /**
-     * Adds the specified UI component to the container given by ContainerID. 
+     * Adds the specified UI component to the container given by Container. 
      * The method is meant to be used by plugins or bundles that would like to
      * add components to the user interface. The <tt>containerID</tt> is used 
      * by the implementation to determine the place where the component should
@@ -434,12 +476,12 @@ public interface UIService
      * is interested of the current meta contact in the container.
      * <br>
      * Implementations of this service MUST understand and know how to handle
-     * all ContainerID-s defined by this interface, they MAY also define
+     * all Container-s defined by this interface, they MAY also define
      * additional constraints. In case the addComponent method is called with a
      * <tt>containerID</tt> that the implementation does not understand it MUST
      * through a java.lang.IllegalArgumentException. 
      * <br>
-     * @param containerID One of the CONTAINER_XXX ContainerID-s. 
+     * @param containerID One of the CONTAINER_XXX Container-s. 
      * @param component The component to be added.
      * @throws ClassCastException if <tt>component</tt> is not an
      * instance of a class supported by the service implementation. An SWT impl
@@ -448,8 +490,15 @@ public interface UIService
      * @throws IllegalArgumentException if the specified <tt>containerID</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all CONTAINER_XXX containerID-s.
+     * 
+     * @deprecated replaced by {@link PluginComponent}
+     * This method should not be used anymore. Instead plugin
+     * components should implement the <tt>PluginComponent</tt> interface and
+     * should register their implementations of this interface through the OSGI
+     * bundle context.
+     * @see PluginComponent
      */
-    public void addComponent(ContainerID containerID,
+    public void addComponent(Container containerID,
         ContactAwareComponent component)
         throws ClassCastException, IllegalArgumentException;
     
@@ -471,12 +520,12 @@ public interface UIService
      * this is not the case and adding the requested object would not be 
      * possible the implementation MUST through a ClassCastException exception.
      * Implementations of this service MUST understand and know how to handle
-     * all ContainerID-s defined by this interface, they MAY also define
+     * all Container-s defined by this interface, they MAY also define
      * additional constraints. In case the addComponent method is called with a
      * <tt>containerID</tt> that the implementation does not understand it MUST
      * through a java.lang.IllegalArgumentException 
      * <br>
-     * @param containerID One of the CONTAINER_XXX ContainerID-s.
+     * @param containerID One of the CONTAINER_XXX Container-s.
      * @param constraint One of the START, END, BOTTOM, etc. String constants. 
      * @param component The component to be added.
      * @throws ClassCastException if <tt>component</tt> is not an
@@ -486,8 +535,15 @@ public interface UIService
      * @throws IllegalArgumentException if the specified <tt>containerID</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all CONTAINER_XXX containerID-s.
+     * 
+     * @deprecated replaced by {@link PluginComponent}
+     * This method should not be used anymore. Instead plugin
+     * components should implement the <tt>PluginComponent</tt> interface and
+     * should register their implementations of this interface through the OSGI
+     * bundle context.
+     * @see PluginComponent
      */
-    public void addComponent(ContainerID containerID, 
+    public void addComponent(Container containerID, 
                 String constraint, Object component)
         throws ClassCastException, IllegalArgumentException;
     
@@ -506,7 +562,7 @@ public interface UIService
      * The <tt>ContactAwareComponent</tt> is a plugin component that
      * is interested of the current meta contact in the container. 
      * <br>
-     * @param containerID One of the CONTAINER_XXX ContainerID-s.
+     * @param containerID One of the CONTAINER_XXX Container-s.
      * @param constraint One of the START, END, BOTTOM, etc. String constants. 
      * @param component The component to be added.
      * @throws ClassCastException if <tt>component</tt> is not an
@@ -516,8 +572,15 @@ public interface UIService
      * @throws IllegalArgumentException if the specified <tt>containerID</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all CONTAINER_XXX containerID-s.
+     * 
+     * @deprecated replaced by {@link PluginComponent}
+     * This method should not be used anymore. Instead plugin
+     * components should implement the <tt>PluginComponent</tt> interface and
+     * should register their implementations of this interface through the OSGI
+     * bundle context.
+     * @see PluginComponent
      */
-    public void addComponent(ContainerID containerID, 
+    public void addComponent(Container containerID, 
                 String constraint, ContactAwareComponent component)
         throws ClassCastException, IllegalArgumentException;
     
@@ -532,13 +595,20 @@ public interface UIService
      * implementation to verify that the <tt>component</tt> is really contained
      * in the specified container. If this is not the case nothing will happen.
      * <br>
-     * @param containerID one of the CONTAINER_XXX ContainerID-s 
+     * @param containerID one of the CONTAINER_XXX Container-s 
      * @param component the component to remove
      * @throws IllegalArgumentException if the specified <tt>containerID</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all CONTAINER_XXX containerID-s.
+     * 
+     * @deprecated replaced by {@link PluginComponent}
+     * This method should not be used anymore. Instead plugin
+     * components should implement the <tt>PluginComponent</tt> interface and
+     * should register their implementations of this interface through the OSGI
+     * bundle context.
+     * @see PluginComponent
      */
-    public void removeComponent(ContainerID containerID, Object component)
+    public void removeComponent(Container containerID, Object component)
         throws IllegalArgumentException;
 
     /**
@@ -548,24 +618,24 @@ public interface UIService
      * be used by plugins or bundles that would like to add components to the 
      * user interface. Before adding any component they should use this method
      * to obtain all possible places, which could contain external components,
-     * like different menus, toolbars, etc.  
-     *       
+     * like different menus, toolbars, etc.
+     * 
      * @return Iterator An iterator to a set containing containerID-s 
      * representing all containers supported by the current UI implementation.
      */
     public Iterator getSupportedContainers();
-    
+
     /**
-     * Chechks if the container with the given <tt>ContainerID</tt> is supported
+     * Chechks if the container with the given <tt>Container</tt> is supported
      * from the current UI implementation.
      * 
-     * @param containderID One of the CONTAINER_XXX ContainerID-s. 
+     * @param containderID One of the CONTAINER_XXX Container-s. 
      * @return <code>true</code> if the contaner with the given 
-     * <tt>ContainerID</tt> is supported from the current UI implementation,
+     * <tt>Container</tt> is supported from the current UI implementation,
      * <code>false</code> otherwise.
      */
-    public boolean isContainerSupported(ContainerID containderID);
-        
+    public boolean isContainerSupported(Container containderID);
+
     /**
      * Returns an iterator over a set of all constraints supported by the
      * given <tt>containerID</tt>. Each constraint in the set is one of the
@@ -576,8 +646,8 @@ public interface UIService
      * @return Iterator An iterator to a set containing all component
      * constraints
      */
-    public Iterator getConstraintsForContainer(ContainerID containerID);
-    
+    public Iterator getConstraintsForContainer(Container containerID);
+
     /**
      * Returns an Iterator over a set of all components added to a given
      * constraint. Meant to be called in the process of initialization of the
@@ -589,6 +659,6 @@ public interface UIService
      * @return An Iterator to a set containing all components added to a given
      * constraint.
      */
-    public Iterator getComponentsForContainer(ContainerID containerID)
+    public Iterator getComponentsForContainer(Container containerID)
         throws IllegalArgumentException;
 }

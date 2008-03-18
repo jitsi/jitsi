@@ -21,10 +21,12 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Julien Waechter
  */
 public class WhiteboardMenuItem
-    extends JMenu
-    implements  ContactAwareComponent,
+    implements  PluginComponent,
                 ActionListener
 {
+    private JMenu whiteboardMenu
+        = new JMenu(Resources.getString("whiteboardMenuItemText"));
+
     /**
      * The current meta contact
      */
@@ -42,9 +44,8 @@ public class WhiteboardMenuItem
      */
     public WhiteboardMenuItem (WhiteboardSessionManager session)
     {
-        super (Resources.getString("whiteboardMenuItemText"));
         this.session = session;
-        this.setIcon (Resources.getImage ("mpenIcon"));
+        this.whiteboardMenu.setIcon (Resources.getImage ("mpenIcon"));
     }
 
     /**
@@ -56,7 +57,7 @@ public class WhiteboardMenuItem
     {
         this.metaContact = metaContact;
         
-        this.removeAll();
+        this.whiteboardMenu.removeAll();
         
         Iterator iter = metaContact.getContacts();
         while (iter.hasNext())
@@ -83,7 +84,7 @@ public class WhiteboardMenuItem
                         Resources.getString("whiteboardMenuItemNotSupportedTooltip"));
             }
             
-            this.add(contactItem);
+            this.whiteboardMenu.add(contactItem);
         }
     }
 
@@ -116,5 +117,25 @@ public class WhiteboardMenuItem
             if(itemID.equals(id)) 
                 session.initWhiteboard (contact);
         }
+    }
+
+    public String getConstraints()
+    {
+        return null;
+    }
+
+    public Container getContainer()
+    {
+        return Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU;
+    }
+
+    public Object getComponent()
+    {
+        return whiteboardMenu;
+    }
+
+    public String getName()
+    {
+        return whiteboardMenu.getText();
     }
 }

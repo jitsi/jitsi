@@ -16,6 +16,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -23,9 +24,11 @@ import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>QuickMenu</tt> is the toolbar on the top of the main
@@ -46,7 +49,6 @@ public class QuickMenu
                 ComponentListener,
                 ListSelectionListener
 {
-
     private Logger logger = Logger.getLogger(QuickMenu.class.getName());
 
     private JButton infoButton = new JButton(new ImageIcon(ImageLoader
@@ -62,7 +64,8 @@ public class QuickMenu
             .getImage(ImageLoader.QUICK_MENU_ADD_ICON)));
 
     private JButton soundButton = new JButton(
-        new ImageIcon(ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
+        new ImageIcon(ImageLoader.getImage(
+            ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
 
     private static int BUTTON_HEIGHT
         = SizeProperties.getSize("mainToolbarButtonHeight");
@@ -154,22 +157,22 @@ public class QuickMenu
     {
         Iterator pluginComponents = GuiActivator.getUIService()
             .getComponentsForContainer(
-                UIService.CONTAINER_MAIN_TOOL_BAR);
-        
+                Container.CONTAINER_MAIN_TOOL_BAR);
+
         if(pluginComponents.hasNext())
             this.addSeparator();
-        
+
         while (pluginComponents.hasNext())
         {
             Component c = (Component)pluginComponents.next();
-            
+
             this.add(c);
-                        
+
             if (c instanceof ContactAwareComponent)
             {
                 Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
-                            
+
                 if(selectedValue instanceof MetaContact)
                 {
                     ((ContactAwareComponent)c)
@@ -185,6 +188,54 @@ public class QuickMenu
             this.revalidate();
             this.repaint();
         }
+
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_MAIN_TOOL_BAR.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            exc.printStackTrace();
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent component = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);;
+
+                Object selectedValue = mainFrame.getContactListPanel()
+                .getContactList().getSelectedValue();
+
+            if(selectedValue instanceof MetaContact)
+            {
+                component.setCurrentContact((MetaContact)selectedValue);
+            }
+            else if(selectedValue instanceof MetaContactGroup)
+            {
+                component
+                    .setCurrentContactGroup((MetaContactGroup)selectedValue);
+            }
+
+            
+            this.add((Component)component.getComponent());
+
+            this.repaint();
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
     /**
@@ -305,33 +356,34 @@ public class QuickMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
+        PluginComponent pluginComponent = event.getPluginComponent();
+
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!event.getContainerID()
-                .equals(UIService.CONTAINER_MAIN_TOOL_BAR))
+        if(!pluginComponent.getContainer()
+                .equals(Container.CONTAINER_MAIN_TOOL_BAR))
             return;
+
+        Object constraints = UIServiceImpl
+            .getBorderLayoutConstraintsFromContainer(
+                    pluginComponent.getConstraints());
+
+        this.add((Component)pluginComponent.getComponent(), constraints);
+
+        Object selectedValue = mainFrame.getContactListPanel()
+                .getContactList().getSelectedValue();
         
-        this.add(c);
-        
-        if (c instanceof ContactAwareComponent)
+        if(selectedValue instanceof MetaContact)
         {
-            Object selectedValue = mainFrame.getContactListPanel()
-                    .getContactList().getSelectedValue();
-            
-            if(selectedValue instanceof MetaContact)
-            {
-                ((ContactAwareComponent)c)
-                    .setCurrentContact((MetaContact)selectedValue);
-            }
-            else if(selectedValue instanceof MetaContactGroup)
-            {
-                ((ContactAwareComponent)c)
-                    .setCurrentContactGroup((MetaContactGroup)selectedValue);
-            }
+            pluginComponent
+                .setCurrentContact((MetaContact)selectedValue);
         }
-        
+        else if(selectedValue instanceof MetaContactGroup)
+        {
+            pluginComponent
+                .setCurrentContactGroup((MetaContactGroup)selectedValue);
+        }
+
         this.revalidate();
         this.repaint();
     }
@@ -340,16 +392,17 @@ public class QuickMenu
      * Implements the <code>PluginComponentListener.pluginComponentRemoved</code>
      * method.
      */
-    public void pluginComponentRemoved(PluginComponentEvent event) {
-        Component c = (Component) event.getSource();
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        PluginComponent c = event.getPluginComponent();
         
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!event.getContainerID()
-                .equals(UIService.CONTAINER_MAIN_TOOL_BAR))
+        if(!c.getContainer()
+                .equals(Container.CONTAINER_MAIN_TOOL_BAR))
             return;
-        
-        this.remove(c);
+
+        this.remove((Component) c.getComponent());
     }
 
     public void componentHidden(ComponentEvent e)
@@ -399,13 +452,13 @@ public class QuickMenu
             while (pluginComponents.hasNext())
             {
                 Component c = (Component)pluginComponents.next();
-                    
+
                 if(!(c instanceof ContactAwareComponent))
                     continue;
-                
+
                 Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
-                            
+
                 if(selectedValue instanceof MetaContact)
                 {
                     ((ContactAwareComponent)c)

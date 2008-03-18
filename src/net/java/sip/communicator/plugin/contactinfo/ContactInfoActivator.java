@@ -1,7 +1,10 @@
 package net.java.sip.communicator.plugin.contactinfo;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -13,6 +16,8 @@ import org.osgi.framework.*;
  */
 public class ContactInfoActivator implements BundleActivator
 {
+    private Logger logger = Logger.getLogger(ContactInfoActivator.class);
+
     private static BrowserLauncherService browserLauncherService;
 
     private static BundleContext bundleContext;
@@ -24,25 +29,19 @@ public class ContactInfoActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        ServiceReference uiServiceRef
-            = bc.getServiceReference(UIService.class.getName());
+        ContactInfoMenuItem cinfoMenuItem = new ContactInfoMenuItem();
 
-        UIService uiService
-            = (UIService) bc.getService(uiServiceRef);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+        containerFilter.put(
+                Container.CONTAINER_ID,
+                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-        // Check if the desired place, where we would like to add 
-        // our menu item is supported from the current UIService implementation.
-        if (uiService.isContainerSupported(
-            UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
-        {
-            ContactInfoMenuItem cinfoMenuItem = new ContactInfoMenuItem();
+        bundleContext.registerService(  PluginComponent.class.getName(),
+                                        cinfoMenuItem,
+                                        containerFilter);
 
-            // We add the example plugin menu item in the right button menu
-            // for a contact.
-            uiService.addComponent(
-                UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU,
-                cinfoMenuItem);
-        }
+        logger.info("CONTACT INFO... [REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception

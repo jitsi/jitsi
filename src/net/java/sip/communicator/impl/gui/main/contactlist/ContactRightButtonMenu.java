@@ -15,15 +15,20 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -338,23 +343,57 @@ public class ContactRightButtonMenu
      */
     private void initPluginComponents()
     {
+        // Get all plugin components added through the UIService.addComponent()
+        // method.
         Iterator pluginComponents = GuiActivator.getUIService()
             .getComponentsForContainer(
-                UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
-        
+                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+
         if(pluginComponents.hasNext())
             this.addSeparator();
-        
+
         while (pluginComponents.hasNext())
         {
             Component o = (Component)pluginComponents.next();
-            
+
             this.add(o);
-            
+
             if (o instanceof ContactAwareComponent)
                 ((ContactAwareComponent)o).setCurrentContact(contactItem);
         }
-        
+
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            exc.printStackTrace();
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent component = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);;
+
+            component.setCurrentContact(contactItem);
+
+            this.add((Component)component.getComponent());
+        }
+
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
@@ -802,21 +841,21 @@ public class ContactRightButtonMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
-        if(event.getContainerID()
-                .equals(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
-        {
-            this.add(c);
-            
-            if (c instanceof ContactAwareComponent)
-            {   
-                ((ContactAwareComponent)c)
-                    .setCurrentContact(contactItem);
-            }
-            
-            this.repaint();
-        }
+        PluginComponent c = event.getPluginComponent();
+
+        if(!c.getContainer()
+                .equals(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
+            return;
+
+        Object constraints
+            = UIServiceImpl.getBorderLayoutConstraintsFromContainer(
+                c.getConstraints());
+
+        this.add((Component) c.getComponent(), constraints);
+
+        c.setCurrentContact(contactItem);
+
+        this.repaint();
     }
 
     /**
@@ -824,12 +863,12 @@ public class ContactRightButtonMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
         
-        if(event.getContainerID()
-                .equals(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
+        if(c.getContainer()
+                .equals(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
         {
-            this.remove(c);
+            this.remove((Component) c.getComponent());
         }
     }
     
@@ -864,7 +903,7 @@ public class ContactRightButtonMenu
                     ImageLoader.getBytesInImage(pps.getProtocolIcon()
                         .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
         }
-        
+
         int index = mainFrame.getProviderIndex(pps);
 
         Image img = null;

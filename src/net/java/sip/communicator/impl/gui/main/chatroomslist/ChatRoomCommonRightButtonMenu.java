@@ -14,13 +14,14 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -98,15 +99,15 @@ public class ChatRoomCommonRightButtonMenu
     {
         Iterator pluginComponents = GuiActivator.getUIService()
             .getComponentsForContainer(
-                UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
-        
+                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+
         if(pluginComponents.hasNext())
             this.addSeparator();
-        
+
         while (pluginComponents.hasNext())
         {
             Component o = (Component)pluginComponents.next();
-            
+
             this.add(o);
         }
     }
@@ -142,10 +143,10 @@ public class ChatRoomCommonRightButtonMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
-        this.add(c);
-                
+        PluginComponent c = event.getPluginComponent();
+
+        this.add((Component) c.getComponent());
+
         this.repaint();
     }
 
@@ -155,8 +156,8 @@ public class ChatRoomCommonRightButtonMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
-        this.remove(c);
+        PluginComponent c = event.getPluginComponent();
+
+        this.remove((Component) c.getComponent());
     }
 }

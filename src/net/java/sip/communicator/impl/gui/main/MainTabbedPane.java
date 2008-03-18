@@ -8,17 +8,22 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.event.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 
 /** 
@@ -133,14 +138,64 @@ public class MainTabbedPane
         }
     }
 
+    /**
+     * Initiates plugin components.
+     */
+    private void initPluginComponents()
+    {
+        Iterator pluginComponents = GuiActivator.getUIService()
+            .getComponentsForContainer(
+                Container.CONTAINER_MAIN_TABBED_PANE);
+
+        while (pluginComponents.hasNext())
+        {
+            Component c = (Component)pluginComponents.next();
+
+            this.addTab(c.getName(), c);
+        }
+
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_MAIN_TABBED_PANE.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            exc.printStackTrace();
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent component = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);;
+
+            this.addTab(component.getName(),
+                        (Component) component.getComponent());
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
 
-        if(event.getContainerID()
-                .equals(UIService.CONTAINER_MAIN_TABBED_PANE))
+        if(c.getContainer()
+                .equals(Container.CONTAINER_MAIN_TABBED_PANE))
         {
-            this.addTab(c.getName(), c);
+            this.addTab(c.getName(), (Component) c.getComponent());
 
             this.repaint();
         }
@@ -148,12 +203,12 @@ public class MainTabbedPane
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
+        PluginComponent c = event.getPluginComponent();
         
-        if(event.getContainerID()
-                .equals(UIService.CONTAINER_MAIN_TABBED_PANE))
+        if(c.getContainer()
+                .equals(Container.CONTAINER_MAIN_TABBED_PANE))
         {
-            this.remove(c);
+            this.remove((Component) c.getComponent());
         }
     }
 }

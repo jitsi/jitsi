@@ -39,23 +39,21 @@ public class WhiteboardActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        ServiceReference uiServiceRef
-            = bc.getServiceReference (UIService.class.getName ());
-
-        uiService = (UIService) bc.getService (uiServiceRef);
-
         session = new WhiteboardSessionManager ();
 
-        if(uiService.isContainerSupported (
-            UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
-        {
-            WhiteboardMenuItem whiteboardPlugin =
-                new WhiteboardMenuItem (session);
+        WhiteboardMenuItem whiteboardPlugin = new WhiteboardMenuItem (session);
 
-            uiService.addComponent (
-                UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU,
-                whiteboardPlugin);
-        }
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+        containerFilter.put(
+                Container.CONTAINER_ID,
+                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
+
+        bundleContext.registerService(  PluginComponent.class.getName(),
+                                        whiteboardPlugin,
+                                        containerFilter);
+
+        logger.info("WHITEBOARD... [REGISTERED]");
     }
 
     /**

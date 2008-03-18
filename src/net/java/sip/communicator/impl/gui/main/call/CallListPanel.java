@@ -13,14 +13,18 @@ import java.util.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommSmartComboBox.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 
 /**
@@ -103,15 +107,45 @@ public class CallListPanel
     {
         Iterator pluginComponents = GuiActivator.getUIService()
             .getComponentsForContainer(
-                UIService.CONTAINER_CALL_HISTORY);
-        
+                Container.CONTAINER_CALL_HISTORY);
+
         while (pluginComponents.hasNext())
         {
             Component o = (Component)pluginComponents.next();
-            
+
             this.pluginPanel.add((Component)o);
         }
-        
+
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CALL_HISTORY.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            exc.printStackTrace();
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent component = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);;
+
+            this.pluginPanel.add((Component)component.getComponent());
+        }
+
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
     
@@ -128,7 +162,7 @@ public class CallListPanel
             
             Date callStartDate = callRecord.getStartTime();
             
-            if(lastDateFromHistory == null) {                
+            if(lastDateFromHistory == null) {
                 callList.addItem(processDate(callStartDate));
                 lastDateFromHistory = callStartDate;
             }
@@ -359,15 +393,15 @@ public class CallListPanel
 
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
+        PluginComponent c = event.getPluginComponent();
+
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!event.getContainerID()
-                .equals(UIService.CONTAINER_CALL_HISTORY))
+        if(!c.getContainer()
+                .equals(Container.CONTAINER_CALL_HISTORY))
             return;
-        
-        this.pluginPanel.add(c);
+
+        this.pluginPanel.add((Component) c.getComponent());
  
         this.revalidate();
         this.repaint();
@@ -375,15 +409,15 @@ public class CallListPanel
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
+        PluginComponent c = event.getPluginComponent();
+
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!event.getContainerID()
-                .equals(UIService.CONTAINER_CALL_HISTORY))
+        if(!c.getContainer()
+                .equals(Container.CONTAINER_CALL_HISTORY))
             return;
         
-        this.pluginPanel.remove(c);
+        this.pluginPanel.remove((Component) c.getComponent());
     }
     
     private class ScrollPaneBackground extends JViewport

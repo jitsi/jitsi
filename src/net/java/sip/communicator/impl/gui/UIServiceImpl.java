@@ -12,6 +12,9 @@ import java.util.List;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
@@ -23,6 +26,7 @@ import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -34,7 +38,8 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class UIServiceImpl
-    implements UIService
+    implements  UIService,
+                ServiceListener
 {
     private static final Logger logger = Logger.getLogger(UIServiceImpl.class);
 
@@ -42,25 +47,25 @@ public class UIServiceImpl
 
     private AccountRegWizardContainerImpl wizardContainer;
 
-    private Map<ContainerID, Vector<Object>> registeredPlugins
-        = new Hashtable<ContainerID, Vector<Object>>();
+    private Map<Container, Vector<Object>> registeredPlugins
+        = new Hashtable<Container, Vector<Object>>();
 
     private Vector<PluginComponentListener>
         pluginComponentListeners = new Vector<PluginComponentListener>();
 
-    private static final List<ContainerID> supportedContainers
-        = new ArrayList<ContainerID>();
+    private static final List<Container> supportedContainers
+        = new ArrayList<Container>();
     static
     {
-        supportedContainers.add(UIService.CONTAINER_MAIN_TOOL_BAR);
-        supportedContainers.add(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
-        supportedContainers.add(UIService.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
-        supportedContainers.add(UIService.CONTAINER_TOOLS_MENU);
-        supportedContainers.add(UIService.CONTAINER_HELP_MENU);
-        supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
-        supportedContainers.add(UIService.CONTAINER_CALL_HISTORY);
-        supportedContainers.add(UIService.CONTAINER_MAIN_TABBED_PANE);
-        supportedContainers.add(UIService.CONTAINER_CHAT_HELP_MENU);
+        supportedContainers.add(Container.CONTAINER_MAIN_TOOL_BAR);
+        supportedContainers.add(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        supportedContainers.add(Container.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
+        supportedContainers.add(Container.CONTAINER_TOOLS_MENU);
+        supportedContainers.add(Container.CONTAINER_HELP_MENU);
+        supportedContainers.add(Container.CONTAINER_CHAT_TOOL_BAR);
+        supportedContainers.add(Container.CONTAINER_CALL_HISTORY);
+        supportedContainers.add(Container.CONTAINER_MAIN_TABBED_PANE);
+        supportedContainers.add(Container.CONTAINER_CHAT_HELP_MENU);
         supportedContainers.add(UIService.CONTAINER_CHAT_WINDOW_SOUTH);
         supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_EAST);
         supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_WEST);
@@ -118,16 +123,16 @@ public class UIServiceImpl
      * component and fires a PluginComponentEvent to inform all interested
      * listeners that a plugin component has been removed.
      *
-     * @param containerID the <tt>ContainerID</tt> of the plugable container,
+     * @param containerID the <tt>Container</tt> of the plugable container,
      * where the component is stored
      * @param component the component to remove
      *
-     * @see UIService#removeComponent(ContainerID, Object)
+     * @see UIService#removeComponent(Container, Object)
      *
      * @throws java.lang.IllegalArgumentException if no component exists for
      * the specified container id.
      */
-    public void removeComponent(ContainerID containerID, Object component)
+    public void removeComponent(Container containerID, Object component)
         throws IllegalArgumentException
     {
         if (!supportedContainers.contains(containerID))
@@ -142,8 +147,13 @@ public class UIServiceImpl
             {
                 ((Vector) registeredPlugins.get(containerID)).remove(component);
             }
-            this.firePluginEvent(component, containerID,
-                PluginComponentEvent.PLUGIN_COMPONENT_REMOVED);
+
+            DefaultPluginComponent pluginComponent
+                = new DefaultPluginComponent((Component) component, containerID);
+
+            this.firePluginEvent(   pluginComponent,
+                                    PluginComponentEvent
+                                        .PLUGIN_COMPONENT_REMOVED);
         }
     }
 
@@ -152,17 +162,17 @@ public class UIServiceImpl
      * and fires a PluginComponentEvent to inform all interested listeners that
      * a plugin component has been added.
      *
-     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param containerID The <tt>Container</tt> of the plugable container.
      * @param component The component to add.
      *
-     * @see UIService#addComponent(ContainerID, Object)
+     * @see UIService#addComponent(Container, Object)
      *
      * @throws java.lang.ClassCastException if <tt>component</tt> is not an
      * instance of a java.awt.Component
      * @throws java.lang.IllegalArgumentException if no component exists for
      * the specified container id.
      */
-    public void addComponent(ContainerID containerID, Object component)
+    public void addComponent(Container containerID, Object component)
         throws ClassCastException, IllegalArgumentException
     {
         if (!supportedContainers.contains(containerID))
@@ -173,7 +183,6 @@ public class UIServiceImpl
         }
         else if (!(component instanceof Component))
         {
-
             throw new ClassCastException(
                 "The specified plugin is not a valid swing or awt component.");
         }
@@ -181,7 +190,8 @@ public class UIServiceImpl
         {
             if (registeredPlugins.containsKey(containerID))
             {
-                ((Vector) registeredPlugins.get(containerID)).add(component);
+                ((Vector) registeredPlugins
+                        .get(containerID)).add(component);
             }
             else
             {
@@ -189,39 +199,43 @@ public class UIServiceImpl
                 plugins.add(component);
                 registeredPlugins.put(containerID, plugins);
             }
-            this.firePluginEvent(component, containerID,
-                PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
+
+            DefaultPluginComponent pluginComponent
+                = new DefaultPluginComponent((Component) component, containerID);
+
+            this.firePluginEvent(   pluginComponent,
+                                    PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
         }
     }
 
     /**
-     * Implements <code>UIService.addComponent(ContainerID, String, Object)
+     * Implements <code>UIService.addComponent(Container, String, Object)
      * </code>.
      * For now this method only invokes addComponent(containerID, component).
      *
-     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param containerID The <tt>Container</tt> of the plugable container.
      * @param constraint a constraint indicating how the component should be
      * added to the container.
      * @param component the component we are adding.
      *
-     * @see UIService#addComponent(ContainerID, String, Object)
+     * @see UIService#addComponent(Container, String, Object)
      * @throws java.lang.ClassCastException if <tt>component</tt> is not an
      * instance of a java.awt.Component
      * @throws java.lang.IllegalArgumentException if no component exists for
      * the specified container id.
      */
-    public void addComponent(ContainerID containerID, String constraint,
+    public void addComponent(Container containerID, String constraint,
         Object component) throws ClassCastException, IllegalArgumentException
     {
         this.addComponent(containerID, component);
     }
 
     /**
-     * Implements <code>UIService.addComponent(ContainerID, String, Object)
+     * Implements <code>UIService.addComponent(Container, String, Object)
      * </code>.
      * For now this method only invokes addComponent(containerID, component).
      *
-     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param containerID The <tt>Container</tt> of the plugable container.
      * @param component the component we are adding.
      *
      * @throws java.lang.ClassCastException if <tt>component</tt> is not an
@@ -229,7 +243,7 @@ public class UIServiceImpl
      * @throws java.lang.IllegalArgumentException if no component exists for
      * the specified container id.
      */
-    public void addComponent(ContainerID containerID,
+    public void addComponent(Container containerID,
         ContactAwareComponent component) throws ClassCastException,
         IllegalArgumentException
     {
@@ -244,11 +258,11 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements <code>UIService.addComponent(ContainerID, String, Object)
+     * Implements <code>UIService.addComponent(Container, String, Object)
      * </code>.
      * For now this method only invokes addComponent(containerID, component).
      *
-     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param containerID The <tt>Container</tt> of the plugable container.
      * @param constraint a constraint indicating how the component should be
      * added to the container.
      * @param component the component we are adding.
@@ -258,7 +272,7 @@ public class UIServiceImpl
      * @throws java.lang.IllegalArgumentException if no component exists for
      * the specified container id.
      */
-    public void addComponent(ContainerID containerID, String constraint,
+    public void addComponent(Container containerID, String constraint,
         ContactAwareComponent component) throws ClassCastException,
         IllegalArgumentException
     {
@@ -282,7 +296,7 @@ public class UIServiceImpl
      *
      * @param containerID the id of the container whose components we'll be
      * retrieving.
-     * @see UIService#getComponentsForContainer(ContainerID)
+     * @see UIService#getComponentsForContainer(Container)
      *
      * @return an iterator over all components added in the container with ID
      * <tt>containerID</tt>
@@ -290,7 +304,7 @@ public class UIServiceImpl
      * @throws java.lang.IllegalArgumentException if containerID does not
      * correspond to a container used in this implementation.
      */
-    public Iterator getComponentsForContainer(ContainerID containerID)
+    public Iterator getComponentsForContainer(Container containerID)
         throws IllegalArgumentException
     {
 
@@ -317,12 +331,12 @@ public class UIServiceImpl
      * @param containerID the ID of the container whose constraints we'll be
      * retrieving.
      *
-     * @see UIService#getConstraintsForContainer(ContainerID)
+     * @see UIService#getConstraintsForContainer(Container)
      *
      * @return Iterator an <tt>Iterator</tt> for all constraintes supported by
      * the container corresponding to containerID.
      */
-    public Iterator getConstraintsForContainer(ContainerID containerID)
+    public Iterator getConstraintsForContainer(Container containerID)
     {
         return null;
     }
@@ -339,11 +353,12 @@ public class UIServiceImpl
      * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
      *            the nature of the event.
      */
-    private void firePluginEvent(Object pluginComponent,
-        ContainerID containerID, int eventID)
+    private void firePluginEvent(   PluginComponent pluginComponent,
+                                    int eventID)
     {
-        PluginComponentEvent evt = new PluginComponentEvent(pluginComponent,
-            containerID, eventID);
+        PluginComponentEvent evt
+            = new PluginComponentEvent( pluginComponent,
+                                        eventID);
 
         logger.trace("Will dispatch the following plugin component event: "
             + evt);
@@ -686,7 +701,7 @@ public class UIServiceImpl
 
     /**
      * Implements the <code>UIService.isContainerSupported</code> method.
-     * Checks if the plugable container with the given ContainerID is supported
+     * Checks if the plugable container with the given Container is supported
      * by this implementation.
      *
      * @param containderID the id of the container that we're making the query
@@ -695,9 +710,9 @@ public class UIServiceImpl
      * @return true if the container with the specified id is exported by the
      * implementation of the UI service and false otherwise.
      *
-     * @see UIService#isContainerSupported(ContainerID)
+     * @see UIService#isContainerSupported(Container)
      */
-    public boolean isContainerSupported(ContainerID containderID)
+    public boolean isContainerSupported(Container containderID)
     {
         return supportedContainers.contains(containderID);
     }
@@ -818,6 +833,122 @@ public class UIServiceImpl
             UIManager.setLookAndFeel(lf);
         } catch (UnsupportedLookAndFeelException e) {
             logger.error("The provided Look & Feel is not supported.", e);
+        }
+    }
+
+    /**
+     * Notifies all plugin containers of a <tt>PluginComponent</tt>
+     * registration.
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        Object sService = GuiActivator.bundleContext.getService(
+            event.getServiceReference());
+
+        // we don't care if the source service is not a plugin component
+        if (! (sService instanceof PluginComponent))
+        {
+            return;
+        }
+
+        PluginComponent pluginComponent = (PluginComponent) sService;
+
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            logger
+                .debug("Handling registration of a new Plugin Component.");
+
+            if(!(pluginComponent.getComponent() instanceof Component))
+            {
+                logger.error("Plugin Component type is not supported." +
+                            "Should provide a plugin in AWT, SWT or Swing.");
+                return;
+            }
+
+            this.firePluginEvent(   pluginComponent,
+                                    PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
+        }
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.firePluginEvent(   pluginComponent,
+                                    PluginComponentEvent
+                                        .PLUGIN_COMPONENT_REMOVED);
+        }
+    }
+
+    /**
+     * Returns the corresponding <tt>BorderLayout</tt> constraint from the given
+     * <tt>Container</tt> constraint.
+     * 
+     * @param containerConstraint constraints defined in the <tt>Container</tt>
+     * @return the corresponding <tt>BorderLayout</tt> constraint from the given
+     * <tt>Container</tt> constraint.
+     */
+    public static Object getBorderLayoutConstraintsFromContainer(
+        Object containerConstraints)
+    {
+        Object layoutConstraint = null;
+        if (containerConstraints.equals(Container.START))
+            layoutConstraint = BorderLayout.LINE_START;
+        else if (containerConstraints.equals(Container.END))
+            layoutConstraint = BorderLayout.LINE_END;
+        else if (containerConstraints.equals(Container.TOP))
+            layoutConstraint = BorderLayout.NORTH;
+        else if (containerConstraints.equals(Container.BOTTOM))
+            layoutConstraint = BorderLayout.SOUTH;
+        else if (containerConstraints.equals(Container.LEFT))
+            layoutConstraint = BorderLayout.WEST;
+        else if (containerConstraints.equals(Container.RIGHT))
+            layoutConstraint = BorderLayout.EAST;
+
+        return layoutConstraint;
+    }
+    
+    private class DefaultPluginComponent implements PluginComponent
+    {
+        private Component component;
+
+        private Container container;
+
+        public DefaultPluginComponent(  Component component,
+                                        Container container)
+        {
+            this.component = component;
+            this.container = container;
+        }
+
+        public Object getComponent()
+        {
+            return component;
+        }
+
+        public String getConstraints()
+        {
+            return Container.END;
+        }
+
+        public Container getContainer()
+        {
+            return container;
+        }
+
+        public String getName()
+        {
+            return component.getName();
+        }
+
+        public void setCurrentContact(MetaContact metaContact)
+        {
+            if (component instanceof ContactAwareComponent)
+                ((ContactAwareComponent) component)
+                    .setCurrentContact(metaContact);
+        }
+
+        public void setCurrentContactGroup(MetaContactGroup metaGroup)
+        {
+            if (component instanceof ContactAwareComponent)
+                ((ContactAwareComponent) component)
+                    .setCurrentContactGroup(metaGroup);
         }
     }
 }

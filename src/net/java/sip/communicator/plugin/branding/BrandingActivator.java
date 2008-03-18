@@ -7,22 +7,24 @@
 package net.java.sip.communicator.plugin.branding;
 
 import java.awt.event.*;
+import java.util.*;
 
-import javax.swing.JMenuItem;
+import javax.swing.*;
 
-import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
-public class BrandingActivator implements BundleActivator, BundleListener
+public class BrandingActivator
+    implements  BundleActivator,
+                BundleListener
 {
+    private Logger logger = Logger.getLogger(BrandingActivator.class);
+
     private WelcomeWindow welcomeWindow;
 
     private static BundleContext bundleContext;
-
-    private JMenuItem aboutEntry;
-
-    private JMenuItem chatAboutEntry;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -37,7 +39,6 @@ public class BrandingActivator implements BundleActivator, BundleListener
 
     public void stop(BundleContext arg0) throws Exception
     {
-        unRegisterMenuEntry();
     }
 
     public void bundleChanged(BundleEvent evt)
@@ -75,84 +76,29 @@ public class BrandingActivator implements BundleActivator, BundleListener
 
     private void registerMenuEntry(ServiceReference uiServiceRef)
     {
-        final UIService uiService = (UIService) bundleContext
-                .getService(uiServiceRef);
+        // Register the about window plugin component in the main help menu.
+        Hashtable<String, String> helpMenuFilter
+            = new Hashtable<String, String>();
+        helpMenuFilter.put( Container.CONTAINER_ID,
+                            Container.CONTAINER_HELP_MENU.getID());
 
-        // add menu entry to file menu
-        // Add your menu item to the help menu
+        bundleContext.registerService(  PluginComponent.class.getName(),
+                                        new AboutWindowPluginComponent(),
+                                        helpMenuFilter);
 
-        aboutEntry
-            = new JMenuItem(Resources.getString("aboutMenuEntry"));
+        logger.info("ABOUT WINDOW ... [REGISTERED]");
 
-        aboutEntry.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                AboutWindow aboutWindow = new AboutWindow(null);
-                aboutWindow.setVisible(true);
-            }
-        });
+        // Register the about window plugin component in the chat help menu.
+        Hashtable<String, String> chatHelpMenuFilter
+            = new Hashtable<String, String>();
+        chatHelpMenuFilter.put( Container.CONTAINER_ID,
+                                Container.CONTAINER_CHAT_HELP_MENU.getID());
 
-        chatAboutEntry
-            = new JMenuItem(Resources.getString("aboutMenuEntry"));
+        bundleContext.registerService(  PluginComponent.class.getName(),
+                                        new AboutWindowPluginComponent(),
+                                        chatHelpMenuFilter);
 
-        chatAboutEntry.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                AboutWindow aboutWindow = new AboutWindow(null);
-                aboutWindow.setVisible(true);
-            }
-        });
-
-        // Check if the help menu is a supported container.
-        if (uiService.isContainerSupported(UIService.CONTAINER_HELP_MENU))
-        {
-            uiService.addComponent(UIService.CONTAINER_HELP_MENU, aboutEntry);
-        }
-
-        // Check if the help menu is a supported container.
-        if (uiService.isContainerSupported(UIService.CONTAINER_CHAT_HELP_MENU))
-        {
-            uiService.addComponent(UIService.CONTAINER_CHAT_HELP_MENU,
-                    chatAboutEntry);
-        }
-    }
-
-    private void unRegisterMenuEntry()
-    {
-        // Obtain the UI Service
-        ServiceReference uiServiceRef = bundleContext
-                .getServiceReference(UIService.class.getName());
-
-        if (uiServiceRef == null
-                || uiServiceRef.getBundle().getState() != Bundle.ACTIVE)
-        {
-            return;
-        }
-
-        UIService uiService = (UIService) bundleContext
-                .getService(uiServiceRef);
-
-        // Check if the tools menu is a supported container and remove the about
-        // entry added before.
-        if (uiService.isContainerSupported(UIService.CONTAINER_HELP_MENU))
-        {
-            // add menu entry to file menu
-            // Add your menu item to the help menu
-            uiService.removeComponent(
-                UIService.CONTAINER_HELP_MENU, aboutEntry);
-        }
-
-        // Check if the chat menu is a supported container and remove the about
-        // entry added before.
-        if (uiService.isContainerSupported(UIService.CONTAINER_CHAT_HELP_MENU))
-        {
-            // add menu entry to file menu
-            // Add your menu item to the help menu
-            uiService.removeComponent(
-                UIService.CONTAINER_CHAT_HELP_MENU, chatAboutEntry);
-        }
+        logger.info("CHAT ABOUT WINDOW ... [REGISTERED]");
     }
 
     static BundleContext getBundleContext()

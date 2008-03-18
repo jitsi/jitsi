@@ -15,12 +15,15 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
  * contains "New account".
@@ -75,7 +78,7 @@ public class ToolsMenu
     {   
         Iterator pluginComponents = GuiActivator.getUIService()
             .getComponentsForContainer(
-                UIService.CONTAINER_TOOLS_MENU);
+                Container.CONTAINER_TOOLS_MENU);
         
         if(pluginComponents.hasNext())
             this.addSeparator();
@@ -87,6 +90,36 @@ public class ToolsMenu
             this.add(o);
         }
         
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_TOOLS_MENU.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            exc.printStackTrace();
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent component = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);;
+
+            this.add((Component)component.getComponent());
+        }
+
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
     
@@ -107,12 +140,12 @@ public class ToolsMenu
 
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
-        if(event.getContainerID().equals(UIService.CONTAINER_TOOLS_MENU))
+        PluginComponent c = event.getPluginComponent();
+
+        if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
-            this.add(c);
-            
+            this.add((Component) c.getComponent());
+
             this.revalidate();
             this.repaint();
         }
@@ -120,11 +153,11 @@ public class ToolsMenu
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        Component c = (Component) event.getSource();
-        
-        if(event.getContainerID().equals(UIService.CONTAINER_TOOLS_MENU))
+        PluginComponent c = event.getPluginComponent();
+
+        if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
-            this.remove(c);
+            this.remove((Component) c.getComponent());
         }
     }
 }

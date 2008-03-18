@@ -13,16 +13,20 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 
 /**
  * 
  * @author Adam Goldstein
  */
 public class ContactInfoMenuItem
-    extends JMenuItem
-    implements  ContactAwareComponent,
+    implements  PluginComponent,
                 ActionListener
 {
+    private JMenuItem menuItem
+        = new JMenuItem(Resources.getString("contactInfo"),
+                        Resources.getImage("infoIcon"));
+
     private MetaContact metaContact;
 
     /**
@@ -30,10 +34,7 @@ public class ContactInfoMenuItem
      */
     public ContactInfoMenuItem()
     {
-        super(  Resources.getString("contactInfo"),
-                Resources.getImage("infoIcon"));
-
-        this.addActionListener(this);
+        menuItem.addActionListener(this);
     }
 
     /**
@@ -63,5 +64,25 @@ public class ContactInfoMenuItem
             );
 
         cinfoDialog.setVisible(true);
+    }
+
+    public Object getComponent()
+    {
+        return menuItem;
+    }
+
+    public String getConstraints()
+    {
+        return null;
+    }
+
+    public Container getContainer()
+    {
+        return Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU;
+    }
+
+    public String getName()
+    {
+        return menuItem.getText();
     }
 }

@@ -7,8 +7,11 @@
 
 package net.java.sip.communicator.plugin.extendedcallhistorysearch;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -20,24 +23,29 @@ import org.osgi.framework.*;
 public class ExtendedCallHistorySearchActivator
     implements BundleActivator
 {
+    private Logger logger
+        = Logger.getLogger(ExtendedCallHistorySearchActivator.class);
+
     private static BundleContext context;
 
     public void start(BundleContext bc) throws Exception
     {
         context = bc;
-        ServiceReference uiServiceRef = bc.getServiceReference(
-            UIService.class.getName());
 
-        UIService uiService = (UIService) bc.getService(uiServiceRef);
+        ExtendedCallHistorySearchItem extendedSearch
+            = new ExtendedCallHistorySearchItem();
 
-        if (uiService.isContainerSupported(UIService.CONTAINER_TOOLS_MENU))
-        {
-            ExtendedCallHistorySearchItem extendedSearch
-                = new ExtendedCallHistorySearchItem();
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+        containerFilter.put(
+                Container.CONTAINER_ID,
+                Container.CONTAINER_TOOLS_MENU.getID());
 
-            uiService.addComponent(UIService.CONTAINER_TOOLS_MENU,
-                extendedSearch);
-        }
+        context.registerService(  PluginComponent.class.getName(),
+                                  extendedSearch,
+                                  containerFilter);
+
+        logger.info("EXTENDED CALL HISTORY SEARCH... [REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception
