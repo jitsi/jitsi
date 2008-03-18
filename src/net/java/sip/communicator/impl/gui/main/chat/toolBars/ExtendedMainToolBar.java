@@ -13,8 +13,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -23,7 +21,9 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -39,6 +39,8 @@ public class ExtendedMainToolBar
     implements  MouseListener,
                 PluginComponentListener
 {
+    private Logger logger = Logger.getLogger(ExtendedMainToolBar.class);
+
     private ToolBarButton copyButton = new ToolBarButton(
         Messages.getI18NString("copy").getText(),
         ImageLoader.getImage(ImageLoader.COPY_ICON));
@@ -395,7 +397,7 @@ public class ExtendedMainToolBar
         }
         catch (InvalidSyntaxException exc)
         {
-            exc.printStackTrace();
+            logger.error("Could not obtain plugin reference.", exc);
         }
 
         if (serRefs == null)

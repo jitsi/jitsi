@@ -89,7 +89,7 @@ public class HelpMenu
         }
         catch (InvalidSyntaxException exc)
         {
-            exc.printStackTrace();
+            logger.error("Could not obtain plugin reference.", exc);
         }
 
         if (serRefs == null)

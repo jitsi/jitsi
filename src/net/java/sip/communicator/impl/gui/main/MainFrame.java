@@ -34,7 +34,6 @@ import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -1278,6 +1277,45 @@ public class MainFrame
             Component o = (Component) pluginComponents.next();
 
             this.getContentPane().add(o, BorderLayout.WEST);
+        }
+
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_MAIN_TABBED_PANE.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+
+        if (serRefs == null)
+            return;
+
+        for (int i = 0; i < serRefs.length; i ++)
+        {
+            PluginComponent c = (PluginComponent) GuiActivator
+                .bundleContext.getService(serRefs[i]);
+
+            Object constraints = null;
+
+            if (c.getConstraints() != null)
+                constraints = UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+            else
+                constraints = BorderLayout.SOUTH;
+
+            this.getContentPane().add(  (Component) c.getComponent(),
+                                        constraints);
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);

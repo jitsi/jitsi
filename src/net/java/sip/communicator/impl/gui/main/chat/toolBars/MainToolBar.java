@@ -25,6 +25,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -40,6 +41,7 @@ public class MainToolBar
     implements  ActionListener,
                 PluginComponentListener
 {
+    private Logger logger = Logger.getLogger(MainToolBar.class);
 
     private ChatToolbarButton copyButton = new ChatToolbarButton(ImageLoader
         .getImage(ImageLoader.COPY_ICON));
@@ -398,7 +400,7 @@ public class MainToolBar
         }
         catch (InvalidSyntaxException exc)
         {
-            exc.printStackTrace();
+            logger.error("Could not obtain plugin reference.", exc);
         }
 
         if (serRefs == null)

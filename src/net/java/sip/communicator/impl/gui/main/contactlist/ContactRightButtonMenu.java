@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The ContactRightButtonMenu is the menu, opened when user clicks with the
@@ -44,6 +45,8 @@ public class ContactRightButtonMenu
                 PluginComponentListener,
                 ContactListListener
 {
+    private Logger logger = Logger.getLogger(ContactRightButtonMenu.class);
+    
     private I18NString allContactsString
         = Messages.getI18NString("allContacts");
 
@@ -378,7 +381,7 @@ public class ContactRightButtonMenu
         }
         catch (InvalidSyntaxException exc)
         {
-            exc.printStackTrace();
+            logger.error("Could not obtain plugin reference.", exc);
         }
 
         if (serRefs == null)

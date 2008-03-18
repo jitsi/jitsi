@@ -12,8 +12,6 @@ import java.util.*;
 
 import javax.swing.event.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
@@ -24,7 +22,9 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /** 
  * The <tt>MainTabbedPane</tt> is a <tt>SIPCommTabbedPane</tt> that contains
@@ -38,10 +38,12 @@ public class MainTabbedPane
     implements  ChangeListener,
                 PluginComponentListener
 {
+    private Logger logger = Logger.getLogger(MainTabbedPane.class);
+
     private DialPanel dialPanel;
 
     private CallListPanel callHistoryPanel;
-    
+
     private ContactListPanel contactListPanel;
 
     private ChatRoomsListPanel chatRoomsListPanel;
@@ -170,7 +172,7 @@ public class MainTabbedPane
         }
         catch (InvalidSyntaxException exc)
         {
-            exc.printStackTrace();
+            logger.error("Could not obtain plugin reference.", exc);
         }
 
         if (serRefs == null)

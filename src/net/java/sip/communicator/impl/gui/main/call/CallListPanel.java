@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>CallListPanel</tt> is the panel that contains the call list.
@@ -37,6 +38,8 @@ public class CallListPanel
     implements  ActionListener,
                 PluginComponentListener
 {
+    private Logger logger = Logger.getLogger(CallListPanel.class);
+
     private JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
     
     private JLabel searchLabel = new JLabel(
@@ -132,7 +135,7 @@ public class CallListPanel
         }
         catch (InvalidSyntaxException exc)
         {
-            exc.printStackTrace();
+            logger.error("Could not obtain plugin reference.", exc);
         }
 
         if (serRefs == null)
@@ -327,7 +330,7 @@ public class CallListPanel
                 public void run()
                 {
                     loadHistoryCalls(historyCalls);
-                }                
+                }
             });
         }
     }
@@ -362,7 +365,7 @@ public class CallListPanel
                 public void run()
                 {
                     loadHistoryCalls(historyCallsCopy);
-                }                
+                }
             });
         }
     }
