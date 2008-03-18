@@ -1298,26 +1298,25 @@ public class MainFrame
             logger.error("Could not obtain plugin reference.", exc);
         }
 
-        if (serRefs == null)
-            return;
-
-        for (int i = 0; i < serRefs.length; i ++)
+        if (serRefs != null)
         {
-            PluginComponent c = (PluginComponent) GuiActivator
-                .bundleContext.getService(serRefs[i]);
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent c = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);
 
-            Object constraints = null;
+                Object constraints = null;
 
-            if (c.getConstraints() != null)
-                constraints = UIServiceImpl
-                    .getBorderLayoutConstraintsFromContainer(c.getConstraints());
-            else
-                constraints = BorderLayout.SOUTH;
+                if (c.getConstraints() != null)
+                    constraints = UIServiceImpl
+                        .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+                else
+                    constraints = BorderLayout.SOUTH;
 
-            this.getContentPane().add(  (Component) c.getComponent(),
-                                        constraints);
+                this.getContentPane().add(  (Component) c.getComponent(),
+                                            constraints);
+            }
         }
-
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 

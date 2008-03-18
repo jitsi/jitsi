@@ -76,7 +76,7 @@ public class MainTabbedPane
 
         this.addChangeListener(this);
 
-        GuiActivator.getUIService().addPluginComponentListener(this);
+        this.initPluginComponents();
     }
 
     /**
@@ -175,16 +175,16 @@ public class MainTabbedPane
             logger.error("Could not obtain plugin reference.", exc);
         }
 
-        if (serRefs == null)
-            return;
-
-        for (int i = 0; i < serRefs.length; i ++)
+        if (serRefs != null)
         {
-            PluginComponent component = (PluginComponent) GuiActivator
-                .bundleContext.getService(serRefs[i]);;
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
 
-            this.addTab(component.getName(),
-                        (Component) component.getComponent());
+                this.addTab(component.getName(),
+                            (Component) component.getComponent());
+            }
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);

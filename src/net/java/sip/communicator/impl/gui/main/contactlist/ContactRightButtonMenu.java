@@ -384,17 +384,17 @@ public class ContactRightButtonMenu
             logger.error("Could not obtain plugin reference.", exc);
         }
 
-        if (serRefs == null)
-            return;
-
-        for (int i = 0; i < serRefs.length; i ++)
+        if (serRefs != null)
         {
-            PluginComponent component = (PluginComponent) GuiActivator
-                .bundleContext.getService(serRefs[i]);;
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
 
-            component.setCurrentContact(contactItem);
+                component.setCurrentContact(contactItem);
 
-            this.add((Component)component.getComponent());
+                this.add((Component)component.getComponent());
+            }
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);

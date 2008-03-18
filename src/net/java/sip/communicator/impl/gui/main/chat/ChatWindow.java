@@ -13,22 +13,20 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.MainFrame.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The chat window is the place, where users can write and send messages, view
@@ -676,18 +674,19 @@ public class ChatWindow
             logger.error("Could not obtain plugin component reference.", exc);
         }
 
-        if (serRefs == null)
-            return;
-
-        for (int i = 0; i < serRefs.length; i ++)
+        if (serRefs != null)
         {
-            PluginComponent c = (PluginComponent) GuiActivator
-                .bundleContext.getService(serRefs[i]);
 
-            Object borderLayoutConstraint = UIServiceImpl
-                .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent c = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);
 
-            this.add((Component)c.getComponent(), borderLayoutConstraint);
+                Object borderLayoutConstraint = UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+
+                this.add((Component)c.getComponent(), borderLayoutConstraint);
+            }
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);

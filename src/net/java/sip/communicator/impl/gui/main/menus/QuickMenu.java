@@ -208,31 +208,30 @@ public class QuickMenu
             logger.error("Could not obtain plugin reference.", exc);
         }
 
-        if (serRefs == null)
-            return;
-
-        for (int i = 0; i < serRefs.length; i ++)
+        if (serRefs != null)
         {
-            PluginComponent component = (PluginComponent) GuiActivator
-                .bundleContext.getService(serRefs[i]);;
-
-                Object selectedValue = mainFrame.getContactListPanel()
-                .getContactList().getSelectedValue();
-
-            if(selectedValue instanceof MetaContact)
+            for (int i = 0; i < serRefs.length; i ++)
             {
-                component.setCurrentContact((MetaContact)selectedValue);
-            }
-            else if(selectedValue instanceof MetaContactGroup)
-            {
-                component
-                    .setCurrentContactGroup((MetaContactGroup)selectedValue);
-            }
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
 
-            
-            this.add((Component)component.getComponent());
+                    Object selectedValue = mainFrame.getContactListPanel()
+                    .getContactList().getSelectedValue();
 
-            this.repaint();
+                if(selectedValue instanceof MetaContact)
+                {
+                    component.setCurrentContact((MetaContact)selectedValue);
+                }
+                else if(selectedValue instanceof MetaContactGroup)
+                {
+                    component
+                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
+                }
+
+                this.add((Component)component.getComponent());
+
+                this.repaint();
+            }
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);

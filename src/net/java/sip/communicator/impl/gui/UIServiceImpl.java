@@ -12,8 +12,6 @@ import java.util.List;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -27,9 +25,10 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * An implementation of the <tt>UIService</tt> that gives access to other
@@ -360,7 +359,7 @@ public class UIServiceImpl
             = new PluginComponentEvent( pluginComponent,
                                         eventID);
 
-        logger.trace("Will dispatch the following plugin component event: "
+        logger.debug("Will dispatch the following plugin component event: "
             + evt);
 
         synchronized (pluginComponentListeners)
@@ -856,7 +855,7 @@ public class UIServiceImpl
         if (event.getType() == ServiceEvent.REGISTERED)
         {
             logger
-                .debug("Handling registration of a new Plugin Component.");
+                .info("Handling registration of a new Plugin Component.");
 
             if(!(pluginComponent.getComponent() instanceof Component))
             {

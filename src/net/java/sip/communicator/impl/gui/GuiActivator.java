@@ -66,9 +66,9 @@ public class GuiActivator implements BundleActivator
         
         NotificationManager.registerGuiNotifications();
         bundleContext.addServiceListener(new NotificationServiceListener());
-        
+
         ConfigurationManager.loadGuiConfigurations();
-       
+
         try {
             // Create the ui service
             this.uiService = new UIServiceImpl();
@@ -87,6 +87,8 @@ public class GuiActivator implements BundleActivator
         finally {
             logger.logExit();
         }
+
+        bundleContext.addServiceListener(uiService);
     }
 
     /**

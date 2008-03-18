@@ -166,19 +166,19 @@ public class GroupRightButtonMenu
             logger.error("Could not obtain plugin reference.", exc);
         }
 
-        if (serRefs == null)
-            return;
-
-        for (int i = 0; i < serRefs.length; i ++)
+        if (serRefs != null)
         {
-            PluginComponent component = (PluginComponent) GuiActivator
-                .bundleContext.getService(serRefs[i]);;
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
 
-            component.setCurrentContactGroup(group);
+                component.setCurrentContactGroup(group);
 
-            this.add((Component)component.getComponent());
+                this.add((Component)component.getComponent());
 
-            this.repaint();
+                this.repaint();
+            }
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);
