@@ -143,6 +143,11 @@
     <target name="build-installation-linux"
             depends="clean-install-linux,define-izpack-task,version">
         
+        <propertyfile file="${linux.app.dir}/versionupdate.properties" 
+            comment="Last Build Version">
+            <entry  key="last_version" value="${sip-communicator.version}"/>
+        </propertyfile>
+                
         <filter token="VERSION" value="${sip-communicator.version}" />
         <filter token="BUILDDATE" value="${build.date}" />
         <filter token="PKG_NAME" value="${package.name}" />
@@ -216,6 +221,13 @@
 
     <target name="build-installation-windows"
             depends="clean-install-windows,define-izpack-task,version">
+               
+        <propertyfile file="${windows.app.dir}/versionupdate.properties" 
+            comment="Last Build Version">
+            <entry  key="last_version" value="${sip-communicator.version}"/>
+            <entry  key="download_link" 
+                    value="http://download.sip-communicator.org/nightly/windows/"/>
+        </propertyfile>
                 
         <filter token="VERSION" value="${sip-communicator.version}" />
         <filter token="BUILDDATE" value="${build.date}" />
@@ -398,6 +410,14 @@
     <target name="dmg" depends="macosx"
             if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
+                
+      <propertyfile file="${macosx.app.dir}/versionupdate.properties" 
+            comment="Last Build Version">
+            <entry  key="last_version" value="${sip-communicator.version}"/>
+            <entry  key="download_link" 
+                    value="http://download.sip-communicator.org/nightly/macosx/"/>
+      </propertyfile>
+                
       <property name="macosx.dmg.name"
                 value="${package.name}-${sip-communicator.version}.dmg"/>
       <property name="macosx.dmg.tmpname"

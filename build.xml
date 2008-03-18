@@ -345,7 +345,7 @@
 
         <sip-communicator-version property="sip-communicator.version" />
 
-        <echo message="SIP Communicator version ${sip-communicator.version}" />
+        <echo message="SIP Communicator version ${sip-communicator.version}" />        
     </target>
 
     <!--INIT-->
@@ -616,7 +616,8 @@
         bundle-pluginmanager,bundle-notification,
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
-        bundle-plugin-accountinfo,bundle-plugin-chatalerter"/>
+        bundle-plugin-accountinfo,bundle-plugin-chatalerter,
+        bundle-updatecheckplugin"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">

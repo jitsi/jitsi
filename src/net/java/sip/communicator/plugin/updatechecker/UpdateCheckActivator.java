@@ -43,6 +43,8 @@ public class UpdateCheckActivator
     private static BundleContext bundleContext = null;
 
     private static BrowserLauncherService browserLauncherService;
+    
+    private String downloadLink = null;
 
     /**
      * Starts this bundle 
@@ -82,12 +84,19 @@ public class UpdateCheckActivator
         contentMessage.setContentType("text/html");
         contentMessage.setOpaque(false);
         contentMessage.setEditable(false);
-        contentMessage.setText(
-            MessageFormat.format(
-                Resources.getLangString("dialogMessage"),
-                ver.getApplicationName()) + 
-            "<a href=\"" + Resources.getConfigString("destinationPath") + "\">" + 
-            Resources.getConfigString("destinationPath") + "</a> </html>");
+        
+        String dialogMsg = MessageFormat.format(
+                Resources.getLangString("dialogMessage1"),
+                ver.getApplicationName());
+        
+        if(downloadLink != null)
+        {
+            dialogMsg += Resources.getLangString("dialogMessage2") + 
+                "<a href=\"" + downloadLink + "\">" + 
+                downloadLink + "</a> </html>";
+        }
+        
+        contentMessage.setText(dialogMsg);
 
         contentMessage.addHyperlinkListener(new HyperlinkListener() {
 
@@ -167,72 +176,34 @@ public class UpdateCheckActivator
      */
     private boolean isNewestVersion(String currentVersionStr)
     {
-        String pkgName = Resources.getConfigString("pkgName") + "-";
-        
-        EditorKit kit = new HTMLEditorKit();
-        Document doc = kit.createDefaultDocument();
-
-        // The Document class does not yet 
-        // handle charset's properly.
-        doc.putProperty("IgnoreCharsetDirective", Boolean.TRUE);
-        try 
+        try
         {
-            // as some of the distribution has own mechanisums of 
-            // updating so just check from one of the platforms
-            // which is the last version
+            String osName = System.getProperty("os.name");
+            String osDir = null;
             
-            // Create a reader on the HTML content.
-            Reader rd = getReader(Resources.getConfigString("destinationPath") + "/windows");
-
-            // Parse the HTML.
-            kit.read(rd, doc, 0);
-
-            // Iterate through the elements 
-            // of the HTML document.
-            ElementIterator it = new ElementIterator(doc);
-            Element elem;
-            while ((elem = it.next()) != null) 
-            {
-                SimpleAttributeSet s = (SimpleAttributeSet)
-                elem.getAttributes().getAttribute(HTML.Tag.A);
-                if (s != null) 
-                {
-                    String link = s.getAttribute(HTML.Attribute.HREF).toString();
-                    
-                    if(!link.startsWith(pkgName))
-                        continue;
-                    
-                    link = link.replaceAll(pkgName, "");
-                    
-                    link = link.substring(0, link.lastIndexOf('.'));
-                    
-                    return link.compareTo(currentVersionStr) <= 0;
-                }
-            }
+            if (osName.startsWith("Mac"))
+               osDir = "/macosx";
+            else if (osName.startsWith("Linux"))
+               osDir = "/linux";
+            else if (osName.startsWith("Windows"))
+                osDir = "/windows";
+            
+            URL url = new URL(Resources.getConfigString("destinationPath") + 
+                osDir + "/versionupdate.properties");
+    
+            Properties props = new Properties();
+            props.load(url.openStream());
+            
+            String lastVersion = props.getProperty("last_version");
+            downloadLink = props.getProperty("download_link");
+            
+            return lastVersion.compareTo(currentVersionStr) <= 0;
         }
         catch (Exception e) 
         {
-            e.printStackTrace();
+            logger.error("Cannot get and compare versions!", e);
         }
         
         return false;
-    }
-
-    // Returns a reader on the HTML data. If 'uri' begins
-    // with "http:", it's treated as a URL; otherwise,
-    // it's assumed to be a local filename.
-    static Reader getReader(String uri) 
-        throws IOException 
-    {
-        if (uri.startsWith("http:")) 
-        {
-            // Retrieve from Internet.
-            URLConnection conn = new URL(uri).openConnection();
-            return new InputStreamReader(conn.getInputStream());
-        } 
-        else 
-        {
-            return new FileReader(uri);
-        }
     }
 }
