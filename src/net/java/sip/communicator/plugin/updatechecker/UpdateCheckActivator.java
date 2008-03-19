@@ -45,6 +45,7 @@ public class UpdateCheckActivator
     private static BrowserLauncherService browserLauncherService;
     
     private String downloadLink = null;
+    private String lastVersion = null;
 
     /**
      * Starts this bundle 
@@ -88,9 +89,11 @@ public class UpdateCheckActivator
         String dialogMsg = MessageFormat.format(
                 Resources.getLangString("dialogMessage1"),
                 ver.getApplicationName());
-        dialogMsg += MessageFormat.format(
+        
+        if(lastVersion != null)
+            dialogMsg += MessageFormat.format(
                 Resources.getLangString("dialogMessage2"),
-                ver.getApplicationName(), ver.toString());
+                ver.getApplicationName(), lastVersion);
         
         contentMessage.setText(dialogMsg);
 
@@ -119,6 +122,7 @@ public class UpdateCheckActivator
                 public void actionPerformed(ActionEvent e)
                 {
                     getBrowserLauncher().openURL(downloadLink);
+                    dialog.dispose();
                 }
             });
             
@@ -184,7 +188,7 @@ public class UpdateCheckActivator
             Properties props = new Properties();
             props.load(url.openStream());
             
-            String lastVersion = props.getProperty("last_version");
+            lastVersion = props.getProperty("last_version");
             downloadLink = props.getProperty("download_link");
             
             return lastVersion.compareTo(currentVersionStr) <= 0;
