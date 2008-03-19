@@ -436,6 +436,9 @@ public class ChatWindowManager
     {
         this.chatWindow.removeChat(chatPanel);
 
+        if (chatWindow.getChatCount() == 0)
+            disposeChatWindow();
+
         synchronized (chats)
         {
             chats.remove(chatPanel.getChatIdentifier());
@@ -521,7 +524,7 @@ public class ChatWindowManager
     private MetaContactChatPanel createChat(MetaContact contact,
                                             Contact protocolContact,
                                             String escapedMessageID)
-    {        
+    {
         ChatWindow chatWindow;
 
         if(Constants.TABBED_CHAT_WINDOW)
@@ -529,7 +532,7 @@ public class ChatWindowManager
             if(this.chatWindow == null)
             {
                 this.chatWindow = new ChatWindow(mainFrame);
-                
+
                 GuiActivator.getUIService()
                     .registerExportedWindow(this.chatWindow);
             }
@@ -677,23 +680,26 @@ public class ChatWindowManager
      */
     private void disposeChatWindow()
     {
-        chatWindow.removeAllChats();
+        if (chatWindow.getChatCount() > 0)
+            chatWindow.removeAllChats();
+
         chatWindow.dispose();
+        chatWindow = null;
 
         synchronized (chats)
         {
             chats.clear();
         }
-        
+
         ContactList clist
             = chatWindow.getMainFrame()
                 .getContactListPanel().getContactList();
         ContactListModel clistModel
             = (ContactListModel) clist.getModel();
-        
+
         // Remove the envelope from the all active contacts in the contact list.
         clistModel.removeAllActiveContacts();
-        
+
         clist.refreshAll();
     }
 }

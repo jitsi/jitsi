@@ -54,6 +54,8 @@ public class ChatWindow
 
     private SIPCommTabbedPane chatTabbedPane = null;
 
+    private int chatCount = 0;
+
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
      * of the main application window.
@@ -149,10 +151,12 @@ public class ChatWindow
      */
     public void addChat(ChatPanel chatPanel)
     {
-        if(Constants.TABBED_CHAT_WINDOW)
+        if (Constants.TABBED_CHAT_WINDOW)
             addChatTab(chatPanel);
         else
             addSimpleChat(chatPanel);
+
+        chatCount ++;
 
         chatPanel.setShown(true);
     }
@@ -235,15 +239,15 @@ public class ChatWindow
     {
         logger.debug("Removes chat for contact: "
                 + chatPanel.getChatName());
-        
+
         //if there's no tabs remove the chat panel directly from the content
-        //pane and hide the window.
+        //pane.
         if(getChatTabCount() == 0)
         {
             this.getContentPane().remove(chatPanel);
-            
-            this.dispose();
-            
+
+            chatCount --;
+
             return;
         }
 
@@ -257,8 +261,7 @@ public class ChatWindow
 
             if (chatTabbedPane.getTabCount() == 1)
             {
-                ChatPanel currentChatPanel = (ChatPanel) this.chatTabbedPane
-                    .getComponentAt(0);
+                ChatPanel currentChatPanel = getCurrentChatPanel();
 
                 this.chatTabbedPane.removeAll();
 
@@ -268,8 +271,9 @@ public class ChatWindow
 
                 this.setCurrentChatPanel(currentChatPanel);
             }
-        }
 
+            chatCount --;
+        }
     }
 
     /**
@@ -285,6 +289,8 @@ public class ChatWindow
             this.chatTabbedPane.removeAll();
 
             this.getContentPane().remove(chatTabbedPane);
+
+            chatCount = 0;
         }
         else
         {
@@ -558,15 +564,15 @@ public class ChatWindow
     protected void close(boolean isEscaped)
     {
         ChatPanel chatPanel = getCurrentChatPanel();
-        
+
         if(isEscaped)
         {
             ChatRightButtonMenu chatRightMenu = getCurrentChatPanel()
                 .getChatConversationPanel().getRightButtonMenu();
-    
+
             WritePanelRightButtonMenu writePanelRightMenu = getCurrentChatPanel()
                 .getChatWritePanel().getRightButtonMenu();
-    
+
             SIPCommMenu selectedMenu
                 = menusPanel.getMainMenuBar().getSelectedMenu();
             //SIPCommMenu contactMenu = getCurrentChatPanel()
@@ -577,7 +583,6 @@ public class ChatWindow
             
             if (chatRightMenu.isVisible())
             {
-                
                 chatRightMenu.setVisible(false);
             }
             else if (writePanelRightMenu.isVisible())
@@ -657,6 +662,7 @@ public class ChatWindow
 
         // Search for plugin components registered through the OSGI bundle
         // context.
+        System.out.println("TURSIME PLUGINI ZA ADDVANE!");
         ServiceReference[] serRefs = null;
 
         String osgiFilter = "("
@@ -732,6 +738,16 @@ public class ChatWindow
     public Object getSource()
     {
         return this;
+    }
+
+    /**
+     * Returns the number of all open chats.
+     * 
+     * @return the number of all open chats
+     */
+    public int getChatCount()
+    {
+        return chatCount;
     }
 
     private class LogoBar
