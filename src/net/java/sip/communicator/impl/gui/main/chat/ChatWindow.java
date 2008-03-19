@@ -662,7 +662,6 @@ public class ChatWindow
 
         // Search for plugin components registered through the OSGI bundle
         // context.
-        System.out.println("TURSIME PLUGINI ZA ADDVANE!");
         ServiceReference[] serRefs = null;
 
         String osgiFilter = "("
