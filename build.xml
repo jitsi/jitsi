@@ -1613,11 +1613,9 @@ javax.swing.event, javax.swing.border"/>
     <!--BUNDLE-UpdateCheckPlugin-->
     <target name="bundle-updatecheckplugin">
         <jar compress="false" destfile="${bundles.dest}/updatechecker.jar"
-            manifest="src/net/java/sip/communicator/plugin/updatechecker/updatecheck.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/updatechecker/updatecheck.manifest.mf">
             <zipfileset dir="classes/net/java/sip/communicator/plugin/updatechecker"
                 prefix="net/java/sip/communicator/plugin/updatechecker" />
-            <zipfileset dir="${resources}/config" includes="updatecheck.properties"
-                prefix="resources/config" />
             <zipfileset dir="${resources}/languages/plugin/updatechecker"
                 prefix="resources/languages/plugin/updatechecker"/>
         </jar>

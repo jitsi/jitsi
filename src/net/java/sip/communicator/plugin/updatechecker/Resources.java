@@ -22,11 +22,10 @@ public class Resources
 {
     private static Logger logger = Logger.getLogger(Resources.class);
 
-    private static final String CONFIG_BUNDLE_NAME 
-        = "resources.config.updatecheck";
+    private static final String CONFIG_PROP_FILE_NAME 
+        = "versionupdate.properties";
 
-    private static final ResourceBundle configBundle = ResourceBundle
-        .getBundle(CONFIG_BUNDLE_NAME);
+    private static Properties configProps = null;
     
     private static final String LANG_BUNDLE_NAME 
         = "resources.languages.plugin.updatechecker.resources";
@@ -44,11 +43,17 @@ public class Resources
     {
         try
         {
-            return configBundle.getString(key);
+            if(configProps == null)
+            {
+                configProps = new Properties();
+                configProps.load(new FileInputStream(CONFIG_PROP_FILE_NAME));
+            }
+            
+            return configProps.getProperty(key);
         }
-        catch (MissingResourceException e)
+        catch (IOException e)
         {
-            logger.error("Missing resources.", e);
+            logger.error("Cannot open config file.", e);
 
             return null;
         }

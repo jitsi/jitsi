@@ -88,35 +88,20 @@ public class UpdateCheckActivator
         String dialogMsg = MessageFormat.format(
                 Resources.getLangString("dialogMessage1"),
                 ver.getApplicationName());
-        
-        if(downloadLink != null)
-        {
-            dialogMsg += Resources.getLangString("dialogMessage2") + 
-                "<a href=\"" + downloadLink + "\">" + 
-                downloadLink + "</a> </html>";
-        }
+        dialogMsg += MessageFormat.format(
+                Resources.getLangString("dialogMessage2"),
+                ver.getApplicationName(), ver.toString());
         
         contentMessage.setText(dialogMsg);
-
-        contentMessage.addHyperlinkListener(new HyperlinkListener() {
-
-            public void hyperlinkUpdate(HyperlinkEvent e)
-            {
-                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
-                {
-                    getBrowserLauncher().openURL(e.getDescription());
-                }
-            }
-        });
 
         JPanel contentPane = new JPanel(new BorderLayout(5,5));
         contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPane.add(contentMessage, BorderLayout.CENTER);
         
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton okButton = new JButton("OK");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JButton closeButton = new JButton(Resources.getLangString("buttonClose"));
         
-        okButton.addActionListener(new ActionListener() {
+        closeButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e)
             {
@@ -124,7 +109,23 @@ public class UpdateCheckActivator
             }
         });
         
-        buttonPanel.add(okButton);
+        if(downloadLink != null)
+        {
+            JButton downloadButton = 
+                new JButton(Resources.getLangString("buttonDownload"));
+        
+            downloadButton.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e)
+                {
+                    getBrowserLauncher().openURL(downloadLink);
+                }
+            });
+            
+            buttonPanel.add(downloadButton);
+        }
+        
+        buttonPanel.add(closeButton);
         
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
         
@@ -178,18 +179,7 @@ public class UpdateCheckActivator
     {
         try
         {
-            String osName = System.getProperty("os.name");
-            String osDir = null;
-            
-            if (osName.startsWith("Mac"))
-               osDir = "/macosx";
-            else if (osName.startsWith("Linux"))
-               osDir = "/linux";
-            else if (osName.startsWith("Windows"))
-                osDir = "/windows";
-            
-            URL url = new URL(Resources.getConfigString("destinationPath") + 
-                osDir + "/versionupdate.properties");
+            URL url = new URL(Resources.getConfigString("update_link"));
     
             Properties props = new Properties();
             props.load(url.openStream());
