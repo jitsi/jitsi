@@ -692,8 +692,8 @@ public class ChatWindowManager
         }
 
         ContactList clist
-            = chatWindow.getMainFrame()
-                .getContactListPanel().getContactList();
+            = mainFrame.getContactListPanel().getContactList();
+
         ContactListModel clistModel
             = (ContactListModel) clist.getModel();
 
