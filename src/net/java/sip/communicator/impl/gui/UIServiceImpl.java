@@ -825,6 +825,13 @@ public class UIServiceImpl
             JDialog.setDefaultLookAndFeelDecorated(true);
         }
 
+        // Make all tool tips heavy weight components. We need this in case
+        // a heavy weight plugin component is added in the gui. Then if the
+        // popup menu stays light weight it will appear behind the heavy weight
+        // component.
+        ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false); 
+        JPopupMenu.setDefaultLightWeightPopupEnabled(false); 
+
         // we need to set the UIDefaults class loader so that it may access
         // resources packed inside OSGI bundles
         UIManager.put("ClassLoader", getClass().getClassLoader());
