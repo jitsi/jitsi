@@ -497,13 +497,6 @@
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
-      <propertyfile file="${debian.dir}/versionupdate.properties" 
-            comment="Last Build Version">
-            <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link" 
-                    value="http://download.sip-communicator.org/nightly/debian/${package.name}_${sip-communicator.version}_i386.deb"/>
-      </propertyfile>
-                
       <!-- Prepare the changelog file for the version number -->
       <copy file="${inst.resrc}/debian/changelog.tmpl"
           tofile="${inst.resrc}/debian/changelog"
@@ -565,6 +558,13 @@
             <include name="${package.name}*"/>
         </fileset>
     </move>
+    
+    <propertyfile file="${debian.dir}/versionupdate.properties" 
+            comment="Last Build Version">
+            <entry  key="last_version" value="${sip-communicator.version}"/>
+            <entry  key="download_link" 
+                    value="http://download.sip-communicator.org/nightly/debian/${package.name}_${sip-communicator.version}_i386.deb"/>
+    </propertyfile>
 
     <!-- Delete the temporary file -->
     <delete quiet="yes" failonerror="false">
