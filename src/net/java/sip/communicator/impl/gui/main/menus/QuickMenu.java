@@ -107,11 +107,11 @@ public class QuickMenu
             new Dimension(BUTTON_HEIGHT, BUTTON_HEIGHT));
 
         this.infoButton.setToolTipText(
-            Messages.getI18NString("userInfo").getText());
+            Messages.getI18NString("contactInfo").getText());
         this.configureButton.setToolTipText(
             Messages.getI18NString("configure").getText());
         this.searchButton.setToolTipText(
-            Messages.getI18NString("showOfflineUsers").getText());
+            Messages.getI18NString("showOffline").getText());
         this.addButton.setToolTipText(
             Messages.getI18NString("addContact").getText());
         this.soundButton.setToolTipText(
