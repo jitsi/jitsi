@@ -417,12 +417,17 @@ public class UIServiceImpl
      *
      * @see UIService#setVisible(boolean)
      */
-    public void setVisible(boolean isVisible)
+    public void setVisible(final boolean isVisible)
     {
-        this.mainFrame.setVisible(isVisible);
-        
-        if(isVisible)
-            this.mainFrame.toFront();
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run()
+            {
+                mainFrame.setVisible(isVisible);
+
+                if(isVisible)
+                    mainFrame.toFront();
+            }
+        });
     }
 
     /**
