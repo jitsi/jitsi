@@ -38,7 +38,6 @@ public class ContactListPanel
                 TypingNotificationsListener,
                 ContactListListener
 {
-
     private MainFrame mainFrame;
 
     private ContactList contactList;
@@ -48,9 +47,9 @@ public class ContactListPanel
     private TypingTimer typingTimer = new TypingTimer();
 
     private CommonRightButtonMenu commonRightButtonMenu;
-    
+
     private Logger logger = Logger.getLogger(ContactListPanel.class);
-    
+
     private ChatWindowManager chatWindowManager;
 
     /**
@@ -316,7 +315,7 @@ public class ContactListPanel
             contactList.refreshContact(metaContact);
 
             // Obtain the corresponding chat panel.
-            MetaContactChatPanel chatPanel
+            final MetaContactChatPanel chatPanel
                 = chatWindowManager.getContactChat( metaContact,
                                                     protocolContact,
                                                     message.getMessageUID());
@@ -342,8 +341,14 @@ public class ContactListPanel
                 messageType, message.getContent(),
                 message.getContentType());
 
-            // Opens the chat panel with the new message.
-            chatWindowManager.openChat(chatPanel, false);
+            // Opens the chat panel with the new message in the UI thread.
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    chatWindowManager.openChat(chatPanel, false);
+                }
+            });
 
             // Fire notification
             String title = Messages.getI18NString("msgReceived",
