@@ -38,6 +38,8 @@ public class FirstWizardPage
 
     private static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
 
+    private JPanel firstTabPanel = new JPanel(new BorderLayout());
+
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new JPanel();
@@ -121,7 +123,33 @@ public class FirstWizardPage
     private JTextField subscribeExpiresField =
         new JTextField(DEFAULT_SUBSCRIBE_EXPIRES);
 
-    private JPanel mainPanel = new JPanel();
+    private JPanel keepAlivePanel = new JPanel(new BorderLayout(10, 10));
+
+    private JPanel keepAliveLabels = new JPanel(new GridLayout(0, 1, 5, 5));
+
+    private JPanel keepAliveValues = new JPanel(new GridLayout(0, 1, 5, 5));
+
+    private JLabel keepAliveMethodLabel
+        = new JLabel(Resources.getString("keepAliveMethod"));
+
+    private JLabel keepAliveIntervalLabel
+        = new JLabel(Resources.getString("keepAliveInterval"));
+
+    private JLabel keepAliveIntervalExampleLabel
+        = new JLabel(Resources.getString("keepAliveIntervalEx"));
+
+    private JComboBox keepAliveMethodBox
+        = new JComboBox(new Object []
+                                    {
+                                        Resources.getString("register"),
+                                        Resources.getString("options")
+                                    });
+
+    private JTextField keepAliveIntervalValue = new JTextField();
+
+    private JTabbedPane tabbedPane = new JTabbedPane();
+
+    private JPanel advancedPanel = new JPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -138,7 +166,7 @@ public class FirstWizardPage
 
         this.wizard = wizard;
 
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        advancedPanel.setLayout(new BoxLayout(advancedPanel, BoxLayout.Y_AXIS));
 
         this.init();
 
@@ -183,7 +211,10 @@ public class FirstWizardPage
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("uinAndPassword")));
 
-        mainPanel.add(uinPassPanel);
+        firstTabPanel.add(uinPassPanel, BorderLayout.NORTH);
+
+        tabbedPane.addTab(  Resources.getString("summary"),
+                            firstTabPanel);
 
         serverField.setEnabled(false);
         serverPortField.setEnabled(false);
@@ -238,7 +269,7 @@ public class FirstWizardPage
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("advancedOptions")));
 
-        mainPanel.add(advancedOpPanel);
+        advancedPanel.add(advancedOpPanel);
 
         enablePresOpButton.addActionListener(new ActionListener()
         {
@@ -266,12 +297,41 @@ public class FirstWizardPage
         presenceOpPanel.add(labelsPresOpPanel, BorderLayout.WEST);
         presenceOpPanel.add(valuesPresOpPanel, BorderLayout.CENTER);
 
-        presenceOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("presenceOptions")));
+        presenceOpPanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("presenceOptions")));
 
-        mainPanel.add(presenceOpPanel);
+        advancedPanel.add(presenceOpPanel);
 
-        this.add(mainPanel, BorderLayout.NORTH);
+        JPanel emptyLabelPanel = new JPanel();
+        emptyLabelPanel.setMaximumSize(new Dimension(40, 35));
+
+        keepAliveLabels.add(keepAliveMethodLabel);
+        keepAliveLabels.add(keepAliveIntervalLabel);
+        keepAliveLabels.add(emptyLabelPanel);
+
+        this.keepAliveIntervalExampleLabel.setForeground(Color.GRAY);
+        this.keepAliveIntervalExampleLabel
+            .setFont(uinExampleLabel.getFont().deriveFont(8));
+        this.keepAliveIntervalExampleLabel
+            .setMaximumSize(new Dimension(40, 35));
+        this.keepAliveIntervalExampleLabel
+            .setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+
+        keepAliveValues.add(keepAliveMethodBox);
+        keepAliveValues.add(keepAliveIntervalValue);
+        keepAliveValues.add(keepAliveIntervalExampleLabel);
+
+        keepAlivePanel.add(keepAliveLabels, BorderLayout.WEST);
+        keepAlivePanel.add(keepAliveValues, BorderLayout.CENTER);
+
+        keepAlivePanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("keepAlive")));
+
+        advancedPanel.add(keepAlivePanel);
+
+        tabbedPane.addTab("Advanced", advancedPanel);
+
+        this.add(tabbedPane, BorderLayout.NORTH);
     }
 
     /**
@@ -364,6 +424,9 @@ public class FirstWizardPage
             registration.setPollingPeriod(pollPeriodField.getText());
             registration.setSubscriptionExpiration(subscribeExpiresField
                 .getText());
+            registration.setKeepAliveMethod(
+                keepAliveMethodBox.getSelectedItem().toString());
+            registration.setKeepAliveInterval(keepAliveIntervalValue.getText());
         }
     }
 
@@ -471,6 +534,14 @@ public class FirstWizardPage
             (String) accountID.getAccountProperties().get(
                 ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
 
+        String keepAliveMethod
+            = (String) accountID.getAccountProperties()
+                .get("KEEP_ALIVE_METHOD");
+
+        String keepAliveInterval
+            = (String) accountID.getAccountProperties()
+                .get("KEEP_ALIVE_INTERVAL");
+
         uinField.setEnabled(false);
         this.uinField.setText(accountID.getUserID());
 
@@ -483,12 +554,12 @@ public class FirstWizardPage
         serverField.setText(serverAddress);
         serverField.setEnabled(false);
         serverPortField.setText(serverPort);
-	proxyField.setText(proxyAddress);
-	
-	// The order of the next two fields is important, as a changelister of the
-	// transportCombo sets the proxyPortField to its default
+        proxyField.setText(proxyAddress);
+
+        // The order of the next two fields is important, as a changelister of
+        // the transportCombo sets the proxyPortField to its default
         transportCombo.setSelectedItem(preferredTransport);
-	proxyPortField.setText(proxyPort);
+        proxyPortField.setText(proxyPort);
 
         if (!(serverPort.equals(DEFAULT_PORT)
                 || serverPort.equals(DEFAULT_TLS_PORT))
@@ -519,6 +590,9 @@ public class FirstWizardPage
             pollPeriodField.setEnabled(false);
             subscribeExpiresField.setEnabled(false);
         }
+        
+        keepAliveMethodBox.setSelectedItem(keepAliveMethod);
+        keepAliveIntervalValue.setText(keepAliveInterval);
     }
 
     /**

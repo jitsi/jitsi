@@ -108,7 +108,7 @@ public class SIPAccountRegistrationWizard
      * @return Iterator
      */
     public Iterator getSummary() {
-        Hashtable summaryTable = new Hashtable();
+        Hashtable<String, String> summaryTable = new Hashtable<String, String>();
 
         boolean rememberPswd = new Boolean(registration.isRememberPassword())
             .booleanValue();
@@ -153,6 +153,11 @@ public class SIPAccountRegistrationWizard
         summaryTable.put(Resources.getString("subscriptionExpiration"),
                 registration.getSubscriptionExpiration());
 
+        summaryTable.put(Resources.getString("keepAliveMethod"),
+                registration.getKeepAliveMethod());
+        summaryTable.put(Resources.getString("keepAliveInterval"),
+                registration.getKeepAliveInterval());
+
         return summaryTable.entrySet().iterator();
     }
 
@@ -188,7 +193,8 @@ public class SIPAccountRegistrationWizard
     {
         Hashtable accountProperties = new Hashtable();
 
-        if(registration.isRememberPassword()) {
+        if(registration.isRememberPassword())
+        {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
@@ -219,6 +225,12 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
                 registration.getSubscriptionExpiration());
 
+        accountProperties.put("KEEP_ALIVE_METHOD",
+                registration.getKeepAliveMethod());
+
+        accountProperties.put("KEEP_ALIVE_INTERVAL",
+            registration.getKeepAliveInterval());
+
         if(isModification)
         {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
@@ -226,7 +238,8 @@ public class SIPAccountRegistrationWizard
             this.isModification  = false;
         }
 
-        try {
+        try
+        {
             AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
 
@@ -236,7 +249,6 @@ public class SIPAccountRegistrationWizard
             protocolProvider
                 = (ProtocolProviderService) SIPAccRegWizzActivator.bundleContext
                     .getService(serRef);
-
         }
         catch (IllegalArgumentException exc)
         {
@@ -252,7 +264,6 @@ public class SIPAccountRegistrationWizard
                     Resources.getString("error"),
                     PopupDialog.ERROR_MESSAGE);
         }
-
 
         return protocolProvider;
     }

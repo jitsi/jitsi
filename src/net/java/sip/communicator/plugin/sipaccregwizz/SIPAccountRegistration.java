@@ -23,21 +23,25 @@ public class SIPAccountRegistration {
     private String serverAddress;
 
     private String serverPort;
-    
+
     private String proxyPort;
-    
+
     private String proxy;
-    
+
     private String preferredTransport;
-    
+
     private boolean enablePresence;
-    
+
     private boolean forceP2PMode;
-    
+
     private String pollingPeriod;
-    
+
     private String subscriptionExpiration;
-    
+
+    private String keepAliveMethod;
+
+    private String keepAliveInterval;
+
     public String getPreferredTransport()
     {
         return preferredTransport;
@@ -223,5 +227,45 @@ public class SIPAccountRegistration {
      */
     public void setSubscriptionExpiration(String subscriptionExpiration) {
         this.subscriptionExpiration = subscriptionExpiration;
+    }
+
+    /**
+     * Returns the keep alive method.
+     * 
+     * @return the keep alive method.
+     */
+    public String getKeepAliveMethod()
+    {
+        return keepAliveMethod;
+    }
+
+    /**
+     * Sets the keep alive method.
+     * 
+     * @param keepAliveMethod the keep alive method to set
+     */
+    public void setKeepAliveMethod(String keepAliveMethod)
+    {
+        this.keepAliveMethod = keepAliveMethod;
+    }
+
+    /**
+     * Returns the keep alive interval.
+     * 
+     * @return the keep alive interval
+     */
+    public String getKeepAliveInterval()
+    {
+        return keepAliveInterval;
+    }
+
+    /**
+     * Sets the keep alive interval.
+     * 
+     * @param keepAliveInterval the keep alive interval to set
+     */
+    public void setKeepAliveInterval(String keepAliveInterval)
+    {
+        this.keepAliveInterval = keepAliveInterval;
     }
 }
