@@ -88,6 +88,22 @@ public class SipRegistrarConnection
      * request.
      */
     ClientTransaction regTrans = null;
+    
+    /**
+     * Option for specifing keep-alive method
+     */
+    private static final String KEEP_ALIVE_METHOD = "KEEP_ALIVE_METHOD";
+    
+    /**
+     * Option for keep-alive interval
+     */
+    private static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
+    
+    /**
+     * Default value for keep-alive method - register
+     */
+    private static final String KEEP_ALIVE_INTERVAL_DEFAULT_VALUE = "25";
+    
 
 
     /**
@@ -465,33 +481,36 @@ public class SipRegistrarConnection
             // setting the interval with property KEEP_ALIVE_INTERVAL
             // to value in seconds, both properties are account props
             // this does not change expiration header
+            // If KEEP_ALIVE_METHOD is null we default send registers on
+            // interval of 25 seconds
             String keepAliveMethod = 
                 (String)sipProvider.getAccountID().getAccountProperties().
-                    get("KEEP_ALIVE_METHOD");
+                    get(KEEP_ALIVE_METHOD);
             
-            if(keepAliveMethod != null &&
-                keepAliveMethod.equalsIgnoreCase("register"))
+            if((keepAliveMethod != null && 
+                keepAliveMethod.equalsIgnoreCase("register")) 
+                || keepAliveMethod == null )
             {
                 String keepAliveInterval = 
                     (String)sipProvider.getAccountID().getAccountProperties().
-                        get("KEEP_ALIVE_INTERVAL");
-            
-                if(keepAliveInterval != null)
+                        get(KEEP_ALIVE_INTERVAL);
+                
+                if(keepAliveInterval == null)
+                    keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_VALUE;
+                
+                try
                 {
-                    try
-                    {
-                        int registrationInterval = 
-                            Integer.valueOf(keepAliveInterval).intValue();
+                    int registrationInterval = 
+                        Integer.valueOf(keepAliveInterval).intValue();
 
-                        if(registrationInterval < grantedExpiration)
-                        {
-                            scheduleTime = registrationInterval;
-                        }
-                    }
-                    catch (Exception ex)
+                    if(registrationInterval < grantedExpiration)
                     {
-                        logger.error("Wrong value for KEEP_ALIVE_INTERVAL");
+                        scheduleTime = registrationInterval;
                     }
+                }
+                catch (Exception ex)
+                {
+                    logger.error("Wrong value for KEEP_ALIVE_INTERVAL");
                 }
             }
             
