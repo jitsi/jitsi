@@ -224,8 +224,20 @@ public class ManageButtonsPanel
      */
     private class ShowSystemBundlesChangeListener implements ChangeListener
     {
+        private boolean currentValue = false;
+
+        public ShowSystemBundlesChangeListener()
+        {
+            currentValue = showSysBundlesCheckBox.isSelected();
+        }
+
         public void stateChanged(ChangeEvent e)
         {
+            if (currentValue == showSysBundlesCheckBox.isSelected())
+            {
+                return;
+            }
+            currentValue = showSysBundlesCheckBox.isSelected();
             //Save the current value of the showSystemBundles check box.
             PluginManagerActivator.getConfigurationService().setProperty(
                 "net.java.sip.communicator.plugin.pluginManager.showSystemBundles",
