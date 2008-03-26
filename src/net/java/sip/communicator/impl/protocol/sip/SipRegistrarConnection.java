@@ -655,9 +655,11 @@ public class SipRegistrarConnection
             unregisterTransaction.sendRequest();
             logger.info("sent request: " + unregisterRequest);
 
-            //if we're currently registered we'll wait for an ok response
-            //before changing the status. otherwise we set it immediately.
-            if(!getRegistrationState().equals(RegistrationState.REGISTERED))
+            //if we're currently registered or in a process of unregistering
+            //we'll wait for an ok response before changing the status. 
+            //otherwise we set it immediately.
+            if(!(getRegistrationState().equals(RegistrationState.REGISTERED) || 
+               getRegistrationState().equals(RegistrationState.UNREGISTERING)))
             {
                 logger.info("Setting state to UNREGISTERED.");
                 setRegistrationState(
