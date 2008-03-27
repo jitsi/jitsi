@@ -957,7 +957,11 @@ public class SipRegistrarConnection
                 unregister(false);
                 return;
             }
-
+            
+            //the security manager has most probably changed the sequence number
+            //so let's make sure we update it here.
+            updateRegisterSequenceNumber(retryTran);
+            
             retryTran.sendRequest();
             return;
         }
@@ -1124,5 +1128,28 @@ public class SipRegistrarConnection
         }
         return className + "-[dn=" + sipProvider.getOurDisplayName()
                +" addr="+sipProvider.getOurSipAddress() + "]";
+    }
+    
+    /**
+     * Updates our local sequence counter based on the value in the CSeq header
+     * of the request that originated the <tt>lastClientTran</tt> transation. 
+     * The method is used after running an authentication challenge through 
+     * the security manager. The Security manager would manually increment the 
+     * CSeq number of the request so we need to update our local counter or 
+     * otherwise the next REGISTER we send would have a wrong CSeq.
+     * 
+     * @param lastClientTran the transaction that we should be using to update 
+     * our local sequence number
+     */
+    private void updateRegisterSequenceNumber(ClientTransaction lastClientTran)
+    {
+        Request req = lastClientTran.getRequest();
+        
+        CSeqHeader cSeqHeader = (CSeqHeader)req.getHeader(CSeqHeader.NAME);
+        long sequenceNumber = cSeqHeader.getSeqNumber();
+        
+        //sequenceNumber is the value of the CSeq header in the request we just
+        //sent so the next CSeq Value should be set to seqNum + 1.
+        this.nextCSeqValue = sequenceNumber + 1;
     }
 }
