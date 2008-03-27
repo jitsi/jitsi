@@ -38,6 +38,8 @@ public class FirstWizardPage
 
     private static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
 
+    private static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
+
     private JPanel firstTabPanel = new JPanel(new BorderLayout());
 
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
@@ -316,6 +318,8 @@ public class FirstWizardPage
             .setMaximumSize(new Dimension(40, 35));
         this.keepAliveIntervalExampleLabel
             .setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+
+        keepAliveIntervalValue.setText(DEFAULT_KEEP_ALIVE_INTERVAL);
 
         keepAliveValues.add(keepAliveMethodBox);
         keepAliveValues.add(keepAliveIntervalValue);
