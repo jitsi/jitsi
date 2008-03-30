@@ -224,6 +224,13 @@ public class ProtocolProviderServiceSipImpl
      */
     private static final String REGISTRATION_EXPIRATION =
         "net.java.sip.communicator.impl.protocol.sip.REGISTRATION_EXPIRATION";
+    
+    /**
+     * The name of the property under which the user may specify whether or not
+     * REGISTER requests should be using a route header. Default is false
+     */
+    private static final String REGISTERS_USE_ROUTE =
+        "net.java.sip.communicator.impl.protocol.sip.REGISTERS_USE_ROUTE";
 
     /**
      * A default specifyier telling the stack whether or not to cache client
@@ -1920,6 +1927,17 @@ public class ProtocolProviderServiceSipImpl
                 , registrarTransport
                 , expires
                 , this);
+            
+            //determine whether we should be using route headers or not
+            String useRouteString = (String) accountID.getAccountProperties()
+                .get(REGISTERS_USE_ROUTE);
+            
+            boolean useRoute = false;
+            
+            if (useRouteString != null)
+                useRoute = new Boolean(useRouteString).booleanValue();
+            
+            this.sipRegistrarConnection.setRouteHeaderEnabled(useRoute);
         }
         catch (ParseException ex)
         {
