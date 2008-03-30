@@ -104,8 +104,13 @@ public class SipRegistrarConnection
      */
     private static final String KEEP_ALIVE_INTERVAL_DEFAULT_VALUE = "25";
     
-
-
+    /**
+     * Specifies whether or not we should be using a route header in register 
+     * requests. This field is specified by the REGISTERS_USE_ROUTE account 
+     * property.
+     */
+    private boolean useRouteHeader = false;
+    
     /**
      * Creates a new instance of this class.
      *
@@ -271,13 +276,17 @@ public class SipRegistrarConnection
                 , maxForwardsHeader);
 
             // JvB: use Route header in addition to the request URI
-            SipURI regURI = (SipURI) registrarURI.clone();
-            regURI.setLrParam();
-            RouteHeader route = sipProvider.getHeaderFactory()
-                .createRouteHeader( sipProvider.getAddressFactory()
-                    .createAddress( null, regURI ));
+            // because some servers loop otherwise
+            if(isRouteHeaderEnabled())
+            {
+                SipURI regURI = (SipURI) registrarURI.clone();
+                regURI.setLrParam();
+                RouteHeader route = sipProvider.getHeaderFactory()
+                    .createRouteHeader( sipProvider.getAddressFactory()
+                        .createAddress( null, regURI ));
 
-            request.addHeader( route );
+                request.addHeader( route );
+            }
         }
         catch (ParseException ex)
         {
@@ -1151,5 +1160,37 @@ public class SipRegistrarConnection
         //sequenceNumber is the value of the CSeq header in the request we just
         //sent so the next CSeq Value should be set to seqNum + 1.
         this.nextCSeqValue = sequenceNumber + 1;
+    }
+    
+    /**
+     * Determines whether Register requests should be using a route header. The 
+     * return value of this method is specified by the REGISTERS_USE_ROUTE 
+     * account property.
+     * 
+     * Jeroen van Bemmel: The reason this may needed, is that standards-
+     * compliant registrars check the domain in the request URI. If it contains
+     * an IP address, some registrars are unable to match/process it (they may 
+     * forward instead, and get into a forwarding loop)
+     * 
+     * @return true if we should be using a route header.
+     */
+    public boolean isRouteHeaderEnabled()
+    {
+        return useRouteHeader;
+    }
+    
+    /**
+     * Specifies whether Register requests should be using a route header. 
+     * 
+     * Jeroen van Bemmel: The reason this may needed, is that standards-
+     * compliant registrars check the domain in the request URI. If it contains
+     * an IP address, some registrars are unable to match/process it (they may 
+     * forward instead, and get into a forwarding loop)
+     * 
+     * @return true if we should be using a route header.
+     */
+    public boolean setRouteHeaderEnabled(boolean useRouteHeader)
+    {
+        return this.useRouteHeader = useRouteHeader;
     }
 }
