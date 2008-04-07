@@ -193,7 +193,7 @@ public class ChatWindow
 
                 // Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(  firstChatPanel.getChatName(),
-                                        chatPanel.getChatStatusIcon(),
+                                        firstChatPanel.getChatStatusIcon(),
                                         firstChatPanel);
 
                 chatTabbedPane.addTab(  chatName,
