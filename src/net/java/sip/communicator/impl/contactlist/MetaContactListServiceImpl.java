@@ -436,6 +436,18 @@ public class MetaContactListServiceImpl
                 , null
                 , MetaContactListException.CODE_NETWORK_ERROR);
         }
+        
+        if (evtRetriever.evt instanceof SubscriptionEvent &&
+            ((SubscriptionEvent)evtRetriever.evt).getEventID() == 
+            SubscriptionEvent.SUBSCRIPTION_FAILED)
+        {
+            throw new MetaContactListException(
+                "Failed to create a contact with address: "
+                + contactID + " " 
+                + ((SubscriptionEvent)evtRetriever.evt).getErrorReason()
+                , null
+                , MetaContactListException.CODE_UNKNOWN_ERROR);
+        }
 
         //now finally - add the contact to the meta contact
         ( (MetaContactImpl) metaContact).addProtoContact(
@@ -2896,7 +2908,18 @@ public class MetaContactListServiceImpl
          * @param evt param ignored
          */
         public void subscriptionFailed(SubscriptionEvent evt)
-        {}
+        {
+            synchronized (this)
+            {
+                if (evt.getSourceContact().getAddress()
+                    .equals(subscriptionAddress))
+                {
+                    this.evt = evt;
+                    this.sourceContact = evt.getSourceContact();
+                    this.notifyAll();
+                }
+            }
+        }
 
         /**
          * Events delivered through this method are ignored

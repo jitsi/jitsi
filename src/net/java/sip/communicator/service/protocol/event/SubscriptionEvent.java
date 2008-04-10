@@ -49,10 +49,17 @@ public class SubscriptionEvent
      * confirmed by the server (resolved).
      */
     public static final int SUBSCRIPTION_RESOLVED  = 4;
+    
+    /**
+     * Error code unknown
+     */
+    public static final int ERROR_UNSPECIFIED = -1;
 
 
     private ProtocolProviderService sourceProvider = null;
     private ContactGroup  parentGroup = null;
+    private int errorCode = ERROR_UNSPECIFIED;
+    private String errorReason = null;
 
     /**
      * Creates a new Subscription event according to the specified parameters.
@@ -69,10 +76,32 @@ public class SubscriptionEvent
                        ContactGroup parentGroup,
                        int eventID)
     {
+        this(source, provider, parentGroup, eventID, ERROR_UNSPECIFIED, null);
+    }
+    
+    /**
+     * Creates a new Subscription event according to the specified parameters.
+     * @param source the Contact instance that this subscription pertains to.
+     * @param provider the ProtocolProviderService instance where this event
+     * occurred
+     * @param parentGroup the ContactGroup underwhich the corresponding Contact
+     * is located
+     * @param eventID one of the SUBSCRIPTION_XXX static fields indicating the
+     * nature of the event.
+     */
+    public SubscriptionEvent( Contact source,
+                       ProtocolProviderService provider,
+                       ContactGroup parentGroup,
+                       int eventID,
+                       int errorCode,
+                       String errorReason)
+    {
         super(source);
         this.sourceProvider = provider;
         this.parentGroup = parentGroup;
         this.eventID = eventID;
+        this.errorCode = errorCode;
+        this.errorReason = errorReason;
     }
 
     /**
@@ -129,5 +158,25 @@ public class SubscriptionEvent
     public int getEventID()
     {
         return eventID;
+    }
+    
+    /**
+     * If event is SUBSCRIPTION_FAILED, returns the error code
+     * of the failed event
+     * @return error code
+     */ 
+    public int getErrorCode()
+    {
+        return errorCode;
+    }
+    
+    /**
+     * If event is SUBSCRIPTION_FAILED, returns the reason of the error 
+     * for the failed event
+     * @return the String reason for the error
+     */
+    public String getErrorReason()
+    {
+        return errorReason;
     }
 }
