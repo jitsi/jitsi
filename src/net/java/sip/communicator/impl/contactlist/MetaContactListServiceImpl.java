@@ -337,7 +337,7 @@ public class MetaContactListServiceImpl
      * @param contactID
      *            the identifier of the contact that the specified provider
      * @param fireEvent
-     *            specifies whether or not an even is to be faire at
+     *            specifies whether or not an even is to be fired at
      * the end of the method.Used when this method is called upon creation of a
      * new meta contact and not only a new contact.
      * @throws MetaContactListException
@@ -575,7 +575,7 @@ public class MetaContactListServiceImpl
     /**
      * Returns the meta contact group that is a direct parent of the specified
      * <tt>child</tt>. If no parent is found <tt>null</tt> is returned.
-     * @param child the <tt>MetaContactGroup</tt> whose paret group we're
+     * @param child the <tt>MetaContactGroup</tt> whose parent group we're
      * looking for. If no parent is found <tt>null</tt> is returned.
      *
      * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
@@ -590,7 +590,7 @@ public class MetaContactListServiceImpl
      * Returns the meta contact group that is a direct parent of the specified
      * <tt>child</tt>, beginning the search at the specified root. If
      * no parent is found <tt>null</tt> is returned.
-     * @param child the <tt>MetaContactGroup</tt> whose paret group we're
+     * @param child the <tt>MetaContactGroup</tt> whose parent group we're
      * looking for.
      * @param root the parent where the search should start.
      * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
@@ -605,11 +605,11 @@ public class MetaContactListServiceImpl
     /**
      * Returns the meta contact group that is a direct parent of the specified
      * <tt>child</tt>.
-     * @param child the <tt>MetaContact</tt> whose paret group we're looking
+     * @param child the <tt>MetaContact</tt> whose parent group we're looking
      * for.
      *
      * @return the <tt>MetaContactGroup</tt>
-     * @throws IllegalArgumentException if <tt>child</tt> is not an instnace of
+     * @throws IllegalArgumentException if <tt>child</tt> is not an instance of
      * MetaContactImpl
      */
     public MetaContactGroup findParentMetaContactGroup(MetaContact child)
@@ -626,7 +626,7 @@ public class MetaContactListServiceImpl
      * Returns the meta contact group that is a direct parent of the specified
      * <tt>child</tt>, beginning the search at the specified root. If
      * no parent is found <tt>null</tt> is returned.
-     * @param child the <tt>MetaContact</tt> whose paret group we're
+     * @param child the <tt>MetaContact</tt> whose parent group we're
      * looking for.
      * @param root the parent where the search should start.
      * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
@@ -660,7 +660,7 @@ public class MetaContactListServiceImpl
     /**
      * First makes the specified protocol provider create a contact
      * corresponding to the specified <tt>contactID</tt>, then creates a new
-     * MetaContact which will encapsulate the newly crated protocol specific
+     * MetaContact which will encapsulate the newly created protocol specific
      * contact.
      *
      * @param provider
@@ -671,7 +671,7 @@ public class MetaContactListServiceImpl
      *            should be stored.
      * @param contactID
      *            a protocol specific string identifier indicating the contact
-     *            the prtocol provider should create.
+     *            the protocol provider should create.
      * @throws MetaContactListException
      *             with an appropriate code if the operation fails for some
      *             reason.
@@ -1330,7 +1330,7 @@ public class MetaContactListServiceImpl
      * @param contact the protocol specific <tt>contact</tt> that we're looking
      *  for.
      *
-     * @return the MetaContact containing the speicified contact or null if no
+     * @return the MetaContact containing the specified contact or null if no
      *         such contact is present in this contact list.
      */
     public MetaContact findMetaContactByContact(Contact contact)
@@ -1339,7 +1339,7 @@ public class MetaContactListServiceImpl
     }
 
     /**
-     * Returns the MetaContact containing a contact with an address equald to
+     * Returns the MetaContact containing a contact with an address equal to
      * <tt>contactAddress</tt> and with a source provider matching
      * <tt>accountID</tt>, or null if no such MetaContact was found. The method
      * can be used when for example we
@@ -1352,7 +1352,7 @@ public class MetaContactListServiceImpl
      * @param accountID the ID of the account that the contact we're looking for
      * must belong to.
      *
-     * @return the MetaContact containing the speicified contact or null if no
+     * @return the MetaContact containing the specified contact or null if no
      *         such contact is present in this contact list.
      */
     public MetaContact findMetaContactByContact(String contactAddress,
@@ -1367,7 +1367,7 @@ public class MetaContactListServiceImpl
      *
      * @param metaContactID
      *            a String identifier of a meta contact.
-     * @return the MetaContact with the speicified string identifier or null if
+     * @return the MetaContact with the specified string identifier or null if
      *         no such meta contact was found.
      */
     public MetaContact findMetaContactByMetaUID(String metaContactID)
@@ -1410,7 +1410,7 @@ public class MetaContactListServiceImpl
     }
 
     /**
-     * Creates meta contacts and meta contact groups for all childredn of the
+     * Creates meta contacts and meta contact groups for all children of the
      * specified <tt>contactGroup</tt> and adds them to <tt>metaGroup</tt>
      * @param protoGroup the <tt>ContactGroup</tt> to add.
      * <p>
@@ -2033,7 +2033,7 @@ public class MetaContactListServiceImpl
          * In the case where the event refers to a change in the display name
          * we compare the old value with the display name of the corresponding
          * meta contact. If they are equal this means that the user has not
-         * speciified their own display name for the meta contact and that the
+         * specified their own display name for the meta contact and that the
          * display name was using this contact's display name for its own
          * display name. In this case we change the display name of the meta
          * contact to match the new display name of the proto contact.
@@ -2232,7 +2232,7 @@ public class MetaContactListServiceImpl
         /**
          * Updates the local contact list by removing the meta contact group
          * corresponding to the group indicated by the delivered <tt>evt</tt>
-         * @param evt the ServerStoredGroupEvent contining the group that has
+         * @param evt the ServerStoredGroupEvent confining the group that has
          * been removed.
          */
         public void groupRemoved(ServerStoredGroupEvent evt)
@@ -2571,7 +2571,7 @@ public class MetaContactListServiceImpl
      * to load.
      * @param metaUID the unique identifier of the meta contact.
      * @param displayName the display name of the meta contact.
-     * @param protoContacts a list containing descirptors of proto contacts
+     * @param protoContacts a list containing descriptors of proto contacts
      * encapsulated by the meta contact that we're about to create.
      * @param accountID the identifier of the account that the contacts
      * originate from.
@@ -2743,7 +2743,7 @@ public class MetaContactListServiceImpl
         }
 
         /**
-         * Called whnever an indication is received that a new server stored
+         * Called whoever an indication is received that a new server stored
          * group is created.
          * @param evt a ServerStoredGroupChangeEvent containing a reference to
          * the newly created group.
@@ -2855,7 +2855,7 @@ public class MetaContactListServiceImpl
         }
 
         /**
-         * Called whnever an indication is received that a new server stored group
+         * Called whenever an indication is received that a new server stored group
          * is created.
          * @param evt a ServerStoredGroupEvent containing a reference to the
          * newly created group.
@@ -2877,7 +2877,7 @@ public class MetaContactListServiceImpl
         }
 
         /**
-         * Called whnever an indication is received that a subscription is
+         * Called whenever an indication is received that a subscription is
          * created.
          * @param evt a <tt>SubscriptionEvent</tt> containing a reference to
          * the newly created contact.
@@ -2904,8 +2904,10 @@ public class MetaContactListServiceImpl
         {}
 
         /**
-         * Events delivered through this method are ignored
-         * @param evt param ignored
+         * Called whenever an indication is received that a subscription 
+         * creation has failed.
+         * @param evt a <tt>SubscriptionEvent</tt> containing a reference to
+         * the contact we are trying to subscribe.
          */
         public void subscriptionFailed(SubscriptionEvent evt)
         {
