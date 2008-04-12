@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     net_java_sip_communicator_impl_sparkle_SparkleActivator
  * Method:    initSparkle
- * Signature: ()V
+ * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jstring);
 
 #ifdef __cplusplus
 }

@@ -16,21 +16,22 @@
 /*
  * Class:     net_java_sip_communicator_impl_sparkle_SparkleActivator
  * Method:    initSparkle
- * Signature: ()V
+ * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL 
 Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
-  (JNIEnv *env, jclass obj)
+  (JNIEnv *env, jclass obj, jstring pathToSparkleFramework)
 {
     bool haveBundle = ([[NSBundle mainBundle] 
                         objectForInfoDictionaryKey:@"CFBundleName"] != nil);
-    
-    NSString* path = [[NSString alloc]
-                initWithUTF8String:"Contents/Frameworks/Sparkle.framework"];
-    NSBundle* bundle = [NSBundle bundleWithPath:path];
+    const char *path = (*env)->GetStringUTFChars(env, pathToSparkleFramework, 0);  
+
+    NSBundle* bundle = [NSBundle bundleWithPath:[NSString stringWithCString: path]];
     Class suUpdaterClass = [bundle classNamed:@"SUUpdater"];
     id suUpdater = [[suUpdaterClass alloc] init];
-    
+   
+    (*env)->ReleaseStringUTFChars(env, pathToSparkleFramework, path);  
+ 
     NSMenu* menu = [[NSApplication sharedApplication] mainMenu];
     NSMenu* applicationMenu = [[menu itemAtIndex:0] submenu];
     NSMenuItem* checkForUpdatesMenuItem = [[NSMenuItem alloc]
