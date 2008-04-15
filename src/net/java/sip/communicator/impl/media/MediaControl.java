@@ -31,6 +31,7 @@ import java.awt.Dimension;
  * @author Damian Minkov
  * @author Jean Lorchat
  * @author Ryan Ricard
+ * @author Ken Larson
  */
 public class MediaControl
 {
@@ -138,8 +139,12 @@ public class MediaControl
     {
         "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
-        "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
-        "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
+        FMJConditionals.FMJ_CODECS 
+           ? "net.sf.fmj.media.codec.audio.alaw.Packetizer" 
+           : "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
+        FMJConditionals.FMJ_CODECS 
+           ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer" 
+           : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
         "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
@@ -512,8 +517,16 @@ public class MediaControl
             }
 
             sourceProcessor = Manager.createProcessor(dataSource);
-            processorUtility.waitForState(sourceProcessor
-                                          , Processor.Configured);
+
+            if (!processorUtility.waitForState(sourceProcessor, 
+                                               Processor.Configured))
+            {
+                throw new MediaException(
+                    "Media manager could not configure processor\n"
+                    + "for the specified data source", 
+                    MediaException.INTERNAL_ERROR);
+            }
+
         }
         catch (NoProcessorException ex)
         {
@@ -767,6 +780,7 @@ public class MediaControl
                                      + supported[j].getEncoding());
                     }
                 }
+                
                 // We've set the output content to the RAW_RTP.
                 // So all the supported formats should work with RTP.
                 // We'll pick one that matches those specified by the
@@ -796,22 +810,30 @@ public class MediaControl
                     }
                     else
                     {
-                        int index = findFirstMatchingFormat(supported,
-                            encodingSets);
-                        if (index != -1)
+                        if (FMJConditionals.FORCE_AUDIO_FORMAT != null)
                         {
-                            tracks[i].setFormat(supported[index]);
-                            if (logger.isDebugEnabled())
-                            {
-                                logger.debug("Track " + i +
-                                             " is set to transmit as: "
-                                             + supported[index]);
-                            }
+                            tracks[i].setFormat(FMJConditionals.FORCE_AUDIO_FORMAT);
                             atLeastOneTrack = true;
                         }
                         else
                         {
-                            tracks[i].setEnabled(false);
+                            int index = findFirstMatchingFormat(supported,
+                                encodingSets);
+                            if (index != -1)
+                            {
+                                tracks[i].setFormat(supported[index]);
+                                if (logger.isDebugEnabled())
+                                {
+                                    logger.debug("Track " + i +
+                                                 " is set to transmit as: "
+                                                 + supported[index]);
+                                }
+                                atLeastOneTrack = true;
+                            }
+                            else
+                            {
+                                tracks[i].setEnabled(false);
+                            }
                         }
                     }
                 }

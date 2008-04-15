@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.media.*;
  * jmf.properties accordingly.
  *
  * @author Emil Ivov
+ * @author Ken Larson
  */
 public class JmfDeviceDetector
 {
@@ -107,15 +108,42 @@ public class JmfDeviceDetector
     }
 
     /**
-     * Detect all existing capture devices and record them into the jmf
+     * Detect all existing capture devices and record them into the JMF
      * repository.
      */
     private void detectCaptureDevices()
     {
-        // check if JavaSound capture is available
         logger.info("Looking for Audio capturer");
-        DirectSoundAuto directSoundAuto = new DirectSoundAuto();
-        JavaSoundAuto javaSoundAuto = new JavaSoundAuto();
+        
+        //First check if DirectSound capture is available
+        try
+        {
+            DirectSoundAuto directSoundAuto = new DirectSoundAuto();
+        }
+        catch (Throwable exc)
+        {
+            logger.debug("No direct sound detected: " + exc.getMessage());
+        }
+
+        // check if JavaSound capture is available
+        try
+        {
+            JavaSoundAuto javaSoundAuto = new JavaSoundAuto();
+        }
+        catch (Throwable exc)
+        {
+            logger.debug("No JMF javasound detected: " + exc.getMessage());
+        }
+        
+        // check if we have FMJJavaSoundAuto capture is available
+        try
+        {
+            new FMJJavaSoundAuto();
+        }
+        catch (Throwable exc)
+        {
+            logger.debug("No FMJ javasound detected: " + exc.getMessage());
+        }
 
         // Try to configgure capture devices for any operating system.
         //those that do not apply will silently fail.
@@ -145,7 +173,7 @@ public class JmfDeviceDetector
                         + nDevices
                         +" SUN Video capture device(s).");
         }
-        catch (Exception exc)
+        catch (Throwable exc)
         {
             logger.debug("No SUN Video detected: " + exc.getMessage());
         }
@@ -160,7 +188,7 @@ public class JmfDeviceDetector
                         + nDevices
                         + " SUN Video Plus device(s).");
         }
-        catch (Exception exc)
+        catch (Throwable exc)
         {
             logger.debug("No SUN Video Plus detected: " + exc.getMessage());
         }
@@ -179,8 +207,23 @@ public class JmfDeviceDetector
             logger.debug("No V4l video detected: " + exc.getMessage());
         }
 
+  
+        
+        //FMJ
+//        try
+//        {
+//            new FMJCivilVideoAuto();
+//        }
+//        catch (Throwable exc)
+//        {
+//            logger.debug("No FMJ CIVIL video detected: " + exc.getMessage());
+//        }
+
     }
 
+    /**
+     * Will try to detect direct audio devices.
+     */
     private void detectDirectAudio()
     {
         Class cls;
@@ -225,11 +268,12 @@ public class JmfDeviceDetector
             }
             catch (Throwable throwable)
             {
-                //System.err.println("Error " + t);
+                logger.debug("Detection for direct audio failed.", throwable);
             }
         }
         catch (Throwable tt)
         {
+            logger.debug("Detection for direct audio failed.", tt);
         }
     }
 

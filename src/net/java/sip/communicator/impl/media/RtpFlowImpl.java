@@ -28,6 +28,7 @@ import net.java.sip.communicator.util.*;
  * a specified format.
  *
  * @author Symphorien Wanko
+ * @author KenLarson
  */
 public class RtpFlowImpl
         implements RtpFlow,
@@ -197,6 +198,7 @@ public class RtpFlowImpl
             {
                 rtpMgrs[i] = RTPManager.newInstance();
 
+                CallSessionImpl.registerCustomCodecFormats(rtpMgrs[i]);
                 port = remotePort + 2 * i;
                 ipAddr = InetAddress.getByName(remoteAddress);
 

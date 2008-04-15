@@ -12,9 +12,12 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.netaddr,
  javax.swing,
  javax.swing.event,
+ javax.swing.border,
  net.java.sip.communicator.service.fileaccess,
  javax.sound,
- javax.sound.sampled
+ javax.sound.sampled,
+ javax.crypto,
+ org.xml.sax
 Export-Package: net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,
  net.java.sip.communicator.impl.media,

@@ -60,6 +60,7 @@ import javax.media.control.*;
  *
  * @author Emil Ivov
  * @author Ryan Ricard
+ * @author Ken Larson
  */
 public class CallSessionImpl
         implements   CallSession
@@ -148,6 +149,14 @@ public class CallSessionImpl
      * The Custom Data Destination used for this call session.
      */
     private URL dataSink = null;
+    
+    /**
+     * RFC 4566 specifies that an SDP description may contain a URI with 
+     * additional call information. Some servers, such as SEMS use this URI to 
+     * deliver a link to a call control page, so in case it is there we better 
+     * store it and show it to the user.
+     */
+    private URL callURL = null;
 
     /**
      * List of RTP format strings which are supported by SIP Communicator in addition
@@ -159,10 +168,33 @@ public class CallSessionImpl
     private static final javax.media.Format[] CUSTOM_CODEC_FORMATS 
         = new javax.media.Format[] 
     {
-        new AudioFormat(Constants.ILBC_RTP),
-        new AudioFormat(Constants.ALAW_RTP),
-        new AudioFormat(Constants.SPEEX_RTP)
+        // these formats are specific, since RTP uses format numbers with no parameters.
+        new AudioFormat(Constants.ILBC_RTP,
+                8000.0,
+                16,
+                1,
+                AudioFormat.LITTLE_ENDIAN,
+                AudioFormat.SIGNED),
+        new AudioFormat(Constants.ALAW_RTP,
+                8000,
+                8,
+                1,
+                -1,
+                AudioFormat.SIGNED),
+        new AudioFormat(Constants.SPEEX_RTP,
+                8000,
+                8,
+                1,
+                -1,
+                AudioFormat.SIGNED)
     };
+    
+    /**
+     * JMF stores CUSTOM_CODEC_FORMATS statically, so they only need to be 
+     * registered once. FMJ does this dynamically (per instance), so it needs 
+     * to be done for every time we instantiate an RTP manager. This varia 
+     */
+    private static boolean formatsRegisteredOnce = false;
 
     /**
      * Creates a new session for the specified <tt>call</tt> with a custom
@@ -179,6 +211,11 @@ public class CallSessionImpl
         this.call = call;
         this.mediaServCallback = mediaServCallback;
         this.dataSink = dataSink;
+        
+        registerCustomCodecFormats(audioRtpManager);
+        
+        // not currently needed, we don't have any custom video formats.
+        // registerCustomCodecFormats(videoRtpManager); 
 
         call.addCallChangeListener(this);
         initializePortNumbers();
@@ -512,6 +549,10 @@ public class CallSessionImpl
                                      , ex.getCharOffset());
         }
 
+        //extract URI (rfc4566 says that if present it should be before the 
+        //media description so let's start with it)
+        setCallURL(sdpAnswer.getURI());
+        
         //extract media descriptions
         Vector mediaDescriptions = null;
         try
@@ -525,8 +566,7 @@ public class CallSessionImpl
                                     , MediaException.INTERNAL_ERROR
                                     , exc);
         }
-
-
+        
         //add the RTP targets
         this.initStreamTargets(sdpAnswer.getConnection(), mediaDescriptions);
 
@@ -598,6 +638,45 @@ public class CallSessionImpl
         return sdpAnswer.toString();
     }
 
+    /**
+     * Tries to extract a java.net.URL from the specified sdpURI param and sets
+     * it as the default call info URL for this call session.
+     * 
+     * @param sdpURI the sdp uri as extracted from the call session description.
+     */
+    private void setCallURL(javax.sdp.URI sdpURI)
+    {
+        if (sdpURI == null) 
+        {
+            logger.trace("Call URI was null.");
+            return;
+        }
+
+        try 
+        {
+            this.callURL = sdpURI.get();
+        } 
+        catch (SdpParseException exc) 
+        {
+            logger.warn("Failed to parse SDP URI.", exc);
+        }
+    }
+    
+    /**
+     * RFC 4566 specifies that an SDP description may contain a URI (i.r. a 
+     * "u=" param ) with additional call information. Some servers, such as 
+     * SEMS use this URI to deliver a link to a call control page. This method
+     * returns this call URL or <tt>null</tt> if the call session description 
+     * did not contain a "u=" parameter.
+     * 
+     * @return a call URL as indicated by the "u=" parameter of the call 
+     * session description or null if there was no such parameter.
+     */
+    public URL getCallInfoURL()
+    {
+        return this.callURL;
+    }
+    
     /**
      * Creates a DataSource for all encodings in the mediaDescriptions vector
      * and initializes send streams in our rtp managers for every stream in the
@@ -1433,14 +1512,26 @@ public class CallSessionImpl
     }
     
     /**
-     * Registers the RTP formats which are supported by SIP Communicator in addition
-     * to the JMF standard formats. This has to be done for every RTP Manager instance.
-     *  
+     * Registers the RTP formats which are supported by SIP Communicator in 
+     * addition to the JMF standard formats. This has to be done for every RTP 
+     * Manager instance.
+     * <p>
+     * JMF stores this statically, so it only has to be done once.  FMJ does it 
+     * dynamically (per instance, so it needs to be done for each instance. 
+     * <p>
      * @param rtpManager The manager with which to register the formats.
      * @see MediaControl#registerCustomCodecs()
      */
     static void registerCustomCodecFormats(RTPManager rtpManager)
     {
+        // if we have already registered custom formats and we are running JMF
+        // we bail out.
+        if (!FMJConditionals.REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER 
+            && formatsRegisteredOnce)
+        {
+            return;
+        }
+
         for (int i=0; i<CUSTOM_CODEC_FORMATS.length; i++) 
         {
             javax.media.Format format = CUSTOM_CODEC_FORMATS[i];
@@ -1454,6 +1545,8 @@ public class CallSessionImpl
             rtpManager.addFormat(
                 format, MediaUtils.jmfToSdpEncoding(format.getEncoding()));
         }
+        
+        formatsRegisteredOnce = true;
     }
 
     /**

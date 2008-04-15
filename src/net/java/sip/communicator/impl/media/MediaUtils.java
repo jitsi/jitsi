@@ -4,26 +4,36 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
+
+
+
 package net.java.sip.communicator.impl.media;
 
-import javax.media.format.*;
-import javax.sdp.*;
-import java.util.*;
+//~--- non-JDK imports --------------------------------------------------------
+
 import net.java.sip.communicator.impl.media.codec.*;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.*;
+
+import javax.media.format.*;
+
+import javax.sdp.*;
 
 /**
  * Implements static utility methods used by media classes.
  *
  * @author Emil Ivov
  */
-public class MediaUtils
-{
+public class MediaUtils {
+
     /**
      * Returned by {@link #sdpToJmfEncoding(String)} if it does not
      * know the given encoding.
      */
     public static final int UNKNOWN_ENCODING = -1;
-    
+
     /**
      * Returns the String encoding, as specified in AudioFormat and VideoFormat,
      * corresponding to the format specified in sdpFormatStr
@@ -31,49 +41,60 @@ public class MediaUtils
      * format.
      * @return one of the AudioFormat.XXX or VideoFormat.XXX format strings.
      */
-    public static String sdpToJmfEncoding(String sdpEncodingStr)
-    {
+    public static String sdpToJmfEncoding(String sdpEncodingStr) {
         int sdpEncoding = UNKNOWN_ENCODING;
-        try
-        {
+
+        try {
             sdpEncoding = Integer.parseInt(sdpEncodingStr);
-        }
-        catch (NumberFormatException ex)
-        {
+        } catch (NumberFormatException ex) {
             return null;
         }
-        switch (sdpEncoding)
-        {
-            case SdpConstants.PCMU:
-                return AudioFormat.ULAW_RTP;
-            case SdpConstants.GSM:
-                return AudioFormat.GSM_RTP;
-            case SdpConstants.G723:
-                return AudioFormat.G723_RTP;
-            case SdpConstants.DVI4_8000:
-                return AudioFormat.DVI_RTP;
-            case SdpConstants.DVI4_16000:
-                return AudioFormat.DVI_RTP;
-            case SdpConstants.PCMA:
-                return Constants.ALAW_RTP;
-            case 97:
-                return Constants.ILBC_RTP;
-            case 98:
-                return Constants.ILBC_RTP;
-            case 110:
-                return Constants.SPEEX_RTP;
-            case SdpConstants.G728:
-                return AudioFormat.G728_RTP;
-            case SdpConstants.G729:
-                return AudioFormat.G729_RTP;
-            case SdpConstants.H263:
-                return VideoFormat.H263_RTP;
-            case SdpConstants.JPEG:
-                return VideoFormat.JPEG_RTP;
-            case SdpConstants.H261:
-                return VideoFormat.H261_RTP;
-            default:
-                return null;
+
+        switch (sdpEncoding) {
+        case SdpConstants.PCMU :
+            return AudioFormat.ULAW_RTP;
+
+        case SdpConstants.GSM :
+            return AudioFormat.GSM_RTP;
+
+        case SdpConstants.G723 :
+            return AudioFormat.G723_RTP;
+
+        case SdpConstants.DVI4_8000 :
+            return AudioFormat.DVI_RTP;
+
+        case SdpConstants.DVI4_16000 :
+            return AudioFormat.DVI_RTP;
+
+        case SdpConstants.PCMA :
+            return Constants.ALAW_RTP;
+
+        case 97 :
+            return Constants.ILBC_RTP;
+
+        case 98 :
+            return Constants.ILBC_RTP;
+
+        case 110 :
+            return Constants.SPEEX_RTP;
+
+        case SdpConstants.G728 :
+            return AudioFormat.G728_RTP;
+
+        case SdpConstants.G729 :
+            return AudioFormat.G729_RTP;
+
+        case SdpConstants.H263 :
+            return VideoFormat.H263_RTP;
+
+        case SdpConstants.JPEG :
+            return VideoFormat.JPEG_RTP;
+
+        case SdpConstants.H261 :
+            return VideoFormat.H261_RTP;
+
+        default :
+            return null;
         }
     }
 
@@ -85,82 +106,46 @@ public class MediaUtils
      * strings.
      *
      * @return the SDP index corresponding to
-     * <tt>jmfEncoding</tt>. 
+     * <tt>jmfEncoding</tt>.
      * Returns {@link #UNKNOWN_ENCODING} if the encoding is not supported or
      * <code>jmfEncoding</code> is <code>null</code>.
      */
-    public static int jmfToSdpEncoding(String jmfEncoding)
-    {
-        if (jmfEncoding == null)
-        {
+    public static int jmfToSdpEncoding(String jmfEncoding) {
+        if (jmfEncoding == null) {
             return UNKNOWN_ENCODING;
-        }
-        else if (jmfEncoding.equals(AudioFormat.ULAW_RTP))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.ULAW_RTP)) {
             return SdpConstants.PCMU;
-        }
-        else if (jmfEncoding.equals(Constants.ALAW_RTP))
-        {
+        } else if (jmfEncoding.equals(Constants.ALAW_RTP)) {
             return SdpConstants.PCMA;
-        }
-        else if (jmfEncoding.equals(AudioFormat.GSM_RTP))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.GSM_RTP)) {
             return SdpConstants.GSM;
-        }
-        else if (jmfEncoding.equals(AudioFormat.G723_RTP))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.G723_RTP)) {
             return SdpConstants.G723;
-        }
-        else if (jmfEncoding.equals(AudioFormat.DVI_RTP))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.DVI_RTP)) {
             return SdpConstants.DVI4_8000;
-        }
-        else if (jmfEncoding.equals(AudioFormat.DVI_RTP))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.DVI_RTP)) {
             return SdpConstants.DVI4_16000;
-        }
-        else if (jmfEncoding.equals(AudioFormat.ALAW))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.ALAW)) {
             return SdpConstants.PCMA;
-        }
-        else if (jmfEncoding.equals(AudioFormat.G728_RTP))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.G728_RTP)) {
             return SdpConstants.G728;
-        }
-        else if (jmfEncoding.equals(AudioFormat.G729_RTP))
-        {
+        } else if (jmfEncoding.equals(AudioFormat.G729_RTP)) {
             return SdpConstants.G729;
-        }
-        else if (jmfEncoding.equals(VideoFormat.H263_RTP))
-        {
+        } else if (jmfEncoding.equals(VideoFormat.H263_RTP)) {
             return SdpConstants.H263;
-        }
-        else if (jmfEncoding.equals(VideoFormat.JPEG_RTP))
-        {
+        } else if (jmfEncoding.equals(VideoFormat.JPEG_RTP)) {
             return SdpConstants.JPEG;
-        }
-        else if (jmfEncoding.equals(VideoFormat.H261_RTP))
-        {
+        } else if (jmfEncoding.equals(VideoFormat.H261_RTP)) {
             return SdpConstants.H261;
-        }
-        else if (jmfEncoding.equals(Constants.ILBC))
-        {
+        } else if (jmfEncoding.equals(Constants.ILBC)) {
             return 97;
-        }
-        else if (jmfEncoding.equals(Constants.ILBC_RTP))
-        {
+        } else if (jmfEncoding.equals(Constants.ILBC_RTP)) {
             return 97;
-        }
-        else if (jmfEncoding.equals(Constants.SPEEX))
-        {
+        } else if (jmfEncoding.equals(Constants.SPEEX)) {
             return 110;
-        }
-        else if (jmfEncoding.equals(Constants.SPEEX_RTP))
-        {
+        } else if (jmfEncoding.equals(Constants.SPEEX_RTP)) {
             return 110;
-        }
-        else
-        {
+        } else {
             return UNKNOWN_ENCODING;
         }
     }
@@ -174,22 +159,24 @@ public class MediaUtils
      * codes.
      * @return a list of strings representing JMF compatible encoding names.
      */
-    public static List sdpToJmfEncodings(List sdpEncodings)
-    {
+    public static List sdpToJmfEncodings(List sdpEncodings) {
         ArrayList jmfEncodings = new ArrayList();
-        if (sdpEncodings == null)
-            return jmfEncodings;
 
-        for (int i = 0; i < sdpEncodings.size(); i++)
-        {
-            String jmfEncoding =
-                sdpToJmfEncoding((String)sdpEncodings.get(i));
-            if (jmfEncoding != null)
-            {
+        if (sdpEncodings == null) {
+            return jmfEncodings;
+        }
+
+        for (int i = 0; i < sdpEncodings.size(); i++) {
+            String jmfEncoding = sdpToJmfEncoding((String) sdpEncodings.get(i));
+
+            if (jmfEncoding != null) {
                 jmfEncodings.add(jmfEncoding);
             }
         }
+
         return jmfEncodings;
     }
-
 }
+
+
+//~ Formatted by Jindent --- http://www.jindent.com

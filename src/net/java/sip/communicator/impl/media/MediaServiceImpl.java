@@ -30,6 +30,7 @@ import net.java.sip.communicator.util.*;
  * @author Martin Andre
  * @author Ryan Ricard
  * @author Symphorien Wanko
+ * @author Ken Larson
  */
 public class MediaServiceImpl
     implements MediaService
@@ -395,7 +396,7 @@ public class MediaServiceImpl
                     sdpFactory = SdpFactory.getInstance();
                     isStarted = true;
                 }
-                catch (Exception ex)
+                catch (Throwable ex)
                 {
                     logger.error("Failed to initialize media control", ex);
                     isStarted = false;

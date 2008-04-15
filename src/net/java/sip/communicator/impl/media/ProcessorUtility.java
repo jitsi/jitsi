@@ -4,7 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
+
+
+
 package net.java.sip.communicator.impl.media;
+
+//~--- non-JDK imports --------------------------------------------------------
+
+import net.java.sip.communicator.util.*;
+
+//~--- JDK imports ------------------------------------------------------------
 
 import javax.media.*;
 
@@ -12,31 +21,29 @@ import javax.media.*;
  * A utility class that provides utility functions when working with processors.
  *
  * @author Emil Ivov
+ * @author Ken Larson
  */
-public class ProcessorUtility
-    implements ControllerListener
-{
+public class ProcessorUtility implements ControllerListener {
+    private Logger logger = Logger.getLogger(ProcessorUtility.class);
+
     /**
      * The object that we use for syncing when waiting for a processor
      * to enter a specific state.
      */
-    private Object stateLock = new Object();
-    private boolean failed = false;
+    private Object  stateLock = new Object();
+    private boolean failed    = false;
 
     /**
      * Default constructor, creates an instance of the of the Processor utility.
      */
-    public ProcessorUtility()
-    {
-    }
+    public ProcessorUtility() {}
 
     /**
      * Returns the object that we use for syncing when waiting for a processor
      * to enter a specific state.
      * @return Integer
      */
-    private Object getStateLock()
-    {
+    private Object getStateLock() {
         return stateLock;
     }
 
@@ -46,8 +53,7 @@ public class ProcessorUtility
      *
      * @param failed true if waiting has failed and false otherwise.
      */
-    private void setFailed(boolean failed)
-    {
+    private void setFailed(boolean failed) {
         this.failed = failed;
     }
 
@@ -59,12 +65,19 @@ public class ProcessorUtility
      *
      * @param ce The event generated.
      */
-    public void controllerUpdate(ControllerEvent ce)
-    {
+    public void controllerUpdate(ControllerEvent ce) {
+
         // If there was an error during configure or
         // realize, the processor will be closed
         if (ce instanceof ControllerClosedEvent) {
+            if (ce instanceof ControllerErrorEvent) {
+                logger.warn("ControllerErrorEvent: " + ce);
+            } else {
+                logger.debug("ControllerClosedEvent: " + ce);
+            }
+
             setFailed(true);
+
             // All controller events, send a notification
             // to the waiting thread in waitForState method.
         }
@@ -84,35 +97,33 @@ public class ProcessorUtility
      * @param state int
      * @return boolean
      */
-    public synchronized boolean waitForState(Processor processor,
-                                             int       state)
-    {
+    public synchronized boolean waitForState(Processor processor, int state) {
         processor.addControllerListener(this);
         setFailed(false);
+
         // Call the required method on the processor
-        if (state == Processor.Configured)
-        {
+        if (state == Processor.Configured) {
             processor.configure();
-        }
-        else if (state == Processor.Realized)
-        {
+        } else if (state == Processor.Realized) {
             processor.realize();
         }
 
         // Wait until we get an event that confirms the
         // success of the method, or a failure event.
         // See StateListener inner class
-        while (processor.getState() < state && !failed)
-        {
+        while ((processor.getState() < state) &&!failed) {
             synchronized (getStateLock()) {
                 try {
                     getStateLock().wait();
-                }
-                catch (InterruptedException ie) {
+                } catch (InterruptedException ie) {
                     return false;
                 }
             }
         }
+
         return !failed;
     }
 }
+
+
+//~ Formatted by Jindent --- http://www.jindent.com
