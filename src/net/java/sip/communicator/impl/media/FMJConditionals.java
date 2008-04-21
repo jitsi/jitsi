@@ -49,5 +49,11 @@ public class FMJConditionals
      */
     public static final boolean REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER 
         = IS_FMJ;
+    
+    /** 
+     * Whether to use JMF's internal registry to avoid auto-detecting capture
+     * devices each time, by tagging it with our own "author" property.
+     */
+    public static final boolean USE_JMF_INTERNAL_REGISTRY = !IS_FMJ;
 }
 
