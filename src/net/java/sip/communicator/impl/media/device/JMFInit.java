@@ -15,7 +15,6 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
-import com.sun.media.*;
 import net.java.sip.communicator.util.*;
 
 
@@ -199,45 +198,12 @@ public class JMFInit
     }
 
     private void detectS8DirectAudio() {
-        Class cls;
-        int plType = PlugInManager.RENDERER;
-        String dar = "com.sun.media.renderer.audio.DirectAudioRenderer";
-        try {
-            // Check if this is the solaris Performance Pack - hack
-            cls = Class.forName(
-                    "net.java.sip.communicator.impl.media.configuration.SunVideoAuto");
-
-            // Find the renderer class and instantiate it.
-            cls = Class.forName(dar);
-
-            Renderer rend = (Renderer) cls.newInstance();
-
-            if (rend instanceof ExclusiveUse &&
-                ! ( (ExclusiveUse) rend).isExclusive()) {
-                // sol8+, DAR supports mixing
-                Vector rendList = PlugInManager.getPlugInList(null, null,
-                    plType);
-                int listSize = rendList.size();
-                boolean found = false;
-                String rname = null;
-
-                for (int i = 0; i < listSize; i++) {
-                    rname = (String) (rendList.elementAt(i));
-                    if (rname.equals(dar)) { // DAR is in the registry
-                        found = true;
-                        rendList.removeElementAt(i);
-                        break;
-                    }
-                }
-
-                if (found) {
-                    rendList.insertElementAt(dar, 0);
-                    PlugInManager.setPlugInList(rendList, plType);
-                    PlugInManager.commit();
-                }
-            }
+        try
+        {
+            new S8DirectAudioAuto();
         }
-        catch (Throwable tt) {
+        catch (Throwable tt)
+        {
         }
     }
 
