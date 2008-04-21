@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.Component;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.CallState;
 
 /**
  * The <tt>CallComboBox</tt> is a history editable combo box that is
@@ -46,7 +48,7 @@ public class CallComboBox
 
         textField.getActionMap().put("createCall", new CreateCallAction());
         textField.getInputMap().put(
-            KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "createCall");
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "createCall");
 
         textField.addFocusListener(this);
     }
@@ -119,10 +121,28 @@ public class CallComboBox
                 callManager.getMainFrame().getContactListPanel()
                     .getContactList().getSelectedValue();
 
+            boolean enabled = true;
             if (o == null || !(o instanceof MetaContact))
             {
-                callManager.getCallButton().setEnabled(false);
+                // no contact can be called. call button not active
+                enabled = false;
             }
+
+            Component selectedPanel = callManager.getMainFrame()
+                    .getSelectedTab();
+            if (selectedPanel != null && selectedPanel instanceof CallPanel)
+            {
+                // but an incoming call is currently active. enable the button
+                // so that the call can be answered
+                CallState state = ((CallPanel) selectedPanel).getCall()
+                        .getCallState();
+                if (state == CallState.CALL_INITIALIZATION)
+                {
+                    enabled = true;
+                }
+            }
+            callManager.getCallButton().setEnabled(enabled);
+
         }
     }
 
