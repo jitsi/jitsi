@@ -21,5 +21,5 @@ Import-Package: org.osgi.framework,
 Export-Package: net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,
  net.java.sip.communicator.impl.media,
- net.java.sip.communicator.impl.media.configuration,
+ net.java.sip.communicator.impl.media.device,
 Metadata-Location: /net/java/sip/communicator/impl/media/media.metadata.xml

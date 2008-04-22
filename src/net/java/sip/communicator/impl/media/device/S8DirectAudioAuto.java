@@ -22,7 +22,7 @@ public class S8DirectAudioAuto
 
         // Check if this is the solaris Performance Pack - hack
         cls = Class.forName(
-            "net.java.sip.communicator.impl.media.configuration.SunVideoAuto");	// TODO: this class does not exist, it is in device, not configuration package.
+            "net.java.sip.communicator.impl.media.device.SunVideoAuto");
 
         // Find the renderer class and instantiate it.
         cls = Class.forName(dar);

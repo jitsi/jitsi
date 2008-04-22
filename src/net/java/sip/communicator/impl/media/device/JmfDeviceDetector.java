@@ -242,7 +242,7 @@ public class JmfDeviceDetector
         {
             // Check if this is the Windows Performance Pack - hack
             cls = Class.forName(
-                "net.java.sip.communicator.impl.media.configuration.VFWAuto");
+                "net.java.sip.communicator.impl.media.device.VFWAuto");
             // Check if DS capture is supported, otherwise fail DS renderer
             // since NT doesn't have capture
             cls = Class.forName("com.sun.media.protocol.dsound.DSound");

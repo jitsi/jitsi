@@ -75,7 +75,7 @@ public class JMFInit
         Class dsauto = null;
         try {
             dsauto = Class.forName(
-                    "net.java.sip.communicator.impl.media.configuration.DirectSoundAuto");
+                    "net.java.sip.communicator.impl.media.device.DirectSoundAuto");
             dsauto.newInstance();
             logger.info("Finished detecting DirectSound capturer");
         }
@@ -89,7 +89,7 @@ public class JMFInit
         Class jsauto = null;
         try {
             jsauto = Class.forName(
-                    "net.java.sip.communicator.impl.media.configuration.JavaSoundAuto");
+                    "net.java.sip.communicator.impl.media.device.JavaSoundAuto");
             jsauto.newInstance();
             logger.info("Finished detecting JavaSound capturer");
         }
@@ -106,7 +106,7 @@ public class JMFInit
         Class autoPlus = null;
         try {
             auto = Class.forName(
-                    "net.java.sip.communicator.impl.media.configuration.VFWAuto");
+                    "net.java.sip.communicator.impl.media.device.VFWAuto");
         }
         catch (Exception e) {
             logger.warn("VFWAuto capturer detection failed!", e);
@@ -114,14 +114,14 @@ public class JMFInit
         if (auto == null) {
             try {
                 auto = Class.forName(
-                        "net.java.sip.communicator.impl.media.configuration.SunVideoAuto");
+                        "net.java.sip.communicator.impl.media.device.SunVideoAuto");
             }
             catch (Exception ee) {
               logger.warn("SunVideoAuto capturer detection failed!", ee);
             }
             try {
                 autoPlus = Class.forName(
-                        "net.java.sip.communicator.impl.media.configuration.SunVideoPlusAuto");
+                        "net.java.sip.communicator.impl.media.device.SunVideoPlusAuto");
             }
             catch (Exception ee) {
               logger.warn("SunVideoPlusAuto capturer detection failed!", ee);
@@ -130,7 +130,7 @@ public class JMFInit
         if (auto == null) {
             try {
                 auto = Class.forName(
-                        "net.java.sip.communicator.impl.media.configuration.V4LAuto");
+                        "net.java.sip.communicator.impl.media.device.V4LAuto");
             }
             catch (Exception ee) {
                 logger.warn("V4lAuto capturer detection failed!", ee);
@@ -158,7 +158,7 @@ public class JMFInit
         try {
             // Check if this is the Windows Performance Pack - hack
             cls = Class.forName(
-                    "net.java.sip.communicator.impl.media.configuration.VFWAuto");
+                    "net.java.sip.communicator.impl.media.device.VFWAuto");
             // Check if DS capture is supported, otherwise fail DS renderer
             // since NT doesn't have capture
             cls = Class.forName("com.sun.media.protocol.dsound.DSound");
