@@ -126,9 +126,9 @@ public class PresenceStatus
     }
 
     /**
-     * Returns a string represenation of this provider status. Strings returned
+     * Returns a string representation of this provider status. Strings returned
      * by this method have the following format: PresenceStatus:<STATUS_STRING>:
-     * <STATUS_MESSAGE> and are meant to be used for loggin/debugging purposes.
+     * <STATUS_MESSAGE> and are meant to be used for logging/debugging purposes.
      * @return a string representation of this object.
      */
     public String toString()
