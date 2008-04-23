@@ -50,8 +50,21 @@ public class AddContactWizard
         
         this.setTitle(Messages.getI18NString("addContactWizard").getText());
 
+        Vector pps = new Vector();
+        Iterator iter = mainFrame.getProtocolProviders();
+        while (iter.hasNext())
+        {
+            ProtocolProviderService p = (ProtocolProviderService)iter.next();
+
+            boolean isHidden = p.getAccountID().getAccountProperties().
+                    get("HIDDEN_PROTOCOL") != null;
+            
+            if(!isHidden)
+                pps.add(p);
+        }
+
         page1 = new AddContactWizardPage1(this, newContact,
-                    mainFrame.getProtocolProviders());
+                    pps.iterator());
 
         this.registerWizardPage(AddContactWizardPage1.IDENTIFIER, page1);
 
