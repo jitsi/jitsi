@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.systray.jdic;
 
+import java.awt.Toolkit;
 import java.awt.event.*;
 import java.util.*;
 import java.util.Timer;
