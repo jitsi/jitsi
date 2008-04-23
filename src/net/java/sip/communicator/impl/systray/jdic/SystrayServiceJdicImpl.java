@@ -69,6 +69,11 @@ public class SystrayServiceJdicImpl
     private int maxMessageNumber = 3;
 
     private SystrayMessage aggregatedMessage;
+    
+    /**
+     * Stores the system time, when the main window was restored the last time 
+     */
+    private long setVisibleTime = 0;
 
     /**
      * The logger for this class.
@@ -116,6 +121,12 @@ public class SystrayServiceJdicImpl
     {
         popupTimer.scheduleAtFixedRate(new ShowPopupTask(), 0, messageDelay);
 
+        // Get the system's double click speed
+        Object o = Toolkit.getDefaultToolkit().getDesktopProperty(
+                "awt.multiClickInterval");
+        final int doubleClickSpeed = (o instanceof Integer ? ((Integer) o)
+                .intValue() : 500);
+
         menu = new TrayMenu(this);
 
         String osName = System.getProperty("os.name");
@@ -153,11 +164,22 @@ public class SystrayServiceJdicImpl
         {
             public void actionPerformed(ActionEvent e)
             {
+                long currentTime = System.currentTimeMillis();
                 UIService uiService = SystrayActivator.getUIService();
 
                 boolean isVisible;
 
                 isVisible = ! uiService.isVisible();
+                if (isVisible) {
+                    setVisibleTime = currentTime;
+                }
+                else if (currentTime < (setVisibleTime + doubleClickSpeed)) 
+                {
+                    // Do nothing. the last restore is less than 2 seconds, so it is very
+                    // likely, that the user made a double click. prevent the main window
+                    // from opening and immediately closing again.
+                    return;
+                }
 
                 uiService.setVisible(isVisible);
 
