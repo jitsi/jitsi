@@ -54,7 +54,12 @@ public class ContactRssImpl
     /**
      * This contact's URL (URL of the RSS feed).
      */
-    private URL contactID = null;
+    private URL rssURL = null;
+    
+    /**
+     * This contact id (http://... or feed://...)
+     */
+    private String contactID = null;
 
     /**
      * The provider that created us.
@@ -98,11 +103,13 @@ public class ContactRssImpl
      * the rss flow associated with this contact.
      * @param parentProvider the provider that created us.
      */
-    public ContactRssImpl(URL rssURL,
+    public ContactRssImpl(String contactID,
+                          URL rssURL,
                           RssFeedReader rssFeedReader,
                           ProtocolProviderServiceRssImpl parentProvider)
     {
-        this.contactID = rssURL;
+        this.contactID = contactID;
+        this.rssURL = rssURL;
         this.parentProvider = parentProvider;
         this.rssFeedReader = rssFeedReader;
     }
@@ -127,7 +134,7 @@ public class ContactRssImpl
      */
     public String getAddress()
     {
-        return contactID.toString();
+        return contactID;
     }
 
     /**
@@ -137,7 +144,7 @@ public class ContactRssImpl
      */
     public URL getRssURL()
     {
-        return contactID;
+        return rssURL;
     }
 
     /**
@@ -151,7 +158,7 @@ public class ContactRssImpl
     {
         if(nickName == null)
         {
-            return contactID.toExternalForm();
+            return contactID;
         }
         else
         {

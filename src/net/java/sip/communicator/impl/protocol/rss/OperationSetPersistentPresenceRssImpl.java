@@ -844,13 +844,21 @@ public class OperationSetPersistentPresenceRssImpl
     {
         URL rssURL = null;
         
+        String contactIdentifierURL = contactIdentifier;
         // in order to allow adding of URIs like feed://a.host.com/feed.xml
-        if (contactIdentifier.startsWith("feed"))
-            contactIdentifier = contactIdentifier.replaceFirst("feed", "http");
+        if (contactIdentifierURL.startsWith("feed"))
+            contactIdentifierURL = contactIdentifierURL.replaceFirst("feed", "http");
+        
+        if(findContactByID(contactIdentifier) != null)
+        {
+            logger.debug(
+                "contact with same id already exists - " + contactIdentifier);
+            return;
+        }
         
         try
         {
-            rssURL = new URL(contactIdentifier);
+            rssURL = new URL(contactIdentifierURL);
         }
         catch (MalformedURLException ex)
         {
@@ -871,6 +879,7 @@ public class OperationSetPersistentPresenceRssImpl
         rssFeedReader.retrieveFlow();
 
         ContactRssImpl contact = new ContactRssImpl(
+            contactIdentifier,
             rssURL
             , rssFeedReader
             , parentProvider);
@@ -990,9 +999,15 @@ public class OperationSetPersistentPresenceRssImpl
         throws IllegalArgumentException
     {
         URL rssURL = null;
+        
+        String contactIdentifierURL = address;
+        // in order to allow adding of URIs like feed://a.host.com/feed.xml
+        if (contactIdentifierURL.startsWith("feed"))
+            contactIdentifierURL = contactIdentifierURL.replaceFirst("feed", "http");
+        
         try
         {
-            rssURL = new URL(address);
+            rssURL = new URL(contactIdentifierURL);
         }
         catch (MalformedURLException ex)
         {
@@ -1004,6 +1019,7 @@ public class OperationSetPersistentPresenceRssImpl
         }
 
         ContactRssImpl contact = new ContactRssImpl(
+            address,
             rssURL
             , new RssFeedReader(rssURL)
             , parentProvider);
