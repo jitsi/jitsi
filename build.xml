@@ -385,6 +385,7 @@
         <!--internal-target- prepare to run a single Service Impl Compatibility Kit -->
         <!-- extract the simple Test class name. -->
         <basename property="simple.test.names" file="${test.name}"/>
+        <echo message="single test prepared: ${simple.test.names}" />        
     </target>
 
     <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
