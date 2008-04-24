@@ -137,8 +137,12 @@ public class MediaControl
      */
     private static String[] customCodecs = new String[]
     {
-        "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
-        "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
+    	FMJConditionals.FMJ_CODECS
+    	   ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
+           : "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
+       	FMJConditionals.FMJ_CODECS
+           ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
+           : "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
         FMJConditionals.FMJ_CODECS 
            ? "net.sf.fmj.media.codec.audio.alaw.Packetizer" 
            : "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
@@ -1128,7 +1132,7 @@ public class MediaControl
                     logger.debug("Codec : " + className +
                                  " is succsefully registered : " + result);
                 }
-                catch (Exception ex)
+                catch (Throwable ex)
                 {
                     logger.debug("Codec : " + className +
                                  " is NOT succsefully registered");
