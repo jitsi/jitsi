@@ -194,8 +194,10 @@ public class UpdateCheckActivator
         catch (Exception e) 
         {
             logger.error("Cannot get and compare versions!", e);
+            // if we get an exception this mean we were unable to compare versions
+            // will retrun that current is newest to prevent opening info dialog 
+            // about new version
+            return true;
         }
-        
-        return false;
     }
 }
