@@ -86,12 +86,12 @@ public class UpdateCheckActivator
         
         String dialogMsg = MessageFormat.format(
                 Resources.getLangString("dialogMessage1"),
-                ver.getApplicationName());
+                Resources.getAppPropString("applicationName"));
         
         if(lastVersion != null)
             dialogMsg += MessageFormat.format(
                 Resources.getLangString("dialogMessage2"),
-                ver.getApplicationName(), lastVersion);
+                Resources.getAppPropString("applicationName"), lastVersion);
         
         contentMessage.setText(dialogMsg);
 

@@ -29,9 +29,15 @@ public class Resources
     
     private static final String LANG_BUNDLE_NAME 
         = "resources.languages.plugin.updatechecker.resources";
+    
+    private static final String BUNDLE_APP_NAME
+        = "resources.application";
 
     private static final ResourceBundle langBundle = ResourceBundle
         .getBundle(LANG_BUNDLE_NAME);
+    
+    private static final ResourceBundle APP_PROPERTIES_BUNDLE = ResourceBundle
+            .getBundle( BUNDLE_APP_NAME);
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -70,6 +76,26 @@ public class Resources
         try
         {
             return langBundle.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
+            logger.error("Missing resources.", e);
+
+            return null;
+        }
+    }
+    
+    /**
+     * Returns an string corresponding to the given key.
+     * 
+     * @param key The key of the string.
+     * @return An string corresponding to the given key.
+     */
+    public static String getAppPropString(String key)
+    {
+        try
+        {
+            return APP_PROPERTIES_BUNDLE.getString(key);
         }
         catch (MissingResourceException e)
         {

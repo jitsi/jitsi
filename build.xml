@@ -1619,6 +1619,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/updatechecker" />
             <zipfileset dir="${resources}/languages/plugin/updatechecker"
                 prefix="resources/languages/plugin/updatechecker"/>
+            <zipfileset dir="${resources}" includes="application.properties"
+                prefix="resources"/>
         </jar>
     </target>
     
