@@ -618,6 +618,7 @@
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
+    	bundle-plugin-statusupdate,
         bundle-updatecheckplugin"/>
 
     <!--BUNDLE-HISTORY-->
@@ -1615,7 +1616,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-updatecheckplugin">
         <jar compress="false" destfile="${bundles.dest}/updatechecker.jar"
             manifest="${src}/net/java/sip/communicator/plugin/updatechecker/updatecheck.manifest.mf">
-            <zipfileset dir="classes/net/java/sip/communicator/plugin/updatechecker"
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/updatechecker"
                 prefix="net/java/sip/communicator/plugin/updatechecker" />
             <zipfileset dir="${resources}/languages/plugin/updatechecker"
                 prefix="resources/languages/plugin/updatechecker"/>
@@ -1624,4 +1625,15 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
     
+    <!--BUNDLE-StatusUpdatePlugin-->
+    <target name="bundle-plugin-statusupdate">
+        <jar compress="false" destfile="${bundles.dest}/statusupdate.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/statusupdate/statusupdate.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/statusupdate"
+                prefix="net/java/sip/communicator/plugin/statusupdate" />
+            <zipfileset dir="${resources}/languages/plugin/statusupdate"
+                prefix="resources/languages/plugin/statusupdate"/>
+        </jar>
+    </target>
+	
 </project>
