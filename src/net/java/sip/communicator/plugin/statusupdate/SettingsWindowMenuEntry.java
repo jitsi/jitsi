@@ -24,7 +24,7 @@ public class SettingsWindowMenuEntry implements PluginComponent
             {
                 ConfigurationDialog dialog = new ConfigurationDialog();
                 dialog.pack();
-                dialog.setModalityType(ModalityType.APPLICATION_MODAL);
+                dialog.setModal(true);
                 dialog.setVisible(true);
 
                 StatusUpdateActivator.startThread();
