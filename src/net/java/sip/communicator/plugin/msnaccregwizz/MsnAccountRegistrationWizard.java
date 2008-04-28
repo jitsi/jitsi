@@ -116,9 +116,9 @@ public class MsnAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put("UIN", registration.getUin());
-        summaryTable.put("Remember password", new Boolean(registration
-            .isRememberPassword()));
+        summaryTable.put(Resources.getString("id"), registration.getId());
+        summaryTable.put(Resources.getString("rememberPassword"),
+            new Boolean(registration.isRememberPassword()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -135,7 +135,7 @@ public class MsnAccountRegistrationWizard
             MsnAccRegWizzActivator.getMsnProtocolProviderFactory();
 
         return this.installAccount( factory,
-                                    registration.getUin(),
+                                    registration.getId(),
                                     registration.getPassword());
     }
 

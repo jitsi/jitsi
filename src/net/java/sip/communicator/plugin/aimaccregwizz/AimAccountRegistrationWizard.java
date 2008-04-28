@@ -102,29 +102,29 @@ public class AimAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put("UIN", registration.getUin());
-        summaryTable.put("Remember password", new Boolean(registration
-            .isRememberPassword()));
+        summaryTable.put(Resources.getString("id"), registration.getUin());
+        summaryTable.put(Resources.getString("rememberPassword"),
+                new Boolean(registration.isRememberPassword()));
 
         if (registration.getProxy() != null)
-            summaryTable.put(Resources.getString("proxy"), registration
-                .getProxy());
+            summaryTable.put(Resources.getString("proxy"),
+                registration.getProxy());
 
         if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyPort"), registration
-                .getProxyPort());
+            summaryTable.put(Resources.getString("proxyPort"),
+                registration.getProxyPort());
 
         if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyType"), registration
-                .getProxyType());
+            summaryTable.put(Resources.getString("proxyType"),
+                registration.getProxyType());
 
         if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyUsername"), registration
-                .getProxyPort());
+            summaryTable.put(Resources.getString("proxyUsername"),
+                registration.getProxyPort());
 
         if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyPassword"), registration
-                .getProxyType());
+            summaryTable.put(Resources.getString("proxyPassword"),
+                registration.getProxyType());
 
         return summaryTable.entrySet().iterator();
     }

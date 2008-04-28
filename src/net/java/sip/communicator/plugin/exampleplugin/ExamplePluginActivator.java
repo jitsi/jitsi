@@ -18,22 +18,21 @@ public class ExamplePluginActivator implements BundleActivator
             = bc.getServiceReference(UIService.class.getName());
         
         UIService uiService
-            = (UIService) bc.getService(uiServiceRef);        
+            = (UIService) bc.getService(uiServiceRef);
         
         if(uiService.isContainerSupported(
             UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
-        {   
+        {
             ExamplePluginMenuItem examplePlugin = new ExamplePluginMenuItem();
             
             uiService.addComponent(
                 UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU,
                 examplePlugin);
-                
         }
         
     }
 
     public void stop(BundleContext bc) throws Exception
-    {   
-    }    
+    {
+    }
 }

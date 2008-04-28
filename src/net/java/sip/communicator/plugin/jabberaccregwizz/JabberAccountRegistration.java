@@ -106,7 +106,7 @@ public class JabberAccountRegistration
 
     /**
      * Sets the User ID of the jabber registration account.
-     * @param userID the UIN of the jabber registration account.
+     * @param userID the identifier of the jabber registration account.
      */
     public void setUserID(String userID)
     {

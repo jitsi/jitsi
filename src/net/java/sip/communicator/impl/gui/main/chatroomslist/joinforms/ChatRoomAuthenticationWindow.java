@@ -29,13 +29,13 @@ public class ChatRoomAuthenticationWindow
 {
     private JTextArea infoTextArea = new JTextArea();
 
-    private JLabel uinLabel = new JLabel(
-        Messages.getI18NString("uin").getText());
+    private JLabel idLabel = new JLabel(
+        Messages.getI18NString("id").getText());
 
     private JLabel passwdLabel = new JLabel(
         Messages.getI18NString("passwd").getText());
 
-    private JTextField uinValue;
+    private JTextField idValue;
 
     private JPasswordField passwdField = new JPasswordField(15);
 
@@ -117,7 +117,7 @@ public class ChatRoomAuthenticationWindow
      */
     private void init()
     {
-        this.uinValue = new JTextField(
+        this.idValue = new JTextField(
             chatRoom.getParentProvider().getAccountID().getUserID());
         
         this.infoTextArea.setOpaque(false);
@@ -129,13 +129,13 @@ public class ChatRoomAuthenticationWindow
             Messages.getI18NString("chatRoomRequiresPassword",
                 new String[]{chatRoom.getName()}).getText());
 
-        this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        this.idLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
 
-        this.labelsPanel.add(uinLabel);
+        this.labelsPanel.add(idLabel);
         this.labelsPanel.add(passwdLabel);
 
-        this.textFieldsPanel.add(uinValue);
+        this.textFieldsPanel.add(idValue);
         this.textFieldsPanel.add(passwdField);
 
         this.buttonsPanel.add(loginButton);
@@ -194,7 +194,7 @@ public class ChatRoomAuthenticationWindow
                 public void run()
                 {
                     mainFrame.getMultiUserChatManager()
-                        .joinChatRoom(chatRoom, uinValue.getText(),
+                        .joinChatRoom(chatRoom, idValue.getText(),
                             new String(passwdField.getPassword()).getBytes());
                 }
             }.start();

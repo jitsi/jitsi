@@ -117,8 +117,8 @@ public class YahooAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put("UIN", registration.getUin());
-        summaryTable.put(   "Remember password",
+        summaryTable.put(Resources.getString("id"), registration.getUin());
+        summaryTable.put(   Resources.getString("rememberPassword"),
                             new Boolean(registration.isRememberPassword()));
 
         return summaryTable.entrySet().iterator();

@@ -35,7 +35,7 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new JPanel();
 
-    private JLabel uinLabel = new JLabel(Resources.getString("uin"));
+    private JLabel uinLabel = new JLabel(Resources.getString("id"));
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 

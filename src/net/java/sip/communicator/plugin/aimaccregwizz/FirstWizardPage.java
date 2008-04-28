@@ -44,7 +44,7 @@ public class FirstWizardPage
     private JCheckBox enableAdvOpButton =
         new JCheckBox(Resources.getString("ovverideServerOps"), false);
 
-    private JLabel uinLabel = new JLabel(Resources.getString("uin"));
+    private JLabel uinLabel = new JLabel(Resources.getString("id"));
 
     private JPanel emptyPanel = new JPanel();
 
