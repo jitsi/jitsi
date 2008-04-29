@@ -998,6 +998,12 @@ public class OperationSetPresenceSipImpl
 
         if(authorization != null)
             req.addHeader(authorization);
+        
+        //User Agent
+        UserAgentHeader userAgentHeader
+            = parentProvider.getSipCommUserAgentHeader();
+        if(userAgentHeader != null)
+            req.addHeader(userAgentHeader);
 
         return req;
     }
@@ -1402,6 +1408,12 @@ public class OperationSetPresenceSipImpl
 
         if(authorization != null)
             req.addHeader(authorization);
+        
+        //User Agent
+        UserAgentHeader userAgentHeader
+            = parentProvider.getSipCommUserAgentHeader();
+        if(userAgentHeader != null)
+            req.addHeader(userAgentHeader);
 
         return req;
     }
@@ -1553,6 +1565,12 @@ public class OperationSetPresenceSipImpl
             destinationInetAddress,
             this.parentProvider.getDefaultListeningPoint());
         req.setHeader((Header) viaHeaders.get(0));
+        
+        //User Agent
+        UserAgentHeader userAgentHeader
+            = parentProvider.getSipCommUserAgentHeader();
+        if(userAgentHeader != null)
+            req.addHeader(userAgentHeader);
 
         return transac;
     }
@@ -2422,6 +2440,12 @@ public class OperationSetPresenceSipImpl
                     "document to the request",
                     OperationFailedException.INTERNAL_ERROR, e);
         }
+        
+        //User Agent
+        UserAgentHeader userAgentHeader
+            = parentProvider.getSipCommUserAgentHeader();
+        if(userAgentHeader != null)
+            req.addHeader(userAgentHeader);
 
         return transac;
     }

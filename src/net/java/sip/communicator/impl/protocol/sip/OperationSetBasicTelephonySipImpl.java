@@ -460,7 +460,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             processCancel(serverTransaction, request);
         }
-    }
+        }
 
     /**
      * Process an asynchronously reported TransactionTerminatedEvent.
@@ -638,8 +638,45 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callParticipant == null)
         {
-            logger.debug("Received a stray ok response.");
-            return;
+            // In case of forwarding a call, the dialog maybe forked.
+            // If the dialog is forked 
+            // we must check whether we have early state dialogs
+            // established and we must end them, do this by replacing the dialog
+            // with new one
+            CallIdHeader call = (CallIdHeader)ok.getHeader(CallIdHeader.NAME);
+            String callid = call.getCallId();
+            
+            Iterator activeCallsIter = activeCallsRepository.getActiveCalls();
+            while (activeCallsIter.hasNext())
+            {
+                CallSipImpl activeCall = (CallSipImpl)activeCallsIter.next();
+                Iterator callParticipantsIter = activeCall.getCallParticipants();
+                while (callParticipantsIter.hasNext())
+                {
+                    CallParticipantSipImpl cp = 
+                        (CallParticipantSipImpl)callParticipantsIter.next();
+                    Dialog callPartDialog = cp.getDialog();
+                    // check if participant in same call
+                    // and has the same transaction
+                    if( callPartDialog != null && 
+                        callPartDialog.getCallId() != null &&
+                        cp.getFirstTransaction() != null &&
+                        cp.getDialog().getCallId().getCallId().equals(callid) && 
+                        clientTransaction.getBranchId().equals(
+                            cp.getFirstTransaction().getBranchId()))
+                    {
+                        // change to the forked dialog
+                        callParticipant = cp;
+                        cp.setDialog(dialog);
+                    }
+                }
+            }
+            
+            if(callParticipant == null)
+            {
+                logger.debug("Received a stray ok response.");
+                return;
+            }
         }
         
         if (callParticipant.getState() == CallParticipantState.CONNECTED)
@@ -931,7 +968,7 @@ public class OperationSetBasicTelephonySipImpl
         callParticipant.setState(CallParticipantState.DISCONNECTED);
 
     }
-
+    
     /**
      * Parses the the <tt>uriStr</tt> string and returns a JAIN SIP URI.
      *
@@ -969,7 +1006,7 @@ public class OperationSetBasicTelephonySipImpl
 
         return uri;
     }
-
+    
     /**
      * Creates an invite request destined for <tt>callee</tt>.
      *

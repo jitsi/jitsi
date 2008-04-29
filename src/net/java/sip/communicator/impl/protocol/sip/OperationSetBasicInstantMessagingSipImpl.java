@@ -543,6 +543,12 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
 
         req.addHeader(contLengthHeader);
+        
+        //User Agent
+        UserAgentHeader userAgentHeader
+            = sipProvider.getSipCommUserAgentHeader();
+        if(userAgentHeader != null)
+            req.addHeader(userAgentHeader);
 
         return req;
     }
