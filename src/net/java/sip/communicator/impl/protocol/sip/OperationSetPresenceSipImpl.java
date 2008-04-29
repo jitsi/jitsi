@@ -3966,12 +3966,10 @@ public class OperationSetPresenceSipImpl
                      tab[1] = prio;
                      
                      // search if the contact hasn't already been added
-                     Iterator iter = sipcontact.iterator();
                      boolean contactAlreadyListed = false;
-                     int k = 0;
-                     while (iter.hasNext()) {
+                     for (int k = 0; k < sipcontact.size(); k++) {
                          Object tmp[];
-                         tmp = ((Object[]) iter.next());
+                         tmp = ((Object[]) sipcontact.get(k));
                          
                          if (((Contact) tmp[0]).equals(tmpContact)) {
                              contactAlreadyListed = true;
@@ -3985,8 +3983,6 @@ public class OperationSetPresenceSipImpl
                              }
                              break;
                          }
-                         
-                         k++;
                      }
                      
                      // add the contact and its priority to the list
@@ -4195,11 +4191,10 @@ public class OperationSetPresenceSipImpl
              float priority = ((Float) tab[1]).floatValue();
 
              // for each existing contact
-             int pos = 0, i = 0;
+             int pos = 0;
              boolean skip = false;
-             Iterator iter2 = curStatus.iterator();
-             while (iter2.hasNext()) {
-                 Object tab2[] = (Object[]) iter2.next();
+             for (int i = 0; i < curStatus.size(); i++) {
+                 Object tab2[] = (Object[]) curStatus.get(i);
                  Contact curContact = (Contact) tab2[0];
                  float curPriority = ((Float) tab2[1]).floatValue();
 
@@ -4232,9 +4227,9 @@ public class OperationSetPresenceSipImpl
                          curStatus.remove(i);
                      }
                      
+                     i--;
+                     
                  }
-                 
-                 i++;
              }
              
              if (skip) {
