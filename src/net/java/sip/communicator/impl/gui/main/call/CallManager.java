@@ -129,6 +129,12 @@ public class CallManager
         this.minimizeButton.setName("minimize");
         this.restoreButton.setName("restore");
 
+        this.callButton.setToolTipText(
+            Messages.getI18NString("call").getText());
+
+        this.hangupButton.setToolTipText(
+            Messages.getI18NString("hangUp").getText());
+
         this.minimizeButton.setToolTipText(Messages.getI18NString(
             "hideCallPanel").getText()
             + " Ctrl - H");

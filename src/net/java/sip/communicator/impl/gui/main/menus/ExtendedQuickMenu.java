@@ -27,7 +27,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -111,7 +110,7 @@ public class ExtendedQuickMenu
             new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
 
         this.infoButton.setToolTipText(
-            Messages.getI18NString("userInfo").getText());
+            Messages.getI18NString("contactInfo").getText());
         this.configureButton.setToolTipText(
             Messages.getI18NString("configure").getText());
         this.hideShowButton.setToolTipText(

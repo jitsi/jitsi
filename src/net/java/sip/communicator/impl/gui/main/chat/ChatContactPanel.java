@@ -105,7 +105,7 @@ public class ChatContactPanel
         this.callButton.setToolTipText(
             Messages.getI18NString("call").getText());
         this.infoButton.setToolTipText(
-            Messages.getI18NString("userInfo").getText());
+            Messages.getI18NString("contactInfo").getText());
         this.sendFileButton.setToolTipText(
             Messages.getI18NString("sendFile").getText());
 
