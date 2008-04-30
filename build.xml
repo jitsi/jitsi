@@ -501,8 +501,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="false"/>
 
-            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}"/-->
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
@@ -1100,8 +1100,6 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/gui"/>
             <zipfileset dir="${resources}/images/logo"
                 prefix="resources/images/logo"/>
-            <zipfileset dir="${resources}/images/plugin/branding"
-                prefix="resources/images/plugin/branding"/>
             <zipfileset dir="${resources}/images/impl/gui"
                 prefix="resources/images/impl/gui"/>
             <zipfileset dir="${resources}/styles"
