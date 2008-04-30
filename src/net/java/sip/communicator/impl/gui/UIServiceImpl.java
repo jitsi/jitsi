@@ -835,7 +835,6 @@ public class UIServiceImpl
         // popup menu stays light weight it will appear behind the heavy weight
         // component.
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false); 
-        JPopupMenu.setDefaultLightWeightPopupEnabled(false); 
 
         // we need to set the UIDefaults class loader so that it may access
         // resources packed inside OSGI bundles

@@ -823,6 +823,7 @@ public class ContactList
         ContactListModel listModel = (ContactListModel) this.getModel();
 
         Object dest = listModel.getElementAt(selectedIndex);
+
         if (draggedElement != null)
         {
             if (dest instanceof MetaContact)
@@ -832,9 +833,9 @@ public class ContactList
                 {
                     if (draggedElement.getContact() != null)
                     {
-                        // we move the specified contact
-                        mainFrame.getContactList().moveContact(
-                            draggedElement.getContact(), contactDest);
+                        new MoveContactToMetaContactThread(
+                                draggedElement.getContact(),
+                                contactDest).start();
                     }
                     else
                     {
@@ -845,8 +846,9 @@ public class ContactList
                         while(i.hasNext())
                         {
                             Contact contact = (Contact) i.next();
-                            mainFrame.getContactList().
-                                moveContact(contact, contactDest);
+                            new MoveContactToMetaContactThread(
+                                contact,
+                                contactDest).start();
                         }
  
                     }
@@ -863,22 +865,25 @@ public class ContactList
                     // as this contact is the only one inside it.
                     if (draggedElement.getMetaContact().getContactCount() > 1)
                     {
-                        mainFrame.getContactList().moveContact(
-                            draggedElement.getContact(), contactDest);
+                        new MoveContactToGroupThread(
+                            draggedElement.getContact(),
+                            contactDest).start();
                     }
                     else if (!contactDest.contains(
                         draggedElement.getMetaContact()))
                     {
-                        mainFrame.getContactList().moveMetaContact(
-                            draggedElement.getMetaContact(), contactDest);                        
+                        new MoveMetaContactThread(
+                            draggedElement.getMetaContact(),
+                            contactDest).start();
                     }
                 }
                 else if (!contactDest.contains(draggedElement.getMetaContact()))
                 {
                     try
                     {
-                        mainFrame.getContactList().moveMetaContact(
-                            draggedElement.getMetaContact(), contactDest);
+                        new MoveMetaContactThread(
+                            draggedElement.getMetaContact(),
+                            contactDest).start();
                     }
                     catch (Exception ex)
                     {
@@ -1356,5 +1361,176 @@ public class ContactList
     public MainFrame getMainFrame()
     {
         return mainFrame;
+    }
+
+    /**
+     * Moves the given <tt>Contact</tt> to the given <tt>MetaContact</tt> and
+     * asks user for confirmation.
+     */
+    private class MoveContactToMetaContactThread extends Thread
+    {
+        private Contact srcContact;
+        private MetaContact destMetaContact;
+
+        public MoveContactToMetaContactThread(  Contact srcContact,
+                                                MetaContact destMetaContact)
+        {
+            this.srcContact = srcContact;
+            this.destMetaContact = destMetaContact;
+        }
+
+        public void run()
+        {
+            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            {
+                // we move the specified contact
+                mainFrame.getContactList().moveContact(
+                    srcContact, destMetaContact);
+
+                return;
+            }
+
+            String message = Messages.getI18NString(
+                "moveSubcontactQuestion",
+                new String[]{   srcContact.getDisplayName(),
+                                destMetaContact.getDisplayName()})
+                    .getText();
+
+            MessageDialog dialog = new MessageDialog(
+                    mainFrame,
+                    Messages.getI18NString("moveContact").getText(),
+                    message,
+                    Messages.getI18NString("move").getText());
+
+            int returnCode = dialog.showDialog();
+
+            if (returnCode == MessageDialog.OK_RETURN_CODE)
+            {
+                // we move the specified contact
+                mainFrame.getContactList().moveContact(
+                    srcContact, destMetaContact);
+            }
+            else if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
+            {
+                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                // we move the specified contact
+                mainFrame.getContactList().moveContact(
+                    srcContact, destMetaContact);
+            }
+        }
+    }
+
+    /**
+     * Moves the given <tt>Contact</tt> to the given <tt>MetaContactGroup</tt>
+     * and asks user for confirmation.
+     */
+    private class MoveContactToGroupThread extends Thread
+    {
+        private Contact srcContact;
+        private MetaContactGroup destGroup;
+
+        public MoveContactToGroupThread(Contact srcContact,
+                                          MetaContactGroup destGroup)
+        {
+            this.srcContact = srcContact;
+            this.destGroup = destGroup;
+        }
+
+        public void run()
+        {
+            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            {
+                // we move the specified contact
+                mainFrame.getContactList().moveContact(
+                    srcContact, destGroup);
+
+                return;
+            }
+
+            String message = Messages.getI18NString(
+                "moveSubcontactQuestion",
+                new String[]{   srcContact.getDisplayName(),
+                                destGroup.getGroupName()})
+                    .getText();
+
+            MessageDialog dialog = new MessageDialog(
+                    mainFrame,
+                    Messages.getI18NString("moveContact").getText(),
+                    message,
+                    Messages.getI18NString("move").getText());
+
+            int returnCode = dialog.showDialog();
+
+            if (returnCode == MessageDialog.OK_RETURN_CODE)
+            {
+                // we move the specified contact
+                mainFrame.getContactList().moveContact(
+                    srcContact, destGroup);
+            }
+            else if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
+            {
+                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                // we move the specified contact
+                mainFrame.getContactList().moveContact(
+                    srcContact, destGroup);
+            }
+        }
+    }
+
+    /**
+     * Moves the given <tt>MetaContact</tt> to the given <tt>MetaContactGroup</tt>
+     * and asks user for confirmation.
+     */
+    private class MoveMetaContactThread extends Thread
+    {
+        private MetaContact srcContact;
+        private MetaContactGroup destGroup;
+
+        public MoveMetaContactThread(   MetaContact srcContact,
+                                        MetaContactGroup destGroup)
+        {
+            this.srcContact = srcContact;
+            this.destGroup = destGroup;
+        }
+    
+        public void run()
+        {
+            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            {
+                // we move the specified contact
+                mainFrame.getContactList().moveMetaContact(
+                    srcContact, destGroup);
+
+                return;
+            }
+
+            String message = Messages.getI18NString(
+                "moveSubcontactQuestion",
+                new String[]{   srcContact.getDisplayName(),
+                                destGroup.getGroupName()})
+                    .getText();
+
+            MessageDialog dialog = new MessageDialog(
+                    mainFrame,
+                    Messages.getI18NString("moveContact").getText(),
+                    message,
+                    Messages.getI18NString("move").getText());
+
+            int returnCode = dialog.showDialog();
+
+            if (returnCode == MessageDialog.OK_RETURN_CODE)
+            {
+                // we move the specified contact
+                mainFrame.getContactList().moveMetaContact(
+                    srcContact, destGroup);
+            }
+            else if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
+            {
+                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                // we move the specified contact
+                mainFrame.getContactList().moveMetaContact(
+                    srcContact, destGroup);
+            }
+        }
     }
 }

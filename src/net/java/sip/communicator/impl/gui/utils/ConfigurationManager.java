@@ -35,6 +35,8 @@ public class ConfigurationManager
     
     private static boolean isSendTypingNotifications = true;
     
+    private static boolean isMoveContactConfirmationRequested = true;
+    
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
 
@@ -102,6 +104,19 @@ public class ConfigurationManager
         {
             isSendTypingNotifications
                 = new Boolean(isSendTypingNotif).booleanValue();
+        }
+        
+        // Load the "isMoveContactConfirmationRequested" property.
+        String isMoveContactConfirmationRequestedString
+            = configService.getString(
+            "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested");
+
+        if(isMoveContactConfirmationRequestedString != null
+            && isMoveContactConfirmationRequestedString != "")
+        {
+            isMoveContactConfirmationRequested
+                = new Boolean(isMoveContactConfirmationRequestedString)
+                .booleanValue();
         }
     }
 
@@ -176,6 +191,18 @@ public class ConfigurationManager
     public static boolean isSendTypingNotifications()
     {
         return isSendTypingNotifications;
+    }
+
+    /**
+     * Returns TRUE if the "isMoveContactConfirmationRequested" property is true,
+     * otherwise - returns FALSE. Indicates to the user interface whether the
+     * confirmation window during the move contact process is enabled or not.
+     * @return TRUE if the "isMoveContactConfirmationRequested" property is true,
+     * otherwise - returns FALSE
+     */
+    public static boolean isMoveContactConfirmationRequested()
+    {
+        return isMoveContactConfirmationRequested;
     }
 
     /**
@@ -304,6 +331,22 @@ public class ConfigurationManager
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.sendMessageCommand",
                 newMessageCommand);
+    }
+
+    /**
+     * Updates the "isMoveContactQuestionEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isRequested indicates if a confirmation would be requested
+     * from user during the move contact process.
+     */
+    public static void setMoveContactConfirmationRequested(boolean isRequested)
+    {
+        isMoveContactConfirmationRequested = isRequested;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested",
+            new Boolean(isMoveContactConfirmationRequested));
     }
 
     /**

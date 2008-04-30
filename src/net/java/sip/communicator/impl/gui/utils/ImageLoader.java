@@ -212,6 +212,12 @@ public class ImageLoader {
         = new ImageID("MAIN_WINDOW_BACKGROUND");
 
     /**
+     * The background of the about window.
+     */
+    public static final ImageID ABOUT_WINDOW_BG
+        = new ImageID("ABOUT_WINDOW_BG");
+
+    /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
      */
     public static final ImageID ACCOUNT_ICON
