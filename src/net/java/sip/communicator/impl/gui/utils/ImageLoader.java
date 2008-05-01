@@ -600,6 +600,12 @@ public class ImageLoader {
     public static final ImageID WINDOW_TITLE_BAR
         = new ImageID("WINDOW_TITLE_BAR");
 
+    /**
+     * Title bar background image.
+     */
+    public static final ImageID WINDOW_TITLE_BAR_BG
+        = new ImageID("WINDOW_TITLE_BAR_BG");
+
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**
