@@ -862,7 +862,8 @@ public class UIServiceImpl
             logger
                 .info("Handling registration of a new Plugin Component.");
 
-            if(!(pluginComponent.getComponent() instanceof Component))
+            if(pluginComponent.getComponent() == null
+                || !(pluginComponent.getComponent() instanceof Component))
             {
                 logger.error("Plugin Component type is not supported." +
                             "Should provide a plugin in AWT, SWT or Swing.");
@@ -884,7 +885,7 @@ public class UIServiceImpl
      * Returns the corresponding <tt>BorderLayout</tt> constraint from the given
      * <tt>Container</tt> constraint.
      * 
-     * @param containerConstraint constraints defined in the <tt>Container</tt>
+     * @param containerConstraints constraints defined in the <tt>Container</tt>
      * @return the corresponding <tt>BorderLayout</tt> constraint from the given
      * <tt>Container</tt> constraint.
      */
@@ -892,6 +893,9 @@ public class UIServiceImpl
         Object containerConstraints)
     {
         Object layoutConstraint = null;
+        if (containerConstraints == null)
+            return null;
+
         if (containerConstraints.equals(Container.START))
             layoutConstraint = BorderLayout.LINE_START;
         else if (containerConstraints.equals(Container.END))
