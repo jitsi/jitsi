@@ -391,6 +391,9 @@ public class ContactRightButtonMenu
                 PluginComponent component = (PluginComponent) GuiActivator
                     .bundleContext.getService(serRefs[i]);;
 
+                if (component.getComponent() == null)
+                    return;
+
                 component.setCurrentContact(contactItem);
 
                 this.add((Component)component.getComponent());
@@ -854,7 +857,13 @@ public class ContactRightButtonMenu
             = UIServiceImpl.getBorderLayoutConstraintsFromContainer(
                 c.getConstraints());
 
-        this.add((Component) c.getComponent(), constraints);
+        if (c.getComponent() == null)
+            return;
+
+        if (constraints == null)
+            this.add((Component) c.getComponent());
+        else
+            this.add((Component) c.getComponent(), constraints);
 
         c.setCurrentContact(contactItem);
 
