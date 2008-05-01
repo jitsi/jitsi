@@ -131,7 +131,22 @@ public class WhiteboardMenuItem
 
     public Object getComponent()
     {
-        return whiteboardMenu;
+        Iterator iter = metaContact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact contact = (Contact)iter.next();
+            ProtocolProviderService pps = contact.getProtocolProvider();
+            
+            OperationSetWhiteboarding opSetWb = (OperationSetWhiteboarding)
+                pps.getOperationSet(OperationSetWhiteboarding.class);
+           
+            if (opSetWb != null)
+            {
+                return whiteboardMenu; 
+            }
+        }
+        
+        return null;
     }
 
     public String getName()
