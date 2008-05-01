@@ -131,6 +131,9 @@ public class WhiteboardMenuItem
 
     public Object getComponent()
     {
+        if(metaContact == null)
+            return null;
+
         Iterator iter = metaContact.getContacts();
         while (iter.hasNext())
         {
