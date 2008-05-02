@@ -65,6 +65,15 @@ public class UIServiceImpl
         supportedContainers.add(Container.CONTAINER_CALL_HISTORY);
         supportedContainers.add(Container.CONTAINER_MAIN_TABBED_PANE);
         supportedContainers.add(Container.CONTAINER_CHAT_HELP_MENU);
+        supportedContainers.add(UIService.CONTAINER_MAIN_TOOL_BAR);
+        supportedContainers.add(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        supportedContainers.add(UIService.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
+        supportedContainers.add(UIService.CONTAINER_TOOLS_MENU);
+        supportedContainers.add(UIService.CONTAINER_HELP_MENU);
+        supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
+        supportedContainers.add(UIService.CONTAINER_CALL_HISTORY);
+        supportedContainers.add(UIService.CONTAINER_MAIN_TABBED_PANE);
+        supportedContainers.add(UIService.CONTAINER_CHAT_HELP_MENU);
         supportedContainers.add(UIService.CONTAINER_CHAT_WINDOW_SOUTH);
         supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_EAST);
         supportedContainers.add(UIService.CONTAINER_CONTACT_LIST_WEST);
