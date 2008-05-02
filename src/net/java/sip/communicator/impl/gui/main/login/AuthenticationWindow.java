@@ -32,7 +32,7 @@ public class AuthenticationWindow
     private JTextArea realmTextArea = new JTextArea();
 
     private JLabel uinLabel = new JLabel(
-        Messages.getI18NString("id").getText());
+        Messages.getI18NString("identifier").getText());
 
     private JLabel passwdLabel = new JLabel(
         Messages.getI18NString("passwd").getText());
