@@ -1,1 +1,1 @@
-start javaw -jar Uninstaller/uninstaller.jar
+uninstall.exe

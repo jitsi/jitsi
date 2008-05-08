@@ -60,8 +60,7 @@
 		<panel classname="TargetPanel"/>
 		<panel classname="InstallPanel"/>
 		<panel classname="ShortcutPanel"/>
-		<panel classname="FinishPanel"/>
-
+		<panel classname="SimpleFinishPanel"/>
 	</panels>
 
 	<packs>
@@ -111,10 +110,15 @@
 		<pack name="run" required="yes">
                     <description>Exceutable</description>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/versionupdate.properties" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.exe" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/uninstall.exe" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/uninstall.bat" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" override="true"/>
                     <executable targetfile="$INSTALL_PATH/run.bat" stage="never" override="true"/>
+                    <executable targetfile="$INSTALL_PATH/run.exe" stage="never" override="true"/>
+                    <executable targetfile="$INSTALL_PATH/uninstall.bat" stage="never" override="true"/>
+                    <executable targetfile="$INSTALL_PATH/uninstall.exe" stage="never" override="true"/>
 		</pack>
 	</packs>
 

@@ -3,7 +3,7 @@
 	<programGroup defaultName="@APP_NAME@" location="applications"/>
 	<shortcut
 		name="@APP_NAME@"
-		target="$INSTALL_PATH\run.bat"
+		target="$INSTALL_PATH\run.exe"
 		workingDirectory="$INSTALL_PATH"
 		description="This starts @APP_NAME@ Application"
 		iconFile="$INSTALL_PATH\sc-logo.ico"
@@ -18,7 +18,7 @@
   	</shortcut>
 	<shortcut
 		name="Uninstall @APP_NAME@"
-		target="$INSTALL_PATH\uninstall.bat"
+		target="$INSTALL_PATH\uninstall.exe"
 		workingDirectory="$INSTALL_PATH"
 		description="This uninstalls @APP_NAME@"
 		iconFile="$INSTALL_PATH\sc-logo.ico"
