@@ -575,8 +575,20 @@ public class ServerStoredContactListMsnImpl
     void removeContact(ContactMsnImpl contactToRemove)
     {
         logger.trace("Removing msn contact " + contactToRemove.getSourceContact());
+        
+        Email contactsEmail = contactToRemove.getSourceContact().getEmail();
+        
+        MsnGroup[] belongGroups = 
+            contactToRemove.getSourceContact().getBelongGroups();
+        
+        for (int i = 0; i < belongGroups.length; i++)
+        {
+            msnProvider.getMessenger().
+                removeFriend(contactsEmail, belongGroups[i].getGroupId());
+        }
+        
         msnProvider.getMessenger().
-            removeFriend(contactToRemove.getSourceContact().getEmail(), false);
+            removeFriend(contactsEmail, false);
     }
 
 
@@ -700,6 +712,35 @@ public class ServerStoredContactListMsnImpl
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
             SubscriptionEvent.SUBSCRIPTION_CREATED, contact, parentGroup);
+
+        // sometimes when adding msn contact
+        // status updates comes before event for adding contact and so
+        // statuses are not dispatched, we check this here
+        MsnUserStatus msnStatus = 
+            contact.getSourceContact().getStatus();
+        
+        // for some reason when creating unresolved contact this status is null
+        if(msnStatus == null)
+            return;
+        
+        PresenceStatus oldStatus
+            = contact.getPresenceStatus();
+        
+        PresenceStatus newStatus
+            = parentOperationSet.msnStatusToPresenceStatus(
+                contact.getSourceContact().getStatus());
+
+        if(oldStatus.equals(newStatus))
+            return;
+
+        contact.updatePresenceStatus(newStatus);
+
+        parentOperationSet.fireContactPresenceStatusChangeEvent(
+            contact,
+            parentGroup,
+            oldStatus,
+            newStatus
+        );
     }
 
     /**

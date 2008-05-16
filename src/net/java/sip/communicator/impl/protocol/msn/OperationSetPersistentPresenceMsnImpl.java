@@ -43,14 +43,14 @@ public class OperationSetPersistentPresenceMsnImpl
     private String currentStatusMessage = "";
 
     /**
-     * The presence status that we were last notified of etnering.
+     * The presence status that we were last notified of entering.
      * The initial one is OFFLINE
      */
     private PresenceStatus currentStatus = MsnStatusEnum.OFFLINE;
 
     /**
      * The list of listeners interested in receiving changes in our local
-     * presencestatus.
+     * presence status.
      */
     private Vector providerPresenceStatusListeners = new Vector();
 
@@ -116,7 +116,7 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
-     * The server stored contact list that will be encapsulating smack's
+     * The server stored contact list that will be encapsulating msn's
      * buddy list.
      */
     private ServerStoredContactListMsnImpl ssContactList = null;
@@ -164,11 +164,11 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
-     * Registers a listener that would receive events upong changes in server
+     * Registers a listener that would receive events upon changes in server
      * stored groups.
      *
      * @param listener a ServerStoredGroupChangeListener impl that would
-     *   receive events upong group changes.
+     *   receive events upon group changes.
      */
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
@@ -178,7 +178,7 @@ public class OperationSetPersistentPresenceMsnImpl
 
     /**
      * Registers a listener that would get notifications any time a new
-     * subscription was succesfully added, has failed or was removed.
+     * subscription was successfully added, has failed or was removed.
      *
      * @param listener the SubscriptionListener to register
      */
@@ -312,7 +312,7 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
-     * Returns the status message that was confirmed by the serfver
+     * Returns the status message that was confirmed by the server
      *
      * @return the last status message that we have requested and the aim
      *   server has confirmed.
@@ -395,7 +395,7 @@ public class OperationSetPersistentPresenceMsnImpl
 
     /**
      * Requests the provider to enter into a status corresponding to the
-     * specified paramters.
+     * specified parameters.
      *
      * @param status the PresenceStatus as returned by
      *   getRequestableStatusSet
@@ -652,7 +652,7 @@ public class OperationSetPersistentPresenceMsnImpl
      * @return a PresenceStatus instance representation of the Msn Status
      * parameter. The returned result is one of the MsnStatusEnum fields.
      */
-    private MsnStatusEnum msnStatusToPresenceStatus(MsnUserStatus status)
+    MsnStatusEnum msnStatusToPresenceStatus(MsnUserStatus status)
     {
         if(status.equals(MsnUserStatus.ONLINE))
             return MsnStatusEnum.ONLINE;
@@ -772,7 +772,7 @@ public class OperationSetPersistentPresenceMsnImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -922,7 +922,7 @@ public class OperationSetPersistentPresenceMsnImpl
      * @param newStatus the status that the specified contact is currently in.
      * @param parentGroup the group containing the contact which caused the event
      */
-    private void fireContactPresenceStatusChangeEvent(
+    void fireContactPresenceStatusChangeEvent(
                         Contact contact,
                         ContactGroup parentGroup,
                         PresenceStatus oldStatus,
@@ -994,7 +994,7 @@ public class OperationSetPersistentPresenceMsnImpl
 
     /**
      * Sets the messenger instance impl of the lib
-     * which comunicates with the server
+     * which communicates with the server
      * @param messenger MsnMessenger
      */
     void setMessenger(MsnMessenger messenger)
@@ -1046,13 +1046,13 @@ public class OperationSetPersistentPresenceMsnImpl
 
     /**
      * Waits for status changes from the contacts in the list
-     * or ouw own account
+     * or own account
      */
     private class StatusChangedListener
         extends MsnContactListAdapter
     {
         /**
-         * Indicates that ower status changed
+         * Indicates that owner status changed
          * @param messenger the messenger changing the status
          */
         public void ownerStatusChanged(MsnMessenger messenger)
