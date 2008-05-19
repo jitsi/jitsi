@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -224,7 +223,7 @@ public class LoginManager
                 presence.setAuthorizationHandler(new AuthorizationHandlerImpl(
                     mainFrame));
             }
-            
+
             if(multiUserChat != null)
             {
                 mainFrame.getChatRoomsListPanel().getChatRoomsList()
@@ -235,7 +234,6 @@ public class LoginManager
         else if (evt.getNewState().equals(
             RegistrationState.AUTHENTICATION_FAILED))
         {
-
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
@@ -278,22 +276,27 @@ public class LoginManager
         }
         else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
-
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             String msgText = Messages.getI18NString("connectionFailedMessage",
                 new String[]
                 { accountID.getUserID(), accountID.getService() }).getText();
 
-            new ErrorDialog(null,
+            int result = new MessageDialog(null,
                 Messages.getI18NString("error").getText(),
-                msgText).showDialog();
+                msgText,
+                Messages.getI18NString("retry").getText(),
+                false).showDialog();
+
+            if (result == MessageDialog.OK_RETURN_CODE)
+            {
+                this.login(protocolProvider);
+            }
 
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.EXPIRED))
         {
-
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             String msgText = Messages.getI18NString("connectionExpiredMessage",
@@ -308,7 +311,6 @@ public class LoginManager
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
         {
-
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             if (mainFrame.getCallManager()
@@ -395,7 +397,8 @@ public class LoginManager
     {
         // if the event is caused by a bundle being stopped, we don't want to
         // know
-        if (event.getServiceReference().getBundle().getState() == Bundle.STOPPING)
+        if (event.getServiceReference().getBundle().getState()
+                == Bundle.STOPPING)
         {
             return;
         }
@@ -508,6 +511,11 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    new ErrorDialog(mainFrame,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        ex).showDialog();
                 }
                 else if (errorCode == OperationFailedException.INTERNAL_ERROR)
                 {
@@ -519,6 +527,11 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    new ErrorDialog(mainFrame,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        ex).showDialog();
                 }
                 else if (errorCode == OperationFailedException.NETWORK_FAILURE)
                 {
@@ -530,6 +543,17 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    int result = new MessageDialog(null,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        Messages.getI18NString("retry").getText(),
+                        false).showDialog();
+
+                    if (result == MessageDialog.OK_RETURN_CODE)
+                    {
+                        login(protocolProvider);
+                    }
                 }
                 else if (errorCode
                         == OperationFailedException.INVALID_ACCOUNT_PROPERTIES)
@@ -542,16 +566,16 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    new ErrorDialog(mainFrame,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        ex).showDialog();
                 }
                 else
                 {
                     logger.error("Provider could not be registered.", ex);
                 }
-
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    errorMessage,
-                    ex).showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }

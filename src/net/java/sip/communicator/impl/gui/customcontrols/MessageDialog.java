@@ -49,6 +49,8 @@ public class MessageDialog
 
     private JPanel messagePanel = new JPanel(new BorderLayout(5, 5));
     
+    private boolean isConfirmationEnabled = true;
+
     private int returnCode;
     
     /**
@@ -76,7 +78,7 @@ public class MessageDialog
      */
     public MessageDialog(Frame owner)
     {
-        super(owner);
+        super(owner, false);
 
         this.getContentPane().setLayout(new BorderLayout(5, 5));
 
@@ -133,6 +135,30 @@ public class MessageDialog
      * @param owner the dialog owner
      * @param title the title of the message
      * @param message the message to be displayed
+     * @param okButtonName ok button name
+     * @param isConfirmationEnabled indicates whether the "Do not ask again"
+     * button should be enabled or not
+     */
+    public MessageDialog(   Frame owner,
+                            String title,
+                            String message,
+                            String okButtonName,
+                            boolean isConfirmationEnabled)
+    {
+        this(owner, title, message);
+
+        this.okButton.setText(okButtonName);
+        this.okButton.setMnemonic(okButtonName.charAt(0));
+
+        this.isConfirmationEnabled = isConfirmationEnabled;
+    }
+
+    /**
+     * Creates an instance of <tt>MessageDialog</tt> by specifying the
+     * owner window and the message to be displayed.
+     * @param owner the dialog owner
+     * @param title the title of the message
+     * @param message the message to be displayed
      * @param isCancelButtonEnabled <code>true</code> to show the Cancel button,
      * <code>false</code> - otherwise
      */
@@ -159,7 +185,8 @@ public class MessageDialog
     {
         this.getRootPane().setDefaultButton(okButton);
 
-        this.checkBoxPanel.add(doNotAskAgain);
+        if(isConfirmationEnabled)
+            this.checkBoxPanel.add(doNotAskAgain);
 
         this.buttonsPanel.add(okButton);
         this.buttonsPanel.add(cancelButton);
