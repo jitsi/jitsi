@@ -1,10 +1,12 @@
 # Author: Romain KUNTZ
+# Requires the Sparkle.framework installed in /Library/Frameworks
+# The Framework is available at http://sparkle.andymatuschak.org/
 
 CC=gcc
 TARGET=libsparkle_init.dylib
 JNI_INCLUDE_PATH=/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/
 CFLAGS=-I$(JNI_INCLUDE_PATH)
-LIBS=-framework AppKit,Foundation
+LIBS=-framework AppKit -framework Foundation -framework Sparkle
 OBJS=net_java_sip_communicator_impl_sparkle_SparkleActivator.o
 
 all:$(TARGET)
