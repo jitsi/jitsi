@@ -392,7 +392,7 @@ public class ContactRightButtonMenu
                     .bundleContext.getService(serRefs[i]);;
 
                 if (component.getComponent() == null)
-                    return;
+                    continue;
 
                 component.setCurrentContact(contactItem);
 
