@@ -325,7 +325,7 @@
       <taskdef name="jarbundler"
                classname="net.sourceforge.jarbundler.JarBundler"/>
 
-       <mkdir dir="${macosx.app.dir}"/>
+      <mkdir dir="${macosx.app.dir}"/>
 
       <property name="macosx.stubfile"
                 value="${macosx.resrc.dir}/JavaApplicationStub"/>
@@ -367,6 +367,14 @@
       <!-- Delete the old .app if it exists -->
       <delete dir="${macosx.app.dir}/${application.name}.app"
               quiet="yes" failonerror="false"/>
+              
+      <!-- Sparkle needs the build number. If it is not 
+           available, we use the normal build label -->
+      <condition property="sparkle.build"
+                 value="${label}"
+                 else="${build.label}">
+          <isset property="label"/>
+      </condition>
 
       <!-- This creates the .app for MacOSX -->
       <jarbundler dir="${macosx.app.dir}"
@@ -377,7 +385,7 @@
                   icon="resources/images/logo/sc_logo_128x128.icns"
                   jvmversion="1.5+"
                   version="${sip-communicator.version}"
-                  build="draft"
+                  build="${sparkle.build}"
                   infostring="SIP Communicator"
                   bundleid="org.sip-communicator"
                   stubfile="${macosx.stubfile}"
@@ -403,6 +411,7 @@
             <include name="lib/bundle/*.jar" />
             <exclude name="lib/bundle/junit.jar" />
             <include name="lib/native/mac/*.jnilib" />
+            <include name="lib/native/mac/*.dylib" />
             <include name="${bundles.dest}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
             <include name="resources/images/logo/sc_logo_128x128.icns" />
@@ -417,8 +426,52 @@
       <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/log"/>
     </target>
 
+    <!-- Create a MacOSX application package with Sparkle support.
+         Executed only if the label property is set, i.e. if the 
+         package is built from CruiseControl -->
+    <target name="macosx-sparkle" depends="macosx"
+            if="label"
+            description="Create an .app package for MACOSX with Sparkle support">
+	  
+      <!-- Add the sparkle bundle path in the felix.client.run.properties file -->
+      <echo file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
+            append="true">felix.auto.start.71= reference:file:sc-bundles/sparkle.jar
+      </echo>
+
+      <!-- Remove the path to the updatechecker bundle in the felix.client.run.properties file -->
+	  <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
+               token="reference:file:sc-bundles/updatechecker.jar"
+               value=""/>
+
+      <!-- Add the Sparkle properties in the Info.plist file -->
+	  <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+        <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
+        <replacevalue><![CDATA[<key>SUCheckAtStartup</key>
+    <string>false</string>
+    <key>SUFeedURL</key>
+    <string>http://download.sip-communicator.org/nightly/macosx/sparkle/updates.xml</string>
+    <key>SUShowReleaseNotes</key>
+    <string>true</string>
+    <key>CFBundleName</key>]]></replacevalue>    
+      </replace>
+
+      <!-- Install the Sparkle Framework in the application package -->
+      <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
+      <unzip src="${macosx.resrc.dir}/Sparkle.framework.zip" 
+            dest="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
+      <!-- Ant unzip tasks does not preserve symlinks, so we recreate them -->
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/Current" 
+            resource="./A"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Headers" 
+            resource="./Versions/Current/Headers"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources" 
+            resource="./Versions/Current/Resources"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Sparkle" 
+            resource="./Versions/Current/Sparkle"/>
+    </target>
+
     <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
-    <target name="dmg" depends="macosx"
+    <target name="dmg" depends="macosx-sparkle"
             if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
                 
