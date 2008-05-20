@@ -371,9 +371,9 @@
       <!-- Sparkle needs the build number. If it is not 
            available, we use the normal build label -->
       <condition property="sparkle.build"
-                 value="${label}"
+                 value="${sparkle}"
                  else="${build.label}">
-          <isset property="label"/>
+          <isset property="sparkle"/>
       </condition>
 
       <!-- This creates the .app for MacOSX -->
@@ -427,10 +427,10 @@
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.
-         Executed only if the label property is set, i.e. if the 
+         Executed only if the sparkle label property is set, i.e. if the 
          package is built from CruiseControl -->
     <target name="macosx-sparkle" depends="macosx"
-            if="label"
+            if="sparkle"
             description="Create an .app package for MACOSX with Sparkle support">
 	  
       <!-- Add the sparkle bundle path in the felix.client.run.properties file -->
