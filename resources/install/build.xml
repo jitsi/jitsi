@@ -490,7 +490,7 @@
               quiet="yes" failonerror="false"/>
 
       <!-- Create a temporary Disk Image -->
-      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
         <arg value="create"/>
         <arg value="-srcfolder"/>
         <arg value="${macosx.app.dir}/${application.name}.app"/>
@@ -502,7 +502,7 @@
         <arg value="UDRW"/>
       </exec>
       <!-- Attach the temporary image -->
-      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
         <arg value="attach"/>
         <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
         <arg value="-mountroot"/>
@@ -527,12 +527,12 @@
       <!-- Add a symbolic link to the Applications directory -->
       <symlink link="${release}/${application.name}" resource="/Applications"/>
       <!-- Detach the temporary image -->
-      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
         <arg value="detach"/>
         <arg value="${release}/${application.name}"/>
       </exec>
       <!-- Compress it to a new image -->
-      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
         <arg value="convert"/>
         <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
         <arg value="-format"/>
