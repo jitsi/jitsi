@@ -447,7 +447,7 @@
 	  <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
         <replacevalue><![CDATA[<key>SUCheckAtStartup</key>
-    <string>false</string>
+    <string>true</string>
     <key>SUFeedURL</key>
     <string>http://download.sip-communicator.org/nightly/macosx/sparkle/updates.xml</string>
     <key>SUShowReleaseNotes</key>
