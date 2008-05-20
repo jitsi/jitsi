@@ -19,8 +19,22 @@ public class SparkleActivator
 {
     private static Logger logger = Logger.getLogger(SparkleActivator.class);
     
-    // Native method declaration
-    public native static void initSparkle(String pathToSparkleFramework);
+    /** 
+     * Native method declaration
+     */
+    public native static void initSparkle(String pathToSparkleFramework, 
+                                          boolean updateAtStartup, 
+                                          int checkInterval);
+
+    /**
+     * Whether updates are checked at startup
+     */
+    private boolean updateAtStartup = true;
+
+    /**
+     * Whether updates are checked at startup
+     */
+    private int checkInterval = 86400;  // 1 day
 
    /**
      * Dynamically loads JNI object. Will fail if non-MacOSX 
@@ -39,7 +53,9 @@ public class SparkleActivator
     public void start(BundleContext bundleContext) throws Exception
     {
         // TODO: better way to get the Sparkle Framework path?
-        initSparkle(System.getProperty("user.dir") + "/../../Frameworks/Sparkle.framework");
+        initSparkle(System.getProperty("user.dir") 
+                    + "/../../Frameworks/Sparkle.framework",
+                    updateAtStartup, checkInterval);
         logger.info("Sparkle Plugin ...[Started]");
     }
 
