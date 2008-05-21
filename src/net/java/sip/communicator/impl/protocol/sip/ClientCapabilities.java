@@ -183,11 +183,15 @@ public class ClientCapabilities
         return nextCSeqValue++;
     }
     
+    /**
+     * Fire event that connection has failed and we had to unregister 
+     * the protocol provider.
+     */
     private void disconnect()
     {
-        
         //don't alert the user if we're already off
-        if(provider.getRegistrarConnection().getRegistrationState().equals(RegistrationState.UNREGISTERED))
+       if(provider.getRegistrarConnection().getRegistrationState().
+           equals(RegistrationState.UNREGISTERED))
             return;
 
         provider.getRegistrarConnection().setRegistrationState(
