@@ -84,7 +84,7 @@ public class StatusPanel
         if(isHidden)
             hiddenProviders++;
 
-        if (protocolStatusCombos.size() - hiddenProviders == 1)
+        if (protocolStatusCombos.size() - hiddenProviders == 1 && !isHidden)
         {
             this.globalStatusBox = new GlobalStatusSelectorBox(mainFrame);
 
