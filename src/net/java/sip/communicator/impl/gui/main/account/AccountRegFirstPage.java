@@ -59,6 +59,11 @@ public class AccountRegFirstPage extends JPanel
         = new JLabel(
             Messages.getI18NString("selectAccountRegWizardTitle").getText(),
                 JLabel.CENTER);
+    
+    /**
+     * Class name of the preferred wizard if any.
+     */
+    private String preferredWizardName = null;
 
     public AccountRegFirstPage(AccountRegWizardContainerImpl container) {
         super(new BorderLayout(10, 10));
@@ -91,6 +96,11 @@ public class AccountRegFirstPage extends JPanel
         this.add(tableScrollPane, BorderLayout.CENTER);
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        // check for preferred wizard
+        String prefWName = LoginProperties.getProperty("preferredAccountWizard");
+        if(prefWName != null && prefWName.length() > 0)
+            preferredWizardName = prefWName;
     }
 
     /**
@@ -154,8 +164,14 @@ public class AccountRegFirstPage extends JPanel
 
         registrationLabel.setIcon(new ImageIcon(protocolImage));
 
-        this.tableModel.addRow(new Object[]{wizard, registrationLabel,
+        // if we have preferred wizard insert it at first position
+        if(preferredWizardName != null && 
+            wizard.getClass().getName().equals(preferredWizardName))
+            this.tableModel.insertRow(0, new Object[]{wizard, registrationLabel,
                         wizard.getProtocolDescription()});
+        else
+            this.tableModel.addRow(new Object[]{wizard, registrationLabel,
+                            wizard.getProtocolDescription()});
     }
 
     /**
