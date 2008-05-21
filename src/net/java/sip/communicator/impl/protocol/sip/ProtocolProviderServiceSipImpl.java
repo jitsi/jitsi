@@ -2421,4 +2421,12 @@ public class ProtocolProviderServiceSipImpl
     {
         return sipStatusEnum;
     }
+    /**
+     * Returns the current instance of <tt>SipRegistrarConnection</tt>.
+     * @return SipRegistrarConnection
+     */
+    SipRegistrarConnection getRegistrarConnection()
+    {
+        return sipRegistrarConnection;
+    }
 }

@@ -720,7 +720,7 @@ public class SipRegistrarConnection
      * {@link RegistrationStateChangeEvent}.
      * @param reason a reason String further explaining the reasonCode.
      */
-    private void setRegistrationState(RegistrationState newState,
+    void setRegistrationState(RegistrationState newState,
                                       int               reasonCode,
                                       String            reason)
     {

@@ -13,6 +13,7 @@ import javax.sip.header.*;
 import java.text.*;
 import java.util.*;
 import java.net.*;
+import java.io.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -161,6 +162,7 @@ public class ClientCapabilities
      */
     public void processTimeout(TimeoutEvent timeoutEvent)
     {
+        disconnect();
     }
 
     /**
@@ -179,6 +181,19 @@ public class ClientCapabilities
     private long getNextCSeqValue()
     {
         return nextCSeqValue++;
+    }
+    
+    private void disconnect()
+    {
+        
+        //don't alert the user if we're already off
+        if(provider.getRegistrarConnection().getRegistrationState().equals(RegistrationState.UNREGISTERED))
+            return;
+
+        provider.getRegistrarConnection().setRegistrationState(
+            RegistrationState.CONNECTION_FAILED
+            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+            , "A timeout occurred while trying to connect to the server.");
     }
     
     private class KeepAliveTask
@@ -349,10 +364,16 @@ public class ClientCapabilities
                     optionsTrans.sendRequest();
                     logger.debug("sent request= " + request);
                 }
-                //we sometimes get a null pointer exception here so catch them all
-                catch (Exception ex)
+                catch (SipException ex)
                 {
-                    logger.error("Could not send out the register request!", ex);
+                    logger.error("Could not send out the options request!", ex);
+                    
+                    if(ex.getCause() instanceof IOException)
+                    {
+                        // IOException problem with network
+                        disconnect();
+                    }
+                    
                     return;
                 }
             }catch(Exception ex)
