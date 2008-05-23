@@ -56,4 +56,25 @@ public class ColorProperties
             return 0xFFFFFF;
         }
     }
+
+    /**
+     * Returns an int RGB color corresponding to the given key.
+     *
+     * @param key The key of the string.
+     *
+     * @return An internationalized string corresponding to the given key.
+     */
+    public static String getColorString(String key)
+    {
+        try
+        {
+            return RESOURCE_BUNDLE.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
+            log.error("Missing color resource.", e);
+
+            return "0xFFFFFF";
+        }
+    }
 }
