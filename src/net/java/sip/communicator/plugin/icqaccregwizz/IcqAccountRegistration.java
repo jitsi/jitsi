@@ -18,13 +18,13 @@ public class IcqAccountRegistration
 
     private String password;
 
-    private boolean rememberPassword;
+    private boolean rememberPassword = true;
 
     private String proxyPort;
 
     private String proxy;
 
-    private String proxyType;
+    private String proxyType = "http";
 
     private String proxyUsername;
 

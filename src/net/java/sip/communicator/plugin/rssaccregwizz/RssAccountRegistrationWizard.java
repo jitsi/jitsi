@@ -127,14 +127,23 @@ public class RssAccountRegistrationWizard
      * Installs the account created through this wizard.
      * @return ProtocolProviderService
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        return signin(registration.getUserID(), null);
+    }
+
+    /**
+     * Installs the account created through this wizard.
+     * @return ProtocolProviderService
+     */
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory
             = RssAccRegWizzActivator.getRssProtocolProviderFactory();
 
         return this.installAccount(factory,
-                                   registration.getUserID());
+                                   userName);
     }
 
     /**
@@ -246,5 +255,24 @@ public class RssAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return null;
+    }
+    
+    /**
+     * Disables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return false;
     }
 }

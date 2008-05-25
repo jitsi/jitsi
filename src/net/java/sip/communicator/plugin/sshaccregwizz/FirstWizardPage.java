@@ -71,10 +71,6 @@ public class FirstWizardPage
     
     private JPanel emptyPanel9 = new JPanel();
     
-    private JPanel emptyPanel10 = new JPanel();
-    
-    private JPanel emptyPanel11 = new JPanel();
-    
     private JTextField accountIDField = new JTextField();
     
     private JTextField identityFileField = new JTextField("Optional");

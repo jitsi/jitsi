@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.msnaccregwizz;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -26,7 +28,7 @@ public class MsnAccRegWizzActivator implements BundleActivator {
 
     private static ConfigurationService configService;
 
-    private static AccountRegistrationWizardContainer wizardContainer;
+    private static WizardContainer wizardContainer;
 
     private static MsnAccountRegistrationWizard msnWizard;
 
@@ -51,12 +53,21 @@ public class MsnAccRegWizzActivator implements BundleActivator {
 
         msnWizard = new MsnAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(msnWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.MSN);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            msnWizard,
+            containerFilter);
     }
 
     public void stop(BundleContext bundleContext) throws Exception
     {
-        wizardContainer.removeAccountRegistrationWizard(msnWizard);
     }
 
     /**

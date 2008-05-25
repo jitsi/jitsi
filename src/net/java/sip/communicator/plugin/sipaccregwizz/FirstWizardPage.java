@@ -28,17 +28,7 @@ public class FirstWizardPage
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    private static String DEFAULT_PORT = "5060";
-
-    private static String DEFAULT_TLS_PORT = "5061";
-
-    private static String DEFAULT_TRANSPORT = "UDP";
-
-    private static String DEFAULT_POLL_PERIOD = "30";
-
-    private static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
-
-    private static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
+    public static final String USER_NAME_EXAMPLE = "Ex: john@voiphone.net";
 
     private JPanel firstTabPanel = new JPanel(new BorderLayout());
 
@@ -48,13 +38,13 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new JPanel();
 
-    private JLabel uinLabel = new JLabel(Resources.getString("uin"));
+    private JLabel uinLabel = new JLabel(Resources.getString("id"));
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
     private JPanel emptyPanel = new JPanel();
 
-    private JLabel uinExampleLabel = new JLabel("Ex: john@voiphone.net");
+    private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
     private JLabel existingAccountLabel =
         new JLabel(Resources.getString("existingAccount"));
@@ -92,9 +82,11 @@ public class FirstWizardPage
 
     private JTextField proxyField = new JTextField();
 
-    private JTextField serverPortField = new JTextField(DEFAULT_PORT);
+    private JTextField serverPortField
+        = new JTextField(SIPAccountRegistration.DEFAULT_PORT);
 
-    private JTextField proxyPortField = new JTextField(DEFAULT_PORT);
+    private JTextField proxyPortField
+        = new JTextField(SIPAccountRegistration.DEFAULT_PORT);
 
     private JComboBox transportCombo = new JComboBox(new Object[]
     { "UDP", "TLS", "TCP" });
@@ -120,10 +112,11 @@ public class FirstWizardPage
     private JLabel subscribeExpiresLabel =
         new JLabel(Resources.getString("subscriptionExpiration"));
 
-    private JTextField pollPeriodField = new JTextField(DEFAULT_POLL_PERIOD);
+    private JTextField pollPeriodField
+        = new JTextField(SIPAccountRegistration.DEFAULT_POLL_PERIOD);
 
     private JTextField subscribeExpiresField =
-        new JTextField(DEFAULT_SUBSCRIBE_EXPIRES);
+        new JTextField(SIPAccountRegistration.DEFAULT_SUBSCRIBE_EXPIRES);
 
     private JPanel keepAlivePanel = new JPanel(new BorderLayout(10, 10));
 
@@ -243,14 +236,18 @@ public class FirstWizardPage
                 {
                     setServerFieldAccordingToUIN();
 
-                    serverPortField.setText(DEFAULT_PORT);
-                    proxyPortField.setText(DEFAULT_PORT);
-                    transportCombo.setSelectedItem(DEFAULT_TRANSPORT);
+                    serverPortField
+                        .setText(SIPAccountRegistration.DEFAULT_PORT);
+                    proxyPortField
+                        .setText(SIPAccountRegistration.DEFAULT_PORT);
+                    transportCombo
+                        .setSelectedItem(SIPAccountRegistration.DEFAULT_TRANSPORT);
                 }
             }
         });
 
-        transportCombo.setSelectedItem(DEFAULT_TRANSPORT);
+        transportCombo
+            .setSelectedItem(SIPAccountRegistration.DEFAULT_TRANSPORT);
 
         labelsAdvOpPanel.add(serverLabel);
         labelsAdvOpPanel.add(serverPortLabel);
@@ -319,7 +316,11 @@ public class FirstWizardPage
         this.keepAliveIntervalExampleLabel
             .setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
-        keepAliveIntervalValue.setText(DEFAULT_KEEP_ALIVE_INTERVAL);
+        keepAliveIntervalValue
+            .setText(SIPAccountRegistration.DEFAULT_KEEP_ALIVE_INTERVAL);
+
+        keepAliveMethodBox.setSelectedItem(
+            SIPAccountRegistration.DEFAULT_KEEP_ALIVE_METHOD);
 
         keepAliveValues.add(keepAliveMethodBox);
         keepAliveValues.add(keepAliveIntervalValue);
@@ -409,7 +410,7 @@ public class FirstWizardPage
 
             SIPAccountRegistration registration = wizard.getRegistration();
 
-            registration.setUin(uinField.getText());
+            registration.setId(uinField.getText());
 
             if (passField.getPassword() != null)
                 registration.setPassword(new String(passField.getPassword()));
@@ -565,11 +566,12 @@ public class FirstWizardPage
         transportCombo.setSelectedItem(preferredTransport);
         proxyPortField.setText(proxyPort);
 
-        if (!(serverPort.equals(DEFAULT_PORT)
-                || serverPort.equals(DEFAULT_TLS_PORT))
-            || !(proxyPort.equals(DEFAULT_PORT)
-                || proxyPort.equals(DEFAULT_TLS_PORT))
-            || !transportCombo.getSelectedItem().equals(DEFAULT_TRANSPORT))
+        if (!(serverPort.equals(SIPAccountRegistration.DEFAULT_PORT)
+                || serverPort.equals(SIPAccountRegistration.DEFAULT_TLS_PORT))
+            || !(proxyPort.equals(SIPAccountRegistration.DEFAULT_PORT)
+                || proxyPort.equals(SIPAccountRegistration.DEFAULT_TLS_PORT))
+            || !transportCombo.getSelectedItem()
+                .equals(SIPAccountRegistration.DEFAULT_TRANSPORT))
         {
             enableAdvOpButton.setSelected(true);
 
@@ -607,15 +609,11 @@ public class FirstWizardPage
     {
         if (!enableAdvOpButton.isSelected())
         {
-            String uin = uinField.getText();
-            int delimIndex = uin.indexOf("@");
-            if (delimIndex != -1)
-            {
-                String newServerAddr = uin.substring(delimIndex + 1);
+            String serverAddress
+                = wizard.getServerFromUserName(uinField.getText());
 
-                serverField.setText(newServerAddr);
-                proxyField.setText(newServerAddr);
-            }
+            serverField.setText(serverAddress);
+            proxyField.setText(serverAddress);
         }
     }
 
@@ -639,13 +637,13 @@ public class FirstWizardPage
         if (e.getStateChange() == ItemEvent.SELECTED
             && e.getItem().equals("TLS"))
         {
-            serverPortField.setText(DEFAULT_TLS_PORT);
-            proxyPortField.setText(DEFAULT_TLS_PORT);
+            serverPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
+            proxyPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
         }
         else
         {
-            serverPortField.setText(DEFAULT_PORT);
-            proxyPortField.setText(DEFAULT_PORT);
+            serverPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
+            proxyPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
         }
     }
 

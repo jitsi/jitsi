@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.aimaccregwizz;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -43,18 +45,25 @@ public class AimAccRegWizzActivator implements BundleActivator {
 
         uiService = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
+        WizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
 
         aimWizard = new AimAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(aimWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.AIM);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            aimWizard,
+            containerFilter);
     }
 
     public void stop(BundleContext bundleContext) throws Exception
     {
-        uiService.getAccountRegWizardContainer()
-            .removeAccountRegistrationWizard(aimWizard);
     }
 
     /**

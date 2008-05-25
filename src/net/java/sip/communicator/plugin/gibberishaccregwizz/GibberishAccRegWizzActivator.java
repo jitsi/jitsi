@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.gibberishaccregwizz;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -34,7 +36,7 @@ public class GibberishAccRegWizzActivator
      */
     private static ConfigurationService configService;
 
-    private static AccountRegistrationWizardContainer wizardContainer;
+    private static WizardContainer wizardContainer;
 
     private static GibberishAccountRegistrationWizard gibberishWizard;
 
@@ -60,7 +62,17 @@ public class GibberishAccRegWizzActivator
         gibberishWizard
             = new GibberishAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(gibberishWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.GIBBERISH);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            gibberishWizard,
+            containerFilter);
 
         logger.info("Gibberish account registration wizard [STARTED].");
     }
@@ -73,7 +85,6 @@ public class GibberishAccRegWizzActivator
      */
     public void stop(BundleContext bundleContext)
     {
-        wizardContainer.removeAccountRegistrationWizard(gibberishWizard);
     }
 
     /**

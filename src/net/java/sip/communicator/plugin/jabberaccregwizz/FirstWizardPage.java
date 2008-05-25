@@ -34,15 +34,7 @@ public class FirstWizardPage
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    private static final String GOOGLE_USER_SUFFIX = "gmail.com";
-
-    private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
-
-    private static final String DEFAULT_PORT = "5222";
-
-    private static final String DEFAULT_PRIORITY = "10";
-
-    private static final String DEFAULT_RESOURCE = "sip-comm";
+    public static final String USER_NAME_EXAMPLE = "Ex: johnsmith@jabber.org";
 
     private JabberNewAccountDialog jabberNewAccountDialog;
 
@@ -52,7 +44,7 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new JPanel();
 
-    private JLabel userIDLabel = new JLabel(Resources.getString("userID"));
+    private JLabel userIDLabel = new JLabel(Resources.getString("username"));
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
@@ -61,7 +53,7 @@ public class FirstWizardPage
 
     private JPanel emptyPanel = new JPanel();
 
-    private JLabel userIDExampleLabel = new JLabel("Ex: johnsmith@jabber.org");
+    private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
     private JTextField userIDField = new JTextField();
 
@@ -77,18 +69,20 @@ public class FirstWizardPage
     private JPanel valuesAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox sendKeepAliveBox = new JCheckBox(Resources
-        .getString("sendKeepAlive"));
+        .getString("enableKeepAlive"));
 
     private JCheckBox enableAdvOpButton = new JCheckBox(Resources
         .getString("ovverideServerOps"), false);
 
-    private JLabel resourceLabel = new JLabel("Resource");
+    private JLabel resourceLabel = new JLabel(Resources.getString("resource"));
 
-    private JTextField resourceField = new JTextField(DEFAULT_RESOURCE);
+    private JTextField resourceField
+        = new JTextField(JabberAccountRegistration.DEFAULT_RESOURCE);
 
-    private JLabel priorityLabel = new JLabel("Priority");
+    private JLabel priorityLabel = new JLabel(Resources.getString("priority"));
 
-    private JTextField priorityField = new JTextField(DEFAULT_PRIORITY);
+    private JTextField priorityField
+        = new JTextField(JabberAccountRegistration.DEFAULT_PRIORITY);
 
     private JLabel serverLabel = new JLabel(Resources.getString("server"));
 
@@ -96,7 +90,8 @@ public class FirstWizardPage
 
     private JLabel portLabel = new JLabel(Resources.getString("port"));
 
-    private JTextField portField = new JTextField(DEFAULT_PORT);
+    private JTextField portField
+        = new JTextField(JabberAccountRegistration.DEFAULT_PORT);
 
     private JPanel registerPanel = new JPanel(new GridLayout(0, 1));
 
@@ -196,9 +191,12 @@ public class FirstWizardPage
                 {
                     setServerFieldAccordingToUserID();
 
-                    portField.setText(DEFAULT_PORT);
-                    resourceField.setText(DEFAULT_RESOURCE);
-                    priorityField.setText(DEFAULT_PRIORITY);
+                    portField.setText(
+                        JabberAccountRegistration.DEFAULT_PORT);
+                    resourceField.setText(
+                        JabberAccountRegistration.DEFAULT_RESOURCE);
+                    priorityField.setText(
+                        JabberAccountRegistration.DEFAULT_PRIORITY);
                 }
             }
         });
@@ -506,9 +504,9 @@ public class FirstWizardPage
 
         priorityField.setText(priority);
 
-        if (!serverPort.equals(DEFAULT_PORT)
-            || !resource.equals(DEFAULT_RESOURCE)
-            || !priority.equals(DEFAULT_PRIORITY))
+        if (!serverPort.equals(JabberAccountRegistration.DEFAULT_PORT)
+            || !resource.equals(JabberAccountRegistration.DEFAULT_RESOURCE)
+            || !priority.equals(JabberAccountRegistration.DEFAULT_PRIORITY))
         {
             enableAdvOpButton.setSelected(true);
 
@@ -531,20 +529,9 @@ public class FirstWizardPage
     {
         if (!enableAdvOpButton.isSelected())
         {
-            String userID = userIDField.getText();
-            int delimIndex = userID.indexOf("@");
-            if (delimIndex != -1)
-            {
-                String newServerAddr = userID.substring(delimIndex + 1);
-                if (newServerAddr.equals(GOOGLE_USER_SUFFIX))
-                {
-                    serverField.setText(GOOGLE_CONNECT_SRV);
-                }
-                else
-                {
-                    serverField.setText(newServerAddr);
-                }
-            }
+            String userId = userIDField.getText();
+
+            serverField.setText(wizard.getServerFromUserName(userId));
         }
     }
 

@@ -1,46 +1,60 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
 /**
  * The <tt>SIPAccountRegistration</tt> is used to store all user input data
  * through the <tt>SIPAccountRegistrationWizard</tt>.
- *
+ * 
  * @author Yana Stamcheva
  */
-public class SIPAccountRegistration {
+public class SIPAccountRegistration
+{
+    public static String DEFAULT_PORT = "5060";
 
-    private String uin;
+    public static String DEFAULT_TLS_PORT = "5061";
+
+    public static String DEFAULT_TRANSPORT = "UDP";
+
+    public static String DEFAULT_POLL_PERIOD = "30";
+
+    public static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
+
+    public static String DEFAULT_KEEP_ALIVE_METHOD
+        = Resources.getString("register");
+
+    public static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
+
+    private String id;
 
     private String password;
 
-    private boolean rememberPassword;
+    private boolean rememberPassword = true;
 
     private String serverAddress;
 
-    private String serverPort;
+    private String serverPort = DEFAULT_PORT;
 
-    private String proxyPort;
+    private String proxyPort = DEFAULT_PORT;
 
     private String proxy;
 
-    private String preferredTransport;
+    private String preferredTransport = DEFAULT_TRANSPORT;
 
-    private boolean enablePresence;
+    private boolean enablePresence = true;
 
-    private boolean forceP2PMode;
+    private boolean forceP2PMode = true;
 
-    private String pollingPeriod;
+    private String pollingPeriod = DEFAULT_POLL_PERIOD;
 
-    private String subscriptionExpiration;
+    private String subscriptionExpiration = DEFAULT_SUBSCRIBE_EXPIRES;
 
-    private String keepAliveMethod;
+    private String keepAliveMethod = DEFAULT_KEEP_ALIVE_METHOD;
 
-    private String keepAliveInterval;
+    private String keepAliveInterval = DEFAULT_KEEP_ALIVE_INTERVAL;
 
     public String getPreferredTransport()
     {
@@ -64,47 +78,58 @@ public class SIPAccountRegistration {
 
     /**
      * Returns the password of the sip registration account.
+     * 
      * @return the password of the sip registration account.
      */
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
     /**
      * Sets the password of the sip registration account.
+     * 
      * @param password the password of the sip registration account.
      */
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
     }
 
     /**
      * Returns TRUE if password has to remembered, FALSE otherwise.
+     * 
      * @return TRUE if password has to remembered, FALSE otherwise
      */
-    public boolean isRememberPassword() {
+    public boolean isRememberPassword()
+    {
         return rememberPassword;
     }
 
     /**
      * Sets the rememberPassword value of this sip account registration.
+     * 
      * @param rememberPassword TRUE if password has to remembered, FALSE
-     * otherwise
+     *            otherwise
      */
-    public void setRememberPassword(boolean rememberPassword) {
+    public void setRememberPassword(boolean rememberPassword)
+    {
         this.rememberPassword = rememberPassword;
     }
 
     /**
      * Returns the UIN of the sip registration account.
+     * 
      * @return the UIN of the sip registration account.
      */
-    public String getUin() {
-        return uin;
+    public String getId()
+    {
+        return id;
     }
 
     /**
      * The address of the server we will use for this account
+     * 
      * @return String
      */
     public String getServerAddress()
@@ -114,15 +139,17 @@ public class SIPAccountRegistration {
 
     /**
      * The port on the specified server
+     * 
      * @return int
      */
     public String getServerPort()
     {
         return serverPort;
     }
-    
+
     /**
      * The port on the specified proxy
+     * 
      * @return int
      */
     public String getProxyPort()
@@ -131,15 +158,18 @@ public class SIPAccountRegistration {
     }
 
     /**
-     * Sets the UIN of the sip registration account.
-     * @param uin the UIN of the sip registration account.
+     * Sets the identifier of the sip registration account.
+     * 
+     * @param uin the identifier of the sip registration account.
      */
-    public void setUin(String uin) {
-        this.uin = uin;
+    public void setId(String id)
+    {
+        this.id = id;
     }
 
     /**
      * Sets the server
+     * 
      * @param serverAddress String
      */
     public void setServerAddress(String serverAddress)
@@ -149,15 +179,17 @@ public class SIPAccountRegistration {
 
     /**
      * Sets the server port.
+     * 
      * @param port int
      */
     public void setServerPort(String port)
     {
         this.serverPort = port;
     }
-    
+
     /**
      * Sets the proxy port.
+     * 
      * @param port int
      */
     public void setProxyPort(String port)
@@ -167,65 +199,81 @@ public class SIPAccountRegistration {
 
     /**
      * If the presence is enabled
+     * 
      * @return If the presence is enabled
      */
-    public boolean isEnablePresence() {
+    public boolean isEnablePresence()
+    {
         return enablePresence;
     }
 
     /**
      * If the p2p mode is forced
+     * 
      * @return If the p2p mode is forced
      */
-    public boolean isForceP2PMode() {
+    public boolean isForceP2PMode()
+    {
         return forceP2PMode;
     }
 
     /**
      * The offline contact polling period
+     * 
      * @return the polling period
      */
-    public String getPollingPeriod() {
+    public String getPollingPeriod()
+    {
         return pollingPeriod;
     }
 
     /**
      * The default expiration of subscriptions
+     * 
      * @return the subscription expiration
      */
-    public String getSubscriptionExpiration() {
+    public String getSubscriptionExpiration()
+    {
         return subscriptionExpiration;
     }
 
     /**
      * Sets if the presence is enabled
+     * 
      * @param enablePresence if the presence is enabled
      */
-    public void setEnablePresence(boolean enablePresence) {
+    public void setEnablePresence(boolean enablePresence)
+    {
         this.enablePresence = enablePresence;
     }
 
     /**
      * Sets if we have to force the p2p mode
+     * 
      * @param forceP2PMode if we have to force the p2p mode
      */
-    public void setForceP2PMode(boolean forceP2PMode) {
+    public void setForceP2PMode(boolean forceP2PMode)
+    {
         this.forceP2PMode = forceP2PMode;
     }
 
     /**
      * Sets the offline contacts polling period
+     * 
      * @param pollingPeriod the offline contacts polling period
      */
-    public void setPollingPeriod(String pollingPeriod) {
+    public void setPollingPeriod(String pollingPeriod)
+    {
         this.pollingPeriod = pollingPeriod;
     }
 
     /**
      * Sets the subscription expiration value
+     * 
      * @param subscriptionExpiration the subscription expiration value
      */
-    public void setSubscriptionExpiration(String subscriptionExpiration) {
+    public void setSubscriptionExpiration(String subscriptionExpiration)
+    {
         this.subscriptionExpiration = subscriptionExpiration;
     }
 

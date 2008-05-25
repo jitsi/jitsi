@@ -10,7 +10,7 @@ import java.awt.*;
 import java.util.*;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.plugin.ircaccregwizz.Resources;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -135,16 +135,33 @@ public class IrcAccountRegistrationWizard
 
     /**
      * Installs the account created through this wizard.
-     * @return ProtocolProviderService
+     * @return ProtocolProviderService for the newly created account.
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        String password = null;
+        if (registration.isRememberPassword()
+                && registration.isRequiredPassword())
+        {
+            password = registration.getPassword();
+        }
+
+        return this.signin(registration.getUserID(), password);
+    }
+
+    /**
+     * Installs the account created through this wizard.
+     * @return ProtocolProviderService for the newly created account.
+     */
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory
             = IrcAccRegWizzActivator.getIrcProtocolProviderFactory();
 
         return this.installAccount(factory,
-                                   registration.getUserID());
+                                   userName,
+                                   password);
     }
 
     /**
@@ -156,16 +173,15 @@ public class IrcAccountRegistrationWizard
      */
     public ProtocolProviderService installAccount(
                                         ProtocolProviderFactory providerFactory,
-                                        String user)
+                                        String user,
+                                        String password)
     {
         Hashtable accountProperties = new Hashtable();
 
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             registration.getServer());
 
-        if (registration.isRememberPassword()
-                && registration.isRequiredPassword()
-                && !registration.getPassword().equals(""))
+        if (password != null && !password.equals(""))
         {
             accountProperties.put(
                 ProtocolProviderFactory.PASSWORD, registration.getPassword());
@@ -310,5 +326,24 @@ public class IrcAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return FirstWizardPage.USER_NAME_EXAMPLE;
+    }
+
+    /**
+     * Disables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return false;
     }
 }

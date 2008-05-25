@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.yahooaccregwizz;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,7 +29,7 @@ public class YahooAccRegWizzActivator implements BundleActivator {
 
     private static ConfigurationService configService;
 
-    private static AccountRegistrationWizardContainer wizardContainer;
+    private static WizardContainer wizardContainer;
 
     private static YahooAccountRegistrationWizard yahooWizard;
 
@@ -51,12 +53,21 @@ public class YahooAccRegWizzActivator implements BundleActivator {
 
         yahooWizard = new YahooAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(yahooWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.YAHOO);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            yahooWizard,
+            containerFilter);
     }
 
     public void stop(BundleContext bundleContext) throws Exception
     {
-        wizardContainer.removeAccountRegistrationWizard(yahooWizard);
     }
 
     /**

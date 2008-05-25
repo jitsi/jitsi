@@ -24,6 +24,9 @@ import org.osgi.framework.*;
 public class JabberAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private static final String GOOGLE_USER_SUFFIX = "gmail.com";
+
+    private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
 
     private FirstWizardPage firstWizardPage;
 
@@ -112,21 +115,26 @@ public class JabberAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put("User ID", registration.getUserID());
-        summaryTable.put("Remember password",
-                         new Boolean(registration.isRememberPassword()));
-        summaryTable.put("Server address", registration.getServerAddress());
+        summaryTable.put(   Resources.getString("username"),
+                            registration.getUserID());
 
-        summaryTable.put("Server port",
-            String.valueOf(registration.getPort()));
+        summaryTable.put(   Resources.getString("rememberPassword"),
+                            new Boolean(registration.isRememberPassword()));
 
-        summaryTable.put("Keep alive",
+        summaryTable.put(   Resources.getString("server"),
+                            registration.getServerAddress());
+
+        summaryTable.put(   Resources.getString("port"),
+                            String.valueOf(registration.getPort()));
+
+        summaryTable.put(   Resources.getString("enableKeepAlive"),
             String.valueOf(registration.isSendKeepAlive()));
 
-        summaryTable.put("Resource", registration.getResource());
+        summaryTable.put(   Resources.getString("resource"),
+                            registration.getResource());
 
-        summaryTable.put("Priority",
-            String.valueOf(registration.getPriority()));
+        summaryTable.put(   Resources.getString("priority"),
+                            String.valueOf(registration.getPriority()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -136,15 +144,21 @@ public class JabberAccountRegistrationWizard
      * 
      * @return ProtocolProviderService
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        return signin(  registration.getUserID(),
+                        registration.getPassword());
+    }
+
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory
             = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
 
         return this.installAccount(factory,
-                                   registration.getUserID(),
-                                   registration.getPassword());
+                                   userName,
+                                   password);
     }
 
     /**
@@ -158,7 +172,7 @@ public class JabberAccountRegistrationWizard
      */
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory,
-        String user,
+        String userName,
         String passwd)
     {
         Hashtable accountProperties = new Hashtable();
@@ -171,8 +185,17 @@ public class JabberAccountRegistrationWizard
         accountProperties.put("SEND_KEEP_ALIVE",
                               String.valueOf(registration.isSendKeepAlive()));
 
+        String serverName = null;
+        if (registration.getServerAddress() != null)
+        {
+            serverName = registration.getServerAddress();
+        }
+        else
+        {
+            serverName = getServerFromUserName(userName);
+        }
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
-            registration.getServerAddress());
+            serverName);
 
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
             String.valueOf(registration.getPort()));
@@ -193,7 +216,7 @@ public class JabberAccountRegistrationWizard
         try
         {
             AccountID accountID = providerFactory.installAccount(
-                user, accountProperties);
+                userName, accountProperties);
 
             ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
@@ -308,5 +331,47 @@ public class JabberAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return FirstWizardPage.USER_NAME_EXAMPLE;
+    }
+
+    /**
+     * Enables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return true;
+    }
+
+    /**
+     * Parse the server part from the jabber id and set it to server as default
+     * value. If Advanced option is enabled Do nothing.
+     */
+    protected String getServerFromUserName(String userName)
+    {
+        int delimIndex = userName.indexOf("@");
+        if (delimIndex != -1)
+        {
+            String newServerAddr = userName.substring(delimIndex + 1);
+            if (newServerAddr.equals(GOOGLE_USER_SUFFIX))
+            {
+                return GOOGLE_CONNECT_SRV;
+            }
+            else
+            {
+                return newServerAddr;
+            }
+        }
+
+        return null;
     }
 }

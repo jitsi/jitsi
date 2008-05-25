@@ -17,7 +17,7 @@ public class MsnAccountRegistration
 
     private String password;
 
-    private boolean rememberPassword;
+    private boolean rememberPassword = true;
 
     /**
      * Returns the password of the msn registration account.

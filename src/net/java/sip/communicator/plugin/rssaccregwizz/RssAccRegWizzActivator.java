@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.rssaccregwizz;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -49,13 +51,23 @@ public class RssAccRegWizzActivator
         UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
+        WizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
 
         RssAccountRegistrationWizard rssWizard
             = new RssAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(rssWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.RSS);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            rssWizard,
+            containerFilter);
 
         logger.info("RSS account registration wizard [STARTED].");
     }
@@ -68,7 +80,6 @@ public class RssAccRegWizzActivator
      */
     public void stop(BundleContext context)
     {
-
     }
 
     /**

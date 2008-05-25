@@ -14,22 +14,27 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
  */
 public class JabberAccountRegistration
 {
+    public static final String DEFAULT_PORT = "5222";
+
+    public static final String DEFAULT_PRIORITY = "10";
+
+    public static final String DEFAULT_RESOURCE = "sip-comm";
 
     private String userID;
 
     private String password;
 
-    private boolean rememberPassword;
+    private boolean rememberPassword = true;
 
     private String serverAddress;
 
-    private int port;
+    private int port = new Integer(DEFAULT_PORT).intValue();
 
-	private String resource;
+    private String resource = DEFAULT_RESOURCE;
 
-	private int priority;
+    private int priority = new Integer(DEFAULT_PRIORITY).intValue();
 
-    private boolean sendKeepAlive;
+    private boolean sendKeepAlive = true;
 
     /**
      * Returns the password of the jabber registration account.
@@ -146,9 +151,9 @@ public class JabberAccountRegistration
     }
 
     public void setResource(String resource)
-	{
-		this.resource = resource;
-	}
+    {
+        this.resource = resource;
+    }
 
     public int getPriority()
     {
@@ -156,7 +161,7 @@ public class JabberAccountRegistration
     }
 
     public void setPriority(int priority)
-	{
-		this.priority = priority;
-	}
+    {
+        this.priority = priority;
+    }
 }

@@ -22,6 +22,8 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.osgi.framework.*;
+
 /**
  * The implementation of the <tt>AccountRegistrationWizardContainer</tt>.
  * 
@@ -29,7 +31,8 @@ import net.java.sip.communicator.util.*;
  */
 public class AccountRegWizardContainerImpl
     extends Wizard
-    implements AccountRegistrationWizardContainer
+    implements  WizardContainer,
+                ServiceListener
 {
     private static final Logger logger =
         Logger.getLogger(AccountRegWizardContainerImpl.class);
@@ -41,12 +44,6 @@ public class AccountRegWizardContainerImpl
     private AccountRegistrationWizard currentWizard;
 
     ConfigurationService configService = GuiActivator.getConfigurationService();
-
-    private static final String RESOURCE_NAME 
-        = "resources.login";
-
-    private static final ResourceBundle LOGIN_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(RESOURCE_NAME);
 
     private Hashtable registeredWizards = new Hashtable();
 
@@ -72,6 +69,41 @@ public class AccountRegWizardContainerImpl
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
 
         this.addAccountRegistrationListener(defaultPage);
+
+        ServiceReference[] accountWizardRefs = null;
+        try
+        {
+            accountWizardRefs = GuiActivator.bundleContext
+                .getServiceReferences(
+                    AccountRegistrationWizard.class.getName(),
+                    null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any, add them in this container.
+        if (accountWizardRefs != null)
+        {
+            logger.debug("Found "
+                         + accountWizardRefs.length
+                         + " already installed providers.");
+            for (int i = 0; i < accountWizardRefs.length; i++)
+            {
+                AccountRegistrationWizard wizard
+                    = (AccountRegistrationWizard) GuiActivator.bundleContext
+                        .getService(accountWizardRefs[i]);
+
+                this.addAccountRegistrationWizard(wizard);
+            }
+        }
+
+        GuiActivator.bundleContext.addServiceListener(this);
     }
 
     /**
@@ -116,20 +148,8 @@ public class AccountRegWizardContainerImpl
             }
         }
 
-        String preferredWizardName
-            = LOGIN_RESOURCE_BUNDLE.getString("preferredAccountWizard");
-
-        if (    !hasRegisteredAccounts
-                && preferredWizardName != null
-                && wizard.getClass().getName().equals(preferredWizardName))
-        {
-            this.setCurrentWizard(wizard);
-
-            this.showDialog(true);
-        }
-
         this.fireAccountRegistrationEvent(wizard,
-            AccountRegistrationEvent.REGISTRATION_ADDED);
+                AccountRegistrationEvent.REGISTRATION_ADDED);
     }
 
     /**
@@ -437,6 +457,36 @@ public class AccountRegWizardContainerImpl
             identifier = page.getIdentifier();
 
             this.unregisterWizardPage(identifier);
+        }
+    }
+
+    /**
+     * Handles registration of a new account wizard.
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        Object sService = GuiActivator.bundleContext.getService(
+            event.getServiceReference());
+
+        // we don't care if the source service is not a plugin component
+        if (! (sService instanceof AccountRegistrationWizard))
+        {
+            return;
+        }
+
+        AccountRegistrationWizard wizard
+            = (AccountRegistrationWizard) sService;
+
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            logger
+                .info("Handling registration of a new Account Wizard.");
+
+            this.addAccountRegistrationWizard(wizard);
+        }
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.removeAccountRegistrationWizard(wizard);
         }
     }
 }

@@ -132,14 +132,25 @@ public class AimAccountRegistrationWizard
     /**
      * Installs the account created through this wizard.
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        return this.signin(registration.getUin(), registration.getPassword());
+    }
+
+    /**
+     * Defines the operations that will be executed when the user clicks on
+     * the wizard "Signin" button.
+     * 
+     * @param userName the user name to sign in with
+     * @param password the password to sign in with
+     */
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory =
             AimAccRegWizzActivator.getAimProtocolProviderFactory();
 
-        return this.installAccount(factory, registration.getUin(), registration
-            .getPassword());
+        return this.installAccount(factory, userName, password);
     }
 
     /**
@@ -308,5 +319,24 @@ public class AimAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return FirstWizardPage.USER_NAME_EXAMPLE;
+    }
+
+    /**
+     * Enables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return true;
     }
 }

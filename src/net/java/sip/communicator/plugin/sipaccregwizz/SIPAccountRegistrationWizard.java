@@ -119,8 +119,8 @@ public class SIPAccountRegistrationWizard
         else
             rememberPswdString = Resources.getString("no");
 
-        summaryTable.put(Resources.getString("uin"),
-                registration.getUin());
+        summaryTable.put(Resources.getString("id"),
+                registration.getId());
         summaryTable.put(Resources.getString("rememberPassword"),
                 rememberPswdString);
         summaryTable.put(Resources.getString("registrar"),
@@ -165,15 +165,26 @@ public class SIPAccountRegistrationWizard
      * Installs the account created through this wizard.
      * @return ProtocolProviderService
      */
-    public ProtocolProviderService finish() {
-        //firstWizardPage = null;
+    public ProtocolProviderService signin()
+    {
+        return signin(registration.getId(), registration.getPassword());
+    }
+
+    /**
+     * Installs the account with the given user name and password.
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
+     * created account.
+     */
+    public ProtocolProviderService signin(String userName, String password)
+    {
         ProtocolProviderFactory factory
             = SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
 
         ProtocolProviderService pps = null;
         if (factory != null)
-            pps = this.installAccount(factory,
-                registration.getUin(), registration.getPassword());
+            pps = this.installAccount(  factory,
+                                        userName,
+                                        password);
 
         return pps;
     }
@@ -182,13 +193,13 @@ public class SIPAccountRegistrationWizard
      * Creates an account for the given user and password.
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
-     * @param user the user identifier
+     * @param userName the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
     public ProtocolProviderService installAccount(
             ProtocolProviderFactory providerFactory,
-            String user,
+            String userName,
             String passwd)
     {
         Hashtable accountProperties = new Hashtable();
@@ -198,14 +209,26 @@ public class SIPAccountRegistrationWizard
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
+        String serverAddress = null;
+        if (registration.getServerAddress() != null)
+            serverAddress = registration.getServerAddress();
+        else
+            serverAddress = getServerFromUserName(userName);
+
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
-                                  registration.getServerAddress());
+                              serverAddress);
 
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                 registration.getServerPort());
 
-        accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                registration.getProxy());
+        String proxyAddress = null;
+        if (registration.getProxy() != null)
+            proxyAddress = registration.getProxy();
+        else
+            proxyAddress = getServerFromUserName(userName);
+
+        accountProperties.put(  ProtocolProviderFactory.PROXY_ADDRESS,
+                                proxyAddress);
 
         accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
                 registration.getProxyPort());
@@ -241,7 +264,7 @@ public class SIPAccountRegistrationWizard
         try
         {
             AccountID accountID = providerFactory.installAccount(
-                    user, accountProperties);
+                    userName, accountProperties);
 
             ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
@@ -356,5 +379,40 @@ public class SIPAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return FirstWizardPage.USER_NAME_EXAMPLE;
+    }
+
+    /**
+     * Enables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return true;
+    }
+
+    /**
+     * Return the server part of the sip user name.
+     * 
+     * @return the server part of the sip user name.
+     */
+    protected String getServerFromUserName(String userName)
+    {
+        int delimIndex = userName.indexOf("@");
+        if (delimIndex != -1)
+        {
+            return userName.substring(delimIndex + 1);
+        }
+
+        return null;
     }
 }

@@ -27,6 +27,8 @@ public class FirstWizardPage
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
+    public static final String USER_NAME_EXAMPLE = "Ex: random.user.name";
+
     private JPanel userPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new JPanel();
@@ -42,7 +44,7 @@ public class FirstWizardPage
 
     private JPanel emptyPanel = new JPanel();
 
-    private JLabel userIDExampleLabel = new JLabel("Ex: random.user.name");
+    private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
     private JTextField userIDField = new JTextField();
 

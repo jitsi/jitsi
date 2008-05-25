@@ -24,7 +24,7 @@ public class AimAccountRegistration {
 
     private String proxy;
 
-    private String proxyType;
+    private String proxyType = "http";
 
     private String proxyUsername;
 

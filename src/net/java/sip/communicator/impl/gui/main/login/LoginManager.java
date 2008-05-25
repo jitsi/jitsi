@@ -15,7 +15,6 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -114,10 +113,11 @@ public class LoginManager
             for (int i = 0; i < accountsList.size(); i++)
             {
                 accountID = (AccountID) accountsList.get(i);
-                
+
                 boolean isHidden = 
-                    accountID.getAccountProperties().get("HIDDEN_PROTOCOL") != null;
-                
+                    accountID.getAccountProperties()
+                        .get("HIDDEN_PROTOCOL") != null;
+
                 if(!isHidden)
                     hasRegisteredAccounts = true;
 
@@ -155,33 +155,13 @@ public class LoginManager
      */
     private void showAccountRegistrationWizard()
     {
-        // We check in the login properties if there is a preferred account
-        // wizard to run, before running the default wizard. If such exists
-        // we return and when the requested wizard is added in the gui we will
-        // directly show it.
-        String preferredWizardName
-            = LoginProperties.getProperty("preferredAccountWizard");
-
-        if (preferredWizardName != null && preferredWizardName.length() > 0)
-            return;
-
-        AccountRegWizardContainerImpl wizardContainer
-            = (AccountRegWizardContainerImpl) GuiActivator.getUIService()
-                .getAccountRegWizardContainer();
-
         // If no preferred wizard is specified we launch the default wizard.
-        NoAccountFoundPage noAccountFoundPage = new NoAccountFoundPage();
+        InitialAccountRegistrationFrame accountRegFrame
+            = new InitialAccountRegistrationFrame();
 
-        wizardContainer.registerWizardPage(
-            noAccountFoundPage.getIdentifier(),
-            noAccountFoundPage);
-
-        wizardContainer.setCurrentPage(noAccountFoundPage.getIdentifier());
-
-        wizardContainer.setTitle(
-            Messages.getI18NString("accountRegistrationWizard").getText());
-
-        wizardContainer.showDialog(true);
+        accountRegFrame.pack();
+        accountRegFrame.setLocation(0, 0);
+        accountRegFrame.setVisible(true);
     }
 
     /**
@@ -282,16 +262,9 @@ public class LoginManager
                 new String[]
                 { accountID.getUserID(), accountID.getService() }).getText();
 
-            int result = new MessageDialog(null,
+            new ErrorDialog(null,
                 Messages.getI18NString("error").getText(),
-                msgText,
-                Messages.getI18NString("retry").getText(),
-                false).showDialog();
-
-            if (result == MessageDialog.OK_RETURN_CODE)
-            {
-                this.login(protocolProvider);
-            }
+                msgText).showDialog();
 
             logger.error(evt.getReason());
         }
@@ -511,11 +484,6 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
-
-                    new ErrorDialog(mainFrame,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        ex).showDialog();
                 }
                 else if (errorCode == OperationFailedException.INTERNAL_ERROR)
                 {
@@ -527,11 +495,6 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
-
-                    new ErrorDialog(mainFrame,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        ex).showDialog();
                 }
                 else if (errorCode == OperationFailedException.NETWORK_FAILURE)
                 {
@@ -543,17 +506,6 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
-
-                    int result = new MessageDialog(null,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        Messages.getI18NString("retry").getText(),
-                        false).showDialog();
-
-                    if (result == MessageDialog.OK_RETURN_CODE)
-                    {
-                        login(protocolProvider);
-                    }
                 }
                 else if (errorCode
                         == OperationFailedException.INVALID_ACCOUNT_PROPERTIES)
@@ -566,16 +518,16 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
-
-                    new ErrorDialog(mainFrame,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        ex).showDialog();
                 }
                 else
                 {
                     logger.error("Provider could not be registered.", ex);
                 }
+
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("error").getText(),
+                    errorMessage,
+                    ex).showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }

@@ -150,7 +150,7 @@ public class AccountRegSummaryPage
         AccountRegistrationWizard wizard =
             this.wizardContainer.getCurrentWizard();
 
-        ProtocolProviderService protocolProvider = wizard.finish();
+        ProtocolProviderService protocolProvider = wizard.signin();
 
         if (protocolProvider != null)
             this.wizardContainer.saveAccountWizard(protocolProvider, wizard);

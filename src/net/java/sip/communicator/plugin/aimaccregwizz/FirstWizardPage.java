@@ -29,6 +29,8 @@ public class FirstWizardPage
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
+    public static final String USER_NAME_EXAMPLE = "Ex: 83378997";
+
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new JPanel();
@@ -48,7 +50,7 @@ public class FirstWizardPage
 
     private JPanel emptyPanel = new JPanel();
 
-    private JLabel uinExampleLabel = new JLabel("Ex: 83378997");
+    private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
@@ -181,7 +183,7 @@ public class FirstWizardPage
             }
         });
 
-        proxyTypeCombo.setSelectedItem("http");
+        proxyTypeCombo.setSelectedItem(wizard.getRegistration().getProxyType());
 
         labelsAdvOpPanel.add(proxyLabel);
         labelsAdvOpPanel.add(proxyPortLabel);

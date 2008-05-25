@@ -35,6 +35,10 @@ public class FirstWizardPage
      */
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
+    public static final String USER_NAME_EXAMPLE = "Ex: ircuser";
+
+    public static final String SERVER_EXAMPLE = "Ex: irc.quakenet.org";
+
     private JPanel userPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel serverPanel = new JPanel(new BorderLayout(10, 10));
@@ -71,9 +75,9 @@ public class FirstWizardPage
 
     private JPanel emptyPanel2 = new JPanel();
 
-    private JLabel nickExampleLabel = new JLabel("Ex: ircuser");
+    private JLabel nickExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JLabel serverExampleLabel = new JLabel("Ex: irc.quakenet.org");
+    private JLabel serverExampleLabel = new JLabel(SERVER_EXAMPLE);
 
     private JTextField nickField = new JTextField();
 

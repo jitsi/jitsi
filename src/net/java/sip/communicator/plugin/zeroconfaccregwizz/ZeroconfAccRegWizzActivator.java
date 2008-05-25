@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.zeroconfaccregwizz;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -51,13 +53,23 @@ public class ZeroconfAccRegWizzActivator
 
         uiService = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
+        WizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
 
         ZeroconfAccountRegistrationWizard zeroconfWizard
             = new ZeroconfAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(zeroconfWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.ZEROCONF);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            zeroconfWizard,
+            containerFilter);
 
         logger.info("Zeroconf account registration wizard [STARTED].");
     }

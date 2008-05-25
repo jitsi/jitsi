@@ -134,14 +134,25 @@ public class ZeroconfAccountRegistrationWizard
      * Installs the account created through this wizard.
      * @return ProtocolProviderService
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        return signin(registration.getUserID(), null);
+    }
+
+    /**
+     * Installs the account with the given user name and password.
+     * 
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
+     * created account.
+     */
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory
             = ZeroconfAccRegWizzActivator.getZeroconfProtocolProviderFactory();
 
         return this.installAccount(factory,
-                                   registration.getUserID());
+                                   userName);
     }
 
     /**
@@ -290,5 +301,45 @@ public class ZeroconfAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+    
+    /**
+     * Returns the password label for the simplified account registration form.
+     * @return the password label for the simplified account registration form.
+     */
+    public String getPasswordLabel()
+    {
+        return Resources.getString("password");
+    }
+
+    /**
+     * Returns the user name label for the simplified account registration
+     * form.
+     * 
+     * @return the user name label for the simplified account registration
+     * form.
+     */
+    public String getUserNameLabel()
+    {
+        return Resources.getString("userID");
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return null;
+    }
+
+    /**
+     * Enables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return false;
     }
 }

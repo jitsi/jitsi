@@ -18,10 +18,10 @@ import java.awt.*;
 import java.util.*;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
+
+import net.java.sip.communicator.impl.protocol.ssh.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.impl.protocol.ssh.*;
 
 /**
  * The <tt>SSHAccountRegistrationWizard</tt> is an implementation of the
@@ -138,17 +138,30 @@ public class SSHAccountRegistrationWizard
     
     /**
      * Installs the account created through this wizard.
-     * @return ProtocolProviderService
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
+     * created account.
      */
-    public ProtocolProviderService finish() {
+    public ProtocolProviderService signin()
+    {
+        return signin(registration.getAccountID(), null);
+    }
+
+    /**
+     * Installs the account for the given userName and password.
+     * 
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
+     * created account.
+     */
+    public ProtocolProviderService signin(String userName, String password)
+    {
         firstWizardPage = null;
         ProtocolProviderFactory factory
                 = SSHAccRegWizzActivator.getSSHProtocolProviderFactory();
-        
-        return this.installAccount(factory,
-                registration.getAccountID());
+
+        return this.installAccount( factory,
+                                    userName);
     }
-    
+
     /**
      * Creates an account for the given Account ID, Identity File and Known
      *  Hosts File
@@ -167,7 +180,7 @@ public class SSHAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactorySSHImpl.IDENTITY_FILE,
                 registration.getIdentityFile());
         
-        accountProperties.put(ProtocolProviderFactorySSH.KNOWN_HOSTS_FILE,
+        accountProperties.put(ProtocolProviderFactorySSHImpl.KNOWN_HOSTS_FILE,
                 String.valueOf(registration.getKnownHostsFile()));
         
         try {
@@ -180,10 +193,20 @@ public class SSHAccountRegistrationWizard
             protocolProvider = (ProtocolProviderService)
             SSHAccRegWizzActivator.bundleContext
                     .getService(serRef);
-        } catch (IllegalArgumentException exc) {
-            new ErrorDialog(null, "Error", exc.getMessage(), exc).showDialog();
-        } catch (IllegalStateException exc) {
-            new ErrorDialog(null, "Error", exc.getMessage(), exc).showDialog();
+        }
+        catch (IllegalArgumentException exc)
+        {
+            SSHAccRegWizzActivator.getUIService().getPopupDialog()
+            .showMessagePopupDialog(exc.getMessage(),
+                Resources.getString("error"),
+                PopupDialog.ERROR_MESSAGE);
+        }
+        catch (IllegalStateException exc)
+        {
+            SSHAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(exc.getMessage(),
+                    Resources.getString("error"),
+                    PopupDialog.ERROR_MESSAGE);
         }
         
         return protocolProvider;
@@ -242,5 +265,24 @@ public class SSHAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return null;
+    }
+    
+    /**
+     * Disables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return false;
     }
 }

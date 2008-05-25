@@ -6,7 +6,8 @@
  */
 package net.java.sip.communicator.plugin.ircaccregwizz;
 
-import net.java.sip.communicator.service.configuration.*;
+import java.util.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -47,13 +48,23 @@ public class IrcAccRegWizzActivator
         UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
+        WizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
 
         IrcAccountRegistrationWizard ircWizard
             = new IrcAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(ircWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.IRC);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            ircWizard,
+            containerFilter);
 
         logger.info("IRC account registration wizard [STARTED].");
     }
@@ -66,7 +77,6 @@ public class IrcAccRegWizzActivator
      */
     public void stop(BundleContext context)
     {
-
     }
 
     /**

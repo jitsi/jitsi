@@ -9,10 +9,10 @@ package net.java.sip.communicator.plugin.gibberishaccregwizz;
 import java.awt.*;
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>GibberishAccountRegistrationWizard</tt> is an implementation of the
@@ -128,14 +128,23 @@ public class GibberishAccountRegistrationWizard
      * Installs the account created through this wizard.
      * @return ProtocolProviderService
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        return signin(registration.getUserID(), null);
+    }
+
+    /**
+     * Installs the account created through this wizard.
+     * @return ProtocolProviderService
+     */
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory
             = GibberishAccRegWizzActivator.getGibberishProtocolProviderFactory();
 
         return this.installAccount(factory,
-                                   registration.getUserID());
+                                   userName);
     }
 
     /**
@@ -283,5 +292,25 @@ public class GibberishAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return FirstWizardPage.USER_NAME_EXAMPLE;
+    }
+    
+
+    /**
+     * Disables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return false;
     }
 }

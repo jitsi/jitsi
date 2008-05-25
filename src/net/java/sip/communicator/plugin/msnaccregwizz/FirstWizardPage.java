@@ -28,6 +28,8 @@ public class FirstWizardPage
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
+    public static final String USER_NAME_EXAMPLE = "Ex: johnsmith@hotmail.com";
+
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new JPanel();
@@ -43,7 +45,7 @@ public class FirstWizardPage
 
     private JPanel emptyPanel = new JPanel();
 
-    private JLabel uinExampleLabel = new JLabel("Ex: johnsmith@hotmail.com");
+    private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
     private JTextField uinField = new JTextField();
 

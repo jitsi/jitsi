@@ -13,6 +13,8 @@
 
 package net.java.sip.communicator.plugin.sshaccregwizz;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -40,10 +42,12 @@ public class SSHAccRegWizzActivator
      * A currently valid reference to the configuration service.
      */
     private static ConfigurationService configService;
-    
-    private static AccountRegistrationWizardContainer wizardContainer;
-    
+
+    private static WizardContainer wizardContainer;
+
     private static SSHAccountRegistrationWizard sshWizard;
+
+    private static UIService uiService;
 
     /**
      * Starts this bundle.
@@ -58,7 +62,7 @@ public class SSHAccRegWizzActivator
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService = (UIService) bundleContext
+        uiService = (UIService) bundleContext
                                             .getService(uiServiceRef);
 
         wizardContainer = uiService.getAccountRegWizardContainer();
@@ -66,7 +70,17 @@ public class SSHAccRegWizzActivator
         sshWizard
             = new SSHAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(sshWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.SSH);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            sshWizard,
+            containerFilter);
 
         logger.info("SSH account registration wizard [STARTED].");
     }
@@ -79,7 +93,6 @@ public class SSHAccRegWizzActivator
      */
     public void stop(BundleContext bundleContext) throws Exception
     {
-        wizardContainer.removeAccountRegistrationWizard(sshWizard);
     }
     
     /**
@@ -116,5 +129,15 @@ public class SSHAccRegWizzActivator
     public BundleContext getBundleContext()
     {
         return bundleContext;
+    }
+
+    /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 }

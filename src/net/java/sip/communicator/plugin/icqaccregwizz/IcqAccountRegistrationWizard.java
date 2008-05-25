@@ -135,16 +135,22 @@ public class IcqAccountRegistrationWizard
     /**
      * Installs the account created through this wizard.
      * 
-     * @return 
+     * @return the <tt>ProtocolProviderService</tt> for the newly created
+     * account.
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        return this.signin(registration.getUin(), registration
+            .getPassword());
+    }
+
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory =
             IcqAccRegWizzActivator.getIcqProtocolProviderFactory();
 
-        return this.installAccount(factory, registration.getUin(), registration
-            .getPassword());
+        return this.installAccount(factory, userName, password);
     }
 
     /**
@@ -317,5 +323,24 @@ public class IcqAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return FirstWizardPage.USER_NAME_EXAMPLE;
+    }
+
+    /**
+     * Enables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return true;
     }
 }

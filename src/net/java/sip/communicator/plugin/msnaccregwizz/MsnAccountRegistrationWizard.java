@@ -126,17 +126,30 @@ public class MsnAccountRegistrationWizard
     /**
      * Installs the account created through this wizard.
      * 
-     * @return ProtocolProviderService
+     * @return ProtocolProviderService corresponding to the newly created
+     * account.
      */
-    public ProtocolProviderService finish()
+    public ProtocolProviderService signin()
+    {
+        return signin(  registration.getId(),
+                        registration.getPassword());
+    }
+
+    /**
+     * Installs the account created through this wizard.
+     * 
+     * @return ProtocolProviderService corresponding to the newly created
+     * account.
+     */
+    public ProtocolProviderService signin(String userName, String password)
     {
         firstWizardPage = null;
         ProtocolProviderFactory factory =
             MsnAccRegWizzActivator.getMsnProtocolProviderFactory();
 
         return this.installAccount( factory,
-                                    registration.getId(),
-                                    registration.getPassword());
+                                    userName,
+                                    password);
     }
 
     /**
@@ -285,5 +298,24 @@ public class MsnAccountRegistrationWizard
     public void setModification(boolean isModification)
     {
         this.isModification = isModification;
+    }
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample()
+    {
+        return FirstWizardPage.USER_NAME_EXAMPLE;
+    }
+
+    /**
+     * Enables the simple "Sign in" form.
+     */
+    public boolean isSimpleFormEnabled()
+    {
+        return true;
     }
 }

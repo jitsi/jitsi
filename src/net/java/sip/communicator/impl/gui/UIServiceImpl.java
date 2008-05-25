@@ -740,7 +740,7 @@ public class UIServiceImpl
      * @return a reference to the currently valid instance of
      * <tt>AccountRegistrationWizardContainer</tt>.
      */
-    public AccountRegistrationWizardContainer getAccountRegWizardContainer()
+    public WizardContainer getAccountRegWizardContainer()
     {
         return this.wizardContainer;
     }

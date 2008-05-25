@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,7 +29,7 @@ public class IcqAccRegWizzActivator implements BundleActivator {
     
     private static BrowserLauncherService browserLauncherService;
     
-    private static AccountRegistrationWizardContainer wizardContainer;
+    private static WizardContainer wizardContainer;
     
     private static IcqAccountRegistrationWizard icqWizard;
     
@@ -49,12 +51,21 @@ public class IcqAccRegWizzActivator implements BundleActivator {
 
         icqWizard = new IcqAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(icqWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.ICQ);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            icqWizard,
+            containerFilter);
     }
 
     public void stop(BundleContext bundleContext) throws Exception
     {
-        wizardContainer.removeAccountRegistrationWizard(icqWizard);
     }
 
     /**

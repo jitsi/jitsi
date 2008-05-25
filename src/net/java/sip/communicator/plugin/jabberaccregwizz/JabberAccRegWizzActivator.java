@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -28,7 +30,7 @@ public class JabberAccRegWizzActivator
 
     private static ConfigurationService configService;
 
-    private static AccountRegistrationWizardContainer wizardContainer;
+    private static WizardContainer wizardContainer;
 
     private static JabberAccountRegistrationWizard jabberWizard;
 
@@ -54,13 +56,22 @@ public class JabberAccRegWizzActivator
 
         jabberWizard = new JabberAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(jabberWizard);
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+
+        containerFilter.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.JABBER);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(),
+            jabberWizard,
+            containerFilter);
     }
 
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-        wizardContainer.removeAccountRegistrationWizard(jabberWizard);
     }
 
     /**
