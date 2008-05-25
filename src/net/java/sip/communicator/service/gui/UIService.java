@@ -414,8 +414,8 @@ public interface UIService
     public boolean isExportedWindowSupported(WindowID windowID);
     
     /**
-     * Returns the <tt>AccountRegistrationWizardContainer</tt> for the current
-     * UIService implementation. The <tt>AccountRegistrationWizardContainer</tt>
+     * Returns the <tt>WizardContainer</tt> for the current
+     * UIService implementation. The <tt>WizardContainer</tt>
      * is meant to be implemented by the UI service implementation in order to
      * allow other modules to add to the GUI <tt>AccountRegistrationWizard</tt>
      * s. Each of these wizards is made for a given protocol and should provide
@@ -425,8 +425,8 @@ public interface UIService
      * @return Returns the <tt>AccountRegistrationWizardContainer</tt> for the
      * current UIService implementation.
      */
-    public AccountRegistrationWizardContainer getAccountRegWizardContainer();
-    
+    public WizardContainer getAccountRegWizardContainer();
+
     /**
      * Adds the specified UI component to the container given by Container. 
      * The method is meant to be used by plugins or bundles that would like to

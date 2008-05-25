@@ -28,7 +28,9 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public interface AccountRegistrationWizard {
+public interface AccountRegistrationWizard
+{
+    public static final String PREFERRED_WIZARD = "PreferredWizard";
 
     /**
      * Returns the protocol icon that will be shown on the left of the protocol
@@ -60,6 +62,14 @@ public interface AccountRegistrationWizard {
      * @return a short description of the protocol.
      */
     public String getProtocolDescription();
+
+    /**
+     * Returns an example string, which should indicate to the user how the
+     * user name should look like. For example: john@jabber.org.
+     * @return an example string, which should indicate to the user how the
+     * user name should look like.
+     */
+    public String getUserNameExample();
 
     /**
      * Loads all data concerning the given <tt>ProtocolProviderService</tt>.
@@ -106,14 +116,24 @@ public interface AccountRegistrationWizard {
      * this wizard. 
      */
     public Iterator getSummary();
-    
+
     /**
      * Defines the operations that will be executed when the user clicks on
-     * the wizard "Finish" button.
+     * the wizard "Signin" button.
      * 
      */
-    public ProtocolProviderService finish();
-    
+    public ProtocolProviderService signin();
+
+    /**
+     * Defines the operations that will be executed when the user clicks on
+     * the wizard "Signin" button.
+     * 
+     * @param userName the user name to sign in with
+     * @param password the password to sign in with
+     */
+    public ProtocolProviderService signin(  String userName,
+                                            String password);
+
     /**
      * Returns the preferred dimensions of this wizard.
      * 
@@ -138,4 +158,15 @@ public interface AccountRegistrationWizard {
      * modification mode, <code>false</code> - otherwise.
      */
     public boolean isModification();
+
+    /**
+     * Indicates whether this wizard enables the simple "sign in" form shown
+     * when the user opens the application for the first time. The simple
+     * "sign in" form allows user to configure her account in one click, just
+     * specifying her username and password and leaving any other configuration
+     * as by default.
+     * @return <code>true</code> if the simple "Sign in" form is enabled or
+     * <code>false</code> otherwise.
+     */
+    public boolean isSimpleFormEnabled();
 }
