@@ -340,6 +340,12 @@ public class ContactListPanel
             chatPanel.processMessage(protocolContact.getDisplayName(), date,
                 messageType, message.getContent(),
                 message.getContentType());
+            
+            // A bug Fix for Previous/Next buttons .
+            // Must update buttons state after message is processed 
+            // otherwise states are not proper
+            chatPanel.getChatWindow().getMainToolBar().
+                changeHistoryButtonsState(chatPanel);
 
             // Opens the chat panel with the new message in the UI thread.
             SwingUtilities.invokeLater(new Runnable()
@@ -386,7 +392,6 @@ public class ContactListPanel
 
         Message msg = evt.getSourceMessage();
 
-        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
         MetaContactChatPanel chatPanel = null;
 
         if(chatWindowManager.isChatOpenedForContact(metaContact))

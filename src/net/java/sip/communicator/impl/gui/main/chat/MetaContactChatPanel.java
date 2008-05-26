@@ -175,12 +175,18 @@ public class MetaContactChatPanel
      * 
      * @param escapedMessageID The id of the message that should be ignored.
      */
-    public void loadHistory(String escapedMessageID)
+    public void loadHistory(final String escapedMessageID)
     {
+        // Load the history period, which initializes the
+        // firstMessageTimestamp and the lastMessageTimeStamp variables.
+        // Used to disable/enable history flash buttons in the chat
+        // window tool bar.
+        loadHistoryPeriod();
+        
         Collection historyList = msgHistory.findLast(
                 metaContact, Constants.CHAT_HISTORY_SIZE);
 
-        processHistory(historyList, escapedMessageID);
+        processHistory(historyList, escapedMessageID);        
     }
     
     /**

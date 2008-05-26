@@ -302,66 +302,6 @@ public class ExtendedMainToolBar
         }
     }
 
-    /**
-     * Returns the button used to show the list of smilies.
-     * 
-     * @return the button used to show the list of smilies.
-     */
-    public SmiliesSelectorBox getSmiliesSelectorBox()
-    {
-        return smiliesBox;
-    }
-
-    /**
-     * Returns TRUE if there are selected menus in this toolbar, otherwise
-     * returns FALSE.
-     * @return TRUE if there are selected menus in this toolbar, otherwise
-     * returns FALSE
-     */
-    public boolean hasSelectedMenus()
-    {
-        if(smiliesBox.isMenuSelected())
-            return true;
-        
-        return false;
-    }
-
-    /**
-     * Disables/Enables history arrow buttons depending on whether the
-     * current page is the first, the last page or a middle page.
-     */
-    public void changeHistoryButtonsState(ChatPanel chatPanel)
-    {
-        ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
-        
-        Date firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
-        Date lastMsgInHistory = chatPanel.getLastHistoryMsgTimestamp();
-        Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
-        Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
-        
-        if(firstMsgInHistory == null || lastMsgInHistory == null)
-        {
-            previousButton.setEnabled(false);
-            nextButton.setEnabled(false);
-            return;
-        }
-        
-        if(firstMsgInHistory.compareTo(firstMsgInPage) < 0)
-            previousButton.setEnabled(true);
-        else
-            previousButton.setEnabled(false);
-        
-        if(lastMsgInPage.getTime() > 0
-                && (lastMsgInHistory.compareTo(lastMsgInPage) > 0))
-        {
-            nextButton.setEnabled(true);
-        }
-        else
-        {
-            nextButton.setEnabled(false);
-        }
-    }
-    
     private void initPluginComponents()
     {
         Iterator pluginComponents = GuiActivator.getUIService()
@@ -415,39 +355,6 @@ public class ExtendedMainToolBar
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);
-    }
-
-
-    /**
-     * Implements the <code>PluginComponentListener.pluginComponentAdded</code>
-     * method.
-     */
-    public void pluginComponentAdded(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-        
-        if(c.getContainer().equals(Container.CONTAINER_CHAT_TOOL_BAR))
-        {
-            this.addSeparator();
-            this.add((Component) c.getComponent());
-
-            this.revalidate();
-            this.repaint();
-        }
-    }
-
-    /**
-     * Implements the <code>PluginComponentListener.pluginComponentRemoved</code>
-     * method.
-     */
-    public void pluginComponentRemoved(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-
-        if(c.getContainer().equals(Container.CONTAINER_CHAT_TOOL_BAR))
-        {
-            this.remove((Component) c.getComponent());
-        }
     }
 
     public void paintComponent(Graphics g)
