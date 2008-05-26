@@ -619,8 +619,10 @@
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
-        bundle-plugin-statusupdate,
-        bundle-updatecheckplugin, bundle-plugin-simpleaccreg"/>
+    	bundle-plugin-statusupdate,
+        bundle-dict,bundle-plugin-dictaccregwizz,
+        bundle-updatecheckplugin,
+        bundle-plugin-simpleaccreg"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1504,8 +1506,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/pircbot.jar" prefix=""/>
             <zipfileset dir="${resources}/images/protocol/irc"
                     prefix="resources/images/protocol/irc"/>
-            </jar>
-        </target>
+        </jar>
+    </target>
 
     <!-- BUNDLE-PLUGIN-IRCACCREGWIZZ -->
     <target name="bundle-plugin-ircaccregwizz">
@@ -1529,6 +1531,10 @@ javax.swing.event, javax.swing.border"/>
 
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
             <manifest>
+                <zipfileset dir="${resources}/images/protocol/dict"
+                    prefix="resources/images/protocol/dict"/>
+                <zipfileset dir="${resources}/languages/plugin/dictaccregwizz"
+                    prefix="resources/languages/plugin/dictaccregwizz"/>
                 <attribute name="Export-Package" value="org.apache.log4j"/>
             </manifest>
         </jar>
@@ -1585,7 +1591,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-<!-- BUNDLE-PLUGIN-CONTACTINFO -->
+    <!-- BUNDLE-PLUGIN-CONTACTINFO -->
     <target name="bundle-plugin-contactinfo">
         <!-- Creates a bundle for the plugin Contact Info.-->
         <jar compress="false" destfile="${bundles.dest}/contactinfo.jar"
@@ -1620,6 +1626,34 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images/plugin/accountinfo"/>
             <zipfileset dir="${resources}/languages/plugin/accountinfo"
                 prefix="resources/languages/plugin/accountinfo"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-DICT -->
+    <target name="bundle-dict">
+        <jar compress="false" destfile="${bundles.dest}/protocol-dict.jar"
+             manifest="${src}/net/java/sip/communicator/impl/protocol/dict/dict.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/dict"
+                    prefix="net/java/sip/communicator/impl/protocol/dict"/>
+            <zipfileset dir="${resources}/images/protocol/dict"
+                prefix="resources/images/protocol/dict"/>
+            <zipfileset dir="${resources}/languages/plugin/dictaccregwizz"
+                prefix="resources/languages/plugin/dictaccregwizz"/>
+        </jar>
+    </target>
+   
+    <!-- BUNDLE-PLUGIN-DICTACCREGWIZZ -->
+    <target name="bundle-plugin-dictaccregwizz">
+        <!-- Creates a bundle for the plugin Dict Account Registration
+             Wizard.-->
+       <jar compress="false" destfile="${bundles.dest}/dictaccregwizz.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/dictaccregwizz/dictaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/dictaccregwizz"
+                prefix="net/java/sip/communicator/plugin/dictaccregwizz"/>
+            <zipfileset dir="${resources}/images/protocol/dict"
+                prefix="resources/images/protocol/dict"/>
+            <zipfileset dir="${resources}/languages/plugin/dictaccregwizz"
+                prefix="resources/languages/plugin/dictaccregwizz"/>
         </jar>
     </target>
     
