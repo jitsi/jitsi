@@ -84,7 +84,7 @@ public class SimpleAccountRegistrationActivator
 
             for (int j = 0; j < accountsList.size(); j++)
             {
-                accountID = (AccountID) accountsList.get(i);
+                accountID = (AccountID) accountsList.get(j);
 
                 boolean isHidden = 
                     accountID.getAccountProperties()
