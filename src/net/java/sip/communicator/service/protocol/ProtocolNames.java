@@ -84,4 +84,9 @@ public interface ProtocolNames
      * The Gibberish protocol.
      */
     public static final String GIBBERISH = "Gibberish";
+
+     /**
+      * The Dict protocol.
+      */
+     public static final String DICT = "Dict";
 }

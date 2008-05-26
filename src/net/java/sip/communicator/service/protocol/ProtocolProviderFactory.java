@@ -187,6 +187,12 @@ public abstract class ProtocolProviderFactory
      */
     public static final String PROXY_ADDRESS_VALIDATED
                                                 = "PROXY_ADDRESS_VALIDATED";
+
+    /**
+     * Indicates the search strategy chosen for the DICT protocole.
+     */
+    public static final String STRATEGY = "STRATEGY";
+
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
