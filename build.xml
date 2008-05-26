@@ -619,8 +619,8 @@
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
-    	bundle-plugin-statusupdate,
-        bundle-updatecheckplugin"/>
+        bundle-plugin-statusupdate,
+        bundle-updatecheckplugin, bundle-plugin-simpleaccreg"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1108,8 +1108,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${resources}/colors"
                 prefix="resources/colors"/>
             <zipfileset dir="${resources}" includes="application.properties"
-                prefix="resources"/>
-            <zipfileset dir="${resources}" includes="login.properties"
                 prefix="resources"/>
             <zipfileset dir="${resources}" includes="lookandfeel.properties"
                 prefix="resources"/>
@@ -1646,5 +1644,19 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/languages/plugin/statusupdate"/>
         </jar>
     </target>
-	
+
+    <!--BUNDLE-StatusUpdatePlugin-->
+    <target name="bundle-plugin-simpleaccreg">
+        <jar compress="false" destfile="${bundles.dest}/simpleaccreg.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/simpleaccreg/simpleaccreg.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/simpleaccreg"
+                prefix="net/java/sip/communicator/plugin/simpleaccreg" />
+            <zipfileset dir="${resources}/languages/plugin/simpleaccreg"
+                prefix="resources/languages/plugin/simpleaccreg"/>
+            <zipfileset dir="${resources}" includes="login.properties"
+                prefix="resources"/>
+            <zipfileset dir="${resources}/colors"
+                prefix="resources/colors"/>
+        </jar>
+    </target>
 </project>

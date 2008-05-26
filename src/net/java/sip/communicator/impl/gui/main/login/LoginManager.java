@@ -143,25 +143,6 @@ public class LoginManager
                 }
             }
         }
-
-        if (!hasRegisteredAccounts)
-        {
-            this.showAccountRegistrationWizard();
-        }
-    }
-
-    /**
-     * Shows the wizard, which allows to register a new account.
-     */
-    private void showAccountRegistrationWizard()
-    {
-        // If no preferred wizard is specified we launch the default wizard.
-        InitialAccountRegistrationFrame accountRegFrame
-            = new InitialAccountRegistrationFrame();
-
-        accountRegFrame.pack();
-        accountRegFrame.setLocation(0, 0);
-        accountRegFrame.setVisible(true);
     }
 
     /**
