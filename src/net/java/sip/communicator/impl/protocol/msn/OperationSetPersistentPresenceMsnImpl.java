@@ -804,9 +804,28 @@ public class OperationSetPersistentPresenceMsnImpl
                     currentStatus);
 
                 //send event notifications saying that all our buddies are
-                //offline. The protocol does not implement top level buddies
-                //nor subgroups for top level groups so a simple nested loop
-                //would be enough.
+                //offline. 
+                Iterator rootContactsIter = 
+                    getServerStoredContactListRoot().contacts();
+                while(rootContactsIter.hasNext())
+                {
+                    ContactMsnImpl contact
+                        = (ContactMsnImpl)rootContactsIter.next();
+
+                    PresenceStatus oldContactStatus
+                        = contact.getPresenceStatus();
+
+                    if(!oldContactStatus.isOnline())
+                        continue;
+
+                    contact.updatePresenceStatus(MsnStatusEnum.OFFLINE);
+
+                    fireContactPresenceStatusChangeEvent(
+                          contact
+                        , contact.getParentContactGroup()
+                        , oldContactStatus, MsnStatusEnum.OFFLINE);
+                }
+                
                 Iterator groupsIter =
                     getServerStoredContactListRoot().subgroups();
                 while(groupsIter.hasNext())
