@@ -620,7 +620,6 @@
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
     	bundle-plugin-statusupdate,
-        bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-updatecheckplugin,
         bundle-plugin-simpleaccreg"/>
 
