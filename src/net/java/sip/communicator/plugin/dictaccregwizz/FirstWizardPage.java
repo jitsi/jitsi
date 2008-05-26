@@ -378,7 +378,7 @@ public class FirstWizardPage
     private void setNextButtonEnabled()
     {
         boolean hostOK = DictAdapter.isUrl(hostField.getText());
-        boolean portOK = !this.portField.getText().isEmpty()
+        boolean portOK = (this.portField.getText().length() != 0)
             && Integer.parseInt(this.portField.getText()) > 10;
         
         if (this.firstAccount)
