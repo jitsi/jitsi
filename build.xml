@@ -1109,6 +1109,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/colors"/>
             <zipfileset dir="${resources}" includes="application.properties"
                 prefix="resources"/>
+            <zipfileset dir="${resources}" includes="login.properties"
+                prefix="resources"/>
             <zipfileset dir="${resources}" includes="lookandfeel.properties"
                 prefix="resources"/>
             <zipfileset dir="${resources}/size" includes="size.properties"
