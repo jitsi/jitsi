@@ -1531,10 +1531,6 @@ javax.swing.event, javax.swing.border"/>
 
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
             <manifest>
-                <zipfileset dir="${resources}/images/protocol/dict"
-                    prefix="resources/images/protocol/dict"/>
-                <zipfileset dir="${resources}/languages/plugin/dictaccregwizz"
-                    prefix="resources/languages/plugin/dictaccregwizz"/>
                 <attribute name="Export-Package" value="org.apache.log4j"/>
             </manifest>
         </jar>
