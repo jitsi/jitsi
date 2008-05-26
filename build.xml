@@ -621,6 +621,7 @@
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
     	bundle-plugin-statusupdate,
         bundle-updatecheckplugin,
+        bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-plugin-simpleaccreg"/>
 
     <!--BUNDLE-HISTORY-->
