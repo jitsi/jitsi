@@ -156,4 +156,9 @@ public class WhiteboardMenuItem
     {
         return whiteboardMenu.getText();
     }
+
+    public int getPositionIndex()
+    {
+        return -1;
+    }
 }

@@ -58,6 +58,16 @@ public interface PluginComponent
     public String getConstraints();
 
     /**
+     * Returns the index position of this component in the container, where it
+     * will be added. An index of 0 would mean that this component should be
+     * added before all other components. An index of -1 would mean that the
+     * position of this component is not important.
+     * @return the index position of this component in the container, where it
+     * will be added.
+     */
+    public int getPositionIndex();
+
+    /**
      * Returns the component that should be added. This method should return a
      * valid AWT, SWT or Swing object in order to appear properly in the user
      * interface.

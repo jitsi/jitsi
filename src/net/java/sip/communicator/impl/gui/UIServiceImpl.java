@@ -967,5 +967,10 @@ public class UIServiceImpl
                 ((ContactAwareComponent) component)
                     .setCurrentContactGroup(metaGroup);
         }
+
+        public int getPositionIndex()
+        {
+            return -1;
+        }
     }
 }

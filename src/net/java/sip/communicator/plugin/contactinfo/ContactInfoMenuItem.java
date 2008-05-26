@@ -85,4 +85,9 @@ public class ContactInfoMenuItem
     {
         return menuItem.getText();
     }
+
+    public int getPositionIndex()
+    {
+        return -1;
+    }
 }

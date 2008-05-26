@@ -89,4 +89,9 @@ public class ExtendedCallHistorySearchItem
     public void setCurrentContactGroup(MetaContactGroup metaGroup)
     {
     }
+
+    public int getPositionIndex()
+    {
+        return -1;
+    }
 }
