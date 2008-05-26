@@ -376,6 +376,9 @@ public class GrowlNotificationServiceImpl
                               String inDescription)
         throws Exception
     {
+        // remove eventual html code before showing the popup message
+        inDescription = inDescription.replaceAll("</?\\w++[^>]*+>", "");
+        
         notifyMethod.invoke(
             notifier, new Object[]{inNotificationName, inImagePath, 
                                    inTitle, inDescription});
