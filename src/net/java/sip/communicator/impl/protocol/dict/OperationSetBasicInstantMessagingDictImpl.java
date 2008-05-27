@@ -308,7 +308,7 @@ public class OperationSetBasicInstantMessagingDictImpl
             }
             else
             { // Otherwise we display the error returned by the server
-                msg = this.createMessage(dex.getErrorMessage());
+                msg = this.createMessage(manageException(dex, database));
             }
         }
         catch(Exception ex)
@@ -328,7 +328,7 @@ public class OperationSetBasicInstantMessagingDictImpl
             }
             catch(DictException dex)
             {
-                msg = this.createMessage(dex.getErrorMessage());
+                msg = this.createMessage(manageException(dex, database));
             }
             catch(Exception ex)
             {
@@ -417,5 +417,29 @@ public class OperationSetBasicInstantMessagingDictImpl
         }
         
         return result;
+    }
+
+    /**
+     * Manages the return exception of a dict query.
+     * 
+     * @param dix The exception returned by the adapter
+     * @param database The dictionary used
+     * @return Exception message
+     */
+    private String manageException(DictException dix, String database)
+    {
+        int errorCode = dix.getErrorCode();
+
+        // We change the text only for exception 550 (invalid dictionary) and 551 (invalid strategy)
+        if (errorCode == 550)
+        {
+            return "The current dictionary '" + database + "' doesn't exist anymore on the server";
+        }
+        else if (errorCode == 551)
+        {
+            return "The current strategy isn't available on the server";
+        }
+
+        return dix.getErrorMessage();
     }
 }
