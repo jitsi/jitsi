@@ -50,6 +50,8 @@ public class CreateChatRoomWizard
         
         this.setTitle(Messages.getI18NString("createChatRoomWizard").getText());
 
+        this.setFinishButtonText(Messages.getI18NString("create").getText());
+
         page1 = new CreateChatRoomWizardPage1(this, newChatRoom,
                     mainFrame.getProtocolProviders());
 

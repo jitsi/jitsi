@@ -43,12 +43,14 @@ public class AddContactWizard
     public AddContactWizard(MainFrame mainFrame)
     {
         super(mainFrame);
-        
+
         this.mainFrame = mainFrame;
-     
+
         super.addWizardListener(this);
-        
+
         this.setTitle(Messages.getI18NString("addContactWizard").getText());
+
+        this.setFinishButtonText(Messages.getI18NString("addContact").getText());
 
         Vector pps = new Vector();
         Iterator iter = mainFrame.getProtocolProviders();

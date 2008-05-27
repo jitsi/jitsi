@@ -41,6 +41,8 @@ public class IcqAccountRegistrationWizard
     public IcqAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**

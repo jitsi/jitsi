@@ -41,6 +41,8 @@ public class AimAccountRegistrationWizard
     public AimAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**

@@ -45,6 +45,8 @@ public class MsnAccountRegistrationWizard
     public MsnAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**

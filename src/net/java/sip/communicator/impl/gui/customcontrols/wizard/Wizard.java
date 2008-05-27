@@ -621,4 +621,12 @@ public class Wizard
         this.pack();
         this.repaint();
     }
+
+    /**
+     * Implements the <tt>WizardContainer.setFinishButtonText()</tt> method.
+     */
+    public void setFinishButtonText(String text)
+    {
+        FINISH_TEXT = text;
+    }
 }

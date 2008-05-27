@@ -42,12 +42,14 @@ public class JoinChatRoomWizard
     public JoinChatRoomWizard(MainFrame mainFrame)
     {
         super(mainFrame);
-        
+
         this.mainFrame = mainFrame;
-     
+
         super.addWizardListener(this);
-        
+
         this.setTitle(Messages.getI18NString("joinChatRoomWizard").getText());
+
+        this.setFinishButtonText(Messages.getI18NString("join").getText());
 
         page1 = new JoinChatRoomWizardPage1(this, newChatRoom,
                     mainFrame.getProtocolProviders());

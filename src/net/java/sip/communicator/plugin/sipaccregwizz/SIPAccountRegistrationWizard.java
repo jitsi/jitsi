@@ -47,8 +47,11 @@ public class SIPAccountRegistrationWizard
      * @param wizardContainer the wizard container, where this wizard
      * is added
      */
-    public SIPAccountRegistrationWizard(WizardContainer wizardContainer) {
+    public SIPAccountRegistrationWizard(WizardContainer wizardContainer)
+    {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**

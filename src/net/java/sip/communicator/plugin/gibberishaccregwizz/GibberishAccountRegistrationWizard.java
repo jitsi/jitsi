@@ -54,6 +54,8 @@ public class GibberishAccountRegistrationWizard
     public GibberishAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**

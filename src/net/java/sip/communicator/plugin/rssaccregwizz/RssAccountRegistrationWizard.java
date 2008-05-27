@@ -11,6 +11,7 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -53,6 +54,9 @@ public class RssAccountRegistrationWizard
     public RssAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer
+            .setFinishButtonText(Resources.getString("activate"));
     }
 
     /**

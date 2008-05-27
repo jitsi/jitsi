@@ -58,7 +58,16 @@ public interface WizardContainer {
      * disable it.
      */
     public void setCancelButtonEnabled(boolean newValue);
-    
+
+    /**
+     * Sets the text label of the "Finish" wizard button. The default value of
+     * the "Finish" button is still defined by the implementation of this
+     * <tt>WizardContainer</tt> interface, but calling this method would allow
+     * wizards to specify their own finish button.
+     * @param text the new label of the button
+     */
+    public void setFinishButtonText(String text);
+
     /**
      * Refreshes the current content of this wizard container.
      */

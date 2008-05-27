@@ -59,8 +59,11 @@ public class SSHAccountRegistrationWizard
      * @param wizardContainer the wizard container, where this wizard
      * is added
      */
-    public SSHAccountRegistrationWizard(WizardContainer wizardContainer) {
+    public SSHAccountRegistrationWizard(WizardContainer wizardContainer)
+    {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
     
     /**

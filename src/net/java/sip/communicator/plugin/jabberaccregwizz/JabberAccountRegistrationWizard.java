@@ -50,6 +50,8 @@ public class JabberAccountRegistrationWizard
     public JabberAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**

@@ -55,6 +55,8 @@ public class ZeroconfAccountRegistrationWizard
     public ZeroconfAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**

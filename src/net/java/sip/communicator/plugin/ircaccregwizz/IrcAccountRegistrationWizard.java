@@ -51,6 +51,8 @@ public class IrcAccountRegistrationWizard
     public IrcAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         this.wizardContainer = wizardContainer;
+
+        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
     }
 
     /**
