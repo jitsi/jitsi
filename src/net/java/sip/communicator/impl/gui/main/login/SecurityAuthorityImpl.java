@@ -59,12 +59,16 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
         if (reasonCode == WRONG_PASSWORD)
         {
             errorMessage
-                = Messages.getI18NString("authenticationFailed").getText();
+                = Messages.getI18NString("authenticationFailed",
+                    new String[]{   userCredentials.getUserName(),
+                                    realm}).getText();
         }
         else if (reasonCode == WRONG_USERNAME)
         {
             errorMessage
-                = Messages.getI18NString("authenticationFailed").getText();
+                = Messages.getI18NString("authenticationFailed",
+                    new String[]{   userCredentials.getUserName(),
+                                    realm}).getText();
         }
 
         AuthenticationWindow loginWindow = null;
