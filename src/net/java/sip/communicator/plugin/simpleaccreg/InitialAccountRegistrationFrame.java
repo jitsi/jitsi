@@ -78,6 +78,8 @@ public class InitialAccountRegistrationFrame
         this.messageArea.setEditable(false);
         this.messageArea.setOpaque(false);
 
+        this.getRootPane().setDefaultButton(signinButton);
+
         this.initAccountWizards();
     }
 
