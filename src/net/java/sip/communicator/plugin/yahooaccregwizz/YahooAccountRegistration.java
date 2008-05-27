@@ -18,7 +18,7 @@ public class YahooAccountRegistration {
 
     private String password;
 
-    private boolean rememberPassword;
+    private boolean rememberPassword = true;
 
     /**
      * Returns the password of the yahoo registration account.
