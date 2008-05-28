@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.gibberish;
 import java.util.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -126,6 +127,88 @@ public class ProtocolProviderFactoryGibberishImpl
 
         return accountID;
     }
+
+    /**
+     * Modifies the account corresponding to the specified accountID. This
+     * method is meant to be used to change properties of already existing
+     * accounts. Note that if the given accountID doesn't correspond to any
+     * registered account this method would do nothing.
+     *
+     * @param accountID the user identifier uniquely representing the newly
+     * created account within the protocol namespace.
+     * @param accountProperties a set of protocol (or implementation) specific
+     * properties defining the new account.
+     * 
+     * @throws java.lang.NullPointerException if any of the arguments is null.
+     */
+    public void modifyAccount(  ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+    {
+        BundleContext context
+            = GibberishActivator.getBundleContext();
+
+        if (context == null)
+            throw new NullPointerException(
+                "The specified BundleContext was null");
+
+        if (protocolProvider == null)
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+
+        GibberishAccountID accountID
+            = (GibberishAccountID) protocolProvider.getAccountID();
+
+        // If the given accountID doesn't correspond to an existing account
+        // we return.
+        if(!registeredAccounts.containsKey(accountID))
+            return;
+
+        ServiceRegistration registration
+            = (ServiceRegistration) registeredAccounts.get(accountID);
+
+        // kill the service
+        if (registration != null)
+            registration.unregister();
+
+        accountProperties.put(USER_ID, accountID.getUserID());
+
+        if (accountProperties == null)
+            throw new NullPointerException(
+                "The specified property map was null");
+
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.GIBBERISH);
+
+        accountID.setAccountProperties(accountProperties);
+
+        // First store the account and only then load it as the load generates
+        // an osgi event, the osgi event triggers (trhgough the UI) a call to
+        // the register() method and it needs to acces the configuration service
+        // and check for a password.
+        this.storeAccount(GibberishActivator.getBundleContext(), accountID);
+
+        Hashtable properties = new Hashtable();
+        properties.put(PROTOCOL, ProtocolNames.GIBBERISH);
+        properties.put(USER_ID, accountID.getUserID());
+
+        ((ProtocolProviderServiceGibberishImpl) protocolProvider)
+            .initialize(accountID.getUserID(), accountID);
+
+        // We store again the account in order to store all properties added
+        // during the protocol provider initialization.
+        this.storeAccount(
+            GibberishActivator.getBundleContext(), accountID);
+
+        registration
+            = context.registerService(
+                        ProtocolProviderService.class.getName(),
+                        protocolProvider,
+                        properties);
+
+        // We store the modified account registration.
+        registeredAccounts.put(accountID, registration);
+    }
+
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the

@@ -588,23 +588,23 @@ public class OperationSetPresenceSipImpl
         String oldMessage = this.statusMessage;
         this.statusMessage = statusMsg;
 
-        // inform the listeners of these changes
-        this.fireProviderStatusChangeEvent(oldStatus);
-        this.fireProviderMsgStatusChangeEvent(oldMessage);
-
-        if (this.presenceEnabled == false) {
+        if (this.presenceEnabled == false)
+        {
             return;
         }
 
         // in the offline status, the protocol provider is already unregistered
-        if (!status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
+        if (!status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
+        {
             assertConnected();
         }
 
         // now inform our distant presence agent if we have one
-        if (this.useDistantPA) {
+        if (this.useDistantPA)
+        {
             Request req = null;
-            if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
+            if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
+            {
                 // unpublish our state
                 req = createPublish(0, false);
                 
@@ -614,10 +614,12 @@ public class OperationSetPresenceSipImpl
                     this.waitedCallIds.add(((CallIdHeader)
                         req.getHeader(CallIdHeader.NAME)).getCallId());
                 }
-            } else {
+            }
+            else
+            {
                 req = createPublish(this.subscriptionDuration, true);
             }
-            
+
             ClientTransaction transac = null;
             try {
                 transac = this.parentProvider
@@ -629,9 +631,12 @@ public class OperationSetPresenceSipImpl
                         OperationFailedException.NETWORK_FAILURE);
             }
 
-            try {
+            try
+            {
                 transac.sendRequest();
-            } catch (SipException e) {
+            }
+            catch (SipException e)
+            {
                 logger.error("can't send the PUBLISH request", e);
                 throw new OperationFailedException(
                         "can't send the PUBLISH request",
@@ -639,13 +644,17 @@ public class OperationSetPresenceSipImpl
             }
 
         // no distant presence agent, send notify to every one
-        } else {
-            synchronized (this.ourWatchers) {   // avoid any modification during
-                                                // the parsing of ourWatchers
+        }
+        else
+        {
+            synchronized (this.ourWatchers)
+            {   // avoid any modification during
+                // the parsing of ourWatchers
                 Iterator iter = this.ourWatchers.iterator();
                 ContactSipImpl me = (ContactSipImpl) getLocalContact();
 
-                while (iter.hasNext()) {
+                while (iter.hasNext())
+                {
                     ContactSipImpl contact = (ContactSipImpl) iter.next();
 
                     // let the subscription end before sending him a new status
@@ -654,9 +663,11 @@ public class OperationSetPresenceSipImpl
                     }
 
                     ClientTransaction transac = null;
-                    try {
+                    try
+                    {
                         if (status.equals(sipStatusEnum.getStatus(
-                                                SipStatusEnum.OFFLINE))) {
+                                                SipStatusEnum.OFFLINE)))
+                        {
                             transac = createNotify(contact,
                                     getPidfPresenceStatus(me),
                                     SubscriptionStateHeader.TERMINATED,
@@ -667,7 +678,9 @@ public class OperationSetPresenceSipImpl
                                 this.waitedCallIds.add(transac.getDialog()
                                     .getCallId().getCallId());
                             }
-                        } else {
+                        }
+                        else
+                        {
                             transac = createNotify(contact,
                                         getPidfPresenceStatus(me),
                                         SubscriptionStateHeader.ACTIVE, null);
@@ -677,15 +690,19 @@ public class OperationSetPresenceSipImpl
                         return;
                     }
 
-                    try {
+                    try
+                    {
                         contact.getServerDialog().sendRequest(transac);
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e)
+                    {
                         logger.error("Can't send the request", e);
                         return;
                     }
                 }
 
-                if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
+                if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
+                {
                     this.ourWatchers.removeAllElements();
                 }
             }
@@ -693,9 +710,14 @@ public class OperationSetPresenceSipImpl
 
         // must be done in last to avoid some problem when terminating a
         // subscription of a contact who is also one of our watchers
-        if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
+        if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
+        {
             unsubscribeToAllContact();
         }
+
+     // inform the listeners of these changes
+        this.fireProviderStatusChangeEvent(oldStatus);
+        this.fireProviderMsgStatusChangeEvent(oldMessage);
     }
 
     /**
@@ -4029,7 +4051,7 @@ public class OperationSetPresenceSipImpl
                  logger.debug("no valid status in this tuple");
              } else {
                  Element status = (Element) statusNode;
-    
+
                  // <basic>
                  NodeList basicList = getPidfChilds(status, BASIC_ELEMENT); 
 
@@ -4045,7 +4067,7 @@ public class OperationSetPresenceSipImpl
                      }
                      index--;
                  } while (index >= 0);
-    
+
                  if (basicNode == null) {
                      logger.debug("no valid <basic> in this status");
                  } else {
@@ -4324,7 +4346,8 @@ public class OperationSetPresenceSipImpl
      /**
       * Unsubscribe to every contact.
       */
-     public void unsubscribeToAllContact() {
+     public void unsubscribeToAllContact()
+     {
          logger.debug("trying to unsubscribe to every contact");
 
          // send event notifications saying that all our buddies are
@@ -4333,13 +4356,15 @@ public class OperationSetPresenceSipImpl
          // would be enough.
          Iterator groupsIter = getServerStoredContactListRoot()
              .subgroups();
-         while (groupsIter.hasNext()) {
+         while (groupsIter.hasNext())
+         {
              ContactGroupSipImpl group = (ContactGroupSipImpl)
                  groupsIter.next();
 
              Iterator contactsIter = group.contacts();
 
-             while (contactsIter.hasNext()) {
+             while (contactsIter.hasNext())
+             {
                  ContactSipImpl contact = (ContactSipImpl)
                      contactsIter.next();
 

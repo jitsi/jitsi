@@ -8,10 +8,12 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 
+import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The ProtocolProviderFactory is what actually creates instances of a
@@ -29,7 +31,7 @@ public abstract class ProtocolProviderFactory
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderFactory.class);
     /**
-     * Then name of a property which represenstots a password.
+     * Then name of a property which represents a password.
      */
     public static final String PASSWORD = "PASSWORD";
 
@@ -202,7 +204,7 @@ public abstract class ProtocolProviderFactory
      * during all following sessions until they are removed through the
      * removeAccount method.
      *
-     * @param userID tha/a user identifier uniquely representing the newly
+     * @param userID the user identifier uniquely representing the newly
      * created account within the protocol namespace.
      * @param accountProperties a set of protocol (or implementation) specific
      * properties defining the new account.
@@ -220,6 +222,25 @@ public abstract class ProtocolProviderFactory
         throws IllegalArgumentException,
                IllegalStateException,
                NullPointerException;
+
+
+    /**
+     * Modifies the account corresponding to the specified accountID. This
+     * method is meant to be used to change properties of already existing
+     * accounts. Note that if the given accountID doesn't correspond to any
+     * registered account this method would do nothing.
+     *
+     * @param protocolProvider the protocol provider service corresponding to
+     * the modified account.
+     * @param accountProperties a set of protocol (or implementation) specific
+     * properties defining the new account.
+     * 
+     * @throws java.lang.NullPointerException if any of the arguments is null.
+     */
+    public abstract void modifyAccount(
+                                ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+            throws NullPointerException;
 
     /**
      * Returns a copy of the list containing the <tt>AccountID</tt>s of all
@@ -345,6 +366,7 @@ public abstract class ProtocolProviderFactory
 
             configurationService.setProperty(
                 sourcePackageName //prefix
+
                 + "." + accountNodeName // a uniew node name for the account id
                 + "." + propKey, // propname
                 propValue); // value
@@ -534,7 +556,6 @@ public abstract class ProtocolProviderFactory
      * @return the AccountID of the newly loaded account
      */
     protected abstract AccountID loadAccount(   Map accountProperties);
-
 
     /**
      * Removes the account with <tt>accountID</tt> from the set of accounts

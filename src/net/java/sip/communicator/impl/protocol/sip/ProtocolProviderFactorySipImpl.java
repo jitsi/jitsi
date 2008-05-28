@@ -143,7 +143,99 @@ public class ProtocolProviderFactorySipImpl
         return accountID;
     }
 
+    /**
+     * Modifies the account corresponding to the specified accountID. This
+     * method is meant to be used to change properties of already existing
+     * accounts. Note that if the given accountID doesn't correspond to any
+     * registered account this method would do nothing.
+     *
+     * @param protocolProvider the protocol provider service corresponding to
+     * the modified account.
+     * @param accountProperties a set of protocol (or implementation) specific
+     * properties defining the new account.
+     * 
+     * @throws java.lang.NullPointerException if any of the arguments is null.
+     */
+    public void modifyAccount(  ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+    {
+        BundleContext context
+            = SipActivator.getBundleContext();
 
+        if (context == null)
+            throw new NullPointerException(
+                "The specified BundleContext was null");
+
+        if (protocolProvider == null)
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+
+        SipAccountID accountID = (SipAccountID) protocolProvider.getAccountID();
+
+        // If the given accountID doesn't correspond to an existing account
+        // we return.
+        if(!registeredAccounts.containsKey(accountID))
+            return;
+
+        ServiceRegistration registration
+            = (ServiceRegistration) registeredAccounts.get(accountID);
+
+        // kill the service
+        if (registration != null)
+            registration.unregister();
+
+        accountProperties.put(USER_ID, accountID.getUserID());
+
+        if (accountProperties == null)
+            throw new NullPointerException(
+                "The specified property map was null");
+
+        String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
+
+        if(serverAddress == null)
+            throw new NullPointerException("null is not a valid ServerAddress");
+
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.SIP);
+
+        accountID.setAccountProperties(accountProperties);
+
+        // First store the account and only then load it as the load generates
+        // an osgi event, the osgi event triggers (trhgough the UI) a call to
+        // the register() method and it needs to acces the configuration service
+        // and check for a password.
+        this.storeAccount(SipActivator.getBundleContext(), accountID);
+
+        Hashtable properties = new Hashtable();
+        properties.put(PROTOCOL, ProtocolNames.SIP);
+        properties.put(USER_ID, accountID.getUserID());
+
+        try
+        {
+            ((ProtocolProviderServiceSipImpl)protocolProvider)
+                .initialize(accountID.getUserID(), accountID);
+
+            // We store again the account in order to store all properties added
+            // during the protocol provider initialization.
+            this.storeAccount(
+                SipActivator.getBundleContext(), accountID);
+
+            registration
+                = context.registerService(
+                            ProtocolProviderService.class.getName(),
+                            protocolProvider,
+                            properties);
+
+            registeredAccounts.put(accountID, registration);
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error("Failed to initialize account", ex);
+            throw new IllegalArgumentException("Failed to initialize account"
+                + ex.getMessage());
+        }
+    }
+    
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the

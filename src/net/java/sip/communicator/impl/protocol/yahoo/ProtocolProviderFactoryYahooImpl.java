@@ -261,4 +261,13 @@ public class ProtocolProviderFactoryYahooImpl
         return super.loadPassword(YahooActivator.getBundleContext()
                                   , accountID );
     }
+
+    @Override
+    public void modifyAccount(  ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+        throws NullPointerException
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }

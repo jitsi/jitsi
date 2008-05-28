@@ -200,7 +200,7 @@ public class SIPAccountRegistrationWizard
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
-    public ProtocolProviderService installAccount(
+    private ProtocolProviderService installAccount(
             ProtocolProviderFactory providerFactory,
             String userName,
             String passwd)
@@ -259,9 +259,16 @@ public class SIPAccountRegistrationWizard
 
         if(isModification)
         {
-            providerFactory.uninstallAccount(protocolProvider.getAccountID());
-            this.protocolProvider = null;
+//            new ProviderUnRegistration(protocolProvider).unregister();
+
+            providerFactory.modifyAccount(  protocolProvider,
+                                            accountProperties);
+
+//            new ProviderRegistration(protocolProvider).register();
+
             this.isModification  = false;
+
+            return protocolProvider;
         }
 
         try

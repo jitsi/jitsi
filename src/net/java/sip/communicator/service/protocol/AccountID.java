@@ -194,4 +194,14 @@ public abstract class AccountID
         else
             return getUserID() + "@" + getService();
     }
+
+    /**
+     * Set the account properties.
+     * 
+     * @param accountProperties the properties of the account
+     */
+    public void setAccountProperties(Map accountProperties)
+    {
+        this.accountProperties = accountProperties;
+    }
 }

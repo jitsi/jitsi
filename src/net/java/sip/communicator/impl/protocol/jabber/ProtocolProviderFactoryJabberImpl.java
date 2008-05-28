@@ -299,4 +299,13 @@ public class ProtocolProviderFactoryJabberImpl
         return super.loadPassword(JabberActivator.getBundleContext()
                                   , accountID );
     }
+
+    @Override
+    public void modifyAccount(  ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+        throws NullPointerException
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }

@@ -171,10 +171,10 @@ public class AccountsConfigurationForm extends JPanel
                 boolean isHidden = 
                     accountID.getAccountProperties().
                         get("HIDDEN_PROTOCOL") != null;
-            
+
                 if(isHidden)
                     continue;
-                
+
                 serRef = providerFactory
                         .getProviderForAccount(accountID);
 
@@ -396,13 +396,6 @@ public class AccountsConfigurationForm extends JPanel
                     sourceFactory = (ProtocolProviderFactory) service;
                     break;
                 }
-            }
-
-            if(sourceFactory.getRegisteredAccounts().contains(
-                    pps.getAccountID()))
-            {
-                //the account is still installed. we don't need to do anything.
-                return;
             }
 
             tableModel.removeRow(tableModel.rowIndexOf(pps));

@@ -236,4 +236,13 @@ public class ProtocolProviderFactoryIrcImpl
         return super.loadPassword(IrcActivator.bundleContext, accountID );
     }
 
+    @Override
+    public void modifyAccount(  ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+        throws NullPointerException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

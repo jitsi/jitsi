@@ -270,4 +270,13 @@ public class ProtocolProviderFactoryRssImpl
         }
     }
 
+    @Override
+    public void modifyAccount(  ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+        throws NullPointerException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

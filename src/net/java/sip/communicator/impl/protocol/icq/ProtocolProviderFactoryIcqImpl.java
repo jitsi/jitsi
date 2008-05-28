@@ -146,7 +146,10 @@ public class ProtocolProviderFactoryIcqImpl
         if((IcqAccountID.isAIM(accountProperties) && !isAimFactory) ||
             (!IcqAccountID.isAIM(accountProperties) && isAimFactory))
                 return null;
-        
+
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.ICQ);
+
         String userIDStr = (String)accountProperties.get(USER_ID);
 
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
@@ -302,4 +305,71 @@ public class ProtocolProviderFactoryIcqImpl
                                   , accountID );
     }
 
+    @Override
+    public void modifyAccount(  ProtocolProviderService protocolProvider,
+                                Map accountProperties)
+        throws NullPointerException
+    {
+        BundleContext context
+            = IcqActivator.getBundleContext();
+
+        if (context == null)
+            throw new NullPointerException(
+                "The specified BundleContext was null");
+
+        if (protocolProvider == null)
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+
+        IcqAccountID accountID = (IcqAccountID) protocolProvider.getAccountID();
+
+        // If the given accountID doesn't correspond to an existing account
+        // we return.
+        if(!registeredAccounts.containsKey(accountID))
+            return;
+
+        ServiceRegistration registration
+            = (ServiceRegistration) registeredAccounts.get(accountID);
+
+        // kill the service
+        if (registration != null)
+            registration.unregister();
+
+        accountProperties.put(USER_ID, accountID.getUserID());
+
+        if (accountProperties == null)
+            throw new NullPointerException(
+                "The specified property map was null");
+
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.ICQ);
+
+        accountID.setAccountProperties(accountProperties);
+
+        // First store the account and only then load it as the load generates
+        // an osgi event, the osgi event triggers (trhgough the UI) a call to
+        // the register() method and it needs to acces the configuration service
+        // and check for a password.
+        this.storeAccount(IcqActivator.getBundleContext(), accountID);
+
+        Hashtable properties = new Hashtable();
+        properties.put(PROTOCOL, ProtocolNames.ICQ);
+        properties.put(USER_ID, accountID.getUserID());
+
+        ((ProtocolProviderServiceIcqImpl) protocolProvider)
+            .initialize(accountID.getUserID(), accountID);
+
+        // We store again the account in order to store all properties added
+        // during the protocol provider initialization.
+        this.storeAccount(
+            IcqActivator.getBundleContext(), accountID);
+
+        registration
+            = context.registerService(
+                        ProtocolProviderService.class.getName(),
+                        protocolProvider,
+                        properties);
+
+        registeredAccounts.put(accountID, registration);
+    }
 }

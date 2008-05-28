@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.dict;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -347,5 +346,12 @@ public class ProtocolProviderFactoryDictImpl
         mcl.createMetaContact(protocolProvider, group, dict_uin);
         // Rename the default contact.
         mcl.renameMetaContact(group.getMetaContact(protocolProvider, dict_uin), accountID.getUserID() + "_default_dictionary");
+    }
+
+    @Override
+    public void modifyAccount(ProtocolProviderService protocolProvider,
+        Map accountProperties) throws NullPointerException
+    {
+        // TODO Auto-generated method stub
     }
 }
