@@ -58,8 +58,8 @@ public class ContactDictImpl
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
      *
-     * @param id the identifier of this contact (also used as a name).
-     * @param parentProvider the provider that created us.
+     * @param databaseCode The identifier of this contact (also used as a name).
+     * @param parentProvider The provider that created us.
      */
     public ContactDictImpl(
                 String databaseCode,
