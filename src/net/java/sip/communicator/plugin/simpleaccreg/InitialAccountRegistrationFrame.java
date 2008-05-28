@@ -46,6 +46,9 @@ public class InitialAccountRegistrationFrame
     private JButton signinButton
         = new JButton(Resources.getString("signin"));
 
+    private JButton cancelButton
+        = new JButton(Resources.getString("cancel"));
+
     private Vector registrationForms = new Vector();
 
     /**
@@ -70,7 +73,12 @@ public class InitialAccountRegistrationFrame
         this.accountsPanel.setOpaque(false);
         this.buttonPanel.setOpaque(false);
 
-        this.signinButton.addActionListener(new SigninActionListener());
+        SigninActionListener actionListener = new SigninActionListener();
+
+        this.signinButton.addActionListener(actionListener);
+        this.cancelButton.addActionListener(actionListener);
+
+        this.buttonPanel.add(cancelButton);
         this.buttonPanel.add(signinButton);
 
         this.messageArea.setLineWrap(true);
@@ -371,23 +379,30 @@ public class InitialAccountRegistrationFrame
      */
     private class SigninActionListener implements ActionListener
     {
-        public void actionPerformed(ActionEvent arg0)
+        public void actionPerformed(ActionEvent evt)
         {
-            Iterator regIterator = registrationForms.iterator();
+            JButton button = (JButton) evt.getSource();
 
-            if (regIterator.hasNext())
-                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-            while(regIterator.hasNext())
+            if (button.equals(signinButton))
             {
-                AccountRegistrationPanel regForm
-                    = (AccountRegistrationPanel) regIterator.next();
+                Iterator regIterator = registrationForms.iterator();
 
-                if (regForm.isFilled())
-                    regForm.signin();
+                if (regIterator.hasNext())
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+                while(regIterator.hasNext())
+                {
+                    AccountRegistrationPanel regForm
+                        = (AccountRegistrationPanel) regIterator.next();
+
+                    if (regForm.isFilled())
+                        regForm.signin();
+                }
+
+                InitialAccountRegistrationFrame.this.dispose();
             }
-
-            InitialAccountRegistrationFrame.this.dispose();
+            else
+                InitialAccountRegistrationFrame.this.dispose();
         }
     }
 
