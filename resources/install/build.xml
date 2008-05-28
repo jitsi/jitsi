@@ -352,6 +352,10 @@
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
             token="org.osgi.framework.system.packages="
             value="org.osgi.framework.system.packages= com.growl;"/>
+      <replaceregexp file="${macosx.resrc.dir}/felix.client.run.properties"
+                match="^felix.cache.profiledir=\$\{user.home\}/.sip-communicator/sip-communicator.bin"
+                replace="felix.cache.profiledir=${user.home}/Library/Application Support/${application.name}/sip-communicator.bin"
+                flags="m"/>
       <echo file="${macosx.resrc.dir}/felix.client.run.properties"
             append="true">felix.auto.start.70= reference:file:sc-bundles/growlnotification.jar
       </echo>
@@ -397,6 +401,11 @@
         <javaproperty name="apple.awt.showGrowBox" value="false"/>
         <javaproperty name="java.library.path"
                       value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
+
+        <javaproperty name="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                      value="${user.home}/Library/Application Support"/>
+        <javaproperty name="net.java.sip.communicator.SC_HOME_DIR_NAME"
+                      value="${application.name}"/>
 
         <!-- Tell felix to run sip-communicator -->
         <javaproperty name="felix.config.properties"
