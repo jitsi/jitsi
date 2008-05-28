@@ -83,7 +83,7 @@ public class DictAccountRegistration
 
     /**
      * Sets the host of the dict registration account.
-     * @param uin the host of the dict registration account.
+     * @param host The host of the dict registration account.
      */
     public void setHost(String host) {
         this.host = host;
