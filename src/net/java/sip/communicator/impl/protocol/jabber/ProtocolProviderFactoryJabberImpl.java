@@ -305,7 +305,79 @@ public class ProtocolProviderFactoryJabberImpl
                                 Map accountProperties)
         throws NullPointerException
     {
-        // TODO Auto-generated method stub
-        
+        BundleContext context
+            = JabberActivator.getBundleContext();
+
+        if (context == null)
+            throw new NullPointerException(
+                "The specified BundleContext was null");
+
+        if (protocolProvider == null)
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+
+        JabberAccountID accountID
+            = (JabberAccountID) protocolProvider.getAccountID();
+
+        // If the given accountID doesn't correspond to an existing account
+        // we return.
+        if(!registeredAccounts.containsKey(accountID))
+            return;
+
+        ServiceRegistration registration
+            = (ServiceRegistration) registeredAccounts.get(accountID);
+
+        // kill the service
+        if (registration != null)
+            registration.unregister();
+
+        if (accountProperties == null)
+            throw new NullPointerException(
+                "The specified property map was null");
+
+        accountProperties.put(USER_ID, accountID.getUserID());
+
+        String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
+
+        if(serverAddress == null)
+            throw new NullPointerException("null is not a valid ServerAddress");
+
+        // if server port is null, we will set default value
+        if(accountProperties.get(SERVER_PORT) == null)
+        {
+            accountProperties.put(SERVER_PORT,
+                                  "5222");
+        }
+
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.JABBER);
+
+        accountID.setAccountProperties(accountProperties);
+
+        // First store the account and only then load it as the load generates
+        // an osgi event, the osgi event triggers (trhgough the UI) a call to
+        // the register() method and it needs to acces the configuration service
+        // and check for a password.
+        this.storeAccount(JabberActivator.getBundleContext(), accountID);
+
+        Hashtable properties = new Hashtable();
+        properties.put(PROTOCOL, ProtocolNames.JABBER);
+        properties.put(USER_ID, accountID.getUserID());
+
+        ((ProtocolProviderServiceJabberImpl) protocolProvider)
+            .initialize(accountID.getUserID(), accountID);
+
+        // We store again the account in order to store all properties added
+        // during the protocol provider initialization.
+        this.storeAccount(
+            JabberActivator.getBundleContext(), accountID);
+
+        registration
+            = context.registerService(
+                        ProtocolProviderService.class.getName(),
+                        protocolProvider,
+                        properties);
+
+        registeredAccounts.put(accountID, registration);
     }
 }

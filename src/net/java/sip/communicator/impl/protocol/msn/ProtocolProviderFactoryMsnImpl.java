@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.util.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -267,7 +268,66 @@ public class ProtocolProviderFactoryMsnImpl
                                 Map accountProperties)
         throws NullPointerException
     {
-        // TODO Auto-generated method stub
-        
+        BundleContext context
+            = MsnActivator.getBundleContext();
+
+        if (context == null)
+            throw new NullPointerException(
+                "The specified BundleContext was null");
+
+        if (protocolProvider == null)
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+
+        MsnAccountID accountID = (MsnAccountID) protocolProvider.getAccountID();
+
+        // If the given accountID doesn't correspond to an existing account
+        // we return.
+        if(!registeredAccounts.containsKey(accountID))
+            return;
+
+        ServiceRegistration registration
+            = (ServiceRegistration) registeredAccounts.get(accountID);
+
+        // kill the service
+        if (registration != null)
+            registration.unregister();
+
+        if (accountProperties == null)
+            throw new NullPointerException(
+                "The specified property map was null");
+
+        accountProperties.put(USER_ID, accountID.getUserID());
+
+        if (!accountProperties.containsKey(PROTOCOL))
+            accountProperties.put(PROTOCOL, ProtocolNames.MSN);
+
+        accountID.setAccountProperties(accountProperties);
+
+        // First store the account and only then load it as the load generates
+        // an osgi event, the osgi event triggers (trhgough the UI) a call to
+        // the register() method and it needs to acces the configuration service
+        // and check for a password.
+        this.storeAccount(MsnActivator.getBundleContext(), accountID);
+
+        Hashtable properties = new Hashtable();
+        properties.put(PROTOCOL, ProtocolNames.MSN);
+        properties.put(USER_ID, accountID.getUserID());
+
+        ((ProtocolProviderServiceMsnImpl)protocolProvider)
+            .initialize(accountID.getUserID(), accountID);
+
+        // We store again the account in order to store all properties added
+        // during the protocol provider initialization.
+        this.storeAccount(
+            MsnActivator.getBundleContext(), accountID);
+
+        registration
+            = context.registerService(
+                        ProtocolProviderService.class.getName(),
+                        protocolProvider,
+                        properties);
+
+        registeredAccounts.put(accountID, registration);
     }
 }

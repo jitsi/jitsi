@@ -165,7 +165,6 @@ public class YahooAccountRegistrationWizard
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory, String user, String passwd)
     {
-
         Hashtable accountProperties = new Hashtable();
 
         if (registration.isRememberPassword())
@@ -175,9 +174,12 @@ public class YahooAccountRegistrationWizard
 
         if (isModification)
         {
-            providerFactory.uninstallAccount(protocolProvider.getAccountID());
-            this.protocolProvider = null;
-            this.isModification = false;
+            providerFactory.modifyAccount(  protocolProvider,
+                accountProperties);
+
+            this.isModification  = false;
+
+            return protocolProvider;
         }
 
         try

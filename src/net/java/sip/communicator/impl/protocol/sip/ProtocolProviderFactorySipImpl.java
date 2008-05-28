@@ -184,11 +184,11 @@ public class ProtocolProviderFactorySipImpl
         if (registration != null)
             registration.unregister();
 
-        accountProperties.put(USER_ID, accountID.getUserID());
-
         if (accountProperties == null)
             throw new NullPointerException(
                 "The specified property map was null");
+
+        accountProperties.put(USER_ID, accountID.getUserID());
 
         String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
 

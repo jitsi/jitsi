@@ -259,12 +259,8 @@ public class SIPAccountRegistrationWizard
 
         if(isModification)
         {
-//            new ProviderUnRegistration(protocolProvider).unregister();
-
             providerFactory.modifyAccount(  protocolProvider,
                                             accountProperties);
-
-//            new ProviderRegistration(protocolProvider).register();
 
             this.isModification  = false;
 
