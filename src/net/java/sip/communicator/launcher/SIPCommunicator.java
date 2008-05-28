@@ -33,7 +33,8 @@ public class SIPCommunicator
         /**
          * Check whether default config folder exists.
          * If it exists we use it. Otherwise use the settings coming 
-         * from system properties. 
+         * from system properties. And set SC_HOME_DIR_LOCATION 
+         * as we cannot set it when building dmg packet.
          * This is done cause moving the config folder and preventing
          * not using existing data for users already using default folder. 
          */
@@ -52,6 +53,12 @@ public class SIPCommunicator
                         System.getProperty("user.home"));
                 System.setProperty("net.java.sip.communicator.SC_HOME_DIR_NAME", 
                         scDefultDirName);
+            }
+            else
+            {
+                System.setProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION", 
+                        System.getProperty("user.home") + File.separator +
+                        "Library" + File.separator + "Application Support");
             }
         }
         
