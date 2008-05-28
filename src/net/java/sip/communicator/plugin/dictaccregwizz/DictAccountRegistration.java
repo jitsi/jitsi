@@ -11,7 +11,7 @@ package net.java.sip.communicator.plugin.dictaccregwizz;
  * through the <tt>DictAccountRegistrationWizard</tt>.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class DictAccountRegistration
 {

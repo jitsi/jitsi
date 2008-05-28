@@ -19,7 +19,7 @@ import org.osgi.framework.*;
  * Registers the <tt>DictAccountRegistrationWizard</tt> in the UI Service.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class DictAccRegWizzActivator implements BundleActivator
 {

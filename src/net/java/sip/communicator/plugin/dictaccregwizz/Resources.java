@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
  * properties files and the image resources used in this plugin.
  * 
  * @author ROTH Damien
- * @author LITZELMAN Cédric
+ * @author LITZELMAN Cedric
  */
 public class Resources
 {

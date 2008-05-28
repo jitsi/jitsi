@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * port and the strategy of the account.
  * 
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class FirstWizardPage
     extends JPanel

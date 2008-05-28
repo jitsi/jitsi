@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.*;
  * the strategies list.
  * 
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class StrategyThread
     extends Thread

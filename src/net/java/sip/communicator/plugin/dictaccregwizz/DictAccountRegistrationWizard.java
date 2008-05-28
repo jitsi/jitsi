@@ -19,7 +19,7 @@ import org.osgi.framework.*;
  * the user to create and configure a new Dict account.
  * 
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class DictAccountRegistrationWizard
     implements AccountRegistrationWizard

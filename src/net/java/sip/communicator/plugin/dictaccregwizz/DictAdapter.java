@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.Logger;
 /**
  * Copy of DictAdapter class to solve the import problem
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 
 public class DictAdapter
