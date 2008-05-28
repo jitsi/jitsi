@@ -42,23 +42,29 @@ public class SIPCommunicator
         {
             String scDefultDirName = ".sip-communicator";
             
-            String defaultAppDirName = 
-                System.getProperty("user.home") + 
-                File.separator + 
-                scDefultDirName;
+            String scHomeDirLocation = 
+                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION");
+            
+            if(scHomeDirLocation == null)
+            {
+                String defaultAppDirName = 
+                    System.getProperty("user.home") + 
+                    File.separator + 
+                    scDefultDirName;
 
-            if(new File(defaultAppDirName).exists())
-            {
-                System.setProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION", 
-                        System.getProperty("user.home"));
-                System.setProperty("net.java.sip.communicator.SC_HOME_DIR_NAME", 
-                        scDefultDirName);
-            }
-            else
-            {
-                System.setProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION", 
-                        System.getProperty("user.home") + File.separator +
-                        "Library" + File.separator + "Application Support");
+                if(new File(defaultAppDirName).exists())
+                {
+                    System.setProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION", 
+                            System.getProperty("user.home"));
+                    System.setProperty("net.java.sip.communicator.SC_HOME_DIR_NAME", 
+                            scDefultDirName);
+                }
+                else
+                {
+                    System.setProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION", 
+                            System.getProperty("user.home") + File.separator +
+                            "Library" + File.separator + "Application Support");
+                }
             }
         }
         
