@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * Instant messaging functionalities for the Dict protocol.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class OperationSetBasicInstantMessagingDictImpl
     implements OperationSetBasicInstantMessaging,

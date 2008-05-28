@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Very simple message implementation for the Dict protocol.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class MessageDictImpl
     implements Message

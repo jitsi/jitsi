@@ -19,7 +19,7 @@ import org.osgi.framework.*;
  * A Dict implementation of the ProtocolProviderService.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class ProtocolProviderServiceDictImpl
     implements ProtocolProviderService

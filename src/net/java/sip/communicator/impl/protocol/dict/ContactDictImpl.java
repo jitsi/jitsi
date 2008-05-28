@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
  * An implementation of a Dict contact
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class ContactDictImpl
     implements Contact

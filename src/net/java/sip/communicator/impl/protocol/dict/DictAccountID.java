@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * The Dict implementation of a sip-communicator account id.
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  * @author ROTH Damien
  */
 public class DictAccountID

@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Static registry storing the connexions to dict servers
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class DictRegistry
 {

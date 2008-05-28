@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.protocol.*;
  * the encapsulated object.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class ContactGroupDictImpl
     implements ContactGroup

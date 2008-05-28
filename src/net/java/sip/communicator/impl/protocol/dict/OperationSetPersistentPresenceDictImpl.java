@@ -22,7 +22,7 @@ import org.osgi.framework.*;
  * protocol stack.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class OperationSetPersistentPresenceDictImpl
     implements OperationSetPersistentPresence

@@ -20,7 +20,7 @@ import org.osgi.framework.*;
  * protocol provider service. One Service instance corresponds to one account.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class ProtocolProviderFactoryDictImpl
     extends ProtocolProviderFactory

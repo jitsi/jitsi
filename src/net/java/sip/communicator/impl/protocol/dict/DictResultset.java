@@ -12,7 +12,7 @@ import java.util.*;
  * Class managing the results of a dict query
  * 
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class DictResultset
 {

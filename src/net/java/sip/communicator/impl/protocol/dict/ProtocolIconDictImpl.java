@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
  * interface in order to provide a dict logo image in two different sizes.
  * 
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class ProtocolIconDictImpl
     implements ProtocolIcon

@@ -17,7 +17,7 @@ import java.io.*;
  * a Dict contact can fall into.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class DictStatusEnum
     extends PresenceStatus

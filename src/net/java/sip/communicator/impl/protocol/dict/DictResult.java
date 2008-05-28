@@ -12,7 +12,7 @@ import java.util.*;
  * Representation of the results of a response to a query
  * 
  * @author ROTH Damien
- * @author LITZEMANN Cédric
+ * @author LITZEMANN Cedric
  */
 public class DictResult
     implements Iterator<String>

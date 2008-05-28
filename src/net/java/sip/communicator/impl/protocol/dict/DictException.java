@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.protocol.dict;
 /**
  * Exception class managing the basics dict server errors.
  * 
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  * @author ROTH Damien
  */
 public class DictException

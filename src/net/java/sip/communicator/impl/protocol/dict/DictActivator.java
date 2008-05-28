@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  * bundle context.
  *
  * @author ROTH Damien
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  */
 public class DictActivator
     implements BundleActivator

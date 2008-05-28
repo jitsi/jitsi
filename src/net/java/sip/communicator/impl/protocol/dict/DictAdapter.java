@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Layer abstraction of a dict server 
  * 
- * @author LITZELMANN Cédric
+ * @author LITZELMANN Cedric
  * @author ROTH Damien
  */
 public class DictAdapter
