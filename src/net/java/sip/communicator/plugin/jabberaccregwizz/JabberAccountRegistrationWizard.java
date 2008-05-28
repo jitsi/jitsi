@@ -376,4 +376,21 @@ public class JabberAccountRegistrationWizard
 
         return null;
     }
+
+    public void webSignup()
+    {
+        JabberAccRegWizzActivator.getBrowserLauncher()
+            .openURL("http://mail.google.com/mail/signup");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return true;
+    }
 }

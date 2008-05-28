@@ -142,21 +142,26 @@ public class InitialAccountRegistrationFrame
 
         private JPanel inputRegisterPanel = new JPanel(new BorderLayout());
 
-        private JTextArea descriptionArea = new JTextArea(); 
+        private JTextArea descriptionArea = new JTextArea();
+
+        private JLabel signupLabel
+            = new JLabel("<html><a href=''>"
+                + Resources.getString("signup")
+                + "</a></html>", JLabel.RIGHT);
 
         private AccountRegistrationWizard wizard;
 
         public AccountRegistrationPanel(
-            AccountRegistrationWizard wizard,
+            AccountRegistrationWizard accountWizard,
             boolean isPreferredWizard)
         {
             super(new BorderLayout(5, 5));
 
-            this.wizard = wizard;
+            this.wizard = accountWizard;
 
             this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            this.setPreferredSize(new Dimension(230, 140));
+            this.setPreferredSize(new Dimension(230, 150));
 
             this.setOpaque(false);
 
@@ -172,12 +177,33 @@ public class InitialAccountRegistrationFrame
 
             this.inputRegisterPanel.add(inputPanel, BorderLayout.NORTH);
 
+            if (wizard.isWebSignupSupported())
+                this.inputRegisterPanel.add(signupLabel, BorderLayout.SOUTH);
+
             this.inputPanel.add(labelsPanel, BorderLayout.WEST);
 
             this.inputPanel.add(fieldsPanel, BorderLayout.CENTER);
 
             this.iconDescriptionPanel.add(
                 protocolLabel, BorderLayout.NORTH);
+
+            this.signupLabel.setFont(signupLabel.getFont().deriveFont(10f));
+            this.signupLabel.addMouseListener(new MouseAdapter()
+                {
+                    public void mousePressed(MouseEvent arg0)
+                    {
+                        try
+                        {
+                            wizard.webSignup();
+                        }
+                        catch (UnsupportedOperationException e)
+                        {
+                            // This should not happen, because we check if the
+                            // operation is supported, before adding the sign up.
+                            logger.error("The web sign up is not supported.", e);
+                        }
+                    }
+                });
 
             this.protocolLabel.setFont(
                 protocolLabel.getFont().deriveFont(Font.BOLD, 14f));

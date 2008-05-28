@@ -345,4 +345,24 @@ public class IcqAccountRegistrationWizard
     {
         return true;
     }
+
+    /**
+     * Opens the browser on the account registration page.
+     */
+    public void webSignup()
+    {
+        IcqAccRegWizzActivator.getBrowserLauncher().openURL(
+            "https://www.icq.com/register/");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return true;
+    }
 }

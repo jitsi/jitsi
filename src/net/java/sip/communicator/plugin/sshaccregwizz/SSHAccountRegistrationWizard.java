@@ -288,4 +288,24 @@ public class SSHAccountRegistrationWizard
     {
         return false;
     }
+
+    /**
+     * Nothing to do here in the case of SSH.
+     */
+    public void webSignup()
+    {
+        throw new UnsupportedOperationException(
+            "The web sign up is not supported by the SSH wizard.");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return false;
+    }
 }

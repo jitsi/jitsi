@@ -30,8 +30,6 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public interface AccountRegistrationWizard
 {
-    public static final String PREFERRED_WIZARD = "PreferredWizard";
-
     /**
      * Returns the protocol icon that will be shown on the left of the protocol
      * name in the list, where user will choose the protocol to register to.
@@ -133,6 +131,22 @@ public interface AccountRegistrationWizard
      */
     public ProtocolProviderService signin(  String userName,
                                             String password);
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported();
+
+    /**
+     * Defines the operation that will be executed when user clicks on the
+     * "Sign up" link.
+     * @throws UnsupportedOperationException if the web sign up operation is
+     * not supported by the current implementation.
+     */
+    public void webSignup() throws UnsupportedOperationException;
 
     /**
      * Returns the preferred dimensions of this wizard.

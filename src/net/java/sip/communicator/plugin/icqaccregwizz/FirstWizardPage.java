@@ -429,8 +429,7 @@ public class FirstWizardPage
      */
     public void actionPerformed(ActionEvent e)
     {
-        IcqAccRegWizzActivator.getBrowserLauncher().openURL(
-            "https://www.icq.com/register/");
+        wizard.webSignup();
     }
 
     /**

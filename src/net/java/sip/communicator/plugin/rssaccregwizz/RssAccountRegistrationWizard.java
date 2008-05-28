@@ -279,4 +279,24 @@ public class RssAccountRegistrationWizard
     {
         return false;
     }
+
+    /**
+     * Nothing to do for RSS here.
+     */
+    public void webSignup()
+    {
+        throw new UnsupportedOperationException(
+            "The web sign up is not supported by the RSS wizard.");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return false;
+    }
 }

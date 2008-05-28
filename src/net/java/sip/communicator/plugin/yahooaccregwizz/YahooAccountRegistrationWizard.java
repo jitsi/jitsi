@@ -319,4 +319,21 @@ public class YahooAccountRegistrationWizard
     {
         return true;
     }
+
+    public void webSignup()
+    {
+        YahooAccRegWizzActivator.getBrowserLauncher()
+            .openURL("https://edit.yahoo.com/registration");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return true;
+    }
 }

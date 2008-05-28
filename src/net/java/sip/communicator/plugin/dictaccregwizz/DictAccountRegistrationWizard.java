@@ -406,4 +406,24 @@ public class DictAccountRegistrationWizard
     {
         return false;
     }
+
+    /**
+     * Nothing to do here in the case of dictionary.
+     */
+    public void webSignup()
+    {
+        throw new UnsupportedOperationException(
+            "The web sign up is not supproted by the dictionary wizard.");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return false;
+    }
 }

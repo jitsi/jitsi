@@ -8,6 +8,8 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 import java.util.*;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -30,6 +32,8 @@ public class SIPAccRegWizzActivator
     private static ConfigurationService configService;
 
     private static WizardContainer wizardContainer;
+
+    private static BrowserLauncherService browserLauncherService;
 
     private static SIPAccountRegistrationWizard sipWizard;
 
@@ -108,5 +112,23 @@ public class SIPAccRegWizzActivator
     public static UIService getUIService()
     {
         return uiService;
+    }
+
+    /**
+     * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context
+     */
+    public static BrowserLauncherService getBrowserLauncher() {
+        if (browserLauncherService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(BrowserLauncherService.class.getName());
+
+            browserLauncherService = (BrowserLauncherService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return browserLauncherService;
     }
 }

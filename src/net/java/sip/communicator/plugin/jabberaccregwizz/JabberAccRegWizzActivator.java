@@ -9,6 +9,8 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 import java.util.*;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,6 +29,8 @@ public class JabberAccRegWizzActivator
 
     private static Logger logger = Logger.getLogger(
         JabberAccRegWizzActivator.class.getName());
+
+    private static BrowserLauncherService browserLauncherService;
 
     private static ConfigurationService configService;
 
@@ -108,5 +112,23 @@ public class JabberAccRegWizzActivator
     public static UIService getUIService()
     {
         return uiService;
+    }
+    
+    /**
+     * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context
+     */
+    public static BrowserLauncherService getBrowserLauncher() {
+        if (browserLauncherService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(BrowserLauncherService.class.getName());
+
+            browserLauncherService = (BrowserLauncherService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return browserLauncherService;
     }
 }

@@ -320,4 +320,24 @@ public class MsnAccountRegistrationWizard
     {
         return true;
     }
+
+    /**
+     * Opens the browser on the registration page for MSN.
+     */
+    public void webSignup()
+    {
+        MsnAccRegWizzActivator.getBrowserLauncher()
+            .openURL("https://accountservices.passport.net/reg.srf");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return true;
+    }
 }

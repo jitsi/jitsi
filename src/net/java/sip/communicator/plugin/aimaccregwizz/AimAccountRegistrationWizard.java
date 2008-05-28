@@ -341,4 +341,25 @@ public class AimAccountRegistrationWizard
     {
         return true;
     }
+
+    public void webSignup()
+    {
+        AimAccRegWizzActivator
+        .getBrowserLauncher()
+        .openURL(
+            "https://reg.my.screenname.aol.com/_cqr/registration/" +
+            "initRegistration.psp?sitedomain=www.aim.com&createSn=1");
+    }
+
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return true;
+    }
 }

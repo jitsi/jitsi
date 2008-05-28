@@ -421,10 +421,7 @@ public class FirstWizardPage
 
     public void actionPerformed(ActionEvent e)
     {
-        AimAccRegWizzActivator
-            .getBrowserLauncher()
-            .openURL(
-                "http://my.screenname.aol.com/_cqr/login/login.psp?seamless=n&createSn=1");
+        wizard.webSignup();
     }
 
     /**

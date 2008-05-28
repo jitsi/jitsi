@@ -418,4 +418,21 @@ public class SIPAccountRegistrationWizard
 
         return null;
     }
+
+    public void webSignup()
+    {
+        SIPAccRegWizzActivator.getBrowserLauncher()
+            .openURL("http://serweb.iptel.org/user/reg/index.php");
+    }
+
+    /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        return true;
+    }
 }
