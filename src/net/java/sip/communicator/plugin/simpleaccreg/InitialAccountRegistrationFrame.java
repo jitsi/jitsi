@@ -9,11 +9,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.imageio.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -301,8 +304,11 @@ public class InitialAccountRegistrationFrame
 
         public void signin()
         {
-            wizard.signin(  usernameField.getText(),
+            ProtocolProviderService protocolProvider
+                = wizard.signin(  usernameField.getText(),
                             new String(passwordField.getPassword()));
+
+            saveAccountWizard(protocolProvider, wizard);
         }
     }
 
@@ -396,7 +402,9 @@ public class InitialAccountRegistrationFrame
                         = (AccountRegistrationPanel) regIterator.next();
 
                     if (regForm.isFilled())
+                    {
                         regForm.signin();
+                    }
                 }
 
                 InitialAccountRegistrationFrame.this.dispose();
@@ -430,4 +438,57 @@ public class InitialAccountRegistrationFrame
             g2d.fillRoundRect(10, 10, getWidth() - 20, getHeight() - 20, 15, 15);
         }
     }
+
+    /**
+     * Saves the (protocol provider, wizard) pair in through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param protocolProvider the protocol provider to save
+     * @param wizard the wizard to save
+     */
+    private void saveAccountWizard(ProtocolProviderService protocolProvider,
+        AccountRegistrationWizard wizard)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        ConfigurationService configService
+            = SimpleAccountRegistrationActivator.getConfigurationService();
+
+        List accounts = configService.getPropertyNamesByPrefix(prefix, true);
+
+        boolean savedAccount = false;
+        Iterator accountsIter = accounts.iterator();
+
+        while (accountsIter.hasNext())
+        {
+            String accountRootPropName = (String) accountsIter.next();
+
+            String accountUID = configService.getString(accountRootPropName);
+
+            if (accountUID.equals(protocolProvider.getAccountID()
+                .getAccountUniqueID()))
+            {
+
+                configService.setProperty(accountRootPropName + ".wizard",
+                    wizard.getClass().getName().replace('.', '_'));
+
+                savedAccount = true;
+            }
+        }
+
+        if (!savedAccount)
+        {
+            String accNodeName =
+                "acc" + Long.toString(System.currentTimeMillis());
+
+            String accountPackage =
+                "net.java.sip.communicator.impl.gui.accounts." + accNodeName;
+
+            configService.setProperty(accountPackage, protocolProvider
+                .getAccountID().getAccountUniqueID());
+
+            configService.setProperty(accountPackage + ".wizard", wizard);
+        }
+    }
+
 }

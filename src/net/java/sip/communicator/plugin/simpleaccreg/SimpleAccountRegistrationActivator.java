@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.simpleaccreg;
 import java.awt.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -21,6 +22,8 @@ public class SimpleAccountRegistrationActivator
         = Logger.getLogger(SimpleAccountRegistrationActivator.class);
 
     public static BundleContext bundleContext;
+
+    private static ConfigurationService configService;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -46,6 +49,24 @@ public class SimpleAccountRegistrationActivator
 
     public void stop(BundleContext bc) throws Exception
     {
+    }
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigurationService() {
+        if(configService == null) {
+            ServiceReference configReference = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService) bundleContext
+                .getService(configReference);
+        }
+
+        return configService;
     }
 
     /**
