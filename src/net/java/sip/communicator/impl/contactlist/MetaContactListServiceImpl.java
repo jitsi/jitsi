@@ -1782,6 +1782,29 @@ public class MetaContactListServiceImpl
         }
 
         logger.debug("Service is a protocol provider.");
+
+        ProtocolProviderService provider =
+            (ProtocolProviderService)sService;
+        //first check if the event really means that the accounts is
+        //uninstalled/installed (or is it just stopped ... e.g. we could be
+        // shutting down, or in the other case it could be just modified) ...
+        // before that however, we'd need to get a reference to the service.
+        ProtocolProviderFactory sourceFactory = null;
+
+        ServiceReference[] allBundleServices
+            = event.getServiceReference().getBundle()
+                .getRegisteredServices();
+
+        for (int i = 0; i < allBundleServices.length; i++)
+        {
+            Object service = bundleContext.getService(allBundleServices[i]);
+            if(service instanceof ProtocolProviderFactory)
+            {
+                sourceFactory = (ProtocolProviderFactory) service;
+                break;
+            }
+        }
+
         if (event.getType() == ServiceEvent.REGISTERED)
         {
             logger
@@ -1804,34 +1827,20 @@ public class MetaContactListServiceImpl
                     return;
                 }
             }
+
+            if(sourceFactory.getRegisteredAccounts().contains(
+                provider.getAccountID()))
+            {
+                // the account is already installed and this event is coming
+                // from a modification. we don't need to do anything.
+                return;
+            }
+
             this
                 .handleProviderAdded( (ProtocolProviderService) sService);
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-
-            ProtocolProviderService provider =
-                (ProtocolProviderService)sService;
-            //first check if the event really means that the accounts is
-            //uninstalled (or is it just stopped ... e.g. we could be shutting
-            //down) ... before that however, we'd need to get a reference to
-            //the service.
-            ProtocolProviderFactory sourceFactory = null;
-
-            ServiceReference[] allBundleServices
-                = event.getServiceReference().getBundle()
-                    .getRegisteredServices();
-
-            for (int i = 0; i < allBundleServices.length; i++)
-            {
-                Object service = bundleContext.getService(allBundleServices[i]);
-                if(service instanceof ProtocolProviderFactory)
-                {
-                    sourceFactory = (ProtocolProviderFactory) service;
-                    break;
-                }
-            }
-
             if(sourceFactory == null)
             {
                 //strange ... we must be shutting down. just bail
