@@ -298,7 +298,10 @@ public class OperationSetBasicInstantMessagingDictImpl
         try
         {
             fctResult = dictAdapter.define(database, word);
-            msg = this.createMessage(this.retrieveDefine(fctResult, word));
+            msg = this.createMessage(this.retrieveDefine(fctResult, word).getBytes()
+                    , "text/html"
+                    , DEFAULT_MIME_ENCODING,
+                    null);
         }
         catch(DictException dex)
         {
@@ -353,22 +356,80 @@ public class OperationSetBasicInstantMessagingDictImpl
     {
         String result;
         DictResult resultData;
-        
-        result = data.getNbResults() + " definitions found for \"" + word + "\"";
+
+        result = "<pre>";
         
         for (int i=0; i<data.getNbResults(); i++)
         {
             resultData = data.getResultset(i);
             
-            result += "\n";
-            
+            if(i != 0 && resultData.hasNext())
+            {
+                result += "<hr>";
+            }
             while (resultData.hasNext())
             {
-                result += "\n" + resultData.next();
+                result += resultData.next() + "\n";
             }
+            result = result.replaceAll("\n+\\z", "\n");
         }
+        result += "</pre>";
+        result = formatResult(result, "\\\\", "<em>", "</em>");
+        result = formatResult(result, "[\\[\\]]", "<cite>", "</cite>");
+        result = formatResult(result, "[\\{\\}]", "<strong>", "</strong>");
+        result = formatWordDefined(result, word);
         
         return result;
+    }
+
+    /**
+     * Makes a stronger emphasis for the word defined.
+     * @param result    The text containing the definition of the word.
+     * @param word      The word defined to display with bold font. For this we
+     * had the strong HTML tag.
+     * @return          Returns the result text with an strong emphasis of all
+     * the occurences of the word defined.
+     */
+    private String formatWordDefined(String result, String word)
+    {
+        String tmpWord;
+
+        tmpWord = word.toUpperCase();
+        result = result.replaceAll("\\b" + tmpWord + "\\b", "<strong>" + tmpWord + "</strong>");
+        tmpWord = word.toLowerCase();
+        result = result.replaceAll("\\b" + tmpWord + "\\b", "<strong>" + tmpWord + "</strong>");
+        if(tmpWord.length() > 1)
+        {
+            tmpWord = tmpWord.substring(0, 1).toUpperCase() + tmpWord.substring(1);
+            result = result.replaceAll("\\b" + tmpWord + "\\b", "<strong>" + tmpWord + "</strong>");
+        }
+
+        return result;
+    }
+
+    /**
+     * Remplaces special characters into HTML tags to make some emphasis.
+     * @param result    The text containing the definition of the word.
+     * @param regex     The special character to replace with HTML tags.
+     * @param startTag  The start HTML tag to use.
+     * @param endTag    The end HTML tag to use.
+     * @return          The result with all special characters replaced by HTML
+     * tags.
+     */
+    private String formatResult(String result, String regex, String startTag, String endTag)
+    {
+        String[] tmp = result.split(regex);
+        String res = "";
+
+        for(int i = 0; i < (tmp.length - 1); i += 2)
+        {
+                res += tmp[i] + startTag + tmp[i+1] + endTag;
+        }
+        if((tmp.length % 2) != 0)
+        {
+                res += tmp[tmp.length - 1];
+        }
+        return res;
     }
     
     /**
