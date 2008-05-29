@@ -199,9 +199,12 @@ public class AimAccountRegistrationWizard
 
         if (isModification)
         {
-            providerFactory.uninstallAccount(protocolProvider.getAccountID());
-            this.protocolProvider = null;
+            providerFactory.modifyAccount(  protocolProvider,
+                accountProperties);
+
             this.isModification  = false;
+
+            return protocolProvider;
         }
 
         try
