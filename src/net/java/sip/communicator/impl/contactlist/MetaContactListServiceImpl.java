@@ -1828,7 +1828,7 @@ public class MetaContactListServiceImpl
                 }
             }
 
-            if(sourceFactory.getRegisteredAccounts().contains(
+            if(sourceFactory != null && sourceFactory.getRegisteredAccounts().contains(
                 provider.getAccountID()))
             {
                 // the account is already installed and this event is coming
