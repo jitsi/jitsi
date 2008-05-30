@@ -1,1 +1,1 @@
-uninstall.exe
+start uninstall.exe
