@@ -391,10 +391,10 @@ public class ContactRightButtonMenu
                 PluginComponent component = (PluginComponent) GuiActivator
                     .bundleContext.getService(serRefs[i]);;
 
+                component.setCurrentContact(contactItem);    
+                    
                 if (component.getComponent() == null)
                     continue;
-
-                component.setCurrentContact(contactItem);
 
                 this.add((Component)component.getComponent());
             }
