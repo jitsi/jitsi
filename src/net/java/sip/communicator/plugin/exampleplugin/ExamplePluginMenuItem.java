@@ -14,11 +14,12 @@ import javax.swing.JMenuItem;
 
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.gui.ContactAwareComponent;
+import net.java.sip.communicator.service.gui.*;
 
 public class ExamplePluginMenuItem
     extends JMenuItem
-    implements  ContactAwareComponent,
+    implements  
+                PluginComponent,
                 ActionListener
 {
     private MetaContact metaContact;
@@ -27,7 +28,7 @@ public class ExamplePluginMenuItem
     {
         super("Example plugin");
         
-        this.addActionListener(this);        
+        this.addActionListener(this);
     }
     
     public void setCurrentContact(MetaContact metaContact)
@@ -50,5 +51,20 @@ public class ExamplePluginMenuItem
             );
         
         pluginDialog.setVisible(true);
+    }
+
+    public String getConstraints()
+    {
+        return null;
+    }
+
+    public Container getContainer()
+    {
+        return Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU;
+    }
+
+    public int getPositionIndex()
+    {
+        return -1;
     }
 }

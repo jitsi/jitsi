@@ -83,6 +83,8 @@ public class ExtendedQuickMenu
 
     private int movedDownButtons = 0;
 
+    private Hashtable pluginsTable = new Hashtable();
+
     /**
      * Create an instance of the <tt>QuickMenu</tt>.
      * @param mainFrame The parent <tt>MainFrame</tt> window.
@@ -158,40 +160,6 @@ public class ExtendedQuickMenu
     
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_MAIN_TOOL_BAR);
-
-        if(pluginComponents.hasNext())
-            this.addSeparator();
-
-        while (pluginComponents.hasNext())
-        {
-            Component c = (Component)pluginComponents.next();
-
-            this.add(c);
-
-            if (c instanceof ContactAwareComponent)
-            {
-                Object selectedValue = mainFrame.getContactListPanel()
-                    .getContactList().getSelectedValue();
-
-                if(selectedValue instanceof MetaContact)
-                {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContact((MetaContact)selectedValue);
-                }
-                else if(selectedValue instanceof MetaContactGroup)
-                {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
-                }
-            }
-            
-            this.revalidate();
-            this.repaint();
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
@@ -231,7 +199,10 @@ public class ExtendedQuickMenu
                         .setCurrentContactGroup((MetaContactGroup)selectedValue);
                 }
 
-                this.add((Component)component.getComponent());
+                Component c = (Component)component.getComponent();
+
+                this.pluginsTable.put(component, c);
+                this.add(c);
 
                 this.repaint();
             }
@@ -395,7 +366,12 @@ public class ExtendedQuickMenu
             .getBorderLayoutConstraintsFromContainer(
                     pluginComponent.getConstraints());
 
-        this.add((Component)pluginComponent.getComponent(), constraints);
+        Component c = (Component)pluginComponent.getComponent();
+
+        if (constraints != null)
+            this.add(c, constraints);
+        else
+            this.add(c);
 
         Object selectedValue = mainFrame.getContactListPanel()
                 .getContactList().getSelectedValue();
@@ -429,6 +405,7 @@ public class ExtendedQuickMenu
                 .equals(Container.CONTAINER_MAIN_TOOL_BAR))
             return;
 
+        this.pluginsTable.remove(c);
         this.remove((Component) c.getComponent());
     }
 
@@ -469,32 +446,25 @@ public class ExtendedQuickMenu
     {}
     
     public void valueChanged(ListSelectionEvent e)
-    {   
+    {
         if((e.getFirstIndex() != -1 || e.getLastIndex() != -1))
         {
-            Iterator pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(
-                    UIService.CONTAINER_MAIN_TOOL_BAR);
-            
-            while (pluginComponents.hasNext())
+            Enumeration plugins = pluginsTable.keys();
+
+            while (plugins.hasMoreElements())
             {
-                Component c = (Component)pluginComponents.next();
-                    
-                if(!(c instanceof ContactAwareComponent))
-                    continue;
-                
+                PluginComponent plugin = (PluginComponent) plugins.nextElement();
+
                 Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
-                            
+
                 if(selectedValue instanceof MetaContact)
                 {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContact((MetaContact)selectedValue);
+                    plugin.setCurrentContact((MetaContact)selectedValue);
                 }
                 else if(selectedValue instanceof MetaContactGroup)
                 {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContactGroup(
+                    plugin.setCurrentContactGroup(
                             (MetaContactGroup)selectedValue);
                 }
             }

@@ -304,23 +304,6 @@ public class ExtendedMainToolBar
 
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_CHAT_TOOL_BAR);
-
-        if(pluginComponents.hasNext())
-            this.addSeparator();
-
-        while (pluginComponents.hasNext())
-        {
-            Component c = (Component)pluginComponents.next();
-
-            this.add(c);
-
-            this.revalidate();
-            this.repaint();
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;

@@ -75,21 +75,7 @@ public class ToolsMenu
      * Initialize plugin components already registered for this container.
      */
     private void initPluginComponents()
-    {   
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_TOOLS_MENU);
-        
-        if(pluginComponents.hasNext())
-            this.addSeparator();
-        
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component)pluginComponents.next();
-            
-            this.add(o);
-        }
-        
+    {
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;

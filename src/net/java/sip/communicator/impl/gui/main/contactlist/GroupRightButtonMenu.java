@@ -130,23 +130,6 @@ public class GroupRightButtonMenu
     
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
-
-        if(pluginComponents.hasNext())
-            this.addSeparator();
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component)pluginComponents.next();
-
-            this.add(o);
-
-            if (o instanceof ContactAwareComponent)
-                ((ContactAwareComponent)o).setCurrentContactGroup(group);
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;

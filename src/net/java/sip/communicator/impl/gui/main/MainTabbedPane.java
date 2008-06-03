@@ -145,17 +145,6 @@ public class MainTabbedPane
      */
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_MAIN_TABBED_PANE);
-
-        while (pluginComponents.hasNext())
-        {
-            Component c = (Component)pluginComponents.next();
-
-            this.addTab(c.getName(), c);
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;

@@ -7,15 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
-
-import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -29,9 +26,10 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The ContactRightButtonMenu is the menu, opened when user clicks with the
@@ -346,25 +344,6 @@ public class ContactRightButtonMenu
      */
     private void initPluginComponents()
     {
-        // Get all plugin components added through the UIService.addComponent()
-        // method.
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
-
-        if(pluginComponents.hasNext())
-            this.addSeparator();
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component)pluginComponents.next();
-
-            this.add(o);
-
-            if (o instanceof ContactAwareComponent)
-                ((ContactAwareComponent)o).setCurrentContact(contactItem);
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;

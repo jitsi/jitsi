@@ -79,6 +79,8 @@ public class QuickMenu
 
     private int movedDownButtons = 0;
 
+    private Hashtable pluginsTable = new Hashtable();
+
     /**
      * Create an instance of the <tt>QuickMenu</tt>.
      * @param mainFrame The parent <tt>MainFrame</tt> window.
@@ -155,40 +157,6 @@ public class QuickMenu
     
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_MAIN_TOOL_BAR);
-
-        if(pluginComponents.hasNext())
-            this.addSeparator();
-
-        while (pluginComponents.hasNext())
-        {
-            Component c = (Component)pluginComponents.next();
-
-            this.add(c);
-
-            if (c instanceof ContactAwareComponent)
-            {
-                Object selectedValue = mainFrame.getContactListPanel()
-                    .getContactList().getSelectedValue();
-
-                if(selectedValue instanceof MetaContact)
-                {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContact((MetaContact)selectedValue);
-                }
-                else if(selectedValue instanceof MetaContactGroup)
-                {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
-                }
-            }
-            
-            this.revalidate();
-            this.repaint();
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
@@ -441,32 +409,25 @@ public class QuickMenu
     {}
     
     public void valueChanged(ListSelectionEvent e)
-    {   
+    {
         if((e.getFirstIndex() != -1 || e.getLastIndex() != -1))
         {
-            Iterator pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(
-                    UIService.CONTAINER_MAIN_TOOL_BAR);
-            
-            while (pluginComponents.hasNext())
-            {
-                Component c = (Component)pluginComponents.next();
+            Enumeration plugins = pluginsTable.keys();
 
-                if(!(c instanceof ContactAwareComponent))
-                    continue;
+            while (plugins.hasMoreElements())
+            {
+                PluginComponent plugin = (PluginComponent) plugins.nextElement();
 
                 Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
 
                 if(selectedValue instanceof MetaContact)
                 {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContact((MetaContact)selectedValue);
+                    plugin.setCurrentContact((MetaContact)selectedValue);
                 }
                 else if(selectedValue instanceof MetaContactGroup)
                 {
-                    ((ContactAwareComponent)c)
-                        .setCurrentContactGroup(
+                    plugin.setCurrentContactGroup(
                             (MetaContactGroup)selectedValue);
                 }
             }

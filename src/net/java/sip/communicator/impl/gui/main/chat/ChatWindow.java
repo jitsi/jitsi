@@ -650,16 +650,6 @@ public class ChatWindow
      */
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(UIService.CONTAINER_CHAT_WINDOW_SOUTH);
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component) pluginComponents.next();
-
-            this.add(o, BorderLayout.SOUTH);
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
@@ -701,14 +691,7 @@ public class ChatWindow
     {
         PluginComponent c = event.getPluginComponent();
 
-        if (c.getContainer().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH))
-        {
-            this.getContentPane().add(  (Component) c.getComponent(),
-                                        BorderLayout.SOUTH);
-
-            this.pack();
-        }
-        else if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
+        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
         {
             Object borderLayoutConstraints = UIServiceImpl
                 .getBorderLayoutConstraintsFromContainer(c.getConstraints());
@@ -721,8 +704,7 @@ public class ChatWindow
     {
         PluginComponent c = event.getPluginComponent();
 
-        if (c.getContainer().equals(UIService.CONTAINER_CHAT_WINDOW_SOUTH)
-            || c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
+        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
         {
             this.getContentPane().remove((Component) c.getComponent());
 

@@ -13,6 +13,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -23,6 +25,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -36,12 +39,15 @@ public class ChatRoomCommonRightButtonMenu
     implements  ActionListener,
                 PluginComponentListener
 {
+    private Logger logger
+        = Logger.getLogger(ChatRoomCommonRightButtonMenu.class);
+
     private I18NString createChatRoomString
         = Messages.getI18NString("createChatRoom");
-    
+
     private I18NString searchForChatRoomsString
         = Messages.getI18NString("joinChatRoom");
-    
+
     private JMenuItem createChatRoomItem = new JMenuItem(
         createChatRoomString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
@@ -62,9 +68,9 @@ public class ChatRoomCommonRightButtonMenu
         super();
 
         this.mainFrame = mainFrame;
-       
+
         this.protocolProvider = pps;
-        
+
         this.setLocation(getLocation());
 
         this.init();
@@ -97,19 +103,40 @@ public class ChatRoomCommonRightButtonMenu
      */
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
 
-        if(pluginComponents.hasNext())
-            this.addSeparator();
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID()+")";
 
-        while (pluginComponents.hasNext())
+        try
         {
-            Component o = (Component)pluginComponents.next();
-
-            this.add(o);
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
         }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
+
+                if (component.getComponent() == null)
+                    continue;
+
+                this.add((Component)component.getComponent());
+            }
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
     }
     
     /**

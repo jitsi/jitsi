@@ -1235,50 +1235,6 @@ public class MainFrame
      */
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(
-                    UIService.CONTAINER_CONTACT_LIST_SOUTH);
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component) pluginComponents.next();
-
-            this.getContentPane().add(o, BorderLayout.SOUTH);
-        }
-
-        pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(
-                    UIService.CONTAINER_CONTACT_LIST_NORTH);
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component) pluginComponents.next();
-
-            this.getContentPane().add(o, BorderLayout.NORTH);
-        }
-
-        pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(
-                    UIService.CONTAINER_CONTACT_LIST_EAST);
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component) pluginComponents.next();
-
-            this.getContentPane().add(o, BorderLayout.EAST);
-        }
-
-        pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(
-                    UIService.CONTAINER_CONTACT_LIST_WEST);
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component) pluginComponents.next();
-
-            this.getContentPane().add(o, BorderLayout.WEST);
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
@@ -1340,30 +1296,6 @@ public class MainFrame
 
             this.getContentPane().add((Component) c.getComponent(), constraints);
         }
-        else if (c.getContainer().equals(
-            UIService.CONTAINER_CONTACT_LIST_SOUTH))
-        {
-            this.getContentPane().add(  (Component) c.getComponent(),
-                                        BorderLayout.SOUTH);
-        }
-        else if (c.getContainer().equals(
-            UIService.CONTAINER_CONTACT_LIST_NORTH))
-        {
-            this.getContentPane().add(  (Component) c.getComponent(),
-                                        BorderLayout.NORTH);
-        }
-        else if (c.getContainer().equals(
-            UIService.CONTAINER_CONTACT_LIST_EAST))
-        {
-            this.getContentPane().add(  (Component) c.getComponent(),
-                                        BorderLayout.EAST);
-        }
-        else if (c.getContainer().equals(
-            UIService.CONTAINER_CONTACT_LIST_WEST))
-        {
-            this.getContentPane().add(  (Component) c.getComponent(),
-                                        BorderLayout.WEST);
-        }
 
         this.pack();
     }
@@ -1378,11 +1310,7 @@ public class MainFrame
 
         Container containerID = c.getContainer();
 
-        if (containerID.equals(Container.CONTAINER_CONTACT_LIST)
-            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_SOUTH)
-            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_NORTH)
-            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_EAST)
-            || containerID.equals(UIService.CONTAINER_CONTACT_LIST_WEST))
+        if (containerID.equals(Container.CONTAINER_CONTACT_LIST))
         {
             this.getContentPane().remove((Component) c.getComponent());
         }

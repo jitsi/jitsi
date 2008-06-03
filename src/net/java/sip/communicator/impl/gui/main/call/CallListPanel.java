@@ -108,17 +108,6 @@ public class CallListPanel
      */
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                Container.CONTAINER_CALL_HISTORY);
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component)pluginComponents.next();
-
-            this.pluginPanel.add((Component)o);
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;

@@ -62,16 +62,6 @@ public class HelpMenu
      */
     private void initPluginComponents()
     {
-        Iterator pluginComponents = GuiActivator.getUIService()
-                .getComponentsForContainer(Container.CONTAINER_HELP_MENU);
-
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component) pluginComponents.next();
-
-            this.add(o);
-        }
-
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
