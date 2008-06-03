@@ -30,8 +30,6 @@ public class ChatWindowManager
 {
     private Logger logger = Logger.getLogger(ChatWindowManager.class);
 
-    private ChatWindow chatWindow;
-
     private Hashtable chats = new Hashtable();
 
     private MainFrame mainFrame;
@@ -58,7 +56,7 @@ public class ChatWindowManager
             ChatWindow chatWindow = chatPanel.getChatWindow();
 
             boolean isChatVisible = chatPanel.isShown();
-            
+
             if(!isChatVisible)
                 chatWindow.addChat(chatPanel);
 
@@ -82,7 +80,7 @@ public class ChatWindowManager
                         chatWindow.setTitle(
                             "*" + chatWindow.getTitle());
                 }
-                
+
                 if(setSelected)
                 {
                     chatWindow.setCurrentChatPanel(chatPanel);
@@ -96,7 +94,7 @@ public class ChatWindowManager
                 }
             }
             else
-            {   
+            {
                 chatWindow.setVisible(true);
                 
                 chatWindow.setCurrentChatPanel(chatPanel);
@@ -233,12 +231,12 @@ public class ChatWindowManager
      * Closes the chat window. Removes all contained chats and invokes
      * setVisible(false) to the window.
      */
-    public void closeWindow()
+    public void closeWindow(ChatWindow chatWindow)
     {
         synchronized (syncChat)
         {
             ChatPanel chatPanel = chatWindow.getCurrentChatPanel();
-            
+
             if (!chatPanel.isWriteAreaEmpty())
             {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
@@ -249,7 +247,7 @@ public class ChatWindowManager
 
                 if (answer == JOptionPane.OK_OPTION)
                 {
-                    this.disposeChatWindow();
+                    this.disposeChatWindow(chatWindow);
                 }
             }
             else if (System.currentTimeMillis() - chatWindow
@@ -264,12 +262,12 @@ public class ChatWindowManager
 
                 if (answer == JOptionPane.OK_OPTION)
                 {
-                    this.disposeChatWindow();
+                    this.disposeChatWindow(chatWindow);
                 }
             }
             else
             {
-                this.disposeChatWindow();
+                this.disposeChatWindow(chatWindow);
             }
         }
     }
@@ -335,7 +333,7 @@ public class ChatWindowManager
             {
                 return (MetaContactChatPanel) getChat(metaContact);
             }
-            else         
+            else
                 return createChat(  metaContact,
                                     protocolContact,
                                     escapedMessageID);
@@ -348,9 +346,35 @@ public class ChatWindowManager
      */
     public ChatPanel getSelectedChat()
     {
+        ChatPanel selectedChat = null;
+        
+        Enumeration chatPanels = chats.keys();
+        
         synchronized (syncChat)
         {
-            return chatWindow.getCurrentChatPanel();
+            if (ConfigurationManager.isMultiChatWindowEnabled())
+            {
+                if (chatPanels.hasMoreElements())
+                {
+                    ChatPanel firstChatPanel
+                        = (ChatPanel) chatPanels.nextElement();
+                    
+                    selectedChat
+                        = firstChatPanel.getChatWindow().getCurrentChatPanel();
+                }
+            }
+            else
+            {
+                while (chatPanels.hasMoreElements())
+                {
+                    ChatPanel chatPanel = (ChatPanel) chatPanels.nextElement();
+                    
+                    if (chatPanel.getChatWindow().isFocusOwner())
+                        selectedChat = chatPanel;
+                }
+            }
+            
+            return selectedChat;
         }
     }
 
@@ -434,10 +458,12 @@ public class ChatWindowManager
      */
     private void closeChatPanel(ChatPanel chatPanel)
     {
-        this.chatWindow.removeChat(chatPanel);
+        ChatWindow chatWindow = chatPanel.getChatWindow();
+
+        chatWindow.removeChat(chatPanel);
 
         if (chatWindow.getChatCount() == 0)
-            disposeChatWindow();
+            disposeChatWindow(chatWindow);
 
         synchronized (chats)
         {
@@ -527,23 +553,27 @@ public class ChatWindowManager
     {
         ChatWindow chatWindow;
 
-        if(Constants.TABBED_CHAT_WINDOW)
+        if(ConfigurationManager.isMultiChatWindowEnabled())
         {
-            if(this.chatWindow == null)
+            // If we're in a tabbed window we're looking for the chat window
+            // through one of the already created chats.
+            if(chats.keys().hasMoreElements())
             {
-                this.chatWindow = new ChatWindow(mainFrame);
+                chatWindow
+                    = ((ChatPanel) chats.elements().nextElement())
+                        .getChatWindow();
+            }
+            else
+            {
+                chatWindow = new ChatWindow(mainFrame);
 
                 GuiActivator.getUIService()
-                    .registerExportedWindow(this.chatWindow);
+                    .registerExportedWindow(chatWindow);
             }
-            
-            chatWindow = this.chatWindow;
         }
         else
         {
             chatWindow = new ChatWindow(mainFrame);
-
-            this.chatWindow = chatWindow;
         }
 
         MetaContactChatPanel chatPanel
@@ -589,24 +619,26 @@ public class ChatWindowManager
         
         ChatWindow chatWindow;
 
-        if(Constants.TABBED_CHAT_WINDOW)
+        if(ConfigurationManager.isMultiChatWindowEnabled())
         {
-            if(this.chatWindow == null)
+            // If we're in a tabbed window we're looking for the chat window
+            // through one of the already created chats.
+            if(chats.keys().hasMoreElements())
             {
-                this.chatWindow = new ChatWindow(mainFrame);
+                chatWindow
+                    = ((ChatPanel) chats.keys().nextElement()).getChatWindow();
+            }
+            else
+            {
+                chatWindow = new ChatWindow(mainFrame);
 
                 GuiActivator.getUIService()
-                    .registerExportedWindow(this.chatWindow);
+                    .registerExportedWindow(chatWindow);
             }
-
-            chatWindow = this.chatWindow;
         }
         else
         {
             chatWindow = new ChatWindow(mainFrame);
-            GuiActivator.getUIService().registerExportedWindow(chatWindow);
-
-            this.chatWindow = chatWindow;
         }
 
         ConferenceChatPanel chatPanel
@@ -678,18 +710,23 @@ public class ChatWindowManager
     /**
      * Disposes the chat window.
      */
-    private void disposeChatWindow()
+    private void disposeChatWindow(ChatWindow chatWindow)
     {
+        synchronized (chats)
+        {
+            // If we're in a tabbed window we clear the list of active chats, as
+            // they'll be all gone with the window.
+            if (ConfigurationManager.isMultiChatWindowEnabled())
+                chats.clear();
+            else
+                chats.remove(
+                    chatWindow.getCurrentChatPanel().getChatIdentifier());
+        }
+
         if (chatWindow.getChatCount() > 0)
             chatWindow.removeAllChats();
 
         chatWindow.dispose();
-        chatWindow = null;
-
-        synchronized (chats)
-        {
-            chats.clear();
-        }
 
         ContactList clist
             = mainFrame.getContactListPanel().getContactList();

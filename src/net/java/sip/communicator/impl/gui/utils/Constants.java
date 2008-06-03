@@ -261,12 +261,6 @@ public class Constants
      * ======================================================================
      */
     /**
-     * Indicates whether the application is in mode "group messages in one
-     * window".
-     */
-    public static final boolean TABBED_CHAT_WINDOW = true;
-
-    /**
      * The default path, where chat window styles could be found.
      */
     public static final String DEFAULT_STYLE_PATH

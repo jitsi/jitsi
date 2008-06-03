@@ -507,7 +507,7 @@ public class ConferenceChatPanel
      */
     public void updateChatRoomStatus(String status)
     {
-        if(Constants.TABBED_CHAT_WINDOW)
+        if(ConfigurationManager.isMultiChatWindowEnabled())
         {
             if (getChatWindow().getChatTabCount() > 0) {
                 getChatWindow().setTabIcon(this,

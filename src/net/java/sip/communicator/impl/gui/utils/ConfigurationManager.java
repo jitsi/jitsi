@@ -24,7 +24,7 @@ public class ConfigurationManager
     private static boolean autoPopupNewMessage = false;
     
     private static String sendMessageCommand;
-
+    
     private static boolean isCallPanelShown = true;
     
     private static boolean isShowOffline = true;
@@ -36,6 +36,8 @@ public class ConfigurationManager
     private static boolean isSendTypingNotifications = true;
     
     private static boolean isMoveContactConfirmationRequested = true;
+    
+    private static boolean isMultiChatWindowEnabled = true;
     
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
@@ -116,6 +118,19 @@ public class ConfigurationManager
         {
             isMoveContactConfirmationRequested
                 = new Boolean(isMoveContactConfirmationRequestedString)
+                .booleanValue();
+        }
+
+        // Load the "isMultiChatWindowEnabled" property.
+        String isMultiChatWindowEnabledString
+            = configService.getString(
+            "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled");
+
+        if(isMultiChatWindowEnabledString != null
+            && isMultiChatWindowEnabledString != "")
+        {
+            isMultiChatWindowEnabled
+                = new Boolean(isMultiChatWindowEnabledString)
                 .booleanValue();
         }
     }
@@ -203,6 +218,19 @@ public class ConfigurationManager
     public static boolean isMoveContactConfirmationRequested()
     {
         return isMoveContactConfirmationRequested;
+    }
+
+    /**
+     * Returns <code>true</code> if the "isMultiChatWindowEnabled" property is
+     * true, otherwise - returns <code>false</code>. Indicates to the user
+     * interface whether the chat window could contain multiple chats or just
+     * one chat.
+     * @return <code>true</code> if the "isMultiChatWindowEnabled" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isMultiChatWindowEnabled()
+    {
+        return isMultiChatWindowEnabled;
     }
 
     /**
@@ -347,6 +375,23 @@ public class ConfigurationManager
         configService.setProperty(
             "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested",
             new Boolean(isMoveContactConfirmationRequested));
+    }
+
+    /**
+     * Updates the "isMultiChatWindowEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isMultiChatWindowEnabled indicates if the chat window could
+     * contain multiple chats or only one chat.
+     */
+    public static void setMultiChatWindowEnabled(
+        boolean isMultiChatWindowEnabled)
+    {
+        isMoveContactConfirmationRequested = isMultiChatWindowEnabled;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled",
+            new Boolean(isMultiChatWindowEnabled));
     }
 
     /**

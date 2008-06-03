@@ -71,7 +71,7 @@ public class ChatWindow
         menusPanel = new MenusPanel(this);
 
         //If in mode TABBED_CHAT_WINDOW initialize the tabbed pane
-        if(Constants.TABBED_CHAT_WINDOW)
+        if(ConfigurationManager.isMultiChatWindowEnabled())
         {
             chatTabbedPane = new SIPCommTabbedPane(true, false);
 
@@ -151,7 +151,7 @@ public class ChatWindow
      */
     public void addChat(ChatPanel chatPanel)
     {
-        if (Constants.TABBED_CHAT_WINDOW)
+        if (ConfigurationManager.isMultiChatWindowEnabled())
             addChatTab(chatPanel);
         else
             addSimpleChat(chatPanel);
@@ -348,9 +348,11 @@ public class ChatWindow
             for (int i = 0; i < componentCount; i ++)
             {
                 Component c = getContentPane().getComponent(i);
-                
+
                 if(c instanceof ChatPanel)
+                {
                     return (ChatPanel)c;
+                }
             }
         }
         return null;
@@ -602,7 +604,7 @@ public class ChatWindow
         }
         else 
         {
-            mainFrame.getChatWindowManager().closeWindow();
+            mainFrame.getChatWindowManager().closeWindow(this);
         }
     }
 
