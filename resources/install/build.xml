@@ -398,7 +398,7 @@
 
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
-        <javaproperty name="apple.awt.showGrowBox" value="false"/>
+        <javaproperty name="apple.awt.showGrowBox" value="true"/>
         <javaproperty name="java.library.path"
                       value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
 
