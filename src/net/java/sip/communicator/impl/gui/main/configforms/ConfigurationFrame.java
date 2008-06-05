@@ -12,10 +12,14 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
@@ -26,7 +30,8 @@ import net.java.sip.communicator.util.*;
  */
 public class ConfigurationFrame
     extends SIPCommDialog
-    implements  ConfigurationWindow
+    implements  ExportedWindow,
+                ServiceListener
 {
     private Logger logger = Logger.getLogger(ConfigurationFrame.class);
 
@@ -66,7 +71,7 @@ public class ConfigurationFrame
         this.addDefaultForms();
 
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        
+
         this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         this.mainPanel.add(configList, BorderLayout.WEST);
@@ -86,10 +91,12 @@ public class ConfigurationFrame
         buttonsPanel.setBorder(
             BorderFactory.createMatteBorder(1, 0, 0, 0,
                 Constants.BORDER_COLOR));
-        
+
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
+        
+        GuiActivator.bundleContext.addServiceListener(this);
     }
 
     /**
@@ -100,38 +107,6 @@ public class ConfigurationFrame
     {
         this.addConfigurationForm(
                 new AccountsConfigurationForm(mainFrame));
-    }
-
-    /**
-     * Implements the <code>ConfigurationManager.addConfigurationForm</code>
-     * method. Checks if the form contained in the <tt>ConfigurationForm</tt>
-     * is an instance of java.awt.Component and if so adds the form in this
-     * dialog, otherwise throws a ClassCastException.
-     *
-     * @param configForm the form we are adding
-     *
-     * @see ConfigurationWindow#addConfigurationForm(ConfigurationForm)
-     */
-    public void addConfigurationForm(ConfigurationForm configForm)
-    {
-        ConfigFormDescriptor descriptor = new ConfigFormDescriptor(configForm);
-
-        if(descriptor != null)
-            configList.addConfigForm(descriptor);
-    }
-
-    /**
-     * Implements <code>ConfigurationManager.removeConfigurationForm</code>
-     * method. Removes the given <tt>ConfigurationForm</tt> from this
-     * dialog.
-     *
-     * @param configForm the form we are removing.
-     *
-     * @see ConfigurationWindow#removeConfigurationForm(ConfigurationForm)
-     */
-    public void removeConfigurationForm(ConfigurationForm configForm)
-    {
-        this.configList.removeConfigForm(configForm);
     }
 
     /**
@@ -230,4 +205,68 @@ public class ConfigurationFrame
     {
         return this;
     }
+    
+
+    /**
+     * Handles registration of a new configuration form.
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        Object sService = GuiActivator.bundleContext.getService(
+            event.getServiceReference());
+
+        // we don't care if the source service is not a configuration form
+        if (! (sService instanceof ConfigurationForm))
+        {
+            return;
+        }
+
+        ConfigurationForm configForm
+            = (ConfigurationForm) sService;
+
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            logger
+                .info("Handling registration of a new Configuration Form.");
+
+            this.addConfigurationForm(configForm);
+        }
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.removeConfigurationForm(configForm);
+        }
+    }
+
+    /**
+     * Implements the <code>ConfigurationManager.addConfigurationForm</code>
+     * method. Checks if the form contained in the <tt>ConfigurationForm</tt>
+     * is an instance of java.awt.Component and if so adds the form in this
+     * dialog, otherwise throws a ClassCastException.
+     *
+     * @param configForm the form we are adding
+     *
+     * @see ConfigurationWindow#addConfigurationForm(ConfigurationForm)
+     */
+    private void addConfigurationForm(ConfigurationForm configForm)
+    {
+        ConfigFormDescriptor descriptor = new ConfigFormDescriptor(configForm);
+
+        if(descriptor != null)
+            configList.addConfigForm(descriptor);
+    }
+
+    /**
+     * Implements <code>ConfigurationManager.removeConfigurationForm</code>
+     * method. Removes the given <tt>ConfigurationForm</tt> from this
+     * dialog.
+     *
+     * @param configForm the form we are removing.
+     *
+     * @see ConfigurationWindow#removeConfigurationForm(ConfigurationForm)
+     */
+    private void removeConfigurationForm(ConfigurationForm configForm)
+    {
+        this.configList.removeConfigForm(configForm);
+    }
+
 }

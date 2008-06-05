@@ -76,21 +76,13 @@ public class MailboxActivator
         mailbox = new Mailbox();
         mailbox.start(bundleContext);
 
-        //add the configuration form to the config window
-        ServiceReference uiServiceRef
-            = bundleContext.getServiceReference(UIService.class.getName());
+        MailboxConfigurationForm mailboxForm
+            = new MailboxConfigurationForm();
 
-        uiService = (UIService) bundleContext.getService(uiServiceRef);
+        bundleContext.registerService(  ConfigurationForm.class.getName(),
+                                        mailboxForm,
+                                        null);
 
-        ConfigurationWindow configWindow = uiService
-            .getConfigurationWindow();
-
-        if (configWindow != null)
-        {
-            MailboxConfigurationForm mailboxForm
-                = new MailboxConfigurationForm();
-            configWindow.addConfigurationForm(mailboxForm);
-        }
         logger.info("Mailbox plug-in...[STARTED]");
     }
 

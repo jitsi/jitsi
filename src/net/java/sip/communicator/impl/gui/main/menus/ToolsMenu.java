@@ -44,7 +44,7 @@ public class ToolsMenu
     
     private MainFrame parentWindow;
     
-    private ConfigurationWindow configDialog;
+    private ExportedWindow configDialog;
 
     /**
      * Creates an instance of <tt>FileMenu</tt>.
@@ -118,7 +118,8 @@ public class ToolsMenu
         String itemText = menuItem.getName();
 
         if (itemText.equalsIgnoreCase("config")) {
-            configDialog = GuiActivator.getUIService().getConfigurationWindow();
+            configDialog = GuiActivator.getUIService()
+                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
 
             configDialog.setVisible(true);
         }

@@ -43,7 +43,8 @@ public class AccountInfoActivator
 
         UIService uiService = (UIService) bc.getService(uiServiceRef);
 
-        ConfigurationWindow configWindow = uiService.getConfigurationWindow();
+        ExportedWindow configWindow
+            = uiService.getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
 //        configWindow.addConfigurationForm(new AccountInfoForm());
     }
 

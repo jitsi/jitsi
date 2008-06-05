@@ -145,7 +145,8 @@ public class MainFrame
 
         JPanel menusPanel = new JPanel(new BorderLayout(0, 5));
 
-        menusPanel.add(menu, BorderLayout.CENTER);
+        this.setJMenuBar(menu);
+
         menusPanel.add(quickMenu, BorderLayout.SOUTH);
 
         JPanel northPanel = new JPanel(new BorderLayout());

@@ -56,7 +56,7 @@ public class MenusPanel
 
         this.setLayout(new BorderLayout(5, 5));
 
-        this.add(menuBar, BorderLayout.NORTH);
+        parentWindow.setJMenuBar(menuBar);
         this.add(mainToolBar, BorderLayout.CENTER);
         // this.add(editTextToolBar);
     }

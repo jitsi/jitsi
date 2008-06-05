@@ -29,7 +29,7 @@ public class SIPCommSelectorMenuUI
      * Creates a new SIPCommSelectorMenuUI instance.
      */
     public static ComponentUI createUI(JComponent x)
-    {   
+    {
         return new SIPCommSelectorMenuUI();
     }
 
@@ -50,9 +50,9 @@ public class SIPCommSelectorMenuUI
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
     {
         AntialiasingManager.activateAntialiasing(g);
-        
+
         super.paintBackground(g, menuItem, bgColor);
-        
+
         int menuWidth = menuItem.getWidth();
         int menuHeight = menuItem.getHeight();
 

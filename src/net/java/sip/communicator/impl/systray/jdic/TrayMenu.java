@@ -48,14 +48,8 @@ public class TrayMenu
     private JMenuItem addContactMenuItem = new JMenuItem(
             Resources.getString("addContact"),
             Resources.getImage("addContactIcon"));
-        
+    
     private StatusSubMenu statusMenu;
-    
-    /**
-     * The configuration window called by the menu item "settings"
-     */
-    private ConfigurationWindow configDialog;
-    
     
     /**
      * Creates an instance of <tt>TrayMenu</tt>.
@@ -94,11 +88,12 @@ public class TrayMenu
         String itemName = menuItem.getName();
         
         if(itemName.equals("settings"))
-        {  
-            configDialog
-                = SystrayActivator.getUIService().getConfigurationWindow();
+        {
+            ExportedWindow configWindow
+                = SystrayActivator.getUIService()
+                    .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
             
-            configDialog.setVisible(true);
+            configWindow.setVisible(true);
         }
         else if(itemName.equals("close"))
         {   

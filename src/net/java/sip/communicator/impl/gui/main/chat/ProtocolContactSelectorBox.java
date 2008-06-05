@@ -214,7 +214,7 @@ public class ProtocolContactSelectorBox
         else
             tooltipText = protoContact.getDisplayName();
         
-        this.menu.setToolTipText(tooltipText);        
+        this.menu.setToolTipText(tooltipText);
     }
     
     /**
@@ -224,7 +224,7 @@ public class ProtocolContactSelectorBox
     public void setSelected(Contact protoContact)
     {
         this.setSelected(protoContact,
-                new ImageIcon(createContactStatusImage(protoContact)));        
+                new ImageIcon(createContactStatusImage(protoContact)));
     }
     
     /**

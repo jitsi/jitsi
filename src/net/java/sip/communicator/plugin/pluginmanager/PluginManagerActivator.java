@@ -33,20 +33,11 @@ public class PluginManagerActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        ServiceReference uiServiceRef
-            = bc.getServiceReference(UIService.class.getName());
+        PluginManagerConfigForm pluginManager = new PluginManagerConfigForm();
 
-        uiService = (UIService) bc.getService(uiServiceRef);
-
-        ConfigurationWindow configWindow = uiService.getConfigurationWindow();
-
-        if(configWindow != null)
-        {
-            PluginManagerConfigForm pluginManager
-                        = new PluginManagerConfigForm();
-
-            configWindow.addConfigurationForm(pluginManager);
-        }
+        bundleContext.registerService(  ConfigurationForm.class.getName(),
+                                        pluginManager,
+                                        null);
     }
 
     /**

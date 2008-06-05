@@ -193,19 +193,7 @@ public interface UIService
         String realm,
         UserCredentials userCredentials,
         boolean isUserNameEditable);
-    
-    /**
-     * Returns the <tt>ConfigurationWindow</tt> implementation for this
-     * UIService implementation. The <tt>ConfigurationWindow</tt> is a
-     * contianer contianing <tt>ConfigurationForm</tt>s. It is meant to be
-     * implemented by the UIService implementation to provide a mechanism
-     * for adding and removing configuration forms in the GUI. 
-     * 
-     * @return the <tt>ConfigurationWindow</tt> implementation for this
-     * UIService implementation
-     */
-    public ConfigurationWindow getConfigurationWindow();
-    
+
     /**
      * Returns an iterator over a set of windowID-s. Each <tt>WindowID</tt>
      * points to a window in the current UI implementation. Each

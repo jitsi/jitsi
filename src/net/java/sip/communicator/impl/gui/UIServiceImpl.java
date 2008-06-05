@@ -521,21 +521,6 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements the <code>UIService.getConfigurationWindow</code>. Returns
-     * the current implementation of the <tt>ConfigurationWindow</tt>
-     * interface.
-     *
-     * @see UIService#getConfigurationWindow()
-     *
-     * @return a reference to the currently valid instance of
-     * <tt>ConfigurationWindow</tt>.
-     */
-    public ConfigurationWindow getConfigurationWindow()
-    {
-        return this.configurationFrame;
-    }
-
-    /**
      * Returns an instance of <tt>AuthenticationWindow</tt> for the given
      * protocol provider, realm and user credentials.
      */
@@ -599,28 +584,36 @@ public class UIServiceImpl
      */
     private void setDefaultThemePack()
     {
-        SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
-        SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
-
-        // Check the isLookAndFeelDecorated property and set the appropriate
-        // default decoration.
-        boolean isDecorated
-            = new Boolean(ApplicationProperties
-                .getProperty("isLookAndFeelDecorated")).booleanValue();
-
-        if (isDecorated)
-        {
-            JFrame.setDefaultLookAndFeelDecorated(true);
-            JDialog.setDefaultLookAndFeelDecorated(true);
-        }
-
         // we need to set the UIDefaults class loader so that it may access
         // resources packed inside OSGI bundles
         UIManager.put("ClassLoader", getClass().getClassLoader());
-        try {
-            UIManager.setLookAndFeel(lf);
-        } catch (UnsupportedLookAndFeelException e) {
-            logger.error("The provided Look & Feel is not supported.", e);
+
+        String osName = System.getProperty("os.name");
+
+        if (!osName.startsWith("Mac"))
+        {
+            try
+            {
+                SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
+                SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
+
+                // Check the isLookAndFeelDecorated property and set the appropriate
+                // default decoration.
+                boolean isDecorated
+                    = new Boolean(ApplicationProperties
+                        .getProperty("isLookAndFeelDecorated")).booleanValue();
+
+                if (isDecorated)
+                {
+                    JFrame.setDefaultLookAndFeelDecorated(true);
+                    JDialog.setDefaultLookAndFeelDecorated(true);
+                }
+
+                UIManager.setLookAndFeel(lf);
+            }
+            catch (UnsupportedLookAndFeelException e) {
+                logger.error("The provided Look & Feel is not supported.", e);
+            }
         }
     }
 

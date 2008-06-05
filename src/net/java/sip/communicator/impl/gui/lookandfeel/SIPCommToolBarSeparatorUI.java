@@ -22,7 +22,8 @@ public class SIPCommToolBarSeparatorUI extends BasicToolBarSeparatorUI {
         return new SIPCommToolBarSeparatorUI();
     }
     
-    public void paint(Graphics g, JComponent c) {        
+    public void paint(Graphics g, JComponent c)
+    {
         Graphics2D g2 = (Graphics2D)g;
         
         g2.setColor(UIManager.getColor("ToolBar.separatorColor"));

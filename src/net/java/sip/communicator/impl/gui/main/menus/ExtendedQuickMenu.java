@@ -77,7 +77,7 @@ public class ExtendedQuickMenu
     private static int DEFAULT_BUTTON_WIDTH
         = SizeProperties.getSize("mainToolbarButtonWidth");
 
-    private ConfigurationWindow configDialog;
+    private ExportedWindow configDialog;
 
     private MainFrame mainFrame;
 
@@ -227,7 +227,8 @@ public class ExtendedQuickMenu
         }
         else if (buttonName.equals("config"))
         {
-            configDialog = GuiActivator.getUIService().getConfigurationWindow();
+            configDialog = GuiActivator.getUIService()
+                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
 
             configDialog.setVisible(true);
         }
