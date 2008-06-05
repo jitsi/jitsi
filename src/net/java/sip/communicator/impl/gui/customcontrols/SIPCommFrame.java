@@ -191,6 +191,49 @@ public abstract class SIPCommFrame
                 );
     }
 
+    /**
+     * Checks whether the current component will 
+     * exceeds the screen size and if it do will set a default size 
+     */
+    private void ensureOnScreenLocationAndSize()
+    {
+        int x = this.getX();
+        int y = this.getY();
+        
+        int width = this.getWidth();
+        int height = this.getHeight();
+        
+        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+    
+        if(x < 0 || y < 0)
+        {
+            this.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2
+                    - this.getWidth()/2,
+                50
+            );
+            
+            x = this.getX();
+            y = this.getY();
+        }
+
+        // in case any of the sizes exceeds the screen size
+        // we set default one
+        if(x + width > screenWidth ||
+           y + height > screenHeight - 50)
+        {
+            double aspect = (double)width/height;
+
+            int newHeight = screenHeight - 100;
+            int newWidth = (int)(newHeight * aspect);
+
+            // change the preferred size as its like the original size
+            // and new size will not take effect
+            this.setPreferredSize(new Dimension(newWidth, newHeight));
+            this.setSize(newWidth, newHeight);
+        }
+    }
     
     /**
      * Overwrites the setVisible method in order to set the size and the
@@ -202,6 +245,8 @@ public abstract class SIPCommFrame
         {
             this.pack();
             this.setSizeAndLocation();
+
+            this.ensureOnScreenLocationAndSize();
         }
 
         super.setVisible(isVisible);
@@ -213,9 +258,9 @@ public abstract class SIPCommFrame
      */
     public void dispose()
     {
-        super.dispose();
-        
         this.saveSizeAndLocation();
+        
+        super.dispose();
     }
     
     /**
