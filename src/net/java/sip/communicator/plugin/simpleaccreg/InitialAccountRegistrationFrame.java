@@ -94,7 +94,7 @@ public class InitialAccountRegistrationFrame
         this.initAccountWizards();
         
         // Create the default group
-        String groupName = Resources.getString("defaultGroupName");
+        String groupName = Resources.getApplicationProperty("defaultGroupName");
         
         if(groupName != null && groupName.length() > 0)
         {            
