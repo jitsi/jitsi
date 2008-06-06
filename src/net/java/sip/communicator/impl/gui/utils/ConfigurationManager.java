@@ -41,6 +41,8 @@ public class ConfigurationManager
     
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
+    
+    private static String lastContactParent = null;
 
     /**
      * 
@@ -133,6 +135,9 @@ public class ConfigurationManager
                 = new Boolean(isMultiChatWindowEnabledString)
                 .booleanValue();
         }
+        
+        lastContactParent = configService.getString(
+            "net.java.sip.communicator.impl.gui.addcontact.lastContactParent");
     }
 
     /**
@@ -242,6 +247,17 @@ public class ConfigurationManager
     public static String getSendMessageCommand()
     {
         return sendMessageCommand;
+    }
+    
+    /**
+     * Return the "lastContactParent" property that was saved previously
+     * through the <tt>ConfigurationService</tt>. Indicates 
+     * the last selected group on adding new contact 
+     * @return group name of the last selected group when adding contact.
+     */
+    public static String getLastContactParent()
+    {
+        return lastContactParent;
     }
 
     /**
@@ -359,6 +375,22 @@ public class ConfigurationManager
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.sendMessageCommand",
                 newMessageCommand);
+    }
+    
+     /**
+     * Updates the "lastContactParent" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param groupName the group name of the selected group when adding
+     * last contact
+     */
+    public static void setLastContactParent(String groupName)
+    {
+        lastContactParent = groupName;
+
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.addcontact.lastContactParent",
+                groupName);
     }
 
     /**

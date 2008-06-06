@@ -97,6 +97,10 @@ public class SelectGroupPanel
 //      Messages.getI18NString("rootGroup").getText(),
 //      wizard.getRootGroup()));
 
+        String lastGroupName = ConfigurationManager.getLastContactParent();
+        
+        Object lastSelectedGroup = null;
+        
         Iterator groupsList = wizard.getMainFrame().getAllGroups();
 
         if (groupsList.hasNext())
@@ -111,9 +115,18 @@ public class SelectGroupPanel
             {
                 MetaContactGroup group
                     = (MetaContactGroup)groupsList.next();
-
-                groupCombo.addItem(new GroupWrapper(group));
+                
+                GroupWrapper gr = new GroupWrapper(group);
+                
+                if(lastGroupName != null && 
+                    lastGroupName.equals(group.getGroupName()))
+                    lastSelectedGroup = gr;
+                    
+                groupCombo.addItem(gr);
             }
+            
+            if(lastSelectedGroup != null)
+                groupCombo.setSelectedItem(lastSelectedGroup);
         }
         else
         {
