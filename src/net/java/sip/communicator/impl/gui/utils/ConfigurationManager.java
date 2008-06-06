@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
 public class ConfigurationManager
@@ -49,6 +50,9 @@ public class ConfigurationManager
      */
     public static void loadGuiConfigurations()
     {
+        configService.addPropertyChangeListener(
+            new ConfigurationChangeListener());
+        
         // Load the "auPopupNewMessage" property.
         String autoPopup = configService.getString(
             "net.java.sip.communicator.impl.gui.autoPopupNewMessage");
@@ -619,5 +623,16 @@ public class ConfigurationManager
         }
 
         return null;
+    }
+    
+    private static class ConfigurationChangeListener
+            implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt) 
+        {
+            if(evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.addcontact.lastContactParent"))
+                lastContactParent = (String)evt.getNewValue();
+        }
     }
 }
