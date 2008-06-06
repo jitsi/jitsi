@@ -40,7 +40,7 @@ public class CallParticipantPanel
     
     private JLabel photoLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
-        
+    
     private DialButton dialButton;
     
     private JPanel northPanel = new JPanel();
@@ -260,7 +260,7 @@ public class CallParticipantPanel
         public DialButton(CallManager manager, ImageIcon iconImage)
         {
             super(iconImage);
-        
+            
             this.callManager = manager;
             
             this.setOpaque(false);
@@ -273,20 +273,19 @@ public class CallParticipantPanel
             this.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
-                {                    
+                {
                     if(!dialpadDialog.isVisible())
                     {
-                        dialpadDialog.setSize(
-                            callManager.getMainFrame().getWidth() - 20, 200);
-                        
                         dialpadDialog.setLocation(
-                            callManager.getMainFrame().getX() + 10,
+                            callManager.getMainFrame().getX()
+                            + (callManager.getMainFrame().getWidth()
+                                - dialpadDialog.getWidth())/2,
                             getLocationOnScreen().y + getHeight());
                         
                         dialpadDialog.setVisible(true);
                     }
                     else
-                    {   
+                    {
                         dialpadDialog.setVisible(false);
                     }
                 }
