@@ -61,7 +61,19 @@ public class Resources
      */
     private static final ResourceBundle LOGIN_PROPERTIES_BUNDLE = ResourceBundle
             .getBundle(LOGIN_BUNDLE_NAME);
+    
+    /**
+     * Name of the bundle where we will search for application resources.
+     */
+    private static final String APPLICATION_RESUORCE_LOCATION
+        = "resources.application";
 
+    /**
+     * Bundle which handle access to application resources.
+     */
+    private static final ResourceBundle applicationBundle 
+        = ResourceBundle.getBundle(APPLICATION_RESUORCE_LOCATION);
+    
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
@@ -113,6 +125,27 @@ public class Resources
         try
         {
             return LOGIN_PROPERTIES_BUNDLE.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
+            log.error("Missing property.", e);
+
+            return "";
+        }
+    }
+    
+    /**
+     * Returns the application property corresponding to the given key.
+     *
+     * @param key The key of the string.
+     *
+     * @return the application property corresponding to the given key
+     */
+    public static String getApplicationProperty(String key)
+    {
+        try
+        {
+            return applicationBundle.getString(key);
         }
         catch (MissingResourceException e)
         {

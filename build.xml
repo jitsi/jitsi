@@ -1677,7 +1677,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!--BUNDLE-StatusUpdatePlugin-->
+    <!--BUNDLE-SimpleAccRegPlugin-->
     <target name="bundle-plugin-simpleaccreg">
         <jar compress="false" destfile="${bundles.dest}/simpleaccreg.jar"
             manifest="${src}/net/java/sip/communicator/plugin/simpleaccreg/simpleaccreg.manifest.mf">
@@ -1689,6 +1689,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources"/>
             <zipfileset dir="${resources}/colors"
                 prefix="resources/colors"/>
+            <zipfileset dir="${resources}" includes="application.properties"
+                prefix="resources"/>
         </jar>
     </target>
 </project>

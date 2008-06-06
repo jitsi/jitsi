@@ -10,6 +10,7 @@ import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -24,6 +25,8 @@ public class SimpleAccountRegistrationActivator
     public static BundleContext bundleContext;
 
     private static ConfigurationService configService;
+    
+    private static MetaContactListService contactListService;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -123,5 +126,24 @@ public class SimpleAccountRegistrationActivator
         }
 
         return hasRegisteredAccounts;
+    }
+    
+    /**
+     * Returns the <tt>MetaContactListService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>MetaContactListService</tt> obtained from the bundle
+     * context
+     */
+    public static MetaContactListService getContactList() 
+    {
+        if (contactListService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(MetaContactListService.class.getName());
+
+            contactListService = (MetaContactListService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return contactListService;
     }
 }

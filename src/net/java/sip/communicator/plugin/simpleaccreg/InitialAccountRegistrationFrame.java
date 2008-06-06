@@ -92,6 +92,23 @@ public class InitialAccountRegistrationFrame
         this.getRootPane().setDefaultButton(signinButton);
 
         this.initAccountWizards();
+        
+        // Create the default group
+        String groupName = Resources.getString("defaultGroupName");
+        
+        if(groupName != null && groupName.length() > 0)
+        {            
+            SimpleAccountRegistrationActivator.getContactList().
+                createMetaContactGroup(
+                    SimpleAccountRegistrationActivator.getContactList().getRoot(), 
+                    groupName);
+
+            SimpleAccountRegistrationActivator.getConfigurationService().
+                setProperty(
+                "net.java.sip.communicator.impl.gui.addcontact.lastContactParent",
+                groupName
+            );
+        }
     }
 
     private void initAccountWizards()
