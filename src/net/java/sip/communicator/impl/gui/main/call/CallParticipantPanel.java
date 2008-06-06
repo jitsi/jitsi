@@ -276,10 +276,12 @@ public class CallParticipantPanel
                 {
                     if(!dialpadDialog.isVisible())
                     {
+                        dialpadDialog.setSize(
+                            callManager.getMainFrame().getWidth() - 20,
+                            dialpadDialog.getHeight());
+                        
                         dialpadDialog.setLocation(
-                            callManager.getMainFrame().getX()
-                            + (callManager.getMainFrame().getWidth()
-                                - dialpadDialog.getWidth())/2,
+                            callManager.getMainFrame().getX() + 10,
                             getLocationOnScreen().y + getHeight());
                         
                         dialpadDialog.setVisible(true);
