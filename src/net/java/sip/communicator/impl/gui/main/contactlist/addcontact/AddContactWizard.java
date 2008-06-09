@@ -84,6 +84,25 @@ public class AddContactWizard
     }
     
     /**
+     * Creates new wizard with already defined protocol and 
+     * contact address
+     * @param mainFrame 
+     * @param newContactAddress the contact address to add
+     * @param protocolProvider the protocol for the new contact
+     */
+    public AddContactWizard(MainFrame mainFrame, 
+            String newContactAddress,
+            ProtocolProviderService protocolProvider)
+    {
+        this(mainFrame);
+        newContact.addProtocolProvider(protocolProvider);
+        
+        this.setCurrentPage(AddContactWizardPage2.IDENTIFIER);
+        
+        page3.setUIN(newContactAddress);
+    }
+    
+    /**
      * Creates a new meta contact in a separate thread.
      */
     private class CreateContact extends Thread {

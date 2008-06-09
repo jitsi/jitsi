@@ -21,10 +21,12 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -66,6 +68,9 @@ public class MainToolBar
 
     private ChatToolbarButton historyButton = new ChatToolbarButton(ImageLoader
         .getImage(ImageLoader.HISTORY_ICON));
+    
+    private ChatToolbarButton addButton = new ChatToolbarButton(ImageLoader
+            .getImage(ImageLoader.QUICK_MENU_ADD_ICON));
 
     private ChatToolbarButton sendFileButton = new ChatToolbarButton(
         ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
@@ -82,6 +87,8 @@ public class MainToolBar
     private SmiliesSelectorBox smiliesBox;
 
     private ChatWindow messageWindow;
+    
+    private Contact currentChatContact = null;
 
     /**
      * Empty constructor to be used from inheritors.
@@ -128,6 +135,10 @@ public class MainToolBar
 
 //        this.add(sendFileButton);
         this.add(historyButton);
+        
+        this.addSeparator();
+        
+        this.add(addButton);
 
 //        this.addSeparator();
 //
@@ -173,6 +184,11 @@ public class MainToolBar
         this.historyButton.setToolTipText(
             Messages.getI18NString("history").getText() + " Ctrl-H");
 
+        this.addButton.setName("addContact");
+        this.addButton.setToolTipText(
+            Messages.getI18NString("addContact").getText());
+//        this.addButton.setEnabled(false);
+        
         this.fontButton.setName("font");
         this.fontButton.setToolTipText(
             Messages.getI18NString("font").getText());
@@ -186,6 +202,7 @@ public class MainToolBar
         this.nextButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
         this.historyButton.addActionListener(this);
+        this.addButton.addActionListener(this);
         this.fontButton.addActionListener(this);
 
         this.saveButton.setPreferredSize(
@@ -216,6 +233,46 @@ public class MainToolBar
         this.fontButton.setEnabled(false);
 
         this.initPluginComponents();
+        
+        messageWindow.addChatChangeListener(new ChatChangeListener() 
+        {
+            public void chatChanged(ChatPanel panel) 
+            {
+                if(panel instanceof MetaContactChatPanel)
+                { 
+                    MetaContact contact = 
+                        ((MetaContactChatPanel)panel).getMetaContact();
+                    
+                    if(contact == null) return;
+                    
+                    Contact defaultContact = contact.getDefaultContact();
+                    if(defaultContact == null) return;
+                    
+                    ContactGroup parent = defaultContact.getParentContactGroup();
+                    boolean isParentPersist = true;
+                    boolean isParentResolved = true;
+                    if(parent != null)
+                    {
+                        isParentPersist = parent.isPersistent();
+                        isParentResolved = parent.isResolved();
+                    }
+                    
+                    if(!defaultContact.isPersistent() &&
+                       !defaultContact.isResolved() &&
+                       !isParentPersist &&
+                       !isParentResolved)
+                    {
+                       addButton.setVisible(true);
+                       currentChatContact = defaultContact;
+                    }
+                    else
+                    {
+                        addButton.setVisible(false);
+                        currentChatContact = null;
+                    }  
+                }
+            }
+        });
     }
 
     /**
@@ -292,6 +349,19 @@ public class MainToolBar
         }
         else if (buttonText.equalsIgnoreCase("font")) {
 
+        }
+        else if (buttonText.equalsIgnoreCase("addContact")) 
+        {
+            if(currentChatContact != null)
+            {
+                AddContactWizard addCWizz = 
+                        new AddContactWizard(
+                            messageWindow.getMainFrame(),
+                            currentChatContact.getAddress(),
+                            currentChatContact.getProtocolProvider()
+                        );
+                addCWizz.setVisible(true);
+            }
         }
     }
 

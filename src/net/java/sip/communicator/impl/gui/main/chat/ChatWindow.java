@@ -13,6 +13,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
@@ -54,6 +55,8 @@ public class ChatWindow
     private SIPCommTabbedPane chatTabbedPane = null;
 
     private int chatCount = 0;
+    
+    private Vector chatChangeListeners = new Vector();
 
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
@@ -84,6 +87,22 @@ public class ChatWindow
 
                     ChatWindow.this.mainFrame
                         .getChatWindowManager().closeChat(chatPanel);
+                }
+            });
+            
+            chatTabbedPane.addChangeListener(new ChangeListener() 
+            {
+                public void stateChanged(ChangeEvent e) 
+                {
+                    int tabIndex = chatTabbedPane.getSelectedIndex();
+
+                    if(tabIndex == -1)
+                        return;
+                    
+                    ChatPanel chatPanel
+                        = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
+                    
+                    fireChatChangeEvent(chatPanel);
                 }
             });
         }
@@ -168,6 +187,8 @@ public class ChatWindow
     private void addSimpleChat(ChatPanel chatPanel)
     {
         this.getContentPane().add(chatPanel, BorderLayout.CENTER);
+      
+        fireChatChangeEvent(chatPanel);
     }
 
     /**
@@ -183,6 +204,7 @@ public class ChatWindow
         if (getCurrentChatPanel() == null)
         {
             this.getContentPane().add(chatPanel, BorderLayout.CENTER);
+            fireChatChangeEvent(chatPanel);
         }
         else
         {
@@ -731,7 +753,40 @@ public class ChatWindow
     {
         return chatCount;
     }
+    
+    public void addChatChangeListener(ChatChangeListener listener)
+    {
+        synchronized (chatChangeListeners)
+        {
+            chatChangeListeners.add(listener);
+        }
+    }
+    
+    public void removeChatChangeListener(ChatChangeListener listener)
+    {
+        synchronized (chatChangeListeners)
+        {
+            chatChangeListeners.remove(listener);
+        }
+    }
 
+    private void fireChatChangeEvent(ChatPanel panel)
+    {
+        Iterator listeners = null;
+        synchronized (chatChangeListeners)
+        {
+            listeners = new ArrayList(chatChangeListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ChatChangeListener listener
+                = (ChatChangeListener) listeners.next();
+
+            listener.chatChanged(panel);
+        }
+    }
+    
     private class LogoBar
     extends JPanel
     {

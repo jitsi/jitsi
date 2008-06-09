@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
@@ -18,9 +17,12 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -72,7 +74,11 @@ public class ExtendedMainToolBar
     private ToolBarButton historyButton = new ToolBarButton(
         Messages.getI18NString("history").getText(),
         ImageLoader.getImage(ImageLoader.HISTORY_ICON));
-
+    
+    private ToolBarButton addButton = new ToolBarButton(
+        Messages.getI18NString("addContact").getText(),
+        ImageLoader.getImage(ImageLoader.QUICK_MENU_ADD_ICON));
+    
     private ToolBarButton sendFileButton = new ToolBarButton(
         Messages.getI18NString("sendFile").getText(),
         ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
@@ -90,6 +96,8 @@ public class ExtendedMainToolBar
     private SmiliesSelectorBox smiliesBox;
 
     private ChatWindow messageWindow;
+    
+    private Contact currentChatContact = null;
 
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
@@ -134,6 +142,9 @@ public class ExtendedMainToolBar
 
 //        this.add(sendFileButton);
         this.add(historyButton);
+        
+        this.addSeparator();
+        this.add(addButton);
 
 //        this.addSeparator();
 //
@@ -179,6 +190,10 @@ public class ExtendedMainToolBar
         this.historyButton.setToolTipText(
             Messages.getI18NString("history").getText() + " Ctrl-H");
 
+        this.addButton.setName("addContact");
+        this.addButton.setToolTipText(
+            Messages.getI18NString("addContact").getText());
+        
         this.fontButton.setName("font");
         this.fontButton.setToolTipText(
             Messages.getI18NString("font").getText());
@@ -215,6 +230,7 @@ public class ExtendedMainToolBar
         this.nextButton.addMouseListener(this);
         this.sendFileButton.addMouseListener(this);
         this.historyButton.addMouseListener(this);
+        this.addButton.addMouseListener(this);
         this.fontButton.addMouseListener(this);
 
         // Disable all buttons that do nothing.
@@ -224,7 +240,47 @@ public class ExtendedMainToolBar
         this.fontButton.setEnabled(false);
         
         this.initPluginComponents();
-    }
+        
+        messageWindow.addChatChangeListener(new ChatChangeListener() 
+        {
+            public void chatChanged(ChatPanel panel) 
+            {
+                if(panel instanceof MetaContactChatPanel)
+                { 
+                    MetaContact contact = 
+                        ((MetaContactChatPanel)panel).getMetaContact();
+                    
+                    if(contact == null) return;
+                    
+                    Contact defaultContact = contact.getDefaultContact();
+                    if(defaultContact == null) return;
+                    
+                    ContactGroup parent = defaultContact.getParentContactGroup();
+                    boolean isParentPersist = true;
+                    boolean isParentResolved = true;
+                    if(parent != null)
+                    {
+                        isParentPersist = parent.isPersistent();
+                        isParentResolved = parent.isResolved();
+                    }
+                    
+                    if(!defaultContact.isPersistent() &&
+                       !defaultContact.isResolved() &&
+                       !isParentPersist &&
+                       !isParentResolved)
+                    {
+                       addButton.setVisible(true);
+                       currentChatContact = defaultContact;
+                    }
+                    else
+                    {
+                        addButton.setVisible(false);
+                        currentChatContact = null;
+                    }  
+                }
+            }
+        });
+    }        
 
     /**
      * Handles the <tt>ActionEvent</tt>, when one of the toolbar buttons is
@@ -299,6 +355,19 @@ public class ExtendedMainToolBar
         }
         else if (buttonText.equalsIgnoreCase("font")) {
 
+        }
+        else if (buttonText.equalsIgnoreCase("addContact")) 
+        {
+            if(currentChatContact != null)
+            {
+                AddContactWizard addCWizz = 
+                        new AddContactWizard(
+                            messageWindow.getMainFrame(),
+                            currentChatContact.getAddress(),
+                            currentChatContact.getProtocolProvider()
+                        );
+                addCWizz.setVisible(true);
+            }
         }
     }
 

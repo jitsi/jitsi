@@ -80,4 +80,9 @@ public class AddContactWizardPage3 implements WizardPage {
 
     public void pageBack() {
     }
+    
+    public void setUIN(String uin)
+    {
+        addContactPanel.setUIN(uin);
+    }
 }

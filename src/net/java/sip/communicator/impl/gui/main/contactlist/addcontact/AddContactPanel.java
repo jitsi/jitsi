@@ -110,6 +110,11 @@ public class AddContactPanel
         return textField.getText();
     }
     
+    public void setUIN(String uin)
+    {
+        textField.setText(uin);
+    }
+    
     public void requestFocusInField() {
         this.textField.requestFocus();
     }
