@@ -28,6 +28,9 @@ import javax.swing.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
+import java.io.*;
+import com.izforge.izpack.util.os.*;
+
 /**
  * 
  * @author Yana Stamcheva
@@ -81,6 +84,7 @@ public class GeneralConfigurationForm
                 mainPanel.add(Box.createVerticalStrut(10));
                 autoStartCheckBox.setText(
                     Resources.getString("autoStartOption"));
+                autoStartCheckBox.addActionListener(this);
             }
             {
                 groupMessagesCheckBox = new JCheckBox();
@@ -274,7 +278,38 @@ public class GeneralConfigurationForm
         
         if (sourceObject.equals(autoStartCheckBox))
         {
-            //TODO: Implement auto start setting.
+            try 
+            {
+                String workingDir = new File(".").getCanonicalPath();
+                
+                String appName = 
+                        Resources.getApplicationString("applicationName");
+                ShellLink shortcut = new ShellLink(ShellLink.STARTUP, appName);
+                shortcut.setLinkType(ShellLink.STARTUP);
+                shortcut.setUserType(ShellLink.CURRENT_USER);
+                shortcut.setDescription(
+                        "This starts " + appName + " Application");
+                shortcut.setIconLocation(
+                        workingDir + File.separator + "sc-logo.ico", 0);
+                shortcut.setShowCommand(ShellLink.MINNOACTIVE);
+                shortcut.setTargetPath(workingDir + File.separator + "run.exe");
+                shortcut.setWorkingDirectory(workingDir);
+
+                if(autoStartCheckBox.isSelected())
+                    shortcut.save();
+                else
+                {
+                    // before we can get the filename of the link
+                    // we have to save it
+                    shortcut.save();
+                    
+                    new File(shortcut.getFileName()).delete();
+                }
+                
+            } catch (Exception e) 
+            {
+                logger.error("Cannot create/delete startup shortcut", e);
+            }
         }
         if (sourceObject.equals(groupMessagesCheckBox))
         {

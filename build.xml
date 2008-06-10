@@ -1710,6 +1710,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images/plugin/generalconfig"/>
             <zipfileset dir="${resources}" includes="application.properties"
                 prefix="resources"/>
+            <zipfileset src="${lib.noinst}/izpack-shortcut-link.jar" prefix=""/>
         </jar>
     </target>
 </project>

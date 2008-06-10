@@ -35,6 +35,19 @@ public class Resources
      */
     private static final String IMAGE_RESOURCE_NAME
         = "net.java.sip.communicator.plugin.generalconfig.resources";
+    
+    /**
+     * The name of the resource, where application properties are
+     * stored.
+     */
+    private static final String APPLICATION_RESUORCE_LOCATION
+        = "resources.application";
+
+    /**
+     * The application resource bundle.
+     */
+    private static final ResourceBundle APPLICATION_RESOURCE_BUNDLE 
+        = ResourceBundle.getBundle(APPLICATION_RESUORCE_LOCATION);
 
     /**
      * The string resource bundle.
@@ -58,6 +71,23 @@ public class Resources
         try
         {
             return STRING_RESOURCE_BUNDLE.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
+            return '!' + key + '!';
+        }
+    }
+    
+    /**
+     * Returns an application property string corresponding to the given key.
+     * @param key The key of the string.
+     * @return A string corresponding to the given key.
+     */
+    public static String getApplicationString(String key)
+    {
+        try
+        {
+            return APPLICATION_RESOURCE_BUNDLE.getString(key);
         }
         catch (MissingResourceException e)
         {
