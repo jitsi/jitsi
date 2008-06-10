@@ -47,5 +47,6 @@
     <classpathentry kind="lib" path="lib/installer-exclude/aclibico-2.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/pircbot.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jsch-0.1.36.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/izpack-shortcut-link.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>
