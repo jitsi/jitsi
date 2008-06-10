@@ -100,7 +100,7 @@ public class MainFrame
 
         String isToolbarExtendedString
             = GuiActivator.getConfigurationService().getString(
-                "net.java.sip.communicator.impl.gui.isToolBarExteneded");
+                "isToolBarExteneded");
 
         boolean isToolBarExtended
             = new Boolean(isToolbarExtendedString).booleanValue();
@@ -121,7 +121,7 @@ public class MainFrame
 
         String applicationName
             = GuiActivator.getConfigurationService().getString(
-                "net.java.sip.communicator.impl.gui.applicationName");
+                "applicationName");
 
         this.setTitle(applicationName);
 
