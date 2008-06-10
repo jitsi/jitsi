@@ -140,15 +140,15 @@ public class CallPanel
      */
     private CallParticipantPanel addCallParticipant(
             String participantName, String callType)
-    {   
+    {
         CallParticipantPanel participantPanel
             = getParticipantPanel(participantName);
-        
+
         if(participantPanel == null)
         {
             participantPanel
                 = new CallParticipantPanel(callManager, participantName);
-    
+
             this.mainPanel.add(participantPanel);
             
             // The participant panel should know when it is removed in order

@@ -10,6 +10,10 @@ import java.io.*;
 import java.util.*;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.msghistory.MessageHistoryActivator.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
@@ -62,6 +66,10 @@ public class MessageHistoryServiceImpl
     private Object syncRoot_HistoryService = new Object();
 
     private Hashtable progressListeners = new Hashtable();
+
+    private ConfigurationService configService;
+
+    private MessageHistoryPropertyChangeListener msgHistoryPropListener;
 
     public HistoryService getHistoryService()
     {
@@ -602,42 +610,42 @@ public class MessageHistoryServiceImpl
      */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the msg history implementation.");
         this.bundleContext = bc;
 
-        // start listening for newly register or removed protocol providers
-        bc.addServiceListener(this);
+        ServiceReference refConfig = bundleContext.getServiceReference(
+            ConfigurationService.class.getName());
 
-        ServiceReference[] protocolProviderRefs = null;
-        try
-        {
-            protocolProviderRefs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),
-                null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error(
-                "Error while retrieving service refs", ex);
+        configService = (ConfigurationService)
+            bundleContext.getService(refConfig);
+
+        // Check if the message history is enabled in the configuration 
+        // service, and if not do not register the service.
+        String isMessageHistoryEnabledString = configService.getString(
+            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled");
+
+        // If the property doesn't exist we stop here.
+        if (isMessageHistoryEnabledString == null
+            || isMessageHistoryEnabledString == "")
             return;
-        }
 
-        // in case we found any
-        if (protocolProviderRefs != null)
-        {
-            logger.debug("Found "
-                         + protocolProviderRefs.length
-                         + " already installed providers.");
-            for (int i = 0; i < protocolProviderRefs.length; i++)
-            {
-                ProtocolProviderService provider = (ProtocolProviderService) bc
-                    .getService(protocolProviderRefs[i]);
+        boolean isMessageHistoryEnabled
+             = new Boolean(isMessageHistoryEnabledString).booleanValue();
 
-                this.handleProviderAdded(provider);
-            }
-        }
+        // If the message history is not enabled we stop here.
+        if (!isMessageHistoryEnabled)
+            return;
+
+        // We're adding a property change listener in order to
+        // listen for modifications of the isMessageHistoryEnabled property.
+        msgHistoryPropListener = new MessageHistoryPropertyChangeListener();
+
+        configService.addPropertyChangeListener(
+            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled",
+            msgHistoryPropListener);
+
+        logger.debug("Starting the msg history implementation.");
+
+        this.loadMessageHistoryService();
     }
 
     /**
@@ -647,38 +655,11 @@ public class MessageHistoryServiceImpl
      */
     public void stop(BundleContext bc)
     {
-        // start listening for newly register or removed protocol providers
-        bc.removeServiceListener(this);
+        if (configService != null)
+            configService.removePropertyChangeListener(msgHistoryPropListener);
 
-        ServiceReference[] protocolProviderRefs = null;
-        try
-        {
-            protocolProviderRefs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),
-                null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error(
-                "Error while retrieving service refs", ex);
-            return;
-        }
-
-        // in case we found any
-        if (protocolProviderRefs != null)
-        {
-            for (int i = 0; i < protocolProviderRefs.length; i++)
-            {
-                ProtocolProviderService provider = (ProtocolProviderService) bc
-                    .getService(protocolProviderRefs[i]);
-
-                this.handleProviderRemoved(provider);
-            }
-        }
+        stopMessageHistoryService();
     }
-
 
     // //////////////////////////////////////////////////////////////////////////
     // MessageListener implementation methods
@@ -1953,6 +1934,109 @@ public class MessageHistoryServiceImpl
         public ChatRoomMemberRole getRole()
         {
             return role;
+        }
+    }
+    
+    /**
+     * Handles <tt>PropertyChangeEvent</tt> triggered from the modification of
+     * the isMessageHistoryEnabled property.
+     */
+    private class MessageHistoryPropertyChangeListener
+        implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            String newPropertyValue = (String) evt.getNewValue();
+
+            boolean isMessageHistoryEnabled
+                = new Boolean(newPropertyValue).booleanValue();
+
+            // If the message history is not enabled we stop here.
+            if (isMessageHistoryEnabled)
+                loadMessageHistoryService();
+            else
+                stop(bundleContext);
+        }
+    }
+
+
+    /**
+     * Loads the History and MessageHistoryService. Registers the service in the
+     * bundle context.
+     */
+    private void loadMessageHistoryService()
+    {
+        // start listening for newly register or removed protocol providers
+        bundleContext.addServiceListener(this);
+
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = bundleContext.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            logger.debug("Found "
+                         + protocolProviderRefs.length
+                         + " already installed providers.");
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider
+                    = (ProtocolProviderService) bundleContext
+                        .getService(protocolProviderRefs[i]);
+
+                this.handleProviderAdded(provider);
+            }
+        }
+    }
+
+    /**
+     * Stops the MessageHistoryService.
+     */
+    private void stopMessageHistoryService()
+    {
+        // start listening for newly register or removed protocol providers
+        bundleContext.removeServiceListener(this);
+
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = bundleContext.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider
+                    = (ProtocolProviderService) bundleContext
+                        .getService(protocolProviderRefs[i]);
+
+                this.handleProviderRemoved(provider);
+            }
         }
     }
 }

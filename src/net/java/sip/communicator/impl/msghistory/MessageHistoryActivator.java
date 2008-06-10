@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.impl.msghistory;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Activates the MessageHistoryService
@@ -24,16 +25,19 @@ public class MessageHistoryActivator
 
     private MessageHistoryServiceImpl msgHistoryService = null;
 
+    private static BundleContext bundleContext;
+
     /**
      * Initialize and start message history
      *
-     * @param bundleContext BundleContext
+     * @param bc the BundleContext
      * @throws Exception
      */
-    public void start(BundleContext bundleContext) throws Exception
+    public void start(BundleContext bc) throws Exception
     {
-        try{
-
+        bundleContext = bc;
+        try
+        {
             logger.logEntry();
 
             ServiceReference refHistory = bundleContext.getServiceReference(
@@ -45,7 +49,7 @@ public class MessageHistoryActivator
             //Create and start the message history service.
             msgHistoryService =
                 new MessageHistoryServiceImpl();
-            // set the configuration and history service
+
             msgHistoryService.setHistoryService(historyService);
 
             msgHistoryService.start(bundleContext);

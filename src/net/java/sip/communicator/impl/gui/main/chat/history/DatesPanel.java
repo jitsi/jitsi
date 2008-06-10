@@ -12,10 +12,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.msghistory.*;
 /**
  * The <tt>DatesPanel</tt> contains the list of history dates for a contact.
  *
@@ -33,8 +31,6 @@ public class DatesPanel
     private DatesListRenderer renderer = new DatesListRenderer();
 
     private JPanel listPanel = new JPanel(new BorderLayout());
-
-    private MessageHistoryService msgHistory = GuiActivator.getMsgHistoryService();
 
     private HistoryWindow historyWindow;
     

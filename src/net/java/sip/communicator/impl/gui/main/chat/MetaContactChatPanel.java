@@ -45,9 +45,6 @@ public class MetaContactChatPanel
 
     private Date lastHistoryMsgTimestamp;
 
-    MessageHistoryService msgHistory
-        = GuiActivator.getMsgHistoryService();
-
     private JLabel sendViaLabel = new JLabel(
         Messages.getI18NString("sendVia").getText());
 
@@ -134,7 +131,17 @@ public class MetaContactChatPanel
      */
     public void loadHistory()
     {
-        new Thread() {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
+        new Thread()
+        {
             public void run()
             {
                 // Load the history period, which initializes the
@@ -145,7 +152,7 @@ public class MetaContactChatPanel
                 
                 // Load the last N=CHAT_HISTORY_SIZE messages from history.
                 Collection historyList = msgHistory.findLast(
-                        metaContact, Constants.CHAT_HISTORY_SIZE);
+                        metaContact, ConfigurationManager.getChatHistorySize());
 
                 if(historyList.size() > 0) {
                     class ProcessHistory implements Runnable
@@ -177,6 +184,15 @@ public class MetaContactChatPanel
      */
     public void loadHistory(final String escapedMessageID)
     {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
         // Load the history period, which initializes the
         // firstMessageTimestamp and the lastMessageTimeStamp variables.
         // Used to disable/enable history flash buttons in the chat
@@ -184,9 +200,9 @@ public class MetaContactChatPanel
         loadHistoryPeriod();
         
         Collection historyList = msgHistory.findLast(
-                metaContact, Constants.CHAT_HISTORY_SIZE);
+                metaContact, ConfigurationManager.getChatHistorySize());
 
-        processHistory(historyList, escapedMessageID);        
+        processHistory(historyList, escapedMessageID);
     }
     
     /**
@@ -196,6 +212,12 @@ public class MetaContactChatPanel
     {
         MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
 
         Collection firstMessage = msgHistory
             .findFirstMessagesAfter(metaContact, new Date(0), 1);
@@ -528,12 +550,18 @@ public class MetaContactChatPanel
      */
     public void loadPreviousPageFromHistory()
     {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
         new Thread() {
             public void run()
             {
-                MessageHistoryService msgHistory
-                    = GuiActivator.getMsgHistoryService();
-                
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
                 
@@ -565,11 +593,19 @@ public class MetaContactChatPanel
      */
     public void loadNextPageFromHistory()
     {
-        new Thread() {
-            public void run(){
-                MessageHistoryService msgHistory
-                    = GuiActivator.getMsgHistoryService();
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
 
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
+        new Thread()
+        {
+            public void run()
+            {
                 Date lastMsgDate
                     = getChatConversationPanel().getPageLastMsgTimestamp();
 

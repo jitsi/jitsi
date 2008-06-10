@@ -584,10 +584,13 @@ public class ChatWindowManager
             this.chats.put(contact, chatPanel);
         }
 
-        if(escapedMessageID != null)
-            chatPanel.loadHistory(escapedMessageID);
-        else
-            chatPanel.loadHistory();
+        if (ConfigurationManager.isHistoryShown())
+        {
+            if(escapedMessageID != null)
+                chatPanel.loadHistory(escapedMessageID);
+            else
+                chatPanel.loadHistory();
+        }
 
         return chatPanel;
     }
@@ -649,10 +652,13 @@ public class ChatWindowManager
             this.chats.put(chatRoomWrapper, chatPanel);
         }
 
-        if(escapedMessageID != null)
-            chatPanel.loadHistory(escapedMessageID);
-        else
-            chatPanel.loadHistory();
+        if (ConfigurationManager.isHistoryShown())
+        {
+            if(escapedMessageID != null)
+                chatPanel.loadHistory(escapedMessageID);
+            else
+                chatPanel.loadHistory();
+        }
 
         return chatPanel;
     }

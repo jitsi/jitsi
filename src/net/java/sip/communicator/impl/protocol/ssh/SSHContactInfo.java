@@ -335,4 +335,9 @@ class SSHContactInfo extends JDialog
     public void setPort(String port) {
         this.portField.setText(port);
     }
+
+    public int getIndex()
+    {
+        return -1;
+    }
 }

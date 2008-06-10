@@ -119,6 +119,9 @@ public class ConferenceChatPanel
         final MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
 
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
         if (msgHistory == null)
             return;
 
@@ -134,7 +137,8 @@ public class ConferenceChatPanel
                 // Load the last N=CHAT_HISTORY_SIZE messages from history.
                 Collection historyList
                     = msgHistory.findLast(  chatRoomWrapper.getChatRoom(),
-                                            Constants.CHAT_HISTORY_SIZE);
+                                            ConfigurationManager
+                                                .getChatHistorySize());
 
                 if(historyList.size() > 0) {
                     class ProcessHistory implements Runnable
@@ -165,18 +169,21 @@ public class ConferenceChatPanel
      */
     public void loadHistory(String escapedMessageID)
     {
-        if (chatRoomWrapper.getChatRoom() == null)
+        MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
             return;
 
-        MessageHistoryService msgHistory
-        = GuiActivator.getMsgHistoryService();
-
-        if (msgHistory == null)
+        if (chatRoomWrapper.getChatRoom() == null)
             return;
 
         Collection historyList
             = msgHistory.findLast(  chatRoomWrapper.getChatRoom(),
-                                    Constants.CHAT_HISTORY_SIZE);
+                                    ConfigurationManager.getChatHistorySize());
 
         processHistory(historyList, escapedMessageID);
     }
@@ -188,15 +195,21 @@ public class ConferenceChatPanel
      */
     public void loadPreviousPageFromHistory()
     {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
         if (chatRoomWrapper.getChatRoom() == null)
             return;
 
         new Thread() {
             public void run()
             {
-                MessageHistoryService msgHistory
-                    = GuiActivator.getMsgHistoryService();
-                
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
                 
@@ -229,6 +242,15 @@ public class ConferenceChatPanel
      */
     public void loadNextPageFromHistory()
     {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
         if (chatRoomWrapper.getChatRoom() == null)
             return;
 
@@ -236,9 +258,6 @@ public class ConferenceChatPanel
         {
             public void run()
             {
-                MessageHistoryService msgHistory
-                    = GuiActivator.getMsgHistoryService();
-
                 Date lastMsgDate
                     = getChatConversationPanel().getPageLastMsgTimestamp();
 
@@ -523,6 +542,12 @@ public class ConferenceChatPanel
     {
         MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
 
         Collection firstMessage = msgHistory
             .findFirstMessagesAfter(chatRoom, new Date(0), 1);

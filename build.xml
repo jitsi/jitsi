@@ -621,10 +621,10 @@
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
-    	bundle-plugin-statusupdate,
+        bundle-plugin-statusupdate,
         bundle-updatecheckplugin,
         bundle-dict,bundle-plugin-dictaccregwizz,
-        bundle-plugin-simpleaccreg"/>
+        bundle-plugin-simpleaccreg,bundle-plugin-generalconfig"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -731,6 +731,8 @@
                 prefix="net/java/sip/communicator/service/configuration"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/configuration"
                 prefix="net/java/sip/communicator/impl/configuration" />
+            <zipfileset dir="${resources}/config" includes="defaults.properties"
+                prefix="resources/config"/>
         </jar>
     </target>
 
@@ -1111,14 +1113,14 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/styles"/>
             <zipfileset dir="${resources}/colors"
                 prefix="resources/colors"/>
-            <zipfileset dir="${resources}" includes="application.properties"
-                prefix="resources"/>
             <zipfileset dir="${resources}" includes="login.properties"
                 prefix="resources"/>
             <zipfileset dir="${resources}" includes="lookandfeel.properties"
                 prefix="resources"/>
             <zipfileset dir="${resources}/size" includes="size.properties"
                 prefix="resources/size"/>
+            <zipfileset dir="${resources}" includes="application.properties"
+                prefix="resources"/>
             <zipfileset dir="${resources}/languages/impl/gui"
                 prefix="resources/languages/impl/gui"/>
         </jar>
@@ -1691,6 +1693,21 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources"/>
             <zipfileset dir="${resources}/colors"
                 prefix="resources/colors"/>
+            <zipfileset dir="${resources}" includes="application.properties"
+                prefix="resources"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-StatusUpdatePlugin-->
+    <target name="bundle-plugin-generalconfig">
+        <jar compress="false" destfile="${bundles.dest}/generalconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/generalconfig/generalconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/generalconfig"
+                prefix="net/java/sip/communicator/plugin/generalconfig" />
+            <zipfileset dir="${resources}/languages/plugin/generalconfig"
+                prefix="resources/languages/plugin/generalconfig"/>
+            <zipfileset dir="${resources}/images/plugin/generalconfig"
+                prefix="resources/images/plugin/generalconfig"/>
             <zipfileset dir="${resources}" includes="application.properties"
                 prefix="resources"/>
         </jar>

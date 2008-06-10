@@ -230,5 +230,8 @@ public class MailboxConfigurationForm
         return this;
     }
 
-
+    public int getIndex()
+    {
+        return -1;
+    }
 }

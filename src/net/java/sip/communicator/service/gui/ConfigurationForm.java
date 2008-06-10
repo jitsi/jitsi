@@ -43,4 +43,15 @@ public interface ConfigurationForm {
      * @return the containing form
      */
     public Object getForm();
+
+    /**
+     * Returns the index of this configuration form in the configuration window.
+     * This index is used to put configuration forms in the desired order.
+     * <p>
+     * 0 is the first position
+     * -1 means that the form will be put at the end
+     * </p>
+     * @return the index of this configuration form in the configuration window.
+     */
+    public int getIndex();
 }

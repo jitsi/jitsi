@@ -149,4 +149,9 @@ public class AccountInfoForm
             }
         }
     }
+
+    public int getIndex()
+    {
+        return -1;
+    }
 }

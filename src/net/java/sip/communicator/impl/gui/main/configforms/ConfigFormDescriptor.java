@@ -31,9 +31,7 @@ public class ConfigFormDescriptor
     private ImageIcon configFormIcon;
     
     private String configFormTitle;
-    
-    private Component configFormPanel;
-    
+
     /**
      * Loads the given <tt>ConfigurationForm</tt>.
      * 
@@ -47,11 +45,9 @@ public class ConfigFormDescriptor
         
         try
         {
-            icon = configForm.getIcon();                
+            icon = configForm.getIcon();
             
             configFormTitle = configForm.getTitle();
-            
-            configFormPanel = ((Component)configForm.getForm());
         }
         catch (Exception e)
         {
@@ -62,7 +58,7 @@ public class ConfigFormDescriptor
             configFormIcon
                 = new ImageIcon(ImageLoader.getBytesInImage(icon));
         
-        if(!(configFormPanel instanceof Component))
+        if(!(configForm.getForm() instanceof Component))
         {
             throw new ClassCastException("ConfigurationFrame :"
             + configForm.getForm().getClass()
@@ -87,7 +83,7 @@ public class ConfigFormDescriptor
      */
     public Component getConfigFormPanel()
     {
-        return configFormPanel;
+        return (Component) configForm.getForm();
     }
 
     /**

@@ -162,5 +162,9 @@ public class PluginManagerConfigForm
     {
         return this;
     }
-    
+
+    public int getIndex()
+    {
+        return -1;
+    }
 }

@@ -189,7 +189,7 @@ public class SystrayServiceJdicImpl
 
                 configService.setProperty(
                         "net.java.sip.communicator.impl.systray.showApplication",
-                        new Boolean(isVisible));
+                        Boolean.toString(isVisible));
             }
         });
 

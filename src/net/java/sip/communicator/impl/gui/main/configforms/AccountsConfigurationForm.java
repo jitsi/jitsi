@@ -401,4 +401,9 @@ public class AccountsConfigurationForm extends JPanel
             tableModel.removeRow(tableModel.rowIndexOf(pps));
         }
     }
+
+    public int getIndex()
+    {
+        return 1;
+    }
 }

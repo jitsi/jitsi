@@ -70,12 +70,6 @@ public class Constants
      */
     public static boolean REMOVE_GROUP_ASK = true;
 
-    /**
-     * Indicates the number of messages to show in the chat area when a new
-     * chat is opened.
-     */
-    public static int CHAT_HISTORY_SIZE = 10;
-
     /*
      * ===================================================================
      * ------------------------ MESSAGE TYPES ---------------------------

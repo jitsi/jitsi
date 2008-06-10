@@ -48,4 +48,9 @@ public class AppearanceConfigurationForm extends JPanel
     public Object getForm() {
         return this;
     }
+
+    public int getIndex()
+    {
+        return 2;
+    }
 }

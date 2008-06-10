@@ -45,6 +45,20 @@ public class ConfigFormList
     }
 
     /**
+     * Inserts a new <tt>ConfigurationForm</tt> to this list at the desired
+     * index. 
+     * @param configForm The <tt>ConfigurationForm</tt> to add.
+     * @param index the index indicating the order of the configuration forms.
+     */
+    public void addConfigForm(ConfigFormDescriptor configForm, int index)
+    {
+        if(index <= listModel.getSize())
+            listModel.add(index, configForm);
+        else
+            listModel.addElement(configForm);
+    }
+
+    /**
      * Adds a new <tt>ConfigurationForm</tt> to this list. 
      * @param configForm The <tt>ConfigurationForm</tt> to add.
      */

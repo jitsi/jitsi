@@ -98,9 +98,12 @@ public class MainFrame
 
         tabbedPane = new MainTabbedPane(this);
 
+        String isToolbarExtendedString
+            = GuiActivator.getConfigurationService().getString(
+                "net.java.sip.communicator.impl.gui.isToolBarExteneded");
+
         boolean isToolBarExtended
-            = new Boolean(ApplicationProperties
-                    .getProperty("isToolBarExteneded")).booleanValue();
+            = new Boolean(isToolbarExtendedString).booleanValue();
 
         if (isToolBarExtended)
             quickMenu = new ExtendedQuickMenu(this);
@@ -116,7 +119,11 @@ public class MainFrame
 
         this.initTitleFont();
 
-        this.setTitle(ApplicationProperties.getProperty("applicationName"));
+        String applicationName
+            = GuiActivator.getConfigurationService().getString(
+                "net.java.sip.communicator.impl.gui.applicationName");
+
+        this.setTitle(applicationName);
 
         this.init();
 
@@ -179,11 +186,17 @@ public class MainFrame
     {
         JComponent layeredPane = this.getLayeredPane();
 
-        Font font = new Font(
-            ApplicationProperties.getProperty("fontName"),
-            Font.BOLD,
-            new Integer(ApplicationProperties.getProperty("titleFontSize"))
-                .intValue());
+        String fontName
+            = GuiActivator.getConfigurationService().getString(
+                "net.java.sip.communicator.impl.gui.fontName");
+
+        String titleFontSize
+            = GuiActivator.getConfigurationService().getString(
+                "net.java.sip.communicator.impl.gui.titleFontSize");
+
+        Font font = new Font(   fontName,
+                                Font.BOLD,
+                                new Integer(titleFontSize).intValue());
 
         for (int i = 0; i < layeredPane.getComponentCount(); i++)
         {

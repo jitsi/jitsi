@@ -189,12 +189,14 @@ public class GuiActivator implements BundleActivator
      * context
      */
     public static MessageHistoryService getMsgHistoryService() {
-        if (msgHistoryService == null) {
+        if (msgHistoryService == null)
+        {
             ServiceReference serviceReference = bundleContext
                 .getServiceReference(MessageHistoryService.class.getName());
 
-            msgHistoryService = (MessageHistoryService) bundleContext
-                .getService(serviceReference);
+            if (serviceReference != null)
+                msgHistoryService = (MessageHistoryService) bundleContext
+                    .getService(serviceReference);
         }
 
         return msgHistoryService;

@@ -26,8 +26,6 @@ public class MessageWindowMenuBar extends JMenuBar {
 
     private EditMenu editMenu;
 
-    private SettingsMenu settingsMenu;
-
     private HelpMenu helpMenu;
 
     private ChatWindow parentWindow;
@@ -44,10 +42,8 @@ public class MessageWindowMenuBar extends JMenuBar {
 
         editMenu = new EditMenu(this.parentWindow);
 
-        settingsMenu = new SettingsMenu(this.parentWindow);
-        
         helpMenu = new HelpMenu(this.parentWindow);
-        
+
         this.init();
     }
 
@@ -59,8 +55,6 @@ public class MessageWindowMenuBar extends JMenuBar {
         this.add(fileMenu);
 
         this.add(editMenu);
-
-        this.add(settingsMenu);
 
         this.add(helpMenu);
     }

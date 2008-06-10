@@ -34,11 +34,17 @@ public class ConfigurationManager
     
     private static boolean isQuitWarningShown = true;
     
-    private static boolean isSendTypingNotifications = true;
+    private static boolean isSendTypingNotifications;
     
     private static boolean isMoveContactConfirmationRequested = true;
     
-    private static boolean isMultiChatWindowEnabled = true;
+    private static boolean isMultiChatWindowEnabled;
+    
+    private static boolean isHistoryLoggingEnabled;
+    
+    private static boolean isHistoryShown;
+    
+    private static int chatHistorySize;
     
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
@@ -140,6 +146,45 @@ public class ConfigurationManager
                 .booleanValue();
         }
         
+        // Load the "isHistoryLoggingEnabled" property.
+        String isHistoryLoggingEnabledString
+            = configService.getString(
+            "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled");
+
+        if(isHistoryLoggingEnabledString != null
+            && isHistoryLoggingEnabledString != "")
+        {
+            isHistoryLoggingEnabled
+                = new Boolean(isHistoryLoggingEnabledString)
+                .booleanValue();
+        }
+        
+        // Load the "isHistoryShown" property.
+        String isHistoryShownString
+            = configService.getString(
+            "net.java.sip.communicator.impl.gui.isMessageHistoryShown");
+
+        if(isHistoryShownString != null
+            && isHistoryShownString != "")
+        {
+            isHistoryShown
+                = new Boolean(isHistoryShownString)
+                    .booleanValue();
+        }
+        
+        // Load the "chatHistorySize" property.
+        String chatHistorySizeString
+            = configService.getString(
+            "net.java.sip.communicator.impl.gui.messageHistorySize");
+
+        if(chatHistorySizeString != null
+            && chatHistorySizeString != "")
+        {
+            chatHistorySize
+                = new Integer(chatHistorySizeString)
+                .intValue();
+        }
+
         lastContactParent = configService.getString(
             "net.java.sip.communicator.impl.gui.addcontact.lastContactParent");
     }
@@ -243,6 +288,30 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns <code>true</code> if the "isHistoryLoggingEnabled" property is
+     * true, otherwise - returns <code>false</code>. Indicates to the user
+     * interface whether the history logging is enabled.
+     * @return <code>true</code> if the "isHistoryLoggingEnabled" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isHistoryLoggingEnabled()
+    {
+        return isHistoryLoggingEnabled;
+    }
+    
+    /**
+     * Returns <code>true</code> if the "isHistoryShown" property is
+     * true, otherwise - returns <code>false</code>. Indicates to the user
+     * whether the history is shown in the chat window.
+     * @return <code>true</code> if the "isHistoryShown" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isHistoryShown()
+    {
+        return isHistoryShown;
+    }
+    
+    /**
      * Return the "sendMessageCommand" property that was saved previously
      * through the <tt>ConfigurationService</tt>. Indicates to the user
      * interface whether the default send message command is Enter or CTRL-Enter.
@@ -265,23 +334,14 @@ public class ConfigurationManager
     }
 
     /**
-     * Updates the "autoPopupNewMessage" property.
-     * 
-     * @param autoPopupNewMessage indicates to the user interface whether new
-     * messages should be opened and bring to front. 
-     **/
-    public static void setAutoPopupNewMessage(boolean autoPopupNewMessage)
+     * Returns the number of messages from chat history that would be shown in
+     * the chat window.
+     * @return the number of messages from chat history that would be shown in
+     * the chat window.
+     */
+    public static int getChatHistorySize()
     {
-        ConfigurationManager.autoPopupNewMessage = autoPopupNewMessage;
-          
-        if(autoPopupNewMessage)
-            configService.setProperty(
-                    "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
-                    "yes");
-        else
-            configService.setProperty(
-                    "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
-                    "no");
+        return chatHistorySize;
     }
 
     /**
@@ -297,7 +357,7 @@ public class ConfigurationManager
 
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.showOffline",
-                new Boolean(isShowOffline));
+                Boolean.toString(isShowOffline));
     }
 
     /**
@@ -313,7 +373,7 @@ public class ConfigurationManager
 
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.showCallPanel",
-                new Boolean(isCallPanelShown));
+                Boolean.toString(isCallPanelShown));
     }
 
     /**
@@ -329,7 +389,7 @@ public class ConfigurationManager
             
         configService.setProperty(
                 "net.java.sip.communicator.impl.systray.showApplication",
-                new Boolean(isVisible));
+                Boolean.toString(isVisible));
     }
 
     /**
@@ -346,41 +406,9 @@ public class ConfigurationManager
 
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.quitWarningShown",
-                new Boolean(isQuitWarningShown));
+                Boolean.toString(isQuitWarningShown));
     }
 
-    /**
-     * Updates the "sendTypingNotifications" property through the
-     * <tt>ConfigurationService</tt>.
-     * 
-     * @param isSendTypingNotif <code>true</code> to indicate that typing
-     * notifications are enabled, <code>false</code> otherwise.
-     */
-    public static void setSendTypingNotifications(boolean isSendTypingNotif)
-    {
-        isSendTypingNotifications = isSendTypingNotif;
-            
-        configService.setProperty(
-                "net.java.sip.communicator.impl.gui.sendTypingNotifications",
-                new Boolean(isSendTypingNotif));
-    }
-
-    /**
-     * Updates the "sendMessageCommand" property through the
-     * <tt>ConfigurationService</tt>.
-     * 
-     * @param newMessageCommand the command used to send a message ( it could be
-     * ENTER_COMMAND or CTRL_ENTER_COMMAND)
-     */
-    public static void setSendMessageCommand(String newMessageCommand)
-    {
-        sendMessageCommand = newMessageCommand;
-
-        configService.setProperty(
-                "net.java.sip.communicator.impl.gui.sendMessageCommand",
-                newMessageCommand);
-    }
-    
      /**
      * Updates the "lastContactParent" property through the
      * <tt>ConfigurationService</tt>.
@@ -410,24 +438,7 @@ public class ConfigurationManager
 
         configService.setProperty(
             "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested",
-            new Boolean(isMoveContactConfirmationRequested));
-    }
-
-    /**
-     * Updates the "isMultiChatWindowEnabled" property through the
-     * <tt>ConfigurationService</tt>.
-     * 
-     * @param isMultiChatWindowEnabled indicates if the chat window could
-     * contain multiple chats or only one chat.
-     */
-    public static void setMultiChatWindowEnabled(
-        boolean isMultiChatWindowEnabled)
-    {
-        isMoveContactConfirmationRequested = isMultiChatWindowEnabled;
-
-        configService.setProperty(
-            "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled",
-            new Boolean(isMultiChatWindowEnabled));
+            Boolean.toString(isMoveContactConfirmationRequested));
     }
 
     /**
@@ -630,9 +641,103 @@ public class ConfigurationManager
     {
         public void propertyChange(PropertyChangeEvent evt) 
         {
-            if(evt.getPropertyName().equals(
+            if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.addcontact.lastContactParent"))
                 lastContactParent = (String)evt.getNewValue();
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.autoPopupNewMessage"))
+            {
+                String autoPopupString = (String) evt.getNewValue();
+                
+                autoPopupNewMessage
+                    = new Boolean(autoPopupString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.sendMessageCommand"))
+            {
+                sendMessageCommand
+                    = (String) evt.getNewValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.showCallPanel"))
+            {
+                String showCallPanelString = (String) evt.getNewValue();
+                
+                isCallPanelShown
+                    = new Boolean(showCallPanelString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.showOffline"))
+            {
+                String showOfflineString = (String) evt.getNewValue();
+                
+                isShowOffline
+                    = new Boolean(showOfflineString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.systray.showApplication"))
+            {
+                String showApplicationString = (String) evt.getNewValue();
+                
+                isApplicationVisible
+                    = new Boolean(showApplicationString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.quitWarningShown"))
+            {
+                String showQuitWarningString = (String) evt.getNewValue();
+                
+                isQuitWarningShown
+                    = new Boolean(showQuitWarningString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.sendTypingNotifications"))
+            {
+                String sendTypingNorifString = (String) evt.getNewValue();
+                
+                isSendTypingNotifications
+                    = new Boolean(sendTypingNorifString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested"))
+            {
+                String moveContactConfirmString = (String) evt.getNewValue();
+                
+                isMoveContactConfirmationRequested
+                    = new Boolean(moveContactConfirmString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled"))
+            {
+                String multiChatWindowString = (String) evt.getNewValue();
+                
+                isMultiChatWindowEnabled
+                    = new Boolean(multiChatWindowString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled"))
+            {
+                String historyLoggingString = (String) evt.getNewValue();
+                
+                isHistoryLoggingEnabled
+                    = new Boolean(historyLoggingString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.isMessageHistoryShown"))
+            {
+                String historyShownString = (String) evt.getNewValue();
+                
+                isHistoryShown
+                    = new Boolean(historyShownString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.messageHistorySize"))
+            {
+                String chatHistorySizeString = (String) evt.getNewValue();
+                
+                chatHistorySize
+                    = new Integer(chatHistorySizeString).intValue();
+            }
         }
     }
 }
