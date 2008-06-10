@@ -187,12 +187,12 @@ public class MainFrame
         JComponent layeredPane = this.getLayeredPane();
 
         String fontName
-            = GuiActivator.getConfigurationService().getString(
-                "net.java.sip.communicator.impl.gui.fontName");
+            = ApplicationProperties.getProperty(
+                "fontName");
 
         String titleFontSize
-            = GuiActivator.getConfigurationService().getString(
-                "net.java.sip.communicator.impl.gui.titleFontSize");
+            = ApplicationProperties.getProperty(
+                "titleFontSize");
 
         Font font = new Font(   fontName,
                                 Font.BOLD,
