@@ -99,7 +99,7 @@ public class MainFrame
         tabbedPane = new MainTabbedPane(this);
 
         String isToolbarExtendedString
-            = GuiActivator.getConfigurationService().getString(
+            = ApplicationProperties.getProperty(
                 "isToolBarExteneded");
 
         boolean isToolBarExtended
@@ -120,7 +120,7 @@ public class MainFrame
         this.initTitleFont();
 
         String applicationName
-            = GuiActivator.getConfigurationService().getString(
+            = ApplicationProperties.getProperty(
                 "applicationName");
 
         this.setTitle(applicationName);
