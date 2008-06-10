@@ -42,8 +42,7 @@
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
-               value="nightly.${label}"
-               else="0.build.by.${user.name}">
+               value="nightly.${label}">
         <isset property="label"/>
     </condition>
 
@@ -317,8 +316,8 @@
         <echo message="ver=${sip-communicator.version}"/>
         </target>
 
-    <!-- SIP Communicator Version -->
-    <target name="version">
+    <!-- Determines SIP Communicator version if any-->
+    <target name="-pre-version" if="build.label" >
         <!-- create a class that would contain our nightly build.id if any -->
         <copy file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java.tmpl"
               tofile="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
@@ -327,7 +326,10 @@
         <!-- set the build id according to the cruisecontrol property -->
         <replace file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
             token="build.id" value="${build.label}"/>
-
+    </target>
+    
+    <!-- SIP Communicator Version -->
+    <target name="version" depends="-pre-version">
         <!-- Recompile ant task classes-->
         <delete failonerror="false">
             <fileset dir="${dest}" includes="net/java/sip/communicator/impl/version/*.class"/>
