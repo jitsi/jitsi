@@ -109,14 +109,6 @@ public class MetaContactChatPanel
         getChatSendPanel().getSendPanel().add(contactSelectorBox, 0);
         getChatSendPanel().getSendPanel().add(sendViaLabel, 0);
 
-        // Initialize the "send as SMS" check box.
-        // getChatSendPanel().getSendPanel().add(sendSmsCheckBox, 0);
-        if (protocolContact.getProtocolProvider()
-            .getOperationSet(OperationSetSmsMessaging.class) != null)
-            sendSmsCheckBox.setEnabled(true);
-        else
-            sendSmsCheckBox.setEnabled(false);
-
         //Enables to change the protocol provider by simply pressing the CTRL-P
         //key combination
         ActionMap amap = this.getActionMap();
