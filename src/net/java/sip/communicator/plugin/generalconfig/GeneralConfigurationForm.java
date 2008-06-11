@@ -242,6 +242,11 @@ public class GeneralConfigurationForm
             historySizeSpinner.setEnabled(false);
         }
 
+        if (!ConfigurationManager.isHistoryShown())
+        {
+            historySizeSpinner.setEnabled(false);
+        }
+
         sendMessageComboBox.setSelectedItem(
             ConfigurationManager.getSendMessageCommand());
         
