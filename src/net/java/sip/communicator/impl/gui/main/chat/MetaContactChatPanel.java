@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
@@ -38,6 +39,8 @@ public class MetaContactChatPanel
 
     private static final Logger logger = Logger
         .getLogger(MetaContactChatPanel.class.getName());
+
+    private ChatWindow chatWindow;
 
     private MetaContact metaContact;
 
@@ -72,6 +75,8 @@ public class MetaContactChatPanel
                                     Contact protocolContact)
     {
         super(chatWindow);
+
+        this.chatWindow = chatWindow;
 
         this.metaContact = metaContact;
 
@@ -769,13 +774,92 @@ public class MetaContactChatPanel
 
     private void sendSmsMessage(String text)
     {
-        Contact contact = (Contact) contactSelectorBox.getMenu()
-            .getSelectedObject();
+        OperationSetSmsMessaging smsOpSet = null;
+        Contact contact = null;
+        Iterator contacts = metaContact.getContacts();
 
-        OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) contact.getProtocolProvider()
+        while (contacts.hasNext())
+        {
+            contact = (Contact) contacts.next();
+
+            smsOpSet
+                = (OperationSetSmsMessaging) contact.getProtocolProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
+
+            if (smsOpSet != null)
+                break;
+        }
+
+        if (smsOpSet != null)
+        {
+            Message message  = smsOpSet.createMessage(text);
+
+            try
+            {
+                smsOpSet.sendSmsMessage(contact, message);
+            }
+            catch (IllegalStateException ex)
+            {
+                logger.error("Failed to send SMS.", ex);
+
+                this.refreshWriteArea();
+
+                this.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        message.getContent(),
+                        message.getContentType());
+
+                this.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        Messages.getI18NString("msgSendConnectionProblem")
+                            .getText(), "text");
+            }
+            catch (Exception ex)
+            {
+                logger.error("Failed to send SMS.", ex);
+
+                this.refreshWriteArea();
+
+                this.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        message.getContent(), message.getContentType());
+
+                this.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        Messages.getI18NString("msgDeliveryInternalError")
+                            .getText(), "text");
+            }
+            
+            return;
+        }
+
+        // If we didn't find a Sms operation set in the current meta contact.
+        Iterator protocolProviders
+            = chatWindow.getMainFrame().getProtocolProviders();
+
+        while (protocolProviders.hasNext())
+        {
+            ProtocolProviderService protocolProvider
+                = (ProtocolProviderService) protocolProviders.next();
+
+            smsOpSet = (OperationSetSmsMessaging) protocolProvider
                 .getOperationSet(OperationSetSmsMessaging.class);
 
+            // When we find the first SMS operation set we stop searching.
+            if (smsOpSet != null)
+                break;
+        }
+
+        // If there's no operation set we show some "not supported" messages
+        // and we return.
         if (smsOpSet == null)
         {
             logger.error("Failed to send SMS.");
@@ -783,13 +867,13 @@ public class MetaContactChatPanel
             this.refreshWriteArea();
 
             this.processMessage(
-                    contact.getDisplayName(),
+                    metaContact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.OUTGOING_MESSAGE,
                     text, "plain/text");
 
             this.processMessage(
-                    contact.getDisplayName(),
+                    metaContact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.ERROR_MESSAGE,
                     Messages.getI18NString("sendSmsNotSupported")
@@ -798,51 +882,14 @@ public class MetaContactChatPanel
             return;
         }
 
+        // Otherwise we create the message.
         Message message  = smsOpSet.createMessage(text);
 
-        try
-        {
-            smsOpSet.sendSmsMessage(contact, message);
-        }
-        catch (IllegalStateException ex)
-        {
-            logger.error("Failed to send SMS.", ex);
-
-            this.refreshWriteArea();
-
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.OUTGOING_MESSAGE,
-                    message.getContent(),
-                    message.getContentType());
-
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.ERROR_MESSAGE,
-                    Messages.getI18NString("msgSendConnectionProblem")
-                        .getText(), "text");
-        }
-        catch (Exception ex)
-        {
-            logger.error("Failed to send SMS.", ex);
-
-            this.refreshWriteArea();
-
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.OUTGOING_MESSAGE,
-                    message.getContent(), message.getContentType());
-
-            this.processMessage(
-                    contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.ERROR_MESSAGE,
-                    Messages.getI18NString("msgDeliveryInternalError")
-                        .getText(), "text");
-        }
+        // We open the send SMS dialog.
+        SendSmsDialog smsDialog = new SendSmsDialog(this, message, null);
+        
+        smsDialog.setPreferredSize(new Dimension(300, 300));
+        smsDialog.setVisible(true);
     }
 
     private void sendInstantMessage(String text)
