@@ -1377,6 +1377,20 @@ public class MetaContactListServiceImpl
     }
 
     /**
+     * Returns the MetaContactGroup that corresponds to the specified
+     * metaGroupID.
+     *
+     * @param metaGroupID
+     *            a String identifier of a meta contact group.
+     * @return the MetaContactGroup with the specified string identifier or null
+     *          if no such meta contact was found.
+     */
+    public MetaContactGroup findMetaContactGroupByMetaUID(String metaGroupID)
+    {
+        return rootMetaGroup.findMetaContactGroupByMetaUID(metaGroupID);
+    }
+
+    /**
      * Goes through the server stored ContactList of the specified operation
      * set, retrieves all protocol specific contacts it contains and makes sure
      * they are all present in the local contact list.

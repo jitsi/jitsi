@@ -7,9 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.image.*;
+import java.awt.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -68,6 +66,8 @@ public class ContactListModel
         this.contactList = contactList;
 
         this.rootGroup = this.contactList.getRoot();
+
+        this.initGroupsStatus(rootGroup);
     }
 
     /**
@@ -472,6 +472,10 @@ public class ContactListModel
             }
 
             this.closedGroups.add(group);
+
+            ConfigurationManager.storeContactListGroupStatus(
+                group.getMetaUID(),
+                true);
         }
     }
 
@@ -485,6 +489,10 @@ public class ContactListModel
         this.closedGroups.remove(group);
         contentAdded(this.indexOf(group.getMetaContact(0)), this.indexOf(group
             .getMetaContact(countContactsAndSubgroups(group) - 1)));
+
+        ConfigurationManager.storeContactListGroupStatus(
+            group.getMetaUID(),
+            false);
     }
 
     /**
@@ -667,4 +675,27 @@ public class ContactListModel
             return this.activeContacts.contains(metaContact);
         }
     }
+    
+    private void initGroupsStatus(MetaContactGroup group)
+    {
+        boolean isClosed = ConfigurationManager
+            .getContactListGroupStatus(group.getMetaUID());
+
+        System.out.println("GROUPATAAAA========" + group.getGroupName()
+            + "=========IS CLOSED ==============" + isClosed);
+        if (isClosed)
+        {
+            closedGroups.add(group);
+        }
+
+        Iterator subgroups = group.getSubgroups();
+
+        while (subgroups.hasNext())
+        {
+            MetaContactGroup subgroup = (MetaContactGroup) subgroups.next();
+            
+            this.initGroupsStatus(subgroup);
+        }
+    }
 }
+

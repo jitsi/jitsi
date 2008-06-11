@@ -636,6 +636,81 @@ public class ConfigurationManager
         return null;
     }
     
+    public static void storeContactListGroupStatus( String groupID,
+                                                    boolean status)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.contactlist.groups";
+
+        List groups = configService
+            .getPropertyNamesByPrefix(prefix, true);
+
+        Iterator groupsIter = groups.iterator();
+
+        boolean isExistingGroup = false;
+        while(groupsIter.hasNext())
+        {
+            String groupRootPropName
+                = (String) groupsIter.next();
+
+            String storedID
+                = configService.getString(groupRootPropName);
+
+            if(storedID.equals(groupID))
+            {
+                configService.setProperty(  groupRootPropName
+                    + ".isClosed",
+                    Boolean.toString(status));
+
+                isExistingGroup = true;
+                break;
+            }
+        }
+
+        if(!isExistingGroup)
+        {
+            String groupNodeName
+                = "group" + Long.toString(System.currentTimeMillis());
+
+            String groupPackage = prefix + "." + groupNodeName;
+
+            configService.setProperty(  groupPackage,
+                                        groupID);
+
+            configService.setProperty(  groupPackage
+                                            + ".isClosed",
+                                        Boolean.toString(status));
+        }
+    }
+    
+    public static boolean getContactListGroupStatus(String groupID)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.contactlist.groups";
+
+        List groups = configService
+            .getPropertyNamesByPrefix(prefix, true);
+
+        Iterator groupsIter = groups.iterator();
+
+        while(groupsIter.hasNext())
+        {
+            String groupRootPropName
+                = (String) groupsIter.next();
+
+            String storedID
+                = configService.getString(groupRootPropName);
+
+            if(storedID.equals(groupID))
+            {
+                String status = (String) configService
+                    .getProperty(  groupRootPropName + ".isClosed");
+
+                return new Boolean(status).booleanValue();
+            }
+        }
+        
+        return false;
+    }
+
     private static class ConfigurationChangeListener
             implements PropertyChangeListener
     {

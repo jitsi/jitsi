@@ -308,6 +308,37 @@ public class MetaContactGroupImpl
 
         return null;
     }
+    
+    /**
+     * Returns a meta contact group this group or some of its subgroups,
+     * that has the specified metaUID. If no such meta contact group exists,
+     * the method would return null.
+     *
+     * @param metaUID the Meta UID of the contact group we're looking for.
+     * @return the MetaContactGroup with the specified UID or null if no such
+     * contact exists.
+     */
+    public MetaContactGroupImpl findMetaContactGroupByMetaUID(String metaUID)
+    {
+        if (metaUID.equals(groupUID))
+            return this;
+
+        //if we didn't find it here, let's try in the subougroups
+        Iterator groupsIter = getSubgroups();
+
+        while( groupsIter.hasNext() )
+        {
+            MetaContactGroupImpl mGroup
+                = (MetaContactGroupImpl) groupsIter.next();
+
+            if (metaUID.equals(mGroup.getMetaUID()))
+                return mGroup;
+            else
+                mGroup.findMetaContactByMetaUID(metaUID);
+        }
+
+        return null;
+    }
 
     /**
      * Returns an iterator over all the protocol specific groups that this
