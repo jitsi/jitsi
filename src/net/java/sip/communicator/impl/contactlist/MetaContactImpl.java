@@ -8,7 +8,9 @@ package net.java.sip.communicator.impl.contactlist;
 
 import java.util.*;
 
+import java.util.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 /**
@@ -63,25 +65,43 @@ public class MetaContactImpl
      * A sync lock for use when modifying the parentGroup field.
      */
     private Object parentGroupModLock = new Object();
+    
+    /**
+     * Hashtable containing the contact details.
+     * Name -> Value or Name -> (List of values).
+     */
+    private Hashtable details = new Hashtable();
+    
+    /**
+     * The service that is creating the contact.
+     */
+    private MetaContactListServiceImpl mclServiceImpl  = null;
 
     /**
      * Creates new meta contact with a newly generated meta contact UID.
+     * @param mclServiceImpl the service that creates the contact.
      */
-    MetaContactImpl()
+    MetaContactImpl(MetaContactListServiceImpl mclServiceImpl)
     {
         //create the uid
         this.uid = String.valueOf( System.currentTimeMillis())
                    + String.valueOf(hashCode());
+        this.mclServiceImpl = mclServiceImpl;
     }
 
     /**
      * Creates a new meta contact with the specified UID. This constructor
      * MUST ONLY be used when restoring contacts stored in the contactlist.xml.
      * @param metaUID the meta uid that this meta contact should have.
+     * @param mclServiceImpl the service that creates the contact.
+     * @param details the already stored details for the contact.
      */
-    MetaContactImpl(String metaUID)
+    MetaContactImpl(MetaContactListServiceImpl mclServiceImpl, 
+            String metaUID, Hashtable details)
     {
         this.uid = metaUID;
+        this.mclServiceImpl = mclServiceImpl;
+        this.details = details;
     }
 
     /**
@@ -683,4 +703,118 @@ public class MetaContactImpl
         return getParentGroup();
     }
 
+    /**
+     * Adds a custom detail to this contact. 
+     * @param name name of the detail.
+     * @param value the value of the detail.
+     */
+    public void addDetail(String name, String value)
+    {
+        ArrayList values = (ArrayList)details.get(name);
+        
+        if(values == null)
+            values = new ArrayList();
+        
+        values.add(value);
+        
+        details.put(name, values);
+        
+        mclServiceImpl.fireMetaContactEvent(
+            new MetaContactModifiedEvent(
+                this,
+                name,
+                null,
+                value));
+    }
+    
+    /**
+     * Remove the given detail.
+     * @param name of the detail to be removed.
+     * @param value value of the detail to be removed.
+     */
+    public void removeDetail(String name, String value)
+    {
+        ArrayList values = (ArrayList)details.get(name);
+        
+        if(values == null)
+            return;
+        
+        values.remove(value);
+        
+        mclServiceImpl.fireMetaContactEvent(
+            new MetaContactModifiedEvent(
+                this,
+                name,
+                value,
+                null));
+    }
+    
+    /**
+     * Remove all details with given name.
+     * @param name of the details to be removed.
+     */
+    public void removeDetails(String name)
+    {
+        Object removed = details.remove(name);
+        
+        mclServiceImpl.fireMetaContactEvent(
+            new MetaContactModifiedEvent(
+                this,
+                name,
+                removed,
+                null));
+    }
+    
+    /**
+     * Change the detail.
+     * @param name of the detail to be changed.
+     * @param oldValue the old value of the detail.
+     * @param newValue the new value of the detail.
+     */
+    public void changeDetail(String name, String oldValue, String newValue)
+    {
+        ArrayList values = (ArrayList)details.get(name);
+        
+        if(values == null)
+            return;
+        
+        int changedIx = -1;
+        
+        for (int i = 0; i < values.size(); i++) 
+        {
+            if(values.get(i).equals(oldValue))
+            {
+                changedIx = i;
+                break;
+            }
+        }
+        
+        if(changedIx == -1)
+            return;
+        
+        values.set(changedIx, newValue);
+        
+        mclServiceImpl.fireMetaContactEvent(
+            new MetaContactModifiedEvent(
+                this,
+                name,
+                oldValue,
+                newValue));
+    }
+    
+    /**
+     * Get all details with given name.
+     * @param name the name of the details we are searching.
+     */
+    public List getDetails(String name)
+    {
+        ArrayList values = (ArrayList)details.get(name);
+        
+        if(values == null)
+            values = new ArrayList();
+        else
+            values = (ArrayList)values.clone();
+        
+        return values;
+    }
 }

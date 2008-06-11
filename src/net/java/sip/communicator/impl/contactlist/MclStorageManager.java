@@ -174,7 +174,23 @@ public class MclStorageManager
      */
     private static final String META_CONTACT_DISPLAY_NAME_NODE_NAME
         = "display-name";
+    
+    /**
+     * The name of the XML node that contains meta contact detail.
+     */
+    private static final String META_CONTACT_DETAIL_NAME_NODE_NAME
+        = "detail";
+    
+    /**
+     * The name of the XML attribute that contains detail name.
+     */
+    private static final String DETAIL_NAME_ATTR_NAME = "name";
 
+    /**
+     * The name of the XML attribute that contains detail value.
+     */
+    private static final String DETAIL_VALUE_ATTR_NAME = "value";
+    
     /**
      * The name of the XML node that contains information of a proto contact
      */
@@ -763,10 +779,45 @@ public class MclStorageManager
                 //contain any contacts matching the currently parsed account id.
                 if (protoContacts.size() < 1)
                     continue;
+                
+                // Extract contact details.
+                Hashtable details = new Hashtable();
+                try
+                {
+                    List detailsNodes = XMLUtils.findChildren(
+                        (Element) currentMetaContactNode
+                        , META_CONTACT_DETAIL_NAME_NODE_NAME);
+                    for (int j = 0; j < detailsNodes.size(); j++) 
+                    {
+                        Element e = (Element)detailsNodes.get(j);
+                        String name = e.getAttribute(DETAIL_NAME_ATTR_NAME);
+                        String value = e.getAttribute(DETAIL_VALUE_ATTR_NAME);
+
+                        Object detailsObj = details.get(name);
+                        if(detailsObj == null)
+                            details.put(name, value);
+                        else if(detailsObj instanceof List)
+                            ((List)detailsObj).add(value);
+                        else if(detailsObj instanceof String)
+                        {
+                            ArrayList ds = new ArrayList();
+                            ds.add(detailsObj);
+                            ds.add(value);
+                            details.put(name, ds);
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    // catch any exception from loading contacts
+                    // that will prevent loading the contact
+                    logger.error("Cannot load details for contact node " + 
+                            currentMetaContactNode, ex);
+                }
 
                 //pass the parsed proto contacts to the mcl service
                 mclServiceImpl.loadStoredMetaContact(
-                    currentMetaGroup, uid, displayName, protoContacts,
+                    currentMetaGroup, uid, displayName, details, protoContacts,
                     accountID);
             }
             catch(Throwable thr)
@@ -1401,7 +1452,152 @@ public class MclStorageManager
                          + evt.getSourceMetaContact(), ex);
         }
     }
+    
+    /**
+     * Indicates that a MetaContact has been modified.
+     * @param evt the MetaContactModifiedEvent containing the corresponding contact
+     */
+    public void metaContactModified(MetaContactModifiedEvent evt)
+    {
+        String name = evt.getModificationName();
+        
+        Element metaContactNode = findMetaContactNode(
+            evt.getSourceMetaContact().getMetaUID());
 
+        //not sure what to do in case of null. we'll be loggin an internal err
+        //for now and that's all.
+        if(metaContactNode == null)
+        {
+            logger.error("Save after renam failed. Contact not found: "
+                         + evt.getSourceMetaContact());
+            return;
+        }
+        
+        Object oldValue = evt.getOldValue();
+        Object newValue = evt.getNewValue();
+        
+        boolean isChanged = false;
+        
+        if(oldValue == null && newValue != null)
+        {
+            // indicates add
+            
+            if(!(newValue instanceof String))
+                return;
+            
+            Element detailElement = contactListDocument.createElement(
+                        META_CONTACT_DETAIL_NAME_NODE_NAME);
+            
+            detailElement.setAttribute(DETAIL_NAME_ATTR_NAME, name);
+            detailElement.setAttribute(DETAIL_VALUE_ATTR_NAME, 
+                    (String)newValue);
+            
+            metaContactNode.appendChild(detailElement);
+            isChanged = true;
+        }
+        else if(oldValue != null && newValue == null)
+        {
+            // indicates remove
+            if(oldValue instanceof List)
+            {
+                List valuesToRemove = (List)oldValue;
+                // indicates removing multiple values at one time
+                List nodes = XMLUtils.locateElements(
+                    metaContactNode
+                    , META_CONTACT_DETAIL_NAME_NODE_NAME
+                    , DETAIL_NAME_ATTR_NAME
+                    , name);
+
+                ArrayList nodesToRemove = new ArrayList();
+                for (int i = 0; i < nodes.size(); i++) 
+                {
+                    Element e = (Element)nodes.get(i);
+                    if(valuesToRemove.contains(
+                            e.getAttribute(DETAIL_VALUE_ATTR_NAME)))
+                    {
+                        nodesToRemove.add(e);
+                    }
+                }
+                
+                for (int i = 0; i < nodesToRemove.size(); i++) 
+                {
+                    Element e = (Element)nodesToRemove.get(i);
+                    metaContactNode.removeChild(e);
+                }
+                if(nodesToRemove.size() > 0)
+                    isChanged = true;
+            }
+            else if(oldValue instanceof String)
+            {
+                // removing one value only
+                List nodes = XMLUtils.locateElements(
+                    metaContactNode
+                    , META_CONTACT_DETAIL_NAME_NODE_NAME
+                    , DETAIL_NAME_ATTR_NAME
+                    , name);
+
+                Element elementToRemove = null;
+                for (int i = 0; i < nodes.size(); i++) 
+                {
+                    Element e = (Element)nodes.get(i);
+                    if(e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
+                    {
+                        elementToRemove = e;
+                        break;
+                    }
+                }
+            
+                if(elementToRemove == null)
+                    return;
+                
+                metaContactNode.removeChild(elementToRemove);
+                
+                isChanged = true;
+            }
+        }
+        else if(oldValue != null && newValue != null)
+        {
+            // indicates change
+            List nodes = XMLUtils.locateElements(
+                metaContactNode
+                , META_CONTACT_DETAIL_NAME_NODE_NAME
+                , DETAIL_NAME_ATTR_NAME
+                , name);
+
+            Element changedElement = null;
+            for (int i = 0; i < nodes.size(); i++) 
+            {
+                Element e = (Element)nodes.get(i);
+                if(e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
+                {
+                    changedElement = e;
+                    break;
+                }
+            }
+            
+            if(changedElement == null)
+                return;
+            
+            changedElement.setAttribute(DETAIL_VALUE_ATTR_NAME, 
+                    (String)newValue);
+            
+            isChanged = true;
+        }
+        
+        if(!isChanged)
+            return;
+
+        try{
+            scheduleContactListStorage();
+        }
+        catch (IOException ex){
+            /**given we're being invoked from an event dispatch thread that was
+            probably triggered by a net operation - we could not do much.
+            so ... log and @todo one day we'll have a global error  dispatcher */
+            logger.error("Writing CL failed after rename of "
+                         + evt.getSourceMetaContact(), ex);
+        }
+    }
 
     /**
      * Removes the corresponding node from the xml contact list.

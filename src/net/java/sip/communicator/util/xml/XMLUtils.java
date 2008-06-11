@@ -8,6 +8,7 @@ package net.java.sip.communicator.util.xml;
 
 
 import java.io.*;
+import java.util.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
@@ -391,6 +392,35 @@ public class XMLUtils
 
         return null;
     }
+    
+    /**
+     * Returns the children elements with the specified tagName for the specified
+     * parent element.
+     * @param parent The parent whose children we're looking for.
+     * @param tagName the name of the child to find
+     * @return List of the children with the specified name 
+     * @throws NullPointerException if parent or tagName are null
+     */
+    public static List findChildren(Element parent, String tagName)
+    {
+        if(parent == null || tagName == null)
+            throw new NullPointerException("Parent or tagname were null! "
+                + "parent = " + parent + "; tagName = " + tagName);
+
+        ArrayList result = new ArrayList();
+        NodeList nodes = parent.getChildNodes();
+        Node node;
+        int len = nodes.getLength();
+        for(int i = 0; i < len; i++)
+        {
+            node = nodes.item(i);
+            if(node.getNodeType() == Node.ELEMENT_NODE
+               && ((Element)node).getNodeName().equals(tagName))
+                result.add(node);
+        }
+
+        return result;
+    }
 
     /**
      * Looks through all child elements of the specified root (recursively)
@@ -439,5 +469,56 @@ public class XMLUtils
         }
 
         return null;
+    }
+    
+    /**
+     * Looks through all child elements of the specified root (recursively)
+     * and returns the elements that corresponds to all parameters.
+     *
+     * @param root the Element where the search should begin
+     * @param tagName the name of the node we're looking for
+     * @param keyAttributeName the name of an attribute that the node has to
+     * have
+     * @param keyAttributeValue the value that attribute must have
+     * @return list of Elements in the tree under root that match the specified
+     * paameters.
+     * @throws NullPointerException if any of the arguments is null.
+     */
+    public static List locateElements(Element root,
+                                        String tagName,
+                                        String keyAttributeName,
+                                        String keyAttributeValue)
+    {
+        ArrayList result = new ArrayList();
+        NodeList nodes = root.getChildNodes();
+        Node node;
+        int len = nodes.getLength();
+        for(int i = 0; i < len; i++)
+        {
+            node = nodes.item(i);
+            if(node.getNodeType() != Node.ELEMENT_NODE)
+                continue;
+
+            // is this the node we're looking for?
+            if(node.getNodeName().equals(tagName))
+            {
+                String attr = ((Element)node).getAttribute(keyAttributeName);
+
+                if(    attr!= null
+                    && attr.equals(keyAttributeValue))
+                    result.add(node);
+            }
+
+            //look inside.
+            
+            List childs = locateElements( (Element) node, tagName
+                          , keyAttributeName, keyAttributeValue);
+
+            if (childs != null)
+                 result.addAll(childs);
+
+        }
+
+        return result;
     }
 }

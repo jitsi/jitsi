@@ -118,4 +118,38 @@ public interface MetaContact extends Comparable
      * @return a String representation of this <tt>MetaContact</tt>.
      */
     public String toString();
+    
+    /**
+     * Adds a custom detail to this contact. 
+     * @param name name of the detail.
+     * @param value the value of the detail.
+     */
+    public void addDetail(String name, String value);
+    
+    /**
+     * Remove the given detail.
+     * @param name of the detail to be removed.
+     * @param value value of the detail to be removed.
+     */
+    public void removeDetail(String name, String value);
+    
+    /**
+     * Remove all details with given name.
+     * @param name of the details to be removed.
+     */
+    public void removeDetails(String name);
+    
+    /**
+     * Change the detail.
+     * @param name of the detail to be changed.
+     * @param oldValue the old value of the detail.
+     * @param newValue the new value of the detail.
+     */
+    public void changeDetail(String name, String oldValue, String newValue);
+    
+    /**
+     * Get all details with given name.
+     * @param name the name of the details we are searching.
+     */
+    public List getDetails(String name);
 }

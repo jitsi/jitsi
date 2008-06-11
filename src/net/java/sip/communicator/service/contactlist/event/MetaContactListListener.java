@@ -101,5 +101,11 @@ public interface MetaContactListListener
      * event.
      */
     public void childContactsReordered(MetaContactGroupEvent evt);
+    
+    /**
+     * Indicates that a MetaContact has been modified.
+     * @param evt the MetaContactModifiedEvent containing the corresponding contact
+     */
+    public void metaContactModified(MetaContactModifiedEvent evt);
 
 }

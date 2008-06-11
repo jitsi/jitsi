@@ -240,4 +240,51 @@ public class TestMetaContact extends TestCase
         }
     }
 
+    /**
+     * Test creating, changing and removing metacontact details.
+     */
+    public void testDetails()
+    {
+        String name = "test_detail_name";
+        String detail_1 = "detail_1";
+        String detail_2 = "detail_2";
+        String detail_3 = "detail_3";
+        
+        metaContact.addDetail(name, detail_1);
+        List ds = metaContact.getDetails(name);
+        assertTrue( "Must contain one detail",
+                       1 == ds.size());
+        assertTrue("The result details does not contain the desired",
+                ds.contains(detail_1));
+        
+        metaContact.changeDetail(name, detail_1, detail_2);
+        ds = metaContact.getDetails(name);
+        assertEquals( "Must contain one detail",
+                       1 , ds.size());
+        assertTrue("The result details does not contain the desired",
+                ds.contains(detail_2));
+        
+        metaContact.removeDetail(name, detail_2);
+        ds = metaContact.getDetails(name);
+        assertEquals( "Must contain no details",
+                       0 , ds.size());
+        
+        metaContact.addDetail(name, detail_1);
+        metaContact.addDetail(name, detail_2);
+        metaContact.addDetail(name, detail_3);
+        ds = metaContact.getDetails(name);
+        assertEquals( "Must contain three detail",
+                       3 , ds.size());
+        assertTrue("The result details does not contain the desired",
+                ds.contains(detail_1));
+        assertTrue("The result details does not contain the desired",
+                ds.contains(detail_2));
+        assertTrue("The result details does not contain the desired",
+                ds.contains(detail_3));
+        
+        metaContact.removeDetails(name);
+        ds = metaContact.getDetails(name);
+        assertEquals( "Must contain no details",
+                       0 , ds.size());
+    }
 }

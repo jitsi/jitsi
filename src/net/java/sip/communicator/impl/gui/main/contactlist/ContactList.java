@@ -158,6 +158,14 @@ public class ContactList
     {
         this.refreshContact(evt.getSourceMetaContact());
     }
+    
+    /**
+     * Handles the <tt>MetaContactModifiedEvent</tt>.
+     * Indicates that a MetaContact has been modified.
+     * @param evt the MetaContactModifiedEvent containing the corresponding contact
+     */
+    public void metaContactModified(MetaContactModifiedEvent evt)
+    {}
 
     /**
      * Handles the <tt>ProtoContactEvent</tt>. Refreshes the list when a

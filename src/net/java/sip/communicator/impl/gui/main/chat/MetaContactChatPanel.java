@@ -413,6 +413,14 @@ public class MetaContactChatPanel
             }
         }
     }
+    
+    /**
+     * Implements <tt>MetaContactListListener.metaContactModified</tt> method.
+     * Indicates that a MetaContact has been modified.
+     * @param evt the MetaContactModifiedEvent containing the corresponding contact
+     */
+    public void metaContactModified(MetaContactModifiedEvent evt)
+    {}
 
     /**
      * Implements <tt>MetaContactListListener.protoContactAdded</tt> method.

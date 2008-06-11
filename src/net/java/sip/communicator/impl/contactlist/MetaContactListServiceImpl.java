@@ -687,7 +687,7 @@ public class MetaContactListServiceImpl
                 + " is not an instance of MetaContactGroupImpl");
         }
 
-        MetaContactImpl newMetaContact = new MetaContactImpl();
+        MetaContactImpl newMetaContact = new MetaContactImpl(this);
 
         this.addNewContactToMetaContact(provider, metaContactGroup, newMetaContact,
                 contactID, false);  //don't fire a PROTO_CONT_ADDED event we'll
@@ -839,7 +839,7 @@ public class MetaContactListServiceImpl
         throws MetaContactListException
     {
         /** first create the new meta contact */
-        MetaContactImpl metaContactImpl = new MetaContactImpl();
+        MetaContactImpl metaContactImpl = new MetaContactImpl(this);
 
         MetaContactGroupImpl newParentMetaGroupImpl
             = (MetaContactGroupImpl)newParentMetaGroup;
@@ -1475,7 +1475,7 @@ public class MetaContactListServiceImpl
                 continue;
 
 
-            MetaContactImpl newMetaContact = new MetaContactImpl();
+            MetaContactImpl newMetaContact = new MetaContactImpl(this);
 
             newMetaContact.addProtoContact(contact);
 
@@ -1900,7 +1900,8 @@ public class MetaContactListServiceImpl
                 return;
             }
 
-            MetaContactImpl newMetaContact = new MetaContactImpl();
+            MetaContactImpl newMetaContact = new MetaContactImpl(
+                    MetaContactListServiceImpl.this);
 
             newMetaContact.addProtoContact(evt.getSourceContact());
 
@@ -2002,7 +2003,8 @@ public class MetaContactListServiceImpl
             //parent group and move the source contact to it.
             else
             {
-                MetaContactImpl newMetaContact = new MetaContactImpl();
+                MetaContactImpl newMetaContact = new MetaContactImpl(
+                        MetaContactListServiceImpl.this);
                 newMetaContact.setDisplayName(evt
                                           .getSourceContact().getDisplayName());
                 newParentGroup.addMetaContact(newMetaContact);
@@ -2165,7 +2167,8 @@ public class MetaContactListServiceImpl
             {
                 Contact contact = (Contact) contactsIter.next();
 
-                MetaContactImpl newMetaContact = new MetaContactImpl();
+                MetaContactImpl newMetaContact = new MetaContactImpl(
+                        MetaContactListServiceImpl.this);
 
                 newMetaContact.addProtoContact(contact);
 
@@ -2344,7 +2347,7 @@ public class MetaContactListServiceImpl
      *
      * @param event the event to dispatch.
      */
-    private void fireMetaContactEvent(MetaContactPropertyChangeEvent event)
+    void fireMetaContactEvent(MetaContactPropertyChangeEvent event)
     {
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
@@ -2367,6 +2370,10 @@ public class MetaContactListServiceImpl
             else if (event instanceof MetaContactRenamedEvent)
             {
                 listener.metaContactRenamed( (MetaContactRenamedEvent) event);
+            }
+            else if (event instanceof MetaContactModifiedEvent)
+            {
+                listener.metaContactModified( (MetaContactModifiedEvent) event);
             }
         }
     }
@@ -2580,6 +2587,7 @@ public class MetaContactListServiceImpl
      * to load.
      * @param metaUID the unique identifier of the meta contact.
      * @param displayName the display name of the meta contact.
+     * @param details the details for the contact to create.
      * @param protoContacts a list containing descriptors of proto contacts
      * encapsulated by the meta contact that we're about to create.
      * @param accountID the identifier of the account that the contacts
@@ -2588,6 +2596,7 @@ public class MetaContactListServiceImpl
     void loadStoredMetaContact(MetaContactGroupImpl parentGroup,
                                String metaUID,
                                String displayName,
+                               Hashtable    details,
                                List    protoContacts,
                                String accountID)
     {
@@ -2597,7 +2606,7 @@ public class MetaContactListServiceImpl
 
         if(newMetaContact == null)
         {
-            newMetaContact = new MetaContactImpl(metaUID);
+            newMetaContact = new MetaContactImpl(this, metaUID, details);
             newMetaContact.setDisplayName(displayName);
         }
 

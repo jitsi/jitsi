@@ -1148,6 +1148,12 @@ public class TestMetaContactList
             collectedMetaContactEvents.add(evt);
         }
 
+        /**
+         * Indicates that a MetaContact has been modified.
+         * @param evt the MetaContactListEvent containing the corresponding contact
+         */
+        public void metaContactModified(MetaContactModifiedEvent evt)
+        {}
 
         /**
          * Indicates that a protocol specific <tt>Contact</tt> instance has been
