@@ -12,11 +12,13 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -373,6 +375,36 @@ public class GlobalStatusSelectorBox
         JMenuItem item = getItemFromStatus(status);
 
         setSelected(item, (ImageIcon)item.getIcon());
+        
+        setSystrayIcon(status);
+    }
+    
+    private void setSystrayIcon(int status)
+    {
+        SystrayService trayServce = GuiActivator.getSystrayService();
+        if(trayServce == null)
+            return;
+
+        int imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
+        
+        if(status < PresenceStatus.ONLINE_THRESHOLD)
+        {
+            imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
+        }
+        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
+        {
+            imgType = SystrayService.SC_IMG_AWAY_TYPE;
+        }
+        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
+        {
+            imgType = SystrayService.SC_IMG_TYPE;
+        }
+        else if(status < PresenceStatus.MAX_STATUS_VALUE)
+        {
+            imgType = SystrayService.SC_IMG_FFC_TYPE;
+        }
+
+        trayServce.setSystrayIcon(imgType);
     }
 
     /**

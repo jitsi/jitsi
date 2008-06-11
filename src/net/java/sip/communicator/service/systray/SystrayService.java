@@ -40,6 +40,21 @@ public interface SystrayService
      * Image type corresponding to the sip-communicator icon
      */
     public static final int SC_IMG_TYPE = 0;
+    
+    /**
+     * Image type corresponding to the sip-communicator offline icon
+     */
+    public static final int SC_IMG_OFFLINE_TYPE = 2;
+    
+    /**
+     * Image type corresponding to the sip-communicator offline icon
+     */
+    public static final int SC_IMG_AWAY_TYPE = 3;
+    
+    /**
+     * Image type corresponding to the sip-communicator offline icon
+     */
+    public static final int SC_IMG_FFC_TYPE = 4;
 
     /**
      * Image type corresponding to the envelope icon

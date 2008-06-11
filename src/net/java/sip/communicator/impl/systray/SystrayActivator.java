@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.impl.systray;
 
-import net.java.sip.communicator.impl.notification.*;
 import net.java.sip.communicator.impl.systray.jdic.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 

@@ -295,6 +295,9 @@ public class GuiActivator implements BundleActivator
             ServiceReference serviceReference = bundleContext
                 .getServiceReference(SystrayService.class.getName());
 
+            if(serviceReference == null)
+                return null;
+            
             systrayService = (SystrayService) bundleContext
                 .getService(serviceReference);
         }

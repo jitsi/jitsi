@@ -150,6 +150,7 @@ public interface MetaContact extends Comparable
     /**
      * Get all details with given name.
      * @param name the name of the details we are searching.
+     * @return list of string values for the details with the given name.
      */
     public List getDetails(String name);
 }

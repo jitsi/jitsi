@@ -87,6 +87,9 @@ public class SystrayServiceJdicImpl
      */
     private ImageIcon currentIcon;
     private ImageIcon logoIcon;
+    private ImageIcon logoIconOffline;
+    private ImageIcon logoIconAway;
+    private ImageIcon logoIconFFC;
     private ImageIcon logoIconWhite;
     private ImageIcon envelopeIcon;
     private ImageIcon envelopeIconWhite;
@@ -136,6 +139,9 @@ public class SystrayServiceJdicImpl
         if (osName.startsWith("Windows"))
         {
             logoIcon = Resources.getImage("trayIconWindows");
+            logoIconOffline = Resources.getImage("trayIconWindowsOffline");
+            logoIconAway = Resources.getImage("trayIconWindowsAway");
+            logoIconFFC = Resources.getImage("trayIconWindowsFFC");
             envelopeIcon = Resources.getImage("messageIconWindows");
         }
         // If we're running under MacOSX, we use a special black and 
@@ -150,11 +156,16 @@ public class SystrayServiceJdicImpl
         else
         {
             logoIcon = Resources.getImage("trayIcon");
+            logoIconOffline = Resources.getImage("trayIconOffline");
+            logoIconAway = Resources.getImage("trayIconAway");
+            logoIconFFC = Resources.getImage("trayIconFFC");
             envelopeIcon = Resources.getImage("messageIcon");
         }
 
-        currentIcon = logoIcon;
-        trayIcon = new TrayIcon(logoIcon,
+        // default to set offline , if any protocols become 
+        // online will set it to online
+        currentIcon = logoIconOffline;
+        trayIcon = new TrayIcon(currentIcon,
                                 Resources.getApplicationString("applicationName"),
                                 menu);
 
@@ -434,6 +445,24 @@ public class SystrayServiceJdicImpl
                 this.currentIcon = logoIcon;
             }
         }
+        else if (imageType == SystrayService.SC_IMG_OFFLINE_TYPE)
+        {
+            if (!osName.startsWith("Mac OS X"))
+            {
+                this.trayIcon.setIcon(logoIconOffline);
+                this.currentIcon = logoIconOffline;
+            }
+        }
+        else if (imageType == SystrayService.SC_IMG_AWAY_TYPE)
+        {
+            this.trayIcon.setIcon(logoIconAway);
+            this.currentIcon = logoIconAway;
+        }
+        else if (imageType == SystrayService.SC_IMG_FFC_TYPE)
+        {
+            this.trayIcon.setIcon(logoIconFFC);
+                this.currentIcon = logoIconFFC;
+        }
         else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
         {
             if (osName.startsWith("Mac OS X") && this.menu.isVisible())
@@ -459,7 +488,7 @@ public class SystrayServiceJdicImpl
         else
             return true;
     }
-
+    
     /**
      * Shows the oldest message in the message queue and then removes it from
      * the queue.
