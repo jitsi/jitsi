@@ -681,8 +681,6 @@ public class ContactListModel
         boolean isClosed = ConfigurationManager
             .getContactListGroupStatus(group.getMetaUID());
 
-        System.out.println("GROUPATAAAA========" + group.getGroupName()
-            + "=========IS CLOSED ==============" + isClosed);
         if (isClosed)
         {
             closedGroups.add(group);
