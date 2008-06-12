@@ -880,7 +880,7 @@ public class MetaContactChatPanel
         // We open the send SMS dialog.
         SendSmsDialog smsDialog = new SendSmsDialog(this, message, null);
         
-        smsDialog.setPreferredSize(new Dimension(300, 300));
+        smsDialog.setPreferredSize(new Dimension(400, 150));
         smsDialog.setVisible(true);
     }
 
