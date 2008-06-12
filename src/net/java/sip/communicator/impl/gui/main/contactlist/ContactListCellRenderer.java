@@ -168,8 +168,6 @@ public class ContactListCellRenderer extends JPanel
                     buttonsPanelWidth, 16);
             this.nameLabel.setBounds(
                     0, 0, list.getWidth() - 2 - buttonsPanelWidth, 17);
-            
-            this.add(buttonsPanel, BorderLayout.EAST);
 
             this.isLeaf = true;
         } else if (value instanceof MetaContactGroup) {
@@ -194,9 +192,9 @@ public class ContactListCellRenderer extends JPanel
 
             //this.remove(buttonsPanel);
             this.buttonsPanel.removeAll();
-            
+
             JLabel groupContentIndicator = new JLabel();
-            
+
             if(((ContactListModel)list.getModel()).isGroupClosed(groupItem))
                 groupContentIndicator.setIcon(new ImageIcon(ImageLoader
                     .getImage(ImageLoader.CLOSED_GROUP)));
@@ -217,6 +215,8 @@ public class ContactListCellRenderer extends JPanel
             
             this.isLeaf = false;
         }
+
+        this.add(buttonsPanel, BorderLayout.EAST);
 
         toolTipText += "</html>";
         this.setToolTipText(toolTipText);
