@@ -15,6 +15,7 @@ import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -97,7 +98,16 @@ public class InitialAccountRegistrationFrame
         String groupName = Resources.getApplicationProperty("defaultGroupName");
         
         if(groupName != null && groupName.length() > 0)
-        {            
+        {
+            Iterator iter = SimpleAccountRegistrationActivator.getContactList().
+                getRoot().getSubgroups();
+            while (iter.hasNext()) 
+            {
+                MetaContactGroup gr = (MetaContactGroup)iter.next();
+                if(gr.getGroupName().equals(groupName))
+                    return;
+            }
+            
             SimpleAccountRegistrationActivator.getContactList().
                 createMetaContactGroup(
                     SimpleAccountRegistrationActivator.getContactList().getRoot(), 
