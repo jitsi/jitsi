@@ -250,8 +250,9 @@ public class ChatContactPanel
             Object o = chatContact.getSourceContact();
 
             OperationSetBasicTelephony opSetBT
-                    = (OperationSetBasicTelephony) chatContact.getProtocolProvider()
-                    .getOperationSet(OperationSetBasicTelephony.class);
+                = (OperationSetBasicTelephony) chatContact
+                    .getProtocolProvider()
+                        .getOperationSet(OperationSetBasicTelephony.class);
 
             if (opSetBT != null)
             {
@@ -273,6 +274,8 @@ public class ChatContactPanel
                 v.add(m.getDefaultContact(OperationSetBasicTelephony.class));
                 cm.createCall(v);
             }
+
+            chatPanel.getChatWindow().getMainFrame().toFront();
         }
         else if(button.getName().equals("info"))
         {
