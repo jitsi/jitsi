@@ -162,9 +162,15 @@ public class SystrayServiceJdicImpl
             envelopeIcon = Resources.getImage("messageIcon");
         }
 
-        // default to set offline , if any protocols become 
-        // online will set it to online
-        currentIcon = logoIconOffline;
+        if (!osName.startsWith("Mac OS X"))
+        {
+            // default to set offline , if any protocols become 
+            // online will set it to online
+            currentIcon = logoIconOffline;
+        }
+        else
+            currentIcon = logoIcon;
+            
         trayIcon = new TrayIcon(currentIcon,
                                 Resources.getApplicationString("applicationName"),
                                 menu);
@@ -455,13 +461,19 @@ public class SystrayServiceJdicImpl
         }
         else if (imageType == SystrayService.SC_IMG_AWAY_TYPE)
         {
-            this.trayIcon.setIcon(logoIconAway);
-            this.currentIcon = logoIconAway;
+            if (!osName.startsWith("Mac OS X"))
+            {
+                this.trayIcon.setIcon(logoIconAway);
+                this.currentIcon = logoIconAway;
+            }
         }
         else if (imageType == SystrayService.SC_IMG_FFC_TYPE)
         {
-            this.trayIcon.setIcon(logoIconFFC);
+            if (!osName.startsWith("Mac OS X"))
+            {
+                this.trayIcon.setIcon(logoIconFFC);
                 this.currentIcon = logoIconFFC;
+            }
         }
         else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
         {
