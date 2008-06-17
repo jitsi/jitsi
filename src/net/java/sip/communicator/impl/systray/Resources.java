@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.systray;
 
 import java.awt.image.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import javax.imageio.*;
@@ -104,6 +105,10 @@ public class Resources
         BufferedImage image = null;
 
         String path = Resources.getString(imageID);
+        
+        if(path == null || path.length() == 0)
+            return null;
+        
         try
         {
             image =
@@ -117,6 +122,23 @@ public class Resources
         }
 
         return new ImageIcon(image);
+    }
+    
+    /**
+     * Loads an image url from a given image identifier.
+     * 
+     * @param imageID The identifier of the image.
+     * @return The image url for the given identifier.
+     */
+    public static URL getImageURL(String imageID)
+    {
+        String path = Resources.getString(imageID);
+        
+        if(path == null || path.length() == 0)
+            return null;
+        
+        return Resources.class.getClassLoader()
+                .getResource(path);
     }
 
     /**

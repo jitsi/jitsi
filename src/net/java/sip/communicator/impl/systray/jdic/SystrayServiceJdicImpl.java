@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.systray.jdic;
 
 import java.awt.Toolkit;
 import java.awt.event.*;
+import java.net.*;
 import java.util.*;
 import java.util.Timer;
 
@@ -16,6 +17,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.systray.*;
+import net.java.sip.communicator.impl.systray.mac.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -93,6 +95,13 @@ public class SystrayServiceJdicImpl
     private ImageIcon logoIconWhite;
     private ImageIcon envelopeIcon;
     private ImageIcon envelopeIconWhite;
+    
+    /**
+     * The dock Icons used only in Mac version
+     */
+    private URL dockIconOffline;
+    private URL dockIconAway;
+    private URL dockIconFFC;
     
     private boolean initialized = false;
 
@@ -176,6 +185,14 @@ public class SystrayServiceJdicImpl
                                 menu);
 
         trayIcon.setIconAutoSize(true);
+        
+        if (osName.startsWith("Mac OS X"))
+        {
+            // init dock Icons
+            dockIconOffline = Resources.getImageURL("dockIconOffline");
+            dockIconAway = Resources.getImageURL("dockIconAway");
+            dockIconFFC = Resources.getImageURL("dockIconFFC");
+        }
 
         //Show/hide the contact list when user clicks on the systray.
         trayIcon.addActionListener(new ActionListener()
@@ -272,7 +289,7 @@ public class SystrayServiceJdicImpl
         });
 
         systray.addTrayIcon(trayIcon);
-        
+
         initialized = true;
     }
 
@@ -437,55 +454,87 @@ public class SystrayServiceJdicImpl
             return;
         
         String osName = System.getProperty("os.name");
+        
+        ImageIcon toChangeSystrayIcon = null;
 
         if (imageType == SystrayService.SC_IMG_TYPE)
         {
             if (osName.startsWith("Mac OS X") && this.menu.isVisible())
             {
-                this.trayIcon.setIcon(logoIconWhite);
-                this.currentIcon = logoIconWhite;
+                toChangeSystrayIcon = logoIconWhite;
             }
             else
             {
-                this.trayIcon.setIcon(logoIcon);
-                this.currentIcon = logoIcon;
+                toChangeSystrayIcon = logoIcon;
             }
         }
         else if (imageType == SystrayService.SC_IMG_OFFLINE_TYPE)
         {
             if (!osName.startsWith("Mac OS X"))
             {
-                this.trayIcon.setIcon(logoIconOffline);
-                this.currentIcon = logoIconOffline;
+                toChangeSystrayIcon = logoIconOffline;
             }
         }
         else if (imageType == SystrayService.SC_IMG_AWAY_TYPE)
         {
             if (!osName.startsWith("Mac OS X"))
             {
-                this.trayIcon.setIcon(logoIconAway);
-                this.currentIcon = logoIconAway;
+                toChangeSystrayIcon = logoIconAway;
             }
         }
         else if (imageType == SystrayService.SC_IMG_FFC_TYPE)
         {
             if (!osName.startsWith("Mac OS X"))
             {
-                this.trayIcon.setIcon(logoIconFFC);
-                this.currentIcon = logoIconFFC;
+                toChangeSystrayIcon = logoIconFFC;
             }
         }
         else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
         {
             if (osName.startsWith("Mac OS X") && this.menu.isVisible())
             {
-                this.trayIcon.setIcon(envelopeIconWhite);
-                this.currentIcon = envelopeIconWhite;
+                toChangeSystrayIcon = envelopeIconWhite;
             }
             else
             {
-                this.trayIcon.setIcon(envelopeIcon);
-                this.currentIcon = envelopeIcon;
+                toChangeSystrayIcon = envelopeIcon;
+            }
+        }
+        
+        if(toChangeSystrayIcon != null)
+        {
+            this.trayIcon.setIcon(toChangeSystrayIcon);
+            this.currentIcon = toChangeSystrayIcon;
+        }
+        
+        if (osName.startsWith("Mac OS X"))
+        {
+            URL toChangeDockIcon = null;
+            switch(imageType)
+            {
+                case SystrayService.SC_IMG_TYPE:
+                    // online will restore the original image
+                    break;
+                case SystrayService.SC_IMG_OFFLINE_TYPE :
+                    toChangeDockIcon = dockIconOffline; break;
+                case SystrayService.SC_IMG_AWAY_TYPE :
+                    toChangeDockIcon = dockIconAway; break;
+                case SystrayService.SC_IMG_FFC_TYPE :
+                    toChangeDockIcon = dockIconFFC; break;
+            }
+            
+            try
+            {
+                if(toChangeDockIcon != null)
+                {            
+                    Dock.setDockTileImage(toChangeDockIcon);
+                }
+                else
+                    Dock.restoreDockTileImage();
+            }
+            catch (Exception e)
+            {
+                logger.error("failed to change dock icon", e);
             }
         }
     }

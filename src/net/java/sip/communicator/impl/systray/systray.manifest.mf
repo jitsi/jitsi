@@ -7,6 +7,8 @@ Export-Package: net.java.sip.communicator.service.systray,
  net.java.sip.communicator.service.systray.event
 Import-Package: org.osgi.framework,
  org.jdesktop.jdic.tray,
+ com.apple.cocoa.application,
+ com.apple.cocoa.foundation,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.protocol,

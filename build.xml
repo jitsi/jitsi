@@ -1380,6 +1380,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources"/>
             <zipfileset dir="${resources}/languages/impl/systray"
                 prefix="resources/languages/impl/systray"/>
+            <zipfileset src="${lib.mac.noinst}/dock.jar" prefix=""/>
         </jar>
     </target>
 
