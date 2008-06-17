@@ -59,7 +59,11 @@ install: build
 
 	# Copy OS specific and native libs
 	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
+ifeq ($(DEB_HOST_ARCH),i386)
 	cp -r $(BASEDIR)/lib/native/linux debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native
+else ifeq ($(DEB_HOST_ARCH),amd64)
+	cp -r $(BASEDIR)/lib/native/linux-64 debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native
+endif
 
 	# Copy SIP Communicator bundles
 	cp $(BASEDIR)/sc-bundles/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles

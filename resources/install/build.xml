@@ -585,7 +585,7 @@
         value="${package.name}"/>
     <chmod file="${inst.resrc}/debian/rules" perm="+x"/>
 
-      <!-- Put the current date in the changelog -->
+    <!-- Put the current date in the changelog -->
     <tstamp>
         <format property="date"
             pattern="EEE, d MMM yyyy HH:mm:ss Z"
@@ -603,6 +603,7 @@
         token="_SC_VERSION_"
         value="${sip-communicator.version}"/>
 
+    <!-- Build i386 binary package -->
     <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
         <arg value="-rfakeroot"/>
         <arg value="-tc"/>
@@ -610,6 +611,18 @@
         <arg value="-uc"/>
         <arg value="-b"/>
         <arg value="-d"/>
+        <arg value="-ai386"/>
+    </exec>
+
+    <!-- Build amd64 binary package -->
+    <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
+        <arg value="-rfakeroot"/>
+        <arg value="-tc"/>
+        <arg value="-us"/>
+        <arg value="-uc"/>
+        <arg value="-b"/>
+        <arg value="-d"/>
+        <arg value="-aamd64"/>
     </exec>
 
     <mkdir dir="${debian.dir}"/>
@@ -619,6 +632,7 @@
         </fileset>
     </move>
     
+    <!-- Only i386 for now -->
     <propertyfile file="${debian.dir}/versionupdate.properties" 
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
@@ -626,7 +640,7 @@
                     value="http://download.sip-communicator.org/nightly/debian/${package.name}_${sip-communicator.version}_i386.deb"/>
     </propertyfile>
 
-    <!-- Delete the temporary file -->
+    <!-- Delete the temporary files -->
     <delete quiet="yes" failonerror="false">
         <fileset dir="${inst.resrc}/debian/">
             <include name="changelog"/>
@@ -646,7 +660,7 @@
       <mkdir dir="${debian.binary.dir}"/>
       <move todir="${debian.binary.dir}">
         <fileset dir="${debian.dir}">
-          <include name="sip-communicator*"/>
+          <include name="sip-communicator*386*"/>
         </fileset>
       </move>
 
