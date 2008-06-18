@@ -176,7 +176,8 @@ public class SendSmsDialog
                 phoneNumber,
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                Messages.getI18NString("msgDeliveryInternalError")
+                Messages.getI18NString("msgDeliveryUnknownError",
+                    new String[]{ex.getMessage()})
                 .getText(), "text");
         }
         

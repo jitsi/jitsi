@@ -879,8 +879,8 @@ public class MetaContactChatPanel
         Message message  = smsOpSet.createMessage(text);
 
         // We open the send SMS dialog.
-        SendSmsDialog smsDialog = new SendSmsDialog(this, message, null);
-        
+        SendSmsDialog smsDialog = new SendSmsDialog(this, message, smsOpSet);
+
         smsDialog.setPreferredSize(new Dimension(400, 200));
         smsDialog.setVisible(true);
     }
@@ -946,8 +946,9 @@ public class MetaContactChatPanel
                     contact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.ERROR_MESSAGE,
-                    Messages.getI18NString("msgDeliveryInternalError")
-                        .getText(), "text");
+                    Messages.getI18NString("msgDeliveryUnknownError",
+                        new String[]{ex.getMessage()})
+                    .getText(), "text");
         }
     }
 
