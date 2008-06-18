@@ -36,7 +36,6 @@ public class MetaContactChatPanel
     implements  MetaContactListListener,
                 SubscriptionListener
 {
-
     private static final Logger logger = Logger
         .getLogger(MetaContactChatPanel.class.getName());
 
@@ -59,8 +58,10 @@ public class MetaContactChatPanel
          * new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_SMS_ICON))
          */
 
+    private SmsMessageListener smsListener = new SmsMessageListener();
+
     private ProtocolContactSelectorBox contactSelectorBox;
-    
+
     /**
      * Creates a <tt>MetaContactChatPanel</tt> which is added to the given chat
      * window.
@@ -875,6 +876,8 @@ public class MetaContactChatPanel
             return;
         }
 
+        smsOpSet.addMessageListener(smsListener);
+
         // Otherwise we create the message.
         Message message  = smsOpSet.createMessage(text);
 
@@ -961,5 +964,84 @@ public class MetaContactChatPanel
     public void setSmsSelected(boolean isSmsSelected)
     {
         sendSmsCheckBox.setSelected(isSmsSelected);
+    }
+    
+    private class SmsMessageListener implements MessageListener
+    {
+        public void messageDelivered(MessageDeliveredEvent evt)
+        {
+            Message msg = evt.getSourceMessage();
+            Contact contact = evt.getDestinationContact();
+
+            processMessage(
+                contact.getDisplayName(),
+                new Date(System.currentTimeMillis()),
+                Constants.OUTGOING_MESSAGE,
+                msg.getContent(), msg.getContentType());
+
+            processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ACTION_MESSAGE,
+                    Messages.getI18NString("smsSuccessfullySent")
+                    .getText(), "text");
+        }
+
+        public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
+        {
+            String errorMsg = null;
+
+            Message sourceMessage = (Message) evt.getSource();
+
+            Contact sourceContact = evt.getDestinationContact();
+
+            MetaContact metaContact = chatWindow.getMainFrame().getContactList()
+                .findMetaContactByContact(sourceContact);
+
+            if (evt.getErrorCode() 
+                    == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
+            {
+                errorMsg = Messages.getI18NString(
+                        "msgDeliveryOfflineNotSupported").getText();
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.NETWORK_FAILURE)
+            {
+                errorMsg = Messages.getI18NString("msgNotDelivered").getText();
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
+            {
+                errorMsg = Messages.getI18NString(
+                        "msgSendConnectionProblem").getText();
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.INTERNAL_ERROR)
+            {
+                errorMsg = Messages.getI18NString(
+                        "msgDeliveryInternalError").getText();
+            }
+            else {
+                errorMsg = Messages.getI18NString(
+                        "msgDeliveryFailedUnknownError").getText();
+            }
+
+            processMessage(
+                    metaContact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    sourceMessage.getContent(),
+                    sourceMessage.getContentType());
+
+            processMessage(
+                    metaContact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    errorMsg,
+                    "text");
+        }
+
+        public void messageReceived(MessageReceivedEvent evt)
+        {}
     }
 }
