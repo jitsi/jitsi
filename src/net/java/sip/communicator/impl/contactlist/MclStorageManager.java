@@ -400,7 +400,7 @@ public class MclStorageManager
             } catch (IllegalStateException e) {
                 logger.error("the contactlist file is missing", e);
             }
-
+            
             // really write the modification
             OutputStream stream = new FileOutputStream(contactlistFile);
             XMLUtils.indentedWriteXML(contactListDocument,
@@ -413,8 +413,8 @@ public class MclStorageManager
             } catch (IllegalStateException e) {
                 logger.error("the contactlist file is missing", e);
             }
-        }
-    }
+            }
+            }
 
     /**
      * Launches a separate thread that waits on the contact list rw lock and
@@ -795,16 +795,13 @@ public class MclStorageManager
 
                         Object detailsObj = details.get(name);
                         if(detailsObj == null)
-                            details.put(name, value);
-                        else if(detailsObj instanceof List)
-                            ((List)detailsObj).add(value);
-                        else if(detailsObj instanceof String)
-                        {
+                        {   
                             ArrayList ds = new ArrayList();
-                            ds.add(detailsObj);
                             ds.add(value);
                             details.put(name, ds);
                         }
+                        else
+                            ((List)detailsObj).add(value);
                     }
                 }
                 catch(Exception ex)
@@ -1206,7 +1203,7 @@ public class MclStorageManager
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
-    {
+    {  
         //if the group was created as an encapsulator of a non persistent proto
         //group then we'll ignore it.
         if (evt.getSourceProtoGroup() != null
