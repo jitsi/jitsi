@@ -767,6 +767,7 @@ public class MetaContactChatPanel
     private void sendSmsMessage(String text)
     {
         OperationSetSmsMessaging smsOpSet = null;
+        /*
         Contact contact = null;
         Iterator contacts = metaContact.getContacts();
 
@@ -832,7 +833,7 @@ public class MetaContactChatPanel
             
             return;
         }
-
+    */
         // If we didn't find a Sms operation set in the current meta contact.
         Iterator protocolProviders
             = chatWindow.getMainFrame().getProtocolProviders();
