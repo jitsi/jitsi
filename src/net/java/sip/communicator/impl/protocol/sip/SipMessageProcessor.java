@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.util.*;
 import javax.sip.*;
 
 /**
@@ -22,4 +23,12 @@ public interface SipMessageProcessor
      * @return whether this message needs further processing(true) or no(false)
      */
     public boolean processMessage(RequestEvent requestEvent);
+    
+    /**
+     * Process the responses of sent messages
+     * @param responseEvent the incoming event holding the response
+     * @param sentMessages map containing sent messages
+     * @return whether this message needs further processing(true) or no(false)
+     */
+    public boolean processResponse(ResponseEvent responseEvent, Map sentMessages);
 }

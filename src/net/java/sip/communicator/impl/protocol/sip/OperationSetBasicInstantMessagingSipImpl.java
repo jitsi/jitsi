@@ -333,7 +333,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         // send the message
         try
-        {
+        {         
             messageTransaction.sendRequest();
         }
         catch (SipException ex)
@@ -905,6 +905,19 @@ public class OperationSetBasicInstantMessagingSipImpl
          */
         public void processResponse(ResponseEvent responseEvent)
         {
+            synchronized (messageProcessors)
+            {
+                Iterator iter = messageProcessors.iterator();
+                while (iter.hasNext())
+                {
+                    SipMessageProcessor listener
+                        = (SipMessageProcessor)iter.next();
+                    
+                    if(!listener.processResponse(responseEvent, sentMsg))
+                        return;
+                }
+            }
+            
             Request req = responseEvent.getClientTransaction().getRequest();
             int status = responseEvent.getResponse().getStatusCode();
             // content of the response
