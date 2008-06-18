@@ -58,8 +58,6 @@ public class MetaContactChatPanel
          * new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_SMS_ICON))
          */
 
-    private SmsMessageListener smsListener = new SmsMessageListener();
-
     private ProtocolContactSelectorBox contactSelectorBox;
 
     /**
@@ -876,7 +874,7 @@ public class MetaContactChatPanel
             return;
         }
 
-        smsOpSet.addMessageListener(smsListener);
+        smsOpSet.addMessageListener(new SmsMessageListener(smsOpSet));
 
         // Otherwise we create the message.
         Message message  = smsOpSet.createMessage(text);
@@ -968,6 +966,13 @@ public class MetaContactChatPanel
     
     private class SmsMessageListener implements MessageListener
     {
+        private OperationSetSmsMessaging smsOpSet;
+
+        public SmsMessageListener(OperationSetSmsMessaging smsOpSet)
+        {
+            this.smsOpSet = smsOpSet;
+        }
+
         public void messageDelivered(MessageDeliveredEvent evt)
         {
             Message msg = evt.getSourceMessage();
@@ -985,6 +990,8 @@ public class MetaContactChatPanel
                     Constants.ACTION_MESSAGE,
                     Messages.getI18NString("smsSuccessfullySent")
                     .getText(), "text");
+
+            smsOpSet.removeMessageListener(this);
         }
 
         public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
@@ -1039,6 +1046,8 @@ public class MetaContactChatPanel
                     Constants.ERROR_MESSAGE,
                     errorMsg,
                     "text");
+
+            smsOpSet.removeMessageListener(this);
         }
 
         public void messageReceived(MessageReceivedEvent evt)
