@@ -466,40 +466,11 @@ public class OperationSetPresenceSipImpl
 
         parentSipGroup.removeContact(sipContact);
 
-        // if this is a volatile contact then we haven't really subscribed to
-        // them so we'd need to do so here
-        if(!sipContact.isPersistent())
-        {
-            //first tell everyone that the volatile contact was removed
-            fireSubscriptionEvent(sipContact,
-                                  parentSipGroup,
-                                  SubscriptionEvent.SUBSCRIPTION_REMOVED);
+        ((ContactGroupSipImpl) newParent).addContact(sipContact);
 
-            try
-            {
-                // simply change the parent of the contact, don't resubscribe
-                ((ContactGroupSipImpl) newParent).addContact(sipContact);
-
-                //now tell everyone that we've added the contact
-                fireSubscriptionEvent(sipContact,
-                                      newParent,
-                                      SubscriptionEvent.SUBSCRIPTION_CREATED);
-            }
-            catch (Exception ex)
-            {
-                logger.error("Failed to move contact "
-                             + sipContact.getAddress()
-                             , ex);
-            }
-        }
-        else
-        {
-            ((ContactGroupSipImpl) newParent).addContact(sipContact);
-
-            fireSubscriptionMovedEvent(contactToMove,
-                                       parentSipGroup,
-                                       newParent);
-        }
+        fireSubscriptionMovedEvent(contactToMove,
+                                   parentSipGroup,
+                                   newParent);
     }
 
     /**
