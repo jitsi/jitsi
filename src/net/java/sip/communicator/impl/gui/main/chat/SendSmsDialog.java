@@ -157,7 +157,7 @@ public class SendSmsDialog
                 phoneNumber,
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                Messages.getI18NString("msgSendConnectionProblem")
+                Messages.getI18NString("smsSendConnectionProblem")
                 .getText(), "text");
         }
         catch (Exception ex)
