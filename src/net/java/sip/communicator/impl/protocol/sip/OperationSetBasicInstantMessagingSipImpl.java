@@ -731,6 +731,19 @@ public class OperationSetBasicInstantMessagingSipImpl
          */
         public void processTimeout(TimeoutEvent timeoutEvent)
         {
+            synchronized (messageProcessors)
+            {
+                Iterator iter = messageProcessors.iterator();
+                while (iter.hasNext())
+                {
+                    SipMessageProcessor listener
+                        = (SipMessageProcessor)iter.next();
+                    
+                    if(!listener.processTimeout(timeoutEvent, sentMsg))
+                        return;
+                }
+            }
+            
             // this is normaly handled by the SIP stack
             logger.error("Timeout event thrown : " + timeoutEvent.toString());
 
