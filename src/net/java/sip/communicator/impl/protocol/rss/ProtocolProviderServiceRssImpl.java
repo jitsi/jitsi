@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class ProtocolProviderServiceRssImpl
-    implements ProtocolProviderService
+    extends AbstractProtocolProviderService
 {
     private static final Logger logger
         = Logger.getLogger(ProtocolProviderServiceRssImpl.class);
@@ -43,11 +43,6 @@ public class ProtocolProviderServiceRssImpl
      * The hashtable with the operation sets that we support locally.
      */
     private Hashtable supportedOperationSets = new Hashtable();
-
-    /**
-     * A list of listeners interested in changes in our registration state.
-     */
-    private Vector registrationStateListeners = new Vector();
 
     /**
      * Indicates whether or not the provider is initialized and ready for use.
@@ -135,82 +130,6 @@ public class ProtocolProviderServiceRssImpl
     }
 
     /**
-     * Registers the specified listener with this provider so that it would
-     * receive notifications on changes of its state or other properties such
-     * as its local address and display name.
-     *
-     * @param listener the listener to register.
-     */
-    public void addRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationStateListeners)
-        {
-            if (!registrationStateListeners.contains(listener))
-                registrationStateListeners.add(listener);
-        }
-
-    }
-
-    /**
-     * Removes the specified registration listener so that it won't receive
-     * further notifications when our registration state changes.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationStateListeners)
-        {
-            registrationStateListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Creates a <tt>RegistrationStateChangeEvent</tt> corresponding to the
-     * specified old and new states and notifies all currently registered
-     * listeners.
-     *
-     * @param oldState the state that the provider had before the change
-     * occurred
-     * @param newState the state that the provider is currently in.
-     * @param reasonCode a value corresponding to one of the REASON_XXX fields
-     * of the RegistrationStateChangeEvent class, indicating the reason for
-     * this state transition.
-     * @param reason a String further explaining the reason code or null if
-     * no such explanation is necessary.
-     */
-    private void fireRegistrationStateChanged( RegistrationState oldState,
-                                               RegistrationState newState,
-                                               int               reasonCode,
-                                               String            reason)
-    {
-        RegistrationStateChangeEvent event =
-            new RegistrationStateChangeEvent(
-                            this, oldState, newState, reasonCode, reason);
-
-        logger.debug("Dispatching " + event + " to "
-                     + registrationStateListeners.size()+ " listeners.");
-
-        Iterator listeners = null;
-        synchronized (registrationStateListeners)
-        {
-            listeners = new ArrayList(registrationStateListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener) listeners.next();
-
-            listener.registrationStateChanged(event);
-        }
-        logger.trace("Done.");
-    }
-
-
-    /**
      * Returns the AccountID that uniquely identifies the account represented
      * by this instance of the ProtocolProviderService.
      *
@@ -246,18 +165,6 @@ public class ProtocolProviderServiceRssImpl
      *   ProtocolNames).
      */
     public String getProtocolName()
-    {
-        return RSS_PROTOCOL_NAME;
-    }
-
-    /**
-     * Returns the protocol display name. This is the name that would be used
-     * by the GUI to display the protocol name.
-     * 
-     * @return a String containing the display name of the protocol this service
-     * is implementing
-     */
-    public String getProtocolDisplayName()
     {
         return RSS_PROTOCOL_NAME;
     }

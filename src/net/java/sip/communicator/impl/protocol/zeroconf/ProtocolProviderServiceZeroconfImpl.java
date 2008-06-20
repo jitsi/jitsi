@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * @author Maxime Catelin
  */
 public class ProtocolProviderServiceZeroconfImpl
-    implements ProtocolProviderService
+    extends AbstractProtocolProviderService
 {
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceZeroconfImpl.class);
@@ -28,12 +28,6 @@ public class ProtocolProviderServiceZeroconfImpl
      * The hashtable with the operation sets that we support locally.
      */
     private Hashtable supportedOperationSets = new Hashtable();
-    
-    /**
-     * A list of all listeners registered for
-     * <tt>RegistrationStateChangeEvent</tt>s.
-     */
-    private Vector registrationStateListeners = new Vector();
     
     /**
      * We use this to lock access to initialization.
@@ -173,81 +167,6 @@ public class ProtocolProviderServiceZeroconfImpl
         return (OperationSet) getSupportedOperationSets()
             .get(opsetClass.getName());
     }
-    
-    /**
-     * Registers the specified listener with this provider so that it would
-     * receive notifications on changes of its state or other properties such
-     * as its local address and display name.
-     *
-     * @param listener the listener to register.
-     */
-    public void addRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationStateListeners)
-        {
-            if (!registrationStateListeners.contains(listener))
-                registrationStateListeners.add(listener);
-        }
-    }
-    
-    /**
-     * Removes the specified registration listener so that it won't receive
-     * further notifications when our registration state changes.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationStateListeners)
-        {
-            registrationStateListeners.remove(listener);
-        }
-    }
-    
-    /**
-     * Creates a <tt>RegistrationStateChangeEvent</tt> corresponding to the
-     * specified old and new states and notifies all currently registered
-     * listeners.
-     *
-     * @param oldState the state that the provider had before the change
-     * occurred
-     * @param newState the state that the provider is currently in.
-     * @param reasonCode a value corresponding to one of the REASON_XXX fields
-     * of the RegistrationStateChangeEvent class, indicating the reason for
-     * this state transition.
-     * @param reason a String further explaining the reason code or null if
-     * no such explanation is necessary.
-     */
-    private void fireRegistrationStateChanged( RegistrationState oldState,
-                                               RegistrationState newState,
-                                               int               reasonCode,
-                                               String            reason)
-    {
-        RegistrationStateChangeEvent event =
-            new RegistrationStateChangeEvent(
-                            this, oldState, newState, reasonCode, reason);
-
-        logger.debug("Dispatching " + event + " to "
-                     + registrationStateListeners.size()+ " listeners.");
-
-        Iterator listeners = null;
-        synchronized (registrationStateListeners)
-        {
-            listeners = new ArrayList(registrationStateListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener) listeners.next();
-
-            listener.registrationStateChanged(event);
-        }
-
-        logger.trace("Done.");
-    }
 
     /**
      * Returns the short name of the protocol that the implementation of this
@@ -259,18 +178,6 @@ public class ProtocolProviderServiceZeroconfImpl
      *   ProtocolNames).
      */
     public String getProtocolName()
-    {
-        return ProtocolNames.ZEROCONF;
-    }
-
-    /**
-     * Returns the protocol display name. This is the name that would be used
-     * by the GUI to display the protocol name.
-     * 
-     * @return a String containing the display name of the protocol this service
-     * is implementing
-     */
-    public String getProtocolDisplayName()
     {
         return ProtocolNames.ZEROCONF;
     }

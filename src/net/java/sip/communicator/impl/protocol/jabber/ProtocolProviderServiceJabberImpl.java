@@ -26,7 +26,7 @@ import org.jivesoftware.smackx.*;
  * @author Symphorien Wanko
  */
 public class ProtocolProviderServiceJabberImpl
-    implements ProtocolProviderService
+    extends AbstractProtocolProviderService
 {
     /**
      * Logger of this class
@@ -53,12 +53,6 @@ public class ProtocolProviderServiceJabberImpl
      * We use this to lock access to initialization.
      */
     private Object initializationLock = new Object();
-
-    /**
-     * A list of all listeners registered for
-     * <tt>RegistrationStateChangeEvent</tt>s.
-     */
-    private List registrationListeners = new ArrayList();
 
     /**
      * The identifier of the account that this provider represents.
@@ -469,18 +463,6 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Returns the protocol display name. This is the name that would be used
-     * by the GUI to display the protocol name.
-     * 
-     * @return a String containing the display name of the protocol this service
-     * is implementing
-     */
-    public String getProtocolDisplayName()
-    {
-        return ProtocolNames.JABBER;
-    }
-
-    /**
      * Returns an array containing all operation sets supported by the
      * current implementation.
      *
@@ -681,40 +663,6 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Removes the specified registration state change listener so that it does
-     * not receive any further notifications upon changes of the
-     * RegistrationState of this provider.
-     *
-     * @param listener the listener to register for
-     * <tt>RegistrationStateChangeEvent</tt>s.
-     */
-    public void removeRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationListeners)
-        {
-            registrationListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Registers the specified listener with this provider so that it would
-     * receive notifications on changes of its state or other properties such
-     * as its local address and display name.
-     *
-     * @param listener the listener to register.
-     */
-    public void addRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationListeners)
-        {
-            if (!registrationListeners.contains(listener))
-                registrationListeners.add(listener);
-        }
-    }
-
-    /**
      * Returns the AccountID that uniquely identifies the account represented
      * by this instance of the ProtocolProviderService.
      * @return the id of the account represented by this provider.
@@ -732,48 +680,6 @@ public class ProtocolProviderServiceJabberImpl
     protected XMPPConnection getConnection()
     {
         return connection;
-    }
-
-    /**
-     * Creates a RegistrationStateChange event corresponding to the specified
-     * old and new states and notifies all currently registered listeners.
-     *
-     * @param oldState the state that the provider had before the change
-     * occurred
-     * @param newState the state that the provider is currently in.
-     * @param reasonCode a value corresponding to one of the REASON_XXX fields
-     * of the RegistrationStateChangeEvent class, indicating the reason for
-     * this state transition.
-     * @param reason a String further explaining the reason code or null if
-     * no such explanation is necessary.
-     */
-    void fireRegistrationStateChanged( RegistrationState oldState,
-                                               RegistrationState newState,
-                                               int               reasonCode,
-                                               String            reason)
-    {
-        RegistrationStateChangeEvent event =
-            new RegistrationStateChangeEvent(
-                            this, oldState, newState, reasonCode, reason);
-
-        logger.debug("Dispatching " + event + " to "
-                     + registrationListeners.size()+ " listeners.");
-
-        Iterator listeners = null;
-        synchronized (registrationListeners)
-        {
-            listeners = new ArrayList(registrationListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener) listeners.next();
-
-            listener.registrationStateChanged(event);
-        }
-
-        logger.trace("Done.");
     }
 
     /**

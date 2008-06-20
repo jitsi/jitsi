@@ -25,9 +25,6 @@ public class DictAccountID
      */
     DictAccountID(String userID, Map accountProperties)
     {
-        super(  userID,
-                accountProperties,
-                "Dict",
-                "dict.org");
+        super(userID, accountProperties, ProtocolNames.DICT, "dict.org");
     }
 }

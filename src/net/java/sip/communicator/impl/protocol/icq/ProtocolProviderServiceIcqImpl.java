@@ -28,7 +28,7 @@ import net.kano.joustsim.oscar.proxy.*;
  * @author Damian Minkov
  */
 public class ProtocolProviderServiceIcqImpl
-    implements ProtocolProviderService
+    extends AbstractProtocolProviderService
 {
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceIcqImpl.class);
@@ -67,12 +67,6 @@ public class ProtocolProviderServiceIcqImpl
      * We use this to lock access to initialization.
      */
     private Object initializationLock = new Object();
-
-    /**
-     * A list of all listeners registered for
-     * <tt>RegistrationStateChangeEvent</tt>s.
-     */
-    private List registrationListeners = new ArrayList();
 
     /**
      * The identifier of the account that this provider represents.
@@ -602,40 +596,6 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
-     * Removes the specified registration state change listener so that it does
-     * not receive any further notifications upon changes of the
-     * RegistrationState of this provider.
-     *
-     * @param listener the listener to register for
-     * <tt>RegistrationStateChangeEvent</tt>s.
-     */
-    public void removeRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationListeners)
-        {
-            registrationListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Registers the specified listener with this provider so that it would
-     * receive notifications on changes of its state or other properties such
-     * as its local address and display name.
-     *
-     * @param listener the listener to register.
-     */
-    public void addRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationListeners)
-        {
-            if (!registrationListeners.contains(listener))
-                registrationListeners.add(listener);
-        }
-    }
-
-    /**
      * Returns the AccountID that uniquely identifies the account represented
      * by this instance of the ProtocolProviderService.
      * @return the id of the account represented by this provider.
@@ -696,15 +656,11 @@ public class ProtocolProviderServiceIcqImpl
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
-    void fireRegistrationStateChanged( RegistrationState oldState,
+    public void fireRegistrationStateChanged( RegistrationState oldState,
                                                RegistrationState newState,
                                                int               reasonCode,
                                                String            reason)
     {
-        RegistrationStateChangeEvent event =
-            new RegistrationStateChangeEvent(
-                            this, oldState, newState, reasonCode, reason);
-
         if(newState.equals(RegistrationState.CONNECTION_FAILED) &&
             isRegistered())
         {
@@ -713,24 +669,7 @@ public class ProtocolProviderServiceIcqImpl
             unregister();
         }
 
-        logger.debug("Dispatching " + event + " to "
-                     + registrationListeners.size()+ " listeners.");
-
-        Iterator listeners = null;
-        synchronized (registrationListeners)
-        {
-            listeners = new ArrayList(registrationListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener) listeners.next();
-
-            listener.registrationStateChanged(event);
-        }
-
-        logger.trace("Done.");
+        super.fireRegistrationStateChanged(oldState, newState, reasonCode, reason);
     }
 
     /**

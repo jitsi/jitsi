@@ -32,6 +32,39 @@ import java.util.*;
 public abstract class AccountID
 {
     /**
+     * Allows a specific set of account properties to override a given default
+     * protocol name (e.g. account registration wizards which want to present a
+     * well-known protocol name associated with the account that is different
+     * from the name of the effective protocol).
+     * <p>
+     * Note: The logic of the SIP protocol implementation at the time of this
+     * writing modifies <tt>accountProperties</tt> to contain the default
+     * protocol name if an override hasn't been defined. Since the desire is to
+     * enable all account registration wizards to override the protocol name,
+     * the current implementation places the specified
+     * <tt>defaultProtocolName</tt> in a similar fashion. 
+     * </p>
+     * 
+     * @param accountProperties a Map containing any other protocol and
+     * implementation specific account initialization properties
+     * @param defaultProtocolName the protocol name to be used in case
+     * <tt>accountProperties</tt> doesn't provide an overriding value
+     * @return
+     */
+    private static final String getOverriddenProtocolName(
+            Map accountProperties, String defaultProtocolName)
+    {
+        String key = ProtocolProviderFactory.PROTOCOL;
+        String protocolName = (String) accountProperties.get(key);
+        if ((protocolName == null) && (defaultProtocolName != null))
+        {
+            protocolName = defaultProtocolName;
+            accountProperties.put(key, protocolName);
+        }
+        return protocolName;
+    }
+    
+    /**
      * Contains all implementation specific properties that define the account.
      * The exact names of the keys are protocol (and sometimes implementation)
      * specific.
@@ -74,6 +107,14 @@ public abstract class AccountID
                          String serviceName)
     {
         super();
+        
+        /*
+         * Allow account registration wizards to override the default protocol
+         * name through accountProperties for the purposes of presenting a
+         * well-known protocol name associated with the account that is
+         * different from the name of the effective protocol.  
+         */
+        protocolName = getOverriddenProtocolName(accountProperties, protocolName);
 
         this.userID = userID;
         this.accountProperties = new Hashtable(accountProperties);

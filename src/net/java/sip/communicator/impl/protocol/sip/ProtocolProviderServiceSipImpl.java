@@ -30,7 +30,8 @@ import net.java.sip.communicator.impl.protocol.sip.security.*;
  * @author Emil Ivov
  */
 public class ProtocolProviderServiceSipImpl
-  implements ProtocolProviderService, SipListener
+  extends AbstractProtocolProviderService
+  implements SipListener
 {
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceSipImpl.class);
@@ -54,12 +55,6 @@ public class ProtocolProviderServiceSipImpl
      * indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
-
-    /**
-     * A list of all listeners registered for
-     * <tt>RegistrationStateChangeEvent</tt>s.
-     */
-    private List registrationListeners = new ArrayList();
 
     /**
      * A list of all events registered for this provider.
@@ -317,62 +312,6 @@ public class ProtocolProviderServiceSipImpl
     private SipStatusEnum sipStatusEnum;
 
     /**
-     * Registers the specified listener with this provider so that it would
-     * receive notifications on changes of its state or other properties such
-     * as its local address and display name.
-     * @param listener the listener to register.
-     */
-    public void addRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationListeners)
-        {
-            if (!registrationListeners.contains(listener))
-                registrationListeners.add(listener);
-        }
-    }
-
-    /**
-     * Creates a RegistrationStateChange event corresponding to the specified
-     * old and new jain sip states and notifies all currently registered
-     * listeners.
-     * <p>
-     * @param oldState the state that we had before this transition occurred.
-     * @param newState the state that we have now after the transition has
-     * occurred
-     * @param reasonCode a code indicating the reason for the event.
-     * @param reason a text explaining the reason for the event.
-     */
-     public void fireRegistrationStateChanged( RegistrationState oldState,
-                                               RegistrationState newState,
-                                               int               reasonCode,
-                                               String            reason )
-    {
-        RegistrationStateChangeEvent event
-            = new RegistrationStateChangeEvent(
-                this, oldState, newState, reasonCode, reason);
-
-        logger.debug("Dispatching " + event + " to "
-                     + registrationListeners.size()+ " listeners.");
-
-        Iterator listeners = null;
-        synchronized (registrationListeners)
-        {
-            listeners = new ArrayList(registrationListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener) listeners.next();
-
-            listener.registrationStateChanged(event);
-        }
-
-        logger.trace("Done.");
-    }
-
-    /**
      * Returns the AccountID that uniquely identifies the account represented by
      * this instance of the ProtocolProviderService.
      * @return the id of the account represented by this provider.
@@ -411,19 +350,6 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Returns the protocol display name. This is the name that would be used
-     * by the GUI to display the protocol name.
-     * 
-     * @return a String containing the display name of the protocol this service
-     * is implementing
-     */
-    public String getProtocolDisplayName()
-    {
-        return (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROTOCOL);
-    }
-
-    /**
      * Register a new event taken in account by this provider. This is usefull
      * to generate the Allow-Events header of the OPTIONS responses and to
      * generate 489 responses.
@@ -459,19 +385,6 @@ public class ProtocolProviderServiceSipImpl
         }
         return sipRegistrarConnection.getRegistrationState()
             .equals(RegistrationState.REGISTERED);
-    }
-
-    /**
-     * Removes the specified listener.
-     * @param listener the listener to remove.
-     */
-    public void removeRegistrationStateChangeListener(
-        RegistrationStateChangeListener listener)
-    {
-        synchronized(registrationListeners)
-        {
-            this.registrationListeners.remove(listener);
-        }
     }
 
     /**
