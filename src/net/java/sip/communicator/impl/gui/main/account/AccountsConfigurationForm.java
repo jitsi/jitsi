@@ -86,8 +86,6 @@ public class AccountsConfigurationForm
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(saveButton);
 
-        this.getRootPane().setDefaultButton(saveButton);
-
         this.scrollPane.getViewport().add(wrapAccountsPanel);
 
         this.wrapAccountsPanel.add(accountsPanel, BorderLayout.NORTH);
