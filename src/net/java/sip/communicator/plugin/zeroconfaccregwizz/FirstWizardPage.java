@@ -69,6 +69,8 @@ public class FirstWizardPage
 
     private ZeroconfAccountRegistrationWizard wizard;
 
+    private boolean isCommitted = false;
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * 
@@ -152,7 +154,6 @@ public class FirstWizardPage
         valuesPanel.add(lastExampleLabel);
         valuesPanel.add(mailField);
         valuesPanel.add(mailExampleLabel);
-        
 
         userPassPanel.add(labelsPanel, BorderLayout.WEST);
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
@@ -221,7 +222,7 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
         String userID = userIDField.getText();
 
@@ -247,6 +248,8 @@ public class FirstWizardPage
 
             registration.setRememberContacts(rememberContacts.isSelected());
         }
+       
+       isCommitted = true;
     }
 
     /**
@@ -368,5 +371,20 @@ public class FirstWizardPage
             }
         }
         return false;
+    }
+    
+    public Object getSimpleForm()
+    {
+        JPanel simplePanel = new JPanel(new BorderLayout());
+
+        simplePanel.add(userID, BorderLayout.WEST);
+        simplePanel.add(userIDField, BorderLayout.CENTER);
+
+        return simplePanel;
+    }
+    
+    public boolean isCommitted()
+    {
+        return isCommitted;
     }
 }

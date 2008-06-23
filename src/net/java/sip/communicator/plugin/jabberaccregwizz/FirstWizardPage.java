@@ -109,6 +109,8 @@ public class FirstWizardPage
 
     private JabberAccountRegistrationWizard wizard;
 
+    private boolean isCommitted = false;
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * 
@@ -357,7 +359,7 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
         String userID = userIDField.getText();
 
@@ -389,6 +391,8 @@ public class FirstWizardPage
                 registration.setPriority(
                     Integer.parseInt(priorityField.getText()));
         }
+
+        isCommitted = true;
     }
 
     /**
@@ -576,5 +580,15 @@ public class FirstWizardPage
             }
         }
         return false;
+    }
+    
+    public Object getSimpleForm()
+    {
+        return userIDPassPanel;
+    }
+    
+    public boolean isCommitted()
+    {
+        return isCommitted;
     }
 }

@@ -152,7 +152,7 @@ public abstract class ProtocolProviderFactory
      * indicating if a password is required. Initially this property is meant to
      * be used by IRC implementations.
      */
-    public static final String PASSWORD_REQUIRED = "PASSWORD_REQUIRED";
+    public static final String NO_PASSWORD_REQUIRED = "NO_PASSWORD_REQUIRED";
     
     /**
      * The name of the property under which we store if the presence is enabled.

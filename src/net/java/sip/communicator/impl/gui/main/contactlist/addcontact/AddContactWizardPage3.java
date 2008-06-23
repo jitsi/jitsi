@@ -75,7 +75,7 @@ public class AddContactWizardPage3 implements WizardPage {
         this.addContactPanel.setNextFinishButtonAccordingToUIN();
     }
 
-    public void pageNext() {
+    public void commitPage() {
     }
 
     public void pageBack() {

@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -47,12 +46,6 @@ public class AccountRegWizardContainerImpl
 
     private Hashtable registeredWizards = new Hashtable();
 
-    /**
-     * Listeners interested in events dispatched upon modifications in the
-     * account registrations list.
-     */
-    private Vector accountRegListeners = new Vector();
-
     public AccountRegWizardContainerImpl(MainFrame mainFrame)
     {
         super(mainFrame);
@@ -67,8 +60,6 @@ public class AccountRegWizardContainerImpl
         this.registerWizardPage(defaultPage.getIdentifier(), defaultPage);
 
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
-
-        this.addAccountRegistrationListener(defaultPage);
 
         ServiceReference[] accountWizardRefs = null;
         try
@@ -148,8 +139,7 @@ public class AccountRegWizardContainerImpl
             }
         }
 
-        this.fireAccountRegistrationEvent(wizard,
-                AccountRegistrationEvent.REGISTRATION_ADDED);
+        defaultPage.addAccountRegistrationWizard(wizard);
     }
 
     /**
@@ -165,75 +155,7 @@ public class AccountRegWizardContainerImpl
             registeredWizards.remove(wizard.getClass().getName());
         }
 
-        this.fireAccountRegistrationEvent(wizard,
-            AccountRegistrationEvent.REGISTRATION_REMOVED);
-    }
-
-    /**
-     * Adds a listener for <tt>AccountRegistrationEvent</tt>s.
-     * 
-     * @param l the listener to add
-     */
-    public void addAccountRegistrationListener(AccountRegistrationListener l)
-    {
-        synchronized (accountRegListeners)
-        {
-            this.accountRegListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes a listener for <tt>AccountRegistrationEvent</tt>s.
-     * 
-     * @param l the listener to remove
-     */
-    public void removeAccountRegistrationListener(AccountRegistrationListener l)
-    {
-        synchronized (accountRegListeners)
-        {
-            this.accountRegListeners.remove(l);
-        }
-    }
-
-    /**
-     * Creates the corresponding <tt>AccountRegistrationEvent</tt> instance
-     * and notifies all <tt>AccountRegistrationListener</tt>s that an account
-     * registration wizard has been added or removed from this container.
-     * 
-     * @param wizard The wizard that has caused the event.
-     * @param eventID one of the REGISTRATION_XXX static fields indicating the
-     *            nature of the event.
-     */
-    private void fireAccountRegistrationEvent(AccountRegistrationWizard wizard,
-        int eventID)
-    {
-        AccountRegistrationEvent evt =
-            new AccountRegistrationEvent(wizard, eventID);
-
-        logger.trace("Will dispatch the following mcl event: " + evt);
-
-        synchronized (accountRegListeners)
-        {
-            Iterator listeners = this.accountRegListeners.iterator();
-
-            while (listeners.hasNext())
-            {
-                AccountRegistrationListener l =
-                    (AccountRegistrationListener) listeners.next();
-
-                switch (evt.getEventID())
-                {
-                case AccountRegistrationEvent.REGISTRATION_ADDED:
-                    l.accountRegistrationAdded(evt);
-                    break;
-                case AccountRegistrationEvent.REGISTRATION_REMOVED:
-                    l.accountRegistrationRemoved(evt);
-                    break;
-                default:
-                    logger.error("Unknown event type " + evt.getEventID());
-                }
-            }
-        }
+        defaultPage.removeAccountRegistrationWizard(wizard);
     }
 
     /**

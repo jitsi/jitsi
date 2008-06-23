@@ -59,6 +59,8 @@ public class FirstWizardPage
 
     private GibberishAccountRegistrationWizard wizard;
 
+    private boolean isCommitted = false;
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * @param registration the <tt>GibberishAccountRegistration</tt>, where
@@ -175,7 +177,7 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
         String userID = userIDField.getText();
 
@@ -200,6 +202,8 @@ public class FirstWizardPage
 
             registration.setRememberPassword(rememberPassBox.isSelected());
         }
+
+        isCommitted = true;
     }
 
     /**
@@ -305,5 +309,15 @@ public class FirstWizardPage
             }
         }
         return false;
+    }
+    
+    public Object getSimpleForm()
+    {
+        return userPassPanel;
+    }
+    
+    public boolean isCommitted()
+    {
+        return isCommitted;
     }
 }

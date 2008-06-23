@@ -121,7 +121,7 @@ public class JoinChatRoomWizardPage2
     {
     }
 
-    public void pageNext()
+    public void commitPage()
     {
     }
 

@@ -99,7 +99,7 @@ public class CreateChatRoomWizardPage2
         namePanel.setNextFinishButtonAccordingToUIN();
     }
 
-    public void pageNext()
+    public void commitPage()
     {
     }
 

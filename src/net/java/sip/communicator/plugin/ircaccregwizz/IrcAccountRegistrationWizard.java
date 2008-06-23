@@ -141,6 +141,9 @@ public class IrcAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         String password = null;
         if (registration.isRememberPassword()
                 && registration.isRequiredPassword())
@@ -200,8 +203,8 @@ public class IrcAccountRegistrationWizard
                 new Boolean(registration.isAutoChangeNick()).toString());
 
         accountProperties.put(
-                ProtocolProviderFactory.PASSWORD_REQUIRED,
-                new Boolean(registration.isRequiredPassword()).toString());
+                ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
+                new Boolean(!registration.isRequiredPassword()).toString());
 
         if (isModification)
         {
@@ -367,5 +370,12 @@ public class IrcAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return false;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+
+        return firstWizardPage.getSimpleForm();
     }
 }

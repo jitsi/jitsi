@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
@@ -42,10 +43,6 @@ public class ConfigurationFrame
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private I18NString closeString = Messages.getI18NString("close");
-
-    private JButton closeButton = new JButton(closeString.getText());
-
     private MainFrame mainFrame;
 
     /**
@@ -72,18 +69,6 @@ public class ConfigurationFrame
         this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         this.mainPanel.add(configList, BorderLayout.WEST);
-
-        this.buttonsPanel.add(closeButton);
-
-        this.closeButton.setMnemonic(closeString.getMnemonic());
-
-        this.closeButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                dispose();
-            }
-        });
 
         buttonsPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
             Constants.BORDER_COLOR));
@@ -140,8 +125,6 @@ public class ConfigurationFrame
             this.configList.setSelectedIndex(0);
 
             super.setVisible(true);
-
-            this.closeButton.requestFocus();
         }
         else
             super.setVisible(false);
@@ -174,7 +157,6 @@ public class ConfigurationFrame
      */
     protected void close(boolean isEscaped)
     {
-        this.closeButton.doClick();
     }
 
     /**

@@ -148,6 +148,9 @@ public class JabberAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return signin(  registration.getUserID(),
                         registration.getPassword());
     }
@@ -395,5 +398,11 @@ public class JabberAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return true;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+        return firstWizardPage.getSimpleForm();
     }
 }

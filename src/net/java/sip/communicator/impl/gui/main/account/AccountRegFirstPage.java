@@ -6,14 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
 import javax.imageio.*;
-
-import java.awt.*;
-import java.awt.event.*;
-
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -22,7 +20,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -33,8 +30,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class AccountRegFirstPage extends JPanel
-    implements  AccountRegistrationListener,
-                WizardPage,
+    implements  WizardPage,
                 ListSelectionListener,
                 MouseListener
 {
@@ -141,11 +137,9 @@ public class AccountRegFirstPage extends JPanel
      * <tt>AccountRegistrationWizardContainer</tt> adds a line for this
      * wizard in the table.
      */
-    public void accountRegistrationAdded(AccountRegistrationEvent event) {
-
-        final AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard)event.getSource();
-
+    public void addAccountRegistrationWizard(
+        final AccountRegistrationWizard wizard)
+    {
         String pName = wizard.getProtocolName();
         
         Image protocolImage = null;
@@ -179,10 +173,8 @@ public class AccountRegFirstPage extends JPanel
      * <tt>AccountRegistrationWizardContainer</tt> removes the corresponding
      * line from the table.
      */
-    public void accountRegistrationRemoved(AccountRegistrationEvent event) {
-        AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard)event.getSource();
-
+    public void removeAccountRegistrationWizard(AccountRegistrationWizard wizard)
+    {
         tableModel.removeRow(tableModel.rowIndexOf(wizard));
     }
 
@@ -267,7 +259,7 @@ public class AccountRegFirstPage extends JPanel
      * the choosen wizard and register all the pages contained in this wizard
      * in our wizard container.
      */
-    public void pageNext()
+    public void commitPage()
     {
         AccountRegistrationWizard wizard
             = (AccountRegistrationWizard)tableModel

@@ -132,6 +132,9 @@ public class YahooAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return signin(  registration.getUin(),
                         registration.getPassword());
     }
@@ -337,5 +340,12 @@ public class YahooAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return true;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+
+        return firstWizardPage.getSimpleForm();
     }
 }

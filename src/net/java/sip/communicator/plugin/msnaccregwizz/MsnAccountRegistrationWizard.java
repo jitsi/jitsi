@@ -133,6 +133,9 @@ public class MsnAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return signin(  registration.getId(),
                         registration.getPassword());
     }
@@ -342,5 +345,11 @@ public class MsnAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return true;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+        return firstWizardPage.getSimpleForm();
     }
 }

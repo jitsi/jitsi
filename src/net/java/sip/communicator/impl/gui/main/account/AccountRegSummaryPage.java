@@ -145,7 +145,7 @@ public class AccountRegSummaryPage
      * from the wizard container when user clicks the "Next" button. We invoke
      * here the wizard finish method.
      */
-    public void pageNext()
+    public void commitPage()
     {
         AccountRegistrationWizard wizard =
             this.wizardContainer.getCurrentWizard();

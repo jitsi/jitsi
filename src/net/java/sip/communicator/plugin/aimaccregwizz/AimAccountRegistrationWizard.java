@@ -136,6 +136,10 @@ public class AimAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
+        firstWizardPage.commitPage();
         return this.signin(registration.getUin(), registration.getPassword());
     }
 
@@ -354,7 +358,6 @@ public class AimAccountRegistrationWizard
             "initRegistration.psp?sitedomain=www.aim.com&createSn=1");
     }
 
-
     /**
      * Returns <code>true</code> if the web sign up is supported by the current
      * implementation, <code>false</code> - otherwise.
@@ -364,5 +367,12 @@ public class AimAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return true;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+
+        return firstWizardPage.getSimpleForm();
     }
 }

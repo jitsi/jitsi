@@ -228,10 +228,10 @@ public class ProtocolProviderServiceIrcImpl
         }
         
         if(accountProperties
-            .get(ProtocolProviderFactory.PASSWORD_REQUIRED) != null)
+            .get(ProtocolProviderFactory.NO_PASSWORD_REQUIRED) != null)
         {
-            passwordRequired = new Boolean((String)accountProperties
-                .get(ProtocolProviderFactory.PASSWORD_REQUIRED))
+            passwordRequired = new Boolean((String) accountProperties
+                .get(ProtocolProviderFactory.NO_PASSWORD_REQUIRED))
                     .booleanValue();
         }
             

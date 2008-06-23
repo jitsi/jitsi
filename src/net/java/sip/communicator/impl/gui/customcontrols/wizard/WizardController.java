@@ -74,7 +74,7 @@ public class WizardController implements ActionListener {
 
         try
         {
-            page.pageNext();
+            page.commitPage();
         }
         catch (Exception ex)
         {

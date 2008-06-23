@@ -105,6 +105,8 @@ public class FirstWizardPage
 
     private IrcAccountRegistrationWizard wizard;
 
+    private boolean isCommitted = false;
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * 
@@ -281,23 +283,25 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            userPassPanel.remove(existingAccountLabel);
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
+        userPassPanel.remove(existingAccountLabel);
 
-            IrcAccountRegistration registration = wizard.getRegistration();
+        IrcAccountRegistration registration = wizard.getRegistration();
 
-            registration.setUserID(nickField.getText());
+        registration.setUserID(nickField.getText());
 
-            if (passField.getPassword() != null)
-                registration.setPassword(new String(passField.getPassword()));
+        if (passField.getPassword() != null)
+            registration.setPassword(new String(passField.getPassword()));
 
-            registration.setServer(serverField.getText());
-            registration.setPort(portField.getText());
-            registration.setRememberPassword(rememberPassBox.isSelected());
-            registration.setAutoChangeNick(autoNickChange.isSelected());
-            registration.setRequiredPassword(!passwordNotRequired.isSelected());
+        registration.setServer(serverField.getText());
+        registration.setPort(portField.getText());
+        registration.setRememberPassword(rememberPassBox.isSelected());
+        registration.setAutoChangeNick(autoNickChange.isSelected());
+        registration.setRequiredPassword(!passwordNotRequired.isSelected());
+
+        isCommitted = true;
     }
 
     /**
@@ -368,8 +372,8 @@ public class FirstWizardPage
         String autoNickChange = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.AUTO_CHANGE_USER_NAME);
 
-        String passwordRequired = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PASSWORD_REQUIRED);
+        String noPasswordRequired = (String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
 
         this.nickField.setEnabled(false);
         this.nickField.setText(accountID.getUserID());
@@ -394,10 +398,10 @@ public class FirstWizardPage
                 new Boolean(autoNickChange).booleanValue());
         }
 
-        if (passwordRequired != null)
+        if (noPasswordRequired != null)
         {
             boolean isPassRequired
-                = new Boolean(passwordRequired).booleanValue();
+                = !(new Boolean(noPasswordRequired).booleanValue());
 
             this.passwordNotRequired.setSelected(!isPassRequired);
 
@@ -467,4 +471,31 @@ public class FirstWizardPage
     public void pageShown(){}
 
     public void pageBack(){}
+    
+    public Object getSimpleForm()
+    {
+        JPanel simplePanel = new JPanel(new BorderLayout());
+        JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
+        JPanel valuesPanel = new JPanel(new GridLayout(0, 1));
+
+        simplePanel.add(labelsPanel, BorderLayout.WEST);
+        simplePanel.add(valuesPanel, BorderLayout.CENTER);
+
+        labelsPanel.add(nick);
+        labelsPanel.add(emptyPanel);
+        labelsPanel.add(server);
+        labelsPanel.add(emptyPanel2);
+
+        valuesPanel.add(nickField);
+        valuesPanel.add(nickExampleLabel);
+        valuesPanel.add(serverField);
+        valuesPanel.add(serverExampleLabel);
+
+        return simplePanel;
+    }
+    
+    public boolean isCommitted()
+    {
+        return isCommitted;
+    }
 }

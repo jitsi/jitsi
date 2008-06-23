@@ -146,7 +146,7 @@ public class JoinChatRoomWizardPage1
     /**
      * Saves the selected account before going to the next page.
      */
-    public void pageNext()
+    public void commitPage()
     {
         selectAccountPanel.setSelectedAccount();
     }

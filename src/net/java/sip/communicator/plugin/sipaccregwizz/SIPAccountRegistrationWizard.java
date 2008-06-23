@@ -170,6 +170,9 @@ public class SIPAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return signin(registration.getId(), registration.getPassword());
     }
 
@@ -437,5 +440,11 @@ public class SIPAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return true;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+        return firstWizardPage.getSimpleForm();
     }
 }

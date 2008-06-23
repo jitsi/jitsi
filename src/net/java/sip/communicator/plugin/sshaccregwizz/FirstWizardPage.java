@@ -33,7 +33,6 @@ import net.java.sip.communicator.impl.protocol.ssh.*;
 public class FirstWizardPage
         extends JPanel implements WizardPage, DocumentListener
 {
-    
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
     
     private JPanel accountPanel = new JPanel(new BorderLayout(10, 10));
@@ -96,6 +95,8 @@ public class FirstWizardPage
     private SSHAccountRegistration registration = null;
     
     private WizardContainer wizardContainer;
+    
+    private boolean isCommitted = false;
     
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
@@ -308,7 +309,7 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
         String userID = accountIDField.getText();
         
@@ -327,6 +328,7 @@ public class FirstWizardPage
             registration.setIdentityFile(identityFileField.getText());
             registration.setKnownHostsFile(knownHostsFileField.getText());
         }
+        isCommitted = true;
     }
     
     /**
@@ -411,5 +413,15 @@ public class FirstWizardPage
             }
         }
         return false;
+    }
+    
+    public Object getSimpleForm()
+    {
+        return accountPanel;
+    }
+    
+    public boolean isCommitted()
+    {
+        return isCommitted;
     }
 }

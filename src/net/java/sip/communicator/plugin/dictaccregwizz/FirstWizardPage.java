@@ -82,6 +82,8 @@ public class FirstWizardPage
     
     private boolean firstAccount = false;
     
+    private boolean isPageCommitted = false;
+
     /**
      * Initial AccountID (null if new account)
      * Used to check if there are modifications to the account
@@ -311,7 +313,7 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
         //*
         String host = hostField.getText();
@@ -369,6 +371,7 @@ public class FirstWizardPage
             registration.setStrategy(this.strategyBox.getSelectedValue().toString());
         }
         //*/
+        isPageCommitted = true;
     }
 
     /**
@@ -668,5 +671,15 @@ public class FirstWizardPage
         
         this.strategyLoader.setEnabled(e);
         wizard.getWizardContainer().setNextFinishButtonEnabled(e);
+    }
+    
+    public Object getSimpleForm()
+    {
+        return mainPanel;
+    }
+    
+    public boolean isCommitted()
+    {
+        return isPageCommitted;
     }
 }

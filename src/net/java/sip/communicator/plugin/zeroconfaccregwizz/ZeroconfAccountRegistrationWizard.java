@@ -138,6 +138,9 @@ public class ZeroconfAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+        
         return signin(registration.getUserID(), null);
     }
 
@@ -174,6 +177,10 @@ public class ZeroconfAccountRegistrationWizard
         accountProperties.put("first", registration.getFirst());
         accountProperties.put("last", registration.getLast());
         accountProperties.put("mail", registration.getMail());
+
+        accountProperties.put(
+            ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
+            new Boolean(true).toString());
 
         accountProperties.put("rememberContacts", 
             new Boolean(registration.isRememberContacts()).toString());
@@ -363,5 +370,11 @@ public class ZeroconfAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return false;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+        return firstWizardPage.getSimpleForm();
     }
 }

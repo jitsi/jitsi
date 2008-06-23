@@ -133,6 +133,9 @@ public class RssAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return signin(registration.getUserID(), null);
     }
 
@@ -163,6 +166,10 @@ public class RssAccountRegistrationWizard
     {
 
         Hashtable accountProperties = new Hashtable();
+
+        accountProperties.put(
+            ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
+            new Boolean(true).toString());
 
         try
         {
@@ -298,5 +305,11 @@ public class RssAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return false;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        return firstWizardPage.getSimpleForm();
     }
 }

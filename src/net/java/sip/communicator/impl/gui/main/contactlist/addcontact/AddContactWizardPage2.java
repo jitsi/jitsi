@@ -116,7 +116,7 @@ public class AddContactWizardPage2
     {
     }
 
-    public void pageNext()
+    public void commitPage()
     {
         this.newContact.setGroup(selectGroupPanel.getSelectedGroup());
     }

@@ -149,6 +149,9 @@ public class DictAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return signin(registration.getUserID(), null);
     }
 
@@ -188,6 +191,12 @@ public class DictAccountRegistrationWizard
     {
         Hashtable accountProperties = new Hashtable();
         
+        // Set this property to indicate that Dict account does not require 
+        // authentication.
+        accountProperties.put(
+            ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
+            new Boolean(true).toString());
+
         // Save host
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS, host);
         // Save port
@@ -425,5 +434,12 @@ public class DictAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return false;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+
+        return firstWizardPage.getSimpleForm();
     }
 }

@@ -57,6 +57,8 @@ public class FirstWizardPage
 
     private WizardContainer wizardContainer;
 
+    private boolean isCommitted = false;
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * @param registration the <tt>RssAccountRegistration</tt>, where
@@ -173,11 +175,13 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         registration.setUserID("RSS");
+
+        isCommitted = true;
     }
 
     /**
@@ -272,5 +276,15 @@ public class FirstWizardPage
             }
         }
         return false;
+    }
+
+    public Object getSimpleForm()
+    {
+        return labelsPanel;
+    }
+
+    public boolean isCommitted()
+    {
+        return isCommitted;
     }
 }

@@ -30,7 +30,7 @@ public abstract class SIPCommDialog extends JDialog
         
         this.addWindowListener(new DialogWindowAdapter());
         
-        this.initInputMap();        
+        this.initInputMap();
     }
  
     public SIPCommDialog(Frame owner)

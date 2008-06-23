@@ -122,7 +122,7 @@ public interface WizardPage {
      * here all operations you need to be executed when user clicks "Next" on
      * this <tt>WizardPage</tt>.
      */
-    public void pageNext();
+    public void commitPage();
 
     /**
      * Invoked when user clicks on the "Back" wizard button. You should add

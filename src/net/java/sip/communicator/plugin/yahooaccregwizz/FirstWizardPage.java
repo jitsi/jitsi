@@ -62,6 +62,8 @@ public class FirstWizardPage
 
     private YahooAccountRegistrationWizard wizard;
 
+    private boolean isCommitted = false;
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * 
@@ -170,7 +172,7 @@ public class FirstWizardPage
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
-    public void pageNext()
+    public void commitPage()
     {
         String uin = uinField.getText();
 
@@ -191,6 +193,7 @@ public class FirstWizardPage
             registration.setPassword(new String(passField.getPassword()));
             registration.setRememberPassword(rememberPassBox.isSelected());
         }
+        isCommitted = true;
     }
 
     /**
@@ -284,5 +287,15 @@ public class FirstWizardPage
                 return true;
         }
         return false;
+    }
+    
+    public Object getSimpleForm()
+    {
+        return uinPassPanel;
+    }
+    
+    public boolean isCommitted()
+    {
+        return isCommitted;
     }
 }

@@ -183,4 +183,13 @@ public interface AccountRegistrationWizard
      * <code>false</code> otherwise.
      */
     public boolean isSimpleFormEnabled();
+
+    /**
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
+     * 
+     * @return a simple account registration form
+     */
+    public Object getSimpleForm();
 }

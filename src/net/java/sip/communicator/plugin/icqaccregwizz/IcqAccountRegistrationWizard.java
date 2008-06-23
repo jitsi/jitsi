@@ -142,6 +142,9 @@ public class IcqAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return this.signin(registration.getUin(), registration
             .getPassword());
     }
@@ -367,5 +370,12 @@ public class IcqAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return true;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+
+        return firstWizardPage.getSimpleForm();
     }
 }

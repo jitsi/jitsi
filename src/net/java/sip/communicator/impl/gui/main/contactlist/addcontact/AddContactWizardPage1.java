@@ -105,7 +105,7 @@ public class AddContactWizardPage1
     public void pageShown() {
     }
 
-    public void pageNext() {
+    public void commitPage() {
         selectAccountPanel.setSelectedAccounts();
     }
 

@@ -526,7 +526,7 @@ public class SystrayServiceJdicImpl
             try
             {
                 if(toChangeDockIcon != null)
-                {            
+                {
                     Dock.setDockTileImage(toChangeDockIcon);
                 }
                 else

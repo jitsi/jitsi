@@ -132,6 +132,9 @@ public class GibberishAccountRegistrationWizard
      */
     public ProtocolProviderService signin()
     {
+        if (!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         return signin(registration.getUserID(), null);
     }
 
@@ -334,5 +337,11 @@ public class GibberishAccountRegistrationWizard
     public boolean isWebSignupSupported()
     {
         return false;
+    }
+
+    public Object getSimpleForm()
+    {
+        firstWizardPage = new FirstWizardPage(this);
+        return firstWizardPage.getSimpleForm();
     }
 }

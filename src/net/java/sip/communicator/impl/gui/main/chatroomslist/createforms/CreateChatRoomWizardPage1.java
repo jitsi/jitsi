@@ -131,7 +131,7 @@ public class CreateChatRoomWizardPage1
     {
     }
 
-    public void pageNext()
+    public void commitPage()
     {
         selectAccountPanel.setSelectedAccount();
     }
