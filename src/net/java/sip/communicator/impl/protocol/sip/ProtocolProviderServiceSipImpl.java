@@ -703,11 +703,18 @@ public class ProtocolProviderServiceSipImpl
                 , opSetPersPresence);
 
             // init instant messaging
-            OperationSetBasicInstantMessaging opSetBasicIM =
+            OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
                 new OperationSetBasicInstantMessagingSipImpl(this);
             this.supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 opSetBasicIM);
+            
+            // init typing notifications
+            OperationSetTypingNotificationsSipImpl opSetTyping =
+                new OperationSetTypingNotificationsSipImpl(this, opSetBasicIM);
+            this.supportedOperationSets.put(
+                OperationSetTypingNotifications.class.getName(),
+                opSetTyping);
             
             // init DTMF (from JM Heitz)
             OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);

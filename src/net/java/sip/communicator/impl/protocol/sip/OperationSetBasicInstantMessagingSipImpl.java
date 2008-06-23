@@ -775,7 +775,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 return;
             }
 
-            Contact to = resolveContact(
+            Contact to = opSetPersPresence.resolveContactID(
                     toHeader.getAddress().getURI().toString());
 
             Message failedMessage = null;
@@ -863,7 +863,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 return;
             }
 
-            Contact from = resolveContact(
+            Contact from = opSetPersPresence.resolveContactID(
                 fromHeader.getAddress().getURI().toString());
             Message newMessage = createMessage(content);
 
@@ -957,7 +957,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 return;
             }
 
-            Contact to = resolveContact(toHeader.getAddress()
+            Contact to = opSetPersPresence.resolveContactID(toHeader.getAddress()
                     .getURI().toString());
 
             if (to == null) {
@@ -1091,45 +1091,6 @@ public class OperationSetBasicInstantMessagingSipImpl
             if (charset == null)
                 charset = DEFAULT_MIME_ENCODING;
             return charset;
-        }
-
-        /**
-         * Try to find a contact registered using a string to identify him.
-         *
-         * @param contactID A string with which the contact may have
-         *  been registered
-         * @return A valid contact if it has been found, null otherwise
-         */
-        private Contact resolveContact(String contactID) {
-            Contact res = opSetPersPresence.findContactByID(contactID);
-
-            if (res == null) {
-                // we try to resolve the conflict by removing "sip:" from the id
-                if (contactID.startsWith("sip:")) {
-                    res = opSetPersPresence.findContactByID(
-                            contactID.substring(4));
-                }
-
-                if (res == null) {
-                    // we try to remove the part after the '@'
-                    if (contactID.indexOf('@') > -1) {
-                        res = opSetPersPresence.findContactByID(
-                                contactID.substring(0,
-                                    contactID.indexOf('@')));
-
-                        if (res == null) {
-                            // try the same thing without sip:
-                            if (contactID.startsWith("sip:")) {
-                                res = opSetPersPresence.findContactByID(
-                                        contactID.substring(4,
-                                            contactID.indexOf('@')));
-                            }
-                        }
-                    }
-                }
-            }
-
-            return res;
         }
 
         /**

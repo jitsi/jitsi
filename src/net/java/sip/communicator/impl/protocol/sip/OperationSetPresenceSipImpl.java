@@ -3502,7 +3502,7 @@ public class OperationSetPresenceSipImpl
      *  been registered
      * @return A valid contact if it has been found, null otherwise
      */
-    private Contact resolveContactID(String contactID) {
+    Contact resolveContactID(String contactID) {
         Contact res = this.findContactByID(contactID);
 
         if (res == null) {
@@ -3571,7 +3571,7 @@ public class OperationSetPresenceSipImpl
      *
      * @return a correct xml document or null if an error occurs
      */
-    private Document createDocument() {
+    Document createDocument() {
         try {
             if (this.docBuilderFactory == null) {
                 this.docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -3596,7 +3596,7 @@ public class OperationSetPresenceSipImpl
      * @return a string representing <tt>document</tt> or null if an error
      * occur
      */
-    private String convertDocument(Document document) {
+    String convertDocument(Document document) {
         DOMSource source = new DOMSource(document);
         StringWriter stringWriter = new StringWriter();
         StreamResult result = new StreamResult(stringWriter);
@@ -3627,7 +3627,7 @@ public class OperationSetPresenceSipImpl
      * @return a <tt>Document</tt> representing the document or null if an
      * error occur
      */
-    private Document convertDocument(String document) {
+    Document convertDocument(String document) {
         StringReader reader = new StringReader(document);
         StreamSource source = new StreamSource(reader);
         Document doc = createDocument();
