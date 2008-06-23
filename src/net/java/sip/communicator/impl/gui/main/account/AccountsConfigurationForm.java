@@ -86,6 +86,8 @@ public class AccountsConfigurationForm
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(saveButton);
 
+        this.getRootPane().setDefaultButton(saveButton);
+
         this.scrollPane.getViewport().add(wrapAccountsPanel);
 
         this.wrapAccountsPanel.add(accountsPanel, BorderLayout.NORTH);
@@ -264,9 +266,10 @@ public class AccountsConfigurationForm
             {
                 accountProperties.put(ProtocolProviderFactory.PASSWORD,
                     new String(passwordField.getPassword()));
-            }
 
-            providerFactory.modifyAccount(protocolProvider, accountProperties);
+                providerFactory
+                    .modifyAccount(protocolProvider, accountProperties);
+            }
         }
 
         public void actionPerformed(ActionEvent e)
