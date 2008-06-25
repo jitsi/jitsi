@@ -996,6 +996,8 @@ public class MetaContactChatPanel
 
         public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
         {
+            logger.error(evt.getReason());
+
             String errorMsg = null;
 
             Message sourceMessage = (Message) evt.getSource();

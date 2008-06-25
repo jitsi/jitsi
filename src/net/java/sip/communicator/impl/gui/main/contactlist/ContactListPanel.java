@@ -419,15 +419,17 @@ public class ContactListPanel
      */
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
     {
+        logger.error(evt.getReason());
+
         String errorMsg = null;
-     
+
         Message sourceMessage = (Message) evt.getSource();
-        
+
         Contact sourceContact = evt.getDestinationContact();
-        
+
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(sourceContact);
-        
+
         if (evt.getErrorCode() 
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
@@ -436,7 +438,7 @@ public class ContactListPanel
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
-            
+
             errorMsg = Messages.getI18NString("msgNotDelivered").getText();
         }
         else if (evt.getErrorCode()
@@ -458,21 +460,21 @@ public class ContactListPanel
 
         MetaContactChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
-        
+
         chatPanel.processMessage(
                 metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
-        
+
         chatPanel.processMessage(
                 metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
                 errorMsg,
                 "text");
-        
+
         chatWindowManager.openChat(chatPanel, false);
     }
 
