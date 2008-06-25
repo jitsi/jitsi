@@ -76,17 +76,22 @@ public class SmiliesSelectorBox extends JMenuBar
 
         this.selectorBox.getPopupMenu().setLayout(new GridLayout(
                 this.gridRowCount, this.gridColCount, 5, 5));
-                
+
         for (int i = 0; i < imageList.size(); i++) {
 
             Smiley smiley = (Smiley) this.imageList.get(i);
 
-            JMenuItem smileyItem = new JMenuItem (
-                    new ImageIcon(ImageLoader.getImage(smiley.getImageID())));
-            
-            smileyItem.setPreferredSize(new Dimension(28, 28));
-            smileyItem.setMargin(new Insets(2, -5, 2, 0));
-            
+            ImageIcon imageIcon
+                = new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
+
+            JMenuItem smileyItem = new JMenuItem (imageIcon);
+
+//            smileyItem.setPreferredSize(
+//                new Dimension(  imageIcon.getIconWidth(),
+//                                imageIcon.getIconHeight()));
+
+//            smileyItem.setMargin(new Insets(2, 2, 2, 2));
+
             smileyItem.setToolTipText(smiley.getSmileyStrings()[0]);
 
             smileyItem.addActionListener(this);
