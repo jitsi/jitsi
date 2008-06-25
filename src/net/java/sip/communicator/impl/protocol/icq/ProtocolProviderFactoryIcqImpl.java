@@ -148,7 +148,10 @@ public class ProtocolProviderFactoryIcqImpl
                 return null;
 
         if (!accountProperties.containsKey(PROTOCOL))
-            accountProperties.put(PROTOCOL, ProtocolNames.ICQ);
+            if(IcqAccountID.isAIM(accountProperties))
+                accountProperties.put(PROTOCOL, ProtocolNames.AIM);
+            else
+                accountProperties.put(PROTOCOL, ProtocolNames.ICQ);
 
         String userIDStr = (String)accountProperties.get(USER_ID);
 
