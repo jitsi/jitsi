@@ -13,7 +13,9 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -242,9 +244,16 @@ public class LoginManager
                 new String[]
                 { accountID.getUserID(), accountID.getService() }).getText();
 
-            new ErrorDialog(null,
+            int result = new MessageDialog(null,
                 Messages.getI18NString("error").getText(),
-                msgText).showDialog();
+                msgText,
+                Messages.getI18NString("retry").getText(),
+                false).showDialog();
+
+            if (result == MessageDialog.OK_RETURN_CODE)
+            {
+                this.login(protocolProvider);
+            }
 
             logger.error(evt.getReason());
         }
@@ -464,6 +473,11 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    new ErrorDialog(mainFrame,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        ex).showDialog();
                 }
                 else if (errorCode == OperationFailedException.INTERNAL_ERROR)
                 {
@@ -475,6 +489,11 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    new ErrorDialog(mainFrame,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        ex).showDialog();
                 }
                 else if (errorCode == OperationFailedException.NETWORK_FAILURE)
                 {
@@ -486,6 +505,17 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    int result = new MessageDialog(null,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        Messages.getI18NString("retry").getText(),
+                        false).showDialog();
+
+                    if (result == MessageDialog.OK_RETURN_CODE)
+                    {
+                        login(protocolProvider);
+                    }
                 }
                 else if (errorCode
                         == OperationFailedException.INVALID_ACCOUNT_PROPERTIES)
@@ -498,16 +528,16 @@ public class LoginManager
                         protocolProvider.getAccountID().getUserID(),
                         protocolProvider.getAccountID().getService()
                         }).getText();
+
+                    new ErrorDialog(mainFrame,
+                        Messages.getI18NString("error").getText(),
+                        errorMessage,
+                        ex).showDialog();
                 }
                 else
                 {
                     logger.error("Provider could not be registered.", ex);
                 }
-
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    errorMessage,
-                    ex).showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
