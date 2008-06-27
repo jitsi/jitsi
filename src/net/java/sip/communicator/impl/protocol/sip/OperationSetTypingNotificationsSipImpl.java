@@ -188,7 +188,7 @@ public class OperationSetTypingNotificationsSipImpl
 
         // ignore messages which are not typing 
         // notifications and continue processing
-        if (ctheader == null && !ctheader.getContentSubType()
+        if (ctheader == null || !ctheader.getContentSubType()
                 .equalsIgnoreCase(CONTENT_SUBTYPE))
             return true;
 
@@ -330,11 +330,15 @@ public class OperationSetTypingNotificationsSipImpl
 
         // ignore messages which are not typing 
         // notifications and continue processing
-        if (ctheader == null && !ctheader.getContentSubType()
+        if (ctheader == null || !ctheader.getContentSubType()
                 .equalsIgnoreCase(CONTENT_SUBTYPE))
             return true;
      
         int status = responseEvent.getResponse().getStatusCode();
+
+        // we retrieve the original message
+        String key = ((CallIdHeader)req.getHeader(CallIdHeader.NAME))
+            .getCallId();
         
         if (status >= 200 && status < 300)
         {
@@ -342,15 +346,24 @@ public class OperationSetTypingNotificationsSipImpl
                 "Ack received from the network : "
                 + responseEvent.getResponse().getReasonPhrase());
 
-            // we retrieve the original message
-            String key = ((CallIdHeader)req.getHeader(CallIdHeader.NAME))
-                .getCallId();
+            // we don't need this message anymore
+            sentMsg.remove(key);
+            
+            return false;
+        }
+        else if (status >= 400 && status != 401 && status != 407)
+        {
+            logger.warn(
+                "Error received : "
+                + responseEvent.getResponse().getReasonPhrase());
             
             // we don't need this message anymore
             sentMsg.remove(key);
             
             return false;
         }
+        
+        // process messages as auth required
         return true;
     }
     
