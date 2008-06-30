@@ -367,9 +367,25 @@ public class OperationSetTypingNotificationsSipImpl
         return true;
     }
     
+    /**
+     * Process the timeouts of sent messages
+     * @param timeoutEvent the event holding the request
+     * @return whether this message needs further processing(true) or no(false)
+     */
     public boolean processTimeout(TimeoutEvent timeoutEvent, Map sentMessages)
     {
-        return true;
+        Request req = timeoutEvent.getClientTransaction().getRequest();
+        
+        ContentTypeHeader ctheader = 
+            (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
+
+        // ignore messages which are not typing 
+        // notifications and continue processing
+        if (ctheader == null || !ctheader.getContentSubType()
+                .equalsIgnoreCase(CONTENT_SUBTYPE))
+            return true;
+        
+        return false;
     }
     
     private TypingTask findTypigTask(Contact contact)
