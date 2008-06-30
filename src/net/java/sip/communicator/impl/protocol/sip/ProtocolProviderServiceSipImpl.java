@@ -16,6 +16,7 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
 import gov.nist.javax.sip.*;
 import gov.nist.javax.sip.header.*;
@@ -2177,11 +2178,19 @@ public class ProtocolProviderServiceSipImpl
             try
             {
                 List userAgentTokens = new LinkedList();
-                userAgentTokens.add("SIP Communicator");
-                userAgentTokens.add("1.0");
-                String dateString
-                    = new Date().toString().replace(' ', '_').replace(':', '-');
-                userAgentTokens.add("CVS-" + dateString);
+                
+                Version ver = 
+                        SipActivator.getVersionService().getCurrentVersion();
+
+                userAgentTokens.add(ver.getApplicationName());
+                userAgentTokens.add(
+                        ver.getVersionMajor() + "." + ver.getVersionMinor());
+
+                if(ver.isNightly())
+                    userAgentTokens.add(ver.getNightlyBuildID());
+
+                String osName = System.getProperty("os.name");
+                userAgentTokens.add(osName);
 
                 userAgentHeader
                     = this.headerFactory.createUserAgentHeader(userAgentTokens);

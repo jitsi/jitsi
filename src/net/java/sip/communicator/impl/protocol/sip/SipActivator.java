@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.service.version.*;
 
 /**
  * Activates the SIP package
@@ -30,6 +31,7 @@ public class SipActivator
     private static NetworkAddressManagerService networkAddressManagerService
                                                                         = null;
     private static MediaService         mediaService          = null;
+    private static VersionService       versionService        = null;
 
     private static ProtocolProviderFactorySipImpl sipProviderFactory = null;
 
@@ -145,6 +147,26 @@ public class SipActivator
                 .getService(mediaServiceReference);
         }
         return mediaService;
+    }
+    
+    /**
+     * Returns a reference to a VersionService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to a VersionService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     */
+    public static VersionService getVersionService()
+    {
+        if(versionService == null)
+        {
+            ServiceReference versionServiceReference
+                = bundleContext.getServiceReference(
+                    VersionService.class.getName());
+            versionService = (VersionService)bundleContext
+                .getService(versionServiceReference);
+        }
+        return versionService;
     }
 
     /**

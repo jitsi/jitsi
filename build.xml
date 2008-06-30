@@ -1272,6 +1272,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/version/version.impl.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/version"
                 prefix="net/java/sip/communicator/impl/version"/>
+            <zipfileset dir="${resources}" includes="application.properties"
+                prefix="resources"/>
         </jar>
     </target>
 

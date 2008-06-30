@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.version;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.version.*;
 
 /**
@@ -59,10 +61,15 @@ public class VersionImpl
     public static final boolean IS_NIGHTLY_BUILD = true;
 
     /**
+     * The default name of this application.
+     */
+    public static final String DEFAULT_APPLICATION_NAME = "SIP Communicator";
+
+    /**
      * The name of this application.
      */
-    public static final String APPLICATION_NAME = "SIP Communicator";
-
+    public static String applicationName = null;
+    
     /**
      * Returns the VersionImpl instance describing the current version of
      * SIP Communicator.
@@ -285,6 +292,21 @@ public class VersionImpl
      */
     public String getApplicationName()
     {
-        return APPLICATION_NAME;
+        if(applicationName == null)
+        {
+            try 
+            {
+                applicationName = 
+                    ResourceBundle.getBundle("resources.application").
+                        getString("applicationName");
+            } catch (Exception e) 
+            {
+                // if resource bundle is not found or the key is missing
+                // return the defautl name
+                applicationName = DEFAULT_APPLICATION_NAME;
+            }
+        }
+        
+        return applicationName;
     }
 }
