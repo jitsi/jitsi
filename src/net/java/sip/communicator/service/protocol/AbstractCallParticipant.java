@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
+import java.net.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -142,5 +143,21 @@ public abstract class AbstractCallParticipant
     {
         return getDisplayName() + " <" + getAddress()
             + ">;status=" + getState().getStateString();
+    }
+    
+    /**
+     * Returns a URL pointing ta a location with call control information for 
+     * this participant or <tt>null</tt> if no such URL is available for this 
+     * call participant.
+     * 
+     * @return a URL link to a location with call information or a call control
+     * web interface related to this participant or <tt>null</tt> if no such URL
+     * is available.
+     */
+    public URL getCallInfoURL()
+    {
+        //if signaling protocols (such as SIP) know where to get this URL from 
+        //they should override this method
+        return null;
     }
 }

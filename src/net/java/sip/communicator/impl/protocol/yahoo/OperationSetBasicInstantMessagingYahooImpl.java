@@ -21,9 +21,11 @@ import ymsg.support.*;
  * set.
  *
  * @author Damian Minkov
+ * @author Keio Kraaner
  */
 public class OperationSetBasicInstantMessagingYahooImpl
-    implements OperationSetBasicInstantMessaging
+    implements OperationSetBasicInstantMessaging,
+    OperationSetInstantMessageFiltering
 {
     /**
      * Logger for this class
@@ -45,8 +47,14 @@ public class OperationSetBasicInstantMessagingYahooImpl
     /**
      * A list of listeneres registered for message events.
      */
-    private Vector messageListeners = new Vector();
+    private Vector<MessageListener> messageListeners 
+                                            = new Vector<MessageListener>();
 
+    /**
+     * A list of filters registered for message events.
+     */
+    private Vector<EventFilter> eventFilters = new Vector<EventFilter>();
+    
     /**
      * The provider that created us.
      */
@@ -310,6 +318,36 @@ public class OperationSetBasicInstantMessagingYahooImpl
      */
     private void fireMessageEvent(EventObject evt)
     {
+        // check if this event should be filtered out
+        Iterator<EventFilter> filters = null;
+        synchronized (eventFilters)
+        {
+            filters = new ArrayList<EventFilter>(eventFilters).iterator();
+        }
+        // return if a filter has filtered this event out
+        boolean filtered = false;
+        while (filters.hasNext())
+        {
+            try
+            {
+                if (filters.next().filterEvent(evt))
+                {
+                    filtered = true;
+                }
+            }
+            catch(Exception exc) 
+            {
+                logger.error("An exception occurred while filtering an event.", 
+                             exc);
+            }
+        }
+        
+        if (filtered) 
+        {
+            logger.trace("Message event filtered.");
+            return;
+        }
+
         Iterator listeners = null;
         synchronized (messageListeners)
         {
@@ -626,5 +664,36 @@ public class OperationSetBasicInstantMessagingYahooImpl
         m.appendTail(linkBuffer);
 
         return linkBuffer.toString();
+    }
+    
+    /**
+     * Registers an <tt>EventFilter</tt> with this operation set so that 
+     * events, that do not need processing, are filtered out.
+     *
+     * @param filter the <tt>EventFilter</tt> to register.
+     */
+    public void addEventFilter(EventFilter filter)
+    {
+        synchronized(eventFilters)
+        {
+            if(!eventFilters.contains(filter))
+            {
+                eventFilters.add(filter);
+            }
+        }
+    }
+
+    /**
+     * Unregisteres an <tt>EventFilter</tt> so that it won't check any more 
+     * if an event should be filtered out.
+     *
+     * @param filter the <tt>EventFilter</tt> to unregister.
+     */
+    public void removeEventFilter(EventFilter filter)
+    {
+        synchronized(eventFilters)
+        {
+            eventFilters.remove(filter);
+        }
     }
 }

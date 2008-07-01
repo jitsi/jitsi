@@ -206,17 +206,6 @@ public class ProtocolProviderServiceZeroconfImpl
         //Copy the map so that the caller is not able to modify it.
         return (Map)supportedOperationSets.clone();
     }
-
-    /**
-     * Indicates whether or not this provider is registered
-     *
-     * @return true if the provider is currently registered and false
-     *   otherwise.
-     */
-    public boolean isRegistered()
-    {
-        return currentRegistrationState.equals(RegistrationState.REGISTERED);
-    }
     
     /**
      * Starts the registration process.

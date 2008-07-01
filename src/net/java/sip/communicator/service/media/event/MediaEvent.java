@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * 
- * @author Martin Andre
+ * @author Symphorien Wanko
  */
 public class MediaEvent
     extends java.util.EventObject

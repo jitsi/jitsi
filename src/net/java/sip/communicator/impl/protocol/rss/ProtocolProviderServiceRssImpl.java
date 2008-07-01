@@ -195,17 +195,6 @@ public class ProtocolProviderServiceRssImpl
     }
 
     /**
-     * Indicates whether or not this provider is registered
-     *
-     * @return true if the provider is currently registered and false
-     *   otherwise.
-     */
-    public boolean isRegistered()
-    {
-        return currentRegistrationState.equals(RegistrationState.REGISTERED);
-    }
-
-    /**
      * Starts the registration process.
      *
      * @param authority the security authority that will be used for

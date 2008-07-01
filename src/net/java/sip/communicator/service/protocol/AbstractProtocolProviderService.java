@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Implements "standard" functionality of <tt>ProtocolProviderService</code> in
+ * Implements "standard" functionality of <tt>ProtocolProviderService</tt> in
  * order to make it easier for implementers to provide complete solutions while
  * focusing on protocol-specific details.
  */
@@ -102,6 +102,17 @@ public abstract class AbstractProtocolProviderService
         String displayName = (String) getAccountID().getAccountProperties()
             .get(ProtocolProviderFactory.PROTOCOL);
         return (displayName == null) ? getProtocolName() : displayName;
+    }
+
+    /**
+     * Indicates whether or not this provider is registered
+     *
+     * @return true if the provider is currently registered and false
+     *   otherwise.
+     */
+    public boolean isRegistered()
+    {
+        return getRegistrationState().equals(RegistrationState.REGISTERED);
     }
 
     /**

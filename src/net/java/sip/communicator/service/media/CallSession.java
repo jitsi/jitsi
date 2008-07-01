@@ -109,4 +109,14 @@ public interface CallSession
      * <tt>CallSession</tt>.
      */
     public int getAudioPort();
+    
+    /**
+     * Returns a URL pointing ta a location with call control information for 
+     * this call or <tt>null</tt> if no such URL is available.
+     * 
+     * @return a URL link to a location with call information or a call control
+     * web interface for the specified participant or <tt>null</tt> if no such 
+     * URL is available.
+     */
+    public URL getCallInfoURL();
 }

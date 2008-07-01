@@ -197,7 +197,7 @@ public class ProtocolProviderServiceSipImpl
      * A String indicating the default debug level for the jain-sip-ri (must be
      * log4j compatible).
      */
-    private static final String NSPVALUE_TRACE_LEVEL = "DEBUG";
+    private static final String NSPVALUE_TRACE_LEVEL = "ERROR";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -357,7 +357,8 @@ public class ProtocolProviderServiceSipImpl
      *
      * @param event The event to register
      */
-    public void registerEvent(String event) {
+    public void registerEvent(String event) 
+	{
         synchronized (this.registeredEvents) {
             if (!this.registeredEvents.contains(event)) {
                 this.registeredEvents.add(event);
@@ -370,22 +371,9 @@ public class ProtocolProviderServiceSipImpl
      *
      * @return The list of all the registered events
      */
-    public List getKnownEventsList() {
+    public List getKnownEventsList() 
+	{
         return this.registeredEvents;
-    }
-
-    /**
-     * Indicates whether or not this provider is registered
-     * @return true if the provider is currently registered and false otherwise.
-     */
-    public boolean isRegistered()
-    {
-        if(this.sipRegistrarConnection == null )
-        {
-            return false;
-        }
-        return sipRegistrarConnection.getRegistrationState()
-            .equals(RegistrationState.REGISTERED);
     }
 
     /**

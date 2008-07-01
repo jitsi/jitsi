@@ -754,6 +754,12 @@ public class OperationSetBasicTelephonySipImpl
                         callParticipant
                         , callParticipant.getSdpDescription());
                     ack.setContent(sdp, contentTypeHeader);
+                    
+                    //set the call url in case there was one
+                    /** @todo this should be done in CallSession, once we move 
+                     * it here.*/
+                    callParticipant.setCallInfoURL(
+                            callSession.getCallInfoURL());
                 }
 
             }
@@ -775,6 +781,10 @@ public class OperationSetBasicTelephonySipImpl
        
             callSession.processSdpAnswer(callParticipant
                                          , callParticipant.getSdpDescription());
+            //set the call url in case there was one
+            /** @todo this should be done in CallSession, once we move 
+             * it here.*/
+            callParticipant.setCallInfoURL(callSession.getCallInfoURL());
         }
         catch (ParseException exc)
         {
@@ -1840,6 +1850,11 @@ public class OperationSetBasicTelephonySipImpl
                 sdp = callSession.processSdpOffer(
                         callParticipant
                         , callParticipant.getSdpDescription());
+                
+                //set the call url in case there was one
+                /** @todo this should be done in CallSession, once we move 
+                 * it here.*/
+                callParticipant.setCallInfoURL(callSession.getCallInfoURL());
             }
             //if there was no offer in the invite - create an offer
             else

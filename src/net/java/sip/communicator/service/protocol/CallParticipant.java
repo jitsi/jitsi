@@ -122,4 +122,14 @@ public interface CallParticipant
      * if no particular contact has been associated.
      */
     public Contact getContact();
+    
+    /**
+     * Returns a URL pointing ta a location with call control information or 
+     * null if such an URL is not available for the current call participant.
+     * 
+     * @return a URL link to a location with call information or a call control
+     * web interface related to this participant or <tt>null</tt> if no such URL
+     * is available.
+     */
+    public URL getCallInfoURL();
 }

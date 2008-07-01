@@ -88,6 +88,12 @@ public class CallParticipantSipImpl
      * address of our sip registrar).
      */
     private InetSocketAddress transportAddress = null;
+    
+    /**
+     * A URL pointing to a location with call information or a call control
+     * web interface related to this participant. 
+     */
+    private URL callControlURL = null;
 
     /**
      * Creates a new call participant with address <tt>participantAddress</tt>.
@@ -457,4 +463,29 @@ public class CallParticipantSipImpl
         return opSetPresence.findContactByID(getAddress());
     }
 
+    /**
+     * Returns a URL pointing ta a location with call control information for 
+     * this participant or <tt>null</tt> if no such URL is available for this 
+     * call participant.
+     * 
+     * @return a URL link to a location with call information or a call control
+     * web interface related to this participant or <tt>null</tt> if no such URL
+     * is available.
+     */
+    public URL getCallInfoURL()
+    {
+        return this.callControlURL;
+    }
+    
+    /**
+     * Returns a URL pointing ta a location with call control information for 
+     * this participant.
+     * 
+     * @param callControlURL a URL link to a location with call information or 
+     * a call control web interface related to this participant.
+     */
+    public void setCallInfoURL(URL callControlURL)
+    {
+        this.callControlURL = callControlURL;
+    }
 }

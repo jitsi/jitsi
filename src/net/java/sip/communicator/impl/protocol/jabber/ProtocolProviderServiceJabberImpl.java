@@ -440,16 +440,6 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Indicates whether or not this provider is signed on the service
-     * @return true if the provider is currently signed on (and hence online)
-     * and false otherwise.
-     */
-    public boolean isRegistered()
-    {
-        return getRegistrationState().equals(RegistrationState.REGISTERED);
-    }
-
-    /**
      * Returns the short name of the protocol that the implementation of this
      * provider is based upon (like SIP, Jabber, ICQ/AIM, or others for
      * example).
