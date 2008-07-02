@@ -617,9 +617,9 @@ public class ContactListModel
     {
         synchronized (activeContacts)
         {
-            if(activeContacts.size() == 0)
-                GuiActivator.getSystrayService().setSystrayIcon(
-                   SystrayService.ENVELOPE_IMG_TYPE);
+            SystrayService stray = GuiActivator.getSystrayService();
+            if(activeContacts.size() == 0 && stray != null)
+                stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
 
             if(!activeContacts.contains(metaContact))
                 this.activeContacts.add(metaContact);
