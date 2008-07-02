@@ -34,6 +34,8 @@ public class RssAccRegWizzActivator
      * A currently valid reference to the configuration service.
      */
     private static ConfigurationService configService;
+    
+    private static UIService uiService;
 
     /**
      * Starts this bundle.
@@ -48,8 +50,7 @@ public class RssAccRegWizzActivator
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService
-            = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService) bundleContext.getService(uiServiceRef);
 
         WizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
@@ -106,6 +107,16 @@ public class RssAccRegWizzActivator
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+    }
+    
+     /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 
     /**

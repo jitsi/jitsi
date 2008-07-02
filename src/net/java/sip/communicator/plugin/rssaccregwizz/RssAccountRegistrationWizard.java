@@ -183,19 +183,19 @@ public class RssAccountRegistrationWizard
                 RssAccRegWizzActivator.bundleContext
                 .getService(serRef);
         }
-        catch (IllegalArgumentException exc)
+        catch (IllegalArgumentException e)
         {
-            new ErrorDialog(null,
-                            Resources.getString("error"),
-                            exc.getMessage(),
-                            exc).showDialog();
+            RssAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(e.getMessage(),
+                        Resources.getString("error"),
+                        PopupDialog.ERROR_MESSAGE);
         }
-        catch (IllegalStateException exc)
+        catch (IllegalStateException e)
         {
-            new ErrorDialog(null,
-                            Resources.getString("error"),
-                            exc.getMessage(),
-                            exc).showDialog();
+            RssAccRegWizzActivator.getUIService().getPopupDialog()
+                .showMessagePopupDialog(e.getMessage(),
+                        Resources.getString("error"),
+                        PopupDialog.ERROR_MESSAGE);
         }
 
         return protocolProvider;
