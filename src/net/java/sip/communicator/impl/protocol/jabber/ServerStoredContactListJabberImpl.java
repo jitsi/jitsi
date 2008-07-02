@@ -296,7 +296,7 @@ public class ServerStoredContactListJabberImpl
         {
             ContactJabberImpl item = (ContactJabberImpl) rootContacts.next();
 
-            if(item.getAddress().equals(id))
+            if(item.getAddress().equalsIgnoreCase(id))
                 return item;
         }
 
