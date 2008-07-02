@@ -84,6 +84,7 @@ public class GeneralConfigurationForm
                 mainPanel.add(Box.createVerticalStrut(10));
                 autoStartCheckBox.setText(
                     Resources.getString("autoStartOption"));
+                initAutoStartCheckBox();
                 autoStartCheckBox.addActionListener(this);
             }
             {
@@ -290,7 +291,6 @@ public class GeneralConfigurationForm
                 String appName = 
                         Resources.getApplicationString("applicationName");
                 ShellLink shortcut = new ShellLink(ShellLink.STARTUP, appName);
-                shortcut.setLinkType(ShellLink.STARTUP);
                 shortcut.setUserType(ShellLink.CURRENT_USER);
                 shortcut.setDescription(
                         "This starts " + appName + " Application");
@@ -299,18 +299,40 @@ public class GeneralConfigurationForm
                 shortcut.setShowCommand(ShellLink.MINNOACTIVE);
                 shortcut.setTargetPath(workingDir + File.separator + "run.exe");
                 shortcut.setWorkingDirectory(workingDir);
+                
+                String f1 = shortcut.getcurrentUserLinkPath() + 
+                        File.separator + appName + ".lnk";
+            
+                String f2 = f1.replaceAll(
+                        System.getProperty("user.name"), 
+                        "All Users");
 
                 if(autoStartCheckBox.isSelected())
+                {
+                    if(!new File(f1).exists() && 
+                       !new File(f2).exists())
                     shortcut.save();
+                }
                 else
                 {
-                    // before we can get the filename of the link
-                    // we have to save it
-                    shortcut.save();
+                    boolean isFileDeleted = false;
+                    try {
+                        isFileDeleted = new File(f1).delete();
+                    } catch (Exception e) {}
                     
-                    new File(shortcut.getFileName()).delete();
+                    try {
+                        new File(f2).delete();
+                    } catch (Exception e) 
+                    {
+                        if(!isFileDeleted)
+                            GeneralConfigPluginActivator.getUIService().
+                                getPopupDialog().showMessagePopupDialog(
+                                    e.getMessage(),
+                                    Resources.getString("errorPermission"),
+                                    PopupDialog.ERROR_MESSAGE);
+                        // cannot delete no permissions
+                    }
                 }
-                
             } catch (Exception e) 
             {
                 logger.error("Cannot create/delete startup shortcut", e);
@@ -340,6 +362,37 @@ public class GeneralConfigurationForm
         {
             ConfigurationManager.setAutoPopupNewMessage(
                 bringToFrontCheckBox.isSelected());
+        }
+    }
+    
+    
+    private void initAutoStartCheckBox()
+    {
+        try 
+        {
+            String appName = 
+                        Resources.getApplicationString("applicationName");
+            ShellLink shortcut = 
+                new ShellLink(
+                    ShellLink.STARTUP, 
+                    appName);
+            shortcut.setUserType(ShellLink.CURRENT_USER);
+            
+            String f1 = shortcut.getcurrentUserLinkPath() + 
+                        File.separator + appName + ".lnk";
+            
+            String f2 = f1.replaceAll(
+                    System.getProperty("user.name"), 
+                    "All Users");
+
+            if(new File(f1).exists() || new File(f2).exists())
+                autoStartCheckBox.setSelected(true);
+            else
+                autoStartCheckBox.setSelected(false);
+            
+        } catch (Exception e) 
+        {
+            logger.error(e);
         }
     }
 }

@@ -19,10 +19,17 @@ public class GeneralConfigPluginActivator implements BundleActivator
     private static ConfigurationService configService;
 
     protected static BundleContext bundleContext;
+    
+    private static UIService uiService;
 
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
+        
+        ServiceReference uiServiceRef = bundleContext
+            .getServiceReference(UIService.class.getName());
+
+        uiService = (UIService) bundleContext.getService(uiServiceRef);
 
         ConfigurationManager.loadGuiConfigurations();
 
@@ -56,5 +63,15 @@ public class GeneralConfigPluginActivator implements BundleActivator
         }
 
         return configService;
+    }
+    
+     /**
+     * Returns the <tt>UIService</tt>.
+     * 
+     * @return the <tt>UIService</tt>
+     */
+    public static UIService getUIService()
+    {
+        return uiService;
     }
 }
