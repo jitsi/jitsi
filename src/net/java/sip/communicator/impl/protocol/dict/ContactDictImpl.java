@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.dict;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of a Dict contact
@@ -17,6 +18,8 @@ import net.java.sip.communicator.service.protocol.*;
 public class ContactDictImpl
     implements Contact
 {
+    private Logger logger = Logger.getLogger(ContactDictImpl.class);
+    
     /**
      * The id of the contact.
      */
@@ -50,9 +53,10 @@ public class ContactDictImpl
     private boolean isResolved = true;
     
     /**
-     * Socket connection associated with the contact
+     * The string in a "humain readable and understandable representation" of
+     * the dictionnaire. In brief this is a short description of the dictionary.
      */
-    private DictAdapter dictAdapter = null;
+    private String dictName = null;
 
     /**
      * Creates an instance of a meta contact with the specified string used
@@ -111,7 +115,27 @@ public class ContactDictImpl
      */
     public String getDisplayName()
     {
-        return contactID;
+        if (dictName == null)
+        {
+            try
+            {
+                dictName = getDictAdapter().getDictionaryName(contactID);
+
+                // If the dict name is still null, set it to the contact ID
+                if (dictName == null)
+                {
+                    dictName = contactID;
+                }
+            }
+            catch (Exception e)
+            {
+                // Can't read data
+                logger.error("Error while getting dictionary long name", e);
+                dictName = contactID;
+            }
+        }
+
+        return dictName;
     }
 
     /**
