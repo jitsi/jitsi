@@ -339,21 +339,6 @@ public class MainFrame
                 .getChatRoomsList()
                 .addChatServer(protocolProvider, multiUserChat);
         }
-
-        // Obtain the basic instant messaging operation set.
-        String smsOpSetClassName = OperationSetSmsMessaging.class.getName();
-
-        if (supportedOperationSets.containsKey(smsOpSetClassName))
-        {
-            OperationSetSmsMessaging smsOpSet
-                = (OperationSetSmsMessaging)
-                    supportedOperationSets.get(smsOpSetClassName);
-
-            //Add to all instant messaging operation sets the Message
-            //listener implemented in the ContactListPanel, which handles
-            //all received messages.
-            smsOpSet.addMessageListener(getContactListPanel());
-        }
     }
 
     /**

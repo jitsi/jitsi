@@ -502,7 +502,25 @@ public class OperationSetTypingNotificationsSipImpl
             return;
         }
 
-        opSetBasicIm.sendRequestMessage(mes, to, message);
+        try
+        {
+            opSetBasicIm.sendRequestMessage(mes, to, message);
+        }
+        catch(TransactionUnavailableException ex)
+        {
+            logger.error(
+                "Failed to create messageTransaction.\n"
+                + "This is most probably a network connection error."
+                , ex);
+            return;
+        }
+        catch(SipException ex)
+        {
+            logger.error(
+                "Failed to send the message."
+                , ex);
+            return;
+        }
     }
     
     private void sendResponse(RequestEvent requestEvent, int response)

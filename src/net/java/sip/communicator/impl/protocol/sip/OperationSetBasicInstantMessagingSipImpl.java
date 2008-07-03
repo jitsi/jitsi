@@ -288,10 +288,46 @@ public class OperationSetBasicInstantMessagingSipImpl
             return;
         }
         
-        sendRequestMessage(mes, to, message);
+        try
+        {
+            sendRequestMessage(mes, to, message);
+        }
+        catch(TransactionUnavailableException ex)
+        {
+            logger.error(
+                "Failed to create messageTransaction.\n"
+                + "This is most probably a network connection error."
+                , ex);
+
+            MessageDeliveryFailedEvent evt =
+                new MessageDeliveryFailedEvent(
+                    message,
+                    to,
+                    MessageDeliveryFailedEvent.NETWORK_FAILURE,
+                    new Date());
+            fireMessageEvent(evt);
+            return;
+        }
+        catch(SipException ex)
+        {
+            logger.error(
+                "Failed to send the message."
+                , ex);
+
+            MessageDeliveryFailedEvent evt =
+                new MessageDeliveryFailedEvent(
+                    message,
+                    to,
+                    MessageDeliveryFailedEvent.INTERNAL_ERROR,
+                    new Date());
+            fireMessageEvent(evt);
+            return;
+        }
     }
     
     void sendRequestMessage(Request mes, Contact to, Message message)
+        throws TransactionUnavailableException,
+               SipException
     {
         //check whether there's a cached authorization header for this
         //call id and if so - attach it to the request.
@@ -310,47 +346,11 @@ public class OperationSetBasicInstantMessagingSipImpl
         ClientTransaction messageTransaction;
         SipProvider jainSipProvider
             = this.sipProvider.getDefaultJainSipProvider();
-        try
-        {
-            messageTransaction = jainSipProvider.getNewClientTransaction(mes);
-        }
-        catch (TransactionUnavailableException ex)
-        {
-            logger.error(
-                "Failed to create messageTransaction.\n"
-                + "This is most probably a network connection error."
-                , ex);
-
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    message,
-                    to,
-                    MessageDeliveryFailedEvent.NETWORK_FAILURE,
-                    new Date());
-            fireMessageEvent(evt);
-            return;
-        }
+        
+        messageTransaction = jainSipProvider.getNewClientTransaction(mes);
 
         // send the message
-        try
-        {         
-            messageTransaction.sendRequest();
-        }
-        catch (SipException ex)
-        {
-            logger.error(
-                "Failed to send the message."
-                , ex);
-
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    message,
-                    to,
-                    MessageDeliveryFailedEvent.INTERNAL_ERROR,
-                    new Date());
-            fireMessageEvent(evt);
-            return;
-        }
+        messageTransaction.sendRequest();
 
         // we register the reference to this message to retrieve it when
         // we'll receive the response message

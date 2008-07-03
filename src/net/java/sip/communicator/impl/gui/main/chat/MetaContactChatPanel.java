@@ -59,6 +59,8 @@ public class MetaContactChatPanel
          */
 
     private ProtocolContactSelectorBox contactSelectorBox;
+    
+    private Message sentSmsMessage = null;
 
     /**
      * Creates a <tt>MetaContactChatPanel</tt> which is added to the given chat
@@ -877,10 +879,10 @@ public class MetaContactChatPanel
         smsOpSet.addMessageListener(new SmsMessageListener(smsOpSet));
 
         // Otherwise we create the message.
-        Message message  = smsOpSet.createMessage(text);
+        sentSmsMessage  = smsOpSet.createMessage(text);
 
         // We open the send SMS dialog.
-        SendSmsDialog smsDialog = new SendSmsDialog(this, message, smsOpSet);
+        SendSmsDialog smsDialog = new SendSmsDialog(this, sentSmsMessage, smsOpSet);
 
         smsDialog.setPreferredSize(new Dimension(400, 200));
         smsDialog.setVisible(true);
@@ -976,6 +978,13 @@ public class MetaContactChatPanel
         public void messageDelivered(MessageDeliveredEvent evt)
         {
             Message msg = evt.getSourceMessage();
+            
+            // if there is no sms sent or this event is not for our sms ignore it
+            if(sentSmsMessage == null || !sentSmsMessage.equals(msg))
+                return;
+            
+            sentSmsMessage = null;
+            
             Contact contact = evt.getDestinationContact();
 
             processMessage(
@@ -990,17 +999,21 @@ public class MetaContactChatPanel
                     Constants.ACTION_MESSAGE,
                     Messages.getI18NString("smsSuccessfullySent")
                     .getText(), "text");
-
-            smsOpSet.removeMessageListener(this);
         }
 
         public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
         {
             logger.error(evt.getReason());
-
+            
             String errorMsg = null;
 
             Message sourceMessage = (Message) evt.getSource();
+            
+            // if there is no sms sent or this event is not for our sms ignore it
+            if(sentSmsMessage == null || !sentSmsMessage.equals(sourceMessage))
+                return;
+            
+            sentSmsMessage = null;
 
             Contact sourceContact = evt.getDestinationContact();
 
@@ -1048,8 +1061,6 @@ public class MetaContactChatPanel
                     Constants.ERROR_MESSAGE,
                     errorMsg,
                     "text");
-
-            smsOpSet.removeMessageListener(this);
         }
 
         public void messageReceived(MessageReceivedEvent evt)
