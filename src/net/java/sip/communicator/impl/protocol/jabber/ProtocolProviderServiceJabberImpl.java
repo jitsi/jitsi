@@ -336,6 +336,7 @@ public class ProtocolProviderServiceJabberImpl
                             Integer.parseInt(serverPort),
                             serviceName
                     );
+                    confConn.setReconnectionAllowed(false);
                     connection = new XMPPConnection(confConn);
 
                     connection.connect();
