@@ -61,6 +61,7 @@ import javax.media.control.*;
  * @author Emil Ivov
  * @author Ryan Ricard
  * @author Ken Larson
+ * @author Dudek Przemyslaw
  */
 public class CallSessionImpl
         implements   CallSession
@@ -951,7 +952,7 @@ public class CallSessionImpl
             //"t=0 0"
             TimeDescription t
                 = mediaServCallback.getSdpFactory().createTimeDescription();
-            Vector timeDescs = new Vector();
+            Vector<TimeDescription> timeDescs = new Vector<TimeDescription>();
             timeDescs.add(t);
 
             sessDescr.setTimeDescriptions(timeDescs);
@@ -1032,8 +1033,8 @@ public class CallSessionImpl
         //offer.
         if (offerMediaDescs != null && offerMediaDescs.size() > 0)
         {
-            Vector offeredVideoEncodings = new Vector();
-            Vector offeredAudioEncodings = new Vector();
+            Vector<String> offeredVideoEncodings = new Vector<String>();
+            Vector<String> offeredAudioEncodings = new Vector<String>();
             Iterator offerDescsIter = offerMediaDescs.iterator();
 
             while (offerDescsIter.hasNext())
@@ -1057,29 +1058,22 @@ public class CallSessionImpl
             }
 
             //now intersect the offered encodings with what we support
-            Hashtable encodings = new Hashtable(2);
+            Hashtable<String, List<String>> encodings 
+                                = new Hashtable<String, List<String>>(2);
             encodings.put("audio", offeredAudioEncodings);
             encodings.put("video", offeredVideoEncodings);
             encodings = intersectMediaEncodings(encodings);
-            List intersectedAudioEncsList = (List)encodings.get("audio");
-            List intersectedVideoEncsList = (List)encodings.get("video");
+            List<String> intersectedAudioEncsList 
+                = (List<String>)encodings.get("audio");
+            List<String> intersectedVideoEncsList 
+                = (List<String>)encodings.get("video");
 
             //now replace the encodings arrays with the intersection
-            supportedAudioEncodings
-                = new String[intersectedAudioEncsList.size()];
-            supportedVideoEncodings
-                = new String[intersectedVideoEncsList.size()];
-
-            for (int i = 0; i < supportedAudioEncodings.length; i++)
-                supportedAudioEncodings[i]
-                    = (String)intersectedAudioEncsList.get(i);
-
-            for (int i = 0; i < supportedVideoEncodings.length; i++)
-                supportedVideoEncodings[i]
-                    = (String)intersectedVideoEncsList.get(i);
-
+            supportedAudioEncodings 
+                = intersectedAudioEncsList.toArray(new String[0]);
+            supportedVideoEncodings 
+                = intersectedVideoEncsList.toArray(new String[0]);
         }
-
         Vector mediaDescs = new Vector();
 
         if(supportedAudioEncodings.length > 0)
@@ -1146,7 +1140,8 @@ public class CallSessionImpl
      * @throws MediaException code UNSUPPORTED_FORMAT_SET_ERROR if the
      * intersection of both encoding sets does not contain any elements.
      */
-    private Hashtable intersectMediaEncodings(Hashtable offeredEncodings)
+    private Hashtable<String, List<String>> intersectMediaEncodings(
+                            Hashtable<String, List<String>> offeredEncodings)
         throws MediaException
     {
         //audio encodings supported by the media controller
