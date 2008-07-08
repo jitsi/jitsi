@@ -36,10 +36,13 @@ public class InitialAccountRegistrationFrame
     private Logger logger
         = Logger.getLogger(InitialAccountRegistrationFrame.class);
 
+    private JPanel messageAreaPanel
+        = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
     private JTextArea messageArea =
         new JTextArea(Resources.getString("initialAccountRegistration"));
 
-    private MainPanel mainPanel = new MainPanel(new BorderLayout(10, 10));
+    private MainPanel mainPanel = new MainPanel(new BorderLayout(5, 5));
 
     private JPanel mainAccountsPanel = new JPanel(new BorderLayout(10, 10));
 
@@ -67,15 +70,21 @@ public class InitialAccountRegistrationFrame
 
         this.getContentPane().add(mainPanel);
 
-        this.mainPanel.add(messageArea, BorderLayout.NORTH);
+        this.mainPanel.add(messageAreaPanel, BorderLayout.NORTH);
         this.mainPanel.add(mainAccountsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        this.messageAreaPanel.add(messageArea);
+        this.messageArea.setPreferredSize(new Dimension(350, 20));
+        this.messageArea.setFont(messageArea.getFont().deriveFont(Font.BOLD));
 
         this.mainAccountsPanel.add(accountsPanel, BorderLayout.CENTER);
 
         this.mainAccountsPanel.setOpaque(false);
         this.accountsPanel.setOpaque(false);
         this.buttonPanel.setOpaque(false);
+        this.messageArea.setOpaque(false);
+        this.messageAreaPanel.setOpaque(false);
 
         SigninActionListener actionListener = new SigninActionListener();
 
@@ -123,31 +132,40 @@ public class InitialAccountRegistrationFrame
 
     private void initAccountWizards()
     {
-        SimpleAccountRegistrationActivator.bundleContext.addServiceListener(this);
+        String simpleWizards = Resources.getLoginProperty("simpleWizards");
+
+        StringTokenizer tokenizer = new StringTokenizer(simpleWizards, "|");
 
         ServiceReference[] serviceRefs = null;
-        try
+        while (tokenizer.hasMoreTokens())
         {
-            serviceRefs = SimpleAccountRegistrationActivator.bundleContext
-                .getServiceReferences(
-                    AccountRegistrationWizard.class.getName(), null);
+            String protocolToken = tokenizer.nextToken();
 
-            if (serviceRefs == null || serviceRefs.length <= 0)
-                return;
+            String osgiFilter = "("
+                + ProtocolProviderFactory.PROTOCOL
+                + "="+protocolToken+")";
 
-            AccountRegistrationWizard wizard;
-            for (int i = 0; i < serviceRefs.length; i++)
+            try
             {
-                wizard = (AccountRegistrationWizard)
-                    SimpleAccountRegistrationActivator
-                        .bundleContext.getService(serviceRefs[i]);
+                serviceRefs = SimpleAccountRegistrationActivator.bundleContext
+                    .getServiceReferences(
+                        AccountRegistrationWizard.class.getName(), osgiFilter);
 
-                this.addAccountRegistrationForm(wizard);
+                if (serviceRefs != null && serviceRefs.length > 0)
+                {
+                    AccountRegistrationWizard wizard
+                        = (AccountRegistrationWizard)
+
+                        SimpleAccountRegistrationActivator
+                        .bundleContext.getService(serviceRefs[0]);
+
+                    this.addAccountRegistrationForm(wizard);
+                }
             }
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("GuiActivator : ", ex);
+            catch (InvalidSyntaxException ex)
+            {
+                logger.error("GuiActivator : ", ex);
+            }
         }
     }
 
@@ -187,6 +205,11 @@ public class InitialAccountRegistrationFrame
                 + Resources.getString("signup")
                 + "</a></html>", JLabel.RIGHT);
 
+        private JLabel specialSignupLabel
+            = new JLabel("<html><a href=''>"
+                + Resources.getString("specialSignup")
+                + "</a></html>", JLabel.RIGHT);
+
         private AccountRegistrationWizard wizard;
 
         public AccountRegistrationPanel(
@@ -204,19 +227,22 @@ public class InitialAccountRegistrationFrame
             this.setOpaque(false);
 
             this.inputPanel.setOpaque(false);
-
             this.labelsPanel.setOpaque(false);
-
             this.fieldsPanel.setOpaque(false);
-
             this.emptyPanel.setOpaque(false);
+            this.inputRegisterPanel.setOpaque(false);
+            this.iconDescriptionPanel.setOpaque(false);
 
             this.add(inputRegisterPanel, BorderLayout.CENTER);
 
             this.inputRegisterPanel.add(inputPanel, BorderLayout.NORTH);
 
-            if (wizard.isWebSignupSupported())
-                this.inputRegisterPanel.add(signupLabel, BorderLayout.SOUTH);
+            if (wizard.isWebSignupSupported() && isPreferredWizard)
+                this.inputRegisterPanel.add(
+                    specialSignupLabel, BorderLayout.SOUTH);
+            else
+                this.inputRegisterPanel.add(
+                    signupLabel, BorderLayout.SOUTH);
 
             this.inputPanel.add(labelsPanel, BorderLayout.WEST);
 
@@ -243,11 +269,30 @@ public class InitialAccountRegistrationFrame
                     }
                 });
 
+            this.specialSignupLabel.setFont(signupLabel.getFont().deriveFont(10f));
+            this.specialSignupLabel.addMouseListener(new MouseAdapter()
+                {
+                    public void mousePressed(MouseEvent arg0)
+                    {
+                        try
+                        {
+                            wizard.webSignup();
+                        }
+                        catch (UnsupportedOperationException e)
+                        {
+                            // This should not happen, because we check if the
+                            // operation is supported, before adding the sign up.
+                            logger.error("The web sign up is not supported.", e);
+                        }
+                    }
+                });
+
             this.protocolLabel.setFont(
                 protocolLabel.getFont().deriveFont(Font.BOLD, 14f));
             this.usernameExampleLabel.setForeground(Color.DARK_GRAY);
             this.usernameExampleLabel.setFont(
                 usernameExampleLabel.getFont().deriveFont(8f));
+            this.emptyPanel.setMaximumSize(new Dimension(40, 25));
 
             this.labelsPanel.add(usernameLabel);
             this.labelsPanel.add(emptyPanel);
@@ -274,7 +319,7 @@ public class InitialAccountRegistrationFrame
 
             if (image != null)
             {
-                image = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+                image = image.getScaledInstance(28, 28, Image.SCALE_SMOOTH);
 
                 protocolLabel.setIcon(new ImageIcon(image));
             }
@@ -286,11 +331,11 @@ public class InitialAccountRegistrationFrame
 
                 descriptionArea.setFont(
                     descriptionArea.getFont().deriveFont(10f));
-                descriptionArea.setPreferredSize(new Dimension(200, 50));
+                descriptionArea.setPreferredSize(new Dimension(220, 50));
                 descriptionArea.setLineWrap(true);
                 descriptionArea.setWrapStyleWord(true);
                 descriptionArea.setText(wizard.getProtocolDescription());
-//                descriptionArea.setBorder(SIPCommBorders.getRoundBorder());
+                descriptionArea.setOpaque(false);
 
                 this.iconDescriptionPanel.add(
                     descriptionArea, BorderLayout.CENTER);

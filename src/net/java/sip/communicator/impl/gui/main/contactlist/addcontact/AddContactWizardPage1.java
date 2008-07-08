@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
@@ -21,46 +20,52 @@ import net.java.sip.communicator.service.gui.*;
  * @author Yana Stamcheva
  */
 public class AddContactWizardPage1
-        implements WizardPage, CellEditorListener {
+    implements WizardPage, CellEditorListener
+{
 
     public static final String IDENTIFIER = "SELECT_ACCOUNT_PANEL";
-    
+
     private SelectAccountPanel selectAccountPanel;
-    
+
     private WizardContainer wizard;
-    
+
     /**
      * Creates an instance of <tt>AddContactWizardPage1</tt>.
+     * 
      * @param newContact An object that collects all user choices through the
-     * wizard.
-     * @param protocolProvidersList The list of available 
-     * <tt>ProtocolProviderServices</tt>, from which the user could select.
+     *            wizard.
+     * @param protocolProvidersList The list of available
+     *            <tt>ProtocolProviderServices</tt>, from which the user
+     *            could select.
      */
-    public AddContactWizardPage1(WizardContainer wizard,
-            NewContact newContact, 
-            Iterator protocolProvidersList) {
-        
+    public AddContactWizardPage1(   WizardContainer wizard,
+                                    NewContact newContact,
+                                    Iterator protocolProvidersList)
+    {
+
         this.wizard = wizard;
-        
-        selectAccountPanel = new SelectAccountPanel(
-                newContact, protocolProvidersList);
+
+        selectAccountPanel
+            = new SelectAccountPanel(newContact, protocolProvidersList);
         selectAccountPanel.addCheckBoxCellListener(this);
     }
-    
+
     /**
-     * Before the panel is displayed checks the selections and enables the
-     * next button if a checkbox is already selected or disables it if 
+     * Before the panel is displayed checks the selections and enables the next
+     * button if a checkbox is already selected or disables it if nothing is
+     * selected.
+     */
+    public void pageShowing()
+    {
+        setNextButtonAccordingToCheckBox();
+    }
+
+    /**
+     * Enables the next button when the user makes a choise and disables it if
      * nothing is selected.
      */
-    public void pageShowing() {
-        setNextButtonAccordingToCheckBox();
-    }    
-    
-    /**
-     * Enables the next button when the user makes a choise and disables it 
-     * if nothing is selected.
-     */
-    private void setNextButtonAccordingToCheckBox() {
+    private void setNextButtonAccordingToCheckBox()
+    {
         if (selectAccountPanel.isCheckBoxSelected())
             this.wizard.setNextFinishButtonEnabled(true);
         else
@@ -71,7 +76,8 @@ public class AddContactWizardPage1
      * When user canceled editing the next button is enabled or disabled
      * depending on if the user has selected a check box or not.
      */
-    public void editingCanceled(ChangeEvent e) {
+    public void editingCanceled(ChangeEvent e)
+    {
         setNextButtonAccordingToCheckBox();
     }
 
@@ -79,36 +85,45 @@ public class AddContactWizardPage1
      * When user stopped editing the next button is enabled or disabled
      * depending on if the user has selected a check box or not.
      */
-    public void editingStopped(ChangeEvent e) {
+    public void editingStopped(ChangeEvent e)
+    {
         setNextButtonAccordingToCheckBox();
     }
 
-    public Object getIdentifier() {
+    public Object getIdentifier()
+    {
         return IDENTIFIER;
     }
 
-    public Object getNextPageIdentifier() {
+    public Object getNextPageIdentifier()
+    {
         return AddContactWizardPage2.IDENTIFIER;
     }
 
-    public Object getBackPageIdentifier() {
+    public Object getBackPageIdentifier()
+    {
         return IDENTIFIER;
     }
 
-    public Object getWizardForm() {
+    public Object getWizardForm()
+    {
         return selectAccountPanel;
     }
 
-    public void pageHiding() {
+    public void pageHiding()
+    {
     }
 
-    public void pageShown() {
+    public void pageShown()
+    {
     }
 
-    public void commitPage() {
+    public void commitPage()
+    {
         selectAccountPanel.setSelectedAccounts();
     }
 
-    public void pageBack() {
+    public void pageBack()
+    {
     }
 }

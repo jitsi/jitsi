@@ -35,7 +35,7 @@ public class NewAccountDialog
         Messages.getI18NString("advanced").getText());
 
     private JButton addAccountButton = new JButton(
-        Messages.getI18NString("newAccount").getText());
+        Messages.getI18NString("add").getText());
 
     private JButton cancelButton = new JButton(
         Messages.getI18NString("cancel").getText());
