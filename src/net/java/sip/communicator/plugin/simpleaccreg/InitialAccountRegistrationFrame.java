@@ -116,7 +116,7 @@ public class InitialAccountRegistrationFrame
                 if(gr.getGroupName().equals(groupName))
                     return;
             }
-            
+
             SimpleAccountRegistrationActivator.getContactList().
                 createMetaContactGroup(
                     SimpleAccountRegistrationActivator.getContactList().getRoot(), 
