@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.plugin.pluginmanager;
 
+import java.util.*;
 import javax.swing.table.*;
 
 import org.osgi.framework.*;
@@ -24,6 +25,19 @@ public class PluginTableModel extends AbstractTableModel
     
     private Object showSystemBundlesSync = new Object();
     
+    private Bundle[] bundles = null;
+    
+    private BundleComparator bundleComparator = new BundleComparator();
+    
+    /**
+     * Create an instance of <tt>PluginTableModel</tt> 
+     */
+    public PluginTableModel()
+    {
+        refreshSortedBundlesList();
+    }
+
+    
     /**
      * Returns the count of table rows.
      * @return int the count of table rows
@@ -36,19 +50,16 @@ public class PluginTableModel extends AbstractTableModel
             showSystem = showSystemBundles;
         }
         
-        if(bundleContext.getBundles() == null)
+        if(bundles == null)
             return 0;
         else
         {
             if(showSystem)
-                return bundleContext.getBundles().length;
+                return bundles.length;
             else
             {
                 int bundlesSize = 0;
                 
-                Bundle[] bundles
-                    = PluginManagerActivator.bundleContext.getBundles();
-             
                 for (int i = 0; i < bundles.length; i ++)
                 {
                     Bundle bundle = bundles[i];
@@ -79,9 +90,6 @@ public class PluginTableModel extends AbstractTableModel
             showSystem = showSystemBundles;
         }
         
-        Bundle[] bundles
-            = PluginManagerActivator.bundleContext.getBundles();
-     
         for (int i = 0; i < bundles.length; i ++)
         {
             Bundle b = bundles[i];
@@ -134,9 +142,6 @@ public class PluginTableModel extends AbstractTableModel
             showSystem = showSystemBundles;
         }
         
-        Bundle[] bundles
-            = PluginManagerActivator.bundleContext.getBundles();
-        
         if(showSystem)
             return bundles[row];
         else
@@ -164,6 +169,7 @@ public class PluginTableModel extends AbstractTableModel
      */
     public void update()
     {
+        refreshSortedBundlesList();
         fireTableDataChanged();
     }
     
@@ -194,4 +200,15 @@ public class PluginTableModel extends AbstractTableModel
             this.showSystemBundles = showSystemBundles;
         }
     }
+    
+    /**
+     * Syncs the content of the bundle list with the bundles currently 
+     * available in the bundle context and sorts it again.
+     */
+    private void refreshSortedBundlesList()
+    {
+        this.bundles = this.bundleContext.getBundles();
+        Arrays.sort(this.bundles, bundleComparator);
+    }
+
 }
