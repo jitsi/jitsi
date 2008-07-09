@@ -33,6 +33,11 @@ public class NotificationManager
         if(notificationService == null)
             return;
         
+        // if we have already registered events 
+        // skip setting defaults one
+        if(notificationService.getRegisteredEvents().hasNext())
+            return;
+        
         // Register incoming message notifications.
         notificationService.registerNotificationForEvent(
                 INCOMING_MESSAGE,
@@ -89,7 +94,7 @@ public class NotificationManager
         soundHandlers.put(OUTGOING_CALL, outCallSoundHandler);
 
     }
-
+    
     /**
      * Fires a message notification for the given event type through the
      * <tt>NotificationService</tt>.

@@ -78,6 +78,29 @@ public class ConfigurationFrame
         this.getContentPane().add(mainPanel);
 
         GuiActivator.bundleContext.addServiceListener(this);
+        
+        ServiceReference[] confFormsRefs = null;
+        try
+        {
+            confFormsRefs = GuiActivator.bundleContext
+                .getServiceReferences(
+                    ConfigurationForm.class.getName(),
+                    null);
+        }
+        catch (InvalidSyntaxException ex)
+        {}
+        
+        if(confFormsRefs != null)
+        {
+            for (int i = 0; i < confFormsRefs.length; i++)
+            {
+                ConfigurationForm form
+                    = (ConfigurationForm) GuiActivator.bundleContext
+                        .getService(confFormsRefs[i]);
+
+                this.addConfigurationForm(form);
+            }
+        }
     }
 
     /**

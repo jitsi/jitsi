@@ -617,7 +617,7 @@
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,bundle-plugin-whiteboard,
         bundle-irc,bundle-plugin-ircaccregwizz,
-        bundle-pluginmanager,bundle-notification,
+        bundle-pluginmanager,bundle-notification,bundle-notification-config,
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
@@ -1714,6 +1714,16 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${resources}" includes="application.properties"
                 prefix="resources"/>
             <zipfileset src="${lib.noinst}/izpack-shortcut-link.jar" prefix=""/>
+        </jar>
+    </target>
+    
+    <!-- BUNDLE-NOTIFICATION-CONFIG -->
+    <target name="bundle-notification-config">
+        <!-- Creates a bundle for the notifications.-->
+        <jar compress="false" destfile="${bundles.dest}/notificationconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/notificationconfiguration/notificationconfiguration.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/notificationconfiguration"
+                prefix="net/java/sip/communicator/plugin/notificationconfiguration"/>
         </jar>
     </target>
 </project>
