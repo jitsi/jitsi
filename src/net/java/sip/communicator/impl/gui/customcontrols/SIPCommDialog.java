@@ -231,20 +231,51 @@ public abstract class SIPCommDialog extends JDialog
             y = this.getY();
         }
 
+        // determine all screens and combine the coordinates
+        Rectangle virtualBounds = new Rectangle();
+        GraphicsEnvironment ge = GraphicsEnvironment
+                .getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs = ge.getScreenDevices();
+        for (int j = 0; j < gs.length; j++)
+        {
+            GraphicsDevice gd = gs[j];
+            GraphicsConfiguration[] gc = gd.getConfigurations();
+            for (int i = 0; i < gc.length; i++)
+            {
+                virtualBounds = virtualBounds.union(gc[i].getBounds());
+            }
+        }
+
         // in case any of the sizes exceeds the screen size
         // we set default one
-        if(x + width > screenWidth ||
-           y + height > screenHeight - 50)
+        if (!(virtualBounds.contains(x, y) && virtualBounds.contains(x + width,
+                y + height)))
         {
-            double aspect = (double)width/height;
 
-            int newHeight = screenHeight - 100;
-            int newWidth = (int)(newHeight * aspect);
+            if (x + width > virtualBounds.width)
+            {
+                // location of window is too far to the right
+                x = virtualBounds.width - width;
+                if (x < 20)
+                {
+                    x = 20;
+                    width = virtualBounds.width - 40;
+                }
+            }
+            if (y + height > virtualBounds.height)
+            {
+                // location of window is too far to the right
+                y = virtualBounds.height - height;
+                if (y < 20)
+                {
+                    y = 20;
+                    height = virtualBounds.height - 40;
+                }
+            }
+            this.setPreferredSize(new Dimension(width, height));
+            this.setSize(width, height);
+            this.setLocation(x, y);
 
-            // change the preferred size as its like the original size
-            // and new size will not take effect
-            this.setPreferredSize(new Dimension(newWidth, newHeight));
-            this.setSize(newWidth, newHeight);
         }
     }
     
