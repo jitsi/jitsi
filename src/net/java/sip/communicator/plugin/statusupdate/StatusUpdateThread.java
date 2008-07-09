@@ -91,7 +91,7 @@ public class StatusUpdateThread implements Runnable
                             if (status.getStatus() < PresenceStatus.AVAILABLE_THRESHOLD)
                             {
                                 // already (manually) set to away or lower
-                                break;
+                                continue;
                             }
 
                             lastStates.put(protocolProviderService, presence
@@ -101,8 +101,11 @@ public class StatusUpdateThread implements Runnable
 
                             try
                             {
-                                presence.publishPresenceStatus(newStatus,
-                                        newStatus.getStatusName());
+                                if (newStatus != null)
+                                {
+                                    presence.publishPresenceStatus(newStatus,
+                                            newStatus.getStatusName());
+                                }
                             } catch (IllegalArgumentException e)
                             {
                             } catch (IllegalStateException e)
