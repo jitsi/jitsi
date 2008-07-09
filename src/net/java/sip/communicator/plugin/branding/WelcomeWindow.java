@@ -35,6 +35,8 @@ public class WelcomeWindow extends JDialog
 
     public WelcomeWindow()
     {
+        this.setTitle(BrandingResources.getApplicationString("applicationName"));
+
         this.setModal(false);
         this.setUndecorated(true);
 

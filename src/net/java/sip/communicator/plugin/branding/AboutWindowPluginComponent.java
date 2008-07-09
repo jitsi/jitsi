@@ -19,8 +19,12 @@ public class AboutWindowPluginComponent
     private JMenuItem aboutMenuItem
         = new JMenuItem(Resources.getString("aboutMenuEntry"));
 
-    public AboutWindowPluginComponent()
+    private Container container;
+
+    public AboutWindowPluginComponent(Container c)
     {
+        this.container = c;
+
         aboutMenuItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -43,7 +47,7 @@ public class AboutWindowPluginComponent
 
     public Container getContainer()
     {
-        return Container.CONTAINER_HELP_MENU;
+        return this.container;
     }
 
     public String getName()

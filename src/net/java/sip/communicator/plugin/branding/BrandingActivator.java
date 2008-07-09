@@ -71,7 +71,6 @@ public class BrandingActivator
                 }
             }
         }
-
     }
 
     private void registerMenuEntry(ServiceReference uiServiceRef)
@@ -83,7 +82,8 @@ public class BrandingActivator
                             Container.CONTAINER_HELP_MENU.getID());
 
         bundleContext.registerService(  PluginComponent.class.getName(),
-                                        new AboutWindowPluginComponent(),
+                                        new AboutWindowPluginComponent(
+                                            Container.CONTAINER_HELP_MENU),
                                         helpMenuFilter);
 
         logger.info("ABOUT WINDOW ... [REGISTERED]");
@@ -95,7 +95,8 @@ public class BrandingActivator
                                 Container.CONTAINER_CHAT_HELP_MENU.getID());
 
         bundleContext.registerService(  PluginComponent.class.getName(),
-                                        new AboutWindowPluginComponent(),
+                                        new AboutWindowPluginComponent(
+                                            Container.CONTAINER_CHAT_HELP_MENU),
                                         chatHelpMenuFilter);
 
         logger.info("CHAT ABOUT WINDOW ... [REGISTERED]");
