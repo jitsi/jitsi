@@ -43,6 +43,19 @@ public class NotificationConfigurationConfigForm
                DocumentListener,
                NotificationChangeListener
 {
+    public static final String INCOMING_MESSAGE = "IncomingMessage";
+    public static final String INCOMING_CALL = "IncomingCall";
+    public static final String OUTGOING_CALL = "OutgoingCall";
+    public static final String BUSY_CALL = "BusyCall";
+    public static String SOUND_INCOMING_MESSAGE
+        = "resources/sounds/incomingMessage.wav";
+    public static String SOUND_OUTGOING_CALL
+        = "resources/sounds/ring.wav";
+    public static String SOUND_INCOMING_CALL
+        = "resources/sounds/incomingCall.wav";
+    public static String SOUND_BUSY
+        = "resources/sounds/busy.wav";
+    
     private Logger logger
             = Logger.getLogger(NotificationConfigurationConfigForm.class);
     
@@ -100,15 +113,16 @@ public class NotificationConfigurationConfigForm
     
     private String [] textComboBox
             = {"Sounds", "Program Execution", "Messages Popup"};
-    private Dimension dimensionButton = new Dimension(80,20);
     private JButton turnOnAll;
     private JButton turnOffAll;
     private JComboBox comboBoxTurnOn;
     private JComboBox comboBoxTurnOff;
     
     private JPanel applyPanel = new JPanel();
-    private FlowLayout layoutApply = new FlowLayout(FlowLayout.RIGHT, 5,2);
+//    private FlowLayout layoutApply = new FlowLayout(FlowLayout.RIGHT, 5,2);
+    private BorderLayout layoutApply = new BorderLayout(5,2);
     private JButton apply;
+    private JButton restore;
     
     
     private JFileChooser fileChooserProgram;
@@ -349,10 +363,13 @@ public class NotificationConfigurationConfigForm
         constraints.weightx = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
         
+        restore = new JButton(Resources.getString("restore"));
+        restore.addActionListener(this);
         apply = new JButton(Resources.getString("apply"));
         apply.addActionListener(this);
         applyPanel.setLayout(layoutApply);
-        applyPanel.add(apply);
+        applyPanel.add(apply, BorderLayout.EAST);
+        applyPanel.add(restore, BorderLayout.WEST);
         gridLayoutGlobal.setConstraints(applyPanel, constraints);
         this.add(applyPanel);
         
@@ -368,21 +385,29 @@ public class NotificationConfigurationConfigForm
             NotificationsTableEntry tmpNTE
                     = (NotificationsTableEntry) dataVector.elementAt(0);
 
-            activate.setEnabled(!tmpNTE.getEnabled());
-            desactivate.setEnabled(tmpNTE.getEnabled());
-            programCheckBox.setSelected(tmpNTE.getProgram());
-            programFileChooser.setEnabled(tmpNTE.getProgram());
-            programFileTextField.setEnabled(tmpNTE.getProgram());
-            programFileTextField.setText(tmpNTE.getProgramFile());
-            playSoundCheckBox.setSelected(tmpNTE.getSound());
-            playSoundButton.setEnabled(tmpNTE.getSound());
-            soundFileChooser.setEnabled(tmpNTE.getSound());
-            soundFileTextField.setEnabled(tmpNTE.getSound());
-            soundFileTextField.setText(tmpNTE.getSoundFile());
-            popupCheckBox.setSelected(tmpNTE.getPopup());
+            updatePanel(tmpNTE);
             notificationList.setRowSelectionInterval(0,0);
             index = 0;
         }
+    }
+    
+    private void updatePanel(NotificationsTableEntry tmpNTE)
+    {
+        activate.setEnabled(!tmpNTE.getEnabled());
+        desactivate.setEnabled(tmpNTE.getEnabled());
+        programCheckBox.setSelected(tmpNTE.getProgram());
+        programCheckBox.setEnabled(tmpNTE.getProgram());
+        programFileChooser.setEnabled(tmpNTE.getProgram());
+        programFileTextField.setEnabled(tmpNTE.getProgram());
+        programFileTextField.setText(tmpNTE.getProgramFile());
+        playSoundCheckBox.setSelected(tmpNTE.getSound());
+        playSoundCheckBox.setEnabled(tmpNTE.getSound());
+        playSoundButton.setEnabled(tmpNTE.getSound());
+        soundFileChooser.setEnabled(tmpNTE.getSound());           
+        soundFileTextField.setEnabled(tmpNTE.getSound());
+        soundFileTextField.setText(tmpNTE.getSoundFile());
+        popupCheckBox.setSelected(tmpNTE.getPopup());
+        popupCheckBox.setEnabled(tmpNTE.getPopup());
     }
     
     /**
@@ -560,16 +585,19 @@ public class NotificationConfigurationConfigForm
             if(((String)comboBoxTurnOn.getSelectedItem()).equals("Sounds"))
             {
                 playSoundCheckBox.setSelected(tmpNTE.getSound());
+                playSoundCheckBox.setEnabled(tmpNTE.getSound());
             }
             else if(((String)comboBoxTurnOn.getSelectedItem())
                     .equals("Program Execution"))
             {
                 programCheckBox.setSelected(tmpNTE.getProgram());
+                programCheckBox.setEnabled(tmpNTE.getProgram());
             }
             else if(((String)comboBoxTurnOn.getSelectedItem())
                     .equals("Messages Popup"))
             {
                 popupCheckBox.setSelected(tmpNTE.getPopup());
+                popupCheckBox.setEnabled(tmpNTE.getPopup());
             }
             turnAll = false;
         }
@@ -611,16 +639,19 @@ public class NotificationConfigurationConfigForm
             if(((String)comboBoxTurnOn.getSelectedItem()).equals("Sounds"))
             {
                 playSoundCheckBox.setSelected(tmpNTE.getSound());
+                playSoundCheckBox.setEnabled(tmpNTE.getSound());
             }
             else if(((String)comboBoxTurnOn.getSelectedItem())
                     .equals("Program Execution"))
             {
                 programCheckBox.setSelected(tmpNTE.getProgram());
+                programCheckBox.setEnabled(tmpNTE.getProgram());
             }
             else if(((String)comboBoxTurnOn.getSelectedItem())
                     .equals("Messages Popup"))
             {
                 popupCheckBox.setSelected(tmpNTE.getPopup());
+                popupCheckBox.setEnabled(tmpNTE.getPopup());
             }
             turnAll = false;
         }
@@ -691,6 +722,62 @@ public class NotificationConfigurationConfigForm
                     tmpNTE.setModify(false);
                 }
             }
+        }
+        else if(e.getSource() == restore)
+        {
+            // Register incoming message notifications.
+            notificationService.registerNotificationForEvent(
+                    INCOMING_MESSAGE,
+                    NotificationService.ACTION_POPUP_MESSAGE,
+                    null,
+                    null);
+
+            notificationService.registerNotificationForEvent(
+                    INCOMING_MESSAGE,
+                    NotificationService.ACTION_SOUND,
+                    SOUND_INCOMING_MESSAGE,
+                    null);
+
+            // Register incoming call notifications.
+            notificationService.registerNotificationForEvent(
+                    INCOMING_CALL,
+                    NotificationService.ACTION_POPUP_MESSAGE,
+                    null,
+                    null);
+
+            SoundNotificationHandler inCallSoundHandler
+                = (SoundNotificationHandler) notificationService
+                    .createSoundNotificationHandler(SOUND_INCOMING_CALL, 2000);
+
+            notificationService.registerNotificationForEvent(
+                    INCOMING_CALL,
+                    NotificationService.ACTION_SOUND,
+                    inCallSoundHandler);
+
+            // Register outgoing call notifications.
+            SoundNotificationHandler outCallSoundHandler
+                = (SoundNotificationHandler) notificationService
+                    .createSoundNotificationHandler(SOUND_OUTGOING_CALL, 3000);
+
+            notificationService.registerNotificationForEvent(
+                    OUTGOING_CALL,
+                    NotificationService.ACTION_SOUND,
+                    outCallSoundHandler);
+
+            // Register busy call notifications.
+            SoundNotificationHandler busyCallSoundHandler
+                = (SoundNotificationHandler) notificationService
+                    .createSoundNotificationHandler(SOUND_BUSY, 1);
+
+            notificationService.registerNotificationForEvent(
+                    BUSY_CALL,
+                    NotificationService.ACTION_SOUND,
+                    busyCallSoundHandler);
+            
+            int ix = notificationList.getLine();
+            NotificationsTableEntry tmpNTE
+                    = (NotificationsTableEntry) dataVector.elementAt(ix);
+            updatePanel(tmpNTE);
         }
     }
     
@@ -819,8 +906,6 @@ public class NotificationConfigurationConfigForm
             tmpNTE = new NotificationsTableEntry();
             tmpNTE.setEvent(eventName);
             
-            
-            
             if(event.getSourceActionType()
                     .equals(NotificationService.ACTION_POPUP_MESSAGE))
             {
@@ -843,6 +928,7 @@ public class NotificationConfigurationConfigForm
                         .getActionHandler()).getDescriptor());
             }
             this.addRowAtVector(tmpNTE);
+            updatePanel(tmpNTE);
             logger.debug("Fin action added");
             return;
         }
@@ -877,6 +963,7 @@ public class NotificationConfigurationConfigForm
                             .getActionHandler()).getDescriptor());
                 }
                 this.updateTableRow(tmpNTE,row);
+                updatePanel(tmpNTE);
                 logger.debug("Fin action added");
                 return;
             }
@@ -908,6 +995,7 @@ public class NotificationConfigurationConfigForm
                     .getActionHandler()).getDescriptor());
         }
         this.addRowAtVector(tmpNTE);
+        updatePanel(tmpNTE);
         logger.debug("Fin action added");
         return;
     }
@@ -997,7 +1085,7 @@ public class NotificationConfigurationConfigForm
         }
         tmpNTE = new NotificationsTableEntry();
         tmpNTE.setEvent(eventAdded);
-        tmpNTE.setEnabled(notificationService.isActive(event.getEventType()));
+        tmpNTE.setEnabled(notificationService.isActive(event.getSourceEventType()));
         this.addRowAtVector(tmpNTE);
     }
     
@@ -1049,7 +1137,7 @@ public class NotificationConfigurationConfigForm
             playSoundCheckBox.setSelected(false);
             playSoundCheckBox.setEnabled(false);
             playSoundButton.setEnabled(false);
-            soundFileChooser.setEnabled(false);
+            soundFileChooser.setEnabled(false);      
             soundFileTextField.setEnabled(false);
             popupCheckBox.setSelected(false);
             popupCheckBox.setEnabled(false);
@@ -1164,7 +1252,6 @@ public class NotificationConfigurationConfigForm
         public void mouseClicked(MouseEvent me)
         {
             index = notificationList.rowAtPoint(me.getPoint());
-            Iterator it = dataVector.iterator();
             
             noListener = true;
             
@@ -1178,6 +1265,7 @@ public class NotificationConfigurationConfigForm
                     && tmpNTE.getProgramFile().trim().length() > 0)
                 {
                     programCheckBox.setSelected(true);
+                    programCheckBox.setEnabled(true);
                     programFileChooser.setEnabled(tmpNTE.getProgram());
                     programFileTextField.setEnabled(tmpNTE.getProgram());
                     programFileTextField.setText(tmpNTE.getProgramFile());
@@ -1193,6 +1281,7 @@ public class NotificationConfigurationConfigForm
                     && tmpNTE.getSoundFile().trim().length() > 0)
                 {
                     playSoundCheckBox.setSelected(true);
+                    playSoundCheckBox.setEnabled(true);
                     playSoundButton.setEnabled(true);
                     soundFileChooser.setEnabled(true);
                     soundFileTextField.setEnabled(true);
@@ -1202,11 +1291,12 @@ public class NotificationConfigurationConfigForm
                 {
                     playSoundCheckBox.setSelected(false);
                     playSoundButton.setEnabled(false);
-                    soundFileChooser.setEnabled(false);
+                    soundFileChooser.setEnabled(false);          
                     soundFileTextField.setEnabled(false);
                     soundFileTextField.setText(tmpNTE.getSoundFile());
                 }
                 popupCheckBox.setSelected(tmpNTE.getPopup());
+                popupCheckBox.setEnabled(tmpNTE.getPopup());
                 notificationList.setRowSelectionInterval(index,index);
                 noListener = false;
                 return;

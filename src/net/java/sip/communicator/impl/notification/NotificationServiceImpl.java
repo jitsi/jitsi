@@ -585,9 +585,9 @@ public class NotificationServiceImpl
             String eventTypeRootPropName
                 = (String) eventTypesIter.next();
             
-            boolean isEventActive = Boolean.parseBoolean(
-                (String)configService.getProperty(eventTypeRootPropName + ".active"));
-
+            boolean isEventActive = 
+                isEnabled(eventTypeRootPropName + ".active");
+            
             String eventType
                 = configService.getString(eventTypeRootPropName);
         
@@ -621,10 +621,8 @@ public class NotificationServiceImpl
                         soundFileDescriptor,
                         new Integer(loopInterval).intValue());
                     
-                    boolean isEnabled = Boolean.parseBoolean(
-                        configService.getString(
-                            actionPropName + ".enabled"));
-                    handler.setEnabled(isEnabled);
+                    handler.setEnabled(
+                        isEnabled(actionPropName + ".enabled"));
                 }
                 else if(actionType.equals(ACTION_POPUP_MESSAGE))
                 {
@@ -634,10 +632,8 @@ public class NotificationServiceImpl
             
                     handler = new PopupMessageNotificationHandlerImpl(
                                                                 defaultMessage);
-                    boolean isEnabled = Boolean.parseBoolean(
-                        configService.getString(
-                            actionPropName + ".enabled"));
-                    handler.setEnabled(isEnabled);
+                    handler.setEnabled(
+                        isEnabled(actionPropName + ".enabled"));
                 }
                 else if(actionType.equals(ACTION_LOG_MESSAGE))
                 {
@@ -647,10 +643,7 @@ public class NotificationServiceImpl
             
                     handler = new LogMessageNotificationHandlerImpl(logType);
                     
-                    boolean isEnabled = Boolean.parseBoolean(
-                        configService.getString(
-                            actionPropName + ".enabled"));
-                    handler.setEnabled(isEnabled);
+                    handler.setEnabled(isEnabled(actionPropName + ".enabled"));
                 }
                 else if(actionType.equals(ACTION_COMMAND))
                 {
@@ -660,10 +653,7 @@ public class NotificationServiceImpl
         
                     handler = new CommandNotificationHandlerImpl(
                                                             commandDescriptor);
-                    boolean isEnabled = Boolean.parseBoolean(
-                        configService.getString(
-                            actionPropName + ".enabled"));
-                    handler.setEnabled(isEnabled);                              
+                    handler.setEnabled(isEnabled(actionPropName + ".enabled"));                              
                 }
                 
                 // Load the data in the notifications table.
@@ -680,6 +670,21 @@ public class NotificationServiceImpl
                 notification.addAction(actionType, handler);
             }
         }
+    }
+    
+    private boolean isEnabled(String configProperty)
+    {
+        ConfigurationService configService
+            = NotificationActivator.getConfigurationService();
+        
+        Object isEnabledObj = configService.getProperty(configProperty);
+            
+        // if setting is missing we accept it is true 
+        // this way we not affect old saved settings
+        if(isEnabledObj == null)
+            return true;
+        else
+            return Boolean.parseBoolean((String)isEnabledObj);
     }
 
     /**
