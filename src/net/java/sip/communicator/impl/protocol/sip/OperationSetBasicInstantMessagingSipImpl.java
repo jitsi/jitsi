@@ -31,6 +31,11 @@ public class OperationSetBasicInstantMessagingSipImpl
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
+    
+    /**
+     * HTML content type
+     */
+    private static final String CONTENT_TYPE_HTML = "text/html";
 
     /**
      * A list of listeners registered for message events.
@@ -223,7 +228,8 @@ public class OperationSetBasicInstantMessagingSipImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE))
+        if(contentType.equals(DEFAULT_MIME_TYPE) || 
+           contentType.equals(CONTENT_TYPE_HTML))
             return true;
         else
            return false;
@@ -841,10 +847,10 @@ public class OperationSetBasicInstantMessagingSipImpl
             
             // get the content
             String content = null;
-
+            Request req = requestEvent.getRequest();
             try
             {
-                Request req = requestEvent.getRequest();
+                
                 content = new String(req.getRawContent(), getCharset(req));
             }
             catch (UnsupportedEncodingException ex)
@@ -865,7 +871,29 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             Contact from = opSetPersPresence.resolveContactID(
                 fromHeader.getAddress().getURI().toString());
-            Message newMessage = createMessage(content);
+            
+            ContentTypeHeader ctheader = 
+                (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
+            
+            String ctype = null;
+            String cencoding = null;
+            
+            if(ctheader == null)
+            {
+                ctype = DEFAULT_MIME_TYPE;
+            }
+            else
+            {
+                ctype = ctheader.getContentType() + "/" +
+                    ctheader.getContentSubType();
+                cencoding = ctheader.getParameter("charset");
+            }
+            
+            if(cencoding == null)
+                cencoding = DEFAULT_MIME_ENCODING;
+            
+            Message newMessage = 
+                createMessage(content.getBytes(), ctype, cencoding, null);
 
             if (from == null) {
                 logger.debug("received a message from an unknown contact: "
