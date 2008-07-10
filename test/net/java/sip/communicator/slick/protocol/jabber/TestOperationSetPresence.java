@@ -974,8 +974,11 @@ public class TestOperationSetPresence
                     && !evt.getSourceContact().getAddress()
                             .equals(trackedScreenName))
                     return;
-                if( status != null
-                    && status != evt.getNewStatus())
+
+                if( status == null )
+                    return;
+                
+                if(status != evt.getNewStatus())
                     return;
 
                 logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);

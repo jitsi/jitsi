@@ -680,7 +680,7 @@ public class OperationSetPersistentPresenceJabberImpl
             return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
 
         Presence.Mode mode = presence.getMode();
-
+        
         if(mode.equals(Presence.Mode.available))
             return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
         else if(mode.equals(Presence.Mode.away))
@@ -689,8 +689,18 @@ public class OperationSetPersistentPresenceJabberImpl
             return jabberStatusEnum.getStatus(JabberStatusEnum.FREE_FOR_CHAT);
         else if(mode.equals(Presence.Mode.dnd))
             return jabberStatusEnum.getStatus(JabberStatusEnum.DO_NOT_DISTURB);
+        else if(mode.equals(Presence.Mode.xa))
+            return jabberStatusEnum.getStatus(JabberStatusEnum.EXTENDED_AWAY);
         else
+        {
+            //unknown status
+            if(presence.isAway())
+                return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);
+            if(presence.isAvailable())
+                return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
+            
             return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
+        }
     }
 
     /**

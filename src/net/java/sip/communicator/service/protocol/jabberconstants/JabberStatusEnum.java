@@ -49,6 +49,12 @@ public class JabberStatusEnum
      * communicate.
      */
     public static final String FREE_FOR_CHAT = "Free For Chat";
+    
+    /**
+     * The Free For Chat status. Indicates that the user is eager to
+     * communicate.
+     */
+    public static final String EXTENDED_AWAY = "Extended Away";
 
     /**
      * Indicates an Offline status or status with 0 connectivity.
@@ -89,6 +95,11 @@ public class JabberStatusEnum
      * Indicates an Offline status or status with 0 connectivity.
      */
     private JabberPresenceStatus offlineStatus;
+    
+    /**
+     * Indicates an Extended Away status or status.
+     */
+    private JabberPresenceStatus extendedAwayStatus;
 
     /**
      * The supported status set stores all statuses supported by this protocol
@@ -102,8 +113,41 @@ public class JabberStatusEnum
      * not.
      */
     private JabberPresenceStatus unknownStatus;
+    
+    private static Hashtable<String, JabberStatusEnum> existingEnums
+        = new Hashtable<String, JabberStatusEnum>();
 
-    public JabberStatusEnum(String iconPath)
+    /**
+     * Returns an instance of JabberStatusEnum for the specified 
+     * <tt>iconPath</tt> or creates a new one if it doesn't already exist.
+     * 
+     * @param iconPath the location containing the status icons that should 
+     * be used by this enumeration.
+     * 
+     * @return the newly created JabberStatusEnum instance.
+     */
+    public static JabberStatusEnum getJabberStatusEnum(String iconPath)
+    {
+        JabberStatusEnum statusEnum = existingEnums.get(iconPath);
+        
+        if(statusEnum != null)
+            return statusEnum;
+        
+        statusEnum = new JabberStatusEnum(iconPath);
+        
+        existingEnums.put(iconPath, statusEnum);
+        
+        return statusEnum;
+    }
+    
+    /**
+     * Creates a new instance of JabberStatusEnum using <tt>iconPath</tt> as the
+     * root path where it should be reading status icons from.
+     * 
+     * @param iconPath the location containing the status icons that should 
+     * be used by this enumeration.
+     */
+    private JabberStatusEnum(String iconPath)
     {
         this.offlineStatus =
             new JabberPresenceStatus(0, OFFLINE, loadIcon(iconPath
@@ -124,6 +168,10 @@ public class JabberStatusEnum
         this.freeForChatStatus =
             new JabberPresenceStatus(85, FREE_FOR_CHAT, loadIcon(iconPath
                 + "/status16x16-ffc.png"));
+        
+        this.extendedAwayStatus =
+            new JabberPresenceStatus(85, EXTENDED_AWAY, loadIcon(iconPath
+                + "/status16x16-xa.png"));
 
         this.unknownStatus =
             new JabberPresenceStatus(1, UNKNOWN, loadIcon(iconPath
@@ -133,6 +181,7 @@ public class JabberStatusEnum
         supportedStatusSet.add(freeForChatStatus);
         supportedStatusSet.add(availableStatus);
         supportedStatusSet.add(awayStatus);
+        supportedStatusSet.add(extendedAwayStatus);
         supportedStatusSet.add(doNotDisturbStatus);
         supportedStatusSet.add(offlineStatus);
     }
@@ -155,6 +204,8 @@ public class JabberStatusEnum
             return doNotDisturbStatus;
         else if (statusName.equals(AWAY))
             return awayStatus;
+        else if (statusName.equals(EXTENDED_AWAY))
+            return extendedAwayStatus;
         else
             return unknownStatus;
     }

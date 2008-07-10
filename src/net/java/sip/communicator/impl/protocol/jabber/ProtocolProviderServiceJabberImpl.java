@@ -512,7 +512,8 @@ public class ProtocolProviderServiceJabberImpl
 
             jabberIcon = new ProtocolIconJabberImpl(protocolIconPath);
 
-            jabberStatusEnum = new JabberStatusEnum(protocolIconPath);
+            jabberStatusEnum 
+                = JabberStatusEnum.getJabberStatusEnum(protocolIconPath);
 
             //this feature is mandatory to be compliant with Service Discovery
             supportedFeatures.add("http://jabber.org/protocol/disco#info");

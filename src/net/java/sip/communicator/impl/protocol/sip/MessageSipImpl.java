@@ -78,7 +78,7 @@ public class MessageSipImpl
         }
         catch (UnsupportedEncodingException ex)
         {
-        	logger.warn("can't handle the requested encoding", ex);
+            logger.warn("can't handle the requested encoding", ex);
         	
             this.contentEncoding = Charset.defaultCharset().name();
             this.rawContent = content.getBytes();
