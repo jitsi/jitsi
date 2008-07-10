@@ -471,13 +471,13 @@ public class NotificationConfigurationConfigForm
                     NotificationsTableEntry tmpNTE = (NotificationsTableEntry) dataVector.elementAt(index);
                     File file = fileChooserSound.getSelectedFile();
                     //This is where a real application would open the file.
-                    logger.debug("Opening: " + file.toURL().toExternalForm());
-                    tmpNTE.setSoundFile(file.toURL().toExternalForm());
+                    logger.debug("Opening: " + file.toURI().toURL().toExternalForm());
+                    tmpNTE.setSoundFile(file.toURI().toURL().toExternalForm());
                     tmpNTE.setSound(true);
                     tmpNTE.setModify(true);
                     this.updateTableRow(tmpNTE, index);
                     notificationList.setLine(tmpNTE, index);
-                    soundFileTextField.setText(file.toURL().toExternalForm());
+                    soundFileTextField.setText(file.toURI().toURL().toExternalForm());
                 }
                 catch (MalformedURLException ex)
                 {
