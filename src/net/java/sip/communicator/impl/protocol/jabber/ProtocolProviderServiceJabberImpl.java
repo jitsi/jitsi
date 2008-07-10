@@ -24,6 +24,7 @@ import org.jivesoftware.smackx.*;
  *
  * @author Damian Minkov
  * @author Symphorien Wanko
+ * @author Lubomir Marinov
  */
 public class ProtocolProviderServiceJabberImpl
     extends AbstractProtocolProviderService
@@ -72,8 +73,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * The icon corresponding to the jabber protocol.
      */
-    private ProtocolIconJabberImpl jabberIcon
-        = new ProtocolIconJabberImpl();
+    private ProtocolIconJabberImpl jabberIcon;
 
     /**
      * A set of features supported by our Jabber implementation.
@@ -100,6 +100,8 @@ public class ProtocolProviderServiceJabberImpl
      * be used to query remote clients for supported features.
      */
     private ServiceDiscoveryManager discoveryManager = null;
+
+    private JabberStatusEnum jabberStatusEnum;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -500,6 +502,18 @@ public class ProtocolProviderServiceJabberImpl
         {
             this.accountID = accountID;
 
+            String protocolIconPath =
+                (String) accountID.getAccountProperties().get(
+                    ProtocolProviderFactory.PROTOCOL_ICON_PATH);
+            if (protocolIconPath == null)
+            {
+                protocolIconPath = "resources/images/protocol/jabber";
+            }
+
+            jabberIcon = new ProtocolIconJabberImpl(protocolIconPath);
+
+            jabberStatusEnum = new JabberStatusEnum(protocolIconPath);
+
             //this feature is mandatory to be compliant with Service Discovery
             supportedFeatures.add("http://jabber.org/protocol/disco#info");
 
@@ -690,8 +704,8 @@ public class ProtocolProviderServiceJabberImpl
                         .get(OperationSetPersistentPresence.class.getName());
 
             opSetPersPresence.fireProviderPresenceStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus(),
-                JabberStatusEnum.OFFLINE);
+                opSetPersPresence.getPresenceStatus(), getJabberStatusEnum()
+                    .getStatus(JabberStatusEnum.OFFLINE));
         }
 
         /**
@@ -748,5 +762,15 @@ public class ProtocolProviderServiceJabberImpl
     public ProtocolIcon getProtocolIcon()
     {
         return jabberIcon;
+    }
+
+    /**
+     * Returns the current instance of <tt>JabberStatusEnum</tt>.
+     * 
+     * @return the current instance of <tt>JabberStatusEnum</tt>.
+     */
+    JabberStatusEnum getJabberStatusEnum()
+    {
+        return jabberStatusEnum;
     }
 }

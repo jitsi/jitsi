@@ -41,7 +41,7 @@ public class GeolocationPresence
         // set the presence mode (available, NA, free for chat)
         this.prez.setMode(
             OperationSetPersistentPresenceJabberImpl.presenceStatusToJabberMode(
-                (JabberStatusEnum) persistentPresence
+                persistentPresence
                 .getPresenceStatus()));
     }
 

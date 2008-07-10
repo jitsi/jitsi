@@ -27,6 +27,7 @@ import net.java.sip.communicator.util.*;
  * postTestUnsubscribe().
  * <p>
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class TestOperationSetPresence
     extends TestCase
@@ -36,7 +37,9 @@ public class TestOperationSetPresence
 
     private JabberSlickFixture fixture = new JabberSlickFixture();
     private OperationSetPresence operationSetPresence1 = null;
+    private final Map supportedStatusSet1 = new HashMap();
     private OperationSetPresence operationSetPresence2 = null;
+    private final Map supportedStatusSet2 = new HashMap();
     private String statusMessageRoot = new String("Our status is now: ");
 
     private static AuthEventCollector authEventCollector1 = new AuthEventCollector();
@@ -101,6 +104,30 @@ public class TestOperationSetPresence
                 + "Operation Sets");
         }
 
+        /*
+         * Retrieve the supported PresenceStatus values because the instances
+         * are specific to the ProtocolProviderService implementations.
+         */
+        // operationSetPresence1
+        for (Iterator supportedStatusIt =
+            operationSetPresence1.getSupportedStatusSet(); supportedStatusIt
+            .hasNext();)
+        {
+            PresenceStatus supportedStatus =
+                (PresenceStatus) supportedStatusIt.next();
+            supportedStatusSet1.put(supportedStatus.getStatusName(),
+                supportedStatus);
+        }
+        // operationSetPresence2
+        for (Iterator supportedStatusIt =
+            operationSetPresence2.getSupportedStatusSet(); supportedStatusIt
+            .hasNext();)
+        {
+            PresenceStatus supportedStatus =
+                (PresenceStatus) supportedStatusIt.next();
+            supportedStatusSet2.put(supportedStatus.getStatusName(),
+                supportedStatus);
+        }
     }
 
     protected void tearDown() throws Exception
@@ -158,22 +185,24 @@ public class TestOperationSetPresence
         Iterator supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
 
-        List supportedStatusSet = new LinkedList();
-        while (supportedStatusSetIter.hasNext()){
-            supportedStatusSet.add(supportedStatusSetIter.next());
+        List supportedStatusNames = new LinkedList();
+        while (supportedStatusSetIter.hasNext())
+        {
+            supportedStatusNames.add(((PresenceStatus) supportedStatusSetIter
+                .next()).getStatusName());
         }
 
         //create a copy of the MUST status set and remove any matching status
         //that is also present in the supported set.
-        List requiredStatusSetCopy = (List)JabberStatusEnum.jabberStatusSet.clone();
+        List requiredStatusNames =
+            Arrays.asList(JabberStatusEnum.getStatusNames());
 
-        requiredStatusSetCopy.removeAll(supportedStatusSet);
+        requiredStatusNames.removeAll(supportedStatusNames);
 
         //if we have anything left then the implementation is wrong.
-        int unsupported = requiredStatusSetCopy.size();
+        int unsupported = requiredStatusNames.size();
         assertTrue( "There are " + unsupported + " statuses as follows:"
-                    + requiredStatusSetCopy,
-                    unsupported == 0);
+            + requiredStatusNames, unsupported == 0);
     }
 
     /**
@@ -228,10 +257,12 @@ public class TestOperationSetPresence
      *
      * @throws Exception in case changing the state causes an exception
      */
-    public void subtestStateTransition( JabberStatusEnum newStatus)
-        throws Exception
+    private void subtestStateTransition(String newStatusName) throws Exception
     {
         logger.trace(" --=== beginning state transition test ===--");
+
+        PresenceStatus newStatus =
+            getPresenceStatus(supportedStatusSet1, newStatusName);
 
         PresenceStatus oldStatus = operationSetPresence1.getPresenceStatus();
         String oldStatusMessage = operationSetPresence1.getCurrentStatusMessage();
@@ -276,7 +307,7 @@ public class TestOperationSetPresence
             newStatus,
             operationSetPresence1.getPresenceStatus());
 
-        JabberStatusEnum actualStatus = (JabberStatusEnum)
+        PresenceStatus actualStatus =
             operationSetPresence2.queryContactStatus(fixture.userID1);
 
         assertEquals("The underlying implementation did not switch to the "
@@ -361,20 +392,21 @@ public class TestOperationSetPresence
      *
      * @throws java.lang.Exception if querying the status causes some exception.
      */
-    public void subtestQueryContactStatus(PresenceStatus status,
-                                          PresenceStatus expectedReturn)
+    private void subtestQueryContactStatus(String status, String expectedReturn)
         throws Exception
     {
-        operationSetPresence2.publishPresenceStatus(status, "status message");
+        operationSetPresence2.publishPresenceStatus(getPresenceStatus(
+            supportedStatusSet2, status), "status message");
 
         pauseAfterStateChanges();
 
         PresenceStatus actualReturn
             = operationSetPresence1.queryContactStatus(fixture.userID2);
         assertEquals("Querying a "
-                     + expectedReturn.getStatusName()
+                     + expectedReturn
                      + " state did not return as expected"
-                     , expectedReturn, actualReturn);
+                     , getPresenceStatus(supportedStatusSet1, expectedReturn)
+                     , actualReturn);
     }
 
     /**
@@ -503,16 +535,19 @@ public class TestOperationSetPresence
         // make the user agent tester change its states and make sure we are
         // notified
         logger.debug("Testing presence notifications.");
-        JabberStatusEnum oldStatus
-            = (JabberStatusEnum)operationSetPresence2.getPresenceStatus();
+        PresenceStatus oldStatus
+            = operationSetPresence2.getPresenceStatus();
 
-
-        JabberStatusEnum newStatus = JabberStatusEnum.FREE_FOR_CHAT;
+        PresenceStatus newStatus =
+            getPresenceStatus(supportedStatusSet2,
+                JabberStatusEnum.FREE_FOR_CHAT);
 
         //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
         //be changing to something else
         if(oldStatus.equals(newStatus)){
-            newStatus = JabberStatusEnum.DO_NOT_DISTURB;
+            newStatus =
+                getPresenceStatus(supportedStatusSet2,
+                    JabberStatusEnum.DO_NOT_DISTURB);
         }
 
         //now do the actual status notification testing
@@ -610,14 +645,18 @@ public class TestOperationSetPresence
         // make the user agent tester change its states and make sure we don't
         // get notifications as we're now unsubscribed.
         logger.debug("Testing (lack of) presence notifications.");
-        JabberStatusEnum oldStatus
-            = (JabberStatusEnum)operationSetPresence2.getPresenceStatus();
-        JabberStatusEnum newStatus = JabberStatusEnum.FREE_FOR_CHAT;
+        PresenceStatus oldStatus
+            = operationSetPresence2.getPresenceStatus();
+        PresenceStatus newStatus =
+            getPresenceStatus(supportedStatusSet2,
+                JabberStatusEnum.FREE_FOR_CHAT);
 
         //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
         //be changing to something else
         if(oldStatus.equals(newStatus)){
-            newStatus = JabberStatusEnum.DO_NOT_DISTURB;
+            newStatus =
+                getPresenceStatus(supportedStatusSet2,
+                    JabberStatusEnum.DO_NOT_DISTURB);
         }
 
         //now do the actual status notification testing
@@ -885,10 +924,10 @@ public class TestOperationSetPresence
     {
         public ArrayList collectedEvents = new ArrayList();
         private String trackedScreenName = null;
-        private JabberStatusEnum status = null;
+        private PresenceStatus status = null;
 
         ContactPresenceEventCollector(String screenname,
-                                      JabberStatusEnum wantedStatus)
+                                      PresenceStatus wantedStatus)
         {
             this.trackedScreenName = screenname;
             this.status = wantedStatus;
@@ -944,6 +983,12 @@ public class TestOperationSetPresence
                 notifyAll();
             }
         }
+    }
+
+    private PresenceStatus getPresenceStatus(Map supportedStatusSet,
+        String statusName)
+    {
+        return (PresenceStatus) supportedStatusSet.get(statusName);
     }
 
     /**

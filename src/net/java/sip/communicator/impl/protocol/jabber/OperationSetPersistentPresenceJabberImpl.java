@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
  * the buddy contact list and adding listeners for changes in its layout.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class OperationSetPersistentPresenceJabberImpl
     implements OperationSetPersistentPresence
@@ -49,7 +50,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * The presence status that we were last notified of etnering.
      * The initial one is OFFLINE
      */
-    private PresenceStatus currentStatus = JabberStatusEnum.OFFLINE;
+    private PresenceStatus currentStatus;
 
     /**
      * The list of listeners interested in receiving changes in our local
@@ -68,19 +69,6 @@ public class OperationSetPersistentPresenceJabberImpl
      * notifications of changes in status of contacts in our contact list.
      */
     private Vector contactPresenceStatusListeners = new Vector();
-
-    /**
-     * The array list we use when returning from the getSupportedStatusSet()
-     * method.
-     */
-    private static final ArrayList supportedPresenceStatusSet = new ArrayList();
-    static{
-        supportedPresenceStatusSet.add(JabberStatusEnum.AWAY);
-        supportedPresenceStatusSet.add(JabberStatusEnum.DO_NOT_DISTURB);
-        supportedPresenceStatusSet.add(JabberStatusEnum.FREE_FOR_CHAT);
-        supportedPresenceStatusSet.add(JabberStatusEnum.OFFLINE);
-        supportedPresenceStatusSet.add(JabberStatusEnum.AVAILABLE);
-    }
 
     /**
      * A map containing bindings between SIP Communicator's jabber presence status
@@ -112,6 +100,10 @@ public class OperationSetPersistentPresenceJabberImpl
         ProtocolProviderServiceJabberImpl provider)
     {
         this.jabberProvider = provider;
+
+        currentStatus =
+            this.jabberProvider.getJabberStatusEnum().getStatus(
+                JabberStatusEnum.OFFLINE);
 
         ssContactList = new ServerStoredContactListJabberImpl( this , provider);
 
@@ -353,7 +345,7 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public Iterator getSupportedStatusSet()
     {
-        return supportedPresenceStatusSet.iterator();
+        return jabberProvider.getJabberStatusEnum().getSupportedStatusSet();
     }
 
     /**
@@ -403,12 +395,25 @@ public class OperationSetPersistentPresenceJabberImpl
     {
         assertConnected();
 
-        if (!(status instanceof JabberStatusEnum))
-            throw new IllegalArgumentException(
-                            status + " is not a valid Jabber status");
+        JabberStatusEnum jabberStatusEnum =
+            jabberProvider.getJabberStatusEnum();
+        boolean isValidStatus = false;
+        for (Iterator supportedStatusIter =
+            jabberStatusEnum.getSupportedStatusSet(); supportedStatusIter
+            .hasNext();)
+        {
+            if (supportedStatusIter.next().equals(status))
+            {
+                isValidStatus = true;
+                break;
+            }
+        }
+        if (!isValidStatus)
+            throw new IllegalArgumentException(status
+                + " is not a valid Jabber status");
 
         Presence presence = null;
-        if(((JabberStatusEnum)status).equals(JabberStatusEnum.OFFLINE))
+        if (status.equals(jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE)))
         {
             presence = new Presence(Presence.Type.unavailable);
             jabberProvider.unregister();
@@ -416,7 +421,7 @@ public class OperationSetPersistentPresenceJabberImpl
         else
         {
             presence = new Presence(Presence.Type.available);
-            presence.setMode(presenceStatusToJabberMode((JabberStatusEnum)status));
+            presence.setMode(presenceStatusToJabberMode(status));
             presence.setPriority(resourcePriority);
             presence.setStatus(statusMessage);
             presence.addExtension(new Version());
@@ -458,9 +463,10 @@ public class OperationSetPersistentPresenceJabberImpl
                 getPresence(contactIdentifier);
 
         if(presence != null)
-            return jabberStatusToPresenceStatus(presence);
+            return jabberStatusToPresenceStatus(presence, jabberProvider);
         else
-            return JabberStatusEnum.OFFLINE;
+            return jabberProvider.getJabberStatusEnum().getStatus(
+                JabberStatusEnum.OFFLINE);
     }
 
     /**
@@ -659,28 +665,32 @@ public class OperationSetPersistentPresenceJabberImpl
      * @return a PresenceStatus instance representation of the Jabber Status
      * parameter. The returned result is one of the JabberStatusEnum fields.
      */
-    public static JabberStatusEnum jabberStatusToPresenceStatus(Presence presence)
+    public static PresenceStatus jabberStatusToPresenceStatus(
+        Presence presence, ProtocolProviderServiceJabberImpl jabberProvider)
     {
+        JabberStatusEnum jabberStatusEnum =
+            jabberProvider.getJabberStatusEnum();
         // fixing issue: 336
         // from the smack api :
         // A null presence mode value is interpreted to be the same thing
         // as Presence.Mode.available.
         if(presence.getMode() == null && presence.isAvailable())
-            return JabberStatusEnum.AVAILABLE;
+            return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
         else if(presence.getMode() == null && !presence.isAvailable())
-            return JabberStatusEnum.OFFLINE;
+            return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
 
         Presence.Mode mode = presence.getMode();
 
         if(mode.equals(Presence.Mode.available))
-            return JabberStatusEnum.AVAILABLE;
+            return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
         else if(mode.equals(Presence.Mode.away))
-            return JabberStatusEnum.AWAY;
+            return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);
         else if(mode.equals(Presence.Mode.chat))
-            return JabberStatusEnum.FREE_FOR_CHAT;
+            return jabberStatusEnum.getStatus(JabberStatusEnum.FREE_FOR_CHAT);
         else if(mode.equals(Presence.Mode.dnd))
-            return JabberStatusEnum.DO_NOT_DISTURB;
-        else return JabberStatusEnum.OFFLINE;
+            return jabberStatusEnum.getStatus(JabberStatusEnum.DO_NOT_DISTURB);
+        else
+            return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
     }
 
     /**
@@ -690,10 +700,10 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param status the jabberStatus
      * @return a PresenceStatus instance
      */
-    public static Presence.Mode presenceStatusToJabberMode(
-                                                       JabberStatusEnum status)
+    public static Presence.Mode presenceStatusToJabberMode(PresenceStatus status)
     {
-        return (Presence.Mode)scToJabberModesMappings.get(status);
+        return (Presence.Mode) scToJabberModesMappings.get(status
+            .getStatusName());
     }
 
     /**
@@ -813,7 +823,8 @@ public class OperationSetPersistentPresenceJabberImpl
                     new ContactChangesListener());
 
                 fireProviderPresenceStatusChangeEvent(currentStatus,
-                    JabberStatusEnum.AVAILABLE);
+                    jabberProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.AVAILABLE));
 
                 // init ssList
                 ssContactList.init();
@@ -827,7 +838,10 @@ public class OperationSetPersistentPresenceJabberImpl
                 //well as set to offline all contacts in our contact list that
                 //were online
                 PresenceStatus oldStatus = currentStatus;
-                currentStatus = JabberStatusEnum.OFFLINE;
+                PresenceStatus offlineStatus =
+                    jabberProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.OFFLINE);
+                currentStatus = offlineStatus;
 
                 fireProviderPresenceStatusChangeEvent(oldStatus,
                     currentStatus);
@@ -856,12 +870,12 @@ public class OperationSetPersistentPresenceJabberImpl
                         if(!oldContactStatus.isOnline())
                             continue;
 
-                        contact.updatePresenceStatus(JabberStatusEnum.OFFLINE);
+                        contact.updatePresenceStatus(offlineStatus);
 
                         fireContactPresenceStatusChangeEvent(
                               contact
                             , contact.getParentContactGroup()
-                            , oldContactStatus, JabberStatusEnum.OFFLINE);
+                            , oldContactStatus, offlineStatus);
                     }
                 }
 
@@ -880,12 +894,12 @@ public class OperationSetPersistentPresenceJabberImpl
                     if (!oldContactStatus.isOnline())
                         continue;
 
-                    contact.updatePresenceStatus(JabberStatusEnum.OFFLINE);
+                    contact.updatePresenceStatus(offlineStatus);
 
                     fireContactPresenceStatusChangeEvent(
                         contact
                         , contact.getParentContactGroup()
-                        , oldContactStatus, JabberStatusEnum.OFFLINE);
+                        , oldContactStatus, offlineStatus);
                 }
 
             }
@@ -1082,7 +1096,8 @@ public class OperationSetPersistentPresenceJabberImpl
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
 
-                PresenceStatus newStatus = jabberStatusToPresenceStatus(presence);
+                PresenceStatus newStatus =
+                    jabberStatusToPresenceStatus(presence, jabberProvider);
 
                 // when old and new status are the same do nothing
                 // no change

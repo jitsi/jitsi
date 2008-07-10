@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 /**
  * The Jabber implementation of the service.protocol.Contact interface.
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class ContactJabberImpl
     implements Contact
@@ -24,7 +25,7 @@ public class ContactJabberImpl
     private RosterEntry rosterEntry = null;
     private boolean isLocal = false;
     private byte[] image = null;
-    private PresenceStatus status = JabberStatusEnum.OFFLINE;
+    private PresenceStatus status;
     private ServerStoredContactListJabberImpl ssclCallback = null;
     private boolean isPersistent = false;
     private boolean isResolved = false;
@@ -51,6 +52,10 @@ public class ContactJabberImpl
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
+
+        this.status =
+            ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
+                .getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE);
     }
 
     ContactJabberImpl(String id,
@@ -62,6 +67,10 @@ public class ContactJabberImpl
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = false;
+
+        this.status =
+            ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
+                .getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE);
     }
 
 

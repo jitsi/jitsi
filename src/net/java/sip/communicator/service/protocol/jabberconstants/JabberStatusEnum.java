@@ -1,112 +1,266 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.service.protocol.jabberconstants;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * An enumeration containing all status instances that MUST be supported by
- * an implementation of the Jabber protocol. Implementations may
- * support other forms of PresenceStatus but they MUST ALL support those
- * enumerated here.
- * <p>
- * For testing purposes, this class also provides a <tt>List</tt> containing
- * all of the status fields.
- *
- * @author Damian Minkov
+ * The <tt>JabberStatusEnum</tt> gives access to presence states for the Sip
+ * protocol. All status icons corresponding to presence states are located with
+ * the help of the <tt>imagePath</tt> parameter
+ * 
+ * @author Emil Ivov
+ * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class JabberStatusEnum
-    extends PresenceStatus
 {
-    private static Logger logger = Logger.getLogger(JabberStatusEnum.class);
-
-    /**
-     * The Free For Chat status. Indicates that the user is eager to
-     * communicate.
-     */
-    public static final JabberStatusEnum FREE_FOR_CHAT
-        = new JabberStatusEnum(85, "Free For Chat",
-                loadIcon("resources/images/protocol/jabber/jabber16x16-ffc.png"));
+    private static final Logger logger =
+        Logger.getLogger(JabberStatusEnum.class);
 
     /**
      * The Online status. Indicate that the user is able and willing to
      * communicate.
      */
-    public static final JabberStatusEnum AVAILABLE
-        = new JabberStatusEnum(65, "Available",
-                loadIcon("resources/images/protocol/jabber/jabber16x16-online.png"));
+    public static final String AVAILABLE = "Available";
 
     /**
-     * The Away  status. Indicates that the user has connectivity but might
-     * not be able to immediately act upon initiation of communication.
+     * The Away status. Indicates that the user has connectivity but might not
+     * be able to immediately act upon initiation of communication.
      */
-    public static final JabberStatusEnum AWAY
-        = new JabberStatusEnum(40, "Away",
-                loadIcon("resources/images/protocol/jabber/jabber16x16-away.png"));
+    public static final String AWAY = "Away";
 
     /**
-     * The DND status. Indicates that the user has connectivity but prefers
-     * not to be contacted.
+     * The DND status. Indicates that the user has connectivity but prefers not
+     * to be contacted.
      */
-    public static final JabberStatusEnum DO_NOT_DISTURB
-        = new JabberStatusEnum(30, "Do Not Disturb",
-                loadIcon("resources/images/protocol/jabber/jabber16x16-dnd.png"));
+    public static final String DO_NOT_DISTURB = "Do Not Disturb";
 
     /**
-     * The Offline status. Indicates the user does not seem to be connected
-     * to the network or at least does not want us to know she is
+     * The Free For Chat status. Indicates that the user is eager to
+     * communicate.
      */
-    public static final JabberStatusEnum OFFLINE
-        = new JabberStatusEnum(0, "Offline",
-                loadIcon("resources/images/protocol/jabber/jabber16x16-offline.png"));
+    public static final String FREE_FOR_CHAT = "Free For Chat";
 
     /**
-     * The minimal set of states that any implementation must support.
+     * Indicates an Offline status or status with 0 connectivity.
      */
-    public static final ArrayList jabberStatusSet =new ArrayList();
-    static{
-            jabberStatusSet.add(FREE_FOR_CHAT);
-            jabberStatusSet.add(AVAILABLE);
-            jabberStatusSet.add(AWAY);
-            jabberStatusSet.add(DO_NOT_DISTURB);
-            jabberStatusSet.add(OFFLINE);
+    public static final String OFFLINE = "Offline";
+
+    /**
+     * The Unknown status. Indicate that we don't know if the user is present or
+     * not.
+     */
+    public static final String UNKNOWN = "Unknown";
+
+    /**
+     * The Online status. Indicate that the user is able and willing to
+     * communicate.
+     */
+    private JabberPresenceStatus availableStatus;
+
+    /**
+     * The Away status. Indicates that the user has connectivity but might not
+     * be able to immediately act upon initiation of communication.
+     */
+    private JabberPresenceStatus awayStatus;
+
+    /**
+     * The DND status. Indicates that the user has connectivity but prefers not
+     * to be contacted.
+     */
+    private JabberPresenceStatus doNotDisturbStatus;
+
+    /**
+     * The Free For Chat status. Indicates that the user is eager to
+     * communicate.
+     */
+    private JabberPresenceStatus freeForChatStatus;
+
+    /**
+     * Indicates an Offline status or status with 0 connectivity.
+     */
+    private JabberPresenceStatus offlineStatus;
+
+    /**
+     * The supported status set stores all statuses supported by this protocol
+     * implementation.
+     */
+    public List<JabberPresenceStatus> supportedStatusSet =
+        new LinkedList<JabberPresenceStatus>();
+
+    /**
+     * The Unknown status. Indicate that we don't know if the user is present or
+     * not.
+     */
+    private JabberPresenceStatus unknownStatus;
+
+    public JabberStatusEnum(String iconPath)
+    {
+        this.offlineStatus =
+            new JabberPresenceStatus(0, OFFLINE, loadIcon(iconPath
+                + "/status16x16-offline.png"));
+
+        this.doNotDisturbStatus =
+            new JabberPresenceStatus(30, DO_NOT_DISTURB, loadIcon(iconPath
+                + "/status16x16-dnd.png"));
+
+        this.awayStatus =
+            new JabberPresenceStatus(40, AWAY, loadIcon(iconPath
+                + "/status16x16-away.png"));
+
+        this.availableStatus =
+            new JabberPresenceStatus(65, AVAILABLE, loadIcon(iconPath
+                + "/status16x16-online.png"));
+
+        this.freeForChatStatus =
+            new JabberPresenceStatus(85, FREE_FOR_CHAT, loadIcon(iconPath
+                + "/status16x16-ffc.png"));
+
+        this.unknownStatus =
+            new JabberPresenceStatus(1, UNKNOWN, loadIcon(iconPath
+                + "/status16x16-offline.png"));
+
+        // Initialize the list of supported status states.
+        supportedStatusSet.add(freeForChatStatus);
+        supportedStatusSet.add(availableStatus);
+        supportedStatusSet.add(awayStatus);
+        supportedStatusSet.add(doNotDisturbStatus);
+        supportedStatusSet.add(offlineStatus);
     }
 
     /**
-     * Creates a status with the specified connectivity coeff, name and icon.
-     * @param status the connectivity coefficient for the specified status
-     * @param statusName String
-     * @param statusIcon the icon associated with this status
+     * Returns the offline Jabber status.
+     * 
+     * @param statusName the name of the status.
+     * @return the offline Jabber status.
      */
-    protected JabberStatusEnum(int status, String statusName, byte[] statusIcon)
+    public JabberPresenceStatus getStatus(String statusName)
     {
-        super(status, statusName, statusIcon);
+        if (statusName.equals(AVAILABLE))
+            return availableStatus;
+        else if (statusName.equals(OFFLINE))
+            return offlineStatus;
+        else if (statusName.equals(FREE_FOR_CHAT))
+            return freeForChatStatus;
+        else if (statusName.equals(DO_NOT_DISTURB))
+            return doNotDisturbStatus;
+        else if (statusName.equals(AWAY))
+            return awayStatus;
+        else
+            return unknownStatus;
+    }
+
+    /**
+     * Returns an iterator over all status instances supported by the sip
+     * provider.
+     * 
+     * @return an <tt>Iterator</tt> over all status instances supported by the
+     *         sip provider.
+     */
+    public Iterator getSupportedStatusSet()
+    {
+        return supportedStatusSet.iterator();
+    }
+
+    public static String[] getStatusNames()
+    {
+        return new String[]
+        { OFFLINE, DO_NOT_DISTURB, AWAY, AVAILABLE, FREE_FOR_CHAT };
     }
 
     /**
      * Loads an image from a given image path.
-     * @param imagePath The identifier of the image.
-     * @return The image for the given identifier.
+     * 
+     * @param imagePath The path to the image resource.
+     * @return The image extracted from the resource at the specified path.
      */
-    public static byte[] loadIcon(String imagePath) {
-        InputStream is = JabberStatusEnum.class.getClassLoader()
-            .getResourceAsStream(imagePath);
+    public static byte[] loadIcon(String imagePath)
+    {
+        return loadIcon(imagePath, JabberStatusEnum.class);
+    }
+
+    public static byte[] loadIcon(String imagePath, Class clazz)
+    {
+        InputStream is = getResourceAsStream(imagePath, clazz);
 
         byte[] icon = null;
-        try {
+        try
+        {
             icon = new byte[is.available()];
             is.read(icon);
-        } catch (IOException exc) {
+        }
+        catch (IOException exc)
+        {
             logger.error("Failed to load icon: " + imagePath, exc);
         }
+        finally {
+            try
+            {
+                is.close();
+            }
+            catch (IOException ex)
+            {
+                /*
+                 * We're closing an InputStream so there shouldn't be data loss
+                 * because of it (in contrast to an OutputStream) and a warning
+                 * in the log should be enough.
+                 */
+                logger.warn("Failed to close the InputStream of icon: "
+                    + imagePath, ex);
+            }
+        }
         return icon;
+    }
+
+    private static InputStream getResourceAsStream(String name, Class clazz)
+    {
+        if (name.indexOf("://") != -1)
+        {
+            try
+            {
+                return new URL(name).openStream();
+            }
+            catch (IOException ex)
+            {
+                /*
+                 * Well, we didn't really know whether the specified name
+                 * represented an URL so we just tried. We'll resort to
+                 * Class#getResourceAsStream then.
+                 */
+            }
+        }
+        return clazz.getClassLoader().getResourceAsStream(name);
+    }
+
+    /**
+     * An implementation of <tt>PresenceStatus</tt> that enumerates all states
+     * that a Jabber contact can currently have.
+     */
+    private class JabberPresenceStatus
+        extends PresenceStatus
+    {
+        /**
+         * Creates an instance of <tt>JabberPresenceStatus</tt> with the
+         * specified parameters.
+         * 
+         * @param status the connectivity level of the new presence status
+         *            instance
+         * @param statusName the name of the presence status.
+         * @param statusIcon the icon associated with this status
+         */
+        private JabberPresenceStatus(int status, String statusName,
+            byte[] statusIcon)
+        {
+            super(status, statusName, statusIcon);
+        }
     }
 }

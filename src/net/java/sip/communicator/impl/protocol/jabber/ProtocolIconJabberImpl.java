@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -17,22 +18,38 @@ import net.java.sip.communicator.util.*;
  * interface in order to provide a jabber icon image in two different sizes.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ProtocolIconJabberImpl
     implements ProtocolIcon
 {    
     private static Logger logger = Logger.getLogger(ProtocolIconJabberImpl.class); 
+
+    /**
+     * The path where all protocol icons are placed.
+     */
+    private final String iconPath;
     
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
-    static {
-        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/protocol/jabber/jabber16x16-online.png"));
+    private final Hashtable iconsTable = new Hashtable();
 
-        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
-            loadIcon("resources/images/protocol/jabber/jabber48x48.png"));
+    /**
+     * Creates an instance of this class by passing to it the path, where all
+     * protocol icons are placed.
+     * 
+     * @param iconPath the protocol icon path
+     */
+    public ProtocolIconJabberImpl(String iconPath)
+    {
+        this.iconPath = iconPath;
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16, loadIcon(iconPath
+            + "/status16x16-online.png"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48, loadIcon(iconPath
+            + "/logo48x48.png"));
     }
  
     /**
@@ -68,7 +85,7 @@ public class ProtocolIconJabberImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/protocol/jabber/jabber16x16-connecting.gif");
+        return loadIcon(iconPath + "/status16x16-connecting.gif");
     }
     
     /**
@@ -76,17 +93,9 @@ public class ProtocolIconJabberImpl
      * @param imagePath The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static byte[] loadIcon(String imagePath) {
-        InputStream is = ProtocolIconJabberImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
-        
-        byte[] icon = null;
-        try {
-            icon = new byte[is.available()];
-            is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
-        }
-        return icon;
+    public static byte[] loadIcon(String imagePath)
+    {
+        return JabberStatusEnum.loadIcon(imagePath,
+            ProtocolIconJabberImpl.class);
     }    
 }

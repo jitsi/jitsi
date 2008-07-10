@@ -558,8 +558,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
 
             opSetPersPresence.fireProviderPresenceStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus(),
-                JabberStatusEnum.OFFLINE);
+                opSetPersPresence.getPresenceStatus(), jabberProvider
+                    .getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE));
         }
     }
 
