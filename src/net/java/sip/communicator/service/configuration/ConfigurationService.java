@@ -82,6 +82,22 @@ public interface ConfigurationService
      * @return the value of the property with the specified name.
      */
     public Object getProperty(String propertyName);
+    
+    /**
+     * Removes the property with the specified name. Calling
+     * this method would first trigger a PropertyChangeEvent that will
+     * be dispatched to all VetoableChangeListeners. In case no complaints
+     * (PropertyVetoException) have been received, the property will be actually
+     * changed and a PropertyChangeEvent will be dispatched.
+     * All properties with prefix propertyName will also be removed.
+     * <p>
+     * @param propertyName the name of the property to change.
+     * @param property the new value of the specified property.
+     * @throws PropertyVetoException in case the changed has been refused by
+     * at least one propertychange listener.
+     */
+    public void removeProperty(String propertyName)
+        throws PropertyVetoException;
 
     /**
      * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing the

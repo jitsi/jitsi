@@ -209,6 +209,65 @@ public class ConfigurationServiceImpl
                          + "a property change");
         }
     }
+    
+    /**
+     * Removes the property with the specified name. Calling
+     * this method would first trigger a PropertyChangeEvent that will
+     * be dispatched to all VetoableChangeListeners. In case no complaints
+     * (PropertyVetoException) have been received, the property will be actually
+     * changed and a PropertyChangeEvent will be dispatched.
+     * All properties with prefix propertyName will also be removed.
+     * <p>
+     * @param propertyName the name of the property to change.
+     * @param property the new value of the specified property.
+     * @throws PropertyVetoException in case the changed has been refused by
+     * at least one propertychange listener.
+     */
+    public void removeProperty(String propertyName)
+        throws PropertyVetoException
+    {
+        List childPropertyNames = 
+            getPropertyNamesByPrefix(propertyName, false);
+        
+        Iterator propsIter = childPropertyNames.iterator();
+
+        //remove all properties
+        while (propsIter.hasNext())
+        {
+            String pName = (String) propsIter.next();
+
+            removeProperty(pName);
+        }
+        
+        Object oldValue = getProperty(propertyName);
+        //first check whether the change is ok with everyone
+        if (changeEventDispatcher.hasVetoableChangeListeners(propertyName))
+            changeEventDispatcher.fireVetoableChange(
+                propertyName, oldValue, null);
+
+        //no exception was thrown - lets change the property and fire a
+        //change event
+
+        logger.trace("Will remove prop: " + propertyName + ".");
+
+        properties.remove(propertyName);
+
+        fileExtractedProperties.remove(propertyName);
+        
+        if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
+            changeEventDispatcher.firePropertyChange(
+                propertyName, oldValue, null);
+
+        try
+        {
+            storeConfiguration();
+        }
+        catch (IOException ex)
+        {
+            logger.error("Failed to store configuration after "
+                         + "a property change");
+        }
+    }
 
     /**
      * Returns the value of the property with the specified name or null if no

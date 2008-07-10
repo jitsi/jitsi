@@ -33,26 +33,21 @@ public class NotificationManager
         if(notificationService == null)
             return;
         
-        // if we have already registered events 
-        // skip setting defaults one
-        if(notificationService.getRegisteredEvents().hasNext())
-            return;
-        
         // Register incoming message notifications.
-        notificationService.registerNotificationForEvent(
+        notificationService.registerDefaultNotificationForEvent(
                 INCOMING_MESSAGE,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
-        notificationService.registerNotificationForEvent(
+        notificationService.registerDefaultNotificationForEvent(
                 INCOMING_MESSAGE,
                 NotificationService.ACTION_SOUND,
                 SoundProperties.INCOMING_MESSAGE,
                 null);
         
         // Register incoming call notifications.
-        notificationService.registerNotificationForEvent(
+        notificationService.registerDefaultNotificationForEvent(
                 INCOMING_CALL,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
@@ -62,7 +57,7 @@ public class NotificationManager
             = (SoundNotificationHandler) notificationService
                 .createSoundNotificationHandler(SoundProperties.INCOMING_CALL, 2000);
         
-        notificationService.registerNotificationForEvent(
+        notificationService.registerDefaultNotificationForEvent(
                 INCOMING_CALL,
                 NotificationService.ACTION_SOUND,
                 inCallSoundHandler);
@@ -74,7 +69,7 @@ public class NotificationManager
             = (SoundNotificationHandler) notificationService
                 .createSoundNotificationHandler(SoundProperties.OUTGOING_CALL, 3000);
         
-        notificationService.registerNotificationForEvent(
+        notificationService.registerDefaultNotificationForEvent(
                 OUTGOING_CALL,
                 NotificationService.ACTION_SOUND,
                 outCallSoundHandler);
@@ -86,7 +81,7 @@ public class NotificationManager
             = (SoundNotificationHandler) notificationService
                 .createSoundNotificationHandler(SoundProperties.BUSY, 1);
         
-        notificationService.registerNotificationForEvent(
+        notificationService.registerDefaultNotificationForEvent(
                 BUSY_CALL,
                 NotificationService.ACTION_SOUND,
                 busyCallSoundHandler);

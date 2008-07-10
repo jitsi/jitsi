@@ -136,6 +136,64 @@ public interface NotificationService
         throws IllegalArgumentException;
     
     /**
+     * Registers a Default notification for the given <tt>eventType</tt> by specifying
+     * the type of the action to be performed when a notification is fired for
+     * this event and the corresponding <tt>handler</tt> that should be used to
+     * handle the action. Unlike the other 
+     * <tt>registerDefaultNotificationForEvent</tt>
+     * method, this one allows the user to specify its own
+     * <tt>NotificationHandler</tt>, which would be used to handle notifications
+     * for the specified <tt>actionType</tt>.
+     * Default events are stored or executed at first run or when they are 
+     * missing in the configuration. Also the registered default events 
+     * are used when restoreDefaults is called.
+     * 
+     * @param eventType the name of the event (as defined by the plug-in that's
+     * registering it) that we are setting an action for.
+     * @param actionType the type of the action that is to be executed when the
+     * specified event occurs (could be one of the ACTION_XXX fields).
+     * @param handler the <tt>NotificationActionHandler</tt>, which would be
+     * used to perform the notification action.
+     * @throws IllegalArgumentException if the specified <tt>handler</tt> do not
+     * correspond to the given <tt>actionType</tt>.
+     */
+    public void registerDefaultNotificationForEvent(   String eventType,
+                                                String actionType,
+                                                NotificationActionHandler handler)
+        throws IllegalArgumentException;
+    
+    /**
+     * Registers a default notification for the given <tt>eventType</tt> by specifying
+     * the type of the action to be performed when a notification is fired for
+     * this event, the <tt>actionDescriptor</tt> for sound and command actions
+     * and the <tt>defaultMessage</tt> for popup and log actions. Actions
+     * registered by this method would be handled by some default
+     * <tt>NotificationHandler</tt>s, declared by the implementation.
+     * <p>
+     * The method allows registering more than one actionType for a specific
+     * event. Setting twice the same <tt>actionType</tt> for the same
+     * <tt>eventType</tt>  however would cause the first setting to be
+     * overridden.
+     * Default events are stored or executed at first run or when they are 
+     * missing in the configuration. Also the registered default events 
+     * are used when restoreDefaults is called.
+     *
+     * @param eventType the name of the event (as defined by the plug-in that's
+     * registering it) that we are setting an action for.
+     * @param actionType the type of the action that is to be executed when the
+     * specified event occurs (could be one of the ACTION_XXX fields).
+     * @param actionDescriptor a String containing a description of the action
+     * (a URI to the sound file for audio notifications or a command line for
+     * exec action types) that should be executed when the action occurs.
+     * @param defaultMessage the default message to use if no specific message
+     * has been provided when firing the notification.
+     */
+    public void registerDefaultNotificationForEvent(   String eventType,
+                                                String actionType,
+                                                String actionDescriptor,
+                                                String defaultMessage);
+    
+    /**
      * Registers a notification for the given <tt>eventType</tt> by specifying
      * the type of the action to be performed when a notification is fired for
      * this event, the <tt>actionDescriptor</tt> for sound and command actions
@@ -162,6 +220,12 @@ public interface NotificationService
                                                 String actionType,
                                                 String actionDescriptor,
                                                 String defaultMessage);
+    
+    /**
+     * Deletes all registered events and actions 
+     * and registers and saves the default events as current.
+     */
+    public void restoreDefaults();
     
     /**
      * Removes the given <tt>eventType</tt> from the list of event notifications.
