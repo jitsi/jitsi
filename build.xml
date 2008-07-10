@@ -624,7 +624,8 @@
         bundle-plugin-statusupdate,
         bundle-updatecheckplugin,
         bundle-dict,bundle-plugin-dictaccregwizz,
-        bundle-plugin-simpleaccreg,bundle-plugin-generalconfig"/>
+        bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
+        bundle-plugin-googletalkaccregwizz"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1195,6 +1196,20 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images/protocol/jabber"/>
             <zipfileset dir="${resources}/languages/plugin/jabberaccregwizz"
                 prefix="resources/languages/plugin/jabberaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-GOOGLETALKACCREGWIZZ -->
+    <target name="bundle-plugin-googletalkaccregwizz">
+        <!-- Creates a bundle for the plugin Google Talk Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/googletalkaccregwizz.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/googletalkaccregwizz/googletalkaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/googletalkaccregwizz"
+                prefix="net/java/sip/communicator/plugin/googletalkaccregwizz"/>
+            <zipfileset dir="${resources}/images/protocol/googletalk"
+                prefix="resources/images/protocol/googletalk"/>
+            <zipfileset dir="${resources}/languages/plugin/googletalkaccregwizz"
+                prefix="resources/languages/plugin/googletalkaccregwizz"/>
         </jar>
     </target>
 
