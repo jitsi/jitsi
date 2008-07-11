@@ -10,6 +10,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -203,13 +204,13 @@ public class NewAccountDialog
         AccountRegistrationWizard wizard
             = (AccountRegistrationWizard) networkComboBox.getSelectedItem();
 
+        AccountRegWizardContainerImpl wizardContainer
+            = ((AccountRegWizardContainerImpl) GuiActivator.getUIService()
+                .getAccountRegWizardContainer());
+
         if (sourceButton.equals(advancedButton))
         {
             wizard.setModification(false);
-
-            AccountRegWizardContainerImpl wizardContainer
-                = ((AccountRegWizardContainerImpl) GuiActivator.getUIService()
-                    .getAccountRegWizardContainer());
 
             wizardContainer.setTitle(Messages.getI18NString(
                 "accountRegistrationWizard").getText());
@@ -220,7 +221,10 @@ public class NewAccountDialog
         }
         else if (sourceButton.equals(addAccountButton))
         {
-            wizard.signin();
+            ProtocolProviderService protocolProvider = wizard.signin();
+
+            if (protocolProvider != null)
+                wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
             this.dispose();
         }

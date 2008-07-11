@@ -86,11 +86,16 @@ public class AccountRegWizardContainerImpl
                          + " already installed providers.");
             for (int i = 0; i < accountWizardRefs.length; i++)
             {
+                ServiceReference serRef = accountWizardRefs[i];
+
+                String protocolName = (String) serRef
+                    .getProperty(ProtocolProviderFactory.PROTOCOL);
+
                 AccountRegistrationWizard wizard
                     = (AccountRegistrationWizard) GuiActivator.bundleContext
-                        .getService(accountWizardRefs[i]);
+                        .getService(serRef);
 
-                this.addAccountRegistrationWizard(wizard);
+                this.addAccountRegistrationWizard(protocolName, wizard);
             }
         }
 
@@ -103,40 +108,12 @@ public class AccountRegWizardContainerImpl
      * 
      * @param wizard the <tt>AccountRegistrationWizard</tt> to add
      */
-    public void addAccountRegistrationWizard(AccountRegistrationWizard wizard)
+    public void addAccountRegistrationWizard(   String protocolName,
+                                                AccountRegistrationWizard wizard)
     {
         synchronized (registeredWizards)
         {
-            registeredWizards.put(wizard.getClass().getName(), wizard);
-        }
-
-        Set set = GuiActivator.getProtocolProviderFactories().entrySet();
-        Iterator iter = set.iterator();
-
-        boolean hasRegisteredAccounts = false;
-
-        while (iter.hasNext())
-        {
-            Map.Entry entry = (Map.Entry) iter.next();
-
-            ProtocolProviderFactory providerFactory
-                = (ProtocolProviderFactory) entry.getValue();
-
-            ArrayList accountsList = providerFactory.getRegisteredAccounts();
-
-            AccountID accountID;
-            for (int i = 0; i < accountsList.size(); i++)
-            {
-                accountID = (AccountID) accountsList.get(i);
-                boolean isHidden = accountID.getAccountProperties().
-                    get("HIDDEN_PROTOCOL") != null;
-                
-                if(!isHidden)
-                {
-                    hasRegisteredAccounts = true;
-                    break;
-                }
-            }
+            registeredWizards.put(protocolName, wizard);
         }
 
         defaultPage.addAccountRegistrationWizard(wizard);
@@ -148,11 +125,12 @@ public class AccountRegWizardContainerImpl
      * 
      * @param wizard the <tt>AccountRegistrationWizard</tt> to remove
      */
-    public void removeAccountRegistrationWizard(AccountRegistrationWizard wizard)
+    public void removeAccountRegistrationWizard(String protocolName,
+                                                AccountRegistrationWizard wizard)
     {
         synchronized (registeredWizards)
         {
-            registeredWizards.remove(wizard.getClass().getName());
+            registeredWizards.remove(protocolName);
         }
 
         defaultPage.removeAccountRegistrationWizard(wizard);
@@ -185,33 +163,9 @@ public class AccountRegWizardContainerImpl
      */
     public void modifyAccount(ProtocolProviderService protocolProvider)
     {
-        String wizardClassName = null;
-
-        String prefix = "net.java.sip.communicator.impl.gui.accounts";
-
-        List accounts =
-            this.configService.getPropertyNamesByPrefix(prefix, true);
-
-        Iterator accountsIter = accounts.iterator();
-
-        while (accountsIter.hasNext())
-        {
-            String accountRootPropName = (String) accountsIter.next();
-
-            String accountUID = configService.getString(accountRootPropName);
-
-            if (accountUID.equals(protocolProvider.getAccountID()
-                .getAccountUniqueID()))
-            {
-
-                wizardClassName =
-                    configService.getString(accountRootPropName + ".wizard");
-                break;
-            }
-        }
-
-        AccountRegistrationWizard wizard =
-            getWizardFromClassName(wizardClassName);
+        AccountRegistrationWizard wizard
+            = (AccountRegistrationWizard) registeredWizards
+                .get(protocolProvider.getProtocolDisplayName());
 
         this.setCurrentWizard(wizard);
 
@@ -344,26 +298,6 @@ public class AccountRegWizardContainerImpl
     }
 
     /**
-     * Returns the <tt>AccountRegistrationWizard</tt> corresponding to the
-     * given class name.
-     * 
-     * @param wizardClassName the class name of the searched wizard
-     * @return the <tt>AccountRegistrationWizard</tt> corresponding to the
-     *         given class name
-     */
-    private AccountRegistrationWizard getWizardFromClassName(
-        String wizardClassString)
-    {
-        String wizardClassName = wizardClassString.replace('_', '.');
-
-        synchronized (registeredWizards)
-        {
-            return (AccountRegistrationWizard)
-                registeredWizards.get(wizardClassName);
-        }
-    }
-
-    /**
      * Unregisters all pages added by the current wizard.
      */
     public void unregisterWizardPages()
@@ -387,6 +321,11 @@ public class AccountRegWizardContainerImpl
      */
     public void serviceChanged(ServiceEvent event)
     {
+        ServiceReference serRef = event.getServiceReference();
+
+        String protocolName
+            = (String) serRef.getProperty(ProtocolProviderFactory.PROTOCOL);
+
         Object sService = GuiActivator.bundleContext.getService(
             event.getServiceReference());
 
@@ -404,11 +343,11 @@ public class AccountRegWizardContainerImpl
             logger
                 .info("Handling registration of a new Account Wizard.");
 
-            this.addAccountRegistrationWizard(wizard);
+            this.addAccountRegistrationWizard(protocolName, wizard);
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            this.removeAccountRegistrationWizard(wizard);
+            this.removeAccountRegistrationWizard(protocolName, wizard);
         }
     }
 }
