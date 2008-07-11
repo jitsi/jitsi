@@ -16,6 +16,7 @@ import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>EditTextToolBar</tt> is a <tt>JToolBar</tt> which contains
@@ -29,6 +30,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class EditTextToolBar
     extends SIPCommToolBar
 {
+    private Logger logger = Logger.getLogger(EditTextToolBar.class);
+
     private ColorLabel colorLabel = new ColorLabel();
 
     private Integer[] fontSizeConstants =
@@ -42,11 +45,11 @@ public class EditTextToolBar
 
     private JEditorPane chatEditorPane;
 
-    Action boldAction = new HTMLEditorKit.BoldAction();
+    private Action boldAction = new HTMLEditorKit.BoldAction();
 
-    Action italicAction = new HTMLEditorKit.ItalicAction();
+    private Action italicAction = new HTMLEditorKit.ItalicAction();
 
-    Action underlineAction = new HTMLEditorKit.UnderlineAction();
+    private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 
     /**
      * Creates an instance and constructs the <tt>EditTextToolBar</tt>.
@@ -76,6 +79,12 @@ public class EditTextToolBar
         this.addSeparator();
 
         this.add(colorLabel);
+
+        logger.trace("[GUI] Editor Pane font name: "
+                + chatEditorPane.getFont().getName());
+
+        fontNameCombo.setSelectedItem(chatEditorPane.getFont().getName());
+        fontSizeCombo.setSelectedItem(chatEditorPane.getFont().getSize());
 
         fontNameCombo.addItemListener(new ItemListener()
         {
@@ -142,9 +151,6 @@ public class EditTextToolBar
                 chatEditorPane.requestFocus();
             }
         });
-
-        fontNameCombo.setSelectedItem(chatEditorPane.getFont().getName());
-        fontSizeCombo.setSelectedItem(chatEditorPane.getFont().getSize());
     }
 
     private void initToolbarButtons()
