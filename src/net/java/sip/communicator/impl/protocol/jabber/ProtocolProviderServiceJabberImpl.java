@@ -569,6 +569,8 @@ public class ProtocolProviderServiceJabberImpl
             // TODO: add the feature, if any, corresponding to IM if someone
             // knows
             // supportedFeatures.add(_IM_);
+            //XHTML-IM
+            supportedFeatures.add("http://jabber.org/protocol/xhtml-im");
 
             //initialize the Whiteboard operation set
             OperationSetWhiteboardingJabberImpl whiteboard =

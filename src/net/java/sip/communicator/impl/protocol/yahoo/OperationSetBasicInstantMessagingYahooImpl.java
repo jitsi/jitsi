@@ -34,11 +34,6 @@ public class OperationSetBasicInstantMessagingYahooImpl
         Logger.getLogger(OperationSetBasicInstantMessagingYahooImpl.class);
     
     /**
-     * HTML content type
-     */
-    private static final String CONTENT_TYPE_HTML = "text/html";
-
-    /**
      * Yahoo has limit of message length. If exceeded 
      * message is not delivered and no notification is received for that.
      */
@@ -148,7 +143,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
     public boolean isContentTypeSupported(String contentType)
     {
         if(contentType.equals(DEFAULT_MIME_TYPE) || 
-           contentType.equals(CONTENT_TYPE_HTML))
+           contentType.equals(HTML_MIME_TYPE))
             return true;
         else
            return false;
@@ -451,7 +446,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
              Message newMailMessage = new MessageYahooImpl(
                      newMail,
-                     CONTENT_TYPE_HTML,
+                     HTML_MIME_TYPE,
                      DEFAULT_MIME_ENCODING,
                      null);
 
@@ -520,7 +515,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
             //to set all messages html - doesn't affect the appearance of the gui
             Message newMessage = createMessage(
                 formattedMessage.getBytes(),
-                CONTENT_TYPE_HTML,
+                HTML_MIME_TYPE,
                 DEFAULT_MIME_ENCODING,
                 null);
 

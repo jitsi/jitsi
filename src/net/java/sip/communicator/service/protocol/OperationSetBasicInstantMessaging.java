@@ -25,6 +25,11 @@ public interface OperationSetBasicInstantMessaging
      * Default mime type for outgoing messages.
      */
     public static final String DEFAULT_MIME_TYPE = "text/plain";
+    
+    /**
+     * HTML mime type for use with messages using html.
+     */
+    public static final String HTML_MIME_TYPE = "text/html";
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.

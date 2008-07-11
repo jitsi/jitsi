@@ -33,11 +33,6 @@ public class OperationSetBasicInstantMessagingSipImpl
         Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
     
     /**
-     * HTML content type
-     */
-    private static final String CONTENT_TYPE_HTML = "text/html";
-
-    /**
      * A list of listeners registered for message events.
      */
     private Vector messageListeners = new Vector();
@@ -228,8 +223,8 @@ public class OperationSetBasicInstantMessagingSipImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE) || 
-           contentType.equals(CONTENT_TYPE_HTML))
+        if(contentType.equals(DEFAULT_MIME_TYPE) 
+            || contentType.equals(HTML_MIME_TYPE))
             return true;
         else
            return false;

@@ -227,7 +227,7 @@ public class OperationSetBasicInstantMessagingDictImpl
     {
         if(contentType.equals(DEFAULT_MIME_TYPE))
             return true;
-        else if(contentType.equals("text/html"))
+        else if(contentType.equals(HTML_MIME_TYPE))
             return true;
         else
            return false;
@@ -299,7 +299,7 @@ public class OperationSetBasicInstantMessagingDictImpl
         {
             fctResult = dictAdapter.define(database, word);
             msg = this.createMessage(this.retrieveDefine(fctResult, word).getBytes()
-                    , "text/html"
+                    , HTML_MIME_TYPE
                     , DEFAULT_MIME_ENCODING,
                     null);
         }

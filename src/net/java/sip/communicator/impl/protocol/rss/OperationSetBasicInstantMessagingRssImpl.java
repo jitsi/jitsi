@@ -114,7 +114,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     public Message createMessage(String messageText)
     {
         return new MessageRssImpl(messageText,
-                                  "text/html",
+                                  HTML_MIME_TYPE,
                                   DEFAULT_MIME_ENCODING,
                                   null);
     }
@@ -400,7 +400,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     {
         if(contentType.equals(DEFAULT_MIME_TYPE))
             return true;
-        else if(contentType.equals("text/html"))
+        else if(contentType.equals(HTML_MIME_TYPE))
             return true;
         else
            return false;

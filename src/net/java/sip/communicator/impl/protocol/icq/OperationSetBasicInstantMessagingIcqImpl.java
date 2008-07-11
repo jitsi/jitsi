@@ -36,11 +36,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
         Logger.getLogger(OperationSetBasicInstantMessagingIcqImpl.class);
     
     /**
-     * HTML content type
-     */
-    private static final String CONTENT_TYPE_HTML = "text/html";
-
-    /**
      * A list of listeneres registered for message events.
      */
     private Vector messageListeners = new Vector();
@@ -227,7 +222,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                     new Screenname(to.getAddress()));
 
         String messageContent = null;
-        if (message.getContentType().equals(CONTENT_TYPE_HTML)
+        if (message.getContentType().equals(HTML_MIME_TYPE)
             && !message.getContent().startsWith(defaultHtmlStartTag))
         {
             messageContent = defaultHtmlStartTag
@@ -403,7 +398,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     public boolean isContentTypeSupported(String contentType)
     {
         if(contentType.equals(DEFAULT_MIME_TYPE) || 
-           (contentType.equals(CONTENT_TYPE_HTML)))
+           (contentType.equals(HTML_MIME_TYPE)))
             return true;
         else
            return false;
@@ -595,7 +590,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 msgContent = msgBody;
 
             Message newMessage = createMessage(msgContent.getBytes(), 
-                    CONTENT_TYPE_HTML, DEFAULT_MIME_ENCODING, null);
+                    HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
 
             Contact sourceContact =
                 opSetPersPresence.findContactByID( conversation.getBuddy()

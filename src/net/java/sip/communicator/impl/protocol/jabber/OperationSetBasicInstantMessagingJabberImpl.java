@@ -23,6 +23,7 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
+import org.jivesoftware.smackx.packet.XHTMLExtension;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -78,6 +79,22 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
+    
+    /**
+     * The opening BODY HTML TAG: &ltbody&gt
+     */
+    private static final String OPEN_BODY_TAG = "<body>";
+    
+    /**
+     * The closing BODY HTML TAG: &ltbody&gt
+     */
+    private static final String CLOSE_BODY_TAG = "</body>";
+    
+    /**
+     * The instance of the html2Txt converter that we use to send messages in 
+     * both the text/html and text/plain content types.
+     */
+    private Html2Text html2Txt = new Html2Text();
 
     /**
      * Creates an instance of this operation set.
@@ -145,6 +162,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
         return new MessageJabberImpl(new String(content), contentType
                                   , contentEncoding, subject);
     }
+    
+    /**
+     * Create a Message instance for sending arbitrary MIME-encoding content.
+     *
+     * @param content content value
+     * @param contentType the MIME-type for <tt>content</tt>
+     * @return the newly created message.
+     */
+    public Message createMessage(byte[] content, String contentType)
+    {
+        return createMessage(content, contentType, DEFAULT_MIME_ENCODING, null);
+    }
 
     /**
      * Create a Message instance for sending a simple text messages with
@@ -155,7 +184,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     public Message createMessage(String messageText)
     {
-        return new MessageJabberImpl(messageText, DEFAULT_MIME_TYPE
+        return createMessage(messageText.getBytes(), DEFAULT_MIME_TYPE
                                   , DEFAULT_MIME_ENCODING, null);
     }
 
@@ -187,7 +216,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE))
+        if(contentType.equals(DEFAULT_MIME_TYPE)
+            || contentType.equals(HTML_MIME_TYPE))
             return true;
         else
            return false;
@@ -218,23 +248,38 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             org.jivesoftware.smack.MessageListener msgListener = 
                 new org.jivesoftware.smack.MessageListener() {
-				public void processMessage(Chat arg0, org.jivesoftware.smack.packet.Message arg1) {
-				}
+                    public void processMessage(
+                        Chat arg0, 
+                        org.jivesoftware.smack.packet.Message arg1) {}
             };
 
             Chat chat = jabberProvider.getConnection().getChatManager().createChat(
-            		to.getAddress(), msgListener
-            );
+                to.getAddress(), msgListener);
             
             org.jivesoftware.smack.packet.Message msg = 
-            	new org.jivesoftware.smack.packet.Message();
+                new org.jivesoftware.smack.packet.Message();
             
-            msg.setBody(message.getContent());
-            msg.addExtension(new Version());
+            String content = message.getContent();
+            
+            if(message.getContentType().equals(HTML_MIME_TYPE))
+            {
+                msg.setBody(html2Txt.extractText(content));
+                
+                // Add the XHTML text to the message
+                XHTMLManager.addBody(msg, 
+                    OPEN_BODY_TAG + content + CLOSE_BODY_TAG);
+            }
+            else
+            {
+                // this is plain text so keep it as it is.
+                msg.setBody(content);
+            }
 
+            msg.addExtension(new Version());
+            
             MessageEventManager.
                 addNotificationsRequests(msg, true, false, false, true);
-
+             
             chat.sendMessage(msg);
 
             MessageDeliveredEvent msgDeliveredEvt
@@ -374,6 +419,28 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             Message newMessage = createMessage(msg.getBody());
+            
+            //check if the message is available in xhtml
+            PacketExtension ext = msg.getExtension("http://jabber.org/protocol/xhtml-im");
+            
+            if(ext != null)
+            {
+                XHTMLExtension xhtmlExt 
+                    = (XHTMLExtension)ext;
+                
+                //parse all bodies
+                Iterator bodies = xhtmlExt.getBodies();
+                StringBuffer messageBuff = new StringBuffer();
+                while (bodies.hasNext())
+                {
+                    String body = (String)bodies.next();
+                    messageBuff.append(body);
+                }
+                
+                if(messageBuff.length() > 0)
+                    newMessage = createMessage(messageBuff.toString().getBytes(), 
+                                                HTML_MIME_TYPE);
+            }
 
             Contact sourceContact =
                 opSetPersPresence.findContactByID(fromUserID);

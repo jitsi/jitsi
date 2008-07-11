@@ -266,10 +266,12 @@ public class OperationSetTypingNotificationsJabberImpl
         implements MessageEventNotificationListener
     {
         public void deliveredNotification(String from, String packetID)
-        {}
+        {
+        }
 
         public void displayedNotification(String from, String packetID)
-        {}
+        {
+        }
 
         public void composingNotification(String from, String packetID)
         {
@@ -287,7 +289,8 @@ public class OperationSetTypingNotificationsJabberImpl
         }
 
         public void offlineNotification(String from, String packetID)
-        {}
+        {
+        }
 
         public void cancelledNotification(String from, String packetID)
         {
