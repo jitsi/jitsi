@@ -403,7 +403,8 @@ public class ContactListPanel
                     .getDestinationContact().getProtocolProvider();
 
             logger.trace("MESSAGE DELIVERED: process message to chat for contact: "
-                    + evt.getDestinationContact().getAddress());
+                    + evt.getDestinationContact().getAddress()
+                    + " MESSAGE: " + msg.getContent());
 
             chatPanel.processMessage(this.mainFrame
                     .getAccount(protocolProvider), evt.getTimestamp(),

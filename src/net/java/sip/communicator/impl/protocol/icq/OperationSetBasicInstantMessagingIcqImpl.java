@@ -100,6 +100,10 @@ public class OperationSetBasicInstantMessagingIcqImpl
      */
     private final static long KEEPALIVE_WAIT = 20000l; //20 secs
 
+    private final String defaultHtmlStartTag = "<HTML><BODY>";
+
+    private final String defaultHtmlEndTag = "</BODY></HTML>";
+
     /**
      * The task sending packets
      */
@@ -176,8 +180,11 @@ public class OperationSetBasicInstantMessagingIcqImpl
     public Message createMessage(byte[] content, String contentType,
                                  String contentEncoding, String subject)
     {
-        return new MessageIcqImpl(new String(content), contentType
-                                  , contentEncoding, subject, null);
+        return new MessageIcqImpl(  new String(content),
+                                    contentType,
+                                    contentEncoding,
+                                    subject,
+                                    null);
     }
 
     /**
@@ -219,18 +226,26 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 getImConversation(
                     new Screenname(to.getAddress()));
 
+        String messageContent = null;
+        if (message.getContentType().equals(CONTENT_TYPE_HTML)
+            && !message.getContent().startsWith(defaultHtmlStartTag))
+        {
+            messageContent = defaultHtmlStartTag
+                                + message.getContent()
+                                + defaultHtmlEndTag;
+        }
+        else
+            messageContent = message.getContent();
+
         if (to.getPresenceStatus().isOnline())
         {
             //do not add the conversation listener in here. we'll add it
             //inside the icbm listener
-            imConversation.sendMessage(new SimpleMessage(message.getContent()));
+            imConversation.sendMessage(new SimpleMessage(messageContent));
         }
         else
-            imConversation.sendMessage(new SimpleMessage(message.getContent())
-                                       , true);
+            imConversation.sendMessage(new SimpleMessage(messageContent), true);
 
-        //temporarily and uglity fire the sent event here.
-        /** @todo move elsewhaere */
         MessageDeliveredEvent msgDeliveredEvt
             = new MessageDeliveredEvent(
                 message, to, new Date());
@@ -388,7 +403,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     public boolean isContentTypeSupported(String contentType)
     {
         if(contentType.equals(DEFAULT_MIME_TYPE) || 
-           (contentType.equals(CONTENT_TYPE_HTML) && !icqProvider.USING_ICQ) )
+           (contentType.equals(CONTENT_TYPE_HTML)))
             return true;
         else
            return false;
@@ -568,12 +583,18 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 return;
             }
 
-            Message newMessage = null;
-            
-            if(icqProvider.USING_ICQ)
-                newMessage = createMessage(msgBody);
+            String msgContent;
+            if (msgBody.startsWith(defaultHtmlStartTag))
+            {
+                msgContent = msgBody.substring(
+                    msgBody.indexOf(defaultHtmlStartTag)
+                        + defaultHtmlStartTag.length(),
+                    msgBody.indexOf(defaultHtmlEndTag));
+            }
             else
-                newMessage = createMessage(msgBody.getBytes(), 
+                msgContent = msgBody;
+
+            Message newMessage = createMessage(msgContent.getBytes(), 
                     CONTENT_TYPE_HTML, DEFAULT_MIME_ENCODING, null);
 
             Contact sourceContact =

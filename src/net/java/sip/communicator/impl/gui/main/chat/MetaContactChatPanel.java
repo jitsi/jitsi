@@ -375,16 +375,19 @@ public class MetaContactChatPanel
      * appropriate operation set and sends the message, contained in the write
      * area, through it.
      */
-    protected void sendMessage(String text)
+    protected void sendMessage()
     {
         if (sendSmsCheckBox.isSelected())
         {
-            this.sendSmsMessage(text);
+            this.sendSmsMessage();
 
             return;
         }
 
-        this.sendInstantMessage(text);
+        this.sendInstantMessage();
+
+        //make sure the focus goes back to the write area
+        this.requestFocusInWriteArea();
     }
 
     /**
@@ -456,7 +459,7 @@ public class MetaContactChatPanel
         }
         
         if (evt.getNewParent().equals(metaContact))
-        {            
+        {
             contactSelectorBox.addProtoContact(evt.getProtoContact());
         }
     }
@@ -765,8 +768,13 @@ public class MetaContactChatPanel
     {
     }
 
-    private void sendSmsMessage(String text)
+    private void sendSmsMessage()
     {
+        final String text = this.getTextFromWriteArea(
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+
+        this.refreshWriteArea();
+
         OperationSetSmsMessaging smsOpSet = null;
         /*
         Contact contact = null;
@@ -888,7 +896,7 @@ public class MetaContactChatPanel
         smsDialog.setVisible(true);
     }
 
-    private void sendInstantMessage(String text)
+    private void sendInstantMessage()
     {
         Contact contact = (Contact) contactSelectorBox.getMenu()
             .getSelectedObject();
@@ -901,7 +909,27 @@ public class MetaContactChatPanel
             = (OperationSetTypingNotifications) contact.getProtocolProvider()
                 .getOperationSet(OperationSetTypingNotifications.class);
 
-        Message msg = im.createMessage(text);
+        String htmlText = getTextFromWriteArea("text/html");
+        String plainText = getTextFromWriteArea(
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+
+        System.out.println("HTML==========" + htmlText);
+        System.out.println("HTML==========" + plainText);
+        Message msg;
+        if (im.isContentTypeSupported("text/html")
+            && !htmlText.equals(plainText))
+        {
+            msg = im.createMessage(     htmlText.getBytes(),
+                                        "text/html",
+                                        "utf-8",
+                                        "");
+        }
+        else
+        {
+            msg = im.createMessage(plainText);
+        }
+
+        this.refreshWriteArea();
 
         if (tn != null)
         {
@@ -1065,5 +1093,20 @@ public class MetaContactChatPanel
 
         public void messageReceived(MessageReceivedEvent evt)
         {}
+    }
+    
+    /**
+     * Returns the selected protocol contact.
+     * 
+     * @return the selected protocol contact
+     */
+    public Contact getSelectedProtocolContact()
+    {
+        return contactSelectorBox.getSelectedProtocolContact();
+    }
+    
+    public ProtocolContactSelectorBox getProtocolContactSelectorBox()
+    {
+        return contactSelectorBox;
     }
 }

@@ -50,13 +50,13 @@ public abstract class ChatPanel
 
     private JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    private ChatConversationPanel conversationPanel;
+    protected ChatConversationPanel conversationPanel;
 
-    private ChatWritePanel writeMessagePanel;
+    protected ChatWritePanel writeMessagePanel;
 
-    private ChatContactListPanel chatContactListPanel;
+    protected ChatContactListPanel chatContactListPanel;
 
-    private ChatSendPanel sendPanel;
+    protected ChatSendPanel sendPanel;
 
     private ChatWindow chatWindow;
 
@@ -185,7 +185,7 @@ public abstract class ChatPanel
      * 
      * @param text the text to send
      */
-    protected abstract void sendMessage(String text);
+    protected abstract void sendMessage();
 
     /**
      * This method should be implemented in case additional treatment is needed
@@ -405,11 +405,21 @@ public abstract class ChatPanel
     {
         JEditorPane editorPane = getChatWritePanel().getEditorPane();
 
-        if (editorPane.getText() == null
-                || editorPane.getText().equals(""))
-            return true;
-        else
-            return false;
+        Document doc = editorPane.getDocument();
+
+        try
+        {
+            String text = doc.getText(0, doc.getLength());
+
+            if (text == null || text.equals(""))
+                return true;
+        }
+        catch (BadLocationException e)
+        {
+            logger.error("Failed to obtain document text.", e);
+        }
+
+        return false;
     }
 
     /**
@@ -548,10 +558,9 @@ public abstract class ChatPanel
      * Refreshes write area editor pane. Deletes all existing text
      * content.
      */
-    public void refreshWriteArea(){
-        JEditorPane writeMsgPane = this.writeMessagePanel.getEditorPane();
-
-        writeMsgPane.setText("");
+    public void refreshWriteArea()
+    {
+        this.writeMessagePanel.clearWriteArea();
     }
 
     /**
@@ -569,10 +578,17 @@ public abstract class ChatPanel
      * Returns the text contained in the write area editor.
      * @return The text contained in the write area editor.
      */
-    public String getTextFromWriteArea(){
-        JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
-
-        return editorPane.getText();
+    public String getTextFromWriteArea(String mimeType)
+    {
+        if (mimeType.equals(
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE))
+        {
+            return writeMessagePanel.getText();
+        }
+        else
+        {
+            return writeMessagePanel.getTextAsHtml();
+        }
     }
 
     /**

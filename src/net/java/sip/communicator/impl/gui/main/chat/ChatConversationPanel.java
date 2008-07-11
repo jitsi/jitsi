@@ -569,7 +569,7 @@ public class ChatConversationPanel
 
             String matchGroup = m.group().trim();
 
-            String replacement = endPlainTextTag + "<I>" + matchGroup + "</I>"
+            String replacement = endPlainTextTag + "<h7>" + matchGroup + "</h7>"
                 + startPlainTextTag;
 
             m.appendReplacement(msgBuffer, GuiUtils

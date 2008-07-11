@@ -73,20 +73,14 @@ public class ChatSendPanel
     {   
         if (!chatPanel.isWriteAreaEmpty())
         {
-            final String text = chatPanel.getTextFromWriteArea();
-            
-            chatPanel.refreshWriteArea();
-            
             new Thread()
             {
                 public void run()
                 {
-                    chatPanel.sendMessage(text);
+                    chatPanel.sendMessage();
                 }
             }.start();
         }
-        //make sure the focus goes back to the write area
-        chatPanel.requestFocusInWriteArea();
     }
 
     /**

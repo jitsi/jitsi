@@ -282,29 +282,31 @@ public class ConferenceChatPanel
      * <br>
      * Sends a message to the chat room.
      */
-    protected void sendMessage(String text)
+    protected void sendMessage()
     {   
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-        
-        Message msg = chatRoom.createMessage(text);
-        
+
+        String msgText = this.getTextFromWriteArea(
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        Message msg = chatRoom.createMessage(msgText);
+
         try
-        {   
+        {
             chatRoom.sendMessage(msg);
         }
         catch (IllegalStateException ex)
         {
             logger.error("Failed to send message.", ex);
-            
+
             this.refreshWriteArea();
-    
+
             this.processMessage(
                     chatRoom.getName(),
                     new Date(System.currentTimeMillis()),
                     Constants.OUTGOING_MESSAGE,
                     msg.getContent(),
                     msg.getContentType());
-    
+
             this.processMessage(
                     chatRoom.getName(),
                     new Date(System.currentTimeMillis()),
@@ -315,16 +317,16 @@ public class ConferenceChatPanel
         catch (Exception ex)
         {
             logger.error("Failed to send message.", ex);
-            
+
             this.refreshWriteArea();
-    
+
             this.processMessage(
                     chatRoom.getName(),
                     new Date(System.currentTimeMillis()),
                     Constants.OUTGOING_MESSAGE,
                     msg.getContent(),
                     msg.getContentType());
-    
+
             this.processMessage(
                     chatRoom.getName(),
                     new Date(System.currentTimeMillis()),

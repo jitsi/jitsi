@@ -26,8 +26,6 @@ public class MenusPanel
 {
     private MessageWindowMenuBar menuBar;
 
-    private EditTextToolBar editTextToolBar = new EditTextToolBar();
-
     private MainToolBar mainToolBar;
 
     private ChatWindow parentWindow;
@@ -58,7 +56,6 @@ public class MenusPanel
 
         parentWindow.setJMenuBar(menuBar);
         this.add(mainToolBar, BorderLayout.CENTER);
-        // this.add(editTextToolBar);
     }
 
     /**
