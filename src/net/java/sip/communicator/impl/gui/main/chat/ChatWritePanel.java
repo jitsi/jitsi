@@ -413,7 +413,7 @@ public class ChatWritePanel
         String formattedString = extractFormattedText(msgText);
 
         return formattedString
-            .substring(0, formattedString.lastIndexOf("\n"));
+            .substring(0, formattedString.lastIndexOf("<BR>"));
     }
 
     /**
@@ -475,7 +475,7 @@ public class ChatWritePanel
             String pString = msgText
                 .substring(firstTagClosureIndex+1, lastIndex).trim();
 
-            return pString + "\n"
+            return pString + "<BR>"
                 + extractFormattedText(msgText.substring(lastIndex+1));
         }
 

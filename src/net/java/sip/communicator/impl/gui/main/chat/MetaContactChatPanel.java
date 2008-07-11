@@ -913,11 +913,9 @@ public class MetaContactChatPanel
         String plainText = getTextFromWriteArea(
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
 
-        System.out.println("HTML==========" + htmlText);
-        System.out.println("HTML==========" + plainText);
         Message msg;
         if (im.isContentTypeSupported("text/html")
-            && !htmlText.equals(plainText))
+            && htmlText.matches("(.*?)(<b|<i|<u)(.*?)"))
         {
             msg = im.createMessage(     htmlText.getBytes(),
                                         "text/html",
