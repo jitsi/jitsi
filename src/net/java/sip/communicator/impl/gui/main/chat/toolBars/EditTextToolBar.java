@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -16,7 +15,6 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -31,12 +29,12 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class EditTextToolBar
     extends SIPCommToolBar
 {
-    private JLabel colorLabel = new JLabel();
+    private ColorLabel colorLabel = new ColorLabel();
 
-    private String[] fontSizeConstants =
-        new String[]
-        { "9", "10", "11", "12", "13", "14", "18", "24", "36", "48", "64",
-            "72", "96", "144", "288" };
+    private Integer[] fontSizeConstants =
+        new Integer[]
+        { 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64,
+            72, 96, 144, 288 };
 
     private JComboBox fontSizeCombo = new JComboBox(fontSizeConstants);
 
@@ -60,18 +58,13 @@ public class EditTextToolBar
         this.fontNameCombo = new JComboBox(getSystemFontFamilies());
         this.fontSizeCombo.setEditable(true);
 
-        fontNameCombo.setSelectedItem(ApplicationProperties
-            .getProperty("fontName"));
-        fontSizeCombo.setSelectedItem(ApplicationProperties
-            .getProperty("fontSize"));
-
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
-        this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+        this.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 
-        this.fontSizeCombo.setPreferredSize(new Dimension(55, 21));
+        this.fontSizeCombo.setPreferredSize(new Dimension(50, 21));
 
-        colorLabel.setPreferredSize(new Dimension(25, 25));
+        colorLabel.setPreferredSize(new Dimension(21, 21));
 
         this.initToolbarButtons();
 
@@ -111,12 +104,12 @@ public class EditTextToolBar
                     new ActionEvent(chatEditorPane,
                         ActionEvent.ACTION_PERFORMED, "");
 
-                String fontSizeString =
-                    (String) fontSizeCombo.getSelectedItem();
+                Integer fontSize =
+                    (Integer) fontSizeCombo.getSelectedItem();
 
                 Action action =
-                    new HTMLEditorKit.FontSizeAction(fontSizeString,
-                        new Integer(fontSizeString).intValue());
+                    new HTMLEditorKit.FontSizeAction(   fontSize.toString(),
+                                                        fontSize.intValue());
 
                 action.actionPerformed(evt);
 
@@ -149,6 +142,9 @@ public class EditTextToolBar
                 chatEditorPane.requestFocus();
             }
         });
+
+        fontNameCombo.setSelectedItem(chatEditorPane.getFont().getName());
+        fontSizeCombo.setSelectedItem(chatEditorPane.getFont().getSize());
     }
 
     private void initToolbarButtons()
@@ -301,5 +297,17 @@ public class EditTextToolBar
             GraphicsEnvironment.getLocalGraphicsEnvironment();
 
         return ge.getAvailableFontFamilyNames();
+    }
+    
+    private class ColorLabel extends JLabel
+    {
+        public void paintComponent(Graphics g)
+        {
+            AntialiasingManager.activateAntialiasing(g);
+
+            g.setColor(this.getBackground());
+
+            g.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+        }
     }
 }

@@ -74,6 +74,14 @@ public class ChatWritePanel
 
         this.chatPanel = panel;
 
+        this.editorPane.setContentType("text/html");
+        this.editorPane.setFont(Constants.FONT);
+        this.editorPane.setCaretPosition(0);
+        this.editorPane.setEditorKit(htmlEditor);
+        this.editorPane.getDocument().addUndoableEditListener(this);
+        this.editorPane.addKeyListener(this);
+        this.editorPane.addMouseListener(this);
+
         this.editTextToolBar = new EditTextToolBar(editorPane);
 
         this.add(editTextToolBar, BorderLayout.NORTH);
@@ -84,14 +92,6 @@ public class ChatWritePanel
 
         this.scrollPane
             .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        this.editorPane.setContentType("text/html");
-        this.editorPane.setFont(Constants.FONT);
-        this.editorPane.setCaretPosition(0);
-        this.editorPane.setEditorKit(htmlEditor);
-        this.editorPane.getDocument().addUndoableEditListener(this);
-        this.editorPane.addKeyListener(this);
-        this.editorPane.addMouseListener(this);
 
         this.scrollPane.getViewport().add(editorPane, BorderLayout.CENTER);
 
