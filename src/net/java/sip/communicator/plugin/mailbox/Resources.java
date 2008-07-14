@@ -26,33 +26,6 @@ public class Resources
     private static Logger logger = Logger.getLogger(Resources.class);
 
     /**
-     * The name of the resource, where internationalization strings for this
-     * plugin are stored.
-     */
-    private static final String STRING_RESOURCE_NAME
-        = "resources.languages.plugin.mailbox.resources";
-
-    /**
-     * The name of the resource, where paths to images used in this bundle are
-     * stored.
-     */
-    private static final String IMAGE_RESOURCE_NAME
-        = "net.java.sip.communicator.plugin.mailbox.resources";
-
-    /**
-     * The string resource bundle.
-     */
-    private static final ResourceBundle STRING_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
-
-    /**
-     * The image resource bundle.
-     */
-    private static final ResourceBundle IMAGE_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(IMAGE_RESOURCE_NAME);
-
-
-    /**
      * Returns an internationalized string corresponding to the given key.
      *
      * @param key The key of the string.
@@ -60,14 +33,7 @@ public class Resources
      */
     public static String getString(String key)
     {
-        try
-        {
-            return STRING_RESOURCE_BUNDLE.getString(key);
-        }
-        catch (MissingResourceException e)
-        {
-            return '!' + key + '!';
-        }
+        return MailboxActivator.getResources().getI18NString(key);
     }
 
     /**
@@ -78,22 +44,22 @@ public class Resources
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        byte[] image = new byte[100000];
-
-        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID);
-        
-        logger.debug("Loading imageID=" + imageID + " from path=" + path);
+        logger.debug("Loading imageID=" + imageID);
 
         try
         {
-            Resources.class.getClassLoader()
-                    .getResourceAsStream(path).read(image);
+            InputStream in = 
+                MailboxActivator.getResources().getImageInputStream(imageID);
+            byte[] image = new byte[in.available()];
+            in.read(image);
+            
+            return image;
         }
         catch (IOException e)
         {
-            logger.error("Failed to load image:" + path, e);
+            logger.error("Failed to load image:" + imageID, e);
         }
 
-        return image;
+        return null;
     }
 }

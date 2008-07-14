@@ -24,7 +24,7 @@ public class VersionActivator
     private Logger logger = Logger.getLogger(VersionActivator.class.getName());
 
     private        ServiceRegistration  versionServReg   = null;
-    private static BundleContext        bundleContext         = null;
+            static BundleContext        bundleContext         = null;
     private static ConfigurationService configurationService  = null;
 
     /**

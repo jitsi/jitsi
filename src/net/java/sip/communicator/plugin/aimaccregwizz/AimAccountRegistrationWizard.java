@@ -71,7 +71,7 @@ public class AimAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameAim");
     }
 
     /**
@@ -81,7 +81,7 @@ public class AimAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionAim");
     }
 
     /**

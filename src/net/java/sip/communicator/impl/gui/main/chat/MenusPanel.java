@@ -11,6 +11,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -42,8 +43,8 @@ public class MenusPanel
         this.parentWindow = parentWindow;
 
         boolean isToolBarExtended
-            = new Boolean(ApplicationProperties
-                    .getProperty("isToolBarExteneded")).booleanValue();
+            = new Boolean(GuiActivator.getResources().
+                getSettingsString("isToolBarExteneded")).booleanValue();
 
         if (isToolBarExtended)
             mainToolBar = new ExtendedMainToolBar(this.parentWindow);

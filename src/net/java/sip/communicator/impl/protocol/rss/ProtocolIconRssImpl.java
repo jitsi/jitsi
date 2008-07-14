@@ -6,18 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
-import java.awt.image.*;
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
-import javax.imageio.*;
-import javax.imageio.stream.*;
-
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Reperesents the Rss protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -30,6 +26,8 @@ public class ProtocolIconRssImpl
 {
     private static Logger logger
         = Logger.getLogger(ProtocolIconRssImpl.class); 
+    
+    private static ResourceManagementService resourcesService;
     
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -87,8 +85,7 @@ public class ProtocolIconRssImpl
      */
     public static byte[] loadIcon(String imagePath) 
     {
-        InputStream is = ProtocolIconRssImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try {
@@ -98,5 +95,22 @@ public class ProtocolIconRssImpl
             logger.error("Failed to load icon: " + imagePath, e);
         }
         return icon;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = RssActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService)RssActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

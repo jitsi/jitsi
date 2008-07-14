@@ -49,7 +49,8 @@ public class ProtocolProviderServiceSSHImpl
      * The test command given after each command to determine the reply length 
      * of the command
      */
-    private final String testCommand = Resources.getString("testCommand");
+    private final String testCommand = 
+        Resources.getString("testCommand");
     
     /**
      * A reference to the protocol provider of UIService

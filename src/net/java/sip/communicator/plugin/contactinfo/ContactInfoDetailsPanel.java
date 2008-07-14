@@ -98,13 +98,13 @@ public class ContactInfoDetailsPanel
         JScrollPane extendedScrollPane = new JScrollPane(extendedPanel);
 
         this.tabbedPane.addTab(Resources.getString("summary"), icon,
-            summaryPanel, Resources.getString("summaryDesc")
+            summaryPanel, Resources.getString("contactSummaryDesc")
                 + contact.getDisplayName());
 
         this.tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
         this.tabbedPane.addTab(Resources.getString("extended"), icon,
-            extendedScrollPane, Resources.getString("extendedDesc")
+            extendedScrollPane, Resources.getString("contactExtendedDesc")
                 + contact.getDisplayName());
 
         this.tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
@@ -126,7 +126,7 @@ public class ContactInfoDetailsPanel
     private JPanel createUnsupportedPanel()
     {
         JTextArea unsupportedTextArea =
-            new JTextArea(Resources.getString("notSupported"));
+            new JTextArea(Resources.getString("contactInfoNotSupported"));
 
         unsupportedTextArea.setEditable(false);
         unsupportedTextArea.setLineWrap(true);
@@ -169,7 +169,7 @@ public class ContactInfoDetailsPanel
         if (bytes != null)
             avatarImage = new ImageIcon(bytes);
         else
-            avatarImage = Resources.getImage("defaultPersonIcon");
+            avatarImage = Resources.getImage("contactInfoDefaultPersonIcon");
 
         ImageIcon scaledImage =
             new ImageIcon(avatarImage.getImage().getScaledInstance(105, 130,

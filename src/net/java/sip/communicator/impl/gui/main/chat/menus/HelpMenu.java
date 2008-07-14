@@ -51,7 +51,7 @@ public class HelpMenu
         this.chatWindow = chatWindow;
 
         this.setForeground(new Color(
-            ColorProperties.getColor("chatMenuForeground")));
+            GuiActivator.getResources().getColor("chatMenuForeground")));
 
         this.setMnemonic(Messages.getI18NString("help").getMnemonic());
 

@@ -435,7 +435,7 @@ public class CallListPanel
             super.paintComponent(g);
 
             g.setColor(new Color(
-                ColorProperties.getColor("contactListBackground")));
+                GuiActivator.getResources().getColor("contactListBackground")));
 
             // paint the background with the choosen color
             g.fillRect(0, 0, getWidth(), getHeight());

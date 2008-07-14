@@ -114,7 +114,7 @@ public class AccountInfoForm
      */
     public byte[] getIcon()
     {
-        return Resources.getImageInBytes("infoIcon");
+        return Resources.getImageInBytes("accountInfoIcon");
     }
 
     /**

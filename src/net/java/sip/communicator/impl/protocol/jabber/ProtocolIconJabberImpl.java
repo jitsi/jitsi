@@ -10,8 +10,10 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.jabberconstants.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Reperesents the Jabber protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -29,6 +31,8 @@ public class ProtocolIconJabberImpl
      * The path where all protocol icons are placed.
      */
     private final String iconPath;
+    
+    private static ResourceManagementService resourcesService;
     
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -93,9 +97,33 @@ public class ProtocolIconJabberImpl
      * @param imagePath The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static byte[] loadIcon(String imagePath)
+    public static byte[] loadIcon(String imagePath) {
+        InputStream is = getResources().getImageInputStreamForPath(imagePath);
+        
+        byte[] icon = null;
+        try {
+            icon = new byte[is.available()];
+            is.read(icon);
+        } catch (IOException e) {
+            logger.error("Failed to load icon: " + imagePath, e);
+        }
+        return icon;
+    } 
+    
+    public static ResourceManagementService getResources()
     {
-        return JabberStatusEnum.loadIcon(imagePath,
-            ProtocolIconJabberImpl.class);
-    }    
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = JabberActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService)JabberActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
+    }
 }

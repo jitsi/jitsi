@@ -10,11 +10,13 @@ package net.java.sip.communicator.impl.gui.utils;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import javax.imageio.*;
 import javax.imageio.stream.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -1067,15 +1069,14 @@ public class ImageLoader {
         }
         else
         {
-            String path = Images.getString(imageID.getId());
+            URL path = GuiActivator.getResources().getImageURL(imageID.getId());
 
             if (path == null)
                 return null;
 
             try
             {
-                image = ImageIO.read(ImageLoader.class.getClassLoader()
-                        .getResource(path));
+                image = ImageIO.read(path);
 
                 loadedImages.put(imageID, image);
             }
@@ -1093,16 +1094,22 @@ public class ImageLoader {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static byte[] getImageInBytes(ImageID imageID) {
-        byte[] image = new byte[100000];
+    public static byte[] getImageInBytes(ImageID imageID) 
+    {
+        InputStream in = GuiActivator.getResources().
+            getImageInputStream(imageID.getId());
 
-        String path = Images.getString(imageID.getId());
-        try {
-            Images.class.getClassLoader()
-                    .getResourceAsStream(path).read(image);
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
 
-        } catch (IOException e) {
-            log.error("Failed to load image:" + path, e);
+            in.read(image);
+        } catch (IOException e) 
+        {
+            log.error("Failed to load image:" + imageID.getId(), e);
         }
 
         return image;
@@ -1191,22 +1198,29 @@ public class ImageLoader {
      *            The image wich path to return.
      * @return The path string of an already loaded image, otherwise null.
      */
-    public static String getImagePath(Image image) {
-
-        String path = null;
-
+    public static String getImagePath(Image image) 
+    {
         Iterator i = ImageLoader.loadedImages.entrySet().iterator();
 
         while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
 
-            if (entry.getValue().equals(image)) {
+            if (entry.getValue().equals(image)) 
+            {
                 String imageID = ((ImageID) entry.getKey()).getId();
 
-                path = Images.getString(imageID);
+                try
+                {
+                    return GuiActivator.getResources().
+                        getImageURL(imageID).toURI().toString();
+                }
+                catch(URISyntaxException ex)
+                {
+                    log.error("Failed to create path for image " + imageID);
+                }
             }
         }
 
-        return path;
+        return null;
     }
 }

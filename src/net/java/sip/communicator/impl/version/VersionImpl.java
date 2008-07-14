@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.version;
 import java.util.*;
 
 import net.java.sip.communicator.service.version.*;
+import net.java.sip.communicator.service.resources.*;
+import org.osgi.framework.ServiceReference;
 
 /**
  * A static implementation of the Version interface.
@@ -75,6 +77,8 @@ public class VersionImpl
      * SIP Communicator.
      */
     public static final VersionImpl CURRENT_VERSION = new VersionImpl();
+    
+    private static ResourceManagementService resourcesService;
 
     /**
      * Returns the version major of the current SIP Communicator version. In an
@@ -296,9 +300,22 @@ public class VersionImpl
         {
             try 
             {
+                if (resourcesService == null)
+                {
+                    ServiceReference serviceReference = VersionActivator.bundleContext
+                        .getServiceReference(ResourceManagementService.class.getName());
+
+                    if(serviceReference == null)
+                        return null;
+
+                    resourcesService = 
+                        (ResourceManagementService)VersionActivator.bundleContext
+                            .getService(serviceReference);
+                }
+                    
                 applicationName = 
-                    ResourceBundle.getBundle("resources.application").
-                        getString("applicationName");
+                    resourcesService.getSettingsString("applicationName");
+                
             } catch (Exception e) 
             {
                 // if resource bundle is not found or the key is missing

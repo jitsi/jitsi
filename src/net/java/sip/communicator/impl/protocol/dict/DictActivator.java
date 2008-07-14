@@ -26,7 +26,7 @@ public class DictActivator
     /**
      * The currently valid bundle context.
      */
-    private static BundleContext bundleContext = null;
+    static BundleContext bundleContext = null;
 
     private ServiceRegistration dictPpFactoryServReg = null;
     private static ProtocolProviderFactoryDictImpl

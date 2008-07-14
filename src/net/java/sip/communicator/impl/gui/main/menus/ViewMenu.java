@@ -54,7 +54,8 @@ public class ViewMenu
         super(Messages.getI18NString("view").getText());
 
         this.setForeground(
-            new Color(ColorProperties.getColor("mainMenuForeground")));
+            new Color(GuiActivator.getResources().
+                getColor("mainMenuForeground")));
 
         this.mainFrame = mainFrame;
 

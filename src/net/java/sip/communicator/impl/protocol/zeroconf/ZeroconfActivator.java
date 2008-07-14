@@ -39,7 +39,7 @@ public class ZeroconfActivator
     /**
      * The currently valid bundle context.
      */
-    private static BundleContext bundleContext = null;
+    static BundleContext bundleContext = null;
 
 
     /**

@@ -7,6 +7,8 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
+import java.net.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader.*;
 
 /**
@@ -76,7 +78,14 @@ public class Smiley {
      * Returns the path of the image corresponding to this smily.
      * @return the path of the image corresponding to this smily.
      */
-    public String getImagePath() {
-        return Images.getString(this.getImageID().getId());
+    public String getImagePath() 
+    {
+        URL url = GuiActivator.getResources().
+            getImageURL(this.getImageID().getId());
+        
+        if(url == null)
+            return null;
+        
+        return url.toString();
     }
 }

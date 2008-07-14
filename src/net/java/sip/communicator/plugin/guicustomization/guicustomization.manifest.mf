@@ -1,0 +1,14 @@
+Bundle-Activator: net.java.sip.communicator.plugin.guicustomization.GuiCustomizationActivator
+Bundle-Name: Gui Customization Activator
+Bundle-Description: The plugin offering gui customization interface.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.resources,
+ javax.swing,
+ javax.swing.event,
+ javax.swing.table,
+ javax.swing.text,
+ javax.swing.text.html,
+ javax.imageio

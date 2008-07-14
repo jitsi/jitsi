@@ -144,7 +144,7 @@ public class AccountDetailsPanel
 
         changeAvatarButton.addActionListener(new ChangeAvatarActionListener());
 
-        avatarLabel.setIcon(Resources.getImage("defaultPersonIcon"));
+        avatarLabel.setIcon(Resources.getImage("accountInfoDefaultPersonIcon"));
 
         changeButtonPanel.add(changeAvatarButton);
 

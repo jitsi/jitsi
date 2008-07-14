@@ -10,7 +10,10 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Reperesents the Dict protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -23,6 +26,8 @@ public class ProtocolIconDictImpl
     implements ProtocolIcon
 {
     private static Logger logger = Logger.getLogger(ProtocolIconDictImpl.class);
+    
+    private static ResourceManagementService resourcesService;
     
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -83,8 +88,7 @@ public class ProtocolIconDictImpl
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        InputStream is = ProtocolIconDictImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try {
@@ -94,5 +98,22 @@ public class ProtocolIconDictImpl
             logger.error("Failed to load icon: " + imagePath, e);
         }
         return icon;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = DictActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService)DictActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

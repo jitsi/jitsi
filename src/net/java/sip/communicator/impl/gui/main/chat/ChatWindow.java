@@ -795,8 +795,8 @@ public class ChatWindow
          */
         public LogoBar()
         {
-            int width = SizeProperties.getSize("logoBarWidth");
-            int height = SizeProperties.getSize("logoBarHeight");
+            int width = GuiActivator.getResources().getSettingsInt("logoBarWidth");
+            int height = GuiActivator.getResources().getSettingsInt("logoBarHeight");
 
             this.setMinimumSize(new Dimension(width, height));
             this.setPreferredSize(new Dimension(width, height));
@@ -816,7 +816,7 @@ public class ChatWindow
                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
             g.setColor(new Color(
-                ColorProperties.getColor("logoBarBackground")));
+                GuiActivator.getResources().getColor("logoBarBackground")));
 
             g.fillRect(0, 0, this.getWidth(), this.getHeight());
             g.drawImage(backgroundImage, 0, 0, null);

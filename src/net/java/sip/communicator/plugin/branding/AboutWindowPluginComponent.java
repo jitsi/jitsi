@@ -17,7 +17,8 @@ public class AboutWindowPluginComponent
     implements PluginComponent
 {
     private JMenuItem aboutMenuItem
-        = new JMenuItem(Resources.getString("aboutMenuEntry"));
+        = new JMenuItem(BrandingActivator.getResources().
+            getI18NString("aboutMenuEntry"));
 
     private Container container;
 
@@ -52,7 +53,7 @@ public class AboutWindowPluginComponent
 
     public String getName()
     {
-        return Resources.getString("aboutMenuEntry");
+        return BrandingActivator.getResources().getI18NString("aboutMenuEntry");
     }
 
     public void setCurrentContact(MetaContact metaContact)

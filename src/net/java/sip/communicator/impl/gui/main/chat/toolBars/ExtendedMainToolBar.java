@@ -88,10 +88,10 @@ public class ExtendedMainToolBar
         ImageLoader.getImage(ImageLoader.FONT_ICON));
 
     private static int DEFAULT_BUTTON_HEIGHT
-        = SizeProperties.getSize("mainToolbarButtonHeight");
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
 
     private static int DEFAULT_BUTTON_WIDTH
-        = SizeProperties.getSize("mainToolbarButtonWidth");
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
 
     private SmiliesSelectorBox smiliesBox;
 
@@ -432,7 +432,7 @@ public class ExtendedMainToolBar
 
             this.setFont(getFont().deriveFont(Font.BOLD, 10f));
             this.setForeground(new Color(
-                ColorProperties.getColor("toolBarForeground")));
+                GuiActivator.getResources().getColor("toolBarForeground")));
 
             this.setVerticalTextPosition(SwingConstants.BOTTOM);
             this.setHorizontalTextPosition(SwingConstants.CENTER);

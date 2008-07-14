@@ -10,7 +10,10 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Represents the Sip protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -29,6 +32,8 @@ public class ProtocolIconSipImpl
      * A hash table containing the protocol icon in different sizes.
      */
     private Hashtable iconsTable = new Hashtable();
+    
+    private static ResourceManagementService resourcesService;
 
     /**
      * Creates an instance of this class by passing to it the path, where all
@@ -101,8 +106,7 @@ public class ProtocolIconSipImpl
      */
     public static byte[] loadIcon(String imagePath)
     {
-        InputStream is = ProtocolIconSipImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = getResources().getImageInputStreamForPath(imagePath);
 
         byte[] icon = null;
         try
@@ -115,5 +119,22 @@ public class ProtocolIconSipImpl
             logger.error("Failed to load protocol icon: " + imagePath, e);
         }
         return icon;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = SipActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService)SipActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

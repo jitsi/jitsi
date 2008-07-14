@@ -6,18 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.gibberish;
 
-import java.awt.image.*;
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
-import javax.imageio.*;
-import javax.imageio.stream.*;
-
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Reperesents the Gibberish protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -30,6 +27,8 @@ public class ProtocolIconGibberishImpl
 {
     private static Logger logger
         = Logger.getLogger(ProtocolIconGibberishImpl.class); 
+    
+    private static ResourceManagementService resourcesService;
     
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -85,8 +84,7 @@ public class ProtocolIconGibberishImpl
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        InputStream is = ProtocolIconGibberishImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try {
@@ -96,5 +94,22 @@ public class ProtocolIconGibberishImpl
             logger.error("Failed to load icon: " + imagePath, e);
         }
         return icon;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = GibberishActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService)GibberishActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

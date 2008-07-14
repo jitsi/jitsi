@@ -87,7 +87,7 @@ public class ZeroconfAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameZeroconf");
     }
 
     /**
@@ -97,7 +97,7 @@ public class ZeroconfAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionZeroconf");
     }
 
     /**

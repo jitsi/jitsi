@@ -72,9 +72,11 @@ public class DialPanel
     private DialButton diezButton = new DialButton(
         ImageLoader.getImage(ImageLoader.DIEZ_DIAL_BUTTON));
 
-    private int hgap = SizeProperties.getSize("dialPadHorizontalGap");
+    private int hgap = GuiActivator.getResources().
+        getSettingsInt("dialPadHorizontalGap");
 
-    private int vgap = SizeProperties.getSize("dialPadVerticalGap");
+    private int vgap = GuiActivator.getResources().
+        getSettingsInt("dialPadVerticalGap");
 
     private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, hgap, vgap));
 
@@ -97,8 +99,8 @@ public class DialPanel
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        int width = SizeProperties.getSize("dialPadWidth");
-        int height = SizeProperties.getSize("dialPadHeight");
+        int width = GuiActivator.getResources().getSettingsInt("dialPadWidth");
+        int height = GuiActivator.getResources().getSettingsInt("dialPadHeight");
 
         this.dialPadPanel.setPreferredSize(new Dimension(width, height));
 
@@ -421,7 +423,7 @@ public class DialPanel
         super.paintComponent(g);
 
         g.setColor(new Color(
-            ColorProperties.getColor("contactListBackground")));
+            GuiActivator.getResources().getColor("contactListBackground")));
 
         // paint the background with the chosen color
         g.fillRect(0, 0, getWidth(), getHeight());

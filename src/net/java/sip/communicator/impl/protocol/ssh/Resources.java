@@ -13,7 +13,6 @@
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
-import java.util.*;
 
 import net.java.sip.communicator.util.*;
 
@@ -25,13 +24,7 @@ public class Resources
 {
     private static Logger log = Logger.getLogger(Resources.class);
     
-    private static final String BUNDLE_NAME
-            = "net.java.sip.communicator.impl.protocol.ssh.resources";
-    
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
-    
-    public static ImageID SSH_LOGO = new ImageID("protocolIcon");
+    public static ImageID SSH_LOGO = new ImageID("protocolIconSsh");
     
     /**
      * Returns an string corresponding to the given key.
@@ -42,15 +35,7 @@ public class Resources
      */
     public static String getString(String key)
     {
-        try
-        {
-            return RESOURCE_BUNDLE.getString(key);
-            
-        }
-        catch (MissingResourceException exc)
-        {
-            return '!' + key + '!';
-        }
+        return SSHActivator.getResources().getI18NString(key);
     }
     
     /**
@@ -60,15 +45,12 @@ public class Resources
      */
     public static byte[] getImage(ImageID imageID)
     {
-        byte[] image= null;
+        byte[] image = null;
         InputStream inputStream;
-        
-        String path = Resources.getString(imageID.getId());
-        
         try
         {
-            inputStream = Resources.class.getClassLoader()
-                .getResourceAsStream(path);
+            inputStream = 
+                SSHActivator.getResources().getImageInputStream(imageID.getId());
             
             image = new byte[inputStream.available()];
             
@@ -76,7 +58,7 @@ public class Resources
         }
         catch (IOException exc)
         {
-            log.error("Failed to load image:" + path, exc);
+            log.error("Failed to load image:" + imageID.getId(), exc);
         }
         
         return image;

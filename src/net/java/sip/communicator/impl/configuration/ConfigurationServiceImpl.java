@@ -325,7 +325,12 @@ public class ConfigurationServiceImpl
         while(keys.hasNext())
         {
             String key = (String)keys.next();
-            String keyPrefix = key.substring(0, key.lastIndexOf('.'));
+            int ix = key.lastIndexOf('.');
+            
+            if(ix == -1)
+                continue;
+            
+            String keyPrefix = key.substring(0, ix);
 
             if(exactPrefixMatch)
             {

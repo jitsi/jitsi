@@ -26,7 +26,7 @@ public class SipActivator
     private Logger logger = Logger.getLogger(SipActivator.class.getName());
 
     private        ServiceRegistration  sipPpFactoryServReg   = null;
-    private static BundleContext        bundleContext         = null;
+    static BundleContext        bundleContext         = null;
     private static ConfigurationService configurationService  = null;
     private static NetworkAddressManagerService networkAddressManagerService
                                                                         = null;

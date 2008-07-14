@@ -8,9 +8,13 @@
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
@@ -22,41 +26,17 @@ public class Resources
 {
     private static Logger log = Logger.getLogger(Resources.class);
 
-    /**
-     * The name of the resource, where internationalization strings for this
-     * plugin are stored.
-     */
-    private static final String STRING_RESOURCE_NAME
-        = "resources.languages.plugin.jabberaccregwizz.resources";
-
-    /**
-     * The name of the resource, where paths to images used in this bundle are
-     * stored.
-     */
-    private static final String RESOURCE_NAME
-        = "net.java.sip.communicator.plugin.jabberaccregwizz.resources";
-
-    /**
-     * The string resource bundle.
-     */
-    private static final ResourceBundle STRING_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
-
-    /**
-     * The image resource bundle.
-     */
-    private static final ResourceBundle RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(RESOURCE_NAME);
-
+    private static ResourceManagementService resourcesService;
+    
     /**
      * A constant pointing to the Jabber protocol logo image.
      */
-    public static ImageID PROTOCOL_ICON = new ImageID("protocolIcon");
+    public static ImageID PROTOCOL_ICON = new ImageID("protocolIconJabber");
 
     /**
      * A constant pointing to the Aim protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("pageImage");
+    public static ImageID PAGE_IMAGE = new ImageID("pageImageJabber");
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -66,27 +46,7 @@ public class Resources
      */
     public static String getString(String key)
     {
-        String resourceString;
-        try
-        {
-            resourceString = STRING_RESOURCE_BUNDLE.getString(key);
-
-            int mnemonicIndex = resourceString.indexOf('&');
-
-            if(mnemonicIndex > -1)
-            {
-                String firstPart = resourceString.substring(0, mnemonicIndex);
-                String secondPart = resourceString.substring(mnemonicIndex + 1);
-
-                resourceString = firstPart.concat(secondPart);
-            }
-        }
-        catch (MissingResourceException e)
-        {
-            resourceString = '!' + key + '!';
-        }
-
-        return resourceString;
+        return getResources().getI18NString(key);
     }
 
     /**
@@ -97,26 +57,7 @@ public class Resources
      */
     public static char getMnemonic(String key)
     {
-        String resourceString;
-
-        try
-        {
-            resourceString = STRING_RESOURCE_BUNDLE.getString(key);
-
-            int mnemonicIndex = resourceString.indexOf('&');
-
-            if(mnemonicIndex > -1)
-            {
-                return resourceString.charAt(mnemonicIndex + 1);
-            }
-
-        }
-        catch (MissingResourceException e)
-        {
-            return '!';
-        }
-
-        return '!';
+        return getResources().getI18nMnemonic(key);
     }
 
     /**
@@ -127,18 +68,22 @@ public class Resources
      */
     public static byte[] getImage(ImageID imageID)
     {
-        byte[] image = new byte[100000];
-
-        String path = RESOURCE_BUNDLE.getString(imageID.getId());
+        InputStream in = 
+            getResources().getImageInputStream(imageID.getId());
+        
+        if(in == null)
+            return null;
+        
+        byte[] image = null;
 
         try
         {
-            Resources.class.getClassLoader()
-                .getResourceAsStream(path).read(image);
+            image = new byte[in.available()];
+            in.read(image);
         }
         catch (IOException e)
         {
-            log.error("Failed to load image:" + path, e);
+            log.error("Failed to load image:" + imageID, e);
         }
 
         return image;
@@ -151,16 +96,9 @@ public class Resources
      * @param key the key of the resource to search for
      * @return the resource for the given key
      */
-    public static String getProperty(String key)
+    public static InputStream getPropertyInputStream(String key)
     {
-        try
-        {
-            return RESOURCE_BUNDLE.getString(key);
-        }
-        catch (MissingResourceException e)
-        {
-            return '!' + key + '!';
-        }
+        return getResources().getSettingsInputStream(key);
     }
 
     /**
@@ -179,5 +117,23 @@ public class Resources
         {
             return id;
         }
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = JabberAccRegWizzActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = 
+                (ResourceManagementService)JabberAccRegWizzActivator.bundleContext
+                    .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

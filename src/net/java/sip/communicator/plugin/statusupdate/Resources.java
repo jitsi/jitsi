@@ -8,6 +8,10 @@ package net.java.sip.communicator.plugin.statusupdate;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.resources.*;
+
+import org.osgi.framework.*;
+
 /**
  * The Messages class manages the access to the internationalization properties
  * files.
@@ -16,11 +20,7 @@ import java.util.*;
  */
 public class Resources
 {
-
-    private static final String BUNDLE_NAME = "resources.languages.plugin.statusupdate.resources";
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
+    private static ResourceManagementService resourcesService;
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -31,14 +31,24 @@ public class Resources
      */
     public static String getString(String key)
     {
-        try
+        return getResources().getI18NString(key);
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
         {
-            return RESOURCE_BUNDLE.getString(key);
+            ServiceReference serviceReference = StatusUpdateActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
 
-        } catch (MissingResourceException e)
-        {
-
-            return '!' + key + '!';
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = 
+                (ResourceManagementService)StatusUpdateActivator.bundleContext
+                    .getService(serviceReference);
         }
+
+        return resourcesService;
     }
 }

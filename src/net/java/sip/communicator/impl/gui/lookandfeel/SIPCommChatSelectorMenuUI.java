@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -57,8 +58,8 @@ public class SIPCommChatSelectorMenuUI
         super.paintBackground(g, menuItem, bgColor);
 
         boolean isToolBarExtended
-            = new Boolean(ApplicationProperties
-                .getProperty("isToolBarExteneded")).booleanValue();
+            = new Boolean(GuiActivator.getResources().
+                getSettingsString("isToolBarExteneded")).booleanValue();
 
         if (!isToolBarExtended)
         {

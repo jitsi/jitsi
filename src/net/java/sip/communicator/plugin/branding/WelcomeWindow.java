@@ -12,13 +12,13 @@ public class WelcomeWindow extends JDialog
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel
-        = new JLabel(BrandingResources.getApplicationString("applicationName"));
+        = new JLabel(BrandingActivator.getResources().getSettingsString("applicationName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
 
-    private JTextArea logoArea = new JTextArea(Resources
-            .getString("logoMessage"));
+    private JTextArea logoArea = new JTextArea(
+        BrandingActivator.getResources().getI18NString("logoMessage"));
 
     private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
 
@@ -29,13 +29,14 @@ public class WelcomeWindow extends JDialog
     private JPanel loadingPanel = new JPanel(new BorderLayout());
 
     private JLabel loadingLabel = new JLabel(
-        Resources.getString("loading") + ": ");
+        BrandingActivator.getResources().getI18NString("loading") + ": ");
 
     private JLabel bundleLabel = new JLabel();
 
     public WelcomeWindow()
     {
-        this.setTitle(BrandingResources.getApplicationString("applicationName"));
+        this.setTitle(
+            BrandingActivator.getResources().getSettingsString("applicationName"));
 
         this.setModal(false);
         this.setUndecorated(true);
@@ -56,9 +57,8 @@ public class WelcomeWindow extends JDialog
         this.versionLabel.setForeground(Constants.TITLE_COLOR);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        int logoAreaFontSize = new Integer(
-            BrandingResources.getApplicationString("aboutLogoFontSize"))
-                .intValue();
+        int logoAreaFontSize = BrandingActivator.getResources().
+            getSettingsInt("aboutLogoFontSize");
 
         this.logoArea.setFont(
             Constants.FONT.deriveFont(Font.BOLD, logoAreaFontSize));
@@ -72,11 +72,12 @@ public class WelcomeWindow extends JDialog
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 190, 0, 0));
 
         this.rightsArea.setContentType("text/html");
-        this.rightsArea.appendToEnd(Resources.getString("welcomeMessage",
+        this.rightsArea.appendToEnd(BrandingActivator.getResources().getI18NString(
+            "welcomeMessage",
             new String[]{
                 Constants.TEXT_COLOR,
-                BrandingResources.getApplicationString("applicationName"),
-                BrandingResources.getApplicationString("applicationWebSite")
+                BrandingActivator.getResources().getSettingsString("applicationName"),
+                BrandingActivator.getResources().getSettingsString("applicationWebSite")
                 }));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 50));
@@ -87,7 +88,8 @@ public class WelcomeWindow extends JDialog
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.appendToEnd(Resources.getString("license",
+        this.licenseArea.appendToEnd(BrandingActivator.getResources().getI18NString(
+            "license",
             new String[]
                        {
                             Constants.TEXT_COLOR
@@ -186,9 +188,8 @@ public class WelcomeWindow extends JDialog
             
             try
             {
-                bgImage = ImageIO.read(WindowBackground.class.getClassLoader()
-                    .getResource(
-                        BrandingResources.getResourceString("splashScreenBg")));
+                bgImage = ImageIO.read(
+                    BrandingActivator.getResources().getImageURL("splashScreenBg"));
             }
             catch (IOException e)
             {

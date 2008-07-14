@@ -4,7 +4,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
-import net.java.sip.communicator.service.protocol.aimconstants.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**

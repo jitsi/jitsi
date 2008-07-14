@@ -12,6 +12,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -57,7 +58,7 @@ public class EditMenu extends SIPCommMenu
         this.chatWindow = chatWindow;
 
         this.setForeground(new Color(
-            ColorProperties.getColor("chatMenuForeground")));
+            GuiActivator.getResources().getColor("chatMenuForeground")));
 
         this.cutMenuItem.setName("cut");
         this.copyMenuItem.setName("copy");

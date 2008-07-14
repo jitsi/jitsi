@@ -8,9 +8,11 @@
 package net.java.sip.communicator.plugin.gibberishaccregwizz;
 
 import java.io.*;
-import java.util.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
@@ -23,41 +25,17 @@ public class Resources
 
     private static Logger log = Logger.getLogger(Resources.class);
 
-    /**
-     * The name of the resource, where internationalization strings for this
-     * plugin are stored.
-     */
-    private static final String STRING_RESOURCE_NAME
-        = "resources.languages.plugin.gibberishaccregwizz.resources";
-
-    /**
-     * The name of the resource, where paths to images used in this bundle are
-     * stored.
-     */
-    private static final String IMAGE_RESOURCE_NAME
-        = "net.java.sip.communicator.plugin.gibberishaccregwizz.resources";
-
-    /**
-     * The string resource bundle.
-     */
-    private static final ResourceBundle STRING_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
-
-    /**
-     * The image resource bundle.
-     */
-    private static final ResourceBundle IMAGE_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(IMAGE_RESOURCE_NAME);
+    private static ResourceManagementService resourcesService;
 
     /**
      * A constant pointing to the Gibberish protocol logo icon.
      */
-    public static ImageID GIBBERISH_LOGO = new ImageID("protocolIcon");
+    public static ImageID GIBBERISH_LOGO = new ImageID("protocolIconGibberish");
 
     /**
      * A constant pointing to the Gibberish protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("pageImage");
+    public static ImageID PAGE_IMAGE = new ImageID("pageImageGibberish");
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -67,14 +45,7 @@ public class Resources
      */
     public static String getString(String key)
     {
-        try
-        {
-            return STRING_RESOURCE_BUNDLE.getString(key);
-        }
-        catch (MissingResourceException exc)
-        {
-            return '!' + key + '!';
-        }
+        return getResources().getI18NString(key);
     }
 
     /**
@@ -85,18 +56,22 @@ public class Resources
      */
     public static byte[] getImage(ImageID imageID)
     {
-        byte[] image = new byte[100000];
-
-        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID.getId());
+        InputStream in = 
+            getResources().getImageInputStream(imageID.getId());
+        
+        if(in == null)
+            return null;
+        
+        byte[] image = null;
 
         try
         {
-            Resources.class.getClassLoader()
-                .getResourceAsStream(path).read(image);
+            image = new byte[in.available()];
+            in.read(image);
         }
-        catch (IOException exc)
+        catch (IOException e)
         {
-            log.error("Failed to load image:" + path, exc);
+            log.error("Failed to load image:" + imageID, e);
         }
 
         return image;
@@ -119,5 +94,22 @@ public class Resources
             return id;
         }
     }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = GibberishAccRegWizzActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
 
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = 
+                (ResourceManagementService)GibberishAccRegWizzActivator.bundleContext
+                    .getService(serviceReference);
+        }
+
+        return resourcesService;
+    }
 }

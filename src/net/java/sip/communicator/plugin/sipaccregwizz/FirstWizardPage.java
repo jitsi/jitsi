@@ -136,8 +136,8 @@ public class FirstWizardPage
     private JComboBox keepAliveMethodBox
         = new JComboBox(new Object []
                                     {
-                                        Resources.getString("register"),
-                                        Resources.getString("options")
+                                        Resources.getString("register").toUpperCase(),
+                                        Resources.getString("options").toUpperCase()
                                     });
 
     private JTextField keepAliveIntervalValue = new JTextField();
@@ -206,7 +206,7 @@ public class FirstWizardPage
         uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("uinAndPassword")));
+            .getString("sipUinAndPassword")));
 
         firstTabPanel.add(uinPassPanel, BorderLayout.NORTH);
 

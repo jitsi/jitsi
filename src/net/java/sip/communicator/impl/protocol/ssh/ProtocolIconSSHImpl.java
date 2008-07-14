@@ -87,8 +87,8 @@ public class ProtocolIconSSHImpl
      */
     public static byte[] loadIcon(String imagePath) 
     {
-        InputStream is = ProtocolIconSSHImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = 
+            SSHActivator.getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try {

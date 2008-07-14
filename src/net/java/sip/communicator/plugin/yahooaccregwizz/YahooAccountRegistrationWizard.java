@@ -80,7 +80,7 @@ public class YahooAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameYahoo");
     }
 
     /**
@@ -92,7 +92,7 @@ public class YahooAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionYahoo");
     }
 
     /**

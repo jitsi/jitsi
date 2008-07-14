@@ -10,7 +10,10 @@ package net.java.sip.communicator.plugin.generalconfig;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
@@ -22,44 +25,7 @@ public class Resources
 {
     private static Logger log = Logger.getLogger(Resources.class);
 
-    /**
-     * The name of the resource, where internationalization strings for this
-     * plugin are stored.
-     */
-    private static final String STRING_RESOURCE_NAME
-        = "resources.languages.plugin.generalconfig.resources";
-
-    /**
-     * The name of the resource, where paths to images used in this bundle are
-     * stored.
-     */
-    private static final String IMAGE_RESOURCE_NAME
-        = "net.java.sip.communicator.plugin.generalconfig.resources";
-    
-    /**
-     * The name of the resource, where application properties are
-     * stored.
-     */
-    private static final String APPLICATION_RESUORCE_LOCATION
-        = "resources.application";
-
-    /**
-     * The application resource bundle.
-     */
-    private static final ResourceBundle APPLICATION_RESOURCE_BUNDLE 
-        = ResourceBundle.getBundle(APPLICATION_RESUORCE_LOCATION);
-
-    /**
-     * The string resource bundle.
-     */
-    private static final ResourceBundle STRING_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
-
-    /**
-     * The image resource bundle.
-     */
-    private static final ResourceBundle IMAGE_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(IMAGE_RESOURCE_NAME);
+    private static ResourceManagementService resourcesService;
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -68,14 +34,7 @@ public class Resources
      */
     public static String getString(String key)
     {
-        try
-        {
-            return STRING_RESOURCE_BUNDLE.getString(key);
-        }
-        catch (MissingResourceException e)
-        {
-            return '!' + key + '!';
-        }
+        return getResources().getI18NString(key);
     }
     
     /**
@@ -85,14 +44,7 @@ public class Resources
      */
     public static String getApplicationString(String key)
     {
-        try
-        {
-            return APPLICATION_RESOURCE_BUNDLE.getString(key);
-        }
-        catch (MissingResourceException e)
-        {
-            return '!' + key + '!';
-        }
+        return getResources().getSettingsString(key);
     }
 
     /**
@@ -102,19 +54,42 @@ public class Resources
      */
     public static byte[] getImage(String imageId)
     {
-        byte[] image = new byte[100000];
+        InputStream in = 
+            getResources().getImageInputStream(imageId);
+        
+        if(in == null)
+            return null;
+        
+        byte[] image = null;
 
-        String path = IMAGE_RESOURCE_BUNDLE.getString(imageId);
         try
         {
-            Resources.class.getClassLoader()
-                    .getResourceAsStream(path).read(image);
+            image = new byte[in.available()];
+            in.read(image);
         }
         catch (IOException e)
         {
-            log.error("Failed to load image:" + path, e);
+            log.error("Failed to load image:" + imageId, e);
         }
 
         return image;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = GeneralConfigPluginActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = 
+                (ResourceManagementService)GeneralConfigPluginActivator.bundleContext
+                    .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

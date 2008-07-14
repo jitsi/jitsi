@@ -19,6 +19,7 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -33,7 +34,8 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
     private static final Color whiteColor = Color.white;
 
     private static final int TAB_OVERLAP
-        = new Integer(LookAndFeelProperties.getProperty("tabOverlap")).intValue();
+        = new Integer(GuiActivator.getResources().
+            getSettingsString("tabOverlap")).intValue();
 
     private static final int PREFERRED_WIDTH = 150;
 

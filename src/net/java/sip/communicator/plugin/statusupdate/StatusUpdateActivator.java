@@ -26,7 +26,7 @@ public class StatusUpdateActivator implements BundleActivator
     private static Logger logger = Logger
             .getLogger(StatusUpdateActivator.class);
 
-    private static BundleContext bundleContext = null;
+    static BundleContext bundleContext = null;
 
     private static Thread thread = null;
     private static StatusUpdateThread runner = null;

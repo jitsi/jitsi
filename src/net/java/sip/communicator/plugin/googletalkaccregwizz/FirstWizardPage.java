@@ -41,7 +41,7 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new JPanel();
 
-    private JLabel userIDLabel = new JLabel(Resources.getString("username"));
+    private JLabel userIDLabel = new JLabel(Resources.getString("gtalkUsername"));
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
@@ -95,7 +95,7 @@ public class FirstWizardPage
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JTextArea registerArea = new JTextArea(Resources
-        .getString("registerNewAccountText"));
+        .getString("gtalkRegisterNewAccountText"));
 
     private JButton registerButton = new JButton(Resources
         .getString("registerNewAccount"));

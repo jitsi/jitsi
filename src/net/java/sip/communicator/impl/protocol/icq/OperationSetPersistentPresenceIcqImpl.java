@@ -12,7 +12,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
-import net.java.sip.communicator.service.protocol.aimconstants.*;
 import net.java.sip.communicator.service.protocol.AuthorizationResponse.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;

@@ -52,11 +52,11 @@ public class ContactInfoDialog
      */
     public ContactInfoDialog(MetaContact metaContact)
     {
-        super(Resources.getString("contactInfo"));
+        super(Resources.getString("contactDetails"));
 
         this.metaContact = metaContact;
 
-        this.setTitle(Resources.getString("contactInfo")
+        this.setTitle(Resources.getString("contactDetails")
                     + ": "
                     + metaContact.getDisplayName());
 

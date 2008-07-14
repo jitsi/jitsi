@@ -14,6 +14,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -38,10 +39,10 @@ public class SmiliesSelectorBox extends JMenuBar
     private SIPCommMenu selectorBox = new SIPCommMenu();
 
     private static int BUTTON_HEIGHT
-        = SizeProperties.getSize("mainToolbarButtonHeight");
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
 
     private static int BUTTON_WIDTH
-        = SizeProperties.getSize("mainToolbarButtonWidth");
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
 
     private SelectorBoxRolloverListener rolloverListener
         = new SelectorBoxRolloverListener();
@@ -173,7 +174,8 @@ public class SmiliesSelectorBox extends JMenuBar
         this.selectorBox.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.selectorBox.setHorizontalTextPosition(SwingConstants.CENTER);
         this.selectorBox.setForeground(
-            new Color(ColorProperties.getColor("chatMenuForeground")));
+            new Color(GuiActivator.getResources().
+                getColor("chatMenuForeground")));
     }
 
     /**

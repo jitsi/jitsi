@@ -10,7 +10,9 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import org.osgi.framework.*;
 
 /**
  * Reperesents the Aim protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -22,6 +24,8 @@ public class ProtocolIconAimImpl
     implements ProtocolIcon
 {    
     private static Logger logger = Logger.getLogger(ProtocolIconAimImpl.class); 
+    
+    private static ResourceManagementService resourcesService;
     
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -78,8 +82,7 @@ public class ProtocolIconAimImpl
      */
     public static byte[] loadIcon(String imagePath)
     {
-        InputStream is = ProtocolIconAimImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = getResources().getImageInputStreamForPath(imagePath);
 
         byte[] icon = null;
         try {
@@ -89,5 +92,22 @@ public class ProtocolIconAimImpl
             logger.error("Failed to load icon: " + imagePath, e);
         }
         return icon;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = IcqActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService)IcqActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

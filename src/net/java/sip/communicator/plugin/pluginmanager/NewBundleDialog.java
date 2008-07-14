@@ -9,7 +9,8 @@ package net.java.sip.communicator.plugin.pluginmanager;
 
 import java.awt.*;
 import java.awt.event.*;
-
+import java.io.*;
+import java.net.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
@@ -34,6 +35,9 @@ public class NewBundleDialog
     
     private JPanel mainPanel = new JPanel(new BorderLayout());
     
+    private JButton fileChooserButton = new JButton(Resources.getString("chooseFile")
+        );
+    
     public NewBundleDialog ()
     {
         this.mainPanel.setPreferredSize(new Dimension(450, 150));
@@ -50,11 +54,13 @@ public class NewBundleDialog
         
         this.installButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
+        this.fileChooserButton.addActionListener(this);
      
         this.dataPanel.add(bundlePathLabel, BorderLayout.WEST);
         
         this.dataPanel.add(bundlePathField, BorderLayout.CENTER);
         
+        this.dataPanel.add(fileChooserButton, BorderLayout.EAST);
     }
 
     public void actionPerformed (ActionEvent e)
@@ -72,6 +78,7 @@ public class NewBundleDialog
                 }
                 catch (BundleException ex)
                 {
+                    ex.printStackTrace();
                     PluginManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
                         PopupDialog.ERROR_MESSAGE);
@@ -82,7 +89,29 @@ public class NewBundleDialog
                 }
             }
         }
-        
-        dispose();
+        else if (sourceButton.equals(fileChooserButton))
+        {
+            JFileChooser fileChooser
+                = new JFileChooser();
+
+            int result
+                = fileChooser.showOpenDialog(NewBundleDialog.this);
+
+            if (result == JFileChooser.APPROVE_OPTION)
+            {
+                try
+                {
+                    File newBundleFile = fileChooser.getSelectedFile();
+
+                    bundlePathField.setText(newBundleFile.toURL().toString());
+                }
+                catch (MalformedURLException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }   
+        else
+            dispose();
     }
 }

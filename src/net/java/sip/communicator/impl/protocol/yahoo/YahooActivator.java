@@ -11,6 +11,7 @@ import java.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Loads the Yahoo provider factory and registers it with  service in the OSGI
@@ -26,6 +27,8 @@ public class YahooActivator
     private static ConfigurationService configurationService  = null;
 
     private static ProtocolProviderFactoryYahooImpl yahooProviderFactory = null;
+    
+    private static ResourceManagementService resourcesService;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -111,5 +114,22 @@ public class YahooActivator
     {
         yahooProviderFactory.stop();
         yahooPpFactoryServReg.unregister();
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

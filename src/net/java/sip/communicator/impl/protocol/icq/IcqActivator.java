@@ -17,7 +17,7 @@ public class IcqActivator
 {
     private        ServiceRegistration  icqPpFactoryServReg   = null;
     private        ServiceRegistration  aimPpFactoryServReg   = null;
-    private static BundleContext        bundleContext         = null;
+            static BundleContext        bundleContext         = null;
     private static ConfigurationService configurationService  = null;
 
     private static ProtocolProviderFactoryIcqImpl icqProviderFactory = null;

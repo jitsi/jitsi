@@ -600,8 +600,8 @@ public class UIServiceImpl
                 // Check the isLookAndFeelDecorated property and set the appropriate
                 // default decoration.
                 boolean isDecorated
-                    = new Boolean(ApplicationProperties
-                        .getProperty("isLookAndFeelDecorated")).booleanValue();
+                    = new Boolean(GuiActivator.getResources().
+                        getSettingsString("isLookAndFeelDecorated")).booleanValue();
 
                 if (isDecorated)
                 {

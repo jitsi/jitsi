@@ -55,7 +55,8 @@ public class ToolsMenu
         super(Messages.getI18NString("tools").getText());
 
         this.setForeground(
-            new Color(ColorProperties.getColor("mainMenuForeground")));
+            new Color(GuiActivator.getResources().
+                getColor("mainMenuForeground")));
 
         this.parentWindow = parentWindow;
 

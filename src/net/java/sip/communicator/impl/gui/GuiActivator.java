@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
@@ -52,6 +53,8 @@ public class GuiActivator implements BundleActivator
     private static NotificationService notificationService;
     
     private static SystrayService systrayService;
+    
+    private static ResourceManagementService resourcesService;
 
     private static Map providerFactoriesMap = new Hashtable();
 
@@ -303,6 +306,23 @@ public class GuiActivator implements BundleActivator
         }
 
         return systrayService;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
     
     /**

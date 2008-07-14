@@ -20,7 +20,7 @@ public class ContactInfoActivator implements BundleActivator
 
     private static BrowserLauncherService browserLauncherService;
 
-    private static BundleContext bundleContext;
+    static BundleContext bundleContext;
 
     /**
      * Starts this bundle.

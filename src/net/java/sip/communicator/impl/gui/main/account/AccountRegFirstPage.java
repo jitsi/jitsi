@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -94,7 +95,8 @@ public class AccountRegFirstPage extends JPanel
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         // check for preferred wizard
-        String prefWName = LoginProperties.getProperty("preferredAccountWizard");
+        String prefWName = GuiActivator.getResources().
+            getSettingsString("preferredAccountWizard");
         if(prefWName != null && prefWName.length() > 0)
             preferredWizardName = prefWName;
     }

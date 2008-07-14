@@ -9,17 +9,13 @@ package net.java.sip.communicator.impl.gui.i18n;
 
 import java.text.*;
 import java.util.*;
+import net.java.sip.communicator.impl.gui.GuiActivator;
 /**
  * The Messages class manages the access to the internationalization
  * properties files.
  * @author Yana Stamcheva
  */
 public class Messages {
-    private static final String BUNDLE_NAME 
-        = "resources.languages.impl.gui.resources";
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -32,18 +28,12 @@ public class Messages {
         
         String resourceString;
         try {
-            resourceString = RESOURCE_BUNDLE.getString(key);
+            resourceString = GuiActivator.getResources().getI18NString(key);
             
-            int mnemonicIndex = resourceString.indexOf('&');
+            char mnemonicIndex = GuiActivator.getResources().getI18nMnemonic(key);
             
-            if(mnemonicIndex > -1) {
-                i18nString.setMnemonic(resourceString.charAt(mnemonicIndex + 1));
-                
-                String firstPart = resourceString.substring(0, mnemonicIndex);
-                String secondPart = resourceString.substring(mnemonicIndex + 1);
-                
-                resourceString = firstPart.concat(secondPart);
-            }
+            if(mnemonicIndex > -1) 
+                i18nString.setMnemonic(mnemonicIndex);
             
             i18nString.setText(resourceString);
 
@@ -71,21 +61,15 @@ public class Messages {
         String resourceString;
         
         try {
-            resourceString = RESOURCE_BUNDLE.getString(key);
+            resourceString = GuiActivator.getResources().getI18NString(key);
+            
+            char mnemonicIndex = GuiActivator.getResources().getI18nMnemonic(key);
             
             resourceString = MessageFormat.format(
                 resourceString, (Object[]) params);
 
-            int mnemonicIndex = resourceString.indexOf('&');
-            
-            if(mnemonicIndex > -1) {
-                i18nString.setMnemonic(resourceString.charAt(mnemonicIndex + 1));
-                
-                String firstPart = resourceString.substring(0, mnemonicIndex);
-                String secondPart = resourceString.substring(mnemonicIndex + 1);
-                
-                resourceString = firstPart.concat(secondPart);
-            }
+            if(mnemonicIndex > -1) 
+                i18nString.setMnemonic(mnemonicIndex);
             
             i18nString.setText(resourceString);
 

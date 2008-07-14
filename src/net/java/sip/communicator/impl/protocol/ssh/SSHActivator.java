@@ -17,6 +17,7 @@ import java.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Loads the SSH provider factory and registers its services in the OSGI
@@ -47,6 +48,7 @@ public class SSHActivator
      */
     private static BundleContext bundleContext = null;
     
+    private static ResourceManagementService resourcesService;
     
     /**
      * Called when this bundle is started. In here we'll export the
@@ -120,5 +122,22 @@ public class SSHActivator
         this.sshProviderFactory.stop();
         sshPpFactoryServReg.unregister();
         logger.info("SSH protocol implementation [STOPPED].");
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

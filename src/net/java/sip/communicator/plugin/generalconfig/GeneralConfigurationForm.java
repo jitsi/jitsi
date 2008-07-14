@@ -265,7 +265,7 @@ public class GeneralConfigurationForm
 
     public byte[] getIcon()
     {
-        return Resources.getImage("pluginIcon");
+        return Resources.getImage("pluginIconGeneralConfig");
     }
 
     public String getTitle()

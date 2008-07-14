@@ -86,7 +86,8 @@ public class DictStatusEnum
      */
     public static byte[] loadIcon(String imagePath)
     {
-        InputStream is = DictStatusEnum.class.getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = 
+            ProtocolIconDictImpl.getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try

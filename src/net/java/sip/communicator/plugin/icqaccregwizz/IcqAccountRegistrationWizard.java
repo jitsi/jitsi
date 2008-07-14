@@ -71,7 +71,7 @@ public class IcqAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameIcq");
     }
 
     /**
@@ -81,7 +81,7 @@ public class IcqAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionIcq");
     }
 
     /**

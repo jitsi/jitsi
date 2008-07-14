@@ -51,10 +51,10 @@ public class SCAudioClipImpl implements SCAudioClip
         InputStream inputstream;
         try {
             inputstream = url.openStream();
-            this.createAppletAudioClip(inputstream);                        
+            this.createAppletAudioClip(inputstream);
         }
         catch (IOException e)
-        {        
+        {
             e.printStackTrace();
         }
         

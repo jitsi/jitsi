@@ -10,7 +10,10 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Reperesents the zeroconf protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -24,6 +27,8 @@ public class ProtocolIconZeroconfImpl
 {
     private static Logger logger
         = Logger.getLogger(ProtocolIconZeroconfImpl.class); 
+    
+    private static ResourceManagementService resourcesService;
     
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -84,8 +89,7 @@ public class ProtocolIconZeroconfImpl
      */
     public static byte[] loadIcon(String imagePath) 
     {
-        InputStream is = ProtocolIconZeroconfImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try 
@@ -98,5 +102,22 @@ public class ProtocolIconZeroconfImpl
             logger.error("Failed to load icon: " + imagePath, e);
         }
         return icon;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = ZeroconfActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService)ZeroconfActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

@@ -86,7 +86,7 @@ public class GibberishAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameGibberish");
     }
 
     /**
@@ -96,7 +96,7 @@ public class GibberishAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionGibberish");
     }
 
     /**

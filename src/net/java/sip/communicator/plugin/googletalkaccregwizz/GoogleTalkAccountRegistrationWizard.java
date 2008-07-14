@@ -116,7 +116,7 @@ public class GoogleTalkAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(   Resources.getString("username"),
+        summaryTable.put(   Resources.getString("gtalkUsername"),
                             registration.getUserID());
 
         summaryTable.put(   Resources.getString("rememberPassword"),

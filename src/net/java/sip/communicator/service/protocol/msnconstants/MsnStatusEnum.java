@@ -135,7 +135,7 @@ public class MsnStatusEnum
     public static byte[] loadIcon(String imagePath) {
         InputStream is = MsnStatusEnum.class.getClassLoader()
             .getResourceAsStream(imagePath);
-logger.info("loadIcon " + imagePath);
+
         byte[] icon = null;
         try {
             icon = new byte[is.available()];

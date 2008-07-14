@@ -15,6 +15,7 @@ import java.util.*;
 
 import javax.swing.text.html.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -138,48 +139,55 @@ public class Constants
      * record.
      */
     public static final Color HISTORY_IN_CALL_COLOR
-        = new Color(ColorProperties.getColor("historyIncomingCallBackground"));
+        = new Color(GuiActivator.getResources().
+            getColor("historyIncomingCallBackground"));
 
     /**
      * The color used to paint the background of an outgoing call history
      * record.
      */
     public static final Color HISTORY_OUT_CALL_COLOR
-        = new Color(ColorProperties.getColor("historyOutgoingCallBackground"));
+        = new Color(GuiActivator.getResources().
+            getColor("historyOutgoingCallBackground"));
 
     /**
      * The end color used to paint a gradient selected background of some
      * components.
      */
     public static final Color SELECTED_COLOR
-        = new Color(ColorProperties.getColor("listSelectionColor"));
+        = new Color(GuiActivator.getResources().
+            getColor("listSelectionColor"));
 
     /**
      * The start color used to paint a gradient mouse over background of some
      * components.
      */
     public static final Color GRADIENT_DARK_COLOR
-        = new Color(ColorProperties.getColor("gradientDarkColor"));
+        = new Color(GuiActivator.getResources().
+            getColor("gradientDarkColor"));
 
     /**
      * The end color used to paint a gradient mouse over background of some
      * components.
      */
     public static final Color GRADIENT_LIGHT_COLOR
-        = new Color(ColorProperties.getColor("gradientLightColor"));
+        = new Color(GuiActivator.getResources().
+            getColor("gradientLightColor"));
 
     /**
      * A color between blue and gray used to paint some borders.
      */
     public static final Color BORDER_COLOR
-        = new Color(ColorProperties.getColor("borderColor"));
+        = new Color(GuiActivator.getResources().
+            getColor("borderColor"));
 
     /**
      * A color between blue and gray (darker than the other one), used to paint
      * some borders.
      */
     public static final Color LIST_SELECTION_BORDER_COLOR
-        = new Color(ColorProperties.getColor("listSelectionBorderColor"));
+        = new Color(GuiActivator.getResources().
+            getColor("listSelectionBorderColor"));
 
     /*
      * ======================================================================

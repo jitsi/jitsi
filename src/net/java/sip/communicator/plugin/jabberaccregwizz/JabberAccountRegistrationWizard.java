@@ -82,7 +82,7 @@ public class JabberAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameJabber");
     }
 
     /**
@@ -92,7 +92,7 @@ public class JabberAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionJabber");
     }
 
     /**

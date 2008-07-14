@@ -67,9 +67,6 @@ public class SoundProperties
     private static final String BUNDLE_NAME 
         = "net.java.sip.communicator.impl.gui.utils.sounds";
 
-    private static final ResourceBundle RESOURCE_BUNDLE 
-        = ResourceBundle.getBundle(BUNDLE_NAME);
-
     private SoundProperties() {
     }
 }

@@ -14,7 +14,10 @@ import java.util.*;
 import javax.imageio.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
@@ -25,31 +28,7 @@ public class Resources {
 
     private static Logger log = Logger.getLogger(Resources.class);
 
-    /**
-     * The name of the resource, where internationalization strings for this
-     * plugin are stored.
-     */
-    private static final String STRING_RESOURCE_NAME
-        = "resources.languages.plugin.accountinfo.resources";
-
-    /**
-     * The name of the resource, where paths to images used in this bundle are
-     * stored.
-     */
-    private static final String IMAGE_RESOURCE_NAME
-        = "net.java.sip.communicator.plugin.accountinfo.resources";
-
-    /**
-     * The string resource bundle.
-     */
-    private static final ResourceBundle STRING_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(STRING_RESOURCE_NAME);
-
-    /**
-     * The image resource bundle.
-     */
-    private static final ResourceBundle IMAGE_RESOURCE_BUNDLE
-        = ResourceBundle.getBundle(IMAGE_RESOURCE_NAME);
+    private static ResourceManagementService resourcesService;
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -58,14 +37,7 @@ public class Resources {
      */
     public static String getString(String key)
     {
-        try
-        {
-            return STRING_RESOURCE_BUNDLE.getString(key);
-        }
-        catch (MissingResourceException e)
-        {
-            return '!' + key + '!';
-        }
+        return getResources().getI18NString(key);
     }
 
     /**
@@ -77,15 +49,19 @@ public class Resources {
     {
         BufferedImage image = null;
 
-        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID);
+        InputStream in = 
+            getResources().getImageInputStream(imageID);
+        
+        if(in == null)
+            return null;
+        
         try
         {
-            image = ImageIO.read(Resources.class.getClassLoader()
-                    .getResourceAsStream(path));
+            image = ImageIO.read(in);
         }
         catch (IOException e)
         {
-            log.error("Failed to load image:" + path, e);
+            log.error("Failed to load image:" + imageID, e);
         }
 
         return new ImageIcon(image);
@@ -98,21 +74,42 @@ public class Resources {
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        byte[] image = new byte[100000];
-
-        String path = IMAGE_RESOURCE_BUNDLE.getString(imageID);
+        InputStream in = 
+            getResources().getImageInputStream(imageID);
+        
+        if(in == null)
+            return null;
+        
+        byte[] image = null;
 
         try
         {
-            Resources.class.getClassLoader()
-                    .getResourceAsStream(path).read(image);
-
+            image = new byte[in.available()];
+            in.read(image);
         }
         catch (IOException e)
         {
-            log.error("Failed to load image:" + path, e);
+            log.error("Failed to load image:" + imageID, e);
         }
 
         return image;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = AccountInfoActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = 
+                (ResourceManagementService)AccountInfoActivator.bundleContext
+                    .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

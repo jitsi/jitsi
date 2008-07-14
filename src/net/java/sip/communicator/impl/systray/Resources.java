@@ -15,7 +15,10 @@ import java.util.*;
 import javax.imageio.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 /**
  * The Messages class manages the access to the internationalization
  * properties files.
@@ -23,22 +26,11 @@ import net.java.sip.communicator.util.*;
  * @author Nicolas Chamouard
  */
 public class Resources 
-{
-    
+{    
     private static Logger log = Logger.getLogger(Resources.class);
     
-    private static final String BUNDLE_NAME 
-        = "resources.languages.impl.systray.resources";
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
-
-    private static final String APPLICATION_RESUORCE_LOCATION
-        = "resources.application";
-
-    private static final ResourceBundle applicationBundle 
-        = ResourceBundle.getBundle(APPLICATION_RESUORCE_LOCATION);
-
+    private static ResourceManagementService resourcesService;
+    
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
@@ -47,26 +39,7 @@ public class Resources
      */
     public static String getString(String key)
     {
-        try
-        {
-            String resourceString = RESOURCE_BUNDLE.getString(key);
-
-            int mnemonicIndex = resourceString.indexOf('&');
-
-            if(mnemonicIndex > -1)
-            {
-                String firstPart = resourceString.substring(0, mnemonicIndex);
-                String secondPart = resourceString.substring(mnemonicIndex + 1);
-
-                resourceString = firstPart.concat(secondPart);
-            }
-
-            return resourceString;
-        }
-        catch (MissingResourceException e)
-        {
-            return '!' + key + '!';
-        }
+        return getResources().getI18NString(key);
     }
 
     /**
@@ -77,21 +50,7 @@ public class Resources
      */
     public static char getMnemonic(String key)
     {
-        try
-        {
-            String resourceString = RESOURCE_BUNDLE.getString(key);
-
-            int mnemonicIndex = resourceString.indexOf('&');
-
-            if(mnemonicIndex > -1)
-                return resourceString.charAt(mnemonicIndex + 1);
-        }
-        catch (MissingResourceException e)
-        {
-            return 0;
-        }
-
-        return 0;
+        return getResources().getI18nMnemonic(key);
     }
 
     /**
@@ -104,21 +63,19 @@ public class Resources
     {
         BufferedImage image = null;
 
-        String path = Resources.getString(imageID);
+        InputStream in = 
+            getResources().getImageInputStream(imageID);
         
-        if(path == null || path.length() == 0)
+        if(in == null)
             return null;
         
         try
         {
-            image =
-                ImageIO.read(Resources.class.getClassLoader()
-                    .getResourceAsStream(path));
-
+            image = ImageIO.read(in);
         }
         catch (IOException e)
         {
-            log.error("Failed to load image:" + path, e);
+            log.error("Failed to load image:" + imageID, e);
         }
 
         return new ImageIcon(image);
@@ -132,13 +89,7 @@ public class Resources
      */
     public static URL getImageURL(String imageID)
     {
-        String path = Resources.getString(imageID);
-        
-        if(path == null || path.length() == 0)
-            return null;
-        
-        return Resources.class.getClassLoader()
-                .getResource(path);
+        return getResources().getImageURL(imageID);
     }
 
     /**
@@ -149,13 +100,24 @@ public class Resources
      */
     public static String getApplicationString(String key)
     {
-        try
+        return getResources().getSettingsString(key);
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
         {
-            return applicationBundle.getString(key);
+            ServiceReference serviceReference = SystrayActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = 
+                (ResourceManagementService)SystrayActivator.bundleContext
+                    .getService(serviceReference);
         }
-        catch (MissingResourceException e)
-        {
-            return '!' + key + '!';
-        }
+
+        return resourcesService;
     }
 }

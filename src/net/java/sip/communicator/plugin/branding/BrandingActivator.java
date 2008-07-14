@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.plugin.branding;
 
-import java.awt.event.*;
 import java.util.*;
 
-import javax.swing.*;
-
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
@@ -25,6 +23,8 @@ public class BrandingActivator
     private WelcomeWindow welcomeWindow;
 
     private static BundleContext bundleContext;
+    
+    private static ResourceManagementService resourcesService;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -107,4 +107,20 @@ public class BrandingActivator
         return bundleContext;
     }
 
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
+    }
 }

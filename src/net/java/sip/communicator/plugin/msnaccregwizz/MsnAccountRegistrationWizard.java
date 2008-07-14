@@ -79,7 +79,7 @@ public class MsnAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameMsn");
     }
 
     /**
@@ -91,7 +91,7 @@ public class MsnAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionMsn");
     }
 
     /**

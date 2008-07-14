@@ -81,7 +81,7 @@ public class SIPAccountRegistrationWizard
      * @return String
      */
     public String getProtocolName() {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameSip");
     }
 
     /**
@@ -90,7 +90,7 @@ public class SIPAccountRegistrationWizard
      * @return String
      */
     public String getProtocolDescription() {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionSip");
     }
 
     /**

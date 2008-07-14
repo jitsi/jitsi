@@ -99,8 +99,8 @@ public class MainFrame
         tabbedPane = new MainTabbedPane(this);
 
         String isToolbarExtendedString
-            = ApplicationProperties.getProperty(
-                "isToolBarExteneded");
+            = GuiActivator.getResources().
+                getSettingsString("isToolBarExteneded");
 
         boolean isToolBarExtended
             = new Boolean(isToolbarExtendedString).booleanValue();
@@ -120,7 +120,7 @@ public class MainFrame
         this.initTitleFont();
 
         String applicationName
-            = ApplicationProperties.getProperty(
+            = GuiActivator.getResources().getSettingsString(
                 "applicationName");
 
         this.setTitle(applicationName);
@@ -170,8 +170,8 @@ public class MainFrame
      */
     private void initBounds()
     {
-        int width = SizeProperties.getSize("mainWindowWidth");
-        int height = SizeProperties.getSize("mainWindowHeight");
+        int width = GuiActivator.getResources().getSettingsInt("mainWindowWidth");
+        int height = GuiActivator.getResources().getSettingsInt("mainWindowHeight");
 
         this.setSize(width, height);
 
@@ -187,11 +187,11 @@ public class MainFrame
         JComponent layeredPane = this.getLayeredPane();
 
         String fontName
-            = ApplicationProperties.getProperty(
+            = GuiActivator.getResources().getSettingsString(
                 "fontName");
 
         String titleFontSize
-            = ApplicationProperties.getProperty(
+            = GuiActivator.getResources().getSettingsString(
                 "titleFontSize");
 
         Font font = new Font(   fontName,
@@ -1327,8 +1327,8 @@ public class MainFrame
          */
         public LogoBar()
         {
-            int width = SizeProperties.getSize("logoBarWidth");
-            int height = SizeProperties.getSize("logoBarHeight");
+            int width = GuiActivator.getResources().getSettingsInt("logoBarWidth");
+            int height = GuiActivator.getResources().getSettingsInt("logoBarHeight");
 
             this.setMinimumSize(new Dimension(width, height));
             this.setPreferredSize(new Dimension(width, height));
@@ -1348,7 +1348,7 @@ public class MainFrame
                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
             g.setColor(new Color(
-                ColorProperties.getColor("logoBarBackground")));
+                GuiActivator.getResources().getColor("logoBarBackground")));
 
             g.fillRect(0, 0, this.getWidth(), this.getHeight());
             g.drawImage(backgroundImage, 0, 0, null);

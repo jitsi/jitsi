@@ -23,6 +23,7 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.version.VersionService;
 import net.java.sip.communicator.util.*;
 
@@ -41,6 +42,8 @@ public class UpdateCheckActivator
     private static BundleContext bundleContext = null;
 
     private static BrowserLauncherService browserLauncherService;
+    
+    private static ResourceManagementService resourcesService;
     
     private String downloadLink = null;
     private String lastVersion = null;
@@ -77,21 +80,23 @@ public class UpdateCheckActivator
             return;
         
         final JDialog dialog = new JDialog();
-        dialog.setTitle(Resources.getLangString("dialogTitle"));
+        dialog.setTitle(
+            getResources().getI18NString("dialogTitle"));
 
         JEditorPane contentMessage = new JEditorPane();
         contentMessage.setContentType("text/html");
         contentMessage.setOpaque(false);
         contentMessage.setEditable(false);
         
-        String dialogMsg = MessageFormat.format(
-                Resources.getLangString("dialogMessage1"),
-                Resources.getAppPropString("applicationName"));
+        String dialogMsg = 
+            getResources().getI18NString("dialogMessage1",
+            new String[]{getResources().getSettingsString("applicationName")});
         
         if(lastVersion != null)
-            dialogMsg += MessageFormat.format(
-                Resources.getLangString("dialogMessage2"),
-                Resources.getAppPropString("applicationName"), lastVersion);
+            dialogMsg += 
+                getResources().getI18NString(
+                "dialogMessage2",
+                new String[]{getResources().getSettingsString("applicationName")});
         
         contentMessage.setText(dialogMsg);
 
@@ -100,7 +105,8 @@ public class UpdateCheckActivator
         contentPane.add(contentMessage, BorderLayout.CENTER);
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton closeButton = new JButton(Resources.getLangString("buttonClose"));
+        JButton closeButton = new JButton(
+            getResources().getI18NString("buttonClose"));
         
         closeButton.addActionListener(new ActionListener() {
 
@@ -113,7 +119,7 @@ public class UpdateCheckActivator
         if(downloadLink != null)
         {
             JButton downloadButton = 
-                new JButton(Resources.getLangString("buttonDownload"));
+                new JButton(getResources().getI18NString("buttonDownload"));
         
             downloadButton.addActionListener(new ActionListener() {
 
@@ -170,6 +176,23 @@ public class UpdateCheckActivator
         }
 
         return browserLauncherService;
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
     
     /**

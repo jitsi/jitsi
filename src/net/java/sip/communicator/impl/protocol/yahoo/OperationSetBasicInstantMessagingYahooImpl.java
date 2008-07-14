@@ -436,10 +436,12 @@ public class OperationSetBasicInstantMessagingYahooImpl
                      + yahooMailLogon + "\">"
                      + yahooMailLogon + "</a>";
 
-             String newMail = "<b>" + Resources.getString("newMail") + " : </b> "
+             String newMail = "<b>" + 
+                 YahooActivator.getResources().getI18NString("newMail") + " : </b> "
                      + ev.getSubject();
 
-             newMail += "\n<br /><b>" + Resources.getString("from") + " : </b> "
+             newMail += "\n<br /><b>" + 
+                YahooActivator.getResources().getI18NString("from") + " : </b> "
                      + ev.getFrom() + " &lt;" + ev.getEmailAddress() + "&gt;";
 
              newMail += "\n<br />&nbsp;&nbsp;&nbsp;&nbsp;" + yahooMailLogon;

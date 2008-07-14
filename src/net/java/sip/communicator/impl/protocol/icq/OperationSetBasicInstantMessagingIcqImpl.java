@@ -20,7 +20,6 @@ import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
-import net.java.sip.communicator.service.protocol.aimconstants.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation

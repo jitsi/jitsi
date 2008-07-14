@@ -26,7 +26,7 @@ public class ExtendedCallHistorySearchActivator
     private Logger logger
         = Logger.getLogger(ExtendedCallHistorySearchActivator.class);
 
-    private static BundleContext context;
+    static BundleContext context;
 
     public void start(BundleContext bc) throws Exception
     {

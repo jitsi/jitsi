@@ -77,8 +77,8 @@ public class ProtocolIconYahooImpl
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        InputStream is = ProtocolIconYahooImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = 
+            YahooActivator.getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try {

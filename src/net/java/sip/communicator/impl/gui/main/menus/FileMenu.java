@@ -89,7 +89,7 @@ public class FileMenu
         super(Messages.getI18NString("file").getText());
 
         this.setForeground(
-            new Color(ColorProperties.getColor("mainMenuForeground")));
+            new Color(GuiActivator.getResources().getColor("mainMenuForeground")));
 
         this.parentWindow = parentWindow;
 

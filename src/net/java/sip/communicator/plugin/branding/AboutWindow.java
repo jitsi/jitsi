@@ -22,19 +22,20 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel = new JLabel(
-        BrandingResources.getApplicationString("applicationName"));
+        BrandingActivator.getResources().getSettingsString("applicationName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
 
     private JTextArea logoArea = new JTextArea(
-            Resources.getString("logoMessage"));
+            BrandingActivator.getResources().getI18NString("logoMessage"));
 
     private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
 
     private StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
 
-    private JButton okButton = new JButton(Resources.getString("ok"));
+    private JButton okButton = new JButton(
+        BrandingActivator.getResources().getI18NString("ok"));
 
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -44,9 +45,10 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
     {
         super(owner);
 
-        this.setTitle(  Resources.getString("aboutWindowTitle",
-                        new String[]{BrandingResources
-                                        .getApplicationString("applicationName")}));
+        this.setTitle(
+            BrandingActivator.getResources().getI18NString("aboutWindowTitle",
+                new String[]{BrandingActivator.getResources().
+                    getSettingsString("applicationName")}));
 
         this.setModal(false);
 
@@ -66,8 +68,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.versionLabel.setForeground(Constants.TITLE_COLOR);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        int logoAreaFontSize = new Integer(
-            BrandingResources.getApplicationString("aboutLogoFontSize")).intValue();
+        int logoAreaFontSize = BrandingActivator.getResources().
+                getSettingsInt("aboutLogoFontSize");
 
         this.logoArea.setFont(
             Constants.FONT.deriveFont(Font.BOLD, logoAreaFontSize));
@@ -83,7 +85,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         this.rightsArea.setContentType("text/html");
 
-        this.rightsArea.appendToEnd(Resources.getString("copyright",
+        this.rightsArea.appendToEnd(BrandingActivator.getResources().
+            getI18NString("copyright",
             new String[]{Constants.TEXT_COLOR}));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 20));
@@ -95,7 +98,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.rightsArea.addHyperlinkListener(this);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.appendToEnd(Resources.getString("license",
+        this.licenseArea.appendToEnd(BrandingActivator.getResources().
+            getI18NString("license",
             new String[]{Constants.TEXT_COLOR}));
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
@@ -114,7 +118,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         this.getRootPane().setDefaultButton(okButton);
 
-        this.okButton.setMnemonic(Resources.getString("ok").charAt(0));
+        this.okButton.setMnemonic(BrandingActivator.getResources().
+            getI18nMnemonic("ok"));
 
         this.okButton.addActionListener(this);
 
@@ -151,9 +156,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         {
             try
             {
-                bgImage = ImageIO.read(WindowBackground.class.getClassLoader()
-                        .getResource(BrandingResources
-                            .getResourceString("aboutWindowBg")));
+                bgImage = ImageIO.read(BrandingActivator.getResources().
+                    getImageURL("aboutWindowBg"));
             }
             catch (IOException e)
             {

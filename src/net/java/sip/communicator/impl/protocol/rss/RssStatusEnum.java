@@ -85,20 +85,7 @@ public class RssStatusEnum
      */
     public static byte[] loadIcon(String imagePath)
     {
-        InputStream is = RssStatusEnum.class.getClassLoader()
-            .getResourceAsStream(imagePath);
-
-        byte[] icon = null;
-        try
-        {
-            icon = new byte[is.available()];
-            is.read(icon);
-        }
-        catch (IOException exc)
-        {
-            logger.error("Failed to load icon: " + imagePath, exc);
-        }
-        return icon;
+        return ProtocolIconRssImpl.loadIcon(imagePath);
     }
 
 }

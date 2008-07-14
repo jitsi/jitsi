@@ -69,7 +69,7 @@ public class FirstWizardPage
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JTextArea registerArea =
-        new JTextArea(Resources.getString("registerNewAccountText"));
+        new JTextArea(Resources.getString("aimRegisterNewAccountText"));
 
     private JButton registerButton =
         new JButton(Resources.getString("registerNewAccount"));

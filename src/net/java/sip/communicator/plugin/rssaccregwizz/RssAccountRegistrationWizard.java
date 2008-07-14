@@ -87,7 +87,7 @@ public class RssAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameRss");
     }
 
     /**
@@ -97,7 +97,7 @@ public class RssAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionRss");
     }
 
     /**

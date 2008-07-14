@@ -77,8 +77,8 @@ public class ProtocolIconMsnImpl
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        InputStream is = ProtocolIconMsnImpl.class
-            .getClassLoader().getResourceAsStream(imagePath);
+        InputStream is = 
+            MsnActivator.getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try {

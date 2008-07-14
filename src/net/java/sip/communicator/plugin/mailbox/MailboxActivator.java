@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.media.MediaService;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Activates the Mailbox plug-in.
@@ -57,6 +58,8 @@ public class MailboxActivator
      * is currently registered with the bundle context.
      */
     private static UIService uiService = null;
+    
+    private static ResourceManagementService resourcesService;
 
     /**
      * Starts this bundle and adds the <tt>MailboxConfigurationForm</tt>
@@ -145,22 +148,39 @@ public class MailboxActivator
     }
 
     /**
-         * Returns a reference to a MediaService implementation currently registered
-         * in the bundle context or null if no such implementation was found.
-         *
-         * @return a reference to a MediaService implementation currently registered
-         * in the bundle context or null if no such implementation was found.
-         */
-        public static MediaService getMediaService()
+     * Returns a reference to a MediaService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to a MediaService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     */
+    public static MediaService getMediaService()
+    {
+        if(mediaService == null)
         {
-            if(mediaService == null)
-            {
-                ServiceReference mediaServiceReference
-                    = bundleContext.getServiceReference(
-                        MediaService.class.getName());
-                mediaService = (MediaService)bundleContext
-                    .getService(mediaServiceReference);
-            }
-            return mediaService;
+            ServiceReference mediaServiceReference
+                = bundleContext.getServiceReference(
+                    MediaService.class.getName());
+            mediaService = (MediaService)bundleContext
+                .getService(mediaServiceReference);
+        }
+        return mediaService;
+    }
+        
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

@@ -349,7 +349,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
             }
 
             Message newMailMessage = new MessageMsnImpl(
-                    MessageFormat.format(Resources.getString("newMail"), 
+                    MessageFormat.format(
+                        MsnActivator.getResources().getI18NString("newMail"), 
                         new Object[]{message.getFrom(), 
                                      message.getFromAddr(), 
                                      subject}),

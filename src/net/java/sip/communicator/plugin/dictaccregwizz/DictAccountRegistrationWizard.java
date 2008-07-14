@@ -86,7 +86,7 @@ public class DictAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameDict");
     }
 
     /**
@@ -96,7 +96,7 @@ public class DictAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionDict");
     }
 
     /**

@@ -15,6 +15,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -641,7 +642,7 @@ public class ContactListPanel
             super.paintComponent(g);
 
             g.setColor(new Color(
-                ColorProperties.getColor("contactListBackground")));
+                GuiActivator.getResources().getColor("contactListBackground")));
 
             // paint the background with the choosen color
             g.fillRect(0, 0, getWidth(), getHeight());

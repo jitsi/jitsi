@@ -92,7 +92,7 @@ public class SSHAccountRegistrationWizard
      * @return String
      */
     public String getProtocolName() {
-        return Resources.getString("protocolName");
+        return Resources.getString("protocolNameSsh");
     }
     
     /**
@@ -101,7 +101,7 @@ public class SSHAccountRegistrationWizard
      * @return String
      */
     public String getProtocolDescription() {
-        return Resources.getString("protocolDescription");
+        return Resources.getString("protocolDescriptionSsh");
     }
     
     /**

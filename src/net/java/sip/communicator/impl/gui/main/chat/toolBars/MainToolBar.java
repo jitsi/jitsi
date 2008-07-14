@@ -79,10 +79,10 @@ public class MainToolBar
         .getImage(ImageLoader.FONT_ICON));
 
     private static int BUTTON_HEIGHT
-        = SizeProperties.getSize("mainToolbarButtonHeight");
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
 
     private static int BUTTON_WIDTH
-        = SizeProperties.getSize("mainToolbarButtonWidth");
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
 
     private SmiliesSelectorBox smiliesBox;
 

@@ -31,7 +31,7 @@ public class JabberActivator
     /**
      * Bundle context from OSGi.
      */
-    private static BundleContext bundleContext = null;
+    static BundleContext bundleContext = null;
 
     /**
      * Configuration service.

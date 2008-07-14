@@ -33,8 +33,8 @@ public class ContactSSHImpl
     /**
      * This acts as a seperator between details stored in persistent data
      */
-    private final String detailsSeperator = Resources
-        .getString("detailsSeperator");
+    private final String detailsSeperator = 
+        Resources.getString("detailsSeperator");
     
     /**
      * The identifier for SSH Stack
