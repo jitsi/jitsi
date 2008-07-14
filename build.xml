@@ -1157,10 +1157,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/googletalkaccregwizz/googletalkaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/googletalkaccregwizz"
                 prefix="net/java/sip/communicator/plugin/googletalkaccregwizz"/>
-            <zipfileset dir="${resources}/images/protocol/googletalk"
-                prefix="resources/images/protocol/googletalk"/>
-            <zipfileset dir="${resources}/languages/plugin/googletalkaccregwizz"
-                prefix="resources/languages/plugin/googletalkaccregwizz"/>
         </jar>
     </target>
 
