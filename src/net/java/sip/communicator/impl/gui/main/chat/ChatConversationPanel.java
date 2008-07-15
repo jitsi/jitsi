@@ -738,13 +738,8 @@ public class ChatConversationPanel
 
         StringBuffer msgBuffer = new StringBuffer();
 
-        boolean matchSuccessfull = false;
-
         while (m.find())
         {
-            if (!matchSuccessfull)
-                matchSuccessfull = true;
-
             String matchGroup = m.group().trim();
 
             String replacement = endPlainTextTag + "<IMG SRC='"

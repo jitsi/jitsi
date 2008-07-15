@@ -28,7 +28,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class SmiliesSelectorBox extends JMenuBar
     implements ActionListener
 {
-    private ChatWindow chatWindow;
+    private ChatWritePanel chatWritePanel;
 
     private ArrayList imageList;
 
@@ -53,11 +53,11 @@ public class SmiliesSelectorBox extends JMenuBar
      * 
      * @param imageList The pack of smiley icons.
      */
-    public SmiliesSelectorBox(ArrayList imageList, ChatWindow chatWindow)
+    public SmiliesSelectorBox(ArrayList imageList, ChatWritePanel writePanel)
     {
         this.imageList = imageList;
 
-        this.chatWindow = chatWindow;
+        this.chatWritePanel = writePanel;
 
         this.selectorBox.setUI(new SIPCommChatSelectorMenuUI());
 
@@ -143,19 +143,17 @@ public class SmiliesSelectorBox extends JMenuBar
         JMenuItem smileyItem = (JMenuItem) e.getSource();
         String buttonText = smileyItem.getToolTipText();
 
-        for (int i = 0; i < this.imageList.size(); i++) {
-
+        for (int i = 0; i < this.imageList.size(); i++)
+        {
             Smiley smiley = (Smiley) this.imageList.get(i);
 
-            if (buttonText.equals(smiley.getSmileyStrings()[0])) {
+            String smileyString = smiley.getSmileyStrings()[0];
 
-                ChatPanel chatPanel = this.chatWindow
-                        .getCurrentChatPanel();
+            if (buttonText.equals(smileyString))
+            {
+                chatWritePanel.appendText(smileyString);
 
-                chatPanel.addTextInWriteArea(
-                        smiley.getSmileyStrings()[0] + " ");
-
-                chatPanel.requestFocusInWriteArea();
+                chatWritePanel.getEditorPane().requestFocus();
             }
         }
     }

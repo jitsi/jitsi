@@ -84,8 +84,6 @@ public class MainToolBar
     private static int BUTTON_WIDTH
         = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
 
-    private SmiliesSelectorBox smiliesBox;
-
     private ChatWindow messageWindow;
     
     private Contact currentChatContact = null;
@@ -106,9 +104,6 @@ public class MainToolBar
 
         this.messageWindow = messageWindow;
         
-        this.smiliesBox = new SmiliesSelectorBox(
-            ImageLoader.getDefaultSmiliesPack(), messageWindow);
-        
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
         this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
@@ -121,10 +116,6 @@ public class MainToolBar
         this.add(cutButton);
         this.add(copyButton);
         this.add(pasteButton);
-
-        this.addSeparator();
-
-        this.add(smiliesBox);
 
         this.addSeparator();
 
@@ -163,10 +154,6 @@ public class MainToolBar
         this.pasteButton.setName("paste");
         this.pasteButton.setToolTipText(
             Messages.getI18NString("paste").getText() + " Ctrl-P");
-
-        this.smiliesBox.setName("smiley");
-        this.smiliesBox.setToolTipText(
-            Messages.getI18NString("insertSmiley").getText() + " Ctrl-M");
 
         this.previousButton.setName("previous");
         this.previousButton.setToolTipText(
@@ -366,16 +353,6 @@ public class MainToolBar
     }
 
     /**
-     * Returns the button used to show the list of smilies.
-     * 
-     * @return the button used to show the list of smilies.
-     */
-    public SmiliesSelectorBox getSmiliesSelectorBox()
-    {
-        return smiliesBox;
-    }
-
-    /**
      * Returns the button used to show the history window.
      * 
      * @return the button used to show the history window.
@@ -383,20 +360,6 @@ public class MainToolBar
     public ChatToolbarButton getHistoryButton()
     {
         return historyButton;
-    }
-    
-    /**
-     * Returns TRUE if there are selected menus in this toolbar, otherwise
-     * returns FALSE.
-     * @return TRUE if there are selected menus in this toolbar, otherwise
-     * returns FALSE
-     */
-    public boolean hasSelectedMenus()
-    {
-        if(smiliesBox.isMenuSelected())
-            return true;
-
-        return false;
     }
 
     /**

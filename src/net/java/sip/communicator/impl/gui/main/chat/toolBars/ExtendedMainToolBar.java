@@ -93,8 +93,6 @@ public class ExtendedMainToolBar
     private static int DEFAULT_BUTTON_WIDTH
         = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
 
-    private SmiliesSelectorBox smiliesBox;
-
     private ChatWindow messageWindow;
     
     private Contact currentChatContact = null;
@@ -107,12 +105,6 @@ public class ExtendedMainToolBar
     public ExtendedMainToolBar(ChatWindow messageWindow)
     {
         this.messageWindow = messageWindow;
-
-        this.smiliesBox = new SmiliesSelectorBox(
-            ImageLoader.getDefaultSmiliesPack(), messageWindow);
-
-        this.smiliesBox.setText(Messages.getI18NString("smiley").getText());
-        this.smiliesBox.setRollover(true);
 
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -128,10 +120,6 @@ public class ExtendedMainToolBar
         this.add(cutButton);
         this.add(copyButton);
         this.add(pasteButton);
-
-        this.addSeparator();
-
-        this.add(smiliesBox);
 
         this.addSeparator();
 
@@ -169,10 +157,6 @@ public class ExtendedMainToolBar
         this.pasteButton.setName("paste");
         this.pasteButton.setToolTipText(
             Messages.getI18NString("paste").getText() + " Ctrl-P");
-
-        this.smiliesBox.setName("smiley");
-        this.smiliesBox.setToolTipText(
-            Messages.getI18NString("insertSmiley").getText() + " Ctrl-M");
 
         this.previousButton.setName("previous");
         this.previousButton.setToolTipText(

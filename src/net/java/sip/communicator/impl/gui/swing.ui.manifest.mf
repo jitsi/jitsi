@@ -40,4 +40,5 @@ Import-Package: org.osgi.framework,
  javax.swing.undo,
  javax.swing.border,
  net.java.sip.communicator.service.audionotifier,
- org.jdesktop.jdic.desktop
+ org.jdesktop.jdic.desktop,
+ say.swing

@@ -915,7 +915,10 @@ public class MetaContactChatPanel
 
         Message msg;
         if (im.isContentTypeSupported("text/html")
-            && htmlText.matches("(.*?)(<b|<i|<u|<font)(.*?)"))
+            && (htmlText.indexOf("<b") > -1
+                || htmlText.indexOf("<i") > -1
+                || htmlText.indexOf("<u") > -1
+                || htmlText.indexOf("<font") > -1))
         {
             msg = im.createMessage(     htmlText.getBytes(),
                                         "text/html",

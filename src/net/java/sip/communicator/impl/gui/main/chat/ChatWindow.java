@@ -520,7 +520,8 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            menusPanel.getMainToolBar().getSmiliesSelectorBox().open();
+            getCurrentChatPanel().getChatWritePanel()
+                .getEditTextToolBar().getSmiliesSelectorBox().open();
         }
     }
 
@@ -613,8 +614,8 @@ public class ChatWindow
                 writePanelRightMenu.setVisible(false);
             }
             else if (selectedMenu != null
-                //|| contactMenu.isPopupMenuVisible()
-                || menusPanel.getMainToolBar().hasSelectedMenus())
+                || getCurrentChatPanel().getChatWritePanel()
+                    .getEditTextToolBar().hasSelectedMenus())
             {   
                 menuSelectionManager.clearSelectedPath();
             }

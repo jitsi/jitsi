@@ -145,17 +145,11 @@ public class FileMenu
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        if (itemName.equals("newAccount")) {
-            AccountRegWizardContainerImpl wizard
-                = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
-                    .getAccountRegWizardContainer();
+        if (itemName.equals("newAccount"))
+        {
+            NewAccountDialog dialog = new NewAccountDialog();
 
-            wizard.setTitle(
-                Messages.getI18NString("accountRegistrationWizard").getText());
-
-            wizard.newAccount();
-
-            wizard.showDialog(false);
+            dialog.setVisible(true);
         }
         else if (itemName.equals("addContact")) {
             AddContactWizard wizard = new AddContactWizard(parentWindow);

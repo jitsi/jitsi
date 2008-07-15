@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -53,7 +54,7 @@ public class ChatWritePanel
 
     private int typingState = -1;
 
-    private HTMLEditorKit htmlEditor = new HTMLEditorKit();
+    private SIPCommHTMLEditorKit htmlEditor = new SIPCommHTMLEditorKit();
 
     private WritePanelRightButtonMenu rightButtonMenu;
 
@@ -82,7 +83,7 @@ public class ChatWritePanel
         this.editorPane.addKeyListener(this);
         this.editorPane.addMouseListener(this);
 
-        this.editTextToolBar = new EditTextToolBar(editorPane);
+        this.editTextToolBar = new EditTextToolBar(this);
 
         this.add(editTextToolBar, BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);
@@ -415,10 +416,16 @@ public class ChatWritePanel
     {
         String msgText = editorPane.getText();
 
-        String formattedString = extractFormattedText(msgText);
+        String formattedString = msgText.replaceAll(
+            "<html>|<head>|<body>|</html>|</head>|</body>", "");
 
-        return formattedString
+        formattedString = extractFormattedText(formattedString);
+
+        if (formattedString.endsWith("<BR>"))
+            formattedString = formattedString
             .substring(0, formattedString.lastIndexOf("<BR>"));
+
+        return formattedString;
     }
 
     /**
@@ -460,6 +467,36 @@ public class ChatWritePanel
     }
 
     /**
+     * Appends the given text to the end of the contained HTML document. This
+     * method is used to insert smilies when user selects a smiley from the
+     * menu.
+     * 
+     * @param text the text to append.
+     */
+    public void appendText(String text)
+    {
+        HTMLDocument doc = (HTMLDocument) editorPane.getDocument();
+
+        Element currentElement
+            = doc.getCharacterElement(editorPane.getCaretPosition());
+
+        try
+        {
+            doc.insertAfterEnd(currentElement, text);
+        }
+        catch (BadLocationException e)
+        {
+            logger.error("Insert in the HTMLDocument failed.", e);
+        }
+        catch (IOException e)
+        {
+            logger.error("Insert in the HTMLDocument failed.", e);
+        }
+
+        this.editorPane.setCaretPosition(doc.getLength());
+    }
+
+    /**
      * Return all html paragraph content separated by <BR/> tags.
      * 
      * @param msgText the html text.
@@ -467,23 +504,18 @@ public class ChatWritePanel
      */
     private String extractFormattedText(String msgText)
     {
-        int firstIndex = msgText.indexOf("<p");
-        
-        if (firstIndex != -1)
-        {
-            int lastIndex = msgText.indexOf("</p>", firstIndex);
+        String resultString = msgText.replaceAll("<p\\b[^>]*>", "");
 
-            if (lastIndex < 0)
-                lastIndex = msgText.length();
+        return resultString.replaceAll("<\\/p>", "<BR>");
+    }
 
-            int firstTagClosureIndex = msgText.indexOf('>', firstIndex);
-            String pString = msgText
-                .substring(firstTagClosureIndex+1, lastIndex).trim();
-
-            return pString + "<BR>"
-                + extractFormattedText(msgText.substring(lastIndex+1));
-        }
-
-        return "";
+    /**
+     * Returns the toolbar above the chat write area.
+     * 
+     * @return the toolbar above the chat write area.
+     */
+    public EditTextToolBar getEditTextToolBar()
+    {
+        return editTextToolBar;
     }
 }

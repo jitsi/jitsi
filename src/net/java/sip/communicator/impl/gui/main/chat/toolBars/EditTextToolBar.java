@@ -8,13 +8,18 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
+import say.swing.*;
+
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 
@@ -32,16 +37,12 @@ public class EditTextToolBar
 {
     private Logger logger = Logger.getLogger(EditTextToolBar.class);
 
-    private ColorLabel colorLabel = new ColorLabel();
-
     private Integer[] fontSizeConstants =
         new Integer[]
         { 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64,
             72, 96, 144, 288 };
 
-    private JComboBox fontSizeCombo = new JComboBox(fontSizeConstants);
-
-    private JComboBox fontNameCombo;
+    private ChatWritePanel chatWritePanel;
 
     private JEditorPane chatEditorPane;
 
@@ -51,90 +52,162 @@ public class EditTextToolBar
 
     private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 
+    private JButton fontButton = new JButton(
+        new ImageIcon(ImageLoader.getImage(ImageLoader.FONT_ICON)));
+
+    private SmiliesSelectorBox smiliesBox;
+
+    private JToggleButton boldButton;
+
+    private JToggleButton italicButton;
+
+    private JToggleButton underlineButton;
+
     /**
      * Creates an instance and constructs the <tt>EditTextToolBar</tt>.
      */
-    public EditTextToolBar(JEditorPane panel)
+    public EditTextToolBar(ChatWritePanel writePanel)
     {
-        this.chatEditorPane = panel;
-
-        this.fontNameCombo = new JComboBox(getSystemFontFamilies());
-        this.fontSizeCombo.setEditable(true);
+        this.chatWritePanel = writePanel;
+        this.chatEditorPane = writePanel.getEditorPane();
 
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
         this.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 
-        this.fontSizeCombo.setPreferredSize(new Dimension(50, 21));
-
-        colorLabel.setPreferredSize(new Dimension(21, 21));
-
-        this.initToolbarButtons();
+        this.initStyleToolbarButtons();
 
         this.addSeparator();
 
-        this.add(fontNameCombo);
-        this.add(fontSizeCombo);
+        this.add(fontButton);
+//        this.initFontComboBoxes();
 
         this.addSeparator();
 
-        this.add(colorLabel);
+        this.initColorLabel();
+
+        this.addSeparator();
+
+        this.smiliesBox = new SmiliesSelectorBox(
+            ImageLoader.getDefaultSmiliesPack(), chatWritePanel);
+
+        this.smiliesBox.setName("smiley");
+        this.smiliesBox.setToolTipText(
+            Messages.getI18NString("insertSmiley").getText() + " Ctrl-M");
+
+        this.add(smiliesBox);
 
         logger.trace("[GUI] Editor Pane font name: "
-                + chatEditorPane.getFont().getName());
+            + chatEditorPane.getFont().getName());
 
-        fontNameCombo.setSelectedItem(chatEditorPane.getFont().getName());
-        fontSizeCombo.setSelectedItem(chatEditorPane.getFont().getSize());
+        fontButton.setPreferredSize(new Dimension(25, 25));
 
-        fontNameCombo.addItemListener(new ItemListener()
+        fontButton.addActionListener(new ActionListener()
         {
-            public void itemStateChanged(ItemEvent evt)
+            public void actionPerformed(ActionEvent event)
             {
-                String fontName = (String) evt.getItem();
+                JFontChooser fontChooser = new JFontChooser();
+                fontChooser.setSelectedFontFamily(
+                    chatEditorPane.getFont().getFontName());
+                fontChooser.setSelectedFontSize(
+                    chatEditorPane.getFont().getSize());
 
-                ActionEvent actionEvent =
-                    new ActionEvent(chatEditorPane,
-                        ActionEvent.ACTION_PERFORMED, "");
+                if (boldButton.isSelected())
+                    fontChooser.setSelectedFontStyle(Font.BOLD);
+                else if (italicButton.isSelected())
+                    fontChooser.setSelectedFontStyle(Font.ITALIC);
 
-                Action action =
-                    new HTMLEditorKit.FontFamilyAction(fontName, fontName);
+                int result = fontChooser.showDialog(chatWritePanel);
 
-                action.actionPerformed(actionEvent);
+                if (result == JFontChooser.OK_OPTION)
+                {
+                    String fontName = fontChooser.getSelectedFontFamily();
+                    int fontSize = fontChooser.getSelectedFontSize();
+                    int fontStyle = fontChooser.getSelectedFontStyle();
 
-                chatEditorPane.requestFocus();
+                    ActionEvent fontNameActionEvent
+                        = new ActionEvent(  chatEditorPane,
+                                            ActionEvent.ACTION_PERFORMED,
+                                            fontName);
+
+                    Action action = new StyledEditorKit.FontFamilyAction(
+                                fontName,
+                                fontName);
+
+                    action.actionPerformed(fontNameActionEvent);
+
+                    ActionEvent fontSizeActionEvent
+                        = new ActionEvent(  chatEditorPane,
+                                            ActionEvent.ACTION_PERFORMED,
+                                            new Integer(fontSize).toString());
+
+                    action =
+                        new StyledEditorKit.FontSizeAction(
+                            new Integer(fontSize).toString(),
+                            fontSize);
+
+                    action.actionPerformed(fontSizeActionEvent);
+
+                    if (fontStyle == Font.BOLD)
+                    {
+                        if (!boldButton.isSelected())
+                            boldButton.doClick();
+
+                        if (italicButton.isSelected())
+                            italicButton.doClick();
+                    }
+                    else if (fontStyle == Font.ITALIC)
+                    {
+                        if (!italicButton.isSelected())
+                            italicButton.doClick();
+
+                        if (boldButton.isSelected())
+                            boldButton.doClick();
+                    }
+                    else if (fontStyle == (Font.BOLD + Font.ITALIC))
+                    {
+                        if (!boldButton.isSelected())
+                            boldButton.doClick();
+
+                        if (!italicButton.isSelected())
+                            italicButton.doClick();
+                    }
+                    else
+                    {
+                        if (boldButton.isSelected())
+                            boldButton.doClick();
+
+                        if (italicButton.isSelected())
+                            italicButton.doClick();
+                    }
+
+                    chatEditorPane.requestFocus();
+                }
             }
         });
+    }
 
-        fontSizeCombo.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                ActionEvent evt =
-                    new ActionEvent(chatEditorPane,
-                        ActionEvent.ACTION_PERFORMED, "");
-
-                Integer fontSize =
-                    (Integer) fontSizeCombo.getSelectedItem();
-
-                Action action =
-                    new HTMLEditorKit.FontSizeAction(   fontSize.toString(),
-                                                        fontSize.intValue());
-
-                action.actionPerformed(evt);
-
-                chatEditorPane.requestFocus();
-            }
-        });
+    /**
+     * Initializes the label that changes font color.
+     */
+    private void initColorLabel()
+    {
+        final ColorLabel colorLabel = new ColorLabel();
+        colorLabel.setPreferredSize(new Dimension(21, 21));
 
         colorLabel.setOpaque(true);
         colorLabel.setBackground(Color.BLACK);
+
+        this.add(colorLabel);
+
         colorLabel.addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent arg0)
             {
                 Color newColor =
                     JColorChooser.showDialog(new JColorChooser(),
-                        "Choose a colour", colorLabel.getBackground());
+                                            "Choose a colour",
+                                            colorLabel.getBackground());
 
                 colorLabel.setBackground(newColor);
 
@@ -151,11 +224,49 @@ public class EditTextToolBar
                 chatEditorPane.requestFocus();
             }
         });
+
+        chatEditorPane.addCaretListener(new CaretListener()
+        {
+            public void caretUpdate(CaretEvent e)
+            {
+                selectColor(StyleConstants.Foreground, colorLabel);
+            }
+        });
+
+        chatEditorPane.addKeyListener(new KeyAdapter()
+        {
+            public void keyTyped(KeyEvent e)
+            {
+                if (chatWritePanel.getText().length() > 0)
+                {
+                    Color currentColor
+                        = (Color) ((HTMLEditorKit) chatEditorPane
+                            .getEditorKit()).getInputAttributes().getAttribute(
+                                StyleConstants.Foreground);
+
+                    if (currentColor != null)
+                        colorLabel.setBackground(currentColor);
+                    else
+                        colorLabel.setBackground(Color.BLACK);
+                }
+            }
+        });
+
+        chatEditorPane.addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                selectColor(StyleConstants.Foreground, colorLabel);
+            }
+        });
     }
 
-    private void initToolbarButtons()
+    /**
+     * Initializes Bold, Italic and Underline toggle buttons.
+     */
+    private void initStyleToolbarButtons()
     {
-        JToggleButton boldButton =
+        this.boldButton =
             initStyleToggleButton(boldAction, StyleConstants.Bold);
 
         boldButton.setIcon(new ImageIcon(ImageLoader
@@ -163,7 +274,7 @@ public class EditTextToolBar
 
         this.add(boldButton);
 
-        JToggleButton italicButton =
+        this.italicButton =
             initStyleToggleButton(italicAction, StyleConstants.Italic);
 
         italicButton.setIcon(new ImageIcon(ImageLoader
@@ -171,7 +282,7 @@ public class EditTextToolBar
 
         this.add(italicButton);
 
-        JToggleButton underlineButton =
+        this.underlineButton =
             initStyleToggleButton(underlineAction, StyleConstants.Underline);
 
         underlineButton.setIcon(new ImageIcon(ImageLoader
@@ -182,6 +293,13 @@ public class EditTextToolBar
         this.addBindings();
     }
 
+    /**
+     * Initializes a toggle button.
+     * 
+     * @param action the action to associate with the button
+     * @param styleConstant the style constant
+     * @return the toggle button with the associated action and style constant
+     */
     private JToggleButton initStyleToggleButton(final Action action,
         final Object styleConstant)
     {
@@ -193,6 +311,7 @@ public class EditTextToolBar
             public void actionPerformed(ActionEvent e)
             {
                 action.actionPerformed(e);
+                chatEditorPane.requestFocus();
             }
         });
 
@@ -208,11 +327,15 @@ public class EditTextToolBar
         {
             public void keyTyped(KeyEvent e)
             {
-                button.setSelected(((HTMLEditorKit) chatEditorPane
-                    .getEditorKit()).getInputAttributes().containsAttribute(
-                    styleConstant, true));
+                if (chatEditorPane.getText().length() > 0)
+                {
+                    button.setSelected(((HTMLEditorKit) chatEditorPane
+                        .getEditorKit()).getInputAttributes().containsAttribute(
+                            styleConstant, true));
+                }
             }
         });
+
         chatEditorPane.addMouseListener(new MouseAdapter()
         {
             public void mouseClicked(MouseEvent e)
@@ -220,14 +343,6 @@ public class EditTextToolBar
                 selectButton(styleConstant, button);
             }
         });
-        button.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                chatEditorPane.requestFocus();
-            }
-        });
-
         return button;
     }
 
@@ -235,8 +350,8 @@ public class EditTextToolBar
      * Selects or deselects the given toggle button depending on the given
      * <tt>styleConstant</tt>.
      * 
-     * @param styleConstant
-     * @param button
+     * @param styleConstant the style constant
+     * @param button the button to select
      */
     private void selectButton(  final Object styleConstant,
                                 final JToggleButton button)
@@ -266,7 +381,48 @@ public class EditTextToolBar
                         || attributes.containsAttribute(styleConstant, true);
             }
         }
-        button.setSelected(selected);
+
+        if (chatEditorPane.getText().length() > 0)
+            button.setSelected(selected);
+    }
+
+    /**
+     * Selects the color corresponding to the current style attribute.
+     * 
+     * @param styleConstant the style constant
+     * @param colorLabel the color label to select the color from
+     */
+    private void selectColor(   final Object styleConstant,
+                                final JLabel colorLabel)
+    {
+        Object selectedAttribute = null;
+
+        if (chatEditorPane.getSelectedText() == null)
+        {
+            int index = chatEditorPane.getCaretPosition();
+            selectedAttribute =
+                ((HTMLDocument) chatEditorPane.getDocument())
+                    .getCharacterElement(index - 1).getAttributes()
+                    .getAttribute(styleConstant);
+        }
+        else
+        {
+            for (int index = chatEditorPane.getSelectionStart();
+                index < chatEditorPane.getSelectionEnd(); index++)
+            {
+                AttributeSet attributes =
+                    ((HTMLDocument) chatEditorPane.getDocument())
+                        .getCharacterElement(index).getAttributes();
+
+                if (attributes.getAttribute(styleConstant) != null)
+                    selectedAttribute = attributes.getAttribute(styleConstant);
+            }
+        }
+
+        if (selectedAttribute != null)
+            colorLabel.setBackground((Color)selectedAttribute);
+        else
+            colorLabel.setBackground(Color.BLACK);
     }
 
     /**
@@ -302,9 +458,12 @@ public class EditTextToolBar
         GraphicsEnvironment ge =
             GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-        return ge.getAvailableFontFamilyNames();
+        return ge.getAvailableFontFamilyNames(Locale.getDefault());
     }
-    
+
+    /**
+     * 
+     */
     private class ColorLabel extends JLabel
     {
         public void paintComponent(Graphics g)
@@ -315,5 +474,29 @@ public class EditTextToolBar
 
             g.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
         }
+    }
+
+    /**
+     * Returns the button used to show the list of smilies.
+     * 
+     * @return the button used to show the list of smilies.
+     */
+    public SmiliesSelectorBox getSmiliesSelectorBox()
+    {
+        return smiliesBox;
+    }
+
+    /**
+     * Returns TRUE if there are selected menus in this toolbar, otherwise
+     * returns FALSE.
+     * @return TRUE if there are selected menus in this toolbar, otherwise
+     * returns FALSE
+     */
+    public boolean hasSelectedMenus()
+    {
+        if(smiliesBox.isMenuSelected())
+            return true;
+
+        return false;
     }
 }

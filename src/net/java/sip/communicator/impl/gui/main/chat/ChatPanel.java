@@ -579,7 +579,7 @@ public abstract class ChatPanel
      * @return The text contained in the write area editor.
      */
     public String getTextFromWriteArea(String mimeType)
-    {
+    { 
         if (mimeType.equals(
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE))
         {
@@ -605,9 +605,11 @@ public abstract class ChatPanel
     public void copy(){
         JEditorPane editorPane = this.conversationPanel.getChatEditorPane();
 
-        if (editorPane.getSelectedText() == null) {
+        if (editorPane.getSelectedText() == null)
+        {
             editorPane = this.writeMessagePanel.getEditorPane();
         }
+
         editorPane.copy();
     }
 
