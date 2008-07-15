@@ -1088,6 +1088,30 @@ public class ImageLoader {
 
         return image;
     }
+    
+    /**
+     * Loads an image from a given path.
+     *
+     * @param path The path url of the image.
+     * @return The image for the given identifier.
+     */
+    public static BufferedImage getImageFromUrl(String path)
+    {
+        BufferedImage image = null;
+        
+        try
+        {
+            URL imgUrl = new URL(path);
+            
+            image = ImageIO.read(imgUrl.openStream());
+        }
+        catch (Exception exc)
+        {
+            log.error("Failed to load image:" + path, exc);
+        }
+
+        return image;
+    }
 
     /**
      * Loads an image from a given image identifier.

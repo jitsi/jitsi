@@ -33,7 +33,7 @@ import net.java.sip.communicator.util.*;
  */
 public class SIPCommImageView extends ImageView implements ImageObserver
 {
-    private Logger logger = Logger.getLogger(SIPCommImageView.class);
+    private static Logger logger = Logger.getLogger(SIPCommImageView.class);
 
     public static final String TOP = "top";
 
@@ -115,8 +115,7 @@ public class SIPCommImageView extends ImageView implements ImageObserver
                 // fImage = Toolkit.getDefaultToolkit().createImage(src);
                 try
                 {
-                    fImage = ImageIO.read(SIPCommImageView.class
-                            .getResource(src));
+                    fImage = getImageFromUrl(src);
 
                     try
                     {
@@ -126,10 +125,6 @@ public class SIPCommImageView extends ImageView implements ImageObserver
                         fImage = null;
                     }
 
-                } catch (IOException e)
-                {
-                    fImage = null;
-                    logger.error("Failed to read image.", e);
                 } catch (IllegalArgumentException iae)
                 {
                     fImage = null;
@@ -858,4 +853,27 @@ public class SIPCommImageView extends ImageView implements ImageObserver
     // Default value of BORDER param: //? possibly move into stylesheet?
             DEFAULT_BORDER = 2;
 
+    /**
+     * Loads an image from a given path.
+     *
+     * @param path The path url of the image.
+     * @return The image for the given identifier.
+     */
+    public static BufferedImage getImageFromUrl(String path)
+    {
+        BufferedImage image = null;
+        
+        try
+        {
+            URL pathUrl = new URL(path);
+            
+            image = ImageIO.read(pathUrl);
+        }
+        catch (Exception exc)
+        {
+            logger.error("Failed to load image:" + path, exc);
+        }
+
+        return image;
+    }
 }

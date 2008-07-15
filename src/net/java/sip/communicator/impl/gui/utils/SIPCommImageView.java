@@ -116,8 +116,7 @@ public class SIPCommImageView
                 // fImage = Toolkit.getDefaultToolkit().createImage(src);
                 try
                 {
-                    fImage = ImageIO.read(ImageLoader.class.getClassLoader()
-                        .getResource(src));
+                    fImage = ImageLoader.getImageFromUrl(src);
 
                     try
                     {
@@ -128,11 +127,6 @@ public class SIPCommImageView
                         fImage = null;
                     }
 
-                }
-                catch (IOException e)
-                {
-                    fImage = null;
-                    logger.error("Failed to read image.", e);
                 }
                 catch (IllegalArgumentException iae)
                 {
