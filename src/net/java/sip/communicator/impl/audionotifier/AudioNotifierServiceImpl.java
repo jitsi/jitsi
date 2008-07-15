@@ -44,8 +44,8 @@ public class AudioNotifierServiceImpl
             }
             else
             {
-                URL url = AudioNotifierServiceImpl.class.getClassLoader()
-                    .getResource(uri);
+                URL url = 
+                    AudioNotifierActivator.getResources().getSoundURLForPath(uri);
 
                 if (url == null)
                 {
@@ -56,7 +56,7 @@ public class AudioNotifierServiceImpl
                     }
                     catch (MalformedURLException e)
                     {
-                        logger.error("The given uri could not be parsed.", e);
+                        //logger.error("The given uri could not be parsed.", e);
                     }
                 }
                 audioClip = new SCAudioClipImpl(url, this);

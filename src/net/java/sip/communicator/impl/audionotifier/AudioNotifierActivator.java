@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.audionotifier;
 
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -23,6 +24,13 @@ public class AudioNotifierActivator implements BundleActivator
     
     private ConfigurationService configService;
     
+    private static ResourceManagementService resourcesService;
+    
+    /**
+     * A currently valid bundle context.
+     */
+    public static BundleContext bundleContext;
+    
     private static Logger logger = Logger.getLogger(
         AudioNotifierActivator.class.getName());
     
@@ -34,6 +42,8 @@ public class AudioNotifierActivator implements BundleActivator
     public void start(BundleContext bundleContext) throws Exception
     {
         try {
+            this.bundleContext = bundleContext;
+            
             //Create the audio notifier service
             audioNotifier = new AudioNotifierServiceImpl();
 
@@ -90,5 +100,23 @@ public class AudioNotifierActivator implements BundleActivator
         }
         
         logger.info("AudioNotifier Service ...[STOPPED]");
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = 
+                (ResourceManagementService)bundleContext
+                    .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

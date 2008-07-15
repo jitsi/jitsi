@@ -84,16 +84,6 @@ public class AimStatusEnum
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        InputStream is = AimStatusEnum.class.getClassLoader()
-            .getResourceAsStream(imagePath);
-        
-        byte[] icon = null;
-        try {
-            icon = new byte[is.available()];
-            is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
-        }
-        return icon;
+        return ProtocolIconAimImpl.loadIcon(imagePath);
     }
 }

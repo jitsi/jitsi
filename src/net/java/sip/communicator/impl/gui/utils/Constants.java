@@ -382,9 +382,8 @@ public class Constants
      */
     public static void loadSimpleStyle(StyleSheet style) {
 
-        InputStream is = Constants.class
-                .getClassLoader()
-                .getResourceAsStream(DEFAULT_STYLE_PATH + "/defaultStyle.css");
+        InputStream is = 
+            GuiActivator.getResources().getSettingsInputStream("textStyle");
 
         Reader r = new BufferedReader(new InputStreamReader(is));
         try {
