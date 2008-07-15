@@ -8,11 +8,10 @@ package net.java.sip.communicator.plugin.statusupdate;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Vector;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.configuration.*;
 
 /**
  * The configuration Dialog for the Mail Notification Plugin
@@ -41,10 +40,21 @@ public class ConfigurationDialog extends JDialog
 
         getContentPane().setPreferredSize(new Dimension(400, 200));
         getContentPane().setLayout(new GridLayout(1, 1));
+
         // move window to middle of screen
-        setLocation(
-                (Toolkit.getDefaultToolkit().getScreenSize().width - getPreferredSize().width) / 2,
-                (Toolkit.getDefaultToolkit().getScreenSize().height - getPreferredSize().height) / 2);
+        setLocationRelativeTo(null);
+        
+        // Set title
+        setTitle(Resources.getString("menuEntry"));
+        
+        // Set closing system
+        addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                dispose();
+            }
+        });
     }
 
     /**
@@ -52,21 +62,12 @@ public class ConfigurationDialog extends JDialog
      */
     private void init()
     {
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e)
-            {
-            }
-        });
-
-        final ConfigurationService configService = StatusUpdateActivator
-                .getConfigService();
-
+        // Main panel
         JPanel mainPanel = new JPanel();
-        mainPanel.setForeground(Color.GRAY);
         mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+        // Description
         JTextArea infoLabel = new JTextArea(Resources.getString("infotext"));
         infoLabel.setBorder(BorderFactory.createTitledBorder(Resources
                 .getString("info")));
@@ -74,35 +75,28 @@ public class ConfigurationDialog extends JDialog
         infoLabel.setWrapStyleWord(true);
         infoLabel.setLineWrap(true);
 
+        // Checkbox
         enable = new JCheckBox(Resources.getString("enable"));
         enable.addActionListener(new ActionListener()
         {
-
             public void actionPerformed(ActionEvent e)
             {
                 timer.setEnabled(enable.isSelected());
             }
         });
 
+        // Spinner
         timer = new JSpinner(new SpinnerNumberModel(15, 1, 180, 1));
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridy = 0;
-        c.weightx = 1;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.NORTHWEST;
-
-        JPanel okCancelPanel = new JPanel();
+        // Button panel : OK and Cancel button
+        JPanel okCancelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton ok = new JButton(Resources.getString("ok"));
         ok.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                configService.setProperty(Preferences.ENABLE, Boolean
-                        .toString(enable.isSelected()));
-                Integer interval = (Integer) timer.getValue();
-                configService.setProperty(Preferences.TIMER, interval);
-                setVisible(false);
+                saveData();
+                dispose();
             }
         });
         JButton cancel = new JButton(Resources.getString("cancel"));
@@ -110,13 +104,12 @@ public class ConfigurationDialog extends JDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                setVisible(false);
+                dispose();
             }
         });
 
         okCancelPanel.add(ok);
         okCancelPanel.add(cancel);
-        okCancelPanel.setBorder(BorderFactory.createTitledBorder(" "));
 
         GridBagConstraints mainGBC = new GridBagConstraints();
         mainGBC.gridx = 0;
@@ -174,11 +167,12 @@ public class ConfigurationDialog extends JDialog
                 enable.setSelected(false);
                 timer.setEnabled(false);
             }
-        } else
+        }
+        else
         {
             enable.setSelected(false);
             timer.setEnabled(false);
-   }
+        }
 
         String t = (String) configService.getString(Preferences.TIMER);
         if (t != null)
@@ -186,9 +180,21 @@ public class ConfigurationDialog extends JDialog
             try
             {
                 timer.setValue(Integer.parseInt(t));
-            } catch (NumberFormatException ex)
+            }
+            catch (NumberFormatException ex)
             {
             }
         }
+    }
+    
+    private void saveData()
+    {
+        ConfigurationService configService = StatusUpdateActivator
+            .getConfigService();
+        
+        configService.setProperty(Preferences.ENABLE, Boolean
+                .toString(enable.isSelected()));
+        Integer interval = (Integer) timer.getValue();
+        configService.setProperty(Preferences.TIMER, interval);
     }
 }

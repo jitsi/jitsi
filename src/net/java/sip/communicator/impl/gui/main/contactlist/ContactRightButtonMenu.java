@@ -89,6 +89,8 @@ public class ContactRightButtonMenu
     private SIPCommMenu removeContactMenu
         = new SIPCommMenu(removeContactString.getText());
 
+    private SIPCommMenu callContactMenu = new SIPCommMenu(callString.getText());
+
     private JMenuItem callItem = new JMenuItem(
         callString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
@@ -125,6 +127,8 @@ public class ContactRightButtonMenu
 
     private String moveSubcontactPrefix = "moveSubcontact:";
 
+    private String callContactPrefix = "callContact:";
+
     private Contact contactToMove;
 
     private boolean moveAllContacts = false;
@@ -158,7 +162,8 @@ public class ContactRightButtonMenu
     /**
      * Initializes the menu, by adding all containing menu items.
      */
-    private void init() {
+    private void init()
+    {
 
         this.moveToMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.GROUPS_16x16_ICON)));
@@ -172,10 +177,14 @@ public class ContactRightButtonMenu
         this.moveSubcontactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.MOVE_CONTACT_ICON)));
 
+        this.callContactMenu.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.CALL_16x16_ICON)));
+
         //Initialize the addSubcontact menu.
         Iterator providers = this.mainFrame.getProtocolProviders();
 
-        if(providers.hasNext()) {
+        if(providers.hasNext()) 
+        {
             JLabel infoLabel = new JLabel(
                 Messages.getI18NString("selectAccount").getText());
 
@@ -186,7 +195,8 @@ public class ContactRightButtonMenu
             this.addSubcontactMenu.addSeparator();
         }
 
-        while (providers.hasNext()) {
+        while (providers.hasNext()) 
+        {
             ProtocolProviderService pps
                 = (ProtocolProviderService)providers.next();
 
@@ -205,7 +215,8 @@ public class ContactRightButtonMenu
         //Initialize moveTo menu.
         Iterator groups = this.mainFrame.getAllGroups();
 
-        if(groups.hasNext()) {
+        if(groups.hasNext()) 
+        {
             JLabel infoLabel = new JLabel(
                 Messages.getI18NString("selectGroup").getText());
 
@@ -216,7 +227,8 @@ public class ContactRightButtonMenu
             this.moveToMenu.addSeparator();
         }
 
-        while (groups.hasNext()) {
+        while (groups.hasNext()) 
+        {
             MetaContactGroup group = (MetaContactGroup)groups.next();
 
             JMenuItem menuItem = new JMenuItem(group.getGroupName());
@@ -230,7 +242,8 @@ public class ContactRightButtonMenu
         //Initialize removeContact menu.
         Iterator contacts = contactItem.getContacts();
 
-        if (contactItem.getContactCount() > 1) {
+        if (contactItem.getContactCount() > 1) 
+        {
             
             JMenuItem allItem = new JMenuItem(allContactsString.getText());
             JMenuItem allItem1 = new JMenuItem(allContactsString.getText());
@@ -247,7 +260,8 @@ public class ContactRightButtonMenu
             this.moveSubcontactMenu.addSeparator();
         }
 
-        while (contacts.hasNext()) {
+        while (contacts.hasNext()) 
+        {
             Contact contact = (Contact)contacts.next();
 
             ProtocolProviderService protocolProvider
@@ -275,6 +289,18 @@ public class ContactRightButtonMenu
 
             this.removeContactMenu.add(contactItem);
             this.moveSubcontactMenu.add(contactItem1);
+            
+            // add all the contacts that support telephony to the call menu
+            if (contact.getProtocolProvider().getSupportedOperationSets()
+                    .get(OperationSetBasicTelephony.class.getName()) != null)
+            {
+                JMenuItem callContactItem = new JMenuItem(contactDisplayName);
+                callContactItem.setIcon(protocolIcon);
+                callContactItem.setName(callContactPrefix + contact.getAddress() 
+                        + protocolProvider.getProtocolName());
+                callContactItem.addActionListener(this);
+                this.callContactMenu.add(callContactItem);
+            }
 
             OperationSetWebContactInfo wContactInfo
                 = mainFrame.getWebContactInfoOpSet(protocolProvider);
@@ -282,7 +308,14 @@ public class ContactRightButtonMenu
 
         this.add(sendMessageItem);
         this.add(sendSmsItem);
-        this.add(callItem);
+        if (callContactMenu.getItemCount() > 1) 
+        {
+            this.add(callContactMenu);
+        }
+        else
+        {
+            this.add(callItem);
+        }
         this.add(sendFileItem);
 
         this.addSeparator();
@@ -388,7 +421,14 @@ public class ContactRightButtonMenu
     private void initMnemonics()
     {
         this.sendMessageItem.setMnemonic(sendMessageString.getMnemonic());
-        this.callItem.setMnemonic(sendMessageString.getMnemonic());
+        if (callContactMenu.getItemCount() > 1) 
+        {
+            this.callContactMenu.setMnemonic(callString.getMnemonic());
+        }
+        else
+        {
+            this.callItem.setMnemonic(callString.getMnemonic());
+        }
         this.sendSmsItem.setMnemonic(sendSmsString.getMnemonic());
         this.sendFileItem.setMnemonic(sendFileString.getMnemonic());
         this.moveToMenu.setMnemonic(moveToString.getMnemonic());
@@ -451,14 +491,7 @@ public class ContactRightButtonMenu
             cont = contactItem.getDefaultContact(
                     OperationSetBasicTelephony.class);
 
-            if (cont != null)
-            {
-                Vector<Contact> contacts = new Vector<Contact>();
-                contacts.add(cont);
-                mainFrame.getCallManager().createCall(contacts);
-                // wow, it's really tricky, I wonder there isn't a simple method
-                // CallManager#createCall(Contact contact);
-            }
+            callContact(cont);
         }
         else if (itemName.equalsIgnoreCase("sendFile"))
         {
@@ -517,7 +550,8 @@ public class ContactRightButtonMenu
 
             try
             {
-                if(group != null) {
+                if(group != null) 
+                {
                     mainFrame.getContactList().
                         moveMetaContact(contactItem, group);
                 }
@@ -568,6 +602,29 @@ public class ContactRightButtonMenu
             {
                 this.moveAllContacts = true;
             }
+        }
+        else if (itemName.startsWith(callContactPrefix))
+        {
+            cont = getContactFromMetaContact(
+                    itemName.substring(callContactPrefix.length()));
+            
+            callContact(cont);
+        }
+    }
+
+    /**
+     * Calls the given contact 
+     * @param contact the contact to call
+     */
+    private void callContact(Contact contact) 
+    {
+        if (contact != null)
+        {
+            Vector<Contact> contacts = new Vector<Contact>();
+            contacts.add(contact);
+            mainFrame.getCallManager().createCall(contacts);
+            // wow, it's really tricky, I wonder there isn't a simple method
+            // CallManager#createCall(Contact contact);
         }
     }
 
@@ -626,10 +683,12 @@ public class ContactRightButtonMenu
 
                     int returnCode = dialog.showDialog();
 
-                    if (returnCode == MessageDialog.OK_RETURN_CODE) {
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) 
+                    {
                         mainFrame.getContactList().removeContact(contact);
                     }
-                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) 
+                    {
                         mainFrame.getContactList().removeContact(contact);
 
                         Constants.REMOVE_CONTACT_ASK = false;
@@ -656,7 +715,8 @@ public class ContactRightButtonMenu
      */
     private class RemoveAllContactsThread extends Thread
     {
-        public void run() {
+        public void run() 
+        {
             if(Constants.REMOVE_CONTACT_ASK)
             {
                 String message
@@ -741,7 +801,8 @@ public class ContactRightButtonMenu
     {        
         this.moveDialog.dispose();
         
-        if(toMetaContact.equals(contactItem)) {
+        if(toMetaContact.equals(contactItem)) 
+        {
             new ErrorDialog(this.mainFrame,
                 Messages.getI18NString("moveSubcontact").getText(),
                 Messages.getI18NString("moveSubcontactInSameContact").getText(),
@@ -754,10 +815,12 @@ public class ContactRightButtonMenu
             guiContactList.setCursor(
                     Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            if(moveAllContacts) {
+            if(moveAllContacts) 
+            {
                 new MoveAllSubcontactsThread(toMetaContact).start();
             }
-            else if(contactToMove != null) {
+            else if(contactToMove != null) 
+            {
                 new MoveSubcontactThread(toMetaContact).start();
             }
         }
@@ -785,7 +848,8 @@ public class ContactRightButtonMenu
 
         public void run()
         {
-            if(metaContact != null) {
+            if(metaContact != null) 
+            {
                 mainFrame.getContactList()
                     .moveContact(contactToMove, metaContact);
             }
@@ -813,7 +877,8 @@ public class ContactRightButtonMenu
         {
             Iterator i = contactItem.getContacts();
             
-            while(i.hasNext()) {
+            while(i.hasNext()) 
+            {
                 Contact contact = (Contact) i.next();
                 mainFrame.getContactList()
                     .moveContact(contact, metaContact);
@@ -898,7 +963,8 @@ public class ContactRightButtonMenu
         int index = mainFrame.getProviderIndex(pps);
 
         Image img = null;
-        if(index > 0) {
+        if(index > 0) 
+        {
             BufferedImage buffImage = new BufferedImage(
                     22, 16, BufferedImage.TYPE_INT_ARGB);
 
@@ -936,7 +1002,8 @@ public class ContactRightButtonMenu
             protoContact.getProtocolProvider());
 
         Image img = null;
-        if(index > 0) {
+        if(index > 0) 
+        {
             BufferedImage buffImage = new BufferedImage(
                     22, 16, BufferedImage.TYPE_INT_ARGB);
 

@@ -103,7 +103,8 @@ public class NewBundleDialog
                 {
                     File newBundleFile = fileChooser.getSelectedFile();
 
-                    bundlePathField.setText(newBundleFile.toURL().toString());
+                    bundlePathField.setText(newBundleFile.toURI()
+                               .toURL().toString());
                 }
                 catch (MalformedURLException ex)
                 {

@@ -570,10 +570,10 @@ public class FirstWizardPage
         transportCombo.setSelectedItem(preferredTransport);
         proxyPortField.setText(proxyPort);
 
-        if (!(serverPort.equals(SIPAccountRegistration.DEFAULT_PORT)
-                || serverPort.equals(SIPAccountRegistration.DEFAULT_TLS_PORT))
-            || !(proxyPort.equals(SIPAccountRegistration.DEFAULT_PORT)
-                || proxyPort.equals(SIPAccountRegistration.DEFAULT_TLS_PORT))
+        if (!(SIPAccountRegistration.DEFAULT_PORT.equals(serverPort)
+                || SIPAccountRegistration.DEFAULT_TLS_PORT.equals(serverPort))
+            || !(SIPAccountRegistration.DEFAULT_PORT.equals(proxyPort)
+                || SIPAccountRegistration.DEFAULT_TLS_PORT.equals(proxyPort))
             || !transportCombo.getSelectedItem()
                 .equals(SIPAccountRegistration.DEFAULT_TRANSPORT))
         {
