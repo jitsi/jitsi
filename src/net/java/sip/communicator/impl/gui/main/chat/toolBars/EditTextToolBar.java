@@ -80,8 +80,6 @@ public class EditTextToolBar
         this.addSeparator();
 
         this.add(fontButton);
-//        this.initFontComboBoxes();
-
         this.addSeparator();
 
         this.initColorLabel();

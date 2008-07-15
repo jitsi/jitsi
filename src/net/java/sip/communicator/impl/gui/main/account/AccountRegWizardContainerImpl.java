@@ -36,8 +36,6 @@ public class AccountRegWizardContainerImpl
     private static final Logger logger =
         Logger.getLogger(AccountRegWizardContainerImpl.class);
 
-    private AccountRegFirstPage defaultPage;
-
     private AccountRegSummaryPage summaryPage;
 
     private AccountRegistrationWizard currentWizard;
@@ -53,11 +51,7 @@ public class AccountRegWizardContainerImpl
         this.setTitle(Messages.getI18NString("accountRegistrationWizard")
             .getText());
 
-        this.defaultPage = new AccountRegFirstPage(this);
-
         this.summaryPage = new AccountRegSummaryPage(this);
-
-        this.registerWizardPage(defaultPage.getIdentifier(), defaultPage);
 
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
 
@@ -115,8 +109,6 @@ public class AccountRegWizardContainerImpl
         {
             registeredWizards.put(protocolName, wizard);
         }
-
-        defaultPage.addAccountRegistrationWizard(wizard);
     }
 
     /**
@@ -132,8 +124,6 @@ public class AccountRegWizardContainerImpl
         {
             registeredWizards.remove(protocolName);
         }
-
-        defaultPage.removeAccountRegistrationWizard(wizard);
     }
 
     /**
@@ -144,14 +134,6 @@ public class AccountRegWizardContainerImpl
     public AccountRegSummaryPage getSummaryPage()
     {
         return summaryPage;
-    }
-
-    /**
-     * Opens a wizard for creating a new account.
-     */
-    public void newAccount()
-    {
-        this.setCurrentPage(defaultPage.getIdentifier());
     }
 
     /**
