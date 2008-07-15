@@ -15,6 +15,7 @@ import java.text.DateFormat;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
@@ -43,6 +44,16 @@ public class ContactInfoDetailsPanel
      * The currently selected sub-contact we are displaying information about.
      */
     private Contact contact;
+
+    /**
+     * The default width of hte avater area.
+     */
+    private final int AVATAR_AREA_WIDTH = 105;
+
+    /**
+     * The default height of hte avater area.
+     */
+    private final int AVATAR_AREA_HEIGHT = 130;
 
     /**
      * Construct a tabbed pane that will have one tab with a summary of info for
@@ -171,11 +182,19 @@ public class ContactInfoDetailsPanel
         else
             avatarImage = Resources.getImage("contactInfoDefaultPersonIcon");
 
-        ImageIcon scaledImage =
-            new ImageIcon(avatarImage.getImage().getScaledInstance(105, 130,
-                Image.SCALE_SMOOTH));
+        ImageIcon scaledImage = ImageUtils.scaleIconWithinBounds(
+                avatarImage,
+                AVATAR_AREA_WIDTH,
+                AVATAR_AREA_HEIGHT
+                );
 
         JLabel label = new JLabel(scaledImage);
+        label.setVerticalAlignment(JLabel.CENTER);
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setPreferredSize(new Dimension(
+                    AVATAR_AREA_WIDTH,
+                    AVATAR_AREA_HEIGHT)
+                );
         avatarPanel.add(label);
         summaryPanel.add(avatarPanel, BorderLayout.WEST);
 

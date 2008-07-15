@@ -28,9 +28,9 @@ public class ChatContact
 {
     private Logger logger = Logger.getLogger(ChatContact.class);
 
-    private static final int AVATAR_ICON_HEIGHT = 45;
+    static final int AVATAR_ICON_HEIGHT = 45;
 
-    private static final int AVATAR_ICON_WIDTH = 40;
+    static final int AVATAR_ICON_WIDTH = 40;
 
     private String name;
 
@@ -219,15 +219,11 @@ public class ChatContact
         if(contactImage != null)
         {
             Image image = ImageLoader.getBytesInImage(contactImage);
-
-            if( image.getHeight(null) > AVATAR_ICON_HEIGHT
-                || image.getWidth(null) > AVATAR_ICON_WIDTH)
-                return new ImageIcon(image.getScaledInstance(
-                                    AVATAR_ICON_WIDTH,
-                                    AVATAR_ICON_HEIGHT,
-                                    Image.SCALE_SMOOTH));
-            else
-                return new ImageIcon(image);
+            return ImageUtils.scaleIconWithinBounds(
+                        new ImageIcon(image),
+                        AVATAR_ICON_WIDTH,
+                        AVATAR_ICON_HEIGHT
+                        );
         }
         else
             return null;

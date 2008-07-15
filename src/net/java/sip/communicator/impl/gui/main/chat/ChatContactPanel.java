@@ -98,6 +98,13 @@ public class ChatContactPanel
         this.buttonsPanel.setOpaque(false);
         this.personPhotoPanel.setOpaque(false);
 
+        this.personPhotoLabel.setVerticalAlignment(JLabel.CENTER);
+        this.personPhotoLabel.setHorizontalAlignment(JLabel.CENTER);
+        this.personPhotoLabel.setPreferredSize(new Dimension(
+                    ChatContact.AVATAR_ICON_WIDTH,
+                    ChatContact.AVATAR_ICON_HEIGHT)
+                );
+
         this.personNameLabel.setText(chatContact.getName());
         this.personNameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
         this.personNameLabel.setIcon(chatContact.getStatusIcon());
