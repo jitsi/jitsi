@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -98,7 +99,19 @@ public class ProtocolIconJabberImpl
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        InputStream is = getResources().getImageInputStreamForPath(imagePath);
+        
+        InputStream is = null;
+        
+        try
+        {
+            // try to load path it maybe valid url
+            is = new URL(imagePath).openStream();
+        }
+        catch (Exception e)
+        {}
+        
+        if(is == null)
+            is = getResources().getImageInputStreamForPath(imagePath);
         
         byte[] icon = null;
         try {

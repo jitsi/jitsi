@@ -185,8 +185,8 @@ public class GoogleTalkAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.PROTOCOL, PROTOCOL);
         accountProperties
             .put(ProtocolProviderFactory.PROTOCOL_ICON_PATH,
-                GoogleTalkAccountRegistrationWizard.class.getClassLoader()
-                    .getResource("resources/images/protocol/googletalk")
+                Resources.getResources()
+                    .getImageURLForPath("resources/images/protocol/googletalk")
                     .toString());
 
         if (registration.isRememberPassword())
