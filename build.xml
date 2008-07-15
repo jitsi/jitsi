@@ -623,7 +623,7 @@
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
         bundle-plugin-statusupdate,
-        bundle-updatecheckplugin,bundle-gui-customizer,
+        bundle-updatecheckplugin,
         bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz"/>
@@ -1603,20 +1603,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!--BUNDLE-GUI-CUSTOMIZER-->
-   <target name="bundle-gui-customizer">
-       <!-- Creates a bundle for the Resource Management Service Impl."-->
-       <jar
-           compress="false" destfile="${bundles.dest}/guicustomizer.jar"
-           manifest="${src}/net/java/sip/communicator/plugin/guicustomization/guicustomization.manifest.mf">
-           <zipfileset dir="${dest}/net/java/sip/communicator/plugin/guicustomization"
-               prefix="net/java/sip/communicator/plugin/guicustomization"/>
-           <zipfileset dir="${src}/net/java/sip/communicator/plugin/guicustomization/resourcepack" 
-                       includes="customresourcepack.manifest.mf"
-                       prefix="net/java/sip/communicator/plugin/guicustomization/resourcepack"/>
-       </jar>
-   </target>
-    
     <!-- BUNDLE-NOTIFICATION-CONFIG -->
     <target name="bundle-notification-config">
         <!-- Creates a bundle for the notifications.-->
