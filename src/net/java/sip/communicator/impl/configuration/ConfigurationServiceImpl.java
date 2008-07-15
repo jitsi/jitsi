@@ -66,7 +66,7 @@ public class ConfigurationServiceImpl
      * Name of the bundle where we will search for color resources.
      */
     private static final String DEFAULT_PROPERTIES_BUNDLE_NAME
-        = "resources.config.defaults";
+        = "resources.config.configuration";
 
     /**
      * Bundle which handle access to localized resources.
