@@ -107,9 +107,14 @@ public class ChatWritePanel
         ConfigurationService configService =
             GuiActivator.getConfigurationService();
 
-        String messageCommand =
-            configService
-                .getString("net.java.sip.communicator.impl.gui.sendMessageCommand");
+        String messageCommandProperty = 
+            "net.java.sip.communicator.impl.gui.sendMessageCommand";
+        String messageCommand = configService.getString(messageCommandProperty);
+        
+        if(messageCommand == null)
+            messageCommand = 
+                GuiActivator.getResources().
+                    getSettingsString(messageCommandProperty);
 
         if (messageCommand == null || messageCommand.equalsIgnoreCase("enter"))
             this.changeSendCommand(true);

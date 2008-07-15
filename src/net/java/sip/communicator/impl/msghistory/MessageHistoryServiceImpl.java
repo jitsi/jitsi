@@ -14,6 +14,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.impl.msghistory.MessageHistoryActivator.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
@@ -70,6 +71,8 @@ public class MessageHistoryServiceImpl
     private ConfigurationService configService;
 
     private MessageHistoryPropertyChangeListener msgHistoryPropListener;
+    
+    private static ResourceManagementService resourcesService;
 
     public HistoryService getHistoryService()
     {
@@ -620,12 +623,19 @@ public class MessageHistoryServiceImpl
 
         // Check if the message history is enabled in the configuration 
         // service, and if not do not register the service.
+        String isMessageHistoryEnabledPropertyString =
+            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled";
         String isMessageHistoryEnabledString = configService.getString(
-            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled");
+            isMessageHistoryEnabledPropertyString);
+        
+        if(isMessageHistoryEnabledString == null)
+            isMessageHistoryEnabledString = 
+                getResources().
+                getSettingsString(isMessageHistoryEnabledPropertyString);
 
         // If the property doesn't exist we stop here.
         if (isMessageHistoryEnabledString == null
-            || isMessageHistoryEnabledString == "")
+            || isMessageHistoryEnabledString.length() == 0)
             return;
 
         boolean isMessageHistoryEnabled
@@ -1650,6 +1660,24 @@ public class MessageHistoryServiceImpl
             startIndex = 0;
 
         return resultAsList.subList(startIndex, resultAsList.size());
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = MessageHistoryActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+            
+            resourcesService = (ResourceManagementService) 
+                MessageHistoryActivator.bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 
     /**

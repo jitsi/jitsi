@@ -25,7 +25,7 @@ public class MessageHistoryActivator
 
     private MessageHistoryServiceImpl msgHistoryService = null;
 
-    private static BundleContext bundleContext;
+    static BundleContext bundleContext;
 
     /**
      * Initialize and start message history

@@ -60,24 +60,35 @@ public class ConfigurationManager
             new ConfigurationChangeListener());
         
         // Load the "auPopupNewMessage" property.
-        String autoPopup = configService.getString(
-            "net.java.sip.communicator.impl.gui.autoPopupNewMessage");
+        String autoPopupProperty = 
+            "net.java.sip.communicator.impl.gui.autoPopupNewMessage";
+        
+        String autoPopup = configService.getString(autoPopupProperty);
+        
+        if(autoPopup == null)
+            autoPopup = GuiActivator.getResources().
+                getSettingsString(autoPopupProperty);
 
         if(autoPopup != null && autoPopup.equalsIgnoreCase("yes"))
             autoPopupNewMessage = true;
 
         // Load the "sendMessageCommand" property.
-        String messageCommand = configService.getString(
-            "net.java.sip.communicator.impl.gui.sendMessageCommand");
+        String messageCommandProperty = 
+            "net.java.sip.communicator.impl.gui.sendMessageCommand";
+        String messageCommand = configService.getString(messageCommandProperty);
+        
+        if(messageCommand == null)
+            messageCommand = 
+                GuiActivator.getResources().getSettingsString(messageCommandProperty);
 
-        if(messageCommand == null || messageCommand != "")
+        if(messageCommand == null || messageCommand.length() == 0)
             sendMessageCommand = messageCommand;
 
         // Load the showCallPanel property.
         String callPanelShown = configService.getString(
             "net.java.sip.communicator.impl.gui.showCallPanel");
 
-        if(callPanelShown != null && callPanelShown != "")
+        if(callPanelShown != null && callPanelShown.length() > 0)
         {
             isCallPanelShown = new Boolean(callPanelShown).booleanValue();
         }
@@ -86,7 +97,7 @@ public class ConfigurationManager
         String showOffline = configService.getString(
             "net.java.sip.communicator.impl.gui.showOffline");
         
-        if(showOffline != null && showOffline != "")
+        if(showOffline != null && showOffline.length() > 0)
         {
             isShowOffline = new Boolean(showOffline).booleanValue();
         }
@@ -95,7 +106,7 @@ public class ConfigurationManager
         String isVisible = configService.getString(
             "net.java.sip.communicator.impl.systray.showApplication");
 
-        if(isVisible != null && isVisible != "")
+        if(isVisible != null && isVisible.length() > 0)
         {
             isApplicationVisible = new Boolean(isVisible).booleanValue();
         }
@@ -104,17 +115,24 @@ public class ConfigurationManager
         String quitWarningShown = configService.getString(
             "net.java.sip.communicator.impl.gui.quitWarningShown");
 
-        if(quitWarningShown != null && quitWarningShown != "")
+        if(quitWarningShown != null && quitWarningShown.length() > 0)
         {
             isQuitWarningShown
                 = new Boolean(quitWarningShown).booleanValue();
         }
 
         // Load the "sendTypingNotifications" property.
-        String isSendTypingNotif = configService.getString(
-            "net.java.sip.communicator.impl.gui.sendTypingNotifications");
+        String isSendTypingNotifProperty = 
+            "net.java.sip.communicator.impl.gui.sendTypingNotifications";
+        String isSendTypingNotif = 
+            configService.getString(isSendTypingNotifProperty);
         
-        if(isSendTypingNotif != null && isSendTypingNotif != "")
+        if(isSendTypingNotif == null)
+            isSendTypingNotif = 
+                GuiActivator.getResources().
+                    getSettingsString(isSendTypingNotifProperty);
+        
+        if(isSendTypingNotif != null && isSendTypingNotif.length() > 0)
         {
             isSendTypingNotifications
                 = new Boolean(isSendTypingNotif).booleanValue();
@@ -126,7 +144,7 @@ public class ConfigurationManager
             "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested");
 
         if(isMoveContactConfirmationRequestedString != null
-            && isMoveContactConfirmationRequestedString != "")
+            && isMoveContactConfirmationRequestedString.length() > 0)
         {
             isMoveContactConfirmationRequested
                 = new Boolean(isMoveContactConfirmationRequestedString)
@@ -134,12 +152,19 @@ public class ConfigurationManager
         }
 
         // Load the "isMultiChatWindowEnabled" property.
+        String isMultiChatWindowEnabledStringProperty
+            = "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled";
+        
         String isMultiChatWindowEnabledString
-            = configService.getString(
-            "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled");
+            = configService.getString(isMultiChatWindowEnabledStringProperty);
+        
+        if(isMultiChatWindowEnabledString == null)
+            isMultiChatWindowEnabledString = 
+                GuiActivator.getResources().
+                    getSettingsString(isMultiChatWindowEnabledStringProperty);
 
         if(isMultiChatWindowEnabledString != null
-            && isMultiChatWindowEnabledString != "")
+            && isMultiChatWindowEnabledString.length() > 0)
         {
             isMultiChatWindowEnabled
                 = new Boolean(isMultiChatWindowEnabledString)
@@ -152,7 +177,7 @@ public class ConfigurationManager
             "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled");
 
         if(isHistoryLoggingEnabledString != null
-            && isHistoryLoggingEnabledString != "")
+            && isHistoryLoggingEnabledString.length() > 0)
         {
             isHistoryLoggingEnabled
                 = new Boolean(isHistoryLoggingEnabledString)
@@ -160,12 +185,19 @@ public class ConfigurationManager
         }
         
         // Load the "isHistoryShown" property.
+        String isHistoryShownStringProperty = 
+            "net.java.sip.communicator.impl.gui.isMessageHistoryShown";
+        
         String isHistoryShownString
-            = configService.getString(
-            "net.java.sip.communicator.impl.gui.isMessageHistoryShown");
+            = configService.getString(isHistoryShownStringProperty);
+        
+        if(isHistoryShownString == null)
+            isHistoryShownString = 
+                GuiActivator.getResources().
+                    getSettingsString(isHistoryShownStringProperty);
 
         if(isHistoryShownString != null
-            && isHistoryShownString != "")
+            && isHistoryShownString.length() > 0)
         {
             isHistoryShown
                 = new Boolean(isHistoryShownString)
@@ -173,12 +205,18 @@ public class ConfigurationManager
         }
         
         // Load the "chatHistorySize" property.
+        String chatHistorySizeStringProperty =
+            "net.java.sip.communicator.impl.gui.messageHistorySize";
         String chatHistorySizeString
-            = configService.getString(
-            "net.java.sip.communicator.impl.gui.messageHistorySize");
+            = configService.getString(chatHistorySizeStringProperty);
+        
+        if(chatHistorySizeString == null)
+            chatHistorySizeString = 
+                GuiActivator.getResources().
+                    getSettingsString(chatHistorySizeStringProperty);
 
         if(chatHistorySizeString != null
-            && chatHistorySizeString != "")
+            && chatHistorySizeString.length() > 0)
         {
             chatHistorySize
                 = new Integer(chatHistorySizeString)

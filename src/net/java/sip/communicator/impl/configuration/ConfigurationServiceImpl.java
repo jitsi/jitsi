@@ -63,18 +63,6 @@ public class ConfigurationServiceImpl
         = "net.java.sip.communicator.SYS_PROPS_FILE_NAME";
 
     /**
-     * Name of the bundle where we will search for color resources.
-     */
-    private static final String DEFAULT_PROPERTIES_BUNDLE_NAME
-        = "resources.config.configuration";
-
-    /**
-     * Bundle which handle access to localized resources.
-     */
-    private static final ResourceBundle DEFAULT_PROPERTIES_BUNDLE
-        = ResourceBundle.getBundle(DEFAULT_PROPERTIES_BUNDLE_NAME);
-
-    /**
      * A reference to the currently used configuration file.
      */
     private File configurationFile = null;
@@ -489,9 +477,6 @@ public class ConfigurationServiceImpl
         fileExtractedProperties =
                 loadConfiguration(getConfigurationFile());
         this.properties.putAll(fileExtractedProperties);
-
-        Map defaultProperties = loadDefaultProperties(); 
-        this.properties.putAll(defaultProperties);
     }
 
     /**
@@ -1236,34 +1221,5 @@ public class ConfigurationServiceImpl
                     , ex);
             }
         }
-    }
-
-    /**
-     * Loads default application properties from the application.properties file.
-     * The application.properties file contains initial application
-     * configurations, which should also be available through the configuration
-     * service.
-     * 
-     * @return a set of all default application properties from the
-     * application.properties file
-     */
-    Map loadDefaultProperties()
-    {
-        Map defaultProps = new Hashtable();
-
-        Enumeration keys = DEFAULT_PROPERTIES_BUNDLE.getKeys();
-
-        while (keys.hasMoreElements())
-        {
-            String key = (String) keys.nextElement();
-            String value = DEFAULT_PROPERTIES_BUNDLE.getString(key);
-
-            if (!properties.containsKey(key))
-            {
-                defaultProps.put(key, value);
-            }
-        }
-        
-        return defaultProps;
     }
 }
