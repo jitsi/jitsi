@@ -94,10 +94,11 @@ public class ProcessorUtility implements ControllerListener {
      * indicating success or failure of the operation.
      *
      * @param processor Processor
-     * @param state int
-     * @return boolean
+     * @param state one of the Processor.XXXed sate vars
+     * @return boolean true if the state has been reached and false otherwise
      */
-    public synchronized boolean waitForState(Processor processor, int state) {
+    public synchronized boolean waitForState(Processor processor, int state) 
+    {
         processor.addControllerListener(this);
         setFailed(false);
 

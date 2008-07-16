@@ -233,7 +233,6 @@ public class OperationSetBasicTelephonySipImpl
         CallParticipantSipImpl callParticipant
             = createCallParticipantFor(inviteTransaction, jainSipProvider);
 
-
         //invite content
         try
         {
@@ -279,10 +278,10 @@ public class OperationSetBasicTelephonySipImpl
         catch (MediaException ex)
         {
             logger.error(
-                "Failed to parse sdp data while creating invite request!"
+                "Could not access media devices!"
                 , ex);
             throw new OperationFailedException(
-                "Failed to parse sdp data while creating invite request!"
+                "Could not access media devices!"
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }

@@ -80,7 +80,8 @@ public class DeviceConfiguration
     {
         logger.info("Scanning for configured Audio Devices.");
         Vector audioCaptureDevices = CaptureDeviceManager.getDeviceList(new
-                AudioFormat(AudioFormat.LINEAR, 44100, 16, 1));
+                AudioFormat(AudioFormat.LINEAR, 44100, 16, 
+                1));//1 means 1 channel for mono
         if (audioCaptureDevices.size() < 1) {
             logger.error("No Audio Device was found.");
             audioCaptureDevice = null;

@@ -31,8 +31,6 @@ public class StatusUpdateActivator implements BundleActivator
     private static Thread thread = null;
     private static StatusUpdateThread runner = null;
 
-    private ServiceRegistration menuRegistration;
-
     /**
      * Starts this bundle
      * 
@@ -43,6 +41,15 @@ public class StatusUpdateActivator implements BundleActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
+        
+
+        
+        // Set config form
+        StatusConfigForm statusCF = new StatusConfigForm();
+        bundleContext.registerService(ConfigurationForm.class.getName(),
+                statusCF,
+                null);
+        
         new Thread(new Runnable()
         {
 
@@ -58,7 +65,6 @@ public class StatusUpdateActivator implements BundleActivator
                 startThread();
             }
         }).start();
-        registerMenuEntry();
     }
 
     static void startThread()
@@ -104,7 +110,6 @@ public class StatusUpdateActivator implements BundleActivator
     public void stop(BundleContext bundleContext) throws Exception
     {
         stopThread();
-        unRegisterMenuEntry();
     }
 
     static void stopThread()
@@ -171,26 +176,4 @@ public class StatusUpdateActivator implements BundleActivator
 
         return (ConfigurationService) bundleContext.getService(confServiceRefs);
     }
-
-    private void registerMenuEntry()
-    {
-        SettingsWindowMenuEntry menuEntry = new SettingsWindowMenuEntry(
-                Container.CONTAINER_TOOLS_MENU);
-
-        Hashtable<String, String> toolsMenuFilter = new Hashtable<String, String>();
-        toolsMenuFilter.put(Container.CONTAINER_ID,
-                Container.CONTAINER_TOOLS_MENU.getID());
-
-        menuRegistration = bundleContext.registerService(PluginComponent.class
-                .getName(), menuEntry, toolsMenuFilter);
-    }
-
-    private void unRegisterMenuEntry()
-    {
-        if (menuRegistration != null)
-        {
-            menuRegistration.unregister();
-        }
-    }
-
 }
