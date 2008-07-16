@@ -15,13 +15,12 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
-import say.swing.*;
-
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
+import say.swing.*;
 
 /**
  * The <tt>EditTextToolBar</tt> is a <tt>JToolBar</tt> which contains
@@ -36,11 +35,6 @@ public class EditTextToolBar
     extends SIPCommToolBar
 {
     private Logger logger = Logger.getLogger(EditTextToolBar.class);
-
-    private Integer[] fontSizeConstants =
-        new Integer[]
-        { 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64,
-            72, 96, 144, 288 };
 
     private ChatWritePanel chatWritePanel;
 
@@ -62,6 +56,8 @@ public class EditTextToolBar
     private JToggleButton italicButton;
 
     private JToggleButton underlineButton;
+
+    private ColorLabel colorLabel;
 
     /**
      * Creates an instance and constructs the <tt>EditTextToolBar</tt>.
@@ -116,6 +112,8 @@ public class EditTextToolBar
                     fontChooser.setSelectedFontStyle(Font.ITALIC);
 
                 int result = fontChooser.showDialog(chatWritePanel);
+
+                chatEditorPane.requestFocus();
 
                 if (result == JFontChooser.OK_OPTION)
                 {
@@ -178,8 +176,6 @@ public class EditTextToolBar
                         if (italicButton.isSelected())
                             italicButton.doClick();
                     }
-
-                    chatEditorPane.requestFocus();
                 }
             }
         });
@@ -190,7 +186,7 @@ public class EditTextToolBar
      */
     private void initColorLabel()
     {
-        final ColorLabel colorLabel = new ColorLabel();
+        this.colorLabel = new ColorLabel();
         colorLabel.setPreferredSize(new Dimension(21, 21));
 
         colorLabel.setOpaque(true);
@@ -200,7 +196,7 @@ public class EditTextToolBar
 
         colorLabel.addMouseListener(new MouseAdapter()
         {
-            public void mousePressed(MouseEvent arg0)
+            public void mousePressed(MouseEvent event)
             {
                 Color newColor =
                     JColorChooser.showDialog(new JColorChooser(),
@@ -303,12 +299,17 @@ public class EditTextToolBar
     {
         final JToggleButton button = new JToggleButton();
         button.setPreferredSize(new Dimension(25, 25));
-
+        button.setName(styleConstant.toString());
         button.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                action.actionPerformed(e);
+                ActionEvent event = new ActionEvent(chatEditorPane,
+                                                    ActionEvent.ACTION_PERFORMED,
+                                                    styleConstant.toString());
+
+                action.actionPerformed(event);
+
                 chatEditorPane.requestFocus();
             }
         });
@@ -341,6 +342,7 @@ public class EditTextToolBar
                 selectButton(styleConstant, button);
             }
         });
+
         return button;
     }
 
