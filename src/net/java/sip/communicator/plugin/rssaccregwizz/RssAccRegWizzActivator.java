@@ -94,7 +94,7 @@ public class RssAccRegWizzActivator
 
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL
-            + "=" + "RSS" + ")";
+            + "=" + ProtocolNames.RSS + ")";
 
         try
         {

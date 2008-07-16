@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.rss;
 import java.util.*;
 
 import org.osgi.framework.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -29,6 +30,10 @@ public class ProtocolProviderFactoryRssImpl
      */
     private Hashtable registeredAccounts = new Hashtable();
 
+    /**
+     * Name for the auto-generated group for RSS feeds.
+     */
+    private String groupName = "RSS feeds";
 
     /**
      * Creates an instance of the ProtocolProviderFactoryRssImpl.
@@ -123,6 +128,9 @@ public class ProtocolProviderFactoryRssImpl
             , accountID);
 
         accountID = loadAccount(accountProperties);
+
+        // Create the default group for the RSS feeds.
+        this.createGroup();
 
         return accountID;
     }
@@ -277,6 +285,34 @@ public class ProtocolProviderFactoryRssImpl
     {
         // TODO Auto-generated method stub
         
+    }
+
+    /**
+     * Creates a default group for the RSS feeds.
+     */
+    private void createGroup()
+    {
+        BundleContext bundleContext = RssActivator.getBundleContext();
+
+        // Get MetaContactListService
+        ServiceReference mfcServiceRef = bundleContext
+            .getServiceReference(MetaContactListService.class.getName());
+
+        MetaContactListService mcl = (MetaContactListService)
+            bundleContext.getService(mfcServiceRef);
+        
+        try
+        {
+            mcl.createMetaContactGroup(mcl.getRoot(), groupName);
+        }
+        catch (MetaContactListException ex)
+        {
+            int errorCode = ex.getErrorCode();
+            if (errorCode != MetaContactListException.CODE_GROUP_ALREADY_EXISTS_ERROR)
+            {
+                logger.error(ex);
+            }
+        }
     }
 
 }
