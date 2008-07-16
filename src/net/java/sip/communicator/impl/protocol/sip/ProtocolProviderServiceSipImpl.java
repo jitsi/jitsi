@@ -2171,11 +2171,7 @@ public class ProtocolProviderServiceSipImpl
                         SipActivator.getVersionService().getCurrentVersion();
 
                 userAgentTokens.add(ver.getApplicationName());
-                userAgentTokens.add(
-                        ver.getVersionMajor() + "." + ver.getVersionMinor());
-
-                if(ver.isNightly())
-                    userAgentTokens.add(ver.getNightlyBuildID());
+                userAgentTokens.add(ver.toString());
 
                 String osName = System.getProperty("os.name");
                 userAgentTokens.add(osName);

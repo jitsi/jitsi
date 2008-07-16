@@ -512,12 +512,19 @@ public class MediaControl
             // 2. Changing to 60. When it is 30 there are some issues 
             // with asterisk and nat(we don't start to send stream and so
             // asterisk rtp part doesn't notice that we are behind nat)
+            // 3. Do not set buffer length on linux as it completely breaks 
+            // audio capture.
             Control ctl = (Control)
                 dataSource.getControl("javax.media.control.BufferControl");
 
             if(ctl != null)
             {
-                ((BufferControl)ctl).setBufferLength(60);//buffers in
+                
+                if(!System.getProperty("os.name")
+                    .toLowerCase().contains("linux"))
+                {
+                    ((BufferControl)ctl).setBufferLength(60);//buffers in ms
+                }
             }
 
             sourceProcessor = Manager.createProcessor(dataSource);
