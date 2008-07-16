@@ -70,6 +70,12 @@ public class ChatConversationPanel
 
     private JSeparator copyLinkSeparator = new JSeparator();
 
+    /**
+     * The backgroud of the ScrollPane. Used to load the image to be displayed
+     * in the background.
+     */
+    private ScrollPaneBackground scrollPaneBackground = new ScrollPaneBackground();
+
     /*
      * Tooltip on hyperlinks - JDK 1.5+
      * 
@@ -122,9 +128,15 @@ public class ChatConversationPanel
 
         this.setWheelScrollingEnabled(true);
 
-        this.setViewport(new ScrollPaneBackground());
-
-        this.chatEditorPane.setOpaque(false);
+        this.setViewport(this.scrollPaneBackground);
+        // As the JComponent.setOpaque(false) function slows down the display
+        // speed, we only set it when a custom image for the background exists.
+        // If there is no custom background image, we simply skip the
+        // JComponent.setOpaque(false) function call.
+        if(this.scrollPaneBackground.getBackgroundImage() != null)
+        {
+            this.chatEditorPane.setOpaque(false);
+        }
 
         this.getViewport().setView(chatEditorPane);
 
@@ -1144,9 +1156,13 @@ public class ChatConversationPanel
 
     private class ScrollPaneBackground extends JViewport
     {
-        BufferedImage bgImage;
+        /**
+         * The BufferedImage of the background. May be null when no custom
+         * background is set.
+         */
+        private BufferedImage bgImage;
 
-        TexturePaint texture;
+        private TexturePaint texture;
 
         public ScrollPaneBackground()
         {
@@ -1157,6 +1173,17 @@ public class ChatConversationPanel
 //                                bgImage.getHeight(null));
 
 //            texture = new TexturePaint(bgImage, rect);
+        }
+
+        /**
+         * Returns the instance of the BufferedImage used for the background of
+         * the ScrollPane.
+         * @return The BufferedImage of the ScrollPane. NULL is returned when
+         * the image does not exists.
+         */
+        public BufferedImage getBackgroundImage()
+        {
+            return this.bgImage;
         }
 
         public void paintComponent(Graphics g)
@@ -1186,7 +1213,14 @@ public class ChatConversationPanel
 
         public void setView(JComponent view)
         {
-            view.setOpaque(false);
+            // As the JComponent.setOpaque(false) function slows down the display
+            // speed, we only set it when a custom image for the background exists.
+            // If there is no custom background image, we simply skip the
+            // JComponent.setOpaque(false) function call.
+            if(this.getBackgroundImage() != null)
+            {
+                view.setOpaque(false);
+            }
             super.setView(view);
         }
     }

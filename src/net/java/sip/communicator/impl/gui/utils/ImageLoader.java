@@ -1072,7 +1072,9 @@ public class ImageLoader {
             URL path = GuiActivator.getResources().getImageURL(imageID.getId());
 
             if (path == null)
+            {
                 return null;
+            }
 
             try
             {
