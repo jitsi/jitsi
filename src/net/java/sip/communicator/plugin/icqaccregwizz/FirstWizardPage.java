@@ -162,7 +162,7 @@ public class FirstWizardPage
         uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("uinAndPassword")));
+            .getString("aimUinAndPassword")));
 
         mainPanel.add(uinPassPanel);
 
