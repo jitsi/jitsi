@@ -96,7 +96,7 @@ public class UpdateCheckActivator
             dialogMsg += 
                 getResources().getI18NString(
                 "dialogMessage2",
-                new String[]{getResources().getSettingsString("applicationName")});
+                new String[]{getResources().getSettingsString("applicationName"), lastVersion});
         
         contentMessage.setText(dialogMsg);
 

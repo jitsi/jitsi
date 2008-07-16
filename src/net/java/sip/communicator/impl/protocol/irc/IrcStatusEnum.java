@@ -97,20 +97,7 @@ public class IrcStatusEnum
      */
     public static byte[] loadIcon(String imagePath)
     {
-        InputStream is = IrcStatusEnum.class.getClassLoader()
-            .getResourceAsStream(imagePath);
-
-        byte[] icon = null;
-        try
-        {
-            icon = new byte[is.available()];
-            is.read(icon);
-        }
-        catch (IOException exc)
-        {
-            logger.error("Failed to load icon: " + imagePath, exc);
-        }
-        return icon;
+        return ProtocolIconIrcImpl.loadIcon(imagePath);
     }
 
 }

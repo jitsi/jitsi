@@ -311,28 +311,7 @@ public class ContactRssImpl
     {
         logger.trace("Loading default icon at " + defaultIconPath);
 
-        InputStream is = ContactRssImpl.class.getClassLoader()
-                .getResourceAsStream(defaultIconPath);
-
-        byte[] result = null;
-
-        //if something happened and the resource isn't at the specified location
-        //(messed jar-s, wrong filename, etc.) just return now
-        if (is == null)
-            return result;
-        try
-        {
-            logger.trace("Icon is "+is.available() + " bytes long");
-            result = new byte[is.available()];
-            is.read(result);
-        }
-        catch (IOException ioex)
-        {
-            logger.error("Error loading default icon at" + defaultIconPath,
-                         ioex);
-        }
-        return result;
-
+        return ProtocolIconRssImpl.loadIcon(defaultIconPath);
     }
 
     /**
