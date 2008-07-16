@@ -117,7 +117,7 @@ public class JabberAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(   Resources.getString("username"),
+        summaryTable.put(   Resources.getString("jabberUsername"),
                             registration.getUserID());
 
         summaryTable.put(   Resources.getString("rememberPassword"),

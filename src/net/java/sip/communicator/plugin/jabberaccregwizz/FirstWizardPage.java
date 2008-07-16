@@ -44,7 +44,7 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new JPanel();
 
-    private JLabel userIDLabel = new JLabel(Resources.getString("username"));
+    private JLabel userIDLabel = new JLabel(Resources.getString("jabberUsername"));
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
