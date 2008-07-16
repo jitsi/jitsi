@@ -10,7 +10,7 @@ import java.io.*;
 import javax.media.*;
 
 /**
- * Overrides the ULaw Packetizer witt a different packet size
+ * Overrides the ULaw Packetizer with a different packet size
  * @author Thomas Hofer
  */
 public class Packetizer 
