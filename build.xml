@@ -733,8 +733,6 @@
                 prefix="net/java/sip/communicator/service/configuration"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/configuration"
                 prefix="net/java/sip/communicator/impl/configuration" />
-            <zipfileset dir="${resources}/config" includes="defaults.properties"
-                prefix="resources/config"/>
         </jar>
     </target>
 
@@ -1157,6 +1155,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/googletalkaccregwizz/googletalkaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/googletalkaccregwizz"
                 prefix="net/java/sip/communicator/plugin/googletalkaccregwizz"/>
+            <zipfileset dir="${resources}/images/protocol/googletalk"
+                prefix="resources/images/protocol/googletalk"/>
         </jar>
     </target>
 
@@ -1218,8 +1218,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/version/version.impl.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/version"
                 prefix="net/java/sip/communicator/impl/version"/>
-            <zipfileset dir="${resources}" includes="application.properties"
-                prefix="resources"/>
         </jar>
     </target>
 
@@ -1585,8 +1583,6 @@ javax.swing.event, javax.swing.border"/>
                     prefix="resources/sounds"/>
             <zipfileset dir="${resources}/styles"
                     prefix="resources/styles"/>
-            <zipfileset dir="${resources}" includes="sounds.properties"
-                    prefix="resources"/>
         </jar>
     </target>
     
