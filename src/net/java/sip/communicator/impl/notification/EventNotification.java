@@ -157,7 +157,7 @@ public class EventNotification
     }
 
     /**
-     * Activates or desactivates this event notification.
+     * Activates or deactivates this event notification.
      * 
      * @param isActive indicates if this event notification is active
      */

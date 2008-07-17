@@ -353,13 +353,13 @@ public interface NotificationService
     public void fireNotification(String eventType);
 
     /**
-     * Activates or desactivates all notification actions related to the
+     * Activates or deactivates all notification actions related to the
      * specified <tt>eventType</tt>. This method does nothing if the given
      * <tt>eventType</tt> is not contained in the list of registered event types.
      * 
      * @param eventType the name of the event, which actions should be activated
-     * /desactivated. 
-     * @param isActive indicates whether to activate or desactivate the actions
+     * /deactivated. 
+     * @param isActive indicates whether to activate or deactivate the actions
      * related to the specified <tt>eventType</tt>.
      */
     public void setActive(String eventType, boolean isActive);
