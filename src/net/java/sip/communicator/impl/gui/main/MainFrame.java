@@ -37,6 +37,7 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.keybindings.*;
 
 import org.osgi.framework.*;
 
@@ -136,12 +137,10 @@ public class MainFrame
      */
     private void init()
     {
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0),
-                new RenameAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
-            KeyEvent.ALT_DOWN_MASK), new ForwordTabAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
-            KeyEvent.ALT_DOWN_MASK), new BackwordTabAction());
+        this.setKeybindingInput(KeybindingSet.Category.MAIN);
+        this.addKeybindingAction("main-rename", new RenameAction());
+        this.addKeybindingAction("main-nextTab", new ForwordTabAction());
+        this.addKeybindingAction("main-previousTab", new BackwordTabAction());
 
         this.contactListPanel.add(tabbedPane, BorderLayout.CENTER);
         this.contactListPanel.add(callManager, BorderLayout.SOUTH);

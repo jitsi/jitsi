@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -51,10 +52,12 @@ public class GuiActivator implements BundleActivator
     private static BrowserLauncherService browserLauncherService;
 
     private static NotificationService notificationService;
-    
+
     private static SystrayService systrayService;
     
     private static ResourceManagementService resourcesService;
+
+    private static KeybindingsService keybindingsService;
 
     private static Map providerFactoriesMap = new Hashtable();
 
@@ -307,7 +310,26 @@ public class GuiActivator implements BundleActivator
 
         return systrayService;
     }
-    
+
+    /**
+     * Returns the <tt>KeybindingsService</tt> obtained from the bundle context.
+     * 
+     * @return the <tt>KeybindingsService</tt> obtained from the bundle context
+     */
+    public static KeybindingsService getKeybindingsService()
+    {
+        if (keybindingsService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(KeybindingsService.class.getName());
+
+            keybindingsService = (KeybindingsService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return keybindingsService;
+    }
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
@@ -324,7 +346,7 @@ public class GuiActivator implements BundleActivator
 
         return resourcesService;
     }
-    
+
     /**
      * Returns the <tt>NotificationService</tt> obtained from the bundle context.
      * 

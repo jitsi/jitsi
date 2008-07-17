@@ -24,6 +24,7 @@ import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -119,26 +120,14 @@ public class ChatWindow
 
         this.initPluginComponents();
 
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
-            KeyEvent.ALT_DOWN_MASK), new ForwordTabAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
-            KeyEvent.ALT_DOWN_MASK), new BackwordTabAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
-            KeyEvent.CTRL_DOWN_MASK), new CopyAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
-            KeyEvent.SHIFT_DOWN_MASK), new PasteAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-            KeyEvent.META_MASK), new CopyAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-            KeyEvent.META_MASK), new PasteAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_M,
-            KeyEvent.CTRL_DOWN_MASK), new OpenSmileyAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_H,
-            KeyEvent.CTRL_DOWN_MASK), new OpenHistoryAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-            KeyEvent.META_MASK), new CloseAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-            KeyEvent.CTRL_DOWN_MASK), new CloseAction());
+        this.setKeybindingInput(KeybindingSet.Category.CHAT);
+        this.addKeybindingAction("chat-nextTab", new ForwordTabAction());
+        this.addKeybindingAction("chat-previousTab", new BackwordTabAction());
+        this.addKeybindingAction("chat-copy", new CopyAction());
+        this.addKeybindingAction("chat-paste", new PasteAction());
+        this.addKeybindingAction("chat-openSmilies", new OpenSmileyAction());
+        this.addKeybindingAction("chat-openHistory", new OpenHistoryAction());
+        this.addKeybindingAction("chat-close", new CloseAction());
 
         this.addWindowListener(new ChatWindowAdapter());
     }

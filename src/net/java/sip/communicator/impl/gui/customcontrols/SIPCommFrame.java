@@ -15,15 +15,19 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.keybindings.*;
+import java.util.*;
 
 public abstract class SIPCommFrame
     extends JFrame
+    implements Observer
 {
     private Logger logger = Logger.getLogger(SIPCommFrame.class);
-    
+
     ActionMap amap;
     InputMap imap;
-    
+    KeybindingSet bindings = null;
+
     public SIPCommFrame()
     {
         this.setIconImage(
@@ -41,8 +45,6 @@ public abstract class SIPCommFrame
 
         imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
     /**
@@ -58,21 +60,45 @@ public abstract class SIPCommFrame
     }
     
     /**
-     * Adds a key - action pair for this frame.
-     * 
-     * @param keyStroke the key combination
-     * @param action the action which will be executed when user presses the
-     * given key combination
+     * Sets the input map to utilize a given category of keybindings. The frame
+     * is updated to reflect the new bindings when they change. This replaces
+     * any previous bindings that have been added.
+     * @param category set of keybindings to be utilized
      */
-    protected void addKeyBinding(KeyStroke keyStroke, Action action)
+    protected void setKeybindingInput(KeybindingSet.Category category)
     {
-        String actionID = action.getClass().getName();
-        
-        amap.put(actionID, action);
-        
-        imap.put(keyStroke, actionID);
+        // Removes old binding set
+        if (this.bindings != null)
+        {
+            this.bindings.deleteObserver(this);
+            resetInputMap();
+        }
+
+        // Adds new bindings to input map
+        KeybindingsService service = GuiActivator.getKeybindingsService();
+        this.bindings = service.getBindings(category);
+        for (KeyStroke key : this.bindings.getBindings().keySet())
+        {
+            String action = this.bindings.getBindings().get(key);
+        imap.put(key, action);
+        }
+
+        this.bindings.addObserver(this);
+
     }
     
+    /**
+    * Bindings the string representation for a keybinding to the action that
+    * will be executed.
+    * @param binding string representation of action used by input map
+    * @param action the action which will be executed when user presses the
+    *            given key combination
+    */
+    protected void addKeybindingAction(String binding, Action action)
+    {
+        amap.put(binding, action);
+    }
+
     /**
      * Before closing the application window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
@@ -95,27 +121,29 @@ public abstract class SIPCommFrame
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-    
+
         String className = this.getClass().getName();
-                
-        try {
+
+        try
+        {
             configService.setProperty(
                 className + ".width",
                 new Integer(getWidth()));
-    
+
             configService.setProperty(
                 className + ".height",
                 new Integer(getHeight()));
-    
+
             configService.setProperty(
                 className + ".x",
                 new Integer(getX()));
-    
+
             configService.setProperty(
                 className + ".y",
                 new Integer(getY()));
         }
-        catch (PropertyVetoException e1) {
+        catch (PropertyVetoException e1)
+        {
             logger.error("The proposed property change "
                     + "represents an unacceptable value");
         }
@@ -257,7 +285,7 @@ public abstract class SIPCommFrame
      */
     public void setVisible(boolean isVisible)
     {
-        if(isVisible)
+        if (isVisible)
         {
             this.pack();
             this.setSizeAndLocation();
@@ -278,7 +306,29 @@ public abstract class SIPCommFrame
         
         super.dispose();
     }
-    
+
+    private void resetInputMap()
+    {
+        imap.clear();
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+    }
+
+    // Listens for changes in binding sets so they can be reflected in the input
+    // map
+    public void update(Observable obs, Object arg)
+    {
+        if (obs instanceof KeybindingSet)
+        {
+            KeybindingSet changedBindings = (KeybindingSet) obs;
+            resetInputMap();
+            for (KeyStroke binding : changedBindings.getBindings().keySet())
+            {
+                String action = changedBindings.getBindings().get(binding);
+                imap.put(binding, action);
+            }
+        }
+    }
+
     /**
      * All functions implemented in this method will be invoked when user
      * presses the Escape key. 

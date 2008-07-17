@@ -1,0 +1,5 @@
+Image Sources:
+pluginIcon.png -
+NuoveXT by Alexandre Moore (http://nuovext.pwsp.net/)
+Available under the GPLv2
+Originally 'gnome-settings-keybindings.png'
