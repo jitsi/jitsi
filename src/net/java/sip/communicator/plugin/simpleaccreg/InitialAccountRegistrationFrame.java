@@ -237,12 +237,19 @@ public class InitialAccountRegistrationFrame
 
             this.inputRegisterPanel.add(inputPanel, BorderLayout.NORTH);
 
-            if (wizard.isWebSignupSupported() && isPreferredWizard)
-                this.inputRegisterPanel.add(
-                    specialSignupLabel, BorderLayout.SOUTH);
-            else
-                this.inputRegisterPanel.add(
-                    signupLabel, BorderLayout.SOUTH);
+            if (wizard.isWebSignupSupported())
+            {
+                if (isPreferredWizard)
+                {
+                    this.inputRegisterPanel.add(
+                            specialSignupLabel, BorderLayout.SOUTH);
+                }
+                else
+                {
+                    this.inputRegisterPanel.add(
+                            signupLabel, BorderLayout.SOUTH);
+                }
+            }
 
             this.inputPanel.add(labelsPanel, BorderLayout.WEST);
 
