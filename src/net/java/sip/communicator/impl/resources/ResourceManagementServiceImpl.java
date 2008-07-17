@@ -310,6 +310,11 @@ public class ResourceManagementServiceImpl
         }
         return getImageURLForPath(path);
     }
+    
+    public String getImagePath(String key)
+    {
+        return findString(key, imageResourceBundle);
+    }
 
     public URL getImageURLForPath(String path)
     {
