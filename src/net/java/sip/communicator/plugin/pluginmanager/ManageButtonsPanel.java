@@ -29,8 +29,8 @@ public class ManageButtonsPanel
 {
     private Logger logger = Logger.getLogger(ManageButtonsPanel.class);
 
-    private JButton desactivateButton = new JButton(
-            Resources.getString("desactivate"));
+    private JButton deactivateButton = new JButton(
+            Resources.getString("deactivate"));
 
     private JButton activateButton = new JButton(
             Resources.getString("activate"));
@@ -79,7 +79,7 @@ public class ManageButtonsPanel
 
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(activateButton);
-        this.buttonsPanel.add(desactivateButton);
+        this.buttonsPanel.add(deactivateButton);
         this.buttonsPanel.add(uninstallButton);
         this.buttonsPanel.add(updateButton);
         this.buttonsPanel.add(showSysBundlesCheckBox);
@@ -88,7 +88,7 @@ public class ManageButtonsPanel
 
         this.newButton.addActionListener(this);
         this.activateButton.addActionListener(this);
-        this.desactivateButton.addActionListener(this);
+        this.deactivateButton.addActionListener(this);
         this.uninstallButton.addActionListener(this);
         this.updateButton.addActionListener(this);
     }
@@ -132,7 +132,7 @@ public class ManageButtonsPanel
                 }
             }
         }
-        else if(sourceButton.equals(desactivateButton))
+        else if(sourceButton.equals(deactivateButton))
         {
             int[] selectedRows = pluginTable.getSelectedRows();
             
@@ -208,14 +208,14 @@ public class ManageButtonsPanel
     }
     
     /**
-     * Enable or disable the desactivate button.
+     * Enable or disable the deactivate button.
      * 
-     * @param enable TRUE - to enable the desactivate button, FALSE - to
+     * @param enable TRUE - to enable the deactivate button, FALSE - to
      * disable it
      */
-    public void enableDesactivateButton(boolean enable)
+    public void enableDeactivateButton(boolean enable)
     {
-        this.desactivateButton.setEnabled(enable);
+        this.deactivateButton.setEnabled(enable);
     }
     
     /**

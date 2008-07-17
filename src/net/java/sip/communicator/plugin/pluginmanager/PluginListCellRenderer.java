@@ -151,7 +151,7 @@ public class PluginListCellRenderer extends JPanel
             case Bundle.INSTALLED:
                 return Resources.getImage("installedStateIcon");
             case Bundle.RESOLVED:
-                return Resources.getImage("desactivatedStateIcon");
+                return Resources.getImage("deactivatedStateIcon");
             case Bundle.STARTING:
                 return Resources.getImage("startingStateIcon");
             case Bundle.ACTIVE:

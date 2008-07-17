@@ -104,16 +104,16 @@ public class PluginManagerConfigForm
             if(selectedBundle.getState() == Bundle.ACTIVE)
             {   
                 if(sysBundleProp != null && sysBundleProp.equals("yes"))
-                    buttonsPanel.enableDesactivateButton(false);
+                    buttonsPanel.enableDeactivateButton(false);
                 else
-                    buttonsPanel.enableDesactivateButton(true);
+                    buttonsPanel.enableDeactivateButton(true);
                 
                 buttonsPanel.enableActivateButton(false);
             }
             else
             {  
                 buttonsPanel.enableActivateButton(true);
-                buttonsPanel.enableDesactivateButton(false);
+                buttonsPanel.enableDeactivateButton(false);
             }
         }
     }
