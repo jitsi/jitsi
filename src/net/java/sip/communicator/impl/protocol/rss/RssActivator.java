@@ -7,9 +7,11 @@
 package net.java.sip.communicator.impl.protocol.rss;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.util.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Loads the Rss provider factory and registers its services in the OSGI
@@ -41,6 +43,10 @@ public class RssActivator
      */
     static BundleContext bundleContext = null;
 
+    /**
+     * The <tt>ResourceManagementService</tt>.
+     */
+    private static ResourceManagementService resourcesService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -119,5 +125,26 @@ public class RssActivator
         this.rssProviderFactory.stop();
         rssPpFactoryServReg.unregister();
         logger.info("RSS protocol implementation [STOPPED].");
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     * @return the <tt>ResourceManagementService</tt>.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }
