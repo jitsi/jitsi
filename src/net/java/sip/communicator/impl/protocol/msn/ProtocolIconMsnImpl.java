@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -29,10 +30,10 @@ public class ProtocolIconMsnImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            loadIcon("resources/images/protocol/msn/msn16x16.png"));
+            getImageInBytes("protocolIconMsn"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/protocol/msn/msn64x64.png"));
+            getImageInBytes("pageImageMsn"));
     }
  
     /**
@@ -68,25 +69,36 @@ public class ProtocolIconMsnImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/protocol/msn/msn16x16-connecting.gif");
+        return getImageInBytes("msnConnectingIcon");
     }
     
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The identifier of the image.
-     * @return The image for the given identifier.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath) {
-        InputStream is = 
-            MsnActivator.getResources().getImageInputStreamForPath(imagePath);
-        
-        byte[] icon = null;
-        try {
-            icon = new byte[is.available()];
-            is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
+    private static byte[] getImageInBytes(String imageID) 
+    {
+        InputStream in = DictActivator.getResources().
+            getImageInputStream(imageID);
+
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
         }
-        return icon;
-    }    
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
+    }
 }

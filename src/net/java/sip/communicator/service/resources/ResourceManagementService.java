@@ -32,7 +32,6 @@ public interface ResourceManagementService
      * @return The color value as String.
      */
     public String getColorString(String key);
-    
 
     /**
      * Loads a stream from a given path.

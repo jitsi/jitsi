@@ -32,7 +32,7 @@ public class DictStatusEnum
         = new DictStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/protocol/dict/dict-16x16.png"));
+            , getImageInBytes("dictProtocolIcon"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -42,7 +42,7 @@ public class DictStatusEnum
         = new DictStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/protocol/dict/dict-16x16.png"));
+            , getImageInBytes("dictProtocolIcon"));
 
     /**
      * Initialize the list of supported status states.
@@ -80,26 +80,32 @@ public class DictStatusEnum
     }
 
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The path to the image resource.
-     * @return The image extracted from the resource at the specified path.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath)
+    public static byte[] getImageInBytes(String imageID) 
     {
-        InputStream is = 
-            ProtocolIconDictImpl.getResources().getImageInputStreamForPath(imagePath);
-        
-        byte[] icon = null;
-        try
-        {
-            icon = new byte[is.available()];
-            is.read(icon);
-        }
-        catch (IOException exc)
-        {
-            logger.error("Failed to load icon: " + imagePath, exc);
-        }
-        return icon;
-    }
+        InputStream in = DictActivator.getResources().
+            getImageInputStream(imageID);
 
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
+        }
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
+    }
 }

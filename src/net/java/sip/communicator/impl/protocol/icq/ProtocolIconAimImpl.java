@@ -33,10 +33,10 @@ public class ProtocolIconAimImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/protocol/aim/aim16x16-online.png"));
+            getImageInBytes("protocolIconAim"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/protocol/aim/aim64x64.png"));
+            getImageInBytes("pageImageAim"));
     }
  
     /**
@@ -72,28 +72,39 @@ public class ProtocolIconAimImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/protocol/aim/cr16-action-aim_connecting.gif");
+        return getImageInBytes("aimConnectingIcon");
     }
     
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The identifier of the image.
-     * @return The image for the given identifier.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath)
+    private static byte[] getImageInBytes(String imageID) 
     {
-        InputStream is = getResources().getImageInputStreamForPath(imagePath);
+        InputStream in = getResources().
+            getImageInputStream(imageID);
 
-        byte[] icon = null;
-        try {
-            icon = new byte[is.available()];
-            is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
         }
-        return icon;
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

@@ -44,7 +44,7 @@ public class ContactRssImpl
     /**
      * The path within the bundle for the default RSS 64x64 icon.
      */
-    private String defaultIconPath = "resources/images/protocol/rss/rss64x64.png";
+    private String defaultIconId = "pageImageRss";
 
     /***
      * Stores the contact's display image to avoid downloading it multiple times.
@@ -309,9 +309,9 @@ public class ContactRssImpl
      */
     private byte[] getDefaultRssIcon()
     {
-        logger.trace("Loading default icon at " + defaultIconPath);
+        logger.trace("Loading default icon at " + defaultIconId);
 
-        return ProtocolIconRssImpl.loadIcon(defaultIconPath);
+        return ProtocolIconRssImpl.getImageInBytes(defaultIconId);
     }
 
     /**

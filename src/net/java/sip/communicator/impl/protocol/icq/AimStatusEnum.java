@@ -29,7 +29,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum ONLINE
         = new AimStatusEnum(65, "Online",
-                loadIcon("resources/images/protocol/aim/aim16x16-online.png"));
+                getImageInBytes("protocolIconAim"));
 
     /**
      * The Invisible AIM status. Indicates that the user has connectivity even
@@ -38,7 +38,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum INVISIBLE
         = new AimStatusEnum(45, "Invisible",
-                loadIcon("resources/images/protocol/aim/aim16x16-invisible.png"));
+                getImageInBytes("aimInvisibleIcon"));
 
     /**
      * The Away AIM status. Indicates that the user has connectivity but might
@@ -46,7 +46,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum AWAY
         = new AimStatusEnum(40, "Away",
-                loadIcon("resources/images/protocol/aim/aim16x16-away.png"));
+                getImageInBytes("aimAwayIcon"));
 
     /**
      * The Offline AIM status. Indicates the user does not seem to be connected
@@ -54,7 +54,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum OFFLINE
         = new AimStatusEnum(0, "Offline",
-                loadIcon("resources/images/protocol/aim/aim16x16-offline.png"));
+                getImageInBytes("aimOfflineIcon"));
 
     /**
      * The minimal set of states that any AIM implementation must support.
@@ -77,13 +77,34 @@ public class AimStatusEnum
     {
         super(status, statusName, statusIcon);
     }
-    
+
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The identifier of the image.
-     * @return The image for the given identifier.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath) {
-        return ProtocolIconAimImpl.loadIcon(imagePath);
+    private static byte[] getImageInBytes(String imageID) 
+    {
+        InputStream in = IcqActivator.getResources().
+            getImageInputStream(imageID);
+
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
+        }
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
     }
 }

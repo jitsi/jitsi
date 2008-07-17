@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -35,10 +36,10 @@ public class ProtocolIconIrcImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/protocol/irc/cr16-action-irc_online.png"));
+            getImageInBytes("protocolIconIrc"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/protocol/irc/cr32-app-irc_protocol.png"));
+            getImageInBytes("irc64x64Icon"));
     }
  
     /**
@@ -74,28 +75,39 @@ public class ProtocolIconIrcImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/protocol/irc/cr16-action-irc_connecting-1.gif");
+        return getImageInBytes("ircConnectingIcon");
     }
     
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The identifier of the image.
-     * @return The image for the given identifier.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath)
+    public static byte[] getImageInBytes(String imageID) 
     {
-        InputStream is = getResources().getImageInputStreamForPath(imagePath);
+        InputStream in = DictActivator.getResources().
+            getImageInputStream(imageID);
 
-        byte[] icon = null;
-        try {
-            icon = new byte[is.available()];
-            is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
         }
-        return icon;
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

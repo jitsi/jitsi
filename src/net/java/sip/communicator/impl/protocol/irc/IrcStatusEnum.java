@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import java.io.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that enumerates all states that
@@ -32,7 +33,7 @@ public class IrcStatusEnum
         = new IrcStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/protocol/irc/cr16-action-irc_offline.png"));
+            , getImageInBytes("ircOfflineIcon"));
 
     /**
      * The Away status. Indicates that the user has connectivity but might
@@ -42,7 +43,7 @@ public class IrcStatusEnum
         = new IrcStatusEnum(
             40
             , "Away"
-            , loadIcon("resources/images/protocol/gibberish/gibberish-away.png"));
+            , getImageInBytes("ircAwayIcon"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -52,7 +53,7 @@ public class IrcStatusEnum
         = new IrcStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/protocol/irc/cr16-action-irc_online.png"));
+            , getImageInBytes("protocolIconIrc"));
 
     /**
      * Initialize the list of supported status states.
@@ -91,13 +92,32 @@ public class IrcStatusEnum
     }
 
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The path to the image resource.
-     * @return The image extracted from the resource at the specified path.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath)
+    private static byte[] getImageInBytes(String imageID) 
     {
-        return ProtocolIconIrcImpl.loadIcon(imagePath);
-    }
+        InputStream in = DictActivator.getResources().
+            getImageInputStream(imageID);
 
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
+        }
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
+    }
 }

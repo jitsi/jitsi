@@ -7,9 +7,11 @@
 package net.java.sip.communicator.impl.protocol.gibberish;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.util.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Loads the Gibberish provider factory and registers its services in the OSGI
@@ -40,6 +42,7 @@ public class GibberishActivator
      */
     static BundleContext bundleContext = null;
 
+    private static ResourceManagementService resourceService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -113,5 +116,22 @@ public class GibberishActivator
         this.gibberishProviderFactory.stop();
         gibberishPpFactoryServReg.unregister();
         logger.info("Gibberish protocol implementation [STOPPED].");
+    }
+    
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourceService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourceService;
     }
 }

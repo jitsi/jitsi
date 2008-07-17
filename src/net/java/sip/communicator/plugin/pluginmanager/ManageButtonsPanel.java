@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -26,63 +27,65 @@ public class ManageButtonsPanel
     extends JPanel
     implements ActionListener
 {
+    private Logger logger = Logger.getLogger(ManageButtonsPanel.class);
+
     private JButton desactivateButton = new JButton(
             Resources.getString("desactivate"));
-    
+
     private JButton activateButton = new JButton(
             Resources.getString("activate"));
-    
+
     private JButton uninstallButton = new JButton(
             Resources.getString("uninstall"));
-    
+
     private JButton updateButton = new JButton(
             Resources.getString("update"));
-    
+
     private JButton newButton = new JButton(Resources.getString("new"));
-    
+
     private JCheckBox showSysBundlesCheckBox = new JCheckBox(
             Resources.getString("showSystemBundles"));
-    
+
     private JPanel buttonsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
-    
+
     private JTable pluginTable;
-    
+
     public ManageButtonsPanel(JTable pluginTable)
     {
         this.pluginTable = pluginTable;
         
         this.setLayout(new BorderLayout());
-    
+
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        
+
         //Obtains previously saved value for the showSystemBundles check box.
         String showSystemBundlesProp = PluginManagerActivator
             .getConfigurationService().getString(
             "net.java.sip.communicator.plugin.pluginManager.showSystemBundles");
-        
+
         if(showSystemBundlesProp != null)
         {
             boolean isShowSystemBundles
                 = new Boolean(showSystemBundlesProp).booleanValue();
-            
+
             this.showSysBundlesCheckBox.setSelected(isShowSystemBundles);
-            
+
             ((PluginTableModel)pluginTable.getModel())
                 .setShowSystemBundles(isShowSystemBundles);
         }
-        
+
         this.showSysBundlesCheckBox
             .addChangeListener(new ShowSystemBundlesChangeListener());
-        
+
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(activateButton);
         this.buttonsPanel.add(desactivateButton);
         this.buttonsPanel.add(uninstallButton);
         this.buttonsPanel.add(updateButton);
         this.buttonsPanel.add(showSysBundlesCheckBox);
-        
+
         this.add(buttonsPanel, BorderLayout.NORTH);
-        
+
         this.newButton.addActionListener(this);
         this.activateButton.addActionListener(this);
         this.desactivateButton.addActionListener(this);
@@ -97,7 +100,7 @@ public class ManageButtonsPanel
         if(sourceButton.equals(newButton))
         {
             NewBundleDialog dialog = new NewBundleDialog();
-            
+
             dialog.pack();
             dialog.setLocation(
                     Toolkit.getDefaultToolkit().getScreenSize().width/2
@@ -105,13 +108,13 @@ public class ManageButtonsPanel
                     Toolkit.getDefaultToolkit().getScreenSize().height/2
                         - dialog.getHeight()/2
                     );
-            
+
             dialog.setVisible(true);
         }
         else if(sourceButton.equals(activateButton))
         {
             int[] selectedRows = pluginTable.getSelectedRows();
-            
+
             for (int i = 0; i < selectedRows.length; i++)
             {
                 try
@@ -121,6 +124,8 @@ public class ManageButtonsPanel
                 }
                 catch (BundleException ex)
                 {
+                    logger.error("Failed to activate bundle.", ex);
+
                     PluginManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
                             PopupDialog.ERROR_MESSAGE);
@@ -140,6 +145,8 @@ public class ManageButtonsPanel
                 }
                 catch (BundleException ex)
                 {
+                    logger.error("Failed to desactivate bundle.", ex);
+
                     PluginManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
                         PopupDialog.ERROR_MESSAGE);
@@ -159,6 +166,8 @@ public class ManageButtonsPanel
                 }
                 catch (BundleException ex)
                 {
+                    logger.error("Failed to uninstall bundle.", ex);
+
                     PluginManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
                         PopupDialog.ERROR_MESSAGE);
@@ -178,6 +187,8 @@ public class ManageButtonsPanel
                 }
                 catch (BundleException ex)
                 {
+                    logger.error("Failed to update bundle.", ex);
+
                     PluginManagerActivator.getUIService().getPopupDialog()
                     .showMessagePopupDialog(ex.getMessage(), "Error",
                         PopupDialog.ERROR_MESSAGE);

@@ -206,7 +206,7 @@ public class ImageLoader {
      * ============================APPLICATION ICONS =========================
      * -----------------------------------------------------------------------
      */
-    
+
     /**
      * The background of the main window and chat window.
      */

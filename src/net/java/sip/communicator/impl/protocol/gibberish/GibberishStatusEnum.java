@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.gibberish;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import java.io.*;
@@ -31,7 +32,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/protocol/gibberish/gibberish-offline.png"));
+            , getImageInBytes("gibberishOfflineIcon"));
 
     /**
      * An Occupied status. Indicates that the user has connectivity and
@@ -41,7 +42,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             20
             , "Occupied"
-            , loadIcon("resources/images/protocol/gibberish/gibberish-occupied.png"));
+            , getImageInBytes("gibberishOccupiedIcon"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -49,9 +50,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum DO_NOT_DISTURB
         = new GibberishStatusEnum(
-            30
-            , "Do Not Disturb",
-            loadIcon("resources/images/protocol/gibberish/gibberish-dnd.png"));
+            30,
+            "Do Not Disturb",
+            getImageInBytes("gibberishDndIcon"));
 
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -63,7 +64,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             35
             , "Not Available"
-            , loadIcon("resources/images/protocol/gibberish/gibberish-na.png"));
+            , getImageInBytes("gibberishNaIcon"));
 
     /**
      * The Away status. Indicates that the user has connectivity but might
@@ -73,7 +74,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             40
             , "Away"
-            , loadIcon("resources/images/protocol/gibberish/gibberish-away.png"));
+            , getImageInBytes("gibberishAwayIcon"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -84,7 +85,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             45
             , "Invisible"
-            , loadIcon( "resources/images/protocol/gibberish/gibberish-invisible.png"));
+            , getImageInBytes("gibberishInvisibleIcon"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -94,7 +95,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/protocol/gibberish/gibberish-online.png"));
+            , getImageInBytes("gibberishOnlineIcon"));
 
     /**
      * The Free For Chat status. Indicates that the user is eager to
@@ -104,7 +105,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             85
             , "Free For Chat"
-            , loadIcon("resources/images/protocol/gibberish/gibberish-ffc.png"));
+            , getImageInBytes("gibberishFfcIcon"));
 
     /**
      * Initialize the list of supported status states.
@@ -148,13 +149,32 @@ public class GibberishStatusEnum
     }
 
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The path to the image resource.
-     * @return The image extracted from the resource at the specified path.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath)
+    private static byte[] getImageInBytes(String imageID) 
     {
-        return ProtocolIconGibberishImpl.loadIcon(imagePath);
-    }
+        InputStream in = DictActivator.getResources().
+            getImageInputStream(imageID);
 
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
+        }
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
+    }
 }

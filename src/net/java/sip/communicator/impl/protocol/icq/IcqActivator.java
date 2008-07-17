@@ -3,8 +3,10 @@ package net.java.sip.communicator.impl.protocol.icq;
 import java.util.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Loads the  ICQ provider factory and registers it with  service in the OSGI
@@ -22,6 +24,8 @@ public class IcqActivator
 
     private static ProtocolProviderFactoryIcqImpl icqProviderFactory = null;
     private static ProtocolProviderFactoryIcqImpl aimProviderFactory = null;
+
+    private static ResourceManagementService resourceService;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -132,5 +136,27 @@ public class IcqActivator
         icqPpFactoryServReg.unregister();
         
         aimPpFactoryServReg.unregister();
+    }
+    
+    /**
+     * Returns an instance of the <tt>ResourceManagementService<tt>.
+     * 
+     * @return an instance of the <tt>ResourceManagementService<tt>.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourceService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourceService;
     }
 }

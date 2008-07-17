@@ -7,9 +7,11 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.util.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Loads the IRC provider factory and registers its services in the OSGI
@@ -41,6 +43,7 @@ public class IrcActivator
      */
     public static BundleContext bundleContext = null;
 
+    private static ResourceManagementService resourceService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -100,5 +103,27 @@ public class IrcActivator
         throws Exception
     {
         logger.info("IRC protocol implementation [STOPPED].");
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     * 
+     * @return the <tt>ResourceManagementService</tt>.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourceService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourceService;
     }
 }

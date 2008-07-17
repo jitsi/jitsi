@@ -15,7 +15,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import java.io.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that enumerates all states that
@@ -36,7 +35,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/protocol/ssh/ssh-offline.png"));
+            , ProtocolIconSSHImpl.getImageInBytes("sshOfflineIcon"));
     
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -48,7 +47,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             35
             , "Not Available"
-            , loadIcon("resources/images/protocol/ssh/ssh-na.png"));
+            , ProtocolIconSSHImpl.getImageInBytes("sshNaIcon"));
     
     /**
      * The Connecting status. Indicate that the user is connecting to remote
@@ -57,8 +56,8 @@ public class SSHStatusEnum
     public static final SSHStatusEnum CONNECTING
             = new SSHStatusEnum(
             55
-            , "Connecting"            
-            , loadIcon("resources/images/protocol/ssh/ssh-connecting.png"));
+            , "Connecting"
+            , ProtocolIconSSHImpl.getImageInBytes("sshConnectingIcon"));
    
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -68,7 +67,7 @@ public class SSHStatusEnum
             = new SSHStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/protocol/ssh/ssh-online.png"));
+            , ProtocolIconSSHImpl.getImageInBytes("protocolIconSsh"));
 
 
     /**
@@ -78,8 +77,8 @@ public class SSHStatusEnum
     public static final SSHStatusEnum CONNECTED
             = new SSHStatusEnum(
             70
-            , "Connecting"            
-            , loadIcon("resources/images/protocol/ssh/ssh-connected.png"));
+            , "Connecting"
+            , ProtocolIconSSHImpl.getImageInBytes("sshConnectedIcon"));
     
     /**
      * The File Transfer status. Indicate that the user is transfering a file
@@ -88,8 +87,8 @@ public class SSHStatusEnum
     public static final SSHStatusEnum FILE_TRANSFER
             = new SSHStatusEnum(
             75
-            , "Transfering File"            
-            , loadIcon("resources/images/protocol/ssh/ssh-filetransfer.png"));
+            , "Transfering File"
+            , ProtocolIconSSHImpl.getImageInBytes("sshFileTransferIcon"));
     
     /**
      * Initialize the list of supported status states.
@@ -127,15 +126,4 @@ public class SSHStatusEnum
     {
         return supportedStatusSet.iterator();
     }
-
-    /**
-     * Loads an image from a given image path.
-     * @param imagePath The path to the image resource.
-     * @return The image extracted from the resource at the specified path.    
-     */
-    public static byte[] loadIcon(String imagePath)
-    {
-        return ProtocolIconSSHImpl.loadIcon(imagePath);
-    }
-    
 }

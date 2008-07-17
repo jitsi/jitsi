@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import java.io.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that enumerates all states that
@@ -32,7 +31,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/protocol/zeroconf/zeroconf-offline.png"));
+            , ProtocolIconZeroconfImpl.getImageInBytes("zeroconfOfflineIcon"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -42,7 +41,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             30
             ,"Do Not Disturb",//, "Do Not Disturb",
-            loadIcon("resources/images/protocol/zeroconf/zeroconf-dnd.png"));
+            ProtocolIconZeroconfImpl.getImageInBytes("zeroconfDndIcon"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -53,7 +52,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             45
             , "Invisible"
-            , loadIcon( "resources/images/protocol/zeroconf/zeroconf-invisible.png"));
+            , ProtocolIconZeroconfImpl.getImageInBytes("zeroconfInvisibleIcon"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -63,7 +62,7 @@ public class ZeroconfStatusEnum
         = new ZeroconfStatusEnum(
             65
             ,"Available"//, "Online"
-            , loadIcon("resources/images/protocol/zeroconf/zeroconf-online.png"));
+            , ProtocolIconZeroconfImpl.getImageInBytes("zeroconfOnlineIcon"));
 
 
     /**
@@ -122,15 +121,4 @@ public class ZeroconfStatusEnum
         }
         return null;
     }
-
-    /**
-     * Loads an image from a given image path.
-     * @param imagePath The path to the image resource.
-     * @return The image extracted from the resource at the specified path.
-     */
-    public static byte[] loadIcon(String imagePath)
-    {
-        return ProtocolIconZeroconfImpl.loadIcon(imagePath);
-    }
-
 }

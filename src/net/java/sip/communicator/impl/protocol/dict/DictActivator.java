@@ -7,9 +7,11 @@
 package net.java.sip.communicator.impl.protocol.dict;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.util.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Loads the Dict provider factory and registers its services in the OSGI
@@ -31,6 +33,8 @@ public class DictActivator
     private ServiceRegistration dictPpFactoryServReg = null;
     private static ProtocolProviderFactoryDictImpl
                                  dictProviderFactory = null;
+
+    private static ResourceManagementService resourceService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -96,7 +100,7 @@ public class DictActivator
     }
     
     /**
-     * Retrurns a reference to the protocol provider factory that we have
+     * Returns a reference to the protocol provider factory that we have
      * registered.
      * @return a reference to the <tt>ProtocolProviderFactoryDictImpl</tt>
      * instance that we have registered from this package.
@@ -104,5 +108,28 @@ public class DictActivator
     public static ProtocolProviderFactoryDictImpl getProtocolProviderFactory()
     {
         return dictProviderFactory;
+    }
+    
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     * 
+     * @return the <tt>ResourceManagementService</tt>.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourceService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourceService;
     }
 }

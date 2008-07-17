@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.utils.ImageLoader.*;
+import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -36,10 +37,10 @@ public class ProtocolIconGibberishImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            loadIcon("resources/images/protocol/gibberish/gibberish-online.png"));
+            getImageInBytes("gibberishOnlineIcon"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/protocol/gibberish/gibberish64x64.png"));
+            getImageInBytes("gibberish64x64Icon"));
     }
         
     /**
@@ -75,27 +76,39 @@ public class ProtocolIconGibberishImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/protocol/gibberish/gibberish-online.png");
+        return getImageInBytes("gibberishOnlineIcon");
     }
-    
+
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The identifier of the image.
-     * @return The image for the given identifier.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath) {
-        InputStream is = getResources().getImageInputStreamForPath(imagePath);
-        
-        byte[] icon = null;
-        try {
-            icon = new byte[is.available()];
-            is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
+    private static byte[] getImageInBytes(String imageID) 
+    {
+        InputStream in = DictActivator.getResources().
+            getImageInputStream(imageID);
+
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
         }
-        return icon;
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

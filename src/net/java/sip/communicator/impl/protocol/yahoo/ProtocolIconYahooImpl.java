@@ -9,7 +9,11 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.io.*;
 import java.util.*;
 
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.protocol.rss.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -23,16 +27,18 @@ public class ProtocolIconYahooImpl
 {    
     private static Logger logger = Logger.getLogger(ProtocolIconYahooImpl.class); 
     
+    private static ResourceManagementService resourcesService;
+
     /**
      * A hash table containing the protocol icon in different sizes.
      */
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            loadIcon("resources/images/protocol/yahoo/yahoo16x16.png"));
+            getImageInBytes("protocolIconYahoo"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/protocol/yahoo/yahoo64x64.png"));
+            getImageInBytes("pageImageYahoo"));
     }
  
     /**
@@ -68,25 +74,53 @@ public class ProtocolIconYahooImpl
      */
     public byte[] getConnectingIcon()
     {
-        return loadIcon("resources/images/protocol/yahoo/yahoo16x16-connecting.gif");
+        return getImageInBytes("yahooConnectingIcon");
     }
     
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The identifier of the image.
-     * @return The image for the given identifier.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath) {
-        InputStream is = 
-            YahooActivator.getResources().getImageInputStreamForPath(imagePath);
-        
-        byte[] icon = null;
-        try {
-            icon = new byte[is.available()];
-            is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
+    public static byte[] getImageInBytes(String imageID) 
+    {
+        InputStream in = getResources().
+            getImageInputStream(imageID);
+
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
         }
-        return icon;
-    }    
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
+    }
+
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = YahooActivator.getBundleContext()
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) 
+                YahooActivator.getBundleContext().getService(serviceReference);
+        }
+
+        return resourcesService;
+    }
 }

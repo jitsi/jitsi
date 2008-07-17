@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import java.io.*;
@@ -31,7 +32,7 @@ public class RssStatusEnum
         = new RssStatusEnum(
             0
             , "Offline"
-            , loadIcon("resources/images/protocol/rss/rss-offline.png"));
+            , getImageInBytes("rssOfflineIcon"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -41,7 +42,7 @@ public class RssStatusEnum
         = new RssStatusEnum(
             65
             , "Online"
-            , loadIcon("resources/images/protocol/rss/rss-online.png"));
+            , getImageInBytes("protocolIconRss"));
 
     /**
      * Initialize the list of supported status states.
@@ -79,13 +80,33 @@ public class RssStatusEnum
     }
 
     /**
-     * Loads an image from a given image path.
-     * @param imagePath The path to the image resource.
-     * @return The image extracted from the resource at the specified path.
+     * Returns the byte representation of the image corresponding to the given
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the byte representation of the image corresponding to the given
+     * identifier.
      */
-    public static byte[] loadIcon(String imagePath)
+    private static byte[] getImageInBytes(String imageID) 
     {
-        return ProtocolIconRssImpl.loadIcon(imagePath);
+        InputStream in = DictActivator.getResources().
+            getImageInputStream(imageID);
+
+        if (in == null)
+            return null;
+        byte[] image = null;
+        try 
+        {
+            image = new byte[in.available()];
+
+            in.read(image);
+        }
+        catch (IOException e) 
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
     }
 
 }
