@@ -1572,8 +1572,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/keybindings"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/keybindings"
                 prefix="net/java/sip/communicator/impl/keybindings"/>
-            <zipfileset dir="${resources}/config/defaultKeybindings"
-                prefix="resources/config/defaultKeybindings"/>
+            <zipfileset dir="${resources}/config/defaultkeybindings"
+                prefix="resources/config/defaultkeybindings"/>
             <zipfileset src="${lib.noinst}/KeybindingUtil.jar" prefix=""/>
         </jar>
     </target>
