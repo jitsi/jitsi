@@ -216,7 +216,9 @@ public class OperationSetBasicInstantMessagingRssImpl
         //specific feed/contact, we fire a new message containing the new items
         //to the user
         if(update || userRequestedUpdate)
-            fireMessageReceived(msg, rssContact);
+        {
+            fireMessageEvent(new MessageReceivedEvent(msg, rssContact, new Date()));
+        }
     }
 
     /**
@@ -306,28 +308,35 @@ public class OperationSetBasicInstantMessagingRssImpl
                "The specified contact is not a Rss contact."
                + to);
 
+        if( to.isPersistent() &&
+            to.getPresenceStatus().equals(RssStatusEnum.OFFLINE))
+        {
+            MessageDeliveryFailedEvent evt =
+                new MessageDeliveryFailedEvent(
+                    message,
+                    to,
+                    MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED,
+                    new Date());
+            fireMessageEvent(evt);
+            return;
+        }
+
         //refresh the present rssFeed "to"
         Message msg = new MessageRssImpl("Refreshing feed...",
             DEFAULT_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
         
-        fireMessageDelivered(msg,to);
+        fireMessageEvent(new MessageDeliveredEvent(msg, to, new Date()));
             
         threadedContactFeedUpdate((ContactRssImpl)to);
     }
 
-
     /**
-     * Notifies all registered message listeners that a message has been
-     * delivered successfully to its addressee..
-     *
-     * @param message the <tt>Message</tt> that has been delivered.
-     * @param to the <tt>Contact</tt> that <tt>message</tt> was delivered to.
+     * Delivers the specified event to all registered message listeners.
+     * @param evt the <tt>EventObject</tt> that we'd like delivered to all
+     * registered message listeners.
      */
-    private void fireMessageDelivered(Message message, Contact to)
+    private void fireMessageEvent(EventObject evt)
     {
-        MessageDeliveredEvent evt
-            = new MessageDeliveredEvent(message, to, new Date());
-
         Iterator listeners = null;
         synchronized (messageListeners)
         {
@@ -339,34 +348,19 @@ public class OperationSetBasicInstantMessagingRssImpl
             MessageListener listener
                 = (MessageListener) listeners.next();
 
-            listener.messageDelivered(evt);
-        }
-    }
-
-    /**
-     * Notifies all registered message listeners that a message has been
-     * received.
-     *
-     * @param message the <tt>Message</tt> that has been received.
-     * @param from the <tt>Contact</tt> that <tt>message</tt> was received from.
-     */
-    private void fireMessageReceived(Message message, Contact from)
-    {
-        MessageReceivedEvent evt
-            = new MessageReceivedEvent(message, from, new Date());
-
-        Iterator listeners = null;
-        synchronized (messageListeners)
-        {
-            listeners = new ArrayList(messageListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MessageListener listener
-                = (MessageListener) listeners.next();
-
-            listener.messageReceived(evt);
+            if (evt instanceof MessageDeliveredEvent)
+            {
+                listener.messageDelivered( (MessageDeliveredEvent) evt);
+            }
+            else if (evt instanceof MessageReceivedEvent)
+            {
+                listener.messageReceived( (MessageReceivedEvent) evt);
+            }
+            else if (evt instanceof MessageDeliveryFailedEvent)
+            {
+                listener.messageDeliveryFailed(
+                    (MessageDeliveryFailedEvent) evt);
+            }
         }
     }
 

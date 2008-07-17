@@ -69,7 +69,7 @@ public class OperationSetPersistentPresenceRssImpl
     /**
      * Our default presence status.
      */
-    private PresenceStatus presenceStatus = RssStatusEnum.ONLINE;
+    private PresenceStatus presenceStatus = RssStatusEnum.OFFLINE;
 
     /**
      * The <tt>AuthorizationHandler</tt> instance that we'd have to transmit
@@ -1103,45 +1103,25 @@ public class OperationSetPersistentPresenceRssImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            if (! evt.getNewState().equals(RegistrationState.UNREGISTERED)
-                && !evt.getNewState().equals(RegistrationState.AUTHENTICATION_FAILED)
-                && !evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+            if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                return;
-            }
-
-            //send event notifications saying that all our buddies are offline.
-            //The icq (?) protocol does not implement top level buddies
-            //nor subgroups for top level groups so a simple nested loop
-            //would be enough.
-            Iterator groupsIter = getServerStoredContactListRoot()
-                .subgroups();
-            while (groupsIter.hasNext())
-            {
-                ContactGroupRssImpl group
-                    = (ContactGroupRssImpl) groupsIter.next();
-
-                Iterator contactsIter = group.contacts();
-
-                while (contactsIter.hasNext())
+                if(presenceStatus != RssStatusEnum.ONLINE)
                 {
-                    ContactRssImpl contact
-                        = (ContactRssImpl) contactsIter.next();
-
-                    PresenceStatus oldContactStatus
-                        = contact.getPresenceStatus();
-
-                    if (!oldContactStatus.isOnline())
-                        continue;
-
-                    contact.setPresenceStatus(RssStatusEnum.ONLINE);
-
-                    fireContactPresenceStatusChangeEvent(
-                        contact
-                        , contact.getParentContactGroup()
-                        , oldContactStatus);
+                    presenceStatus = RssStatusEnum.ONLINE;
+                    changePresenceStatusForAllContacts(contactListRoot, presenceStatus);
                 }
             }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERED
+                 || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
+                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
+            {
+                if(presenceStatus != RssStatusEnum.OFFLINE)
+                {
+                    presenceStatus = RssStatusEnum.OFFLINE;
+                    changePresenceStatusForAllContacts(contactListRoot, presenceStatus);
+                }
+            }
+
         }
     }
 }
