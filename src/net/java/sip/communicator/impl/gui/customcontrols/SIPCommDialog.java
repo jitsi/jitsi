@@ -216,9 +216,6 @@ public abstract class SIPCommDialog extends JDialog
         int width = this.getWidth();
         int height = this.getHeight();
         
-        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
-        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-    
         if(x < 0 || y < 0)
         {
             this.setLocation(
@@ -231,20 +228,7 @@ public abstract class SIPCommDialog extends JDialog
             y = this.getY();
         }
 
-        // determine all screens and combine the coordinates
-        Rectangle virtualBounds = new Rectangle();
-        GraphicsEnvironment ge = GraphicsEnvironment
-                .getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs = ge.getScreenDevices();
-        for (int j = 0; j < gs.length; j++)
-        {
-            GraphicsDevice gd = gs[j];
-            GraphicsConfiguration[] gc = gd.getConfigurations();
-            for (int i = 0; i < gc.length; i++)
-            {
-                virtualBounds = virtualBounds.union(gc[i].getBounds());
-            }
-        }
+        Rectangle virtualBounds = ScreenInformation.getScreenBounds();
 
         // in case any of the sizes exceeds the screen size
         // we set default one
