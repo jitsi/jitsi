@@ -33,6 +33,9 @@ public interface ExportedWindow
     public static final WindowID AUTHENTICATION_WINDOW
         = new WindowID("AuthenticationWindow");
 
+    public static final WindowID MAIN_WINDOW
+        = new WindowID("MainWindow");
+
     /**
      * Returns the WindowID corresponding to this window. The window id should
      * be one of the defined in this class XXX_WINDOW constants.

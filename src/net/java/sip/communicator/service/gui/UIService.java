@@ -97,7 +97,6 @@ public interface UIService
      * @param y The y coordinate.
      */
     public void move(int x, int y);
-        
 
     /**
      * Sets the exitOnClose property. When TRUE, the user could exit the

@@ -51,7 +51,8 @@ import org.osgi.framework.*;
  */
 public class MainFrame
     extends SIPCommFrame
-    implements PluginComponentListener
+    implements  ExportedWindow,
+                PluginComponentListener
 {
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
 
@@ -1353,5 +1354,74 @@ public class MainFrame
             g.fillRect(0, 0, this.getWidth(), this.getHeight());
             g.drawImage(backgroundImage, 0, 0, null);
         }
+    }
+
+    public void bringToFront()
+    {
+        this.toFront();
+    }
+
+    public WindowID getIdentifier()
+    {
+        return ExportedWindow.MAIN_WINDOW;
+    }
+
+    public Object getSource()
+    {
+        return this;
+    }
+
+    public void maximize()
+    {
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+
+    public void minimize()
+    {
+        this.setExtendedState(JFrame.ICONIFIED);
+    }
+    
+    /**
+     * Implements <code>isVisible</code> in the UIService interface. Checks if
+     * the main application window is visible.
+     *
+     * @return <code>true</code> if main application window is visible,
+     *         <code>false</code> otherwise
+     * @see UIService#isVisible()
+     */
+    public boolean isVisible()
+    {
+        if (super.isVisible())
+        {
+            if (super.getExtendedState() == JFrame.ICONIFIED)
+                return false;
+            else
+                return true;
+        }
+        else
+            return false;
+    }
+    
+    /**
+     * Implements <code>setVisible</code> in the UIService interface. Shows or
+     * hides the main application window depending on the parameter
+     * <code>visible</code>.
+     *
+     * @param isVisible true if we are to show the main application frame and
+     * false otherwise.
+     *
+     * @see UIService#setVisible(boolean)
+     */
+    public void setVisible(final boolean isVisible)
+    {
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run()
+            {
+                MainFrame.super.setVisible(isVisible);
+
+                if(isVisible)
+                    MainFrame.super.toFront();
+            }
+        });
     }
 }

@@ -94,6 +94,8 @@ public class UIServiceImpl
 
         this.mainFrame = new MainFrame();
 
+        GuiActivator.getUIService().registerExportedWindow(mainFrame);
+
         this.loginManager = new LoginManager(mainFrame);
 
         this.popupDialog = new PopupDialogImpl();
@@ -180,15 +182,7 @@ public class UIServiceImpl
      */
     public boolean isVisible()
     {
-        if (mainFrame.isVisible())
-        {
-            if (mainFrame.getExtendedState() == JFrame.ICONIFIED)
-                return false;
-            else
-                return true;
-        }
-        else
-            return false;
+        return mainFrame.isVisible();
     }
 
     /**
@@ -203,15 +197,7 @@ public class UIServiceImpl
      */
     public void setVisible(final boolean isVisible)
     {
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run()
-            {
-                mainFrame.setVisible(isVisible);
-
-                if(isVisible)
-                    mainFrame.toFront();
-            }
-        });
+        this.mainFrame.setVisible(isVisible);
     }
 
     /**
@@ -222,7 +208,7 @@ public class UIServiceImpl
      */
     public void minimize()
     {
-        this.mainFrame.setExtendedState(JFrame.ICONIFIED);
+        this.mainFrame.minimize();
     }
 
     /**
@@ -233,7 +219,7 @@ public class UIServiceImpl
      */
     public void maximize()
     {
-        this.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        this.mainFrame.maximize();
     }
 
     /**
@@ -246,7 +232,6 @@ public class UIServiceImpl
     {
         if (mainFrame.isVisible())
         {
-
             if (mainFrame.getState() == JFrame.ICONIFIED)
                 mainFrame.setState(JFrame.NORMAL);
 
