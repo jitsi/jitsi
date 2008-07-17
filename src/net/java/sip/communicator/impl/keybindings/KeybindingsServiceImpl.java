@@ -41,7 +41,7 @@ class KeybindingsServiceImpl
     
     // Name of the relative directory that holds default bindings
     private static final String DEFAULT_KEYBINDING_DIR =
-            "/resources/config/defaultKeybindings";
+            "/resources/config/defaultkeybindings";
     
     // Name of the directory that holds custom bindings
     private static final String CUSTOM_KEYBINDING_DIR = "keybindings";
