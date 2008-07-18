@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.protocol.gibberish;
 import java.io.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.utils.ImageLoader.*;
-import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -89,8 +87,7 @@ public class ProtocolIconGibberishImpl
      */
     private static byte[] getImageInBytes(String imageID) 
     {
-        InputStream in = DictActivator.getResources().
-            getImageInputStream(imageID);
+        InputStream in = getResources().getImageInputStream(imageID);
 
         if (in == null)
             return null;
