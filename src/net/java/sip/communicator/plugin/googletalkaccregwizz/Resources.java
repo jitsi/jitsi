@@ -6,10 +6,9 @@
 package net.java.sip.communicator.plugin.googletalkaccregwizz;
 
 import java.io.*;
-import java.util.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -28,12 +27,12 @@ public class Resources
     /**
      * A constant pointing to the Google Talk protocol logo image.
      */
-    public static ImageID PROTOCOL_ICON = new ImageID("protocolIcon");
+    public static ImageID PROTOCOL_ICON = new ImageID("googletalkProtocolIcon");
 
     /**
      * A constant pointing to the Aim protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("pageImage");
+    public static ImageID PAGE_IMAGE = new ImageID("googletalkPageImage");
 
     /**
      * Returns an internationalized string corresponding to the given key.
