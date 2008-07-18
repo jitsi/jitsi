@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.gibberish;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import java.io.*;
@@ -158,7 +157,7 @@ public class GibberishStatusEnum
      */
     private static byte[] getImageInBytes(String imageID) 
     {
-        InputStream in = DictActivator.getResources().
+        InputStream in = GibberishActivator.getResources().
             getImageInputStream(imageID);
 
         if (in == null)
