@@ -96,9 +96,13 @@ public interface OperationSetBasicTelephony
      * Resumes communication with a call participant previously put on hold. If
      * the specified participant is not "On Hold" at the time putOffHold is
      * called, the method has no effect.
+     * 
      * @param participant the call participant to put on hold.
+     * @throws OperationFailedException with the corresponding code if we
+     *             encounter an error while performing this operation
      */
-    public void putOffHold(CallParticipant participant);
+    public void putOffHold(CallParticipant participant)
+        throws OperationFailedException;
 
     /**
      * Indicates a user request to end a call with the specified call

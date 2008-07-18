@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.*;
  * implementing OperationSetBasicTelephony.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class OperationSetBasicTelephonySipImpl
     implements  OperationSetBasicTelephony
@@ -355,22 +356,182 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Resumes communication with a call participant previously put on hold.
-     *
+     * 
      * @param participant the call participant to put on hold.
+     * @throws OperationFailedException
      */
     public synchronized void putOffHold(CallParticipant participant)
+        throws OperationFailedException
     {
-        /** @todo implement putOffHold() */
+        putOnHold(participant, false);
     }
 
     /**
      * Puts the specified CallParticipant "on hold".
-     *
+     * 
      * @param participant the participant that we'd like to put on hold.
+     * @throws OperationFailedException
      */
     public synchronized void putOnHold(CallParticipant participant)
+        throws OperationFailedException
     {
-        /** @todo implement putOnHold() */
+        putOnHold(participant, true);
+    }
+
+    /**
+     * Puts the specified <tt>CallParticipant</tt> on or off hold.
+     * 
+     * @param participant the <tt>CallParticipant</tt> to be put on or off hold
+     * @param on <tt>true</tt> to have the specified <tt>CallParticipant</tt>
+     *            put on hold; <tt>false</tt>, otherwise
+     * @throws OperationFailedException
+     */
+    private void putOnHold(CallParticipant participant, boolean on)
+        throws OperationFailedException
+    {
+        CallSession callSession =
+            ((CallSipImpl) participant.getCall()).getMediaCallSession();
+        CallParticipantSipImpl sipParticipant =
+            (CallParticipantSipImpl) participant;
+
+        try
+        {
+            sendInviteRequest(sipParticipant, callSession
+                .createSdpDescriptionForHold(
+                    sipParticipant.getSdpDescription(), on));
+        }
+        catch (MediaException ex)
+        {
+            throwOperationFailedException(
+                "Failed to create SDP offer to hold.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        /*
+         * Putting on hold isn't a negotiation (i.e. the issuing side takes the
+         * decision and executes it) so we're muting now regardless of the
+         * desire of the participant to accept the offer.
+         */
+        callSession.putOnHold(on, true);
+
+        CallParticipantState state = sipParticipant.getState();
+        if (CallParticipantState.ON_HOLD_LOCALLY.equals(state))
+        {
+            if (!on)
+                sipParticipant.setState(CallParticipantState.CONNECTED);
+        }
+        else if (CallParticipantState.ON_HOLD_MUTUALLY.equals(state))
+        {
+            if (!on)
+                sipParticipant.setState(CallParticipantState.ON_HOLD_REMOTELY);
+        }
+        else if (CallParticipantState.ON_HOLD_REMOTELY.equals(state))
+        {
+            if (on)
+                sipParticipant.setState(CallParticipantState.ON_HOLD_MUTUALLY);
+        }
+        else if (on)
+        {
+            sipParticipant.setState(CallParticipantState.ON_HOLD_LOCALLY);
+        }
+    }
+
+    /**
+     * Sends an invite request with a specific SDP offer (description) within
+     * the current <tt>Dialog</tt> with a specific call participant.
+     * 
+     * @param sipParticipant the SIP-specific call participant to send the
+     *            invite to within the current <tt>Dialog</tt>
+     * @param sdpOffer the description of the SDP offer to be made to the
+     *            specified call participant with the sent invite
+     * @throws OperationFailedException
+     */
+    private void sendInviteRequest(CallParticipantSipImpl sipParticipant,
+        String sdpOffer) throws OperationFailedException
+    {
+        Dialog dialog = sipParticipant.getDialog();
+        Request invite = null;
+        try
+        {
+            invite = dialog.createRequest(Request.INVITE);
+        }
+        catch (SipException ex)
+        {
+            throwOperationFailedException("Failed to create invite request.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        /*
+         * The authorization-related headers are the responsibility of the
+         * application (according to the Javadoc of JAIN-SIP).
+         */
+        AuthorizationHeader authorization =
+            protocolProvider.getSipSecurityManager()
+                .getCachedAuthorizationHeader(
+                    ((CallIdHeader) invite.getHeader(CallIdHeader.NAME))
+                        .getCallId());
+        if (authorization != null)
+        {
+            invite.setHeader(authorization);
+        }
+
+        try
+        {
+            invite.setContent(sdpOffer, protocolProvider.getHeaderFactory()
+                .createContentTypeHeader("application", "sdp"));
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException(
+                "Failed to parse SDP offer for the new invite.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+        
+        ClientTransaction clientTransaction = null;
+        try
+        {
+            clientTransaction =
+                sipParticipant.getJainSipProvider().getNewClientTransaction(
+                    invite);
+        }
+        catch (TransactionUnavailableException ex)
+        {
+            throwOperationFailedException(
+                "Failed to create a client transaction for the new invite.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        try
+        {
+            dialog.sendRequest(clientTransaction);
+        }
+        catch (SipException ex)
+        {
+            throwOperationFailedException("Failed to send the new invite.",
+                OperationFailedException.NETWORK_FAILURE, ex);
+        }
+    }
+
+    /**
+     * Logs a specific message and associated <tt>Throwable</tt> cause as an
+     * error using the current <tt>Logger</tt> and then throws a new
+     * <tt>OperationFailedException</tt> with the message, a specific error
+     * code and the cause.
+     * 
+     * @param message the message to be logged and then wrapped in a new
+     *            <tt>OperationFailedException</tt>
+     * @param errorCode the error code to be assigned to the new
+     *            <tt>OperationFailedException</tt>
+     * @param cause the <tt>Throwable</tt> that has caused the necessity to
+     *            log an error and have a new <tt>OperationFailedException</tt>
+     *            thrown
+     * @throws OperationFailedException
+     */
+    private void throwOperationFailedException(String message, int errorCode,
+        Throwable cause) throws OperationFailedException
+    {
+        logger.error(message, cause);
+        throw new OperationFailedException(message, errorCode, cause);
     }
 
     /**
@@ -432,16 +593,19 @@ public class OperationSetBasicTelephonySipImpl
         if (request.getMethod().equals(Request.INVITE))
         {
             logger.debug("received INVITE");
-            if (serverTransaction.getDialog().getState() == null)
+            DialogState dialogState = serverTransaction.getDialog().getState();
+            if ((dialogState == null)
+                || dialogState.equals(DialogState.CONFIRMED))
             {
                 if (logger.isDebugEnabled())
                     logger.debug("request is an INVITE. Dialog state="
-                                 + serverTransaction.getDialog().getState());
+                        + dialogState);
                 processInvite(jainSipProvider, serverTransaction, request);
             }
             else
             {
-                logger.error("reINVITE-s are not currently supported.");
+                logger
+                    .error("reINVITEs while the dialog is not confirmed are not currently supported.");
             }
         }
         //ACK
@@ -572,8 +736,11 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        //change status
-        callParticipant.setState(CallParticipantState.CONNECTING);
+        // change status
+        CallParticipantState callParticipantState = callParticipant.getState();
+        if (!CallParticipantState.CONNECTED.equals(callParticipantState)
+                && !CallParticipantState.isOnHold(callParticipantState))
+            callParticipant.setState(CallParticipantState.CONNECTING);
     }
 
     /**
@@ -677,15 +844,11 @@ public class OperationSetBasicTelephonySipImpl
                 return;
             }
         }
-        
-        if (callParticipant.getState() == CallParticipantState.CONNECTED)
-        {
-            // This can happen if the OK UDP packet has been resent due to a 
-            //timeout. (fix by Michael Koch)
-            logger.debug("Ignoring invite OK since call participant is "
-                         +"already connected.");
-            return;
-        }
+
+        /*
+         * Receiving an Invite OK is allowed even when the participant is
+         * already connected for the purposes of call hold.
+         */
 
         Request ack = null;
         ContentTypeHeader contentTypeHeader = null;
@@ -777,9 +940,13 @@ public class OperationSetBasicTelephonySipImpl
                     return;
                 }
             }
-       
-            callSession.processSdpAnswer(callParticipant
-                                         , callParticipant.getSdpDescription());
+            CallParticipantState callParticipantState = callParticipant.getState();
+            if ((callParticipantState != CallParticipantState.CONNECTED)
+                && !CallParticipantState.isOnHold(callParticipantState))
+            {
+                callSession.processSdpAnswer(callParticipant, callParticipant
+                    .getSdpDescription());
+            }
             //set the call url in case there was one
             /** @todo this should be done in CallSession, once we move 
              * it here.*/
@@ -812,8 +979,9 @@ public class OperationSetBasicTelephonySipImpl
                 + exc.getMessage());
         }
 
-        //change status
-        callParticipant.setState(CallParticipantState.CONNECTED);
+        // change status
+        if (!CallParticipantState.isOnHold(callParticipant.getState()))
+            callParticipant.setState(CallParticipantState.CONNECTED);
     }
 
     /**
@@ -1166,12 +1334,21 @@ public class OperationSetBasicTelephonySipImpl
                                 ServerTransaction serverTransaction,
                                 Request           invite)
     {
-        logger.trace("Creating call participant.");
         Dialog dialog = serverTransaction.getDialog();
-        CallParticipantSipImpl callParticipant
-            = createCallParticipantFor(serverTransaction, sourceProvider);
-        logger.trace("call participant created = " + callParticipant);
+        CallParticipantSipImpl callParticipant =
+            activeCallsRepository.findCallParticipant(dialog);
+        int statusCode;
+        if (callParticipant == null)
+        {
+            statusCode = Response.RINGING;
 
+            logger.trace("Creating call participant.");
+            callParticipant =
+                createCallParticipantFor(serverTransaction, sourceProvider);
+            logger.trace("call participant created = " + callParticipant);
+        }
+        else
+            statusCode = Response.OK;
 
         //sdp description may be in acks - bug report Laurent Michel
         ContentLengthHeader cl = invite.getContentLength();
@@ -1241,21 +1418,38 @@ public class OperationSetBasicTelephonySipImpl
             }
         }
 
-        //Send RINGING
-        logger.debug("Invite seems ok, we'll say RINGING.");
-        Response ringing = null;
+        // Send statusCode
+        String statusCodeString =
+            (statusCode == Response.RINGING) ? "RINGING" : "OK";
+        logger.debug("Invite seems ok, we'll say " + statusCodeString + ".");
+        Response response = null;
         try {
-            ringing = protocolProvider.getMessageFactory().createResponse(
-                Response.RINGING, invite);
-            protocolProvider.attachToTag(ringing, dialog);
-            ringing.setHeader(protocolProvider.getSipCommUserAgentHeader());
+            response = protocolProvider.getMessageFactory().createResponse(
+                statusCode, invite);
+            protocolProvider.attachToTag(response, dialog);
+            response.setHeader(protocolProvider.getSipCommUserAgentHeader());
 
             //set our display name
-            ((ToHeader)ringing.getHeader(ToHeader.NAME))
+            ((ToHeader)response.getHeader(ToHeader.NAME))
                 .getAddress().setDisplayName(protocolProvider
                                                 .getOurDisplayName());
 
-            ringing.addHeader(protocolProvider.getContactHeader());
+            response.addHeader(protocolProvider.getContactHeader());
+
+            if (statusCode != Response.RINGING)
+            {
+                try
+                {
+                    processInviteSendingResponse(callParticipant, response);
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Error while trying to send a request", ex);
+                    callParticipant.setState(CallParticipantState.FAILED,
+                        "Internal Error: " + ex.getMessage());
+                    return;
+                }
+            }
         }
         catch (ParseException ex) {
             logger.error("Error while trying to send a request"
@@ -1265,9 +1459,10 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
         try {
-            logger.trace("will send ringing response: ");
-            serverTransaction.sendResponse(ringing);
-            logger.debug("sent a ringing response: " + ringing);
+            logger.trace("will send " + statusCodeString + " response: ");
+            serverTransaction.sendResponse(response);
+            logger
+                .debug("sent a " + statusCodeString + " response: " + response);
         }
         catch (Exception ex) {
             logger.error("Error while trying to send a request"
@@ -1276,6 +1471,127 @@ public class OperationSetBasicTelephonySipImpl
                             CallParticipantState.FAILED
                             , "Internal Error: " + ex.getMessage());
             return;
+        }
+
+        if (statusCode != Response.RINGING)
+        {
+            try
+            {
+                processInviteSentResponse(callParticipant, response);
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error("Error after sending a request", ex);
+            }
+        }
+    }
+
+    /**
+     * Provides a hook for this instance to take last configuration steps on a
+     * specific <tt>Response</tt> before it is sent to a specific
+     * <tt>CallParticipant</tt> as part of the execution of
+     * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
+     * 
+     * @param participant the <tt>CallParticipant</tt> to receive a specific
+     *            <tt>Response</tt>
+     * @param response the <tt>Response</tt> to be sent to the
+     *            <tt>participant</tt>
+     * @throws OperationFailedException
+     * @throws ParseException
+     */
+    private void processInviteSendingResponse(CallParticipant participant,
+        Response response) throws OperationFailedException, ParseException
+    {
+        /*
+         * At the time of this writing, we're only getting called because a
+         * response to a call-hold invite is to be sent.
+         */
+
+        CallSession callSession =
+            ((CallSipImpl) participant.getCall()).getMediaCallSession();
+        CallParticipantSipImpl sipParticipant =
+            (CallParticipantSipImpl) participant;
+        String sdpOffer = sipParticipant.getSdpDescription();
+
+        String sdpAnswer = null;
+        try
+        {
+            sdpAnswer =
+                callSession.createSdpDescriptionForHold(sdpOffer, callSession
+                    .isSdpOfferToHold(sdpOffer));
+        }
+        catch (MediaException ex)
+        {
+            throwOperationFailedException(
+                "Failed to create SDP answer to put-on/off-hold request.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        response.setContent(sdpAnswer, protocolProvider.getHeaderFactory()
+            .createContentTypeHeader("application", "sdp"));
+    }
+
+    /**
+     * Provides a hook for this instance to take immediate steps after a
+     * specific <tt>Response</tt> has been sent to a specific
+     * <tt>CallParticipant</tt> as part of the execution of
+     * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
+     * 
+     * @param participant the <tt>CallParticipant</tt> who was sent a specific
+     *            <tt>Response</tt>
+     * @param response the <tt>Response</tt> that has just been sent to the
+     *            <tt>participant</tt>
+     * @throws OperationFailedException
+     * @throws ParseException
+     */
+    private void processInviteSentResponse(CallParticipant participant,
+        Response response) throws OperationFailedException
+    {
+        /*
+         * At the time of this writing, we're only getting called because a
+         * response to a call-hold invite is to be sent.
+         */
+
+        CallSession callSession =
+            ((CallSipImpl) participant.getCall()).getMediaCallSession();
+        CallParticipantSipImpl sipParticipant =
+            (CallParticipantSipImpl) participant;
+
+        boolean on = false;
+        try
+        {
+            on =
+                callSession
+                    .isSdpOfferToHold(sipParticipant.getSdpDescription());
+        }
+        catch (MediaException ex)
+        {
+            throwOperationFailedException(
+                "Failed to create SDP answer to put-on/off-hold request.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        callSession.putOnHold(on, false);
+
+        CallParticipantState state = sipParticipant.getState();
+        if (CallParticipantState.ON_HOLD_LOCALLY.equals(state))
+        {
+            if (on)
+                sipParticipant.setState(CallParticipantState.ON_HOLD_MUTUALLY);
+        }
+        else if (CallParticipantState.ON_HOLD_MUTUALLY.equals(state))
+        {
+            if (!on)
+                sipParticipant.setState(CallParticipantState.ON_HOLD_LOCALLY);
+        }
+        else if (CallParticipantState.ON_HOLD_REMOTELY.equals(state))
+        {
+            if (!on)
+                sipParticipant.setState(CallParticipantState.CONNECTED);
+        }
+        else if (on)
+        {
+            sipParticipant.setState(CallParticipantState.ON_HOLD_REMOTELY);
         }
     }
 
@@ -1358,8 +1674,9 @@ public class OperationSetBasicTelephonySipImpl
             callParticipant.setSdpDescription(
                                     new String(ackRequest.getRawContent()));
         }
-        //change status
-        callParticipant.setState(CallParticipantState.CONNECTED);
+        // change status
+        if (!CallParticipantState.isOnHold(callParticipant.getState()))
+            callParticipant.setState(CallParticipantState.CONNECTED);
     }
 
     /**
@@ -1470,16 +1787,16 @@ public class OperationSetBasicTelephonySipImpl
         CallParticipantSipImpl callParticipant
             = (CallParticipantSipImpl)participant;
 
-        Dialog dialog = callParticipant.getDialog();
-        if (callParticipant.getState().equals(CallParticipantState.CONNECTED))
+        CallParticipantState participantState = callParticipant.getState();
+        if (participantState.equals(CallParticipantState.CONNECTED)
+            || CallParticipantState.isOnHold(participantState))
         {
             sayBye(callParticipant);
             callParticipant.setState(CallParticipantState.DISCONNECTED);
         }
-        else if (callParticipant.getState()
-                            .equals(CallParticipantState.CONNECTING)
-                 || callParticipant.getState()
-                            .equals(CallParticipantState.ALERTING_REMOTE_SIDE))
+        else if (participantState.equals(CallParticipantState.CONNECTING)
+            || participantState
+                .equals(CallParticipantState.ALERTING_REMOTE_SIDE))
         {
             if (callParticipant.getFirstTransaction() != null)
             {
@@ -1489,18 +1806,17 @@ public class OperationSetBasicTelephonySipImpl
             }
             callParticipant.setState(CallParticipantState.DISCONNECTED);
         }
-        else if (callParticipant.getState()
-                    .equals(CallParticipantState.INCOMING_CALL))
+        else if (participantState.equals(CallParticipantState.INCOMING_CALL))
         {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
             sayBusyHere(callParticipant);
         }
         //For FAILE and BUSY we only need to update CALL_STATUS
-        else if (callParticipant.getState().equals(CallParticipantState.BUSY))
+        else if (participantState.equals(CallParticipantState.BUSY))
         {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
         }
-        else if (callParticipant.getState().equals(CallParticipantState.FAILED))
+        else if (participantState.equals(CallParticipantState.FAILED))
         {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
         }
@@ -1783,7 +2099,10 @@ public class OperationSetBasicTelephonySipImpl
                 , OperationFailedException.INTERNAL_ERROR);
         }
 
-        if(participant.getState().equals(CallParticipantState.CONNECTED))
+        CallParticipantState participantState = participant.getState();
+
+        if (participantState.equals(CallParticipantState.CONNECTED)
+            || CallParticipantState.isOnHold(participantState))
         {
             logger.info("Ignoring user request to answer a CallParticipant "
                         + "that is already connected. CP:" + participant);

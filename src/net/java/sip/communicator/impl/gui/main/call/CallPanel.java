@@ -13,7 +13,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -24,6 +23,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * shows information about call participants, call duration, etc.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class CallPanel
     extends JScrollPane
@@ -295,42 +295,50 @@ public class CallPanel
         participantPanel.setState(
                 sourceParticipant.getState().getStateString());
 
-        if(evt.getNewValue() == CallParticipantState.ALERTING_REMOTE_SIDE)
+        Object newState = evt.getNewValue();
+
+        if(newState == CallParticipantState.ALERTING_REMOTE_SIDE)
         {   
             NotificationManager
                 .fireNotification(NotificationManager.OUTGOING_CALL);
         }
-        else if(evt.getNewValue() == CallParticipantState.BUSY)
+        else if(newState == CallParticipantState.BUSY)
         {
             NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
             
             NotificationManager.fireNotification(NotificationManager.BUSY_CALL);
         }
-        else if(evt.getNewValue() == CallParticipantState.CONNECTED) {
-            //start the timer that takes care of refreshing the time label
-            
-            NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
-            NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-            
-            participantPanel.startCallTimer();
+        else if(newState == CallParticipantState.CONNECTED) {
+            if (!CallParticipantState.isOnHold((CallParticipantState)
+                    evt.getOldValue()))
+            {
+                // start the timer that takes care of refreshing the time label
+
+                NotificationManager
+                    .stopSound(NotificationManager.OUTGOING_CALL);
+                NotificationManager
+                    .stopSound(NotificationManager.INCOMING_CALL);
+
+                participantPanel.startCallTimer();
+            }
         }
-        else if(evt.getNewValue() == CallParticipantState.CONNECTING) {            
+        else if(newState == CallParticipantState.CONNECTING) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.DISCONNECTED) {            
+        else if(newState == CallParticipantState.DISCONNECTED) {            
             //The call participant should be already removed from the call
             //see callParticipantRemoved
         }
-        else if(evt.getNewValue() == CallParticipantState.FAILED) {            
+        else if(newState == CallParticipantState.FAILED) {            
             //The call participant should be already removed from the call
             //see callParticipantRemoved
         }
-        else if(evt.getNewValue() == CallParticipantState.INCOMING_CALL) {            
+        else if(newState == CallParticipantState.INCOMING_CALL) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.INITIATING_CALL) {            
+        else if(newState == CallParticipantState.INITIATING_CALL) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.ON_HOLD) {            
+        else if(CallParticipantState.isOnHold((CallParticipantState) newState)) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.UNKNOWN) {            
+        else if(newState == CallParticipantState.UNKNOWN) {            
         }
     }
 

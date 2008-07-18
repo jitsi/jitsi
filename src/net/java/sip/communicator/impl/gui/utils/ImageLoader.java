@@ -23,6 +23,7 @@ import net.java.sip.communicator.util.*;
  * Stores and loads images used throughout this ui implementation.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ImageLoader {
 
@@ -394,6 +395,13 @@ public class ImageLoader {
      */
     public static final ImageID DIAL_BUTTON
         = new ImageID("DIAL_BUTTON");
+
+    /**
+     * A put-on/off-hold button icon. The icon shown in the CallParticipant
+     * panel.
+     */
+    public static final ImageID HOLD_BUTTON
+        = new ImageID("HOLD_BUTTON");
 
     /**
      * The image used, when a contact has no photo specified.

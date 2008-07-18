@@ -857,7 +857,7 @@ public class TestOperationSetBasicTelephonySipImpl
      * status changes.
      */
     public class CallParticipantStateEventCollector
-        implements CallParticipantListener
+        extends CallParticipantAdapter
     {
         public ArrayList collectedEvents = new ArrayList();
         private CallParticipant listenedCallParticipant = null;
@@ -900,37 +900,6 @@ public class TestOperationSetBasicTelephonySipImpl
                 }
             }
         }
-
-        /**
-         * Unused by this collector.
-         * @param event ignored.
-         */
-        public void participantImageChanged(CallParticipantChangeEvent event)
-        {}
-
-        /**
-         * Unused by this collector
-         * @param event ignored.
-         */
-        public void participantAddressChanged(CallParticipantChangeEvent event)
-        {}
-
-        /**
-         * Unused by this collector
-         * @param event ignored.
-         */
-        public void participantTransportAddressChanged(
-                                        CallParticipantChangeEvent event)
-        {}
-
-
-        /**
-         * Unused by this collector
-         * @param event ignored.
-         */
-        public void participantDisplayNameChanged(
-                                            CallParticipantChangeEvent event)
-        {}
 
         /**
          * Blocks until an event notifying us of the awaited state change is

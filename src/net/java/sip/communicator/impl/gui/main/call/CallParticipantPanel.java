@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  * name, photo, call duration, etc. 
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class CallParticipantPanel
     extends JPanel
@@ -77,13 +78,17 @@ public class CallParticipantPanel
         this.callParticipant = callParticipant;
         
         this.stateLabel.setText(callParticipant.getState().getStateString());
+
+        Component holdButton = new HoldButton(this.callParticipant);
+        holdButton.setBounds(0, 74, 36, 36);
+        contactPanel.add(holdButton, new Integer(1));
         
         dialButton = new DialButton(callManager,
             new ImageIcon(ImageLoader.getImage(ImageLoader.DIAL_BUTTON)));
         
         dialButton.setBounds(94, 74, 36, 36);
         
-        contactPanel.add(dialButton, new Integer(1));
+        contactPanel.add(dialButton, new Integer(2));
     }
     
     /**

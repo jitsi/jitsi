@@ -27,6 +27,7 @@ import net.java.sip.communicator.util.*;
  * (i.e. those that implement OperationSetBasicTelephony).
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class CallHistoryServiceImpl
     implements  CallHistoryService,
@@ -448,8 +449,12 @@ public class CallHistoryServiceImpl
             return CallParticipantState.ALERTING_REMOTE_SIDE;
         else if(state.equals(CallParticipantState._CONNECTING))
             return CallParticipantState.CONNECTING;
-        else if(state.equals(CallParticipantState._ON_HOLD))
-            return CallParticipantState.ON_HOLD;
+        else if(state.equals(CallParticipantState._ON_HOLD_LOCALLY))
+            return CallParticipantState.ON_HOLD_LOCALLY;
+        else if(state.equals(CallParticipantState._ON_HOLD_MUTUALLY))
+            return CallParticipantState.ON_HOLD_MUTUALLY;
+        else if(state.equals(CallParticipantState._ON_HOLD_REMOTELY))
+            return CallParticipantState.ON_HOLD_REMOTELY;
         else if(state.equals(CallParticipantState._INITIATING_CALL))
             return CallParticipantState.INITIATING_CALL;
         else if(state.equals(CallParticipantState._INCOMING_CALL))
@@ -852,7 +857,7 @@ public class CallHistoryServiceImpl
         if(callRecord == null)
             return;
 
-        callParticipant.addCallParticipantListener(new CallParticipantListener()
+        callParticipant.addCallParticipantListener(new CallParticipantAdapter()
         {
             public void participantStateChanged(CallParticipantChangeEvent evt)
             {
@@ -866,27 +871,21 @@ public class CallHistoryServiceImpl
                     if(participantRecord == null)
                         return;
 
-                    if(evt.getNewValue().equals(CallParticipantState.CONNECTED))
+                    CallParticipantState newState =
+                        (CallParticipantState) evt.getNewValue();
+
+                    if (newState.equals(CallParticipantState.CONNECTED)
+                        && !CallParticipantState.isOnHold((CallParticipantState)
+                                evt.getOldValue()))
                         participantRecord.setStartTime(new Date());
 
-                    participantRecord.
-                        setState((CallParticipantState)evt.getNewValue());
+                    participantRecord.setState(newState);
 
                     //Disconnected / Busy
                     //Disconnected / Connecting - fail
                     //Disconnected / Connected
                 }
             }
-
-            public void participantDisplayNameChanged(
-                CallParticipantChangeEvent evt){}
-            public void participantAddressChanged(
-                CallParticipantChangeEvent evt){}
-            public void participantImageChanged(
-                CallParticipantChangeEvent evt){}
-
-            public void participantTransportAddressChanged(
-                CallParticipantChangeEvent evt){}
         });
 
         Date startDate = new Date();
@@ -919,7 +918,10 @@ public class CallHistoryServiceImpl
         if(!callParticipant.getState().equals(CallParticipantState.DISCONNECTED))
             cpRecord.setState(callParticipant.getState());
 
-        if(cpRecord.getState().equals(CallParticipantState.CONNECTED))
+        CallParticipantState cpRecordState = cpRecord.getState();
+
+        if (cpRecordState.equals(CallParticipantState.CONNECTED)
+            || CallParticipantState.isOnHold(cpRecordState))
         {
             cpRecord.setEndTime(new Date());
         }

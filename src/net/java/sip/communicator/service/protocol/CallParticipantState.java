@@ -27,12 +27,13 @@ package net.java.sip.communicator.service.protocol;
  * <p>A FAILED state is prone to appear at any place in the above diagram and is
  * generally followed by a disconnected state.
  *
- * <p>Information on call participant is shonw in the phone user interface until
+ * <p>Information on call participant is shown in the phone user interface until
  * they enter the DISCONNECTED state. At that point call participant information
  * is automatically removed from the user interface and the call is considered
  * terminated.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class CallParticipantState
 {
@@ -179,18 +180,67 @@ public class CallParticipantState
                                           = new CallParticipantState(_FAILED);
 
     /**
-     * This constant value indicates a String representation of the ON_HOLD
-     * call state.
-     * <br>This constant has the String value "On Hold".
+     * The constant value being a String representation of the ON_HOLD_LOCALLY
+     * call participant state.
+     * <p>
+     * This constant has the String value "Locally On Hold".
+     * </p>
      */
-    public static final String _ON_HOLD          = "On Hold";
+    public static final String _ON_HOLD_LOCALLY = "Locally On Hold";
     /**
-     * This constant value indicates that the state of the call participant is
-     * is ON_HOLD - which means that an attempt to establish a call with that
-     * participant has failed for an unexpected reason.
+     * The constant value indicating that the state of a call participant is
+     * locally put on hold.
      */
-    public static final CallParticipantState ON_HOLD
-                                          = new CallParticipantState(_ON_HOLD);
+    public static final CallParticipantState ON_HOLD_LOCALLY
+                                = new CallParticipantState(_ON_HOLD_LOCALLY);
+
+    /**
+     * The constant value being a String representation of the ON_HOLD_MUTUALLY
+     * call participant state.
+     * <p>
+     * This constant has the String value "Mutually On Hold".
+     * </p>
+     */
+    public static final String _ON_HOLD_MUTUALLY = "Mutually On Hold";
+    /**
+     * The constant value indicating that the state of a call participant is
+     * mutually - locally and remotely - put on hold.
+     */
+    public static final CallParticipantState ON_HOLD_MUTUALLY
+                                = new CallParticipantState(_ON_HOLD_MUTUALLY);
+
+    /**
+     * The constant value being a String representation of the ON_HOLD_REMOTELY
+     * call participant state.
+     * <p>
+     * This constant has the String value "Remotely On Hold".
+     * </p>
+     */
+    public static final String _ON_HOLD_REMOTELY = "Remotely On Hold";
+    /**
+     * The constant value indicating that the state of a call participant is
+     * remotely put on hold.
+     */
+    public static final CallParticipantState ON_HOLD_REMOTELY
+                                = new CallParticipantState(_ON_HOLD_REMOTELY);
+
+    /**
+     * Determines whether a specific <tt>CallParticipantState</tt> value
+     * signal a call hold regardless of the issuer (which may be local and/or
+     * remote).
+     * 
+     * @param state
+     *            the <tt>CallParticipantState</tt> value to be checked
+     *            whether it signals a call hold
+     * @return <tt>true</tt> if the specified <tt>state</tt> signals a call
+     *         hold; <tt>false</tt>, otherwise
+     */
+    public static final boolean isOnHold(CallParticipantState state)
+    {
+        return CallParticipantState.ON_HOLD_LOCALLY.equals(state)
+                || CallParticipantState.ON_HOLD_MUTUALLY.equals(state)
+                || CallParticipantState.ON_HOLD_REMOTELY.equals(state);
+    }
 
     /**
      * A string representationf this Participant Call State. Could be
@@ -221,10 +271,10 @@ public class CallParticipantState
     }
 
     /**
-     * Returns a string represenation of this call state. Strings returned
+     * Returns a string representation of this call state. Strings returned
      * by this method have the following format:
      * CallParticipantState:<STATE_STRING>
-     * and are meant to be used for loggin/debugging purposes.
+     * and are meant to be used for logging/debugging purposes.
      * @return a string representation of this object.
      */
     public String toString()

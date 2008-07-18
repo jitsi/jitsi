@@ -62,6 +62,7 @@ import javax.media.control.*;
  * @author Ryan Ricard
  * @author Ken Larson
  * @author Dudek Przemyslaw
+ * @author Lubomir Marinov
  */
 public class CallSessionImpl
         implements   CallSession
@@ -158,6 +159,24 @@ public class CallSessionImpl
      * store it and show it to the user.
      */
     private URL callURL = null;
+
+    /**
+     * The flag which signals that this side of the call has put the other on
+     * hold.
+     */
+    private static final byte ON_HOLD_LOCALLY = 1 << 1;
+
+    /**
+     * The flag which signals that the other side of the call has put this on
+     * hold.
+     */
+    private static final byte ON_HOLD_REMOTELY = 1 << 2;
+
+    /**
+     * The flags which determine whether this side of the call has put the other
+     * on hold and whether the other side of the call has put this on hold.
+     */
+    private byte onHold;
 
     /**
      * List of RTP format strings which are supported by SIP Communicator in addition
@@ -517,6 +536,318 @@ public class CallSessionImpl
         throws net.java.sip.communicator.service.media.MediaException
     {
         return createSessionDescription(null, intendedDestination).toString();
+    }
+
+    /**
+     * The method is meant for use by protocol service implementations when
+     * willing to send an in-dialog invitation to a remote callee to put her
+     * on/off hold or to send an answer to an offer to be put on/off hold.
+     * 
+     * @param participantSdpDescription the last SDP description of the remote
+     *            callee
+     * @param on <tt>true</tt> if the SDP description should offer the remote
+     *            callee to be put on hold or answer an offer from the remote
+     *            callee to be put on hold; <tt>false</tt> to work in the
+     *            context of a put-off-hold offer
+     * @return an SDP description <tt>String</tt> which offers the remote
+     *         callee to be put her on/off hold or answers an offer from the
+     *         remote callee to be put on/off hold
+     * @throws MediaException
+     */
+    public String createSdpDescriptionForHold(String participantSdpDescription,
+        boolean on) throws MediaException
+    {
+        SessionDescription participantDescription = null;
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+"+participantSdpDescription);
+        try
+        {
+            participantDescription =
+                mediaServCallback.getSdpFactory().createSessionDescription(
+                    participantSdpDescription);
+        }
+        catch (SdpParseException ex)
+        {
+            throwMediaException(
+                "Failed to parse the SDP description of the participant.",
+                MediaException.INTERNAL_ERROR, ex);
+        }
+
+        SessionDescription sdpOffer =
+            createSessionDescription(participantDescription, null);
+
+        Vector mediaDescriptions = null;
+        try
+        {
+            mediaDescriptions = sdpOffer.getMediaDescriptions(true);
+        }
+        catch (SdpException ex)
+        {
+            throwMediaException(
+                "Failed to get media descriptions from SDP offer.",
+                MediaException.INTERNAL_ERROR, ex);
+        }
+
+        for (Iterator mediaDescriptionIter = mediaDescriptions.iterator(); mediaDescriptionIter
+            .hasNext();)
+        {
+            MediaDescription mediaDescription =
+                (MediaDescription) mediaDescriptionIter.next();
+            Vector attributes = mediaDescription.getAttributes(false);
+
+            try
+            {
+                modifyMediaDescriptionForHold(on, mediaDescription, attributes);
+            }
+            catch (SdpException ex)
+     
+            {
+                throwMediaException(
+                    "Failed to modify media description for hold.",
+                    MediaException.INTERNAL_ERROR, ex);
+            }
+        }
+
+        try
+        {
+            sdpOffer.setMediaDescriptions(mediaDescriptions);
+        }
+        catch (SdpException ex)
+        {
+            throwMediaException(
+                "Failed to set media descriptions to SDP offer.",
+                MediaException.INTERNAL_ERROR, ex);
+        }
+
+        return sdpOffer.toString();
+    }
+
+    /**
+     * Modifies the attributes of a specific <tt>MediaDescription</tt> in
+     * order to make them reflect the state of being on/off hold.
+     * 
+     * @param on <tt>true</tt> if the state described by the modified
+     *            <tt>MediaDescription</tt> should reflect being put on hold;
+     *            <tt>false</tt> for being put off hold
+     * @param mediaDescription the <tt>MediaDescription</tt> to modify the
+     *            attributes of
+     * @param attributes the attributes of <tt>mediaDescription</tt>
+     * @throws SdpException
+     */
+    private void modifyMediaDescriptionForHold(boolean on,
+        MediaDescription mediaDescription, Vector attributes)
+        throws SdpException
+    {
+
+        /*
+         * The SDP offer to be put on hold represents a transition between
+         * sendrecv and sendonly or between recvonly and inactive depending on
+         * the current state.
+         */
+        String oldAttribute = on ? "recvonly" : "inactive";
+        String newAttribute = null;
+        if (attributes != null)
+            for (Iterator attributeIter = attributes.iterator(); attributeIter
+                .hasNext();)
+            {
+                String attribute = ((Attribute) attributeIter.next()).getName();
+
+                if (oldAttribute.equalsIgnoreCase(attribute))
+                    newAttribute = on ? "inactive" : "recvonly";
+            }
+        if (newAttribute == null)
+        	newAttribute = on ? "sendonly" : "sendrecv";
+
+        mediaDescription.removeAttribute("inactive");
+        mediaDescription.removeAttribute("recvonly");
+        mediaDescription.removeAttribute("sendonly");
+        mediaDescription.removeAttribute("sendrecv");
+        mediaDescription.setAttribute(newAttribute, null);
+    }
+
+    /**
+     * Logs a specific message and associated <tt>Throwable</tt> cause as an
+     * error using the current <tt>Logger</tt> and then throws a new
+     * <tt>MediaException</tt> with the message, a specific error code and the
+     * cause.
+     * 
+     * @param message the message to be logged and then wrapped in a new
+     *            <tt>MediaException</tt>
+     * @param errorCode the error code to be assigned to the new
+     *            <tt>MediaException</tt>
+     * @param cause the <tt>Throwable</tt> that has caused the necessity to
+     *            log an error and have a new <tt>MediaException</tt> thrown
+     * @throws MediaException
+     */
+    private void throwMediaException(String message, int errorCode,
+        Throwable cause) throws MediaException
+    {
+        logger.error(message, cause);
+        throw new MediaException(message, errorCode, cause);
+    }
+
+    /**
+     * Determines whether a specific SDP description <tt>String</tt> offers
+     * this party to be put on hold.
+     * 
+     * @param sdpOffer the SDP description <tt>String</tt> to be examined for
+     *            an offer to this party to be put on hold
+     * @return <tt>true</tt> if the specified SDP description <tt>String</tt>
+     *         offers this party to be put on hold; <tt>false</tt>, otherwise
+     * @throws MediaException
+     */
+    public boolean isSdpOfferToHold(String sdpOffer) throws MediaException
+    {
+        SessionDescription description = null;
+        try
+        {
+            description =
+                mediaServCallback.getSdpFactory().createSessionDescription(
+                    sdpOffer);
+        }
+        catch (SdpParseException ex)
+        {
+            throwMediaException("Failed to parse SDP offer.",
+                MediaException.INTERNAL_ERROR, ex);
+        }
+
+        Vector mediaDescriptions = null;
+        try
+        {
+            mediaDescriptions = description.getMediaDescriptions(true);
+        }
+        catch (SdpException ex)
+        {
+            throwMediaException(
+                "Failed to get media descriptions from SDP offer.",
+                MediaException.INTERNAL_ERROR, ex);
+        }
+
+        boolean isOfferToHold = true;
+        for (Iterator mediaDescriptionIter = mediaDescriptions.iterator(); mediaDescriptionIter
+            .hasNext()
+            && isOfferToHold;)
+        {
+            MediaDescription mediaDescription =
+                (MediaDescription) mediaDescriptionIter.next();
+            Vector attributes = mediaDescription.getAttributes(false);
+
+            isOfferToHold = false;
+            if (attributes != null)
+            {
+                for (Iterator attributeIter = attributes.iterator(); attributeIter
+                    .hasNext()
+                    && !isOfferToHold;)
+                {
+                    try
+                    {
+                        String attribute =
+                            ((Attribute) attributeIter.next()).getName();
+
+                        if ("sendonly".equalsIgnoreCase(attribute)
+                            || "inactive".equalsIgnoreCase(attribute))
+                        {
+                            isOfferToHold = true;
+                        }
+                    }
+                    catch (SdpParseException ex)
+                    {
+                        throwMediaException(
+                            "Failed to get SDP media description attribute name",
+                            MediaException.INTERNAL_ERROR, ex);
+                    }
+                }
+            }
+        }
+        return isOfferToHold;
+    }
+
+    /**
+     * Puts the media of this <tt>CallSession</tt> on/off hold depending on
+     * the origin of the request.
+     * <p>
+     * For example, a remote request to have this party put off hold cannot
+     * override an earlier local request to put the remote party on hold.
+     * </p>
+     * 
+     * @param on <tt>true</tt> to request the media of this
+     *            <tt>CallSession</tt> be put on hold; <tt>false</tt>,
+     *            otherwise
+     * @param here <tt>true</tt> if the request comes from this side of the
+     *            call; <tt>false</tt> if the remote party is the issuer of
+     *            the request i.e. it's the result of a remote offer
+     */
+    public void putOnHold(boolean on, boolean here)
+    {
+        if (on)
+        {
+            onHold |= (here ? ON_HOLD_LOCALLY : ON_HOLD_REMOTELY);
+        }
+        else
+        {
+            onHold &= ~ (here ? ON_HOLD_LOCALLY : ON_HOLD_REMOTELY);
+        }
+
+        /* Put the send on/off hold. */
+        boolean sendOnHold =
+            (0 != (onHold & (ON_HOLD_LOCALLY | ON_HOLD_REMOTELY)));
+        putOnHold(getAudioRtpManager(), sendOnHold);
+        putOnHold(getVideoRtpManager(), sendOnHold);
+
+        /* Put the receive on/off hold. */
+        boolean receiveOnHold = (0 != (onHold & ON_HOLD_LOCALLY));
+        for (Iterator playerIter = players.iterator(); playerIter.hasNext();)
+        {
+            Player player = (Player) playerIter.next();
+
+            if (receiveOnHold)
+                player.stop();
+            else
+                player.start();
+        }
+    }
+
+    /**
+     * Puts a the <tt>SendSteam</tt>s of a specific <tt>RTPManager</tt>
+     * on/off hold i.e. stops/starts them.
+     * 
+     * @param rtpManager the <tt>RTPManager</tt> to have its
+     *            <tt>SendStream</tt>s on/off hold i.e. stopped/started
+     * @param on <tt>true</tt> to have the <tt>SendStream</tt>s of
+     *            <tt>rtpManager</tt> put on hold i.e. stopped; <tt>false</tt>,
+     *            otherwise
+     */
+    private void putOnHold(RTPManager rtpManager, boolean on)
+    {
+        for (Iterator sendStreamIter = rtpManager.getSendStreams().iterator(); sendStreamIter
+            .hasNext();)
+        {
+            SendStream sendStream = (SendStream) sendStreamIter.next();
+
+            if (on)
+            {
+                try
+                {
+                    sendStream.getDataSource().stop();
+                    sendStream.stop();
+                }
+                catch (IOException ex)
+                {
+                    logger.warn("Failed to stop SendStream.", ex);
+                }
+            }
+            else
+            {
+                try
+                {
+                    sendStream.getDataSource().start();
+                    sendStream.start();
+                }
+                catch (IOException ex)
+                {
+                    logger.warn("Failed to start SendStream.", ex);
+                }
+            }
+        }
     }
 
     /**
@@ -916,7 +1247,15 @@ public class CallSessionImpl
                 }
             }
 
-            allocateMediaPorts(intendedDestination);
+            /*
+             * For example, issuing a Request.INVITE for putting a
+             * CallParticipant on hold also needs a SessionDescrption. However,
+             * it just wants to describe the current state.
+             */
+            if ((audioSessionAddress == null) || (videoSessionAddress == null))
+            {
+                allocateMediaPorts(intendedDestination);
+            }
 
             InetAddress publicIpAddress = audioPublicAddress.getAddress();
 
@@ -1087,12 +1426,15 @@ public class CallSessionImpl
                     , 1
                     , "RTP/AVP"
                     , supportedAudioEncodings);
+            byte onHold = this.onHold;
 
             if (!mediaServCallback.getDeviceConfiguration()
                 .isAudioCaptureSupported())
             {
-                am.setAttribute("recvonly", null);
+                /* We don't have anything to send. */
+                onHold |= ON_HOLD_REMOTELY;
             }
+            setAttributeOnHold(am, onHold);
             mediaDescs.add(am);
         }
         //--------Video media description
@@ -1106,12 +1448,15 @@ public class CallSessionImpl
                     , 1
                     , "RTP/AVP"
                     , supportedVideoEncodings);
+            byte onHold = this.onHold;
 
             if (!mediaServCallback.getDeviceConfiguration()
                 .isVideoCaptureSupported())
             {
-                vm.setAttribute("recvonly", null);
+                /* We don't have anything to send. */
+                onHold |= ON_HOLD_REMOTELY;
             }
+            setAttributeOnHold(vm, onHold);
             mediaDescs.add(vm);
         }
 
@@ -1121,6 +1466,36 @@ public class CallSessionImpl
         /** @todo record formats for participant. */
 
         return mediaDescs;
+    }
+
+    /**
+     * Sets the call-hold related attribute of a specific
+     * <tt>MediaDescription</tt> to a specific value depending on the type of
+     * hold this <tt>CallSession</tt> is currently in.
+     * 
+     * @param mediaDescription the <tt>MediaDescription</tt> to set the
+     *            call-hold related attribute of
+     * @param onHold the call-hold state of this <tt>CallSession</tt> which is
+     *            a combination of {@link #ON_HOLD_LOCALLY} and
+     *            {@link #ON_HOLD_REMOTELY}
+     * @throws SdpException
+     */
+    private void setAttributeOnHold(MediaDescription mediaDescription,
+        byte onHold) throws SdpException
+    {
+        String attribute;
+
+        if (ON_HOLD_LOCALLY == (onHold | ON_HOLD_LOCALLY))
+            attribute =
+                (ON_HOLD_REMOTELY == (onHold | ON_HOLD_REMOTELY)) ? "inactive"
+                        : "sendonly";
+        else
+            attribute =
+                (ON_HOLD_REMOTELY == (onHold | ON_HOLD_REMOTELY)) ? "recvonly"
+                        : null;
+
+        if (attribute != null)
+            mediaDescription.setAttribute(attribute, null);
     }
 
     /**
