@@ -24,7 +24,7 @@ public abstract class KeybindingSet
      * @return mapping of keystrokes to the string representation of the actions
      *         they perform
      */
-    public abstract LinkedHashMap <KeyStroke, String> getBindings();
+    public abstract HashMap <KeyStroke, String> getBindings();
     
     /**
      * Resets the bindings and notifies the observer's listeners if they've

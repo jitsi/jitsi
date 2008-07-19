@@ -156,6 +156,10 @@ public class JabberStatusEnum
         this.doNotDisturbStatus =
             new JabberPresenceStatus(30, DO_NOT_DISTURB, loadIcon(iconPath
                 + "/status16x16-dnd.png"));
+        
+        this.extendedAwayStatus =
+            new JabberPresenceStatus(35, EXTENDED_AWAY, loadIcon(iconPath
+                + "/status16x16-xa.png"));
 
         this.awayStatus =
             new JabberPresenceStatus(40, AWAY, loadIcon(iconPath
@@ -168,10 +172,6 @@ public class JabberStatusEnum
         this.freeForChatStatus =
             new JabberPresenceStatus(85, FREE_FOR_CHAT, loadIcon(iconPath
                 + "/status16x16-ffc.png"));
-        
-        this.extendedAwayStatus =
-            new JabberPresenceStatus(85, EXTENDED_AWAY, loadIcon(iconPath
-                + "/status16x16-xa.png"));
 
         this.unknownStatus =
             new JabberPresenceStatus(1, UNKNOWN, loadIcon(iconPath

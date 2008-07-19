@@ -679,6 +679,11 @@ public class OperationSetBasicTelephonySipImpl
         {
             processRinging(clientTransaction, response);
         }
+        //Session Progress
+        if (response.getStatusCode() == Response.SESSION_PROGRESS)
+        {
+            processSessionProgress(clientTransaction, response);
+        }
         //Trying
         else if (response.getStatusCode() == Response.TRYING)
         {
@@ -787,6 +792,111 @@ public class OperationSetBasicTelephonySipImpl
         callParticipant.setState(CallParticipantState.ALERTING_REMOTE_SIDE);
     }
 
+    /**
+     * Handles early media in 183 Session Progress responses. Retrieves the SDP
+     * and makes sure that we start transmitting and playing early media that 
+     * we receive. Puts the call into a CONNECTING_WITH_EARLY_MEDIA state.
+     * 
+     * @param clientTransaction the <tt>ClientTransaction</tt> that the response
+     * arrived in.
+     * @param sessionProgress the 183 <tt>Response</tt> to process
+     */
+    private void processSessionProgress(ClientTransaction clientTransaction,
+                                        Response          sessionProgress)
+    {
+        
+        Dialog dialog = clientTransaction.getDialog();
+        //find the call
+        CallParticipantSipImpl callParticipant
+            = activeCallsRepository.findCallParticipant(dialog);
+
+        if (callParticipant.getState() 
+                == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
+        {
+            // This can happen if we are receigin early media for a second time.
+            logger.warn("Ignoring invite 183 since call participant is "
+                         +"already exchanging early media.");
+            return;
+        }
+        
+        if (sessionProgress.getContentLength().getContentLength() == 0)
+        {
+            logger.warn("Ignoring a 183 with no content");
+            return;
+        }
+        
+        ContentTypeHeader contentTypeHeader = (ContentTypeHeader)
+            sessionProgress.getHeader(ContentTypeHeader.NAME);
+        
+        if(!contentTypeHeader.getContentType().equalsIgnoreCase("application")
+           || !contentTypeHeader.getContentSubType().equalsIgnoreCase("sdp"))
+        {
+            // This can happen if we are receigin early media for a second time.
+            logger.warn("Ignoring invite 183 since call participant is "
+                         +"already exchanging early media.");
+            return;
+        }
+
+        //set sdp content before setting call state as that is where
+        //listeners get alerted and they need the sdp
+        callParticipant.setSdpDescription(
+                                new String(sessionProgress.getRawContent()));
+
+        //notify the media manager of the sdp content
+        CallSession callSession
+            = ((CallSipImpl)callParticipant.getCall()).getMediaCallSession();
+        
+        if(callSession == null)
+        {
+            //unlikely to happen because it would mean we didn't send an offer
+            //in the invite and we always send one.
+            logger.warn("Could not find call session.");
+            return;
+        }
+        
+        try
+        {
+            callSession.processSdpAnswer(
+                callParticipant, 
+                new String(sessionProgress.getRawContent()));
+        }
+        catch (ParseException exc)
+        {
+            logger.error("There was an error parsing the SDP description of "
+                         + callParticipant.getDisplayName()
+                         + "(" + callParticipant.getAddress() + ")"
+                        , exc);
+            callParticipant.setState(CallParticipantState.FAILED
+                , "There was an error parsing the SDP description of "
+                + callParticipant.getDisplayName()
+                + "(" + callParticipant.getAddress() + ")");
+        }
+        catch (MediaException exc)
+        {
+            logger.error("We failed to process the SDP description of "
+                         + callParticipant.getDisplayName()
+                         + "(" + callParticipant.getAddress() + ")"
+                         + ". Error was: "
+                         + exc.getMessage()
+                        , exc);
+            callParticipant.setState(CallParticipantState.FAILED
+                , "We failed to process the SDP description of "
+                + callParticipant.getDisplayName()
+                + "(" + callParticipant.getAddress() + ")"
+                + ". Error was: "
+                + exc.getMessage());
+        }
+
+        //set the call url in case there was one
+        /** @todo this should be done in CallSession, once we move 
+         * it here.*/
+        callParticipant.setCallInfoURL(callSession.getCallInfoURL());
+        
+        //change status
+        callParticipant.setState(
+                        CallParticipantState.CONNECTING_WITH_EARLY_MEDIA);
+    }
+    
     /**
      * Sets to CONNECTED that state of the corresponding call participant and
      * sends an ACK.
@@ -1794,9 +1904,12 @@ public class OperationSetBasicTelephonySipImpl
             sayBye(callParticipant);
             callParticipant.setState(CallParticipantState.DISCONNECTED);
         }
-        else if (participantState.equals(CallParticipantState.CONNECTING)
-            || participantState
-                .equals(CallParticipantState.ALERTING_REMOTE_SIDE))
+        else if (callParticipant.getState()
+                      .equals(CallParticipantState.CONNECTING)
+                 || callParticipant.getState()
+                      .equals(CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
+                 || callParticipant.getState()
+                      .equals(CallParticipantState.ALERTING_REMOTE_SIDE))
         {
             if (callParticipant.getFirstTransaction() != null)
             {
@@ -1935,6 +2048,28 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             bye = callParticipant.getDialog().createRequest(Request.BYE);
+            
+            //we have to set the via headers our selves because otherwise 
+            //jain sip would send them with a 0.0.0.0 address
+            InetAddress destinationInetAddress = null;
+            String host = ( (SipURI) bye.getRequestURI()).getHost();
+            try
+            {
+                destinationInetAddress = InetAddress.getByName(host);
+            }
+            catch (UnknownHostException ex)
+            {
+                throw new IllegalArgumentException(
+                    host + " is not a valid internet address " 
+                    + ex.getMessage());
+            }
+
+            ArrayList viaHeaders= protocolProvider.getLocalViaHeaders(
+                destinationInetAddress,  
+                protocolProvider.getRegistrarConnection()
+                    .getRegistrarListeningPoint());
+            bye.setHeader((ViaHeader)viaHeaders.get(0));
+            bye.addHeader(protocolProvider.getSipCommUserAgentHeader());
         }
         catch (SipException ex)
         {

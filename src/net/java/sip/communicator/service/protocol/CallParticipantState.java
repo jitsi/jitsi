@@ -85,6 +85,21 @@ public class CallParticipantState
      */
     public static final CallParticipantState CONNECTING =
                                         new CallParticipantState(_CONNECTING);
+    
+    /**
+     * This constant value indicates a String representation of the CONNECTING
+     * call state but in cases where early media is being exchanged.
+     * <br>This constant has the String value "Connecting".
+     */
+    public static final String _CONNECTING_WITH_EARLY_MEDIA = "Connecting*";
+
+    /**
+     * This constant value indicates that the state of the call participant is
+     * is CONNECTING - which means that a network connection to that participant
+     * is currently being established.
+     */
+    public static final CallParticipantState CONNECTING_WITH_EARLY_MEDIA =
+                       new CallParticipantState( _CONNECTING_WITH_EARLY_MEDIA );
 
     /**
      * This constant value indicates a String representation of the

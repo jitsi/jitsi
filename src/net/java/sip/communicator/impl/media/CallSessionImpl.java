@@ -55,9 +55,6 @@ import javax.media.control.*;
  * bye the remote party and we only need to configure our processor and
  * <tt>RTPManager</tt>s.
  *
- * @todo implement SendStreamListener.
- * @todo implement ReceiveStreamListener.
- *
  * @author Emil Ivov
  * @author Ryan Ricard
  * @author Ken Larson
@@ -461,7 +458,7 @@ public class CallSessionImpl
         //print flow statistics.
         GlobalTransmissionStats s = rtpManager.getGlobalTransmissionStats();
 
-        logger.info(
+        logger.debug(
             "global transmission stats (" + rtpManagerDescription + "): \n" +
             "bytes sent: " + s.getBytesSent() + "\n" +
             "local colls: " + s.getLocalColls() + "\n" +
@@ -473,7 +470,7 @@ public class CallSessionImpl
 
         GlobalReceptionStats rs = rtpManager.getGlobalReceptionStats();
 
-        logger.info(
+        logger.debug(
             "global reception stats (" + rtpManagerDescription + "): \n" +
             "bad RTCP packets: " + rs.getBadRTCPPkts() + "\n" +
             "bad RTP packets: " + rs.getBadRTPkts() + "\n" +
@@ -1931,6 +1928,7 @@ public class CallSessionImpl
         {
             try
             {
+                logger.debug("call connected. starting streaming");
                 startStreaming();
                 mediaServCallback.getMediaControl(getCall())
                     .startProcessingMedia(this);
@@ -1941,9 +1939,10 @@ public class CallSessionImpl
                 logger.error("Failed to start streaming.", ex);
             }
         }
-        else if( evt.getNewValue() == CallState.CALL_ENDED
+        else if( evt.getNewValue() == CallState.CALL_ENDED 
                  && evt.getNewValue() != evt.getOldValue())
         {
+            logger.warn("Stopping streaming.");
             stopStreaming();
             mediaServCallback.getMediaControl(getCall())
                 .stopProcessingMedia(this);
@@ -1959,7 +1958,6 @@ public class CallSessionImpl
                 player.close();
                 playersIter.remove();
             }
-
 
             //close all video frames that we have created in this session
             Iterator videoFramesIter = videoFrames.iterator();
