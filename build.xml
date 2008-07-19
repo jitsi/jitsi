@@ -39,6 +39,7 @@
     <property name="resources" value="${dest}/resources"/>
     <property name="inst.resrc" value="${sc.basedir}/resources/install"/>
     <property name="path" value="${lib}/native/windows;${system.PATH}"/>
+    <property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
@@ -299,6 +300,22 @@
                 <include name="**"/>
             </packageset>
             <tag name="todo" description="To do:"/>
+            <link href="${j2se_api}" />
+            <header>
+                <![CDATA[
+                <b> SIP Communicator: the OpenSource Java VoIP and Instant Messaging client. </b>
+                ]]>
+            </header>
+            <bottom>
+                <![CDATA[
+                <font size="-1">
+                    <a href="http://sip-communicator.org"> SIP Communicator, the OpenSource Java VoIP and Instant Messaging client. </a>
+                    <br>
+                    <a href="http://gnu.org"> Distributable under LGPL license. </a>
+                    <br>
+                    </font>
+                 ]]>
+             </bottom>
         </javadoc>
     </target>
 

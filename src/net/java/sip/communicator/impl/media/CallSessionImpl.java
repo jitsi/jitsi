@@ -555,7 +555,6 @@ public class CallSessionImpl
         boolean on) throws MediaException
     {
         SessionDescription participantDescription = null;
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+"+participantSdpDescription);
         try
         {
             participantDescription =
