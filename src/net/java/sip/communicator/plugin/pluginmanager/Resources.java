@@ -26,7 +26,7 @@ import org.osgi.framework.*;
  */
 public class Resources
 {
-    private static Logger log = Logger.getLogger(Resources.class);
+    private static Logger logger = Logger.getLogger(Resources.class);
 
     private static ResourceManagementService resourcesService;
     
@@ -40,64 +40,7 @@ public class Resources
     {
         return getResources().getI18NString(key);
     }
-
-    /**
-     * Loads an image from a given image identifier.
-     * 
-     * @param imageID The identifier of the image.
-     * @return The image for the given identifier.
-     */
-    public static ImageIcon getImage(String imageID)
-    {
-        BufferedImage image = null;
-
-        InputStream in = 
-            getResources().getImageInputStream(imageID);
-        
-        if(in == null)
-            return null;
-        
-        try
-        {
-            image = ImageIO.read(in);
-        }
-        catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID, e);
-        }
-
-        return new ImageIcon(image);
-    }
     
-    /**
-     * Loads an image from a given image identifier.
-     * 
-     * @param imageID The identifier of the image.
-     * @return The image for the given identifier.
-     */
-    public static byte[] getImageInBytes(String imageID)
-    {
-        InputStream in = 
-            getResources().getImageInputStream(imageID);
-        
-        if(in == null)
-            return null;
-        
-        byte[] image = null;
-
-        try
-        {
-            image = new byte[in.available()];
-            in.read(image);
-        }
-        catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
-    }
-
     /**
      * Returns an int RGB color corresponding to the given key.
      *

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.statusupdate;
+package net.java.sip.communicator.plugin.autoaway;
 
 import java.awt.*;
 import java.util.*;
@@ -46,7 +46,7 @@ public class StatusUpdateThread implements Runnable
                         // check, if a minor state has been automatically set
                         // and
                         // reset this state to the former state.
-                        ProtocolProviderService[] pps = StatusUpdateActivator
+                        ProtocolProviderService[] pps = AutoAwayActivator
                                 .getProtocolProviders();
 
                         for (ProtocolProviderService protocolProviderService : pps)
@@ -77,7 +77,7 @@ public class StatusUpdateThread implements Runnable
                         // position has not changed!
                         // get all protocols and set them to away
 
-                        ProtocolProviderService[] pps = StatusUpdateActivator
+                        ProtocolProviderService[] pps = AutoAwayActivator
                                 .getProtocolProviders();
 
                         for (ProtocolProviderService protocolProviderService : pps)
@@ -165,7 +165,7 @@ public class StatusUpdateThread implements Runnable
 
     private int getTimer()
     {
-        ConfigurationService configService = StatusUpdateActivator
+        ConfigurationService configService = AutoAwayActivator
                 .getConfigService();
 
         String e = (String) configService.getProperty(Preferences.ENABLE);

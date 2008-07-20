@@ -6,17 +6,21 @@
  */
 package net.java.sip.communicator.impl.resources;
 
+import java.awt.image.*;
 import java.io.*;
 import java.net.*;
-import java.text.MessageFormat;
+import java.text.*;
 import java.util.*;
 
+import javax.imageio.*;
+import javax.swing.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- *
+ * A default implementation of the ResourceManagementService.
+ * 
  * @author Damian Minkov
  */
 public class ResourceManagementServiceImpl
@@ -273,6 +277,7 @@ public class ResourceManagementServiceImpl
     {
        return imagePack.getClass().getClassLoader().getResourceAsStream(path);
     }
+    
     /**
      * Loads a stream from a given identifier.
      * 
@@ -595,5 +600,60 @@ public class ResourceManagementServiceImpl
         }
 
         return languageList.iterator();
+    }
+    
+    /**
+     * Loads an image from a given image identifier.
+     * 
+     * @param imageID The identifier of the image.
+     * @return The image for the given identifier.
+     */
+    public byte[] getImageInBytes(String imageID)
+    {
+        InputStream in = getImageInputStream(imageID);
+        
+        if(in == null)
+            return null;
+        
+        byte[] image = null;
+
+        try
+        {
+            image = new byte[in.available()];
+            in.read(image);
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return image;
+    }
+    
+    /**
+     * Loads an image from a given image identifier.
+     * 
+     * @param imageID The identifier of the image.
+     * @return The image for the given identifier.
+     */
+    public ImageIcon getImage(String imageID)
+    {
+        BufferedImage image = null;
+
+        InputStream in = getImageInputStream(imageID);
+        
+        if(in == null)
+            return null;
+        
+        try
+        {
+            image = ImageIO.read(in);
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to load image:" + imageID, e);
+        }
+
+        return new ImageIcon(image);
     }
 }

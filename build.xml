@@ -639,7 +639,7 @@
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
-        bundle-plugin-statusupdate, bundle-keybindings,
+        bundle-plugin-autoaway, bundle-keybindings,
         bundle-plugin-keybindingChooser,
         bundle-jfontchooserlib,
         bundle-updatecheckplugin,
@@ -1553,12 +1553,12 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
     
-    <!--BUNDLE-StatusUpdatePlugin-->
-    <target name="bundle-plugin-statusupdate">
-        <jar compress="false" destfile="${bundles.dest}/statusupdate.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/statusupdate/statusupdate.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/statusupdate"
-                prefix="net/java/sip/communicator/plugin/statusupdate" />
+    <!--BUNDLE-AutoAwayPlugin-->
+    <target name="bundle-plugin-autoaway">
+        <jar compress="false" destfile="${bundles.dest}/autoaway.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/autoaway/autoaway.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/autoaway"
+                prefix="net/java/sip/communicator/plugin/autoaway" />
         </jar>
     </target>
 
@@ -1571,7 +1571,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!--BUNDLE-StatusUpdatePlugin-->
+    <!--BUNDLE-General Config-->
     <target name="bundle-plugin-generalconfig">
         <jar compress="false" destfile="${bundles.dest}/generalconfig.jar"
             manifest="${src}/net/java/sip/communicator/plugin/generalconfig/generalconfig.manifest.mf">

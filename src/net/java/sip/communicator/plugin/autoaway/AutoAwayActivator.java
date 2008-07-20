@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.statusupdate;
+package net.java.sip.communicator.plugin.autoaway;
 
 import java.util.*;
 
@@ -20,11 +20,11 @@ import org.osgi.framework.*;
  * 
  * @author Thomas Hofer
  */
-public class StatusUpdateActivator implements BundleActivator
+public class AutoAwayActivator implements BundleActivator
 {
 
     private static Logger logger = Logger
-            .getLogger(StatusUpdateActivator.class);
+            .getLogger(AutoAwayActivator.class);
 
     static BundleContext bundleContext = null;
 
@@ -41,9 +41,11 @@ public class StatusUpdateActivator implements BundleActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
+        
 
+        
         // Set config form
-        StatusConfigForm statusCF = new StatusConfigForm();
+        AutoAwayConfigForm statusCF = new AutoAwayConfigForm();
         bundleContext.registerService(ConfigurationForm.class.getName(),
                 statusCF,
                 null);
@@ -92,7 +94,7 @@ public class StatusUpdateActivator implements BundleActivator
         if (thread == null || !runner.isRunning())
         {
             thread = new Thread(runner);
-            thread.setName(StatusUpdateActivator.class.getName());
+            thread.setName(AutoAwayActivator.class.getName());
             thread.setPriority(Thread.MIN_PRIORITY);
             thread.setDaemon(true);
             thread.start();
@@ -127,7 +129,7 @@ public class StatusUpdateActivator implements BundleActivator
     static ProtocolProviderService[] getProtocolProviders()
     {
         // get the protocol provider factory
-        BundleContext bundleContext = StatusUpdateActivator.bundleContext;
+        BundleContext bundleContext = AutoAwayActivator.bundleContext;
 
         ServiceReference[] serRefs = null;
         // String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL + "="
@@ -153,8 +155,7 @@ public class StatusUpdateActivator implements BundleActivator
 
         for (ServiceReference serviceReference : serRefs)
         {
-            ProtocolProviderService protocolProvider
-                = (ProtocolProviderService) bundleContext
+            ProtocolProviderService protocolProvider = (ProtocolProviderService) bundleContext
                     .getService(serviceReference);
             pps.add(protocolProvider);
         }

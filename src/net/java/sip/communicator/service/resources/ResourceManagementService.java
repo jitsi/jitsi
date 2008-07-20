@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.resources;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.swing.*;
 
 /**
  *
@@ -148,4 +149,23 @@ public interface ResourceManagementService
     public Iterator getAvailableLocales();
     
     public Iterator getI18nStringsByLocale(Locale l);
+    
+    /**
+     * Constructs an <tt>ImageIcon</tt> from the specified image ID and returns
+     * it.
+     * 
+     * @param imageID The identifier of the image.
+     * @return An <tt>ImageIcon</tt> containing the image with the given 
+     * identifier.
+     */
+    public ImageIcon getImage(String imageID);
+    
+    /**
+     * Loads the image with the specified ID and returns a byte array 
+     * containing it.
+     * 
+     * @param imageID The identifier of the image.
+     * @return A byte array containing the image with the given identifier.
+     */
+    public byte[] getImageInBytes(String imageID);
 }

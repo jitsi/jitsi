@@ -151,7 +151,8 @@ public class PluginManagerConfigForm
      */
     public byte[] getIcon()
     {
-        return Resources.getImageInBytes("pluginIconPluginManager");
+        return Resources.getResources()
+                                .getImageInBytes("pluginIconPluginManager");
     }
 
     /**

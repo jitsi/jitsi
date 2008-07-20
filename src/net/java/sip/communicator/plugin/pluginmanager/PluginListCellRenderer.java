@@ -149,15 +149,15 @@ public class PluginListCellRenderer extends JPanel
         switch (state)
         {
             case Bundle.INSTALLED:
-                return Resources.getImage("installedStateIcon");
+                return Resources.getResources().getImage("installedStateIcon");
             case Bundle.RESOLVED:
-                return Resources.getImage("deactivatedStateIcon");
+                return Resources.getResources().getImage("deactivatedStateIcon");
             case Bundle.STARTING:
-                return Resources.getImage("startingStateIcon");
+                return Resources.getResources().getImage("startingStateIcon");
             case Bundle.ACTIVE:
-                return Resources.getImage("activeStateIcon");
+                return Resources.getResources().getImage("activeStateIcon");
             case Bundle.STOPPING:
-                return Resources.getImage("stoppingStateIcon");
+                return Resources.getResources().getImage("stoppingStateIcon");
         }
         return null;
     }
