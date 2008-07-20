@@ -41,9 +41,7 @@ public class StatusUpdateActivator implements BundleActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
-        
 
-        
         // Set config form
         StatusConfigForm statusCF = new StatusConfigForm();
         bundleContext.registerService(ConfigurationForm.class.getName(),
@@ -155,7 +153,8 @@ public class StatusUpdateActivator implements BundleActivator
 
         for (ServiceReference serviceReference : serRefs)
         {
-            ProtocolProviderService protocolProvider = (ProtocolProviderService) bundleContext
+            ProtocolProviderService protocolProvider
+                = (ProtocolProviderService) bundleContext
                     .getService(serviceReference);
             pps.add(protocolProvider);
         }

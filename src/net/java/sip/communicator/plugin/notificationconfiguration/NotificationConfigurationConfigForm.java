@@ -7,26 +7,20 @@
 
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import java.io.*;
-import java.lang.String.*;
-import java.net.MalformedURLException;
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.ImageIcon.*;
 import javax.swing.border.*;
-import javax.swing.JPanel.*;
-import javax.swing.BoxLayout.*;
+import javax.swing.event.*;
 
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.audionotifier.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.notification.event.*;
-
 import net.java.sip.communicator.util.*;
 
 /**
@@ -159,7 +153,7 @@ public class NotificationConfigurationConfigForm
         activate.setMinimumSize(new Dimension(150,30));
         activate.setPreferredSize(new Dimension(150,30));
         activate.addActionListener(this);
-        desactivate = new JButton(Resources.getString("desactivate"));
+        desactivate = new JButton(Resources.getString("deactivate"));
         desactivate.setMinimumSize(new Dimension(150,30));
         desactivate.setPreferredSize(new Dimension(150,30));
         desactivate.addActionListener(this);
@@ -386,7 +380,7 @@ public class NotificationConfigurationConfigForm
         programFileTextField.setText(tmpNTE.getProgramFile());
         playSoundCheckBox.setSelected(tmpNTE.getSound());
         playSoundButton.setEnabled(tmpNTE.getSound());
-        soundFileChooser.setEnabled(tmpNTE.getSound());           
+        soundFileChooser.setEnabled(tmpNTE.getSound());
         soundFileTextField.setEnabled(tmpNTE.getSound());
         soundFileTextField.setText(tmpNTE.getSoundFile());
         popupCheckBox.setSelected(tmpNTE.getPopup());
@@ -399,7 +393,7 @@ public class NotificationConfigurationConfigForm
      */
     public String getTitle()
     {
-        return Resources.getString("notification");
+        return Resources.getString("notifications");
     }
 
     /**

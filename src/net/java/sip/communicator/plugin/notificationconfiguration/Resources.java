@@ -7,14 +7,16 @@
 
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import java.awt.image.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
-import javax.imageio.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The Messages class manages the access to the internationalization
@@ -25,23 +27,20 @@ public class Resources {
 
     private static Logger log = Logger.getLogger(Resources.class);
 
-    private static final String BUNDLE_NAME
-        = "net.java.sip.communicator.plugin.notificationconfiguration.resources";
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
-
     /**
      * Returns an internationalized string corresponding to the given key.
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
-    public static String getString(String key) {
-        try {
-            return RESOURCE_BUNDLE.getString(key);
+    public static String getString(String key)
+    {
+        try
+        {
+            return getResources().getI18NString(key);
 
-        } catch (MissingResourceException e) {
-
+        }
+        catch (MissingResourceException e)
+        {
             return '!' + key + '!';
         }
     }
@@ -51,19 +50,15 @@ public class Resources {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static ImageIcon getImage(String imageID) {
-        BufferedImage image = null;
+    public static ImageIcon getImage(String imageID)
+    {
+        URL imageURL = 
+            getResources().getImageURL(imageID);
 
-        String path = Resources.getString(imageID);
-        try {
-            image = ImageIO.read(Resources.class.getClassLoader()
-                    .getResourceAsStream(path));
+        if(imageURL == null)
+            return null;
 
-        } catch (IOException e) {
-            log.error("Failed to load image:" + path, e);
-        }
-
-        return new ImageIcon(image);
+        return new ImageIcon(imageURL);
     }
     
     /**
@@ -71,18 +66,39 @@ public class Resources {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static byte[] getImageInBytes(String imageID) {
-        byte[] image = new byte[100000];
+    public static byte[] getImageInBytes(String imageID)
+    {
+        InputStream in = 
+            getResources().getImageInputStream(imageID);
 
-        String path = Resources.getString(imageID);
-        try {
-            Resources.class.getClassLoader()
-                    .getResourceAsStream(path).read(image);
+        if(in == null)
+            return null;
 
-        } catch (IOException e) {
-            log.error("Failed to load image:" + path, e);
+        byte[] image = null;
+
+        try
+        {
+            image = new byte[in.available()];
+            in.read(image);
+        }
+        catch (IOException e)
+        {
+            log.error("Failed to load image:" + imageID, e);
         }
 
         return image;
+    }
+
+    private static ResourceManagementService getResources()
+    {
+        ServiceReference serviceReference = NotificationConfigurationActivator
+            .bundleContext.getServiceReference(
+                ResourceManagementService.class.getName());
+
+        if(serviceReference == null)
+            return null;
+
+        return (ResourceManagementService) NotificationConfigurationActivator
+            .bundleContext.getService(serviceReference);
     }
 }

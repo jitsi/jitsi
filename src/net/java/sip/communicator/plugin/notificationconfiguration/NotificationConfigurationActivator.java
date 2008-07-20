@@ -10,6 +10,7 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -19,14 +20,17 @@ import org.osgi.framework.*;
  */
 public class NotificationConfigurationActivator implements BundleActivator
 {
+    private Logger logger
+        = Logger.getLogger(NotificationConfigurationActivator.class);
+
     public static BundleContext bundleContext;
-    
+
     private static ConfigurationService configService;
-    
+
     private static AudioNotifierService audioService;
-    
+
     private static NotificationService notificationService;
-   
+
     /**
      * Starts this bundle and adds the <tt>AudioConfigurationConfigForm</tt> 
      * contained in it to the configuration window obtained from the 
@@ -35,13 +39,15 @@ public class NotificationConfigurationActivator implements BundleActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
-        
+
         NotificationConfigurationConfigForm notificationconfiguration
             = new NotificationConfigurationConfigForm();
 
         bundleContext.registerService(  ConfigurationForm.class.getName(),
                                         notificationconfiguration,
                                         null);
+
+        logger.trace("Notification Configuration: [ STARTED ]");
     }
 
     /**

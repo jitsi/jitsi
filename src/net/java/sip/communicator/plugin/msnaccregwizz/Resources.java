@@ -58,10 +58,10 @@ public class Resources
     {
         InputStream in = 
             getResources().getImageInputStream(imageID.getId());
-        
+
         if(in == null)
             return null;
-        
+
         byte[] image = null;
 
         try
