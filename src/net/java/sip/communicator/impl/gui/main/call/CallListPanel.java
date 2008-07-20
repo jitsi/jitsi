@@ -91,7 +91,7 @@ public class CallListPanel
      */
     private void initPanels()
     {
-        this.scrollPane.setViewport(new ScrollPaneBackground());
+        this.scrollPane.setViewport(new ImageBackgroundViewport());
         this.scrollPane.getViewport().setView(callList);
 
         this.searchPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -410,54 +410,5 @@ public class CallListPanel
             return;
         
         this.pluginPanel.remove((Component) c.getComponent());
-    }
-    
-    private class ScrollPaneBackground extends JViewport
-    {
-        BufferedImage bgImage;
-
-        TexturePaint texture;
-
-        public ScrollPaneBackground()
-        {
-            bgImage = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
-//            Rectangle rect
-//                = new Rectangle(0, 0,
-//                                bgImage.getWidth(null),
-//                                bgImage.getHeight(null));
-
-//            texture = new TexturePaint(bgImage, rect);
-        }
-
-        public void paintComponent(Graphics g)
-        {
-            // do the superclass behavior first
-            super.paintComponent(g);
-
-            g.setColor(new Color(
-                GuiActivator.getResources().getColor("contactListBackground")));
-
-            // paint the background with the choosen color
-            g.fillRect(0, 0, getWidth(), getHeight());
-
-            // paint the image
-            if (bgImage != null)
-            {
-                Graphics2D g2 = (Graphics2D) g;
-
-//                g2.setPaint(texture);
-
-                g2.drawImage(bgImage,
-                            this.getWidth() - bgImage.getWidth(),
-                            this.getHeight() - bgImage.getHeight(),
-                            this);
-            }
-        }
-
-        public void setView(JComponent view)
-        {
-            view.setOpaque(false);
-            super.setView(view);
-        }
     }
 }

@@ -419,30 +419,47 @@ public class DialPanel
 
     public void paintComponent(Graphics g)
     {
-        // do the superclass behavior first
+     // do the superclass behavior first
         super.paintComponent(g);
 
-        g.setColor(new Color(
-            GuiActivator.getResources().getColor("contactListBackground")));
+        Graphics2D g2 = (Graphics2D) g;
 
-        // paint the background with the chosen color
-        g.fillRect(0, 0, getWidth(), getHeight());
+        boolean isTextureBackground = new Boolean(GuiActivator.getResources()
+            .getSettingsString("isTextureBackground")).booleanValue();
 
         BufferedImage bgImage
             = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
 
-        // If we haven't specified a background image, we return.
-        if (bgImage == null)
-            return;
-
         // paint the image
-        Graphics2D g2 = (Graphics2D) g;
+        if (bgImage != null)
+        {
+            if (isTextureBackground)
+            {
+                Rectangle rect
+                    = new Rectangle(0, 0,
+                            bgImage.getWidth(null),
+                            bgImage.getHeight(null));
 
-//            g2.setPaint(texture);
+                TexturePaint texture = new TexturePaint(bgImage, rect);
 
-        g2.drawImage(bgImage,
-                    this.getWidth() - bgImage.getWidth(),
-                    this.getHeight() - bgImage.getHeight(),
-                    this);
+                g2.setPaint(texture);
+
+                g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+            }
+            else
+            {
+                g.setColor(new Color(
+                    GuiActivator.getResources()
+                        .getColor("contactListBackground")));
+
+                // paint the background with the choosen color
+                g.fillRect(0, 0, getWidth(), getHeight());
+
+                g2.drawImage(bgImage,
+                        this.getWidth() - bgImage.getWidth(),
+                        this.getHeight() - bgImage.getHeight(),
+                        this);
+            }
+        }
     }
 }

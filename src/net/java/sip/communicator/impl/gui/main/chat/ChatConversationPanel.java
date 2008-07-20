@@ -21,6 +21,7 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -69,12 +70,6 @@ public class ChatConversationPanel
         new ImageIcon(ImageLoader.getImage(ImageLoader.BROWSER_ICON)));
 
     private JSeparator copyLinkSeparator = new JSeparator();
-
-    /**
-     * The backgroud of the ScrollPane. Used to load the image to be displayed
-     * in the background.
-     */
-    private ScrollPaneBackground scrollPaneBackground = new ScrollPaneBackground();
 
     /*
      * Tooltip on hyperlinks - JDK 1.5+
@@ -128,12 +123,15 @@ public class ChatConversationPanel
 
         this.setWheelScrollingEnabled(true);
 
-        this.setViewport(this.scrollPaneBackground);
+        ImageBackgroundViewport imageViewport = new ImageBackgroundViewport();
+
+        this.setViewport(imageViewport);
+
         // As the JComponent.setOpaque(false) function slows down the display
         // speed, we only set it when a custom image for the background exists.
         // If there is no custom background image, we simply skip the
         // JComponent.setOpaque(false) function call.
-        if(this.scrollPaneBackground.getBackgroundImage() != null)
+        if(imageViewport.getBackgroundImage() != null)
         {
             this.chatEditorPane.setOpaque(false);
         }
@@ -1152,76 +1150,5 @@ public class ChatConversationPanel
             processedMessage = new StringBuffer(message);
         }
         return processedMessage.toString();
-    }
-
-    private class ScrollPaneBackground extends JViewport
-    {
-        /**
-         * The BufferedImage of the background. May be null when no custom
-         * background is set.
-         */
-        private BufferedImage bgImage;
-
-        private TexturePaint texture;
-
-        public ScrollPaneBackground()
-        {
-            bgImage = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
-//            Rectangle rect
-//                = new Rectangle(0, 0,
-//                                bgImage.getWidth(null),
-//                                bgImage.getHeight(null));
-
-//            texture = new TexturePaint(bgImage, rect);
-        }
-
-        /**
-         * Returns the instance of the BufferedImage used for the background of
-         * the ScrollPane.
-         * @return The BufferedImage of the ScrollPane. NULL is returned when
-         * the image does not exists.
-         */
-        public BufferedImage getBackgroundImage()
-        {
-            return this.bgImage;
-        }
-
-        public void paintComponent(Graphics g)
-        {
-            // do the superclass behavior first
-            super.paintComponent(g);
-
-            g.setColor(new Color(
-                GuiActivator.getResources().getColor("contactListBackground")));
-
-            // paint the background with the choosen color
-            g.fillRect(0, 0, getWidth(), getHeight());
-
-            // paint the image
-            if (bgImage != null)
-            {
-                Graphics2D g2 = (Graphics2D) g;
-
-//                g2.setPaint(texture);
-
-                g2.drawImage(bgImage,
-                            this.getWidth() - bgImage.getWidth(),
-                            this.getHeight() - bgImage.getHeight(),
-                            this);
-            }
-        }
-
-        public void setView(JComponent view)
-        {
-            // As the JComponent.setOpaque(false) function slows down the display
-            // speed, we only set it when a custom image for the background exists.
-            // If there is no custom background image, we simply skip the
-            // JComponent.setOpaque(false) function call.
-            if(this.getBackgroundImage() != null)
-            {
-                view.setOpaque(false);
-            }
-            super.setView(view);
-        }
     }
 }

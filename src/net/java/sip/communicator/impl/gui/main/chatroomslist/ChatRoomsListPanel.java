@@ -13,6 +13,7 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
@@ -48,7 +49,7 @@ public class ChatRoomsListPanel
         this.treePanel.add(chatRoomsList, BorderLayout.NORTH);
 
         this.treePanel.setOpaque(false);
-        this.setViewport(new ScrollPaneBackground());
+        this.setViewport(new ImageBackgroundViewport());
         this.getViewport().setView(treePanel);
 
         this.setHorizontalScrollBarPolicy(
@@ -114,55 +115,6 @@ public class ChatRoomsListPanel
 
                 chatWindowManager.openChat(chatPanel, true);
             }
-        }
-    }
-
-    private class ScrollPaneBackground extends JViewport
-    {
-        BufferedImage bgImage;
-
-        TexturePaint texture;
-
-        public ScrollPaneBackground()
-        {
-            bgImage = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
-//            Rectangle rect
-//                = new Rectangle(0, 0,
-//                                bgImage.getWidth(null),
-//                                bgImage.getHeight(null));
-
-//            texture = new TexturePaint(bgImage, rect);
-        }
-
-        public void paintComponent(Graphics g)
-        {
-            // do the superclass behavior first
-            super.paintComponent(g);
-
-            g.setColor(new Color(
-                GuiActivator.getResources().getColor("contactListBackground")));
-
-            // paint the background with the choosen color
-            g.fillRect(0, 0, getWidth(), getHeight());
-
-            // paint the image
-            if (bgImage != null)
-            {
-                Graphics2D g2 = (Graphics2D) g;
-
-//                g2.setPaint(texture);
-
-                g2.drawImage(bgImage,
-                            this.getWidth() - bgImage.getWidth(),
-                            this.getHeight() - bgImage.getHeight(),
-                            this);
-            }
-        }
-
-        public void setView(JComponent view)
-        {
-            view.setOpaque(false);
-            super.setView(view);
         }
     }
 }
