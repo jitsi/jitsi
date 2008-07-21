@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
@@ -8,6 +14,14 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
+/**
+ * The <tt>ImageBackgroundViewport</tt> is an extension of JViewport, which
+ * sets a background image to the viewport. This custom viewport is meant to
+ * be used by scrollpanes that would like to have the application background
+ * image as a background.
+ * 
+ * @author Yana Stamcheva
+ */
 public class ImageBackgroundViewport extends JViewport
 {
     private BufferedImage bgImage;
@@ -16,6 +30,9 @@ public class ImageBackgroundViewport extends JViewport
 
     private boolean isTextureBackground;
 
+    /**
+     * Creates an instance of <tt>ImageBackgroundViewport</tt>.
+     */
     public ImageBackgroundViewport()
     {
         isTextureBackground = new Boolean(GuiActivator.getResources()
@@ -34,6 +51,10 @@ public class ImageBackgroundViewport extends JViewport
         }
     }
 
+    /**
+     * Paints the background image according to the isTextureBackground
+     * property.
+     */
     public void paintComponent(Graphics g)
     {
         // do the superclass behavior first
@@ -53,7 +74,8 @@ public class ImageBackgroundViewport extends JViewport
             else
             {
                 g.setColor(new Color(
-                    GuiActivator.getResources().getColor("contactListBackground")));
+                    GuiActivator.getResources()
+                        .getColor("contactListBackground")));
 
                 // paint the background with the choosen color
                 g.fillRect(0, 0, getWidth(), getHeight());
@@ -66,12 +88,22 @@ public class ImageBackgroundViewport extends JViewport
         }
     }
 
+    /**
+     * Sets the view of this JViewport.
+     * 
+     * @param view the view to set.
+     */
     public void setView(JComponent view)
     {
         view.setOpaque(false);
         super.setView(view);
     }
-    
+
+    /**
+     * Returns the background image of this viewport.
+     * 
+     * @return the background image of this viewport.
+     */
     public Image getBackgroundImage()
     {
         return bgImage;
