@@ -419,8 +419,10 @@
             <exclude name="lib/bundle/junit.jar" />
             <include name="lib/native/mac/*.jnilib" />
             <include name="lib/native/mac/*.dylib" />
+            <exclude name="lib/native/mac/libsparkle_init.dylib" />
             <include name="${bundles.dest}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
+            <exclude name="${bundles.dest}/sparkle.jar" />
             <include name="resources/images/logo/sc_logo_128x128.icns" />
         </jarfileset>
         <javafilelist dir="${macosx.resrc.dir}"
@@ -449,6 +451,12 @@
 	  <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
                token="reference:file:sc-bundles/updatechecker.jar"
                value=""/>
+
+      <!-- Add the Sparkle bundle and JNI to the application package -->
+      <copy file="${bundles.dest}/sparkle.jar" 
+            todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/sc-bundles/"/>
+      <copy file="lib/native/mac/libsparkle_init.dylib" 
+            todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
       <!-- Add the Sparkle properties in the Info.plist file -->
 	  <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
