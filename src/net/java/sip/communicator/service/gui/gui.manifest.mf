@@ -1,0 +1,6 @@
+Bundle-Name: UI Service 
+Bundle-Description:  The User Interface Service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Export-Package: net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.gui.event
