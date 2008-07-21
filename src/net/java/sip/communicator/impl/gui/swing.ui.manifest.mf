@@ -3,8 +3,6 @@ Bundle-Name: UI Service Provider Implementation
 Bundle-Description: An implementation of the UI service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Export-Package: net.java.sip.communicator.service.gui,
- net.java.sip.communicator.service.gui.event
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.configuration,

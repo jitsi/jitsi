@@ -620,7 +620,7 @@
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-smacklib,
-        bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
+        bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -1095,13 +1095,21 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-UI-SERVICE -->
+    <target name="bundle-ui-service">
+        <!-- Bundle sip-communicator's UI.-->
+        <jar compress="false" destfile="${bundles.dest}/ui-service.jar"
+            manifest="${src}/net/java/sip/communicator/service/gui/gui.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
+                prefix="net/java/sip/communicator/service/gui"/>
+        </jar>
+    </target>
+
      <!-- BUNDLE-SWING-UI -->
     <target name="bundle-swing-ui">
         <!-- Bundle sip-communicator's UI.-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
-                prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
         </jar>
