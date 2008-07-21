@@ -287,7 +287,8 @@ public class ContactRssImpl
         }
         catch (IOException ioex)
         {
-            logger.error("I/O Error on favicon retrieval. " + ioex,
+            logger.error("I/O Error on favicon retrieval. " + ioex);
+            logger.debug("I/O Error on favicon retrieval. " + ioex,
                          ioex);
         }
         catch(Exception ex)

@@ -6,7 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
+import java.io.*;
 import java.util.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -48,7 +50,22 @@ public class OperationSetBasicInstantMessagingRssImpl
      * The value corresponding to the time in ms
      * of the RSS refreshing period (here 5min)
      */
-    final int PERIOD_REFRESH_RSS = 300000;
+//    private final int PERIOD_REFRESH_RSS = 300000;
+    private final int PERIOD_REFRESH_RSS = 5000;
+    
+    /**
+     * The localised message that we should show to the user before we remove
+     * a dead RSS contact
+     */
+    private static final String MSG_CONFIRM_REMOVE_MISSING_CONTACT 
+        = "confirmRemoveMissingContactMessage";
+    
+    /**
+     * The title of the confirmation dialog that we show to the user before we
+     * remove a dead contact
+     */
+    private static final String TITLE_CONFIRM_REMOVE_MISSING_CONTACT 
+        = "confirmRemoveMissingContactTitle";
 
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -151,9 +168,30 @@ public class OperationSetBasicInstantMessagingRssImpl
         String oldDisplayName = new String();
 
         RssFeedReader rssFeed = rssContact.getRssFeedReader();
+        
         try
         {
             rssFeed.retrieveFlow();
+            
+            //if the contact was offline then switch it to online since 
+            //apparently we succeeded to retrieve its flow
+            if(rssContact.getPresenceStatus() == RssStatusEnum.OFFLINE)
+            {
+                getParentProvider().getOperationSetPresence()
+                    .changePresenceStatusForContact(
+                        rssContact, RssStatusEnum.ONLINE);
+            
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            //RSS flow no longer exists - ask user to remove;
+            handleFileNotFoundException(rssContact, ex);
+            
+            logger.warn("RSS flow no longer exists. Error was: "
+                         + ex.getMessage());
+            logger.debug(ex);
+            return;
         }
         catch (OperationFailedException ex)
         {
@@ -446,5 +484,86 @@ public class OperationSetBasicInstantMessagingRssImpl
             timer = null;
        }
     }
+    
+    /**
+     * Queries the user as to whether or not the specified contact should be 
+     * removed and removes it if necessary.
+     * 
+     * @param contact the contact that has caused the 
+     * <tt>FileNotFoundException</tt> and that we should probably remove.
+     * @param ex the <tt>FileNotFoundException</tt>
+     * that is causing all the commotion.
+     */
+    private void handleFileNotFoundException(ContactRssImpl contact, 
+                                             FileNotFoundException ex)
+    {
+        new FileNotFoundExceptionHandler(contact).start();
+    }
+    
+    /**
+     * A thread that queries the user as to whether or not the specified 
+     * contact should be removed and removes it if necessary.
+     */
+    private class FileNotFoundExceptionHandler extends Thread
+    {
+        private ContactRssImpl contact = null;
+        
+        /**
+         * Creates a FileNotFoundExceptionHandler for the specified contact.
+         * 
+         * @param contact the contact that has caused the 
+         * <tt>FileNotFoundException</tt> and that we should probably remove.
+         */
+        public FileNotFoundExceptionHandler(ContactRssImpl contact)
+        {
+            setName(FileNotFoundExceptionHandler.class.getName());
+            
+            this.contact = contact;
+        }
+        
+        /**
+         * Queries the user as to whether or not the specified 
+         * contact should be removed and removes it if necessary.
+         */
+        public void run()
+        {
+            //do not bother the user with offline contacts
+            if (contact.getPresenceStatus() == RssStatusEnum.OFFLINE)
+            {
+                return;
+            }
 
+            UIService uiService = RssActivator.getUIService();
+            String title = RssActivator.getResources()
+                .getI18NString(TITLE_CONFIRM_REMOVE_MISSING_CONTACT);
+            String message = RssActivator.getResources()
+                .getI18NString(MSG_CONFIRM_REMOVE_MISSING_CONTACT,
+                    new String[]{contact.getAddress()});
+
+            //switch the contact to an offline state so that we don't ask 
+            //the user what to do about it any more.
+            getParentProvider().getOperationSetPresence()
+                .changePresenceStatusForContact(contact, 
+                                                RssStatusEnum.OFFLINE);
+            
+            int result = uiService.getPopupDialog()
+                .showConfirmPopupDialog(message, 
+                                        title, 
+                                        PopupDialog.YES_NO_OPTION);
+            
+            if (result == PopupDialog.YES_OPTION)
+            {
+                //remove contact
+                try
+                {
+                    getParentProvider().getOperationSetPresence()
+                        .unsubscribe(contact);
+                } 
+                catch (OperationFailedException exc)
+                {
+                    logger.info("We could not remove a dead contact", exc);
+                }
+            } 
+        }
+    }
 }

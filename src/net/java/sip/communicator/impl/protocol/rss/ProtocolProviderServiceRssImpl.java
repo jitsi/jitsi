@@ -288,4 +288,28 @@ public class ProtocolProviderServiceRssImpl
     {
         return this.basicInstantMessaging;
     }
+    
+    /**
+     * Returns a reference to the instant messaging operation set that we are 
+     * currently using for this provider. 
+     * @return a reference to the instant messaging operation set that we are 
+     * currently using for this provider. 
+     */
+    public OperationSetBasicInstantMessagingRssImpl getOperationSetBasicIM()
+    {
+        return (OperationSetBasicInstantMessagingRssImpl)
+            getOperationSet(OperationSetBasicInstantMessaging.class);
+    }
+    
+    /**
+     * Returns a reference to the presence operation set that we are currently
+     * using for this provider. 
+     * @return a reference to the presence operation set that we are currently
+     * using for this provider. 
+     */
+    public OperationSetPersistentPresenceRssImpl getOperationSetPresence()
+    {
+        return (OperationSetPersistentPresenceRssImpl)
+            getOperationSet(OperationSetPersistentPresence.class);
+    }
 }

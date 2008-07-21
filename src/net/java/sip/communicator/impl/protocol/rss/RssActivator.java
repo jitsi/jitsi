@@ -10,6 +10,7 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.util.*;
 import java.util.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
@@ -44,9 +45,14 @@ public class RssActivator
     static BundleContext bundleContext = null;
 
     /**
-     * The <tt>ResourceManagementService</tt>.
+     * The <tt>ResourceManagementService</tt> that we use in this provider.
      */
-    private static ResourceManagementService resourcesService;
+    private static ResourceManagementService resourcesService = null;
+    
+    /**
+     * The <tt>UIService</tt> that we use in this provider.
+     */
+    private static UIService uiService = null;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -146,5 +152,27 @@ public class RssActivator
         }
 
         return resourcesService;
+    }
+    
+    /**
+     * Returns a reference to the <tt>UIService</tt> instance that is currently
+     * in use.
+     * @return a reference to the currently valid <tt>UIService</tt>.
+     */
+    public static UIService getUIService()
+    {
+        if (uiService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(UIService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            uiService = (UIService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return uiService;
     }
 }

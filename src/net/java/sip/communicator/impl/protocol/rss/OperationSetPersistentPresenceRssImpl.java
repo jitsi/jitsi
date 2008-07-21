@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import java.net.*;
+import java.io.*;
 
 /**
  * A RSS implementation of a persistent presence operation set. In order
@@ -628,7 +629,7 @@ public class OperationSetPersistentPresenceRssImpl
      * to set.
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
      */
-    private void changePresenceStatusForContact(
+    public void changePresenceStatusForContact(
                                             ContactRssImpl contact
                                          ,  PresenceStatus       newStatus)
     {
@@ -876,7 +877,22 @@ public class OperationSetPersistentPresenceRssImpl
 
         //we parse the feed/contact here so that we could be notified of any
         //failures
-        rssFeedReader.retrieveFlow();
+        try
+        {
+            rssFeedReader.retrieveFlow();
+        }
+        catch(FileNotFoundException ex)
+        {
+            //means the feed is no longer there.
+            //ignore and subscribe the contact so that the exception would 
+            //occur while we try to refresh it. This way we would ask the 
+            //user whether they want it removed.
+            logger.debug("failed to create a URL for address "
+                + contactIdentifier
+                + ". Error was: "
+                + ex.getMessage()
+                , ex);
+        }
 
         ContactRssImpl contact = new ContactRssImpl(
             contactIdentifier,

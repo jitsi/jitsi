@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.rss;
 import java.net.*;
 import java.util.*;
 import java.text.*;
+import java.io.*;
 
 import com.sun.syndication.feed.synd.*;
 import com.sun.syndication.io.*;
@@ -80,23 +81,38 @@ public class RssFeedReader
      * displayed once aren't displayed again.
      *
      * @throws OperationFailedException with code ILLEGAL_ARGUMENT
+     * @throws FileNotFoundException if the feed does not exist any more.
      */
     public void retrieveFlow()
-        throws OperationFailedException
+        throws OperationFailedException, FileNotFoundException
     {
         SyndFeedInput input = new SyndFeedInput();
-
+        
         try
         {
             this.feed = input.build(new XmlReader(rssURL));
+        } 
+        catch (FileNotFoundException ex)
+        {
+            //We are handling that in OpSetBasicInstantMessaging as it indicates
+            //a feed that has most likely been removed
+            throw ex;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             throw new OperationFailedException(
                 "Failed to create and XmlReader for url: " + rssURL
                 , OperationFailedException.GENERAL_ERROR
                 , ex);
         }
+        catch(FeedException fex)
+        {
+            throw new OperationFailedException(
+                "Failed to create and XmlReader for url: " + rssURL
+                , OperationFailedException.GENERAL_ERROR
+                , fex);
+        }
+
 
         feed.getEntries();
 
