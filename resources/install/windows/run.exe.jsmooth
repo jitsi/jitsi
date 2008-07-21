@@ -10,7 +10,7 @@
 <classPath>lib\felix.jar</classPath>
 <classPath>lib\jdic-all.jar</classPath>
 <classPath>lib\jdic_stub.jar</classPath>
-<classPath>lib\sc-launcher.jar</classPath>
+<classPath>sc-bundles\sc-launcher.jar</classPath>
 <currentDirectory>${EXECUTABLEPATH}</currentDirectory>
 <embeddedJar>false</embeddedJar>
 <executableName>run.exe</executableName>

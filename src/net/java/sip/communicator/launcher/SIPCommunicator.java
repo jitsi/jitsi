@@ -15,9 +15,16 @@ import org.apache.felix.main.*;
  * Starts the SIP Communicator.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class SIPCommunicator
 {
+    private static final String PNAME_SC_HOME_DIR_LOCATION =
+            "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
+
+    private static final String PNAME_SC_HOME_DIR_NAME =
+            "net.java.sip.communicator.SC_HOME_DIR_NAME";
+
     /**
      * Starts the SIP Communicator.
      * 
@@ -30,44 +37,13 @@ public class SIPCommunicator
         String vmVendor = System.getProperty("java.vendor");
         String osName = System.getProperty("os.name");
 
-        /**
-         * Check whether default config folder exists.
-         * If it exists we use it. Otherwise use the settings coming 
-         * from system properties. And set SC_HOME_DIR_LOCATION 
-         * as we cannot set it when building dmg packet.
-         * This is done cause moving the config folder and preventing
-         * not using existing data for users already using default folder. 
+        /*
+         * SC_HOME_DIR_* are specific to the OS so make sure they're configured
+         * accordingly before any other application-specific logic depending on
+         * them starts (e.g. Felix).
          */
-        if (osName.startsWith("Mac"))
-        {
-            String scDefultDirName = ".sip-communicator";
-            
-            String scHomeDirLocation = 
-                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION");
-            
-            if(scHomeDirLocation == null)
-            {
-                String defaultAppDirName = 
-                    System.getProperty("user.home") + 
-                    File.separator + 
-                    scDefultDirName;
+        setScHomeDir(osName);
 
-                if(new File(defaultAppDirName).exists())
-                {
-                    System.setProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION", 
-                            System.getProperty("user.home"));
-                    System.setProperty("net.java.sip.communicator.SC_HOME_DIR_NAME", 
-                            scDefultDirName);
-                }
-                else
-                {
-                    System.setProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION", 
-                            System.getProperty("user.home") + File.separator +
-                            "Library" + File.separator + "Application Support");
-                }
-            }
-        }
-        
         if (version.startsWith("1.4") || vmVendor.startsWith("Gnu"))
         {
             String os = "";
@@ -93,5 +69,78 @@ public class SIPCommunicator
         }
 
         Main.main(args);
+    }
+
+    /**
+     * Sets the system properties net.java.sip.communicator.SC_HOME_DIR_LOCATION
+     * and net.java.sip.communicator.SC_HOME_DIR_NAME (if they aren't already
+     * set) in accord with the OS conventions specified by the name of the OS.
+     * 
+     * @param osName the name of the OS according to which the SC_HOME_DIR_*
+     *            properties are to be set
+     */
+    private static void setScHomeDir(String osName)
+    {
+
+        /*
+         * Though we'll be setting the SC_HOME_DIR_* property values depending
+         * on the OS running the application, we have to make sure we are
+         * compatible with earlier releases i.e. use
+         * ${user.home}/.sip-communicator if it exists (and the new path isn't
+         * already in use).
+         */
+        String location = System.getProperty(PNAME_SC_HOME_DIR_LOCATION);
+        String name = System.getProperty(PNAME_SC_HOME_DIR_NAME);
+
+        if ((location == null) || (name == null))
+        {
+            String defaultLocation = System.getProperty("user.home");
+            String defaultName = ".sip-communicator";
+
+            if (osName.startsWith("Mac"))
+            {
+                if (location == null)
+                    location =
+                            System.getProperty("user.home") + File.separator
+                            + "Library" + File.separator
+                            + "Application Support";
+                if (name == null)
+                    name = "SIP Communicator";
+            }
+            else if (osName.startsWith("Windows"))
+            {
+
+                /*
+                 * Primarily important on Vista because Windows Explorer opens
+                 * in %USERPROFILE% so .sip-communicator is always visible. But
+                 * it may be a good idea to follow the OS recommendations and
+                 * use APPDATA on pre-Vista systems as well.
+                 */
+                if (location == null)
+                    location = System.getenv("APPDATA");
+                if (name == null)
+                    name = "SIP Communicator";
+            }
+
+            /* If there're no OS specifics, use the defaults. */
+            if (location == null)
+                location = defaultLocation;
+            if (name == null)
+                name = defaultName;
+
+            /*
+             * As it was noted earlier, make sure we're compatible with previous
+             * releases.
+             */
+            if ((new File(location, name).isDirectory() == false)
+                    && new File(defaultLocation, defaultName).isDirectory())
+            {
+                location = defaultLocation;
+                name = defaultName;
+            }
+
+            System.setProperty(PNAME_SC_HOME_DIR_LOCATION, location);
+            System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
+        }
     }
 }

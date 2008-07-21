@@ -153,6 +153,7 @@
     <path id="project.class.path">
         <pathelement location="${lib}"/>
 
+        <pathelement location="${bundles.dest}/sc-launcher.jar"/>
         <!-- Add this bundle to the global class path as we need
              the ScLogFormatter there-->
         <pathelement location="${bundles.dest}/util.jar"/>
@@ -206,9 +207,21 @@
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
             source="1.5" target="1.5" memoryMaximumSize="400M" fork="true">
-            <src path="${src}"/>
-            <src path="${src2}"/>
-            <include name="**/*.java" />
+                <src path="${src}"/>
+                <src path="${src2}"/>
+                <include name="**/*.java" />
+                <exclude name="net/java/sip/communicator/launcher/*.java" />
+        </javac>
+        <!--
+            sc-launcher.jar needs to be compatible with 1.4 in order to enable
+            notifying the user that a higher version of the jre is necessary.
+        -->
+        <javac classpathref="compile.class.path" debug="true"
+            deprecation="true" destdir="${dest}" nowarn="false"
+            source="1.4" target="1.4" memoryMaximumSize="400M" fork="true">
+                <src path="${src}"/>
+                <src path="${src2}"/>
+                <include name="net/java/sip/communicator/launcher/*.java" />
         </javac>
     </target>
 
@@ -612,7 +625,7 @@
     <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -  - -->
     <!--ALL BUNDLES-->
     <target name="bundles"
-        depends="bundle-util,bundle-configuration,bundle-configuration-slick,
+        depends="bundle-sc-launcher,bundle-util,bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
         bundle-callhistory, bundle-callhistory-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
@@ -646,6 +659,14 @@
         bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz"/>
+
+    <!--BUNDLE-SC-LAUNCHER-->
+    <target name="bundle-sc-launcher">
+        <jar compress="false" destfile="${bundles.dest}/sc-launcher.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/launcher"
+                prefix="net/java/sip/communicator/launcher"/>
+        </jar>
+    </target>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
