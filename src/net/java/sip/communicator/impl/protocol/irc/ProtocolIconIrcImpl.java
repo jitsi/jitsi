@@ -88,7 +88,7 @@ public class ProtocolIconIrcImpl
      */
     public static byte[] getImageInBytes(String imageID) 
     {
-        InputStream in = DictActivator.getResources().
+        InputStream in = IrcActivator.getResources().
             getImageInputStream(imageID);
 
         if (in == null)

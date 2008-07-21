@@ -2,7 +2,7 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.*;
 import java.awt.event.*;
-
+import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -124,18 +124,48 @@ public class NewAccountDialog
             logger.debug("Found "
                          + accountWizardRefs.length
                          + " already installed providers.");
+            
+            // Create a list to sort the wizards
+            ArrayList<AccountRegistrationWizard> list =
+                new ArrayList<AccountRegistrationWizard>();
+            list.ensureCapacity(accountWizardRefs.length);
+            
+            AccountRegistrationWizard prefWiz = null; 
+            
             for (int i = 0; i < accountWizardRefs.length; i++)
             {
                 AccountRegistrationWizard wizard
                     = (AccountRegistrationWizard) GuiActivator.bundleContext
                         .getService(accountWizardRefs[i]);
 
-                networkComboBox.addItem(wizard);
+                list.add(wizard);
 
-                // if we have preferred wizard insert it at first position
+                // is it the prefered protocol ?
                 if(preferredWizardName != null
                     && wizard.getClass().getName().equals(preferredWizardName))
-                    networkComboBox.setSelectedItem(wizard);
+                {
+                    prefWiz = wizard;
+                }
+            }
+            
+            // Sort the list
+            Collections.sort(list, new Comparator<AccountRegistrationWizard>() {
+                public int compare(AccountRegistrationWizard arg0,
+                        AccountRegistrationWizard arg1)
+                {
+                    return arg0.getProtocolName().compareTo(arg1.getProtocolName());
+                }
+            });
+            
+            // Add the item in the combobox and if
+            // there is a prefered wizard auto select it
+            for (int i=0; i<list.size(); i++)
+            {
+                networkComboBox.addItem(list.get(i));
+            }
+            if (prefWiz != null)
+            {
+                networkComboBox.setSelectedItem(prefWiz);
             }
         }
     }
