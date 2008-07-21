@@ -21,6 +21,7 @@ import ymsg.support.*;
  * set.
  *
  * @author Damian Minkov
+ * @author Symphorien Wanko
  * @author Keio Kraaner
  */
 public class OperationSetBasicInstantMessagingYahooImpl
@@ -432,19 +433,18 @@ public class OperationSetBasicInstantMessagingYahooImpl
              String yahooMailLogon = "http://mail."
                      + myEmail.substring(myEmail.indexOf("@") + 1);
 
-             yahooMailLogon = "<a href=\""
+             yahooMailLogon = "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
                      + yahooMailLogon + "\">"
                      + yahooMailLogon + "</a>";
+             
+             
 
-             String newMail = "<b>" + 
-                 YahooActivator.getResources().getI18NString("newMail") + " : </b> "
-                     + ev.getSubject();
-
-             newMail += "\n<br /><b>" + 
-                YahooActivator.getResources().getI18NString("from") + " : </b> "
-                     + ev.getFrom() + " &lt;" + ev.getEmailAddress() + "&gt;";
-
-             newMail += "\n<br />&nbsp;&nbsp;&nbsp;&nbsp;" + yahooMailLogon;
+             String newMail = YahooActivator.getResources().getI18NString(
+                 "newMail",
+                 new String[]{ev.getFrom(), 
+                              "&lt;" + ev.getEmailAddress() + "&gt", 
+                              ev.getSubject(),
+                              "&nbsp;&nbsp;&nbsp;&nbsp"+yahooMailLogon}) ;
 
              Message newMailMessage = new MessageYahooImpl(
                      newMail,

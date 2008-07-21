@@ -270,7 +270,8 @@ public class ResourceManagementServiceImpl
     /**
      * Loads a stream from a given identifier.
      * 
-     * @param streamKey The identifier of the stream.
+     * @param path The path to the image from a location that's present in the 
+     * classpath.
      * @return The stream for the given identifier.
      */
     public InputStream getImageInputStreamForPath(String path)
@@ -342,34 +343,13 @@ public class ResourceManagementServiceImpl
      * Returns an internationalized string corresponding to the given key.
      * 
      * @param key The key of the string.
-     * @param l The locale.
+     * @param locale The locale.
      * @return An internationalized string corresponding to the given key and
      * given locale.
      */
-    public String getI18NString(String key, Locale l)
+    public String getI18NString(String key, Locale locale)
     {
-        ResourceBundle resourceBundle
-            = getResourceBundle(languagePack, l);
-
-        String resourceString = findString(key, resourceBundle);
-
-        if (resourceString == null)
-        {
-            logger.warn("Missing resource for key: " + key);
-            return '!' + key + '!';
-        }
-
-        int mnemonicIndex = resourceString.indexOf('&');
-
-        if (mnemonicIndex > -1)
-        {
-            String firstPart = resourceString.substring(0, mnemonicIndex);
-            String secondPart = resourceString.substring(mnemonicIndex + 1);
-
-            resourceString = firstPart.concat(secondPart);
-        }
-
-        return resourceString;
+        return getI18NString(key, null, locale);
     }
 
     /**
@@ -387,13 +367,13 @@ public class ResourceManagementServiceImpl
      * Returns an internationalized string corresponding to the given key.
      * 
      * @param key The key of the string.
-     * @param l The locale.
+     * @param locale The locale.
      * @return An internationalized string corresponding to the given key.
      */
-    public String getI18NString(String key, String[] params, Locale l)
+    public String getI18NString(String key, String[] params, Locale locale)
     {
         ResourceBundle resourceBundle
-            = getResourceBundle(languagePack, l);
+            = getResourceBundle(languagePack, locale);
 
         String resourceString = findString(key, resourceBundle);
 
@@ -413,7 +393,9 @@ public class ResourceManagementServiceImpl
             resourceString = firstPart.concat(secondPart);
         }
         
-        resourceString = MessageFormat.format(resourceString, (Object[])params);
+        if(params != null)
+             resourceString 
+                = MessageFormat.format(resourceString, (Object[])params);
 
         return resourceString;
     }
@@ -433,12 +415,13 @@ public class ResourceManagementServiceImpl
      * Returns an internationalized string corresponding to the given key.
      * 
      * @param key The key of the string.
+     * @param locale The locale that we'd like to receive the result in.
      * @return An internationalized string corresponding to the given key.
      */
-    public char getI18nMnemonic(String key, Locale l)
+    public char getI18nMnemonic(String key, Locale locale)
     {
         ResourceBundle resourceBundle
-            = getResourceBundle(languagePack, l);
+            = getResourceBundle(languagePack, locale);
 
         String resourceString = findString(key, resourceBundle);
 
