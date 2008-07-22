@@ -33,6 +33,11 @@ public class ContactSipImpl
      * The id of the contact.
      */
     private String contactID = null;
+    
+    /**
+     * The display name of the contact.
+     */
+    private String displayName = null;
 
     /**
      * The provider that created us.
@@ -140,7 +145,18 @@ public class ContactSipImpl
      */
     public String getDisplayName()
     {
-        return contactID;
+        return (displayName == null) ? getAddress() : displayName;
+    }
+    
+    /**
+     * Sets a String that could be used by any user interacting modules
+     * for referring to this contact.
+     *
+     * @param displayName a human readable name to use for this contact.
+     */
+    public void setDisplayName(String displayName)
+    {
+        this.displayName = displayName;
     }
 
     /**

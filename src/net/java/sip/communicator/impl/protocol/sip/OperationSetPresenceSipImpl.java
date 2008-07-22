@@ -3415,6 +3415,7 @@ public class OperationSetPresenceSipImpl
         ContactSipImpl contact = new ContactSipImpl(
             address,
             this.parentProvider);
+        
         contact.setResolved(false);
 
         ((ContactGroupSipImpl) parent).addContact(contact);
@@ -3436,11 +3437,17 @@ public class OperationSetPresenceSipImpl
      * create.
      * @return the newly created volatile contact.
      */
-    public ContactSipImpl createVolatileContact(String contactAddress)
+    public ContactSipImpl createVolatileContact(Address contactAddress)
     {
+        String uri = contactAddress.getURI().toString();
+        
+        //strip the scheme
+        uri = uri.substring(contactAddress.getURI().getScheme().length());
+        
         // First create the new volatile contact;
         ContactSipImpl newVolatileContact
-            = new ContactSipImpl(contactAddress, this.parentProvider);
+            = new ContactSipImpl(uri, this.parentProvider);
+        newVolatileContact.setDisplayName(contactAddress.getDisplayName());
         newVolatileContact.setPersistent(false);
 
         // Check whether a volatile group already exists and if not create one

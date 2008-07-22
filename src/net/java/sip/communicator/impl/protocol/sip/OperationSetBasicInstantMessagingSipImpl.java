@@ -913,8 +913,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                              + fromHeader.getAddress().getURI().toString());
                 //create the volatile contact
                 from = opSetPersPresence
-                    .createVolatileContact(fromHeader.getAddress().getURI()
-                                           .toString().substring(4));
+                    .createVolatileContact(fromHeader.getAddress());
             }
 
             // answer ok
@@ -1001,7 +1000,8 @@ public class OperationSetBasicInstantMessagingSipImpl
             Contact to = opSetPersPresence.resolveContactID(toHeader.getAddress()
                     .getURI().toString());
 
-            if (to == null) {
+            if (to == null) 
+            {
                 logger.error(
                         "Error received a response from an unknown contact : "
                         + toHeader.getAddress().getURI().toString() + " : "
@@ -1028,7 +1028,8 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             Message newMessage = (Message) sentMsg.get(key);
 
-            if (newMessage == null) {
+            if (newMessage == null) 
+            {
                 // should never happen
                 logger.error("Couldn't find the message sent");
 
