@@ -442,7 +442,9 @@ public class ContactListPanel
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
 
-            errorMsg = Messages.getI18NString("msgNotDelivered").getText();
+            errorMsg = Messages.getI18NString(  "msgNotDelivered",
+                                                new String[]{evt.getReason()})
+                                                .getText();
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
@@ -452,13 +454,16 @@ public class ContactListPanel
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
-            
+
             errorMsg = Messages.getI18NString(
-                    "msgDeliveryInternalError").getText();
+                    "msgDeliveryInternalError",
+                    new String[]{evt.getReason()})
+                        .getText();
         }
         else {
             errorMsg = Messages.getI18NString(
-                    "msgDeliveryFailedUnknownError").getText();
+                    "msgDeliveryFailedUnknownError",
+                    new String[]{evt.getReason()}).getText();
         }
 
         MetaContactChatPanel chatPanel = chatWindowManager
