@@ -324,9 +324,6 @@ public class GlobalStatusSelectorBox
 
                 if (status != null)
                 {
-                    System.out.println("PROTCOLLLL============" + protocolProvider.getProtocolDisplayName());
-                    System.out.println("STATUS============" + status.getStatusName());
-                    
                     new PublishPresenceStatusThread(presence, status)
                         .start();
 
