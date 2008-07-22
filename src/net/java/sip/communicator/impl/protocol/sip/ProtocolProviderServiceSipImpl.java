@@ -1873,6 +1873,31 @@ public class ProtocolProviderServiceSipImpl
     {
         return ourSipAddress;
     }
+    
+    /**
+     * In case we are using an outbound proxy this method returns its address.
+     * The method returns <tt>null</tt> otherwise.
+     * 
+     * @return the address of our outbound proxy if we are using one and 
+     * <tt>null</tt> otherwise.
+     */
+    public InetSocketAddress getOutboundProxy()
+    {
+        return this.outboundProxySocketAddress;
+    }
+
+    /**
+     * In case we are using an outbound proxy this method returns the transport
+     * we are using to connect to it. The method returns <tt>null</tt> 
+     * otherwise.
+     * 
+     * @return the transport used to connect to our outbound proxy if we are 
+     * using one and <tt>null</tt> otherwise.
+     */
+    public String getOutboundProxyTransport()
+    {
+        return this.outboundProxyTransport;
+    }
 
     /**
      * Extracts all properties concerning the usage of an outbound proxy for

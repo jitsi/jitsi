@@ -379,15 +379,6 @@ public class OperationSetBasicInstantMessagingSipImpl
         try
         {
             toAddress = parseAddressStr(to.getAddress());
-
-            destinationInetAddress = InetAddress.getByName(
-                ( (SipURI) toAddress.getURI()).getHost());
-        }
-        catch (UnknownHostException ex)
-        {
-            throw new IllegalArgumentException(
-                ( (SipURI) toAddress.getURI()).getHost()
-                + " is not a valid internet address " + ex.getMessage());
         }
         catch (ParseException exc)
         {
@@ -400,6 +391,33 @@ public class OperationSetBasicInstantMessagingSipImpl
                 + "constructing the address"
                 , OperationFailedException.INTERNAL_ERROR
                 , exc);
+        }
+        
+        try
+        {
+            destinationInetAddress = InetAddress.getByName(
+                ( (SipURI) toAddress.getURI()).getHost());
+        }
+        catch (UnknownHostException ex)
+        {
+            //getByName() verifies host existance with an AAAA/A check and the 
+            //destination could only have an SRV record so let's not let this 
+            //bother us and only log it (report by Dan Bogos)
+            logger.warn( ( (SipURI) toAddress.getURI()).getHost()
+                + " is not a valid internet address " + ex.getMessage());
+            
+            //replace the destination address with that of the proxy if we 
+            //have it or that of the registrar otherwise.
+            if(sipProvider.getOutboundProxy() != null)
+            {
+                destinationInetAddress
+                    = sipProvider.getOutboundProxy().getAddress();
+            }
+            else
+            {
+                destinationInetAddress
+                    = sipProvider.getRegistrarConnection().getRegistrarAddress();
+            }
         }
 
         // Call ID
