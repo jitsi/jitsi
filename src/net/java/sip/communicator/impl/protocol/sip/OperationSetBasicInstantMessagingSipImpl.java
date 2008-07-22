@@ -1005,6 +1005,8 @@ public class OperationSetBasicInstantMessagingSipImpl
                 logger.error(
                         "Error received a response from an unknown contact : "
                         + toHeader.getAddress().getURI().toString() + " : "
+                        + responseEvent.getResponse().getStatusCode() 
+                        + " "
                         + responseEvent.getResponse().getReasonPhrase());
 
                 // error for delivering the message
@@ -1047,7 +1049,8 @@ public class OperationSetBasicInstantMessagingSipImpl
             if (status >= 400 && status != 401 && status != 407)
             {
                 logger.info(
-                    "Error received from the network : "
+                    responseEvent.getResponse().getStatusCode() 
+                    + " "
                     + responseEvent.getResponse().getReasonPhrase());
 
                 // error for delivering the message
@@ -1057,7 +1060,9 @@ public class OperationSetBasicInstantMessagingSipImpl
                         to,
                         MessageDeliveryFailedEvent.NETWORK_FAILURE,
                         new Date(),
-                        responseEvent.getResponse().getReasonPhrase());
+                        responseEvent.getResponse().getStatusCode() 
+                        + " "
+                        + responseEvent.getResponse().getReasonPhrase());
                 fireMessageEvent(evt);
                 sentMsg.remove(key);
             }
@@ -1066,7 +1071,9 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // proxy ask for authentification
                 logger.debug(
                     "proxy asks authentication : "
-                    + responseEvent.getResponse().getReasonPhrase());
+                        + responseEvent.getResponse().getStatusCode() 
+                        + " "
+                        + responseEvent.getResponse().getReasonPhrase());
 
                 ClientTransaction clientTransaction = responseEvent
                     .getClientTransaction();
@@ -1099,6 +1106,8 @@ public class OperationSetBasicInstantMessagingSipImpl
             {
                 logger.debug(
                     "Ack received from the network : "
+                    + responseEvent.getResponse().getStatusCode() 
+                    + " "
                     + responseEvent.getResponse().getReasonPhrase());
 
                 // we delivered the message
