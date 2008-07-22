@@ -196,6 +196,12 @@ public abstract class ProtocolProviderFactory
     public static final String STRATEGY = "STRATEGY";
 
     /**
+     * Indicates a protocol that would not be shown in the user interface as an
+     * account.
+     */
+    public static final String IS_PROTOCOL_HIDDEN = "IS_PROTOCOL_HIDDEN";
+
+    /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter. Note that account

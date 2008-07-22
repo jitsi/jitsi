@@ -124,7 +124,8 @@ public class AccountsConfigurationForm
                 accountID = (AccountID) accountsList.get(i);
 
                 boolean isHidden =
-                    (accountID.getAccountProperties().get("HIDDEN_PROTOCOL")
+                    (accountID.getAccountProperties()
+                        .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
                         != null);
 
                 if (isHidden)

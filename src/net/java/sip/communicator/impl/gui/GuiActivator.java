@@ -330,6 +330,13 @@ public class GuiActivator implements BundleActivator
         return keybindingsService;
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     * 
+     * @return the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

@@ -151,7 +151,7 @@ public class StatusSubMenu
 
                 boolean isHidden = 
                     provider.getAccountID().getAccountProperties().
-                        get("HIDDEN_PROTOCOL") != null;
+                        get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
                 
                 if(!isHidden)
                     this.addAccount(provider);

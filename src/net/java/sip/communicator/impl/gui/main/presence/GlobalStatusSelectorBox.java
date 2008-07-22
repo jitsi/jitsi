@@ -324,12 +324,14 @@ public class GlobalStatusSelectorBox
 
                 if (status != null)
                 {
+                    System.out.println("PROTCOLLLL============" + protocolProvider.getProtocolDisplayName());
+                    System.out.println("STATUS============" + status.getStatusName());
+                    
                     new PublishPresenceStatusThread(presence, status)
                         .start();
 
                     this.saveStatusInformation( protocolProvider,
                         status.getStatusName());
-
                 }
             }
         }
@@ -345,10 +347,22 @@ public class GlobalStatusSelectorBox
 
         Iterator pProviders = mainFrame.getProtocolProviders();
 
+        boolean isProtocolHidden;
+
         while (pProviders.hasNext())
         {
             ProtocolProviderService protocolProvider
                 = (ProtocolProviderService) pProviders.next();
+
+            // We do not show hidden protocols in our status bar, so we do not
+            // care about their status here.
+            isProtocolHidden = 
+                protocolProvider.getAccountID().
+                    getAccountProperties().get(
+                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+
+            if (isProtocolHidden)
+                continue;
 
             OperationSetPresence presence
                 = (OperationSetPresence) protocolProvider
@@ -375,7 +389,7 @@ public class GlobalStatusSelectorBox
         JMenuItem item = getItemFromStatus(status);
 
         setSelected(item, (ImageIcon)item.getIcon());
-        
+
         setSystrayIcon(status);
     }
     

@@ -76,11 +76,12 @@ public class StatusPanel
         }
 
         protocolStatusCombo.addComponentListener(this);
-        
+
         boolean isHidden = 
             protocolProvider.getAccountID().
-                getAccountProperties().get("HIDDEN_PROTOCOL") != null;
-        
+                getAccountProperties().get(
+                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+
         if(isHidden)
             hiddenProviders++;
 
@@ -119,7 +120,7 @@ public class StatusPanel
 
         boolean isHidden = 
             pps.getAccountID().getAccountProperties().
-                get("HIDDEN_PROTOCOL") != null;
+                get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
         
         if(isHidden)
             hiddenProviders--;

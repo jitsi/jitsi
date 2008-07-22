@@ -72,7 +72,8 @@ public class AccountInfoForm
                 accountID = (AccountID) accountsList.get(i);
 
                 boolean isHidden = 
-                    accountID.getAccountProperties().get("HIDDEN_PROTOCOL") != null;
+                    accountID.getAccountProperties()
+                        .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
                 if(!isHidden)
                     hasRegisteredAccounts = true;

@@ -115,7 +115,7 @@ public class LoginManager
 
                 boolean isHidden = 
                     accountID.getAccountProperties()
-                        .get("HIDDEN_PROTOCOL") != null;
+                        .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
                 if(!isHidden)
                     hasRegisteredAccounts = true;
