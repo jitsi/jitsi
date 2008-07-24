@@ -29,8 +29,7 @@ import net.java.sip.communicator.util.*;
 
 public class DialPanel
     extends JPanel
-    implements  ActionListener,
-                MouseListener
+    implements  MouseListener
 {
     private Logger logger = Logger.getLogger(DialPanel.class);
 
@@ -78,11 +77,21 @@ public class DialPanel
     private int vgap = GuiActivator.getResources().
         getSettingsInt("dialPadVerticalGap");
 
+    /**
+     * Handles press and hold zero button action.
+     */
+    private Timer plusZeroTimer =
+        new Timer(1000, new PlusZeroActionListener());
+
+    private boolean isTypedPlus = false;
+
     private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, hgap, vgap));
 
     private CallManager callManager;
 
     private CallParticipant callParticipant;
+
+    private OperationSetDTMF dtmfOpSet;
 
     /**
      * Creates an instance of <tt>DialPanel</tt>.
@@ -105,13 +114,33 @@ public class DialPanel
         this.dialPadPanel.setPreferredSize(new Dimension(width, height));
 
         this.init();
+
+        this.plusZeroTimer.setRepeats(false);
     }
 
+    /**
+     * Creates an instance of <tt>DialPanel</tt> for a specific call, by
+     * specifying the parent <tt>CallManager</tt> and the
+     * <tt>CallParticipant</tt>.
+     * 
+     * @param callManager the parent <tt>CallManager</tt>
+     * @param callParticipant the <tt>CallParticipant</tt>, for which the
+     * dialpad will be opened.
+     */
     public DialPanel(CallManager callManager, CallParticipant callParticipant)
     {
         this(callManager);
 
         this.callParticipant = callParticipant;
+
+        if(callParticipant != null
+            && callParticipant.getProtocolProvider()
+            .getOperationSet(OperationSetDTMF.class) != null)
+        {
+            dtmfOpSet = (OperationSetDTMF) callParticipant.getProtocolProvider()
+                .getOperationSet(OperationSetDTMF.class);
+        }
+
     }
 
     /**
@@ -144,19 +173,6 @@ public class DialPanel
         zeroButton.setName("zero");
         diezButton.setName("diez");
         starButton.setName("star");
-
-        oneButton.addActionListener(this);
-        twoButton.addActionListener(this);
-        threeButton.addActionListener(this);
-        fourButton.addActionListener(this);
-        fiveButton.addActionListener(this);
-        sixButton.addActionListener(this);
-        sevenButton.addActionListener(this);
-        eightButton.addActionListener(this);
-        nineButton.addActionListener(this);
-        zeroButton.addActionListener(this);
-        diezButton.addActionListener(this);
-        starButton.addActionListener(this);
 
         oneButton.addMouseListener(this);
         twoButton.addMouseListener(this);
@@ -200,30 +216,95 @@ public class DialPanel
         this.add(dialPadPanel, BorderLayout.CENTER);
     }
 
+    public void mouseClicked(MouseEvent e)
+    {
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {
+    }
+
+    public void mouseExited(MouseEvent e)
+    {
+    }
+
     /**
-     * Handles the <tt>ActionEvent</tt> triggered when user presses one of the
+     * Handles the <tt>MouseEvent</tt> triggered when user presses one of the
      * dial buttons.
      */
-    public void actionPerformed(ActionEvent e)
+    public void mousePressed(MouseEvent e)
+    {
+        JButton button = (JButton) e.getSource();
+        String buttonName = button.getName();
+
+        AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
+
+        if (buttonName.equals("one"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_ONE).play();
+        }
+        else if (buttonName.equals("two"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_TWO).play();
+        }
+        else if (buttonName.equals("three"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_THREE).play();
+        }
+        else if (buttonName.equals("four"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_FOUR).play();
+        }
+        else if (buttonName.equals("five"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_FIVE).play();
+        }
+        else if (buttonName.equals("six"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_SIX).play();
+        }
+        else if (buttonName.equals("seven"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_SEVEN).play();
+        }
+        else if (buttonName.equals("eight"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_EIGHT).play();
+        }
+        else if (buttonName.equals("nine"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_NINE).play();
+        }
+        else if (buttonName.equals("zero"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_ZERO).play();
+
+            plusZeroTimer.start();
+        }
+        else if (buttonName.equals("diez"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_DIEZ).play();
+        }
+        else if (buttonName.equals("star"))
+        {
+            audioNotifier.createAudio(SoundProperties.DIAL_STAR).play();
+        }
+    }
+
+    /**
+     * Handles the <tt>MouseEvent</tt> triggered when user releases one of the
+     * dial buttons.
+     */
+    public void mouseReleased(MouseEvent e)
     {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
         String phoneNumber = "";
 
-        OperationSetDTMF dtmfOpSet = null;
-        DTMFTone dtmfTone = null;
-        
-        if(callParticipant != null
-            && callParticipant.getProtocolProvider()
-            .getOperationSet(OperationSetDTMF.class) != null)
-        {
-            dtmfOpSet = (OperationSetDTMF) callParticipant.getProtocolProvider()
-                .getOperationSet(OperationSetDTMF.class);
-        }   
-        
         if (this.phoneNumberCombo.getEditor().getItem() != null)
             phoneNumber = (String) this.phoneNumberCombo.getEditor().getItem();
 
+        DTMFTone dtmfTone = null;
         if (buttonName.equals("one"))
         {
             if(dtmfOpSet != null)
@@ -289,6 +370,14 @@ public class DialPanel
         }
         else if (buttonName.equals("zero"))
         {
+            if (isTypedPlus)
+            {
+                isTypedPlus = false;
+                return;
+            }
+            else
+                plusZeroTimer.stop();
+
             if(dtmfOpSet != null)
                 dtmfTone = DTMFTone.DTMF_0;
             else
@@ -308,99 +397,11 @@ public class DialPanel
             else
                 this.phoneNumberCombo.getEditor().setItem(phoneNumber + "*");
         }
-        
+
         if(dtmfTone != null)
-            try
-            {
-                dtmfOpSet.sendDTMF(callParticipant, dtmfTone);
-            }
-            catch (NullPointerException e1)
-            {
-                logger.error("Failed to send a DTMF tone.", e1);
-            }
-            catch (ClassCastException e1)
-            {
-                logger.error("Failed to send a DTMF tone.", e1);
-            }
-            catch (OperationFailedException e1)
-            {
-                logger.error("Failed to send a DTMF tone.", e1);
-            }
-        else    
+            this.sendDtmfTone(dtmfTone);
+        else
             this.phoneNumberCombo.requestFocus();
-    }
-
-    public void mouseClicked(MouseEvent e)
-    {
-    }
-
-    public void mouseEntered(MouseEvent e)
-    {
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-    }
-
-    public void mousePressed(MouseEvent e)
-    {
-        JButton button = (JButton) e.getSource();
-        String buttonName = button.getName();
-
-        AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
-
-        if (buttonName.equals("one"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_ONE).play();
-        }
-        else if (buttonName.equals("two"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_TWO).play();
-        }
-        else if (buttonName.equals("three"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_THREE).play();
-        }
-        else if (buttonName.equals("four"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_FOUR).play();
-        }
-        else if (buttonName.equals("five"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_FIVE).play();
-        }
-        else if (buttonName.equals("six"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_SIX).play();
-        }
-        else if (buttonName.equals("seven"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_SEVEN).play();
-        }
-        else if (buttonName.equals("eight"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_EIGHT).play();
-        }
-        else if (buttonName.equals("nine"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_NINE).play();
-        }
-        else if (buttonName.equals("zero"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_ZERO).play();
-        }
-        else if (buttonName.equals("diez"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_DIEZ).play();
-        }
-        else if (buttonName.equals("star"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_STAR).play();
-        }
-    }
-
-    public void mouseReleased(MouseEvent e)
-    {
     }
     
     private class DialButton extends SIPCommButton
@@ -460,6 +461,57 @@ public class DialPanel
                         this.getHeight() - bgImage.getHeight(),
                         this);
             }
+        }
+    }
+
+    /**
+     * Handles press and hold zero button action.
+     */
+    private class PlusZeroActionListener implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            isTypedPlus = true;
+
+            plusZeroTimer.stop();
+
+            if(dtmfOpSet != null)
+            {
+                sendDtmfTone(DTMFTone.DTMF_0);
+                sendDtmfTone(DTMFTone.DTMF_0);
+            }
+            else
+            {
+                ComboBoxEditor phoneNumberEditor
+                    = phoneNumberCombo.getEditor();
+
+                phoneNumberEditor.setItem(phoneNumberEditor.getItem() + "+");
+            }
+        }
+    }
+
+    /**
+     * Sends a DTMF tone to the current DTMF operation set.
+     * 
+     * @param dtmfTone
+     */
+    private void sendDtmfTone(DTMFTone dtmfTone)
+    {
+        try
+        {
+            dtmfOpSet.sendDTMF(callParticipant, dtmfTone);
+        }
+        catch (NullPointerException e1)
+        {
+            logger.error("Failed to send a DTMF tone.", e1);
+        }
+        catch (ClassCastException e1)
+        {
+            logger.error("Failed to send a DTMF tone.", e1);
+        }
+        catch (OperationFailedException e1)
+        {
+            logger.error("Failed to send a DTMF tone.", e1);
         }
     }
 }
