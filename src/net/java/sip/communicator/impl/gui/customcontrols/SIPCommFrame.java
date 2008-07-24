@@ -196,12 +196,8 @@ public abstract class SIPCommFrame
             x = new Integer(xString).intValue();
             y = new Integer(yString).intValue();
 
-            if (x >= 0 && y >= 0)
-                this.setLocation(x, y);
-            else
-                this.setCenterLocation();
-        }
-        else
+            this.setLocation(x, y);
+        } else
         {
             this.setCenterLocation();
         }
@@ -231,52 +227,102 @@ public abstract class SIPCommFrame
         
         int width = this.getWidth();
         int height = this.getHeight();
-        
-
-        if(x < 0 || y < 0)
-        {
-            this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - this.getWidth()/2,
-                50
-            );
-            
-            x = this.getX();
-            y = this.getY();
-        }
 
         Rectangle virtualBounds = ScreenInformation.getScreenBounds();
 
+        // the default distance to the screen border
+        final int borderDistance = 10;
+
         // in case any of the sizes exceeds the screen size
         // we set default one
-        if (!(virtualBounds.contains(x, y) && virtualBounds.contains(x + width,
-                y + height)))
+        // get the left upper point of the window
+        if (!(virtualBounds.contains(x, y)))
         {
-
-            if (x + width > virtualBounds.width)
+            // top left exceeds screen bounds
+            if (x < virtualBounds.x)
             {
-                // location of window is too far to the right
-                x = virtualBounds.width - width;
-                if (x < 20)
+                // window is too far to the left
+                // move it to the right
+                x = virtualBounds.x + borderDistance;
+            } else if (x > virtualBounds.x)
+            {
+                // window is too far to the right
+                // can only occour, when screen resolution is
+                // changed or displayed are disconnected
+
+                // move the window in the bounds to the very right
+                x = virtualBounds.x + virtualBounds.width - width
+                        - borderDistance;
+                if (x < virtualBounds.x + borderDistance)
                 {
-                    x = 20;
-                    width = virtualBounds.width - 40;
+                    x = virtualBounds.x + borderDistance;
                 }
             }
-            if (y + height > virtualBounds.height)
+
+            // top left exceeds screen bounds
+            if (y < virtualBounds.y)
             {
-                // location of window is too far to the right
-                y = virtualBounds.height - height;
-                if (y < 20)
+                // window is too far to the top
+                // move it to the bottom
+                y = virtualBounds.y + borderDistance;
+            } else if (y > virtualBounds.y)
+            {
+                // window is too far to the bottom
+                // can only occour, when screen resolution is
+                // changed or displayed are disconnected
+
+                // move the window in the bounds to the very bottom
+                y = virtualBounds.y + virtualBounds.height - height
+                        - borderDistance;
+                if (y < virtualBounds.y + borderDistance)
                 {
-                    y = 20;
-                    height = virtualBounds.height - 40;
+                    y = virtualBounds.y + borderDistance;
+                }
+            }
+            this.setLocation(x, y);
+        }
+
+        // check the lower right corder
+        if (!(virtualBounds.contains(x + width, y + height)))
+        {
+
+            if (x + width > virtualBounds.x + virtualBounds.width)
+            {
+                // location of window is too far to the right, its right
+                // border is out of bounds
+
+                // calculate a new horizontal position
+                // move the whole window to the left
+                x = virtualBounds.x + virtualBounds.width - width
+                        - borderDistance;
+                if (x < virtualBounds.x + borderDistance)
+                {
+                    // window is already on left side, it is too wide.
+                    x = virtualBounds.x + borderDistance;
+                    // reduce the width, so it surely fits
+                    width = virtualBounds.width - 2 * borderDistance;
+                }
+            }
+            if (y + height > virtualBounds.y + virtualBounds.height)
+            {
+                // location of window is too far to the bottom, its bottom
+                // border is out of bounds
+
+                // calculate a new vertical position
+                // move the whole window to the top
+                y = virtualBounds.y + virtualBounds.height - height
+                        - borderDistance;
+                if (y < virtualBounds.y + borderDistance)
+                {
+                    // window is already on top, it is too high.
+                    y = virtualBounds.y + borderDistance;
+                    // reduce the width, so it surely fits
+                    height = virtualBounds.height - 2 * borderDistance;
                 }
             }
             this.setPreferredSize(new Dimension(width, height));
             this.setSize(width, height);
             this.setLocation(x, y);
-
         }
     }
     
