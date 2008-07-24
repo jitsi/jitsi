@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.SpringLayout.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -36,10 +35,10 @@ import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.keybindings.*;
 
 import org.osgi.framework.*;
 
@@ -1250,8 +1249,8 @@ public class MainFrame
             new BoxLayout(pluginPanelWest, BoxLayout.Y_AXIS));
 
         this.getContentPane().add(pluginPanelEast, BorderLayout.EAST);
-        this.getContentPane().add(pluginPanelEast, BorderLayout.SOUTH);
-        this.getContentPane().add(pluginPanelEast, BorderLayout.WEST);
+        this.getContentPane().add(pluginPanelSouth, BorderLayout.SOUTH);
+        this.getContentPane().add(pluginPanelWest, BorderLayout.WEST);
 
         // Search for plugin components registered through the OSGI bundle
         // context.
@@ -1590,6 +1589,7 @@ public class MainFrame
                     BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
             pluginPanelSouth.add(c);
+            pluginPanelSouth.repaint();
         }
         else if (constraints.equals(BorderLayout.WEST))
         {
@@ -1598,6 +1598,7 @@ public class MainFrame
                     BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
             pluginPanelWest.add(c);
+            pluginPanelSouth.repaint();
         }
         else if (constraints.equals(BorderLayout.EAST))
         {
@@ -1606,6 +1607,7 @@ public class MainFrame
                     BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
             pluginPanelEast.add(c);
+            pluginPanelSouth.repaint();
         }
 
         this.getContentPane().repaint();
