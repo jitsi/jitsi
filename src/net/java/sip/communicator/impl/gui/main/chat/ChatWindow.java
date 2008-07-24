@@ -9,9 +9,11 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
+
 
 import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
@@ -58,6 +60,10 @@ public class ChatWindow
     private int chatCount = 0;
     
     private Vector chatChangeListeners = new Vector();
+
+    private JPanel pluginPanelSouth = new JPanel();
+    private JPanel pluginPanelWest = new JPanel();
+    private JPanel pluginPanelEast = new JPanel();
 
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
@@ -663,6 +669,17 @@ public class ChatWindow
      */
     private void initPluginComponents()
     {
+        pluginPanelEast.setLayout(
+            new BoxLayout(pluginPanelEast, BoxLayout.Y_AXIS));
+        pluginPanelSouth.setLayout(
+            new BoxLayout(pluginPanelSouth, BoxLayout.Y_AXIS));
+        pluginPanelWest.setLayout(
+            new BoxLayout(pluginPanelWest, BoxLayout.Y_AXIS));
+
+        this.getContentPane().add(pluginPanelEast, BorderLayout.EAST);
+        this.getContentPane().add(pluginPanelSouth, BorderLayout.SOUTH);
+        this.getContentPane().add(pluginPanelWest, BorderLayout.WEST);
+
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
@@ -693,7 +710,8 @@ public class ChatWindow
                 Object borderLayoutConstraint = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(c.getConstraints());
 
-                this.add((Component)c.getComponent(), borderLayoutConstraint);
+                this.addPluginComponent((Component)c.getComponent(),
+                    borderLayoutConstraint);
             }
         }
 
@@ -709,7 +727,8 @@ public class ChatWindow
             Object borderLayoutConstraints = UIServiceImpl
                 .getBorderLayoutConstraintsFromContainer(c.getConstraints());
 
-            this.add((Component) c.getComponent(), borderLayoutConstraints);
+            this.addPluginComponent((Component) c.getComponent(),
+                borderLayoutConstraints);
         }
     }
 
@@ -719,7 +738,11 @@ public class ChatWindow
 
         if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
         {
-            this.getContentPane().remove((Component) c.getComponent());
+            Object borderLayoutConstraint = UIServiceImpl
+                .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+
+            this.removePluginComponent( (Component) c.getComponent(),
+                                        borderLayoutConstraint);
 
             this.pack();
         }
@@ -777,10 +800,16 @@ public class ChatWindow
         }
     }
     
+    /**
+     * The logo bar is positioned on the top of the window and is meant to
+     * contain the application logo.
+     */
     private class LogoBar
     extends JPanel
     {
-        /**
+        private TexturePaint texture;
+        
+    /**
          * Creates the logo bar and specify the size.
          */
         public LogoBar()
@@ -790,6 +819,16 @@ public class ChatWindow
 
             this.setMinimumSize(new Dimension(width, height));
             this.setPreferredSize(new Dimension(width, height));
+
+        BufferedImage bgImage
+                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
+
+            Rectangle rect
+                = new Rectangle(0, 0,
+                            bgImage.getWidth(null),
+                            bgImage.getHeight(null));
+
+            texture = new TexturePaint(bgImage, rect);
         }
 
         /**
@@ -802,14 +841,72 @@ public class ChatWindow
         {
             super.paintComponent(g);
 
-            Image backgroundImage
-                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+            Image logoImage
+                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
+            g.drawImage(logoImage, 0, 0, null);
             g.setColor(new Color(
                 GuiActivator.getResources().getColor("logoBarBackground")));
 
-            g.fillRect(0, 0, this.getWidth(), this.getHeight());
-            g.drawImage(backgroundImage, 0, 0, null);
+            Graphics2D g2 = (Graphics2D) g;
+
+            g2.setPaint(texture);
+            g2.fillRect(logoImage.getWidth(null), 0,
+                this.getWidth(), this.getHeight());
         }
+    }
+
+    /**
+     * Adds the given component with to the container corresponding to the
+     * given constraints.
+     * 
+     * @param c the component to add
+     * @param constraints the constraints determining the container
+     */
+    private void addPluginComponent(Component c, Object constraints)
+    {
+        if (constraints.equals(BorderLayout.SOUTH))
+        {
+            if (pluginPanelSouth.getComponentCount() == 0)
+                pluginPanelSouth.setBorder(
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            pluginPanelSouth.add(c);
+        }
+        else if (constraints.equals(BorderLayout.WEST))
+        {
+            if (pluginPanelWest.getComponentCount() == 0)
+                pluginPanelWest.setBorder(
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            pluginPanelWest.add(c);
+        }
+        else if (constraints.equals(BorderLayout.EAST))
+        {
+            if (pluginPanelEast.getComponentCount() == 0)
+                pluginPanelEast.setBorder(
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            pluginPanelEast.add(c);
+        }
+
+        this.getContentPane().repaint();
+    }
+
+    /**
+     * Removes the given component from the container corresponding to the given
+     * constraints.
+     * 
+     * @param c the component to remove
+     * @param constraints the constraints determining the container
+     */
+    private void removePluginComponent(Component c, Object constraints)
+    {
+        if (constraints.equals(BorderLayout.SOUTH))
+            pluginPanelSouth.remove(c);
+        else if (constraints.equals(BorderLayout.WEST))
+            pluginPanelWest.remove(c);
+        else if (constraints.equals(BorderLayout.EAST))
+            pluginPanelEast.remove(c);
     }
 }
