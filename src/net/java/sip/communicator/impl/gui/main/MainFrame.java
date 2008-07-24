@@ -1360,6 +1360,13 @@ public class MainFrame
 
         if (containerID.equals(Container.CONTAINER_CONTACT_LIST))
         {
+            Object constraints = UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(
+                        pluginComponent.getConstraints());
+
+            if (constraints == null)
+                constraints = BorderLayout.SOUTH;
+
             if (pluginComponent.isNativeComponent())
             {
                 if (nativePluginsTable.containsKey(pluginComponent))
@@ -1367,12 +1374,13 @@ public class MainFrame
                     final Component c
                         = (Component) nativePluginsTable.get(pluginComponent);
 
+                    final Object finalConstraints = constraints;
+
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         public void run()
                         {
-                            removePluginComponent(c,
-                                pluginComponent.getConstraints());
+                            removePluginComponent(c, finalConstraints);
 
                             getContentPane().repaint();
                             pack();
@@ -1384,7 +1392,7 @@ public class MainFrame
             {
                 this.removePluginComponent(
                     (Component) pluginComponent.getComponent(),
-                    pluginComponent.getConstraints());
+                    constraints);
             }
 
             nativePluginsTable.remove(pluginComponent);
@@ -1457,6 +1465,7 @@ public class MainFrame
     {
         Iterator pluginIterator = nativePluginsTable.entrySet().iterator();
 
+        Object constraints;
         while (pluginIterator.hasNext())
         {
             Map.Entry<PluginComponent, Component> entry
@@ -1465,7 +1474,14 @@ public class MainFrame
             PluginComponent pluginComponent = (PluginComponent) entry.getKey();
             Component c = (Component) entry.getValue();
 
-            this.removePluginComponent(c, pluginComponent.getConstraints());
+            constraints = UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(
+                        pluginComponent.getConstraints());
+
+            if (constraints == null)
+                constraints = BorderLayout.SOUTH;
+
+            this.removePluginComponent(c, constraints);
 
             this.getContentPane().repaint();
         }
