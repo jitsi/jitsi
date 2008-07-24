@@ -34,6 +34,7 @@ import net.java.sip.communicator.util.xml.*;
  * Compliant with rfc3261, rfc3265, rfc3856, rfc3863, rfc4480 and rfc3903
  *
  * @author Benoit Pradelle
+ * @author Lubomir Marinov
  */
 public class OperationSetPresenceSipImpl
     implements OperationSetPersistentPresence, SipListener
@@ -144,6 +145,12 @@ public class OperationSetPresenceSipImpl
      * The timer which will handle all the scheduled tasks
      */
     private Timer timer = null;
+
+    /**
+     * The lock which synchronizes the access to the {@link #timer} handling all
+     * scheduled tasks.
+     */
+    private final Object timerLock = new Object();
 
     /**
      * The re-PUBLISH task if any
@@ -1791,16 +1798,11 @@ public class OperationSetPresenceSipImpl
                         new RefreshSubscriptionTask(contact);
                     contact.setResfreshTask(refresh);
 
-                    try {
-                        // try to keep a margin
-                        this.timer.schedule(refresh,
-                                (expHeader.getExpires() - REFRESH_MARGIN) * 1000);
-                    } catch (IllegalArgumentException e) {
-                        logger.debug("the expires value seems to be less than a " +
-                                "minute, let's assume it");
-
-                        this.timer.schedule(refresh, expHeader.getExpires() * 1000);
-                    }
+                    int refreshDelay = expHeader.getExpires();
+                    // try to keep a margin
+                    if (refreshDelay >= REFRESH_MARGIN)
+                        refreshDelay -= REFRESH_MARGIN;
+                    getTimer().schedule(refresh, refreshDelay * 1000);
 
                     // do it to remember the dialog in case of a polling
                     // subscription (which means no call to finalizeSubscription)
@@ -2077,17 +2079,11 @@ public class OperationSetPresenceSipImpl
 
                 this.republishTask = new RePublishTask();
 
-                try {
-                    // keep a margin
-                    this.timer.schedule(this.republishTask,
-                            (expires.getExpires() - REFRESH_MARGIN) * 1000);
-                } catch (IllegalArgumentException e) {
-                    logger.error("the expires value seems to be less than a " +
-                            "minute, let's assume it", e);
-
-                    this.timer.schedule(this.republishTask,
-                            expires.getExpires() * 1000);
-                }
+                int republishDelay = expires.getExpires();
+                // keep a margin
+                if (republishDelay >= REFRESH_MARGIN)
+                    republishDelay -= REFRESH_MARGIN;
+                getTimer().schedule(this.republishTask, republishDelay * 1000);
 
             // UNAUTHORIZED (401/407)
             } else if (response.getStatusCode() == Response.UNAUTHORIZED
@@ -2189,6 +2185,7 @@ public class OperationSetPresenceSipImpl
 
                 if (this.republishTask != null) {
                     this.republishTask.cancel();
+                    this.republishTask = null;
                 }
 
                 // if we are there, we don't have any watcher so no need to
@@ -2677,6 +2674,7 @@ public class OperationSetPresenceSipImpl
 
                 if (this.republishTask != null) {
                     this.republishTask.cancel();
+                    this.republishTask = null;
                 }
             }
 
@@ -2754,7 +2752,7 @@ public class OperationSetPresenceSipImpl
                 // add the new timeout task
                 watcherTimeoutTask timeout = new watcherTimeoutTask(contact);
                 contact.setTimeoutTask(timeout);
-                this.timer.schedule(timeout, expires * 1000);
+                getTimer().schedule(timeout, expires * 1000);
 
                 // send a OK
                 Response response = null;
@@ -2954,7 +2952,7 @@ public class OperationSetPresenceSipImpl
             // add the timeout task
             watcherTimeoutTask timeout = new watcherTimeoutTask(contact);
             contact.setTimeoutTask(timeout);
-            this.timer.schedule(timeout, expires * 1000);
+            getTimer().schedule(timeout, expires * 1000);
 
         // PUBLISH
         } else if (request.getMethod().equals(Request.PUBLISH)) {
@@ -4397,6 +4395,48 @@ public class OperationSetPresenceSipImpl
          }
      }
 
+     /**
+      * Gets the timer which handles all scheduled tasks. If it still doesn't
+      * exists, a new <tt>Timer</tt> is created.
+      *
+      * @return the <tt>Timer</tt> which handles all scheduled tasks
+      */
+     private Timer getTimer()
+     {
+         synchronized (timerLock)
+         {
+            if (timer == null)
+                timer = new Timer(true);
+            return timer;
+         }
+     }
+
+     /**
+      * Cancels the timer which handles all scheduled tasks and disposes of the
+      * currently existing tasks scheduled with it.
+      */
+     private void cancelTimer()
+     {
+
+         /*
+          * The timer is being canceled so the tasks schedules with it are being
+          * made obsolete.
+          */
+         if (republishTask != null)
+             republishTask = null;
+         if (pollingTask != null)
+             pollingTask = null;
+
+         synchronized (timerLock)
+         {
+            if (timer != null)
+            {
+                timer.cancel();
+                timer = null;
+            }
+         }
+     }
+
      protected class RefreshSubscriptionTask extends TimerTask
      {
          /**
@@ -4585,9 +4625,7 @@ public class OperationSetPresenceSipImpl
               if(evt.getNewState() == RegistrationState.UNREGISTERING)
               {
                   // stop any task associated with the timer
-                  if (timer != null) {
-                      timer.cancel();
-                  }
+                  cancelTimer();
 
                   // this will not be called by anyone else, so call it
                   // the method will terminate every active subscription
@@ -4621,7 +4659,15 @@ public class OperationSetPresenceSipImpl
               {
                    logger.debug("enter registered state");
 
-                   if (presenceEnabled == false) {
+                   /*
+                    * If presence support is enabled and the keep-alive method
+                    * is REGISTER, we'll get RegistrationState.REGISTERED more
+                    * than one though we're already registered. If we're
+                    * receiving such subsequent REGISTERED, we don't have to do
+                    * anything because we've already set it up in response to
+                    * the first REGISTERED.
+                    */
+                   if ((presenceEnabled == false) || (pollingTask != null)) {
                        return;
                    }
 
@@ -4648,15 +4694,12 @@ public class OperationSetPresenceSipImpl
                             forcePollContact(contact);
                         }
                     }
-                   
-                    // create a new Timer (the last one has been cancelled)
-                    timer = new Timer(true);
 
                     // create the new polling task
                     pollingTask = new PollOfflineContactsTask();
 
                     // start polling the offline contacts
-                    timer.schedule(pollingTask, pollingTaskPeriod,
+                    getTimer().schedule(pollingTask, pollingTaskPeriod,
                         pollingTaskPeriod);
                } else if(evt.getNewState() == 
                        RegistrationState.CONNECTION_FAILED)
@@ -4697,9 +4740,7 @@ public class OperationSetPresenceSipImpl
                     }
                     
                     // stop any task associated with the timer
-                    if (timer != null) {
-                        timer.cancel();
-                    }
+                    cancelTimer();
                     
                     waitedCallIds.clear();
                }
