@@ -96,4 +96,14 @@ public interface PluginComponent
      * @param metaGroup the current meta contact group
      */
     public void setCurrentContactGroup(MetaContactGroup metaGroup);
+
+    /**
+     * Returns <code>true</code> to indicate that this component is a native
+     * component and <code>false</code> otherwise. This method is meant to be
+     * used by containers if a special treatment is needed for native components.
+     * 
+     * @return <code>true</code> to indicate that this component is a native
+     * component and <code>false</code> otherwise.
+     */
+    public boolean isNativeComponent();
 }

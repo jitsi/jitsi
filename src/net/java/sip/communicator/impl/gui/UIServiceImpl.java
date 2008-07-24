@@ -725,5 +725,10 @@ public class UIServiceImpl
         {
             return -1;
         }
+
+        public boolean isNativeComponent()
+        {
+            return false;
+        }
     }
 }

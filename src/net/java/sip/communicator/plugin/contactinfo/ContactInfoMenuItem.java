@@ -90,4 +90,9 @@ public class ContactInfoMenuItem
     {
         return -1;
     }
+
+    public boolean isNativeComponent()
+    {
+        return false;
+    }
 }

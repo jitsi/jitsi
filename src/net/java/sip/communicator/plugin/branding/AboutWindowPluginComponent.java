@@ -68,4 +68,9 @@ public class AboutWindowPluginComponent
     {
         return -1;
     }
+
+    public boolean isNativeComponent()
+    {
+        return false;
+    }
 }

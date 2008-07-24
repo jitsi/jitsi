@@ -161,4 +161,9 @@ public class WhiteboardMenuItem
     {
         return -1;
     }
+
+    public boolean isNativeComponent()
+    {
+        return false;
+    }
 }

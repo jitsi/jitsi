@@ -9,11 +9,13 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.beans.*;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.SpringLayout.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -78,7 +80,7 @@ public class MainFrame
     private LoginManager loginManager;
 
     private ChatWindowManager chatWindowManager;
-    
+
     private MultiUserChatManager multiUserChatManager;
 
     private HistoryWindowManager historyWindowManager
@@ -87,6 +89,12 @@ public class MainFrame
     private Hashtable<ProtocolProviderService, ContactEventHandler>
         providerContactHandlers
             = new Hashtable<ProtocolProviderService, ContactEventHandler>();
+
+    private Hashtable nativePluginsTable = new Hashtable();
+
+    private JPanel pluginPanelSouth = new JPanel();
+    private JPanel pluginPanelWest = new JPanel();
+    private JPanel pluginPanelEast = new JPanel();
 
     /**
      * Creates an instance of <tt>MainFrame</tt>.
@@ -1234,6 +1242,17 @@ public class MainFrame
      */
     private void initPluginComponents()
     {
+        pluginPanelEast.setLayout(
+            new BoxLayout(pluginPanelEast, BoxLayout.Y_AXIS));
+        pluginPanelSouth.setLayout(
+            new BoxLayout(pluginPanelSouth, BoxLayout.Y_AXIS));
+        pluginPanelWest.setLayout(
+            new BoxLayout(pluginPanelWest, BoxLayout.Y_AXIS));
+
+        this.getContentPane().add(pluginPanelEast, BorderLayout.EAST);
+        this.getContentPane().add(pluginPanelEast, BorderLayout.SOUTH);
+        this.getContentPane().add(pluginPanelEast, BorderLayout.WEST);
+
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
@@ -1260,18 +1279,25 @@ public class MainFrame
                 PluginComponent c = (PluginComponent) GuiActivator
                     .bundleContext.getService(serRefs[i]);
 
-                Object constraints = null;
-
-                if (c.getConstraints() != null)
-                    constraints = UIServiceImpl
-                        .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+                if (c.isNativeComponent())
+                    nativePluginsTable.put(c, new JPanel());
                 else
-                    constraints = BorderLayout.SOUTH;
+                {
+                    Object constraints = null;
 
-                this.getContentPane().add(  (Component) c.getComponent(),
-                                            constraints);
+                    if (c.getConstraints() != null)
+                        constraints = UIServiceImpl
+                            .getBorderLayoutConstraintsFromContainer(
+                                c.getConstraints());
+                    else
+                        constraints = BorderLayout.SOUTH;
+
+                    this.addPluginComponent(  (Component) c.getComponent(),
+                                              constraints);
+                }
             }
         }
+
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
@@ -1281,19 +1307,43 @@ public class MainFrame
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponent pluginComponent = event.getPluginComponent();
 
-        if (c.getContainer().equals(Container.CONTAINER_CONTACT_LIST))
+        if (pluginComponent.getContainer()
+                .equals(Container.CONTAINER_CONTACT_LIST))
         {
             Object constraints = null;
 
-            if (c.getConstraints() != null)
+            if (pluginComponent.getConstraints() != null)
                 constraints = UIServiceImpl
-                    .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+                    .getBorderLayoutConstraintsFromContainer(
+                        pluginComponent.getConstraints());
             else
                 constraints = BorderLayout.SOUTH;
 
-            this.getContentPane().add((Component) c.getComponent(), constraints);
+            if (pluginComponent.isNativeComponent())
+            {
+                this.nativePluginsTable.put(pluginComponent, new JPanel());
+
+                if (isVisible())
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        public void run()
+                        {
+                            addNativePlugins();
+
+                            pack();
+                        }
+                    });
+                }
+            }
+            else
+            {
+                this.addPluginComponent(
+                    (Component) pluginComponent.getComponent(),
+                    constraints);
+            }
         }
 
         this.pack();
@@ -1305,13 +1355,40 @@ public class MainFrame
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        final PluginComponent pluginComponent = event.getPluginComponent();
 
-        Container containerID = c.getContainer();
+        Container containerID = pluginComponent.getContainer();
 
         if (containerID.equals(Container.CONTAINER_CONTACT_LIST))
         {
-            this.getContentPane().remove((Component) c.getComponent());
+            if (pluginComponent.isNativeComponent())
+            {
+                if (nativePluginsTable.containsKey(pluginComponent))
+                {
+                    final Component c
+                        = (Component) nativePluginsTable.get(pluginComponent);
+
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        public void run()
+                        {
+                            removePluginComponent(c,
+                                pluginComponent.getConstraints());
+
+                            getContentPane().repaint();
+                            pack();
+                        }
+                    });
+                }
+            }
+            else
+            {
+                this.removePluginComponent(
+                    (Component) pluginComponent.getComponent(),
+                    pluginComponent.getConstraints());
+            }
+
+            nativePluginsTable.remove(pluginComponent);
         }
     }
 
@@ -1322,16 +1399,30 @@ public class MainFrame
     private class LogoBar
         extends JPanel
     {
+        private TexturePaint texture;
+
         /**
          * Creates the logo bar and specify the size.
          */
         public LogoBar()
         {
-            int width = GuiActivator.getResources().getSettingsInt("logoBarWidth");
-            int height = GuiActivator.getResources().getSettingsInt("logoBarHeight");
+            int width = GuiActivator.getResources()
+                .getSettingsInt("logoBarWidth");
+            int height = GuiActivator.getResources()
+                .getSettingsInt("logoBarHeight");
 
             this.setMinimumSize(new Dimension(width, height));
             this.setPreferredSize(new Dimension(width, height));
+
+            BufferedImage bgImage
+                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
+
+            Rectangle rect
+                = new Rectangle(0, 0,
+                            bgImage.getWidth(null),
+                            bgImage.getHeight(null));
+
+            texture = new TexturePaint(bgImage, rect);
         }
 
         /**
@@ -1344,14 +1435,67 @@ public class MainFrame
         {
             super.paintComponent(g);
 
-            Image backgroundImage
+            Image logoImage
                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
+            g.drawImage(logoImage, 0, 0, null);
             g.setColor(new Color(
                 GuiActivator.getResources().getColor("logoBarBackground")));
 
-            g.fillRect(0, 0, this.getWidth(), this.getHeight());
-            g.drawImage(backgroundImage, 0, 0, null);
+            Graphics2D g2 = (Graphics2D) g;
+
+            g2.setPaint(texture);
+
+            g2.fillRect(logoImage.getWidth(null), 0,
+                this.getWidth(), this.getHeight());
+        }
+    }
+
+    /**
+     * Removes all native plugins from this container.
+     */
+    private void removeNativePlugins()
+    {
+        Iterator pluginIterator = nativePluginsTable.entrySet().iterator();
+
+        while (pluginIterator.hasNext())
+        {
+            Map.Entry<PluginComponent, Component> entry
+                = (Map.Entry<PluginComponent, Component>) pluginIterator.next();
+
+            PluginComponent pluginComponent = (PluginComponent) entry.getKey();
+            Component c = (Component) entry.getValue();
+
+            this.removePluginComponent(c, pluginComponent.getConstraints());
+
+            this.getContentPane().repaint();
+        }
+    }
+
+    /**
+     * Adds all native plugins to this container.
+     */
+    public void addNativePlugins()
+    {
+        this.removeNativePlugins();
+
+        Iterator pluginIterator = nativePluginsTable.entrySet().iterator();
+
+        while (pluginIterator.hasNext())
+        {
+            Map.Entry pluginEntry = (Map.Entry) pluginIterator.next();
+
+            PluginComponent plugin = (PluginComponent) pluginEntry.getKey();
+
+            Object constraints = UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(
+                        plugin.getConstraints());
+
+            Component c = (Component) plugin.getComponent();
+
+            this.addPluginComponent(c, constraints);
+
+            this.nativePluginsTable.put(plugin, c);
         }
     }
 
@@ -1416,11 +1560,71 @@ public class MainFrame
         SwingUtilities.invokeLater(new Runnable(){
             public void run()
             {
-                MainFrame.super.setVisible(isVisible);
-
                 if(isVisible)
-                    MainFrame.super.toFront();
+        {
+            MainFrame.this.addNativePlugins();
+            MainFrame.super.setVisible(isVisible);
+            MainFrame.super.toFront();
+        }
+        else
+        {
+            MainFrame.super.setVisible(isVisible);
+        }
             }
         });
+    }
+
+    /**
+     * Adds the given component with to the container corresponding to the
+     * given constraints.
+     * 
+     * @param c the component to add
+     * @param constraints the constraints determining the container
+     */
+    private void addPluginComponent(Component c, Object constraints)
+    {
+        if (constraints.equals(BorderLayout.SOUTH))
+        {
+            if (pluginPanelSouth.getComponentCount() == 0)
+                pluginPanelSouth.setBorder(
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            pluginPanelSouth.add(c);
+        }
+        else if (constraints.equals(BorderLayout.WEST))
+        {
+            if (pluginPanelWest.getComponentCount() == 0)
+                pluginPanelWest.setBorder(
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            pluginPanelWest.add(c);
+        }
+        else if (constraints.equals(BorderLayout.EAST))
+        {
+            if (pluginPanelEast.getComponentCount() == 0)
+                pluginPanelEast.setBorder(
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            pluginPanelEast.add(c);
+        }
+
+        this.getContentPane().repaint();
+    }
+
+    /**
+     * Removes the given component from the container corresponding to the given
+     * constraints.
+     * 
+     * @param c the component to remove
+     * @param constraints the constraints determining the container
+     */
+    private void removePluginComponent(Component c, Object constraints)
+    {
+        if (constraints.equals(BorderLayout.SOUTH))
+            pluginPanelSouth.remove(c);
+        else if (constraints.equals(BorderLayout.WEST))
+            pluginPanelWest.remove(c);
+        else if (constraints.equals(BorderLayout.EAST))
+            pluginPanelEast.remove(c);
     }
 }

@@ -94,4 +94,9 @@ public class ExtendedCallHistorySearchItem
     {
         return -1;
     }
+
+    public boolean isNativeComponent()
+    {
+        return false;
+    }
 }

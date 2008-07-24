@@ -67,4 +67,9 @@ public class ExamplePluginMenuItem
     {
         return -1;
     }
+
+    public boolean isNativeComponent()
+    {
+        return false;
+    }
 }

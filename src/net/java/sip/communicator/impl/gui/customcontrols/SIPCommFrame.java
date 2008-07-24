@@ -77,10 +77,11 @@ public abstract class SIPCommFrame
         // Adds new bindings to input map
         KeybindingsService service = GuiActivator.getKeybindingsService();
         this.bindings = service.getBindings(category);
+
         for (KeyStroke key : this.bindings.getBindings().keySet())
         {
             String action = this.bindings.getBindings().get(key);
-        imap.put(key, action);
+            imap.put(key, action);
         }
 
         this.bindings.addObserver(this);
