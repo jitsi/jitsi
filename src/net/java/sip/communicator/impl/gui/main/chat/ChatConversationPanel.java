@@ -10,7 +10,6 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
@@ -356,7 +355,7 @@ public class ChatConversationPanel
                             + msgHeaderID
                             + "' date=\""
                             + msgDate + "\">";
-            
+
             endHeaderTag = "</h2>";
 
             chatString += timeString + contactName + " at "

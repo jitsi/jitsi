@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -435,10 +436,13 @@ public abstract class ChatPanel
         Iterator iterator = historyList.iterator();
         String historyString = "";
 
+        String messageType;
+
         while (iterator.hasNext())
         {
             Object o = iterator.next();
 
+            
             if(o instanceof MessageDeliveredEvent)
             {
                 MessageDeliveredEvent evt
@@ -447,11 +451,16 @@ public abstract class ChatPanel
                 ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
 
+                if (isGreyHistoryStyleDisabled(protocolProvider))
+                    messageType = Constants.OUTGOING_MESSAGE;
+                else
+                    messageType = Constants.HISTORY_OUTGOING_MESSAGE;
+
                 historyString += processHistoryMessage(
                             getChatWindow().getMainFrame()
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(),
-                            Constants.HISTORY_OUTGOING_MESSAGE,
+                            messageType,
                             evt.getSourceMessage().getContent(),
                             evt.getSourceMessage().getContentType());
             }
@@ -459,14 +468,23 @@ public abstract class ChatPanel
             {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
 
+                ProtocolProviderService protocolProvider
+                    = evt.getSourceContact().getProtocolProvider();
+
                 if(!evt.getSourceMessage().getMessageUID()
-                        .equals(escapedMessageID)) {
-                historyString += processHistoryMessage(
-                            evt.getSourceContact().getDisplayName(),
-                            evt.getTimestamp(),
-                            Constants.HISTORY_INCOMING_MESSAGE,
-                            evt.getSourceMessage().getContent(),
-                            evt.getSourceMessage().getContentType());
+                        .equals(escapedMessageID))
+                {
+                    if (isGreyHistoryStyleDisabled(protocolProvider))
+                        messageType = Constants.INCOMING_MESSAGE;
+                    else
+                        messageType = Constants.HISTORY_INCOMING_MESSAGE;
+
+                    historyString += processHistoryMessage(
+                                evt.getSourceContact().getDisplayName(),
+                                evt.getTimestamp(),
+                                messageType,
+                                evt.getSourceMessage().getContent(),
+                                evt.getSourceMessage().getContentType());
                 }
             }
             else if(o instanceof ChatRoomMessageDeliveredEvent)
@@ -840,5 +858,39 @@ public abstract class ChatPanel
                 logger.error("Unknown event type " + evt.getEventID());
             }
         }
+    }
+
+    /**
+     * Indicates if the history of a hidden protocol should be shown to the
+     * user in the default <b>grey</b> history style or it should be shown as
+     * a normal message.
+     * 
+     * @param protocolProvider the protocol provider to check
+     * @return <code>true</code> if the given protocol is a hidden one and the
+     * "hiddenProtocolGreyHistoryDisabled" property is set to true.
+     */
+    private boolean isGreyHistoryStyleDisabled(
+        ProtocolProviderService protocolProvider)
+    {
+        boolean isProtocolHidden = false;
+        boolean isGreyHistoryDisabled = false;
+
+        Object hiddenProperty
+            = protocolProvider.getAccountID().getAccountProperties()
+                .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN);
+
+        if (hiddenProperty != null)
+            isProtocolHidden
+                = new Boolean((String)hiddenProperty).booleanValue();
+
+        String greyHistoryProperty
+            = GuiActivator.getResources()
+                .getSettingsString("hiddenProtocolGreyHistoryDisabled");
+
+        if (greyHistoryProperty != null)
+            isGreyHistoryDisabled
+                = new Boolean(greyHistoryProperty).booleanValue();
+
+        return isProtocolHidden && isGreyHistoryDisabled;
     }
 }
