@@ -49,6 +49,12 @@
     <!-- Put here the Generic release directory -->
     <property name="generic.app.dir" value="${sc.basedir}/${release}/generic"/>
 
+    <!-- The path to the dpkg-scanpackages tool -->
+    <property name="dpkg-scanpackages" value="/usr/bin/dpkg-scanpackages"/>
+
+    <!-- The path to the dpkg-buildpackage tool -->
+    <property name="dpkg-buildpackage" value="/usr/bin/dpkg-buildpackage"/>
+
     <!-- change the 7zip executable corresponding the OS
          7-zip is used to create windows self-extract installer binary
          In order to work 7-zip must be installed and tobe in the path
@@ -73,11 +79,11 @@
     <property name="debian.binary.dir" value="${debian.dir}/binary"/>
     <!-- Can we build debian packages? -->
     <condition property="dpkg.build.present">
-      <available file="/usr/bin/dpkg-buildpackage"/>
+      <available file="${dpkg-buildpackage}"/>
     </condition>
     <!-- Can we deploy debian packages? -->
     <condition property="dpkg.scan.present">
-      <available file="/usr/bin/dpkg-scanpackages"/>
+      <available file="${dpkg-scanpackages}"/>
     </condition>
 
     <!-- default Ant target does nothing except print helpful options -->
@@ -560,8 +566,14 @@
               quiet="yes" failonerror="false"/>
     </target>
 
+    <!-- Outputs a warning notifying the user that dpkg-buildpackage is not installed. -->
+    <target name="dpkg-build-warning" unless="dpkg.build.present">
+      <echo message="The ${dpkg-buildpackage} too was not found on your system."/>
+      <echo message="Try installindg the 'dpkg-dev' package "/>
+    </target>
+
     <!-- Create a Debian package - This needs dpkg utilities -->
-    <target name="deb" depends="make"
+    <target name="deb" depends="make,dpkg-build-warning"
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
@@ -612,7 +624,7 @@
         value="${sip-communicator.version}"/>
 
     <!-- Build i386 binary package -->
-    <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
+    <exec executable="${dpkg-buildpackage}" dir="${inst.resrc}">
         <arg value="-rfakeroot"/>
         <arg value="-tc"/>
         <arg value="-us"/>
@@ -623,7 +635,7 @@
     </exec>
 
     <!-- Build amd64 binary package -->
-    <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
+    <exec executable="${dpkg-buildpackage}" dir="${inst.resrc}">
         <arg value="-rfakeroot"/>
         <arg value="-tc"/>
         <arg value="-us"/>
@@ -660,8 +672,14 @@
 
     </target>
 
+    <!-- Outputs a warning notifying the user that dpkg-scanpackages is not installed. -->
+    <target name="dpkg-scan-warning" unless="dpkg.scan.present">
+        <echo message="The ${dpkg-scanpackages} too was not found on your system."/>
+        <echo message="Try installindg the 'dpkg-dev' package "/>
+    </target>
+
     <!-- Prepare to deploy the Debian package - This needs dpkg utilities -->
-    <target name="deb-rel" depends="deb"
+    <target name="deb-rel" depends="deb,dpkg-scan-warning"
             if="dpkg.scan.present"
             description="Prepare to deploy Debian package (needs dpkg utilities)">
 
@@ -672,7 +690,7 @@
         </fileset>
       </move>
 
-      <exec executable="/usr/bin/dpkg-scanpackages"
+      <exec executable="${dpkg-scanpackages}"
           dir="${debian.dir}"
           output="${debian.binary.dir}/dpkg-scanpackages.out"
           errorproperty="dpkg-scanpackages.err">
