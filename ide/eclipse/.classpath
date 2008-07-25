@@ -35,6 +35,7 @@
     <classpathentry kind="lib" path="lib/os-specific/linux/installer-exclude/jmf.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/linux/jdic_stub.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/installer-exclude/jmf.jar"/>
+    <classpathentry kind="lib" path="lib/os-specific/mac/installer-exclude/dock.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/AppleJavaExtensions.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/growl.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/jdic_stub.jar"/>
@@ -43,10 +44,12 @@
     <classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jmf.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/sound.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/windows/jdic_stub.jar"/>
-    <classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.ant_1.7.0.v200706080842/lib/ant.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/apache-ant-1.7.0.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/aclibico-2.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/pircbot.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jsch-0.1.36.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/izpack-shortcut-link.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/jfontchooser-1.0.5.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/KeybindingUtil.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>
