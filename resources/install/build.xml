@@ -570,7 +570,7 @@
               quiet="yes" failonerror="false"/>
     </target>
 
-	<!-- Outputs a warning notifying the user that a dpkg tool is missing. -->
+    <!-- Outputs a warning notifying the user that a dpkg tool is missing. -->
     <target name="dpkg-build-warning" unless="dpkg.build.present">
       <echo message="Either the ${dpkg-buildpackage} tool or the debhelper tools was not found on your system."/>
       <echo message="Try installing the 'dpkg-dev' and 'debhelper' packages"/>
