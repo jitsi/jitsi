@@ -51,9 +51,10 @@
 
     <!-- The path to the dpkg-scanpackages tool -->
     <property name="dpkg-scanpackages" value="/usr/bin/dpkg-scanpackages"/>
-
     <!-- The path to the dpkg-buildpackage tool -->
     <property name="dpkg-buildpackage" value="/usr/bin/dpkg-buildpackage"/>
+    <!-- The path to the dh_testdir tool -->
+    <property name="dh_testdir" value="/usr/bin/dh_testdir"/>
 
     <!-- change the 7zip executable corresponding the OS
          7-zip is used to create windows self-extract installer binary
@@ -79,7 +80,10 @@
     <property name="debian.binary.dir" value="${debian.dir}/binary"/>
     <!-- Can we build debian packages? -->
     <condition property="dpkg.build.present">
-      <available file="${dpkg-buildpackage}"/>
+      <and>
+        <available file="${dpkg-buildpackage}"/>
+        <available file="${dh_testdir}"/>
+      </and>
     </condition>
     <!-- Can we deploy debian packages? -->
     <condition property="dpkg.scan.present">
@@ -566,10 +570,10 @@
               quiet="yes" failonerror="false"/>
     </target>
 
-    <!-- Outputs a warning notifying the user that dpkg-buildpackage is not installed. -->
+	<!-- Outputs a warning notifying the user that a dpkg tool is missing. -->
     <target name="dpkg-build-warning" unless="dpkg.build.present">
-      <echo message="The ${dpkg-buildpackage} too was not found on your system."/>
-      <echo message="Try installindg the 'dpkg-dev' package "/>
+      <echo message="Either the ${dpkg-buildpackage} tool or the debhelper tools was not found on your system."/>
+      <echo message="Try installing the 'dpkg-dev' and 'debhelper' packages"/>
     </target>
 
     <!-- Create a Debian package - This needs dpkg utilities -->
@@ -577,7 +581,7 @@
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
-      <!-- Prepare the changelog file for the version number -->
+      <!-- Prepare the changelog file -->
       <copy file="${inst.resrc}/debian/changelog.tmpl"
           tofile="${inst.resrc}/debian/changelog"
           overwrite="true"/>
@@ -588,7 +592,7 @@
           token="_PACKAGE_NAME_"
           value="${package.name}"/>
 
-    <!-- Prepare the changelog file for the version number -->
+    <!-- Prepare the control file -->
     <copy file="${inst.resrc}/debian/control.tmpl"
         tofile="${inst.resrc}/debian/control"
         overwrite="true"/>
@@ -596,7 +600,7 @@
         token="_PACKAGE_NAME_"
         value="${package.name}"/>
 
-    <!-- Prepare the changelog file for the version number -->
+	<!-- Prepare the rules file -->
     <copy file="${inst.resrc}/debian/rules.tmpl"
         tofile="${inst.resrc}/debian/rules"
         overwrite="true"/>
@@ -674,8 +678,8 @@
 
     <!-- Outputs a warning notifying the user that dpkg-scanpackages is not installed. -->
     <target name="dpkg-scan-warning" unless="dpkg.scan.present">
-        <echo message="The ${dpkg-scanpackages} too was not found on your system."/>
-        <echo message="Try installindg the 'dpkg-dev' package "/>
+        <echo message="The ${dpkg-scanpackages} tool was not found on your system."/>
+        <echo message="Try installing the 'dpkg-dev' package "/>
     </target>
 
     <!-- Prepare to deploy the Debian package - This needs dpkg utilities -->
