@@ -153,6 +153,8 @@ public class QuickMenu
         this.searchButton.addComponentListener(this);
         this.infoButton.addComponentListener(this);
         this.soundButton.addComponentListener(this);
+
+        this.initPluginComponents();
     }
     
     private void initPluginComponents()

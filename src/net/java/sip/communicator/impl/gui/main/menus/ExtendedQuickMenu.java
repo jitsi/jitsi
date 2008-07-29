@@ -156,6 +156,8 @@ public class ExtendedQuickMenu
         this.hideShowButton.addComponentListener(this);
         this.infoButton.addComponentListener(this);
         this.soundButton.addComponentListener(this);
+
+        this.initPluginComponents();
     }
     
     private void initPluginComponents()
