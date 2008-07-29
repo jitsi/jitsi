@@ -8,19 +8,16 @@ package net.java.sip.communicator.plugin.branding;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
 public class BrandingActivator
-    implements  BundleActivator,
-                BundleListener
+    implements  BundleActivator
 {
-    private Logger logger = Logger.getLogger(BrandingActivator.class);
-
-    private WelcomeWindow welcomeWindow;
+    private final Logger logger = Logger.getLogger(BrandingActivator.class);
 
     private static BundleContext bundleContext;
     
@@ -30,47 +27,90 @@ public class BrandingActivator
     {
         bundleContext = bc;
 
-        welcomeWindow = new WelcomeWindow();
+        /*
+         * WelcomeWindow is huge because it has a large image spread all over it
+         * so, given it's only necessary before the UIService gets activated, we
+         * certainly don't want to keep it around (e.g. as an instance field or
+         * as a final variable used inside a BundleListener which never gets
+         * removed).
+         */
+        final WelcomeWindow welcomeWindow = new WelcomeWindow();
         welcomeWindow.pack();
         welcomeWindow.setVisible(true);
 
-        bundleContext.addBundleListener(this);
+        bundleContext.addBundleListener(new BundleListener()
+        {
+
+            /**
+             * The indicator which determines whether the job of this listener
+             * is done and no other <tt>BundleEvent</tt>s should be handled.
+             * <p>
+             * After
+             * {@link BrandingActivator#bundleChanged(BundleEvent, WelcomeWindow)}
+             * reports it's done, it's not enough to remove this listener from
+             * the notifying <tt>BundleContext</tt> in order to not handle more
+             * <tt>BundleEvent</tt>s because the notifications get triggered on
+             * packs of events without consulting the currently registered
+             * <tt>BundleListener</tt> and, if an event in the pack concludes
+             * the job of this listener, the subsequent events from the same
+             * pack will still be handled without the indicator.
+             * </p>
+             */
+            private boolean done;
+
+            public void bundleChanged(BundleEvent evt)
+            {
+                if (!done
+                    && !BrandingActivator.this
+                        .bundleChanged(evt, welcomeWindow))
+                {
+
+                    /*
+                     * Don't let bundleContext retain a reference to this
+                     * listener because it'll retain a reference to
+                     * welcomeWindow. Besides, we're no longer interested in
+                     * handling events so it doesn't make sense to even retain
+                     * this listener.
+                     */
+                    bundleContext.removeBundleListener(this);
+                    done = true;
+                }
+            }
+        });
     }
 
     public void stop(BundleContext arg0) throws Exception
     {
     }
 
-    public void bundleChanged(BundleEvent evt)
+    private boolean bundleChanged(BundleEvent evt, WelcomeWindow welcomeWindow)
     {
         if (welcomeWindow != null && welcomeWindow.isShowing()
                 && evt.getType() == BundleEvent.STARTED)
             welcomeWindow.setBundle(evt.getBundle().getHeaders().get(
                     "Bundle-Name").toString());
 
-        ServiceReference[] services = evt.getBundle().getRegisteredServices();
-        if (services == null)
+        ServiceReference uiServiceRef =
+            bundleContext.getServiceReference(UIService.class.getName());
+        if ((uiServiceRef != null)
+            && (Bundle.ACTIVE == uiServiceRef.getBundle().getState()))
         {
-            return;
-        }
-        for (ServiceReference serviceRef : services)
-        {
-            ServiceReference uiServiceRef = bundleContext
-                    .getServiceReference(UIService.class.getName());
-            if (serviceRef == uiServiceRef)
-            {
-                int state = serviceRef.getBundle().getState();
-                if (state == Bundle.ACTIVE)
-                {
-                    // UI-Service started.
+            // UI-Service started.
 
-                    // register the about dialog menu entry
-                    registerMenuEntry(uiServiceRef);
+            // register the about dialog menu entry
+            registerMenuEntry(uiServiceRef);
 
-                    welcomeWindow.close();
-                }
-            }
+            welcomeWindow.close();
+
+            /*
+             * We've just closed the WelcomeWindow so there'll be no other
+             * updates to it and we should stop listening to events which
+             * trigger them.
+             */
+            return false;
         }
+
+        return true;
     }
 
     private void registerMenuEntry(ServiceReference uiServiceRef)
