@@ -168,4 +168,20 @@ public interface CallSession
      * URL is available.
      */
     public URL getCallInfoURL();
+
+    /**
+     * Determines whether the audio of this session is (set to) mute.
+     * 
+     * @return <tt>true</tt> if the audio of this session is (set to) mute;
+     *         otherwise, <tt>false</tt>
+     */
+    public boolean isMute();
+
+    /**
+     * Sets the mute state of the audio of this session.
+     * 
+     * @param mute <tt>true</tt> to mute the audio of this session; otherwise,
+     *            <tt>false</tt>
+     */
+    public void setMute(boolean mute);
 }

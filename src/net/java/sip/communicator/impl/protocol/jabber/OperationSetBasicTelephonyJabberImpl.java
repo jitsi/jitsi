@@ -30,8 +30,8 @@ import org.jivesoftware.smackx.packet.DiscoverInfo;
  * @author Symphorien Wanko
  */
 public class OperationSetBasicTelephonyJabberImpl
-        implements  OperationSetBasicTelephony,
-        RegistrationStateChangeListener,
+   extends AbstractOperationSetBasicTelephony
+   implements RegistrationStateChangeListener,
         JingleMediaListener,
         JingleTransportListener,
         JingleSessionRequestListener,
@@ -51,11 +51,6 @@ public class OperationSetBasicTelephonyJabberImpl
      * that created us.
      */
     private ProtocolProviderServiceJabberImpl protocolProvider = null;
-
-    /**
-     * A list of listeners registered for call events.
-     */
-    private Vector callListeners = new Vector();
 
     /**
      * Contains references for all currently active (non ended) calls.
@@ -131,21 +126,6 @@ public class OperationSetBasicTelephonyJabberImpl
 
                 logger.info("Jingle : OFF ");
             }
-        }
-    }
-
-    /**
-     * Registers <tt>listener</tt> with this provider so that it
-     * could be notified when incoming calls are received.
-     *
-     * @param listener the listener to register with this provider.
-     */
-    public void addCallListener(CallListener listener)
-    {
-        synchronized(callListeners)
-        {
-            if (!callListeners.contains(listener))
-                callListeners.add(listener);
         }
     }
 
@@ -296,40 +276,6 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
-     * listeners that an event with id <tt>eventID</tt> has occurred on
-     * <tt>sourceCall</tt>.
-     *
-     * @param eventID the ID of the event to dispatch
-     * @param sourceCall the call on which the event has occurred.
-     */
-    protected void fireCallEvent( int         eventID,
-            CallJabberImpl sourceCall)
-    {
-        CallEvent cEvent = new CallEvent(sourceCall, eventID);
-
-        logger.debug("Dispatching a CallEvent to "
-                + callListeners.size()
-                + " listeners. event is: " + cEvent.toString());
-        Iterator listeners = null;
-        synchronized(callListeners)
-        {
-            listeners = new ArrayList(callListeners).iterator();
-        }
-
-        while(listeners.hasNext())
-        {
-            CallListener listener = (CallListener)listeners.next();
-            if(eventID == CallEvent.CALL_INITIATED)
-                listener.outgoingCallCreated(cEvent);
-            else if(eventID == CallEvent.CALL_RECEIVED)
-                listener.incomingCallReceived(cEvent);
-            else if(eventID == CallEvent.CALL_ENDED)
-                listener.callEnded(cEvent);
-        }
-    }
-
-    /**
      * Returns an iterator over all currently active calls.
      *
      * @return an iterator over all currently active calls.
@@ -361,19 +307,6 @@ public class OperationSetBasicTelephonyJabberImpl
         /** @todo implement putOnHold() */
         ((CallParticipantJabberImpl) participant).getJingleSession().
                 getJingleMediaSession().setTrasmit(false);
-    }
-
-    /**
-     * Removes the <tt>listener</tt> from the list of call listeners.
-     *
-     * @param listener the listener to unregister.
-     */
-    public void removeCallListener(CallListener listener)
-    {
-        synchronized(callListeners)
-        {
-            callListeners.remove(listener);
-        }
     }
 
     /**

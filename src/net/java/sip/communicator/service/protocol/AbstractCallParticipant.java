@@ -17,7 +17,6 @@ import net.java.sip.communicator.util.*;
  * The DefaultCallParticipant provides a default implementation for most of the
  * CallParticpant methods with the purpose of only leaving custom protocol
  * development to clients using the PhoneUI service.
- * <p> </p>
  *
  * @author Emil Ivov
  */
@@ -159,5 +158,20 @@ public abstract class AbstractCallParticipant
         //if signaling protocols (such as SIP) know where to get this URL from 
         //they should override this method
         return null;
+    }
+
+    /**
+     * Determines whether the audio stream (if any) being sent to this
+     * participant is mute.
+     * <p>
+     * The default implementation returns <tt>false</tt>.
+     * </p>
+     * 
+     * @return <tt>true</tt> if an audio stream is being sent to this
+     *         participant and it is currently mute; <tt>false</tt>, otherwise
+     */
+    public boolean isMute()
+    {
+        return false;
     }
 }

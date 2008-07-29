@@ -404,6 +404,11 @@ public class ImageLoader {
         = new ImageID("HOLD_BUTTON");
 
     /**
+     * A mute button icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID MUTE_BUTTON = new ImageID("MUTE_BUTTON");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO

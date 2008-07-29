@@ -14,9 +14,10 @@ import java.text.*;
  * An Operation Set defining all basic telephony operations such as conducting
  * simple calls and etc. Note that video is not considered as a part of a
  * supplementary operation set and if included in the service should be available
- * behind the basic telephoy set.
+ * behind the basic telephony set.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public interface OperationSetBasicTelephony
     extends OperationSet
@@ -74,7 +75,7 @@ public interface OperationSetBasicTelephony
     /**
      * Indicates a user request to answer an incoming call from the specified
      * CallParticipant.
-     * @param participant the call participant that we'd like to anwer.
+     * @param participant the call participant that we'd like to answer.
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
@@ -106,7 +107,7 @@ public interface OperationSetBasicTelephony
 
     /**
      * Indicates a user request to end a call with the specified call
-     * particiapnt.
+     * participant.
      * @param participant the participant that we'd like to hang up on.
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
@@ -119,4 +120,19 @@ public interface OperationSetBasicTelephony
      * @return Iterator
      */
     public Iterator getActiveCalls();
+
+    /**
+     * Sets the mute state of the audio stream being sent to a specific
+     * <tt>CallParticipant</tt>.
+     * <p>
+     * Muting an audio stream is implementation specific and one of the possible
+     * approaches to it is sending silence.
+     * </p>
+     * 
+     * @param participant the <tt>CallParticipant</tt> who receives the audio
+     *            stream to have its mute state set
+     * @param mute <tt>true</tt> to mute the audio stream being sent to
+     *            <tt>participant</tt>; otherwise, <tt>false</tt>
+     */
+    public void setMute(CallParticipant participant, boolean mute);
 }

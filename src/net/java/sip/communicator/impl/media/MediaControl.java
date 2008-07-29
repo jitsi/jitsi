@@ -6,22 +6,20 @@
  */
 package net.java.sip.communicator.impl.media;
 
+import java.awt.Dimension;
 import java.io.*;
 import java.net.*;
-import javax.media.*;
-import javax.media.protocol.*;
-
-import net.java.sip.communicator.impl.media.device.*;
-import net.java.sip.communicator.util.*;
-import javax.sdp.*;
-import net.java.sip.communicator.service.media.MediaException;
 import java.util.*;
-import net.java.sip.communicator.service.configuration.*;
+import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
-import javax.media.rtp.*;
-import java.awt.Dimension;
+import javax.media.protocol.*;
+import javax.sdp.*;
 
+import net.java.sip.communicator.impl.media.device.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.media.MediaException;
+import net.java.sip.communicator.util.*;
 
 /**
  * This class is intended to provide a generic way to control media package.
@@ -32,6 +30,7 @@ import java.awt.Dimension;
  * @author Jean Lorchat
  * @author Ryan Ricard
  * @author Ken Larson
+ * @author Lubomir Marinov
  */
 public class MediaControl
 {
@@ -56,6 +55,11 @@ public class MediaControl
      * A data source merging our audio and video data sources.
      */
     private DataSource avDataSource = null;
+
+    /**
+     * The audio <tt>DataSource</tt> which provides mute support.
+     */
+    private MutePushBufferDataSource muteAudioDataSource;
 
     /**
      * SDP Codes of all video formats that JMF supports.
@@ -172,8 +176,8 @@ public class MediaControl
      */
     public MediaControl()
     {
-
     }
+
     /** 
      * Returns the duration of the output data source. Usually this will be 
      * DURATION_UNKNOWN, but if the current data source is set to an audio
@@ -372,6 +376,13 @@ public class MediaControl
         {
             audioDataSource = createDataSource(audioDeviceInfo.getLocator());
             audioCaptureDevice = (CaptureDevice) audioDataSource;
+
+            /* Provide mute support for the audio (if possible). */
+            if (audioDataSource instanceof PushBufferDataSource)
+                audioDataSource =
+                    muteAudioDataSource =
+                        new MutePushBufferDataSource(
+                            (PushBufferDataSource) audioDataSource);
         }
 
         // video device
@@ -1198,4 +1209,26 @@ public class MediaControl
                      + currentPackagePrefix);
     }
 
+    /**
+     * Determines whether the audio of this instance is mute.
+     * 
+     * @return <tt>true</tt> if the audio of this instance is mute; otherwise,
+     *         <tt>false</tt>
+     */
+    public boolean isMute()
+    {
+        return (muteAudioDataSource != null) && muteAudioDataSource.isMute();
+    }
+
+    /**
+     * Sets the mute state of the audio of this instance.
+     * 
+     * @param mute <tt>true</tt> to mute the audio of this instance;
+     *            <tt>false</tt>, otherwise
+     */
+    public void setMute(boolean mute)
+    {
+        if (muteAudioDataSource != null)
+            muteAudioDataSource.setMute(mute);
+    }
 }

@@ -10,6 +10,7 @@ import java.text.*;
 import java.util.*;
 import javax.sip.address.*;
 
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -487,5 +488,26 @@ public class CallParticipantSipImpl
     public void setCallInfoURL(URL callControlURL)
     {
         this.callControlURL = callControlURL;
+    }
+
+    /**
+     * Determines whether the audio stream (if any) being sent to this
+     * participant is mute.
+     * 
+     * @return <tt>true</tt> if an audio stream is being sent to this
+     *         participant and it is currently mute; <tt>false</tt>, otherwise
+     */
+    public boolean isMute()
+    {
+        CallSipImpl call = this.call;
+
+        if (call != null)
+        {
+            CallSession callSession = call.getMediaCallSession();
+
+            if (callSession != null)
+                return callSession.isMute();
+        }
+        return false;
     }
 }

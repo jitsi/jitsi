@@ -13,17 +13,11 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class MockOperationSetBasicTelephony
-    implements OperationSetBasicTelephony,
-        CallChangeListener
+    extends AbstractOperationSetBasicTelephony
+    implements CallChangeListener
 {
     private static final Logger logger
         = Logger.getLogger(MockOperationSetBasicTelephony.class);
-
-    /**
-     * A list of listeners registered for
-     *  <tt>CallEvent</tt>s.
-     */
-    private Vector callListeners = new Vector();
 
     /**
      * A reference to the <tt>ProtocolProviderServiceSipImpl</tt> instance
@@ -40,19 +34,6 @@ public class MockOperationSetBasicTelephony
     public MockOperationSetBasicTelephony(MockProvider protocolProvider)
     {
         this.protocolProvider = protocolProvider;
-    }
-
-    /**
-     * Registers the specified CallListener with this provider so that it
-     * could be notified when incoming calls are received.
-     *
-     * @param listener the listener to register with this provider.
-     */
-    public void addCallListener(CallListener listener)
-    {
-        synchronized(callListeners){
-            callListeners.add(listener);
-        }
     }
 
     /**
@@ -193,18 +174,6 @@ public class MockOperationSetBasicTelephony
     {
     }
 
-    /**
-     * Removes the specified listener from the list of call listeners.
-     *
-     * @param listener the listener to unregister.
-     */
-    public void removeCallListener(CallListener listener)
-    {
-        synchronized(callListeners){
-            callListeners.remove(listener);
-        }
-    }
-
     public Call receiveCall(String fromAddress)
         throws Exception
     {
@@ -228,38 +197,6 @@ public class MockOperationSetBasicTelephony
         callPArt.setState(CallParticipantState.CONNECTED, "no reason");
 
         return newCall;
-    }
-
-    /**
-     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
-     * listeners that an event with id <tt>eventID</tt> has occurred on
-     * <tt>sourceCall</tt>.
-     *
-     * @param eventID the ID of the event to dispatch
-     * @param sourceCall the call on which the event has occurred.
-     */
-    protected void fireCallEvent( int         eventID,
-                                  Call sourceCall)
-    {
-        CallEvent cEvent = new CallEvent(sourceCall, eventID);
-
-        logger.debug("Dispatching a CallEvent to "
-                     + callListeners.size()
-                     +" listeners. event is: " + cEvent.toString());
-
-        Iterator listeners = new ArrayList(callListeners).iterator();
-
-        while(listeners.hasNext())
-        {
-            CallListener listener = (CallListener)listeners.next();
-
-            if(eventID == CallEvent.CALL_INITIATED)
-                listener.outgoingCallCreated(cEvent);
-            else if(eventID == CallEvent.CALL_RECEIVED)
-                listener.incomingCallReceived(cEvent);
-            else if(eventID == CallEvent.CALL_ENDED)
-                listener.callEnded(cEvent);
-        }
     }
 
     public CallParticipant addNewCallParticipant(Call call, String address)

@@ -27,8 +27,8 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class OperationSetBasicTelephonySipImpl
-    implements  OperationSetBasicTelephony
-              , SipListener
+    extends AbstractOperationSetBasicTelephony
+    implements SipListener
 {
     private static final Logger logger
         = Logger.getLogger(OperationSetBasicTelephonySipImpl.class);
@@ -38,11 +38,6 @@ public class OperationSetBasicTelephonySipImpl
      * that created us.
      */
     private ProtocolProviderServiceSipImpl protocolProvider = null;
-
-    /**
-     * A liste of listeners registered for call events.
-     */
-    private Vector callListeners = new Vector();
 
     /**
      * Contains references for all currently active (non ended) calls.
@@ -77,21 +72,6 @@ public class OperationSetBasicTelephonySipImpl
         protocolProvider.registerMethodProcessor(Request.CANCEL, this);
         protocolProvider.registerMethodProcessor(Request.ACK, this);
         protocolProvider.registerMethodProcessor(Request.BYE, this);
-    }
-
-    /**
-     * Registers <tt>listener</tt> with this provider so that it
-     * could be notified when incoming calls are received.
-     *
-     * @param listener the listener to register with this provider.
-     */
-    public void addCallListener(CallListener listener)
-    {
-        synchronized(callListeners)
-        {
-            if (!callListeners.contains(listener))
-                callListeners.add(listener);
-        }
     }
 
     /**
@@ -309,42 +289,6 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
-     * listeners that an event with id <tt>eventID</tt> has occurred on
-     * <tt>sourceCall</tt>.
-     *
-     * @param eventID the ID of the event to dispatch
-     * @param sourceCall the call on which the event has occurred.
-     */
-    protected void fireCallEvent( int         eventID,
-                                  CallSipImpl sourceCall)
-    {
-        CallEvent cEvent = new CallEvent(sourceCall, eventID);
-
-        logger.debug("Dispatching a CallEvent to "
-                     + callListeners.size()
-                     +" listeners. event is: " + cEvent.toString());
-
-        Iterator listeners = null;
-        synchronized(callListeners)
-        {
-            listeners = new ArrayList(callListeners).iterator();
-        }
-
-        while(listeners.hasNext())
-        {
-            CallListener listener = (CallListener)listeners.next();
-
-            if(eventID == CallEvent.CALL_INITIATED)
-                listener.outgoingCallCreated(cEvent);
-            else if(eventID == CallEvent.CALL_RECEIVED)
-                listener.incomingCallReceived(cEvent);
-            else if(eventID == CallEvent.CALL_ENDED)
-                listener.callEnded(cEvent);
-        }
-    }
-
-    /**
      * Returns an iterator over all currently active calls.
      *
      * @return an iterator over all currently active calls.
@@ -532,19 +476,6 @@ public class OperationSetBasicTelephonySipImpl
     {
         logger.error(message, cause);
         throw new OperationFailedException(message, errorCode, cause);
-    }
-
-    /**
-     * Removes the <tt>listener</tt> from the list of call listeners.
-     *
-     * @param listener the listener to unregister.
-     */
-    public void removeCallListener(CallListener listener)
-    {
-        synchronized(callListeners)
-        {
-            callListeners.remove(listener);
-        }
     }
 
     /**
@@ -2455,5 +2386,23 @@ public class OperationSetBasicTelephonySipImpl
                 }
             }
         }
+    }
+
+    /**
+     * Sets the mute state of the audio stream being sent to a specific
+     * <tt>CallParticipant</tt>.
+     * <p>
+     * The implementation sends silence through the audio stream.
+     * </p>
+     * 
+     * @param participant the <tt>CallParticipant</tt> who receives the audio
+     *            stream to have its mute state set
+     * @param mute <tt>true</tt> to mute the audio stream being sent to
+     *            <tt>participant</tt>; otherwise, <tt>false</tt>
+     */
+    public void setMute(CallParticipant participant, boolean mute)
+    {
+        ((CallSipImpl) participant.getCall()).getMediaCallSession().setMute(
+            mute);
     }
 }

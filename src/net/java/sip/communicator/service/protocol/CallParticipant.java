@@ -132,4 +132,13 @@ public interface CallParticipant
      * is available.
      */
     public URL getCallInfoURL();
+
+    /**
+     * Determines whether the audio stream (if any) being sent to this
+     * participant is mute.
+     * 
+     * @return <tt>true</tt> if an audio stream is being sent to this
+     *         participant and it is currently mute; <tt>false</tt>, otherwise
+     */
+    public boolean isMute();
 }
