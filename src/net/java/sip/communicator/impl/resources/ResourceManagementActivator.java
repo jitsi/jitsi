@@ -35,7 +35,7 @@ public class ResourceManagementActivator
                                         resPackImpl,
                                         null);
 
-        logger.info("Default resources ... [REGISTERED]");
+        logger.info("Resource manager ... [REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception

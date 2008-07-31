@@ -208,31 +208,49 @@ public class ResourceManagementServiceImpl
             if(resource instanceof ColorPack
                     && colorPack.equals(resource))
             {
-                colorPack = null;
-                colorResourceBundle = null;
+                colorPack = 
+                    registerDefaultPack(ColorPack.class.getName(),
+                        ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
+
+                if (colorPack != null)
+                    colorResourceBundle = getResourceBundle(colorPack);
             }
             else if(resource instanceof ImagePack
                     && imagePack.equals(resource))
             {
-                imagePack = null;
-                imageResourceBundle = null;
+                imagePack = 
+                    registerDefaultPack(ImagePack.class.getName(),
+                        ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
+
+                if (imagePack != null)
+                    imageResourceBundle = getResourceBundle(imagePack);
             }
             else if(resource instanceof LanguagePack
                     && languagePack.equals(resource))
             {
-                languagePack = null;
+                languagePack = 
+                    (LanguagePack) registerDefaultPack(LanguagePack.class.getName(),
+                        LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
             }
             else if(resource instanceof SettingsPack
                     && settingsPack.equals(resource))
             {
-                settingsPack = null;
-                settingsResourceBundle = null;
+                settingsPack = 
+                    registerDefaultPack(SettingsPack.class.getName(),
+                        SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
+
+                if (settingsPack != null)
+                    settingsResourceBundle = getResourceBundle(settingsPack);
             }
             else if(resource instanceof SoundPack
                     && soundPack.equals(resource))
             {
-                soundPack = null;
-                soundResourceBundle = null;
+                soundPack = 
+                    registerDefaultPack(SoundPack.class.getName(),
+                        SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
+
+                if (soundPack != null)
+                    soundResourceBundle = getResourceBundle(soundPack);
             }
         }
     }
@@ -492,11 +510,11 @@ public class ResourceManagementServiceImpl
             logger.warn("Missing resource for key: " + streamKey);
             return null;
         }
-        
-        return settingsPack.getClass().getClassLoader().getResourceAsStream(path);
+
+        return settingsPack.getClass()
+            .getClassLoader().getResourceAsStream(path);
     }
-    
-    
+
     // Sound pack methods
     public URL getSoundURL(String urlKey)
     {
