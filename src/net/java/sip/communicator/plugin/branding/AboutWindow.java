@@ -8,148 +8,134 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.ServiceReference;
 
 public class AboutWindow extends JDialog implements HyperlinkListener,
         ActionListener, ExportedWindow
 {
-    private Logger logger = Logger.getLogger(AboutWindow.class.getName());
-    
-    private WindowBackground mainPanel = new WindowBackground();
-
-    private JLabel titleLabel = new JLabel(
-        BrandingActivator.getResources().getSettingsString("applicationName"));
-
-    private JLabel versionLabel = new JLabel(" "
-            + System.getProperty("sip-communicator.version"));
-
-    private JTextArea logoArea = new JTextArea(
-            BrandingActivator.getResources().getI18NString("logoMessage"));
-
-    private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
-
-    private StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
-
-    private JButton okButton = new JButton(
-        BrandingActivator.getResources().getI18NString("ok"));
-
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
-    private JPanel textPanel = new JPanel();
-
     public AboutWindow(Frame owner)
     {
         super(owner);
 
+        ResourceManagementService resources = BrandingActivator.getResources();
+
         this.setTitle(
-            BrandingActivator.getResources().getI18NString("aboutWindowTitle",
-                new String[]{BrandingActivator.getResources().
+            resources.getI18NString("aboutWindowTitle",
+                new String[]{resources.
                     getSettingsString("applicationName")}));
 
-        this.setModal(false);
+        setModal(false);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        this.mainPanel.setLayout(new BorderLayout());
+        JPanel mainPanel = new WindowBackground();
+        mainPanel.setLayout(new BorderLayout());
 
-        this.textPanel.setPreferredSize(new Dimension(470, 280));
-        this.textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        this.textPanel.setBorder(BorderFactory
+        JPanel textPanel = new JPanel();
+        textPanel.setPreferredSize(new Dimension(470, 280));
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setBorder(BorderFactory
                 .createEmptyBorder(15, 15, 15, 15));
-        this.textPanel.setOpaque(false);
+        textPanel.setOpaque(false);
 
-        this.titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
-        this.titleLabel.setForeground(Constants.TITLE_COLOR);
-        this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        JLabel titleLabel =
+            new JLabel(resources.getSettingsString("applicationName"));
+        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
+        titleLabel.setForeground(Constants.TITLE_COLOR);
+        titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-        this.versionLabel.setForeground(Constants.TITLE_COLOR);
-        this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        JLabel versionLabel =
+            new JLabel(" " + System.getProperty("sip-communicator.version"));
+        versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
+        versionLabel.setForeground(Constants.TITLE_COLOR);
+        versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        int logoAreaFontSize = BrandingActivator.getResources().
-                getSettingsInt("aboutLogoFontSize");
+        int logoAreaFontSize = resources.getSettingsInt("aboutLogoFontSize");
 
-        this.logoArea.setFont(
+        JTextArea logoArea =
+            new JTextArea(resources.getI18NString("logoMessage"));
+        logoArea.setFont(
             Constants.FONT.deriveFont(Font.BOLD, logoAreaFontSize));
+        logoArea.setForeground(Constants.TITLE_COLOR);
+        logoArea.setOpaque(false);
+        logoArea.setLineWrap(true);
+        logoArea.setWrapStyleWord(true);
+        logoArea.setEditable(false);
+        logoArea.setPreferredSize(new Dimension(100, 20));
+        logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        logoArea.setBorder(BorderFactory.createEmptyBorder(30, 180, 0, 0));
 
-        this.logoArea.setForeground(Constants.TITLE_COLOR);
-        this.logoArea.setOpaque(false);
-        this.logoArea.setLineWrap(true);
-        this.logoArea.setWrapStyleWord(true);
-        this.logoArea.setEditable(false);
-        this.logoArea.setPreferredSize(new Dimension(100, 20));
-        this.logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.logoArea.setBorder(BorderFactory.createEmptyBorder(30, 180, 0, 0));
+        StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
+        rightsArea.setContentType("text/html");
 
-        this.rightsArea.setContentType("text/html");
+        rightsArea.appendToEnd(resources.getI18NString("copyright",
+            new String[]
+            { Constants.TEXT_COLOR }));
 
-        this.rightsArea.appendToEnd(BrandingActivator.getResources().
-            getI18NString("copyright",
-            new String[]{Constants.TEXT_COLOR}));
-
-        this.rightsArea.setPreferredSize(new Dimension(50, 20));
-        this.rightsArea
+        rightsArea.setPreferredSize(new Dimension(50, 20));
+        rightsArea
                 .setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
-        this.rightsArea.setOpaque(false);
-        this.rightsArea.setEditable(false);
-        this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.rightsArea.addHyperlinkListener(this);
+        rightsArea.setOpaque(false);
+        rightsArea.setEditable(false);
+        rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        rightsArea.addHyperlinkListener(this);
 
-        this.licenseArea.setContentType("text/html");
-        this.licenseArea.appendToEnd(BrandingActivator.getResources().
+        StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
+        licenseArea.setContentType("text/html");
+        licenseArea.appendToEnd(resources.
             getI18NString("license",
             new String[]{Constants.TEXT_COLOR}));
 
-        this.licenseArea.setPreferredSize(new Dimension(50, 20));
-        this.licenseArea.setBorder(
+        licenseArea.setPreferredSize(new Dimension(50, 20));
+        licenseArea.setBorder(
             BorderFactory.createEmptyBorder(10, 180, 0, 0));
-        this.licenseArea.setOpaque(false);
-        this.licenseArea.setEditable(false);
-        this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.licenseArea.addHyperlinkListener(this);
+        licenseArea.setOpaque(false);
+        licenseArea.setEditable(false);
+        licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        licenseArea.addHyperlinkListener(this);
 
-        this.textPanel.add(titleLabel);
-        this.textPanel.add(versionLabel);
-        this.textPanel.add(logoArea);
-        this.textPanel.add(rightsArea);
-        this.textPanel.add(licenseArea);
+        textPanel.add(titleLabel);
+        textPanel.add(versionLabel);
+        textPanel.add(logoArea);
+        textPanel.add(rightsArea);
+        textPanel.add(licenseArea);
+
+        JButton okButton = new JButton(resources.getI18NString("ok"));
 
         this.getRootPane().setDefaultButton(okButton);
 
-        this.okButton.setMnemonic(BrandingActivator.getResources().
-            getI18nMnemonic("ok"));
+        okButton.setMnemonic(resources.getI18nMnemonic("ok"));
+        okButton.addActionListener(this);
 
-        this.okButton.addActionListener(this);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(okButton);
+        buttonPanel.setOpaque(false);
 
-        this.buttonPanel.add(okButton);
-        this.buttonPanel.setOpaque(false);
-
-        this.mainPanel.add(textPanel, BorderLayout.CENTER);
-        this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(textPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
         this.setSize(mainPanel.getPreferredSize());
 
         this.setResizable(false);
-        this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2
-                - getWidth() / 2,
-                Toolkit.getDefaultToolkit().getScreenSize().height / 2
-                        - getHeight() / 2);
 
-    }
-
-    protected void close(boolean isEscaped)
-    {
-        this.dispose();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation(screenSize.width / 2 - getWidth() / 2, screenSize.height
+            / 2 - getHeight() / 2);
     }
 
     /**
      * Constructs the window background in order to have a background image.
      */
-    private class WindowBackground extends JPanel
+    private static class WindowBackground extends JPanel
     {
+        private final Logger logger =
+            Logger.getLogger(WindowBackground.class.getName());
+        
         private Image bgImage = null;
 
         public WindowBackground()
@@ -207,7 +193,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
     public void actionPerformed(ActionEvent e)
     {
-        this.dispose();
+        setVisible(false);
+        dispose();
     }
 
     /**
