@@ -456,7 +456,7 @@
             <!-- Tell the slick runner about TestSutes we've preregistered. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
                 value="${simple.test.names}"/>
-
+                
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
                 value="${lib}/logging.properties"/>
@@ -1035,6 +1035,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b2.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/httpcore-4.0-beta2.jar" prefix=""/>
         </jar>
     </target>
 

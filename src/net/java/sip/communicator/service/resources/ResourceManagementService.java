@@ -12,7 +12,10 @@ import java.util.*;
 import javax.swing.*;
 
 /**
- *
+ * The Resource Management Service gives easy access to 
+ * common resources for the application including texts, images, sounds and 
+ * some configurations.
+ * 
  * @author Damian Minkov
  */
 public interface ResourceManagementService
@@ -129,25 +132,98 @@ public interface ResourceManagementService
     public char getI18nMnemonic(String key, Locale l);
     
     // Settings pack methods
+    /**
+     * Returns an url for the setting corresponding to the given key.
+     * Used when the setting is an actual file.
+     * 
+     * @param urlKey The key of the setting.
+     * @return Url to the corresponding resource.
+     */
     public URL getSettingsURL(String urlKey);
+    
+    /**
+     * Returns an InputStream for the setting corresponding to the given key.
+     * Used when the setting is an actual file.
+     * 
+     * @param streamKey The key of the setting.
+     * @return InputStream to the corresponding resource.
+     */
     public InputStream getSettingsInputStream(String streamKey);
+    
+    /**
+     * Returns a String for the setting corresponding to the given key.
+     * 
+     * @param key The key of the setting.
+     * @return String to the corresponding resource.
+     */
     public String getSettingsString(String key);
+    
+    /**
+     * Returns an int for the setting corresponding to the given key.
+     * 
+     * @param key The key of the setting.
+     * @return int to the corresponding resource.
+     */
     public int getSettingsInt(String key);
     
     // Sound pack methods
+    /**
+     * Returns an url for the sound resource corresponding to the given key.
+     * 
+     * @param urlKey The key of the setting.
+     * @return Url to the corresponding resource.
+     */
     public URL getSoundURL(String urlKey);
+    
+    /**
+     * Returns an url for the sound resource corresponding to the given path.
+     * 
+     * @param path The path to the sound resource.
+     * @return Url to the corresponding resource.
+     */
     public URL getSoundURLForPath(String path);
     
+    /**
+     * Returns all color keys that can be obtained from this service.
+     * 
+     * @return Iterator to all color keys.
+     */
     public Iterator getCurrentColors();
     
+    /**
+     * Returns all image keys that can be obtained from this service.
+     * 
+     * @return Iterator to all image keys.
+     */
     public Iterator getCurrentImages();
     
+    /**
+     * Returns all color settings that can be obtained from this service.
+     * 
+     * @return Iterator to all settings keys.
+     */
     public Iterator getCurrentSettings();
     
+    /**
+     * Returns all color sounds that can be obtained from this service.
+     * 
+     * @return Iterator to all sounds keys.
+     */
     public Iterator getCurrentSounds();
     
+    /**
+     * Returns all available locales for the translated texts.
+     * 
+     * @return Iterator to all locales.
+     */
     public Iterator getAvailableLocales();
     
+    /**
+     * Returns all string keys that can be obtained from 
+     * this service for the given locale.
+     * 
+     * @return Iterator to all string keys.
+     */
     public Iterator getI18nStringsByLocale(Locale l);
     
     /**

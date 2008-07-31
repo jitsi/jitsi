@@ -460,6 +460,18 @@ public class TestOperationSetPresence
             subEvtCollector.waitForEvent(10000);
             operationSetPresence1.removeSubscriptionListener(subEvtCollector);
         }
+        
+        SubscriptionEventCollector subEvtCollector2
+            = new SubscriptionEventCollector();
+        operationSetPresence2.addSubsciptionListener(subEvtCollector2);
+
+
+        synchronized (subEvtCollector2){
+            operationSetPresence2.subscribe(fixture.userID1);
+            //we may already have the event, but it won't hurt to check.
+            subEvtCollector2.waitForEvent(10000);
+            operationSetPresence2.removeSubscriptionListener(subEvtCollector2);
+        }
 
         assertEquals("Subscription event dispatching failed."
                      , 1, subEvtCollector.collectedEvents.size());

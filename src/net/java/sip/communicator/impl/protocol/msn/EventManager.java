@@ -40,7 +40,7 @@ public class EventManager
     
     /**
      * Creates the manager
-     * @param msnMessenger BasicMessenger the messanger
+     * @param msnMessenger BasicMessenger the messenger
      */
     public EventManager(ProtocolProviderServiceMsnImpl msnProvider, 
         BasicMessenger msnMessenger)
@@ -53,7 +53,7 @@ public class EventManager
 
     /**
      * Adds listener of the modification fired events
-     * @param listener the modifification listener we're adding
+     * @param listener the modification listener we're adding
      */
     public void addModificationListener(MsnContactListEventListener listener)
     {
@@ -102,53 +102,10 @@ public class EventManager
         logger.trace(msnMessenger.getOwner().getEmail().getEmailAddress() +
                      " incoming : " + incoming);
 
-        // These are the incoming messages that are NOT handled
-        //IncomingADC,IncomingANS,IncomingBLP,IncomingBPR,IncomingBYE
-        //IncomingCAL,IncomingCHL,IncomingCHG,IncomingCVR,IncomingFLN
-        //IncomingGTC,IncomingILN,IncomingIRO,IncomingJOI,IncomingLSG
-        //IncomingLST,IncomingMSG,IncomingNLN
-        //IncomingOUT - The notice message that logout. Maybe because of MSN
-        //              server maintenance or someone login in other place.
-        //IncomingPRP,IncomingQNG,IncomingQRY,IncomingREA,IncomingRNG
-        //IncomingSYN,IncomingUBX,IncomingURL,IncomingUSR,IncomingUUX
-        //IncomingUnknown,IncomingVER,IncomingXFR
-
         if(incoming instanceof IncomingACK)
         {
             //indicate the message has successed send to remote user.
             fireMessageDelivered(((IncomingACK)incoming).getTransactionId());
-        }
-        else if(incoming instanceof IncomingADC)
-        {
-            // add user to contact list
-            IncomingADC incomingADC = (IncomingADC) incoming;
-            if (incomingADC.getId() != null &&
-                incomingADC.getList().equals(MsnList.FL))
-            {
-                MsnContact contact = msnMessenger.getContactList().
-                    getContactById(incomingADC.getId());
-
-                if (incomingADC.getGroupId() != null)
-                {
-                    MsnGroup group = msnMessenger.getContactList().
-                        getGroup(incomingADC.getGroupId());
-
-                    fireContactAddedInGroup(contact, group);
-                }
-                else
-                    fireContactAdded(contact);
-            }
-
-        }
-        else if(incoming instanceof IncomingADG)
-        {
-            //indicate add a group success
-            IncomingADG incomingADG  = (IncomingADG)incoming;
-
-            MsnGroupImpl group =
-                (MsnGroupImpl)msnMessenger.getContactList().getGroup(incomingADG.getGroupId());
-
-            fireGroupAdded(group);
         }
         else if(incoming instanceof IncomingNAK)
         {
@@ -163,45 +120,6 @@ public class EventManager
             MsnGroupImpl group = (MsnGroupImpl)msnMessenger.getContactList().
                 getGroup(incomingREG.getGroupId());
             fireGroupRenamed(group);
-        }
-        else if(incoming instanceof IncomingRMG)
-        {
-            // indicate delete the group successfully.
-            IncomingRMG incomingRMG  = (IncomingRMG)incoming;
-            fireGroupRemoved(incomingRMG.getGroupId());
-        }
-        else if(incoming instanceof IncomingREM)
-        {
-            // indicate delete the contact successfully.
-            IncomingREM incomingREM  = (IncomingREM)incoming;
-
-            if(incomingREM.getList().equals(MsnList.FL))
-            {
-                if(incomingREM.getGroupId() == null)
-                {
-                    // just contact removed
-                    MsnContactImpl contact = (MsnContactImpl)
-                       msnMessenger.getContactList().getContactById(incomingREM.getId());
-
-                   if(contact != null)
-                   {
-                       fireContactRemoved(contact);
-                   }
-                }
-                else
-                {
-                    // contact removed from group
-                    MsnContact contact =
-                        msnMessenger.getContactList().
-                            getContactById(incomingREM.getId());
-
-                    MsnGroup group =
-                        msnMessenger.getContactList().
-                            getGroup(incomingREM.getGroupId());
-
-                   fireContactRemovedFromGroup(contact, group);
-                }
-            }
         }
         else if(incoming instanceof IncomingOUT)
         {
@@ -269,85 +187,6 @@ public class EventManager
     }
 
     /**
-     * Fired when a contact is added successfully
-     * @param contact MsnContact
-     */
-    private void fireContactAdded(MsnContact contact)
-    {
-        synchronized(listeners){
-            Iterator iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                ((MsnContactListEventListener)iter.next()).contactAdded(contact);
-            }
-        }
-    }
-
-    /**
-     * Fired when a contact is added in a group successfully
-     * @param contact MsnContact
-     * @param group MsnGroup
-     */
-    private void fireContactAddedInGroup(MsnContact contact, MsnGroup group)
-    {
-        synchronized(listeners){
-            Iterator iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                ((MsnContactListEventListener)iter.next()).
-                    contactAddedInGroup(contact, group);
-            }
-        }
-    }
-
-    /**
-     * Fired when a contact is removed successfully
-     * @param contact MsnContact
-     */
-    private void fireContactRemoved(MsnContact contact)
-    {
-        synchronized(listeners){
-            Iterator iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                ((MsnContactListEventListener)iter.next()).contactRemoved(contact);
-            }
-        }
-    }
-
-    /**
-     * Fired when a contact is removed from group successfully
-     * @param contact MsnContact
-     * @param group MsnGroup
-     */
-    private void fireContactRemovedFromGroup(MsnContact contact, MsnGroup group)
-    {
-        synchronized(listeners){
-            Iterator iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                ((MsnContactListEventListener)iter.next()).
-                    contactRemovedFromGroup(contact, group);
-            }
-        }
-    }
-
-    /**
-     * Fired when a group is added successfully
-     * @param group MsnGroup
-     */
-    private void fireGroupAdded(MsnGroup group)
-    {
-        synchronized(listeners){
-            Iterator iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                ((MsnContactListEventListener)iter.next()).groupAdded(group);
-            }
-        }
-    }
-
-    /**
      * Fired when a group is renamed successfully
      * @param group MsnGroup
      */
@@ -363,22 +202,7 @@ public class EventManager
     }
 
     /**
-     * Fired when a group is removed successfully
-     * @param id String
-     */
-    private void fireGroupRemoved(String id)
-    {
-        synchronized(listeners){
-            Iterator iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                ((MsnContactListEventListener)iter.next()).groupRemoved(id);
-            }
-        }
-    }
-
-    /**
-     * Fired when we recived event for logging in from other location
+     * Fired when we received event for logging in from other location
      */
     private void fireLoggingFromOtherLocation()
     {

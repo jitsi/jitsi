@@ -128,7 +128,10 @@ public class TestOperationSetPersistentPresence
      * phase by the testerAgent.
      */
     public void testRetrievingServerStoredContactList()
+        throws Exception
     {
+        waitFor(5000);
+        
         ContactGroup rootGroup
             = opSetPersPresence1.getServerStoredContactListRoot();
 
@@ -146,7 +149,7 @@ public class TestOperationSetPersistentPresence
 
         //Go through the contact list retrieved by the persistence presence set
         //and remove the name of every contact and group that we find there from
-        //the expected contct list hashtable.
+        //the expected contact list hashtable.
         Iterator groups = rootGroup.subgroups();
         while (groups.hasNext() )
         {
@@ -424,6 +427,8 @@ public class TestOperationSetPersistentPresence
             String groupName = (String) newGroupsEnum.nextElement();
             logger.debug("Will add group " + groupName);
 
+            groupChangeCollector.collectedEvents.clear();
+            
             opSetPersPresence1.createServerStoredContactGroup(
                 opSetPersPresence1.getServerStoredContactListRoot(), groupName);
 
@@ -469,9 +474,9 @@ public class TestOperationSetPersistentPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -493,7 +498,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Called whnever an indication is received that a new server stored
+         * Called whenever an indication is received that a new server stored
          * group is created.
          * @param evt a ServerStoredGroupChangeEvent containing a reference to
          * the newly created group.
@@ -525,7 +530,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Called whnever an indication is received that an existing server stored
+         * Called whenever an indication is received that an existing server stored
          * group has been removed.
          * @param evt a ServerStoredGroupChangeEvent containing a reference to the
          * newly created group.
@@ -541,7 +546,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Called whnever an indication is received that an existing server
+         * Called whenever an indication is received that an existing server
          * stored group has been resolved.
          * @param evt a ServerStoredGroupChangeEvent containing a reference to
          * the resolved group.
@@ -567,9 +572,9 @@ public class TestOperationSetPersistentPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -600,7 +605,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -615,7 +620,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -630,7 +635,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -645,7 +650,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -661,7 +666,7 @@ public class TestOperationSetPersistentPresence
 
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -676,7 +681,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
