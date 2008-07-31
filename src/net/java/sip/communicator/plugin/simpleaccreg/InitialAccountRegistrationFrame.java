@@ -33,71 +33,65 @@ public class InitialAccountRegistrationFrame
     extends JFrame
     implements ServiceListener
 {
-    private Logger logger
+    private final Logger logger
         = Logger.getLogger(InitialAccountRegistrationFrame.class);
-
-    private JPanel messageAreaPanel
-        = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-    private JTextArea messageArea =
-        new JTextArea(Resources.getString("initialAccountRegistration"));
-
-    private MainPanel mainPanel = new MainPanel(new BorderLayout(5, 5));
 
     private JPanel mainAccountsPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel accountsPanel = new JPanel(new GridLayout(0, 2, 10, 10));
 
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private JButton signinButton = new JButton(Resources.getString("signin"));
 
-    private JButton signinButton
-        = new JButton(Resources.getString("signin"));
-
-    private JButton cancelButton
-        = new JButton(Resources.getString("cancel"));
-
-    private Vector registrationForms = new Vector();
+    private Collection registrationForms = new Vector();
 
     /**
      * Creates an instance of <tt>NoAccountFoundPage</tt>.
      */
     public InitialAccountRegistrationFrame()
     {
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        MainPanel mainPanel = new MainPanel(new BorderLayout(5, 5));
+        JPanel messageAreaPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JTextArea messageArea =
+            new JTextArea(Resources.getString("initialAccountRegistration"));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton cancelButton = new JButton(Resources.getString("cancel"));
+
         this.setTitle(Resources.getString("signin"));
 
-        this.mainPanel.setBorder(
-            BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         this.getContentPane().add(mainPanel);
 
-        this.mainPanel.add(messageAreaPanel, BorderLayout.NORTH);
-        this.mainPanel.add(mainAccountsPanel, BorderLayout.CENTER);
-        this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(messageAreaPanel, BorderLayout.NORTH);
+        mainPanel.add(mainAccountsPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        this.messageAreaPanel.add(messageArea);
-        this.messageArea.setPreferredSize(new Dimension(350, 20));
-        this.messageArea.setFont(messageArea.getFont().deriveFont(Font.BOLD));
+        messageAreaPanel.add(messageArea);
+        messageArea.setPreferredSize(new Dimension(350, 20));
+        messageArea.setFont(messageArea.getFont().deriveFont(Font.BOLD));
 
-        this.mainAccountsPanel.add(accountsPanel, BorderLayout.CENTER);
+        mainAccountsPanel.add(accountsPanel, BorderLayout.CENTER);
 
-        this.mainAccountsPanel.setOpaque(false);
-        this.accountsPanel.setOpaque(false);
-        this.buttonPanel.setOpaque(false);
-        this.messageArea.setOpaque(false);
-        this.messageAreaPanel.setOpaque(false);
+        mainAccountsPanel.setOpaque(false);
+        accountsPanel.setOpaque(false);
+        buttonPanel.setOpaque(false);
+        messageArea.setOpaque(false);
+        messageAreaPanel.setOpaque(false);
 
         SigninActionListener actionListener = new SigninActionListener();
 
-        this.signinButton.addActionListener(actionListener);
-        this.cancelButton.addActionListener(actionListener);
+        signinButton.addActionListener(actionListener);
+        cancelButton.addActionListener(actionListener);
 
-        this.buttonPanel.add(cancelButton);
-        this.buttonPanel.add(signinButton);
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(signinButton);
 
-        this.messageArea.setLineWrap(true);
-        this.messageArea.setWrapStyleWord(true);
-        this.messageArea.setEditable(false);
-        this.messageArea.setOpaque(false);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
+        messageArea.setEditable(false);
+        messageArea.setOpaque(false);
 
         this.getRootPane().setDefaultButton(signinButton);
 
@@ -108,19 +102,18 @@ public class InitialAccountRegistrationFrame
         
         if(groupName != null && groupName.length() > 0)
         {
-            Iterator iter = SimpleAccountRegistrationActivator.getContactList().
-                getRoot().getSubgroups();
-            while (iter.hasNext()) 
+            MetaContactListService contactList =
+                SimpleAccountRegistrationActivator.getContactList();
+            Iterator iter = contactList.getRoot().getSubgroups();
+            while (iter.hasNext())
             {
-                MetaContactGroup gr = (MetaContactGroup)iter.next();
-                if(gr.getGroupName().equals(groupName))
+                MetaContactGroup gr = (MetaContactGroup) iter.next();
+                if (groupName.equals(gr.getGroupName()))
                     return;
             }
 
-            SimpleAccountRegistrationActivator.getContactList().
-                createMetaContactGroup(
-                    SimpleAccountRegistrationActivator.getContactList().getRoot(), 
-                    groupName);
+            contactList
+                .createMetaContactGroup(contactList.getRoot(), groupName);
 
             SimpleAccountRegistrationActivator.getConfigurationService().
                 setProperty(
@@ -392,13 +385,6 @@ public class InitialAccountRegistrationFrame
     }
 
     /**
-     * 
-     */
-    protected void close(boolean isEscaped)
-    {
-    }
-
-    /**
      * Handles registration of a new account wizard.
      */
     public void serviceChanged(ServiceEvent event)
@@ -485,11 +471,12 @@ public class InitialAccountRegistrationFrame
                         regForm.signin();
                     }
                 }
-
-                InitialAccountRegistrationFrame.this.dispose();
             }
-            else
-                InitialAccountRegistrationFrame.this.dispose();
+
+            InitialAccountRegistrationFrame initialAccountRegistrationFrame =
+                InitialAccountRegistrationFrame.this;
+            initialAccountRegistrationFrame.setVisible(false);
+            initialAccountRegistrationFrame.dispose();
         }
     }
 

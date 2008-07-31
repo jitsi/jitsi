@@ -19,14 +19,12 @@ import org.osgi.framework.*;
 public class SimpleAccountRegistrationActivator
     implements BundleActivator
 {
-    private static Logger logger
+    private static final Logger logger
         = Logger.getLogger(SimpleAccountRegistrationActivator.class);
 
     public static BundleContext bundleContext;
 
     private static ConfigurationService configService;
-    
-    private static MetaContactListService contactListService;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -39,12 +37,11 @@ public class SimpleAccountRegistrationActivator
                 = new InitialAccountRegistrationFrame();
 
             accountRegFrame.pack();
-            accountRegFrame.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                - accountRegFrame.getWidth()/2,
-            Toolkit.getDefaultToolkit().getScreenSize().height/2
-                - accountRegFrame.getHeight()/2
-            );
+
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            accountRegFrame.setLocation(screenSize.width / 2
+                - accountRegFrame.getWidth() / 2, screenSize.height / 2
+                - accountRegFrame.getHeight() / 2);
 
             accountRegFrame.setVisible(true);
         }
@@ -129,23 +126,27 @@ public class SimpleAccountRegistrationActivator
 
         return hasRegisteredAccounts;
     }
-    
+
     /**
      * Returns the <tt>MetaContactListService</tt> obtained from the bundle
      * context.
+     * <p>
+     * <b>Note</b>: Because this plug-in is meant to be initially displayed (if
+     * necessary) and not get used afterwards, the method doesn't cache the
+     * return value. Make sure you call it as little as possible if execution
+     * speed is under consideration.
+     * </p>
+     * 
      * @return the <tt>MetaContactListService</tt> obtained from the bundle
-     * context
+     *         context
      */
-    public static MetaContactListService getContactList() 
+    public static MetaContactListService getContactList()
     {
-        if (contactListService == null) {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(MetaContactListService.class.getName());
+        ServiceReference serviceReference =
+            bundleContext.getServiceReference(MetaContactListService.class
+                .getName());
 
-            contactListService = (MetaContactListService) bundleContext
-                .getService(serviceReference);
-        }
-
-        return contactListService;
+        return (MetaContactListService) bundleContext
+            .getService(serviceReference);
     }
 }
