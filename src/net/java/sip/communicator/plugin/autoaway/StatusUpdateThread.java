@@ -9,6 +9,8 @@ package net.java.sip.communicator.plugin.autoaway;
 import java.awt.*;
 import java.util.*;
 
+import javax.swing.text.Position;
+
 import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -38,8 +40,17 @@ public class StatusUpdateThread implements Runnable
             {
                 if (MouseInfo.getPointerInfo() != null)
                 {
-                    Point currentPosition = MouseInfo.getPointerInfo()
-                            .getLocation();
+                    PointerInfo info = MouseInfo.getPointerInfo();
+                    Point currentPosition = null;
+
+                    if (info != null)
+                    {
+                        currentPosition = info.getLocation();
+                    } else
+                    {
+                        // mouse cannot be determined
+                        currentPosition = new Point(0, 0);
+                    }
                     if (!isNear(lastPosition, currentPosition))
                     {
                         // position has changed
