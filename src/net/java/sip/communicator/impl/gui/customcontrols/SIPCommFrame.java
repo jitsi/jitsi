@@ -350,6 +350,13 @@ public abstract class SIPCommFrame
     public void dispose()
     {
         this.saveSizeAndLocation();
+
+        /*
+         * The keybinding service will outlive us so don't let us retain our
+         * memory.
+         */
+        if (bindings != null)
+            bindings.deleteObserver(this);
         
         super.dispose();
     }
