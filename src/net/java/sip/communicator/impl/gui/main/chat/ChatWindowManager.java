@@ -732,6 +732,11 @@ public class ChatWindowManager
         if (chatWindow.getChatCount() > 0)
             chatWindow.removeAllChats();
 
+        /*
+         * The ChatWindow should seize to exist so we don't want any strong
+         * references to it i.e. it cannot be exported anymore.
+         */
+        GuiActivator.getUIService().unregisterExportedWindow(chatWindow);
         chatWindow.dispose();
 
         ContactList clist

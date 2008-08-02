@@ -137,7 +137,25 @@ public class ChatWindow
 
         this.addWindowListener(new ChatWindowAdapter());
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.impl.gui.customcontrols.SIPCommFrame#dispose()
+     */
+    public void dispose()
+    {
+        try
+        {
+            GuiActivator.getUIService().removePluginComponentListener(this);
+        }
+        finally
+        {
+            super.dispose();
+        }
+    }
+
     /**
      * Returns the main application widnow.
      * 

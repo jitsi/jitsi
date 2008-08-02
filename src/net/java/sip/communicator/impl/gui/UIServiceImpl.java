@@ -311,9 +311,8 @@ public class UIServiceImpl
     {
         AddContactWizard addContactWizard = new AddContactWizard(mainFrame);
 
-        exportedWindows.put(configurationFrame.getIdentifier(),
-                configurationFrame);
-        exportedWindows.put(addContactWizard.getIdentifier(), addContactWizard);
+        registerExportedWindow(configurationFrame);
+        registerExportedWindow(addContactWizard);
     }
 
     /**
@@ -325,6 +324,44 @@ public class UIServiceImpl
     public void registerExportedWindow(ExportedWindow window)
     {
         exportedWindows.put(window.getIdentifier(), window);
+    }
+
+    /**
+     * Unregisters the given <tt>ExportedWindow</tt> from the list of windows
+     * that could be accessed from other bundles.
+     * 
+     * @param window the window to no longer be exported
+     */
+    public void unregisterExportedWindow(ExportedWindow window)
+    {
+        WindowID identifier = window.getIdentifier();
+        ExportedWindow removed = exportedWindows.remove(identifier);
+
+        /*
+         * In case the unexpected happens and we happen to have the same
+         * WindowID for multiple ExportedWindows going through
+         * #registerExportedWindow(), we have to make sure we're not
+         * unregistering some other ExportedWindow which has overwritten the
+         * registration of the specified window.
+         */
+        if ((removed != null) && !removed.equals(window))
+        {
+
+            /*
+             * We accidentally unregistered another window so bring back its
+             * registration.
+             */
+            exportedWindows.put(identifier, removed);
+
+            /* Now unregister the right window. */
+            for (Iterator<Map.Entry<WindowID, ExportedWindow>> entryIt =
+                exportedWindows.entrySet().iterator(); entryIt.hasNext();)
+            {
+                Map.Entry<WindowID, ExportedWindow> entry = entryIt.next();
+                if (window.equals(entry.getValue()))
+                    entryIt.remove();
+            }
+        }
     }
 
     /**
