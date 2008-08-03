@@ -16,6 +16,15 @@ public interface LanguagePack
     extends ResourcePack
 {
     public String RESOURCE_NAME_DEFAULT_VALUE = "DefaultLanguagePack";
-    
-    public Iterator getAvailableLocales();
+
+    /**
+     * Returns a <tt>Map</tt>, containing all [key, value] pairs for the given
+     * locale.
+     * 
+     * @param locale The <tt>Locale</tt> we're looking for.
+     * @return a <tt>Map</tt>, containing all [key, value] pairs for the given
+     * locale.
+     */
+    public Map<String, String> getResources(Locale locale);
+
 }

@@ -22,58 +22,67 @@ public interface ResourceManagementService
 {
     // Color pack methods
     /**
-     * Loads an Color value for the given key
+     * Returns the int representation of the color corresponding to the
+     * given key.
      * 
-     * @param key The identifier of the color.
-     * @return The color value as int.
+     * @param key The key of the color in the colors properties file.
+     * @return the int representation of the color corresponding to the
+     * given key.
      */
     public int getColor(String key);
-    
+
     /**
-     * Loads an Color value for the given key
+     * Returns the string representation of the color corresponding to the
+     * given key.
      * 
-     * @param key The identifier of the color.
-     * @return The color value as String.
+     * @param key The key of the color in the colors properties file.
+     * @return the string representation of the color corresponding to the
+     * given key.
      */
     public String getColorString(String key);
 
     /**
-     * Loads a stream from a given path.
+     * Returns the <tt>InputStream</tt> of the image corresponding to the given
+     * path.
      * 
-     * @param path The path of the stream.
-     * @return The stream for the given identifier.
+     * @param path The path to the image file.
+     * @return the <tt>InputStream</tt> of the image corresponding to the given
+     * path.
      */
     public InputStream getImageInputStreamForPath(String path);
     
     /**
-     * Loads a stream from a given identifier.
+     * Returns the <tt>InputStream</tt> of the image corresponding to the given
+     * key.
      * 
-     * @param streamKey The identifier of the stream.
-     * @return The stream for the given identifier.
+     * @param streamKey The identifier of the image in the resource properties
+     * file.
+     * @return the <tt>InputStream</tt> of the image corresponding to the given
+     * key.
      */
     public InputStream getImageInputStream(String streamKey);
     
     /**
-     * Loads an url from a given identifier.
+     * Returns the <tt>URL</tt> of the image corresponding to the given key.
      * 
-     * @param urlKey The identifier of the url.
-     * @return The url for the given identifier.
+     * @param urlKey The identifier of the image in the resource properties file.
+     * @return the <tt>URL</tt> of the image corresponding to the given key
      */
     public URL getImageURL(String urlKey);
     
     /**
-     * Loads an url from a given path.
+     * Returns the <tt>URL</tt> of the image corresponding to the given path.
      * 
-     * @param path The path for the url.
-     * @return The url for the given identifier.
+     * @param path The path to the given image file.
+     * @return the <tt>URL</tt> of the image corresponding to the given path.
      */
     public URL getImageURLForPath(String path);
     
     /**
-     * Returns the value of the given key for image resources.
+     * Returns the image path corresponding to the given key.
      * 
-     * @param key The key.
-     * @return String value for the given image key.
+     * @param key The identifier of the image in the resource properties file.
+     * @return the image path corresponding to the given key.
      */
     public String getImagePath(String key);
     
@@ -81,7 +90,7 @@ public interface ResourceManagementService
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
-     * @param key The key of the string.
+     * @param key The identifier of the string in the resources properties file.
      * @return An internationalized string corresponding to the given key.
      */
     public String getI18NString(String key);
@@ -89,36 +98,39 @@ public interface ResourceManagementService
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
-     * @param key The key of the string.
-     * @param l The locale.
+     * @param key The identifier of the string in the resources properties file.
+     * @param locale The locale.
      * @return An internationalized string corresponding to the given key and
      * given locale.
      */
-    public String getI18NString(String key, Locale l);
+    public String getI18NString(String key, Locale locale);
     
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
-     * @param key The key of the string.
-     * @param params params to be replaced in the returned string
-     * @return An internationalized string corresponding to the given key.
+     * @param key The identifier of the string in the resources properties file.
+     * @param locale The locale.
+     * @return An internationalized string corresponding to the given key and
+     * given locale.
      */
     public String getI18NString(String key, String[] params);
     
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
-     * @param key The key of the string
-     * @param params params to be replaced in the returned string.
-     * @param l The locale.
+     * @param key The identifier of the string in the resources properties file.
+     * @param params An array of parameters to be replaced in the returned
+     * string.
+     * @param locale The locale.
      * @return An internationalized string corresponding to the given key.
      */
-    public String getI18NString(String key, String[] params, Locale l);
+    public String getI18NString(String key, String[] params, Locale locale);
     
     /**
      * Returns an internationalized string corresponding to the given key.
      * 
-     * @param key The key of the string.
+     * @param key The identifier of the string in the resources properties file.
+     * @param locale The locale that we'd like to receive the result in.
      * @return An internationalized string corresponding to the given key.
      */
     public char getI18nMnemonic(String key);
@@ -151,18 +163,18 @@ public interface ResourceManagementService
     public InputStream getSettingsInputStream(String streamKey);
     
     /**
-     * Returns a String for the setting corresponding to the given key.
+     * Returns the int value of the corresponding configuration key.
      * 
-     * @param key The key of the setting.
-     * @return String to the corresponding resource.
+     * @param key The identifier of the string in the resources properties file.
+     * @return the int value of the corresponding configuration key.
      */
     public String getSettingsString(String key);
     
     /**
-     * Returns an int for the setting corresponding to the given key.
+     * Returns the int value of the corresponding configuration key.
      * 
-     * @param key The key of the setting.
-     * @return int to the corresponding resource.
+     * @param key The identifier of the string in the resources properties file.
+     * @return the int value of the corresponding configuration key.
      */
     public int getSettingsInt(String key);
     
@@ -182,50 +194,7 @@ public interface ResourceManagementService
      * @return Url to the corresponding resource.
      */
     public URL getSoundURLForPath(String path);
-    
-    /**
-     * Returns all color keys that can be obtained from this service.
-     * 
-     * @return Iterator to all color keys.
-     */
-    public Iterator getCurrentColors();
-    
-    /**
-     * Returns all image keys that can be obtained from this service.
-     * 
-     * @return Iterator to all image keys.
-     */
-    public Iterator getCurrentImages();
-    
-    /**
-     * Returns all color settings that can be obtained from this service.
-     * 
-     * @return Iterator to all settings keys.
-     */
-    public Iterator getCurrentSettings();
-    
-    /**
-     * Returns all color sounds that can be obtained from this service.
-     * 
-     * @return Iterator to all sounds keys.
-     */
-    public Iterator getCurrentSounds();
-    
-    /**
-     * Returns all available locales for the translated texts.
-     * 
-     * @return Iterator to all locales.
-     */
-    public Iterator getAvailableLocales();
-    
-    /**
-     * Returns all string keys that can be obtained from 
-     * this service for the given locale.
-     * 
-     * @return Iterator to all string keys.
-     */
-    public Iterator getI18nStringsByLocale(Locale l);
-    
+
     /**
      * Constructs an <tt>ImageIcon</tt> from the specified image ID and returns
      * it.
@@ -235,7 +204,7 @@ public interface ResourceManagementService
      * identifier.
      */
     public ImageIcon getImage(String imageID);
-    
+
     /**
      * Loads the image with the specified ID and returns a byte array 
      * containing it.

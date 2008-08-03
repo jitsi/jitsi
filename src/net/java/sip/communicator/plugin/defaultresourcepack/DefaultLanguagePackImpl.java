@@ -20,81 +20,102 @@ import net.java.sip.communicator.util.*;
 public class DefaultLanguagePackImpl
     implements LanguagePack
 {
-    private Logger logger = Logger.getLogger(DefaultLanguagePackImpl.class);
+    private static final String DEFAULT_RESOURCE_PATH
+        = "resources.languages.resources";
 
-    private ArrayList localeList = new ArrayList();
-
-    public DefaultLanguagePackImpl()
+    /**
+     * Returns a <tt>Map</tt>, containing all [key, value] pairs for this
+     * resource pack.
+     * 
+     * @return a <tt>Map</tt>, containing all [key, value] pairs for this
+     * resource pack.
+     */
+    public Map<String, String> getResources()
     {
-        try
-        {
-            JarFile jf = new JarFile(getJarfileName());
+        ResourceBundle resourceBundle
+            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
 
-            Enumeration resources = jf.entries();
-            while (resources.hasMoreElements())
-            {
-                JarEntry je = (JarEntry) resources.nextElement();
+        Map<String, String> resources = new Hashtable<String, String>();
 
-                Locale locale;
-                String entryName = je.getName();
-                if (entryName.matches("resources/languages/.*\\.properties"))
-                {
-                    int localeIndex = entryName.indexOf('_');
+        this.initResources(resourceBundle, Locale.getDefault(), resources);
 
-                    if (localeIndex == -1)
-                        locale = new Locale("EN");
-                    else
-                    {
-                        String localeName =
-                            entryName.substring(localeIndex + 1,
-                                                entryName.indexOf('.'));
-
-                        locale = new Locale(localeName);
-                    }
-
-                    localeList.add(locale);
-                }
-            }
-        }
-        catch (java.io.IOException e)
-        {
-            logger.error("Cannot load locales.", e);
-        }
+        return resources;
     }
 
-    public String getResourcePackBaseName()
+    /**
+     * Returns a <tt>Map</tt>, containing all [key, value] pairs for the given
+     * locale.
+     * 
+     * @param locale The <tt>Locale</tt> we're looking for.
+     * @return a <tt>Map</tt>, containing all [key, value] pairs for the given
+     * locale.
+     */
+    public Map<String, String> getResources(Locale locale)
     {
-        return "resources.languages.resources";
+        ResourceBundle resourceBundle
+            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+
+        Map<String, String> resources = new Hashtable<String, String>();
+
+        this.initResources(resourceBundle, locale, resources);
+
+        return resources;
     }
 
-    public Iterator getAvailableLocales()
-    {
-        return localeList.iterator();
-    }
-
+    /**
+     * Returns the name of this resource pack.
+     * 
+     * @return the name of this resource pack.
+     */
     public String getName()
     {
         return "Default Language Resources";
     }
 
+    /**
+     * Returns the description of this resource pack.
+     * 
+     * @return the description of this resource pack.
+     */
     public String getDescription()
     {
         return "Provide SIP Communicator default Language resource pack.";
     }
 
-    private String getJarfileName()
+    /**
+     * Fills the given resource map with all (key,value) pairs obtained from the
+     * given <tt>ResourceBundle</tt>. This method will look in the properties
+     * files for references to other properties files and will include in the
+     * final map data from all referenced files.
+     * 
+     * @param resourceBundle The initial <tt>ResourceBundle</tt>, corresponding
+     * to the "main" properties file.
+     * @param locale The locale we're looking for.
+     * @param resources A <tt>Map</tt> that would store the data.
+     */
+    private void initResources( ResourceBundle resourceBundle,
+                                Locale locale,
+                                Map<String, String> resources)
     {
-        // Get the location of the jar file and the jar file name
-        java.net.URL outputURL =
-            DefaultLanguagePackImpl.class.getProtectionDomain().getCodeSource()
-                .getLocation();
+        Enumeration colorKeys = resourceBundle.getKeys();
 
-        String outputString = outputURL.toString();
+        while (colorKeys.hasMoreElements())
+        {
+            String key = (String) colorKeys.nextElement();
+            String value = resourceBundle.getString(key);
 
-        String[] parseString;
-        parseString = outputString.split("file:");
+            if (key.startsWith("$reference"))
+            {
+                ResourceBundle referenceBundle
+                    = ResourceBundle.getBundle( value,
+                                                locale);
 
-        String jarFilename = parseString[1];
-        return jarFilename;
+                initResources(referenceBundle, locale, resources);
+            }
+            else
+            {
+                resources.put(key, value);
+            }
+        }
     }
 }
