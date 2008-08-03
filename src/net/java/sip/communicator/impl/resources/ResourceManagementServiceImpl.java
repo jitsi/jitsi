@@ -14,14 +14,17 @@ import java.util.*;
 
 import javax.imageio.*;
 import javax.swing.*;
+
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**
  * A default implementation of the ResourceManagementService.
  * 
  * @author Damian Minkov
+ * @author Yana Stamcheva
  */
 public class ResourceManagementServiceImpl
     implements ResourceManagementService,
@@ -30,60 +33,58 @@ public class ResourceManagementServiceImpl
     private static Logger logger =
         Logger.getLogger(ResourceManagementServiceImpl.class);
 
-    private ResourceBundle colorResourceBundle;
-    private ResourcePack colorPack = null;
+    private Hashtable colorPacks;
 
-    private ResourceBundle imageResourceBundle;
-    private ResourcePack imagePack = null;
+    private Hashtable imagePacks;
 
-    private LanguagePack languagePack = null;
+    private Hashtable languagePacks;
 
-    private ResourceBundle settingsResourceBundle;
-    private ResourcePack settingsPack = null;
+    private Hashtable settingsPacks;
 
-    private ResourceBundle soundResourceBundle;
-    private ResourcePack soundPack = null;
-    
+    private Hashtable soundPacks;
+
     ResourceManagementServiceImpl()
     {
         ResourceManagementActivator.bundleContext.addServiceListener(this);
 
-        colorPack = 
-            registerDefaultPack(ColorPack.class.getName(),
+        colorPacks = 
+            getDefaultPacks(ColorPack.class.getName(),
                 ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
 
-        if (colorPack != null)
-            colorResourceBundle = getResourceBundle(colorPack);
+        imagePacks = 
+            getDefaultPacks(ImagePack.class.getName(),
+                            ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
-        imagePack = 
-            registerDefaultPack(ImagePack.class.getName(),
-                ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
+        languagePacks = 
+            getDefaultPacks(LanguagePack.class.getName(),
+                            LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
-        if (imagePack != null)
-            imageResourceBundle = getResourceBundle(imagePack);
+        settingsPacks = 
+            getDefaultPacks(SettingsPack.class.getName(),
+                            SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
 
-        languagePack = 
-            (LanguagePack) registerDefaultPack(LanguagePack.class.getName(),
-                LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
-
-        settingsPack = 
-            registerDefaultPack(SettingsPack.class.getName(),
-                SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
-
-        if (settingsPack != null)
-            settingsResourceBundle = getResourceBundle(settingsPack);
-
-        soundPack = 
-            registerDefaultPack(SoundPack.class.getName(),
-                SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
-
-        if (soundPack != null)
-            soundResourceBundle = getResourceBundle(soundPack);
+        soundPacks = 
+            getDefaultPacks( SoundPack.class.getName(),
+                            SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
     }
 
-    private ResourcePack registerDefaultPack(   String className,
-                                                String typeName)
+    /**
+     * Returns a map of default <tt>ResourcePack</tt>s, corresponding to the
+     * given className and typeName.
+     * 
+     * @param className The name of the class of resource packs, for example
+     * ColorPacl class name.
+     * @param typeName The name of type of resource packs.
+     * @return a map of default <tt>ResourcePack</tt>s, corresponding to the
+     * given className and typeName.
+     */
+    private Hashtable<ResourcePack, ResourceBundle> getDefaultPacks(
+            String className,
+            String typeName)
     {
+        Hashtable<ResourcePack, ResourceBundle> resourcePackList
+            = new Hashtable<ResourcePack, ResourceBundle>();
+
         ServiceReference[] serRefs = null;
 
         String osgiFilter =
@@ -109,13 +110,25 @@ public class ResourceManagementServiceImpl
                     (ResourcePack) ResourceManagementActivator.bundleContext.
                         getService(serRefs[i]);
 
-                return rp;
+                ResourceBundle rb
+                    = getResourceBundle(rp);
+
+                resourcePackList.put(rp, rb);
             }
         }
 
-        return null;
+        return resourcePackList;
     }
 
+    /**
+     * Returns the <tt>ResourceBundle</tt> corresponding to the given
+     * <tt>ResourcePack</tt>.
+     * 
+     * @param resourcePack the <tt>ResourcePack</tt> for which we're searching
+     * the bundle.
+     * @return the <tt>ResourceBundle</tt> corresponding to the given
+     * <tt>ResourcePack</tt>.
+     */
     private ResourceBundle getResourceBundle(ResourcePack resourcePack)
     {
         String baseName = resourcePack.getResourcePackBaseName();
@@ -126,35 +139,76 @@ public class ResourceManagementServiceImpl
                 resourcePack.getClass().getClassLoader());
     }
 
-    private ResourceBundle getResourceBundle(ResourcePack resourcePack, Locale l)
+    /**
+     * Returns a list of language <tt>ResourceBundle</tt>s obtained for the
+     * given locale.
+     * 
+     * @param locale the <tt>Locale</tt> which we're searching for
+     * @return the list of language <tt>ResourceBundle</tt>s obtained for the
+     * given locale.
+     */
+    private Vector<ResourceBundle> getLanguagePacksForLocale(Locale locale)
     {
-        String baseName = resourcePack.getResourcePackBaseName();
+        Vector localePacks = new Vector();
 
-        return ResourceBundle.getBundle(
-                baseName,
-                l,
-                resourcePack.getClass().getClassLoader());
+        Enumeration packsEnum = languagePacks.keys();
+
+        while (packsEnum.hasMoreElements())
+        {
+            LanguagePack langPack = (LanguagePack) packsEnum.nextElement();
+
+            ResourceBundle rBundle = ResourceBundle.getBundle(
+                    langPack.getResourcePackBaseName(),
+                    locale,
+                    langPack.getClass().getClassLoader());
+
+            if (rBundle != null)
+                localePacks.add(rBundle);
+        }
+
+        return localePacks;
     }
 
-    private String findString(String key, ResourceBundle resourceBundle)
+    /**
+     * Returns the String corresponding to the given key.
+     * 
+     * @param key the key for the string we're searching for.
+     * @param resourceBundles the Enumeration of <tt>ResourceBundle</tt>s, where
+     * to search
+     * @return the String corresponding to the given key.
+     */
+    private String findString(  String key,
+                                Enumeration<ResourceBundle> resourceBundles)
     {
-        try
+        ResourceBundle resourceBundle;
+        while (resourceBundles.hasMoreElements())
         {
-            String value = resourceBundle.getString(key);
-            if (value != null)
+            resourceBundle = resourceBundles.nextElement();
+
+            try
             {
-                return value;
+                String value = resourceBundle.getString(key);
+                if (value != null)
+                {
+                    return value;
+                }
             }
-        }
-        catch (MissingResourceException e)
-        {
-            logger.error("Missing resource.", e);
+            catch (MissingResourceException e)
+            {
+                // If we don't find the resource in the this resource bundle
+                // we continue the search.
+                continue;
+            }
         }
 
         // nothing found
         return null;
     }
 
+    /**
+     * Handles <tt>ServiceEvent</tt>s in order to update the list of registered
+     * <tt>ResourcePack</tt>s.
+     */
     public void serviceChanged(ServiceEvent event)
     {
         Object sService = ResourceManagementActivator.bundleContext.getService(
@@ -165,100 +219,100 @@ public class ResourceManagementServiceImpl
             return;
         }
 
-        ResourcePack resource = (ResourcePack) sService;
+        ResourcePack resourcePack = (ResourcePack) sService;
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
-            logger.info("Resource registered " + resource);
+            logger.info("Resource registered " + resourcePack);
 
-            String resourceBaseName = resource.getResourcePackBaseName();
+            String resourceBaseName = resourcePack.getResourcePackBaseName();
 
             ResourceBundle resourceBundle = ResourceBundle.getBundle(
                 resourceBaseName,
                 Locale.getDefault(),
-                resource.getClass().getClassLoader());
+                resourcePack.getClass().getClassLoader());
 
-            if(resource instanceof ColorPack && colorPack == null)
+            if(resourcePack instanceof ColorPack)
             {
-                colorPack = resource;
-                colorResourceBundle = resourceBundle;
+                if (colorPacks == null)
+                    colorPacks = new Hashtable();
+
+                colorPacks.put(resourcePack, getResourceBundle(resourcePack));
             }
-            else if(resource instanceof ImagePack && imagePack == null)
+            else if(resourcePack instanceof ImagePack)
             {
-                imagePack = resource;
-                imageResourceBundle = resourceBundle;
+                if (imagePacks == null)
+                    imagePacks = new Hashtable();
+
+                imagePacks.put(resourcePack, getResourceBundle(resourcePack));
             }
-            else if(resource instanceof LanguagePack && languagePack == null)
+            else if(resourcePack instanceof LanguagePack)
             {
-                languagePack = (LanguagePack) resource;
+                if (languagePacks == null)
+                    languagePacks = new Hashtable();
+
+                languagePacks.put(resourcePack, getResourceBundle(resourcePack));
             }
-            else if(resource instanceof SettingsPack && settingsPack == null)
+            else if(resourcePack instanceof SettingsPack)
             {
-                settingsPack = resource;
-                settingsResourceBundle = resourceBundle;
+                if (settingsPacks == null)
+                    settingsPacks = new Hashtable();
+
+                settingsPacks.put(resourcePack, getResourceBundle(resourcePack));
             }
-            else if(resource instanceof SoundPack && soundPack == null)
+            else if(resourcePack instanceof SoundPack)
             {
-                soundPack = resource;
-                soundResourceBundle = resourceBundle;
+                if (soundPacks == null)
+                    soundPacks = new Hashtable();
+
+                soundPacks.put(resourcePack, getResourceBundle(resourcePack));
             }
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            if(resource instanceof ColorPack
-                    && colorPack.equals(resource))
+            if(resourcePack instanceof ColorPack)
             {
-                colorPack = 
-                    registerDefaultPack(ColorPack.class.getName(),
-                        ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
-
-                if (colorPack != null)
-                    colorResourceBundle = getResourceBundle(colorPack);
+                colorPacks = 
+                    getDefaultPacks(ColorPack.class.getName(),
+                                    ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
             }
-            else if(resource instanceof ImagePack
-                    && imagePack.equals(resource))
+            else if(resourcePack instanceof ImagePack)
             {
-                imagePack = 
-                    registerDefaultPack(ImagePack.class.getName(),
-                        ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
-
-                if (imagePack != null)
-                    imageResourceBundle = getResourceBundle(imagePack);
+                imagePacks = 
+                    getDefaultPacks(ImagePack.class.getName(),
+                                    ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
             }
-            else if(resource instanceof LanguagePack
-                    && languagePack.equals(resource))
+            else if(resourcePack instanceof LanguagePack)
             {
-                languagePack = 
-                    (LanguagePack) registerDefaultPack(LanguagePack.class.getName(),
-                        LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
+                languagePacks = 
+                    getDefaultPacks(LanguagePack.class.getName(),
+                                    LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
             }
-            else if(resource instanceof SettingsPack
-                    && settingsPack.equals(resource))
+            else if(resourcePack instanceof SettingsPack)
             {
-                settingsPack = 
-                    registerDefaultPack(SettingsPack.class.getName(),
-                        SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
-
-                if (settingsPack != null)
-                    settingsResourceBundle = getResourceBundle(settingsPack);
+                settingsPacks = 
+                    getDefaultPacks(SettingsPack.class.getName(),
+                                    SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
             }
-            else if(resource instanceof SoundPack
-                    && soundPack.equals(resource))
+            else if(resourcePack instanceof SoundPack)
             {
-                soundPack = 
-                    registerDefaultPack(SoundPack.class.getName(),
-                        SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
-
-                if (soundPack != null)
-                    soundResourceBundle = getResourceBundle(soundPack);
+                soundPacks = 
+                    getDefaultPacks(SoundPack.class.getName(),
+                                    SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
             }
         }
     }
 
-    // Color pack methods
+    /**
+     * Returns the int representation of the color corresponding to the given
+     * key.
+     * 
+     * @return the int representation of the color corresponding to the given
+     * key.
+     */
     public int getColor(String key)
     {
-        String res = findString(key, colorResourceBundle);
+        String res = findString(key, colorPacks.elements());
 
         if(res == null)
         {
@@ -269,10 +323,17 @@ public class ResourceManagementServiceImpl
         else
             return Integer.parseInt(res, 16);
     }
-    
+
+    /**
+     * Returns the String representation of the color corresponding to the given
+     * key.
+     * 
+     * @return the String representation of the color corresponding to the given
+     * key.
+     */
     public String getColorString(String key)
     {
-        String res = findString(key, colorResourceBundle);
+        String res = findString(key, colorPacks.elements());
 
         if(res == null)
         {
@@ -283,8 +344,7 @@ public class ResourceManagementServiceImpl
         else
             return res;
     }
-    
-    // Image pack methods
+
     /**
      * Loads a stream from a given identifier.
      * 
@@ -294,9 +354,17 @@ public class ResourceManagementServiceImpl
      */
     public InputStream getImageInputStreamForPath(String path)
     {
-       return imagePack.getClass().getClassLoader().getResourceAsStream(path);
+        // Get the first image pack class loader and try to obtain the image
+        // input stream from the given path.
+        if (imagePacks.keys().hasMoreElements())
+        {
+            return imagePacks.keys().nextElement().getClass()
+                .getClassLoader().getResourceAsStream(path);
+        }
+
+       return null;
     }
-    
+
     /**
      * Loads a stream from a given identifier.
      * 
@@ -305,7 +373,7 @@ public class ResourceManagementServiceImpl
      */
     public InputStream getImageInputStream(String streamKey)
     {
-        String path = findString(streamKey, imageResourceBundle);
+        String path = findString(streamKey, imagePacks.elements());
 
         if (path == null || path.length() == 0)
         {
@@ -315,7 +383,7 @@ public class ResourceManagementServiceImpl
         
         return getImageInputStreamForPath(path);
     }
-    
+
     /**
      * Loads an url from a given identifier.
      * 
@@ -324,25 +392,41 @@ public class ResourceManagementServiceImpl
      */
     public URL getImageURL(String urlKey)
     {
-        String path = findString(urlKey, imageResourceBundle);
+        String path = findString(urlKey, imagePacks.elements());
 
         if (path == null || path.length() == 0)
         {
-            logger.warn("Missing resource for key: " + urlKey
-                    + " / " + imageResourceBundle);
+            logger.warn("Missing resource for key: " + urlKey);
             return null;
         }
         return getImageURLForPath(path);
     }
-    
+
+    /**
+     * Returns the path corresponding to the given key.
+     * 
+     * @return the path corresponding to the given key.
+     */
     public String getImagePath(String key)
     {
-        return findString(key, imageResourceBundle);
+        return findString(key, imagePacks.elements());
     }
 
+    /**
+     * Returns the URL corresponding to the given path.
+     * @return the URL corresponding to the given path.
+     */
     public URL getImageURLForPath(String path)
     {
-        return imagePack.getClass().getClassLoader().getResource(path);
+        // Get the first image pack class loader and try to obtain the image
+        // input stream from the given path.
+        if (imagePacks.keys().hasMoreElements())
+        {
+            return imagePacks.keys().nextElement().getClass()
+                .getClassLoader().getResource(path);
+        }
+
+       return null;
     }
 
     // Language pack methods
@@ -390,10 +474,10 @@ public class ResourceManagementServiceImpl
      */
     public String getI18NString(String key, String[] params, Locale locale)
     {
-        ResourceBundle resourceBundle
-            = getResourceBundle(languagePack, locale);
+        Enumeration resourceBundles
+            = getLanguagePacksForLocale(locale).elements();
 
-        String resourceString = findString(key, resourceBundle);
+        String resourceString = findString(key, resourceBundles);
 
         if (resourceString == null)
         {
@@ -438,10 +522,10 @@ public class ResourceManagementServiceImpl
      */
     public char getI18nMnemonic(String key, Locale locale)
     {
-        ResourceBundle resourceBundle
-            = getResourceBundle(languagePack, locale);
+        Enumeration resourceBundles
+            = getLanguagePacksForLocale(locale).elements();
 
-        String resourceString = findString(key, resourceBundle);
+        String resourceString = findString(key, resourceBundles);
 
         if (resourceString == null)
         {
@@ -458,16 +542,27 @@ public class ResourceManagementServiceImpl
 
         return 0;
     }
-    
-    // Settings pack methods
+
+    /**
+     * Returns the configuration String corresponding to the given
+     * key.
+     * 
+     * @return the configuration String corresponding to the given
+     * key.
+     */
     public String getSettingsString(String key)
     {
-        return findString(key, settingsResourceBundle);
+        return findString(key, settingsPacks.elements());
     }
     
+    /**
+     * Returns the int value corresponding to the given key.
+     * 
+     * @return the int value corresponding to the given key.
+     */
     public int getSettingsInt(String key)
     {
-        String resourceString = findString(key, settingsResourceBundle);
+        String resourceString = findString(key, settingsPacks.elements());
 
         if (resourceString == null)
         {
@@ -486,15 +581,34 @@ public class ResourceManagementServiceImpl
      */
     public URL getSettingsURL(String urlKey)
     {
-        String path = findString(urlKey, settingsResourceBundle);
+        String path = findString(urlKey, settingsPacks.elements());
 
         if (path == null || path.length() == 0)
         {
             logger.warn("Missing resource for key: " + urlKey);
             return null;
         }
-        return settingsPack.getClass().getClassLoader().getResource(path);
+
+        return getSettingsURLForPath(path);
     }
+    
+    /**
+     * Returns the URL corresponding to the given path.
+     * @return the URL corresponding to the given path.
+     */
+    private URL getSettingsURLForPath(String path)
+    {
+        // Get the first settings pack class loader and try to obtain the image
+        // input stream from the given path.
+        if (settingsPacks.keys().hasMoreElements())
+        {
+            return settingsPacks.keys().nextElement().getClass()
+                .getClassLoader().getResource(path);
+        }
+
+       return null;
+    }
+
     /**
      * Loads a stream from a given identifier.
      * 
@@ -503,7 +617,7 @@ public class ResourceManagementServiceImpl
      */
     public InputStream getSettingsInputStream(String streamKey)
     {
-        String path = findString(streamKey, settingsResourceBundle);
+        String path = findString(streamKey, settingsPacks.elements());
 
         if (path == null || path.length() == 0)
         {
@@ -511,14 +625,35 @@ public class ResourceManagementServiceImpl
             return null;
         }
 
-        return settingsPack.getClass()
-            .getClassLoader().getResourceAsStream(path);
+        return getSettingsInputStreamForPath(path);
     }
 
-    // Sound pack methods
+    /**
+     * Returns the InputStream corresponding to the given path.
+     * 
+     * @return the InputStream corresponding to the given path.
+     */
+    private InputStream getSettingsInputStreamForPath(String path)
+    {
+        // Get the first settings pack class loader and try to obtain the image
+        // input stream from the given path.
+        if (settingsPacks.keys().hasMoreElements())
+        {
+            return settingsPacks.keys().nextElement().getClass()
+                .getClassLoader().getResourceAsStream(path);
+        }
+
+       return null;
+    }
+
+    /**
+     * Return the URL corresponding to the given key.
+     * 
+     * @return the URL corresponding to the given key.
+     */
     public URL getSoundURL(String urlKey)
     {
-        String path = findString(urlKey, soundResourceBundle);
+        String path = findString(urlKey, soundPacks.elements());
 
         if (path == null || path.length() == 0)
         {
@@ -530,11 +665,23 @@ public class ResourceManagementServiceImpl
     
     public URL getSoundURLForPath(String path)
     {
-        return soundPack.getClass().getClassLoader().getResource(path);
+     // Get the first settings pack class loader and try to obtain the image
+        // input stream from the given path.
+        if (soundPacks.keys().hasMoreElements())
+        {
+            return soundPacks.keys().nextElement().getClass()
+                .getClassLoader().getResource(path);
+        }
+
+       return null;
     }
+
 
     public Iterator getCurrentColors()
     {
+        ResourceBundle colorResourceBundle
+            = (ResourceBundle) colorPacks.elements().nextElement();
+
         Enumeration colorKeys = colorResourceBundle.getKeys();
 
         List colorList = new ArrayList();
@@ -548,6 +695,9 @@ public class ResourceManagementServiceImpl
 
     public Iterator getCurrentImages()
     {
+        ResourceBundle imageResourceBundle
+            = (ResourceBundle) imagePacks.elements().nextElement();
+
         Enumeration imageKeys = imageResourceBundle.getKeys();
 
         List imageList = new ArrayList();
@@ -561,6 +711,9 @@ public class ResourceManagementServiceImpl
 
     public Iterator getCurrentSettings()
     {
+        ResourceBundle settingsResourceBundle
+            = (ResourceBundle) settingsPacks.elements().nextElement();
+
         Enumeration settingKeys = settingsResourceBundle.getKeys();
 
         List settingList = new ArrayList();
@@ -574,6 +727,9 @@ public class ResourceManagementServiceImpl
 
     public Iterator getCurrentSounds()
     {
+        ResourceBundle soundResourceBundle
+            = (ResourceBundle) soundPacks.elements().nextElement();
+
         Enumeration soundKeys = soundResourceBundle.getKeys();
 
         List soundList = new ArrayList();
@@ -587,12 +743,18 @@ public class ResourceManagementServiceImpl
 
     public Iterator getAvailableLocales()
     {
+        LanguagePack languagePack
+            = (LanguagePack) languagePacks.keys().nextElement();
+
         return languagePack.getAvailableLocales();
     }
 
     public Iterator getI18nStringsByLocale(Locale l)
     {
-        Enumeration languageKeys = getResourceBundle(languagePack, l).getKeys();
+        ResourceBundle langResourceBundle
+            = (ResourceBundle) languagePacks.elements().nextElement();
+
+        Enumeration languageKeys = langResourceBundle.getKeys();
 
         List languageList = new ArrayList();
         while (languageKeys.hasMoreElements())

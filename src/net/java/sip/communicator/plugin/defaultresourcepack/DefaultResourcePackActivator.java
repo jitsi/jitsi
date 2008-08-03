@@ -33,7 +33,7 @@ public class DefaultResourcePackActivator
             new DefaultColorPackImpl();
         
         Hashtable props = new Hashtable();
-        props.put(ColorPack.RESOURCE_NAME, 
+        props.put(ResourcePack.RESOURCE_NAME, 
                   ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
         
         bundleContext.registerService(  ColorPack.class.getName(),
@@ -44,7 +44,7 @@ public class DefaultResourcePackActivator
             new DefaultImagePackImpl();
         
         Hashtable imgProps = new Hashtable();
-        imgProps.put(ImagePack.RESOURCE_NAME, 
+        imgProps.put(ResourcePack.RESOURCE_NAME, 
                     ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
         
         bundleContext.registerService(  ImagePack.class.getName(),
@@ -55,7 +55,7 @@ public class DefaultResourcePackActivator
             new DefaultLanguagePackImpl();
         
         Hashtable langProps = new Hashtable();
-        langProps.put(LanguagePack.RESOURCE_NAME, 
+        langProps.put(ResourcePack.RESOURCE_NAME, 
                     LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
         
         bundleContext.registerService(  LanguagePack.class.getName(),
@@ -66,7 +66,7 @@ public class DefaultResourcePackActivator
             new DefaultSettingsPackImpl();
         
         Hashtable setProps = new Hashtable();
-        langProps.put(SettingsPack.RESOURCE_NAME, 
+        langProps.put(ResourcePack.RESOURCE_NAME, 
                       SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
         
         bundleContext.registerService(  SettingsPack.class.getName(),
@@ -77,7 +77,7 @@ public class DefaultResourcePackActivator
             new DefaultSoundPackImpl();
         
         Hashtable sndProps = new Hashtable();
-        langProps.put(SoundPack.RESOURCE_NAME, 
+        langProps.put(ResourcePack.RESOURCE_NAME, 
                       SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
         
         bundleContext.registerService(  SoundPack.class.getName(),
