@@ -891,7 +891,7 @@ public class ServerStoredContactListMsnImpl
         {
         }
 
-        public void contactAddCompleted1(MsnMessenger messenger, MsnContact contact)
+        public void contactAddCompleted(MsnMessenger messenger, MsnContact contact)
         {
             String contactID = contact.getEmail().getEmailAddress();
             
@@ -906,7 +906,7 @@ public class ServerStoredContactListMsnImpl
             }
         }
         
-        public void contactRemoveCompleted1(MsnMessenger messenger, MsnContact contact)
+        public void contactRemoveCompleted(MsnMessenger messenger, MsnContact contact)
         {
             ContactMsnImpl contactToRemove =
                 findContactById(contact.getEmail().getEmailAddress());

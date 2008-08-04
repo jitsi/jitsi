@@ -18,7 +18,6 @@ public class ContactMsnImpl
     implements Contact
 {
     private MsnContact contact = null;
-    private boolean isLocal = false;
     private byte[] image = null;
     private PresenceStatus status = MsnStatusEnum.OFFLINE;
     private ServerStoredContactListMsnImpl ssclCallback = null;
@@ -40,7 +39,6 @@ public class ContactMsnImpl
                    boolean isResolved)
     {
         this.contact = contact;
-        this.isLocal = isLocal;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
@@ -56,18 +54,6 @@ public class ContactMsnImpl
             return contact.getEmail().getEmailAddress();
         else
             return contact.getId();
-    }
-
-    /**
-     * Determines whether or not this Contact instance represents the user used
-     * by this protocol provider to connect to the service.
-     *
-     * @return true if this Contact represents us (the local user) and false
-     * otherwise.
-     */
-    public boolean isLocal()
-    {
-        return isLocal;
     }
 
     public byte[] getImage()
@@ -165,7 +151,7 @@ public class ContactMsnImpl
      */
     public String getDisplayName()
     {
-        String name = contact.getDisplayName();
+        String name = contact.getFriendlyName();
 
         if (name == null)
             name = getAddress();
