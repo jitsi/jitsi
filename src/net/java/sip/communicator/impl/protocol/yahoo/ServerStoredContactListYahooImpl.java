@@ -208,7 +208,7 @@ public class ServerStoredContactListYahooImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_REMOVED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
     /**
@@ -698,7 +698,7 @@ public class ServerStoredContactListYahooImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_CREATED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_CREATED);
     }
 
     /**
@@ -718,7 +718,7 @@ public class ServerStoredContactListYahooImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_RESOLVED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_RESOLVED);
     }
 
     /**

@@ -243,7 +243,7 @@ public class ServerStoredContactListIcqImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_CREATED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_CREATED);
     }
 
     /**
@@ -263,7 +263,7 @@ public class ServerStoredContactListIcqImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_RESOLVED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_RESOLVED);
     }
 
 
@@ -310,7 +310,7 @@ public class ServerStoredContactListIcqImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_REMOVED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
     private void fireContactsReordered( ContactGroupIcqImpl parentGroup)
@@ -589,9 +589,9 @@ public class ServerStoredContactListIcqImpl
             new Thread(){
                 public void run(){
                     parentOperationSet.fireSubscriptionEvent(
-                        SubscriptionEvent.SUBSCRIPTION_CREATED,
                         existingContact,
-                        findContactGroup(existingContact));
+                        findContactGroup(existingContact),
+                        SubscriptionEvent.SUBSCRIPTION_CREATED);
                 }
             }.start();
             return;

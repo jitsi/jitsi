@@ -25,15 +25,10 @@ import java.io.*;
  * @author Emil Ivov
  */
 public class OperationSetPersistentPresenceRssImpl
-    implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceRssImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceRssImpl.class);
-
-    /**
-     * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
@@ -56,11 +51,6 @@ public class OperationSetPersistentPresenceRssImpl
      * The root of the RSS contact list.
      */
     private ContactGroupRssImpl contactListRoot = null;
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceRssImpl parentProvider = null;
 
     /**
      * The currently active status message.
@@ -87,7 +77,8 @@ public class OperationSetPersistentPresenceRssImpl
     public OperationSetPersistentPresenceRssImpl(
             ProtocolProviderServiceRssImpl        provider)
     {
-        this.parentProvider = provider;
+        super(provider);
+
         contactListRoot = new ContactGroupRssImpl("RootGroup", provider);
 
         // add our un-registration listener
@@ -142,121 +133,6 @@ public class OperationSetPersistentPresenceRssImpl
             listener.contactPresenceStatusChanged(evt);
         }
     }
-
-     /**
-     * Notify all subscription listeners of the corresponding contact property
-     * change event.
-     *
-     * @param eventID the String ID of the event to dispatch
-     * @param sourceContact the ContactRssImpl instance that this event is
-     * pertaining to.
-     * @param oldValue the value that the changed property had before the change
-     * occurred.
-     * @param newValue the value that the changed property currently has (after
-     * the change has occurred).
-     */
-     void fireContactPropertyChangeEvent( String               eventID,
-                                         ContactRssImpl       sourceContact,
-                                         Object               oldValue,
-                                         Object               newValue)
-    {
-        ContactPropertyChangeEvent evt =
-            new ContactPropertyChangeEvent(sourceContact, eventID
-                                  , oldValue, newValue);
-
-        logger.debug("Dispatching a Contact Property Change Event to "
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.contactModified(evt);
-        }
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireSubscriptionEvent(ContactRssImpl  source,
-                                      ContactGroup parentGroup,
-                                      int          eventID)
-    {
-        SubscriptionEvent evt  = new SubscriptionEvent(source
-            , this.parentProvider
-            , parentGroup
-            , eventID);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if(eventID == SubscriptionEvent.SUBSCRIPTION_CREATED)
-            {
-                listener.subscriptionCreated(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_FAILED)
-            {
-                listener.subscriptionFailed(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-            {
-                listener.subscriptionRemoved(evt);
-            }
-        }
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has been moved..
-     * @param oldParent the group where the contact was located before being
-     * moved.
-     * @param newParent the group where the contact has been moved.
-     */
-    public void fireSubscriptionMovedEvent(Contact      source,
-                                           ContactGroup oldParent,
-                                           ContactGroup newParent)
-    {
-        SubscriptionMovedEvent evt  = new SubscriptionMovedEvent(source
-            , this.parentProvider
-            , oldParent
-            , newParent);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.subscriptionMoved(evt);
-        }
-    }
-
 
     /**
      * Notifies all registered listeners of the new event.
@@ -353,21 +229,6 @@ public class OperationSetPersistentPresenceRssImpl
         {
             if (!serverStoredGroupListeners.contains(listener))
                 serverStoredGroupListeners.add(listener);
-        }
-    }
-
-    /**
-     * RSS implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            if (!subscriptionListeners.contains(listener))
-                this.subscriptionListeners.add(listener);
         }
     }
 
@@ -773,19 +634,6 @@ public class OperationSetPersistentPresenceRssImpl
         synchronized(serverStoredGroupListeners)
         {
             serverStoredGroupListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            this.subscriptionListeners.remove(listener);
         }
     }
 

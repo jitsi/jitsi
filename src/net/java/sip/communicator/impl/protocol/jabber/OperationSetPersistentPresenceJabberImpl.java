@@ -29,15 +29,10 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
  * @author Lubomir Marinov
  */
 public class OperationSetPersistentPresenceJabberImpl
-    implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceJabberImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceJabberImpl.class);
-
-    /**
-     * A callback to the Jabber provider that created us.
-     */
-    private ProtocolProviderServiceJabberImpl jabberProvider = null;
 
     /**
      * Contains our current status message. Note that this field would only
@@ -57,12 +52,6 @@ public class OperationSetPersistentPresenceJabberImpl
      * presencestatus.
      */
     private Vector providerPresenceStatusListeners = new Vector();
-
-    /**
-     * The list of subscription listeners interested in receiving  notifications
-     * whenever .
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * The list of presence status listeners interested in receiving presence
@@ -99,15 +88,15 @@ public class OperationSetPersistentPresenceJabberImpl
     public OperationSetPersistentPresenceJabberImpl(
         ProtocolProviderServiceJabberImpl provider)
     {
-        this.jabberProvider = provider;
+        super(provider);
 
         currentStatus =
-            this.jabberProvider.getJabberStatusEnum().getStatus(
+            parentProvider.getJabberStatusEnum().getStatus(
                 JabberStatusEnum.OFFLINE);
 
         ssContactList = new ServerStoredContactListJabberImpl( this , provider);
 
-        this.jabberProvider.addRegistrationStateChangeListener(
+        parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
     }
 
@@ -153,19 +142,6 @@ public class OperationSetPersistentPresenceJabberImpl
         listener)
     {
         ssContactList.addGroupListener(listener);
-    }
-
-    /**
-     * Registers a listener that would get notifications any time a new
-     * subscription was succesfully added, has failed or was removed.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners){
-           subscriptionListeners.add(listener);
-       }
     }
 
     /**
@@ -345,7 +321,7 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public Iterator getSupportedStatusSet()
     {
-        return jabberProvider.getJabberStatusEnum().getSupportedStatusSet();
+        return parentProvider.getJabberStatusEnum().getSupportedStatusSet();
     }
 
     /**
@@ -396,7 +372,7 @@ public class OperationSetPersistentPresenceJabberImpl
         assertConnected();
 
         JabberStatusEnum jabberStatusEnum =
-            jabberProvider.getJabberStatusEnum();
+            parentProvider.getJabberStatusEnum();
         boolean isValidStatus = false;
         for (Iterator supportedStatusIter =
             jabberStatusEnum.getSupportedStatusSet(); supportedStatusIter
@@ -416,7 +392,7 @@ public class OperationSetPersistentPresenceJabberImpl
         if (status.equals(jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE)))
         {
             presence = new Presence(Presence.Type.unavailable);
-            jabberProvider.unregister();
+            parentProvider.unregister();
         }
         else
         {
@@ -426,7 +402,7 @@ public class OperationSetPersistentPresenceJabberImpl
             presence.setStatus(statusMessage);
             presence.addExtension(new Version());
 
-            jabberProvider.getConnection().sendPacket(presence);
+            parentProvider.getConnection().sendPacket(presence);
         }
 
         fireProviderPresenceStatusChangeEvent(currentStatus, status);
@@ -459,13 +435,13 @@ public class OperationSetPersistentPresenceJabberImpl
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        Presence presence = jabberProvider.getConnection().getRoster().
+        Presence presence = parentProvider.getConnection().getRoster().
                 getPresence(contactIdentifier);
 
         if(presence != null)
-            return jabberStatusToPresenceStatus(presence, jabberProvider);
+            return jabberStatusToPresenceStatus(presence, parentProvider);
         else
-            return jabberProvider.getJabberStatusEnum().getStatus(
+            return parentProvider.getJabberStatusEnum().getStatus(
                 JabberStatusEnum.OFFLINE);
     }
 
@@ -526,18 +502,6 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners){
-            subscriptionListeners.remove(listener);
-        }
-    }
-
-    /**
      * Renames the specified group from the server stored contact list.
      *
      * @param group the group to rename.
@@ -569,7 +533,7 @@ public class OperationSetPersistentPresenceJabberImpl
             subscribtionPacketListener = new JabberSubscriptionListener();
             PacketFilter packetFilter = new PacketTypeFilter(Presence.class);
 
-            jabberProvider.getConnection().
+            parentProvider.getConnection().
                 addPacketListener(subscribtionPacketListener, packetFilter);
         }
 
@@ -724,11 +688,11 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     private void assertConnected() throws IllegalStateException
     {
-        if (jabberProvider == null)
+        if (parentProvider == null)
             throw new IllegalStateException(
                 "The provider must be non-null and signed on the Jabber "
                 +"service before being able to communicate.");
-        if (!jabberProvider.isRegistered())
+        if (!parentProvider.isRegistered())
             throw new IllegalStateException(
                 "The provider must be signed on the Jabber service before "
                 +"being able to communicate.");
@@ -750,7 +714,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
         ProviderPresenceStatusChangeEvent evt =
             new ProviderPresenceStatusChangeEvent(
-                jabberProvider, oldStatus, newStatus);
+                parentProvider, oldStatus, newStatus);
 
         currentStatus = newStatus;
 
@@ -785,7 +749,7 @@ public class OperationSetPersistentPresenceJabberImpl
     {
 
         PropertyChangeEvent evt = new PropertyChangeEvent(
-                jabberProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
+            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
                 oldStatusMessage, newStatusMessage);
 
         logger.debug("Dispatching  stat. msg change. Listeners="
@@ -829,11 +793,11 @@ public class OperationSetPersistentPresenceJabberImpl
 
             if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                jabberProvider.getConnection().getRoster().addRosterListener(
+                parentProvider.getConnection().getRoster().addRosterListener(
                     new ContactChangesListener());
 
                 fireProviderPresenceStatusChangeEvent(currentStatus,
-                    jabberProvider.getJabberStatusEnum().getStatus(
+                    parentProvider.getJabberStatusEnum().getStatus(
                         JabberStatusEnum.AVAILABLE));
 
                 // init ssList
@@ -849,7 +813,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 //were online
                 PresenceStatus oldStatus = currentStatus;
                 PresenceStatus offlineStatus =
-                    jabberProvider.getJabberStatusEnum().getStatus(
+                    parentProvider.getJabberStatusEnum().getStatus(
                         JabberStatusEnum.OFFLINE);
                 currentStatus = offlineStatus;
 
@@ -917,82 +881,6 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param eventID the int ID of the event to dispatch
-     * @param sourceContact the ContactJabberImpl instance that this event is
-     * pertaining to.
-     * @param parentGroup the ContactGroupJabberImpl under which the corresponding
-     * subscription is located.
-     */
-    void fireSubscriptionEvent( int eventID,
-                                ContactJabberImpl sourceContact,
-                                ContactGroup parentGroup)
-    {
-        SubscriptionEvent evt =
-            new SubscriptionEvent(sourceContact, jabberProvider, parentGroup,
-                                  eventID);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
-                listener.subscriptionCreated(evt);
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-                listener.subscriptionRemoved(evt);
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
-                listener.subscriptionFailed(evt);
-        }
-    }
-
-    /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param sourceContact the ContactJabberImpl instance that this event is
-     * pertaining to.
-     * @param oldParentGroup the group that was previously a parent of the
-     * source contact.
-     * @param newParentGroup the group under which the corresponding
-     * subscription is currently located.
-     */
-    void fireSubscriptionMovedEvent( ContactJabberImpl sourceContact,
-                                     ContactGroup oldParentGroup,
-                                     ContactGroup newParentGroup)
-    {
-        SubscriptionMovedEvent evt =
-            new SubscriptionMovedEvent(sourceContact, jabberProvider
-                                       , oldParentGroup, newParentGroup);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.subscriptionMoved(evt);
-        }
-    }
-
-    /**
      * Notify all contact presence listeners of the corresponding event change
      * @param contact the contact that changed its status
      * @param oldStatus the status that the specified contact had so far
@@ -1007,7 +895,7 @@ public class OperationSetPersistentPresenceJabberImpl
     {
         ContactPresenceStatusChangeEvent evt =
             new ContactPresenceStatusChangeEvent(
-                contact, jabberProvider, parentGroup, oldStatus, newStatus);
+                contact, parentProvider, parentGroup, oldStatus, newStatus);
 
 
         logger.debug("Dispatching Contact Status Change. Listeners="
@@ -1026,46 +914,6 @@ public class OperationSetPersistentPresenceJabberImpl
                 = (ContactPresenceStatusListener) listeners.next();
 
             listener.contactPresenceStatusChanged(evt);
-        }
-    }
-
-    /**
-     * Notify all subscription listeners of the corresponding contact property
-     * change event.
-     *
-     * @param eventID the String ID of the event to dispatch
-     * @param sourceContact the ContactJabberImpl instance that this event is
-     * pertaining to.
-     * @param oldValue the value that the changed property had before the change
-     * occurred.
-     * @param newValue the value that the changed property currently has (after
-     * the change has occurred).
-     */
-    void fireContactPropertyChangeEvent( String               eventID,
-                                         ContactJabberImpl    sourceContact,
-                                         Object               oldValue,
-                                         Object               newValue)
-    {
-        ContactPropertyChangeEvent evt =
-            new ContactPropertyChangeEvent(sourceContact, eventID
-                                  , oldValue, newValue);
-
-        logger.debug("Dispatching a Contact Property Change Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.contactModified(evt);
         }
     }
 
@@ -1107,7 +955,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     = sourceContact.getPresenceStatus();
 
                 PresenceStatus newStatus =
-                    jabberStatusToPresenceStatus(presence, jabberProvider);
+                    jabberStatusToPresenceStatus(presence, parentProvider);
 
                 // when old and new status are the same do nothing
                 // no change
@@ -1160,14 +1008,14 @@ public class OperationSetPersistentPresenceJabberImpl
                     Presence responsePacket = new Presence(Presence.Type.subscribed);
                     responsePacket.setTo(fromID);
                     logger.info("Sending Accepted Subscription");
-                    jabberProvider.getConnection().sendPacket(responsePacket);
+                    parentProvider.getConnection().sendPacket(responsePacket);
                 }
                 else
                 {
                     Presence responsePacket = new Presence(Presence.Type.unsubscribed);
                     responsePacket.setTo(fromID);
                     logger.info("Sending Rejected Subscription");
-                    jabberProvider.getConnection().sendPacket(responsePacket);
+                    parentProvider.getConnection().sendPacket(responsePacket);
                 }
 
             }

@@ -18,14 +18,10 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class MockPersistentPresenceOperationSet
-    implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<MockProvider>
 {
     private static final Logger logger =
         Logger.getLogger(MockPersistentPresenceOperationSet.class);
-    /**
-     * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
@@ -50,11 +46,6 @@ public class MockPersistentPresenceOperationSet
     private MockContactGroup contactListRoot = null;
 
     /**
-     * The provider that created us.
-     */
-    private MockProvider parentProvider = null;
-
-    /**
      * The currently active status message.
      */
     private String statusMessage = "Default Status Message";
@@ -66,7 +57,8 @@ public class MockPersistentPresenceOperationSet
 
     public MockPersistentPresenceOperationSet(MockProvider provider)
     {
-        this.parentProvider = provider;
+        super(provider);
+
         contactListRoot = new MockContactGroup("RootMockGroup", provider);
     }
 
@@ -114,49 +106,6 @@ public class MockPersistentPresenceOperationSet
                 = (ContactPresenceStatusListener)listeners.next();
 
             listener.contactPresenceStatusChanged(evt);
-        }
-    }
-
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireSubscriptionEvent(MockContact  source,
-                                      ContactGroup parentGroup,
-                                      int          eventID)
-    {
-        SubscriptionEvent evt  = new SubscriptionEvent(source
-            , this.parentProvider
-            , parentGroup
-            , eventID);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if(eventID == SubscriptionEvent.SUBSCRIPTION_CREATED)
-            {
-                listener.subscriptionCreated(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_FAILED)
-            {
-                listener.subscriptionFailed(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-            {
-                listener.subscriptionRemoved(evt);
-            }
         }
     }
 
@@ -254,20 +203,6 @@ public class MockPersistentPresenceOperationSet
         {
             if (!serverStoredGroupListeners.contains(listener))
                 serverStoredGroupListeners.add(listener);
-        }
-    }
-
-    /**
-     * Mock implementation of the corresponding ProtocolProviderService method.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            if (!subscriptionListeners.contains(listener))
-                this.subscriptionListeners.add(listener);
         }
     }
 
@@ -581,19 +516,6 @@ public class MockPersistentPresenceOperationSet
         synchronized(serverStoredGroupListeners)
         {
             serverStoredGroupListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            this.subscriptionListeners.remove(listener);
         }
     }
 

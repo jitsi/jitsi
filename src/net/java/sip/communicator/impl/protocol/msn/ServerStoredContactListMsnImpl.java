@@ -210,7 +210,7 @@ public class ServerStoredContactListMsnImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_REMOVED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
     /**
@@ -701,7 +701,7 @@ public class ServerStoredContactListMsnImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_CREATED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_CREATED);
 
         // sometimes when adding msn contact
         // status updates comes before event for adding contact and so
@@ -750,7 +750,7 @@ public class ServerStoredContactListMsnImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_RESOLVED, contact, parentGroup);
+            contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_RESOLVED);
     }
 
     /**

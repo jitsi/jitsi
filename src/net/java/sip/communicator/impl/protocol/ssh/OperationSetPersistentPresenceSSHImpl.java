@@ -29,14 +29,10 @@ import org.osgi.framework.*;
  * @author Shobhit Jindal
  */
 public class OperationSetPersistentPresenceSSHImpl
-        implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceSSHImpl>
 {
     private static final Logger logger =
             Logger.getLogger(OperationSetPersistentPresenceSSHImpl.class);
-    /**
-     * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
-     */
-    private Vector subscriptionListeners = new Vector();
     
     /**
      * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
@@ -61,11 +57,6 @@ public class OperationSetPersistentPresenceSSHImpl
     private ContactGroupSSHImpl contactListRoot = null;
     
     /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceSSHImpl parentProvider = null;
-    
-    /**
      * The currently active status message.
      */
     private String statusMessage = "Online";
@@ -84,7 +75,8 @@ public class OperationSetPersistentPresenceSSHImpl
     public OperationSetPersistentPresenceSSHImpl(
             ProtocolProviderServiceSSHImpl        provider)
     {
-        this.parentProvider = provider;
+        super(provider);
+
         contactListRoot = new ContactGroupSSHImpl("RootGroup", provider);
         
         //add our unregistration listener
@@ -161,85 +153,7 @@ public class OperationSetPersistentPresenceSSHImpl
             listener.contactPresenceStatusChanged(evt);
         }
     }
-    
-    
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireSubscriptionEvent(
-            ContactSSH  source,
-            ContactGroup parentGroup,
-            int          eventID)
-    {
-        SubscriptionEvent evt  = new SubscriptionEvent(source
-                , this.parentProvider
-                , parentGroup
-                , eventID);
-        
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-        
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                    = (SubscriptionListener) listeners.next();
-            
-            if(eventID == SubscriptionEvent.SUBSCRIPTION_CREATED)
-            {
-                listener.subscriptionCreated(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_FAILED)
-            {
-                listener.subscriptionFailed(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-            {
-                listener.subscriptionRemoved(evt);
-            }
-        }
-    }
-    
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has been moved..
-     * @param oldParent the group where the contact was located before being
-     * moved.
-     * @param newParent the group where the contact has been moved.
-     */
-    public void fireSubscriptionMovedEvent(
-            Contact      source,
-            ContactGroup oldParent,
-            ContactGroup newParent)
-    {
-        SubscriptionMovedEvent evt  = new SubscriptionMovedEvent(source
-                , this.parentProvider
-                , oldParent
-                , newParent);
-        
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-        
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                    = (SubscriptionListener) listeners.next();
-            
-            listener.subscriptionMoved(evt);
-        }
-    }
-    
-    
+
     /**
      * Notifies all registered listeners of the new event.
      *
@@ -342,23 +256,7 @@ public class OperationSetPersistentPresenceSSHImpl
                 serverStoredGroupListeners.add(listener);
         }
     }
-    
-    /**
-     * SSH implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(
-            SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            if (!subscriptionListeners.contains(listener))
-                this.subscriptionListeners.add(listener);
-        }
-    }
-    
+
     /**
      * Creates a group with the specified name and parent in the server
      * stored contact list.
@@ -789,21 +687,7 @@ public class OperationSetPersistentPresenceSSHImpl
             serverStoredGroupListeners.remove(listener);
         }
     }
-    
-    /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(
-            SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            this.subscriptionListeners.remove(listener);
-        }
-    }
-    
+
     /**
      * Renames the specified group from the server stored contact list.
      *

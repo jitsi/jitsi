@@ -37,14 +37,11 @@ import net.java.sip.communicator.util.xml.*;
  * @author Lubomir Marinov
  */
 public class OperationSetPresenceSipImpl
-    implements OperationSetPersistentPresence, SipListener
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceSipImpl>
+    implements SipListener
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPresenceSipImpl.class);
-    /**
-     * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * A list of listeners registered for
@@ -68,11 +65,6 @@ public class OperationSetPresenceSipImpl
      * The root of the SIP contact list.
      */
     private ContactGroupSipImpl contactListRoot = null;
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceSipImpl parentProvider = null;
 
     /**
      * The currently active status message.
@@ -258,7 +250,8 @@ public class OperationSetPresenceSipImpl
             boolean isPresenceEnabled, boolean forceP2PMode, int pollingPeriod,
             int subscriptionExpiration)
     {
-        this.parentProvider = provider;
+        super(provider);
+
         this.contactListRoot = new ContactGroupSipImpl("RootGroup", provider);
 
         //add our registration listener
@@ -478,38 +471,6 @@ public class OperationSetPresenceSipImpl
         fireSubscriptionMovedEvent(contactToMove,
                                    parentSipGroup,
                                    newParent);
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has been moved..
-     * @param oldParent the group where the contact was located before being
-     * moved.
-     * @param newParent the group where the contact has been moved.
-     */
-    public void fireSubscriptionMovedEvent(Contact      source,
-                                           ContactGroup oldParent,
-                                           ContactGroup newParent)
-    {
-        SubscriptionMovedEvent evt  = new SubscriptionMovedEvent(source,
-            this.parentProvider,
-            oldParent,
-            newParent);
-
-        Iterator listeners = null;
-        synchronized (this.subscriptionListeners)
-        {
-            listeners = new ArrayList(this.subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.subscriptionMoved(evt);
-        }
     }
 
     /**
@@ -3232,32 +3193,6 @@ public class OperationSetPresenceSipImpl
     }
 
     /**
-     * Registers a listener that would get notifications any time a new
-     * subscription was successfully added, has failed or was removed.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener) {
-        synchronized(this.subscriptionListeners)
-        {
-            if (!this.subscriptionListeners.contains(listener))
-                this.subscriptionListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener) {
-        synchronized(this.subscriptionListeners)
-        {
-            this.subscriptionListeners.remove(listener);
-        }
-    }
-
-    /**
      * Registers a listener that would receive events upon changes in server
      * stored groups.
      *
@@ -3297,71 +3232,6 @@ public class OperationSetPresenceSipImpl
      */
     public String getCurrentStatusMessage() {
         return this.statusMessage;
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireSubscriptionEvent(ContactSipImpl  source,
-                                      ContactGroup parentGroup,
-                                      int          eventID)
-    {
-        fireSubscriptionEvent(source, parentGroup, eventID, 
-            SubscriptionEvent.ERROR_UNSPECIFIED, null);
-    }
-    
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireSubscriptionEvent(ContactSipImpl  source,
-                                      ContactGroup parentGroup,
-                                      int          eventID,
-                                      int          errorCode,
-                                      String       errorReason)
-    {
-        SubscriptionEvent evt  = new SubscriptionEvent(source
-            , this.parentProvider
-            , parentGroup
-            , eventID
-            , errorCode
-            , errorReason);
-
-        Iterator listeners = null;
-        synchronized (this.subscriptionListeners)
-        {
-            listeners = new ArrayList(this.subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if(eventID == SubscriptionEvent.SUBSCRIPTION_CREATED)
-            {
-                listener.subscriptionCreated(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_FAILED)
-            {
-                listener.subscriptionFailed(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-            {
-                listener.subscriptionRemoved(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_RESOLVED)
-            {
-                listener.subscriptionResolved(evt);
-            }
-        }
     }
 
     /**

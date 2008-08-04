@@ -25,15 +25,10 @@ import ymsg.network.event.*;
  * @author Damian Minkov
  */
 public class OperationSetPersistentPresenceYahooImpl
-    implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceYahooImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceYahooImpl.class);
-
-    /**
-     * A callback to the Yahoo provider that created us.
-     */
-    private ProtocolProviderServiceYahooImpl yahooProvider = null;
 
     /**
      * Contains our current status message. Note that this field would only
@@ -53,12 +48,6 @@ public class OperationSetPersistentPresenceYahooImpl
      * presencestatus.
      */
     private Vector providerPresenceStatusListeners = new Vector();
-
-    /**
-     * The list of subscription listeners interested in receiving  notifications
-     * whenever .
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * The list of presence status listeners interested in receiving presence
@@ -143,11 +132,11 @@ public class OperationSetPersistentPresenceYahooImpl
     public OperationSetPersistentPresenceYahooImpl(
         ProtocolProviderServiceYahooImpl provider)
     {
-        this.yahooProvider = provider;
+        super(provider);
 
         ssContactList = new ServerStoredContactListYahooImpl( this , provider);
 
-        this.yahooProvider.addRegistrationStateChangeListener(
+        parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
     }
 
@@ -193,19 +182,6 @@ public class OperationSetPersistentPresenceYahooImpl
         listener)
     {
         ssContactList.addGroupListener(listener);
-    }
-
-    /**
-     * Registers a listener that would get notifications any time a new
-     * subscription was succesfully added, has failed or was removed.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners){
-           subscriptionListeners.add(listener);
-       }
     }
 
     /**
@@ -440,7 +416,7 @@ public class OperationSetPersistentPresenceYahooImpl
 
         if(status.equals(YahooStatusEnum.OFFLINE))
         {
-            yahooProvider.unregister();
+            parentProvider.unregister();
             return;
         }
         
@@ -455,11 +431,11 @@ public class OperationSetPersistentPresenceYahooImpl
                 
                 // false - away
                 // true - available
-                yahooProvider.getYahooSession().
+                parentProvider.getYahooSession().
                     setStatus(statusMessage, isAvailable);
             }
             
-            yahooProvider.getYahooSession().setStatus(
+            parentProvider.getYahooSession().setStatus(
                 ((Long)scToYahooModesMappings.get(status)).longValue());
             
             fireProviderPresenceStatusChangeEvent(currentStatus, status);
@@ -555,18 +531,6 @@ public class OperationSetPersistentPresenceYahooImpl
         listener)
     {
         ssContactList.removeGroupListener(listener);
-    }
-
-    /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners){
-            subscriptionListeners.remove(listener);
-        }
     }
 
     /**
@@ -730,11 +694,11 @@ public class OperationSetPersistentPresenceYahooImpl
      */
     private void assertConnected() throws IllegalStateException
     {
-        if (yahooProvider == null)
+        if (parentProvider == null)
             throw new IllegalStateException(
                 "The provider must be non-null and signed on the yahoo "
                 +"service before being able to communicate.");
-        if (!yahooProvider.isRegistered())
+        if (!parentProvider.isRegistered())
             throw new IllegalStateException(
                 "The provider must be signed on the yahoo service before "
                 +"being able to communicate.");
@@ -756,7 +720,7 @@ public class OperationSetPersistentPresenceYahooImpl
 
         ProviderPresenceStatusChangeEvent evt =
             new ProviderPresenceStatusChangeEvent(
-                yahooProvider, oldStatus, newStatus);
+                parentProvider, oldStatus, newStatus);
 
         currentStatus = newStatus;
 
@@ -791,7 +755,7 @@ public class OperationSetPersistentPresenceYahooImpl
     {
 
         PropertyChangeEvent evt = new PropertyChangeEvent(
-                yahooProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
+            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
                 oldStatusMessage, newStatusMessage);
 
         logger.debug("Dispatching  stat. msg change. Listeners="
@@ -819,7 +783,7 @@ public class OperationSetPersistentPresenceYahooImpl
      */
     private void initContactStatuses()
     {
-        YahooGroup[] groups = yahooProvider.getYahooSession().getGroups();
+        YahooGroup[] groups = parentProvider.getYahooSession().getGroups();
         
         for (int i = 0; i < groups.length; i++)
         {
@@ -860,10 +824,10 @@ public class OperationSetPersistentPresenceYahooImpl
 
             if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                yahooProvider.getYahooSession().
+                parentProvider.getYahooSession().
                     addSessionListener(new StatusChangedListener());
                 
-                ssContactList.setYahooSession(yahooProvider.getYahooSession());
+                ssContactList.setYahooSession(parentProvider.getYahooSession());
                 
                 initContactStatuses();
                 
@@ -922,82 +886,6 @@ public class OperationSetPersistentPresenceYahooImpl
     }
 
     /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param eventID the int ID of the event to dispatch
-     * @param sourceContact the ContactYahooImpl instance that this event is
-     * pertaining to.
-     * @param parentGroup the ContactGroupYahooImpl under which the corresponding
-     * subscription is located.
-     */
-    void fireSubscriptionEvent( int eventID,
-                                ContactYahooImpl sourceContact,
-                                ContactGroup parentGroup)
-    {
-        SubscriptionEvent evt =
-            new SubscriptionEvent(sourceContact, yahooProvider, parentGroup,
-                                  eventID);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
-                listener.subscriptionCreated(evt);
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-                listener.subscriptionRemoved(evt);
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
-                listener.subscriptionFailed(evt);
-        }
-    }
-
-    /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param sourceContact the ContactYahooImpl instance that this event is
-     * pertaining to.
-     * @param oldParentGroup the group that was previously a parent of the
-     * source contact.
-     * @param newParentGroup the group under which the corresponding
-     * subscription is currently located.
-     */
-    void fireSubscriptionMovedEvent( ContactYahooImpl sourceContact,
-                                     ContactGroup oldParentGroup,
-                                     ContactGroup newParentGroup)
-    {
-        SubscriptionMovedEvent evt =
-            new SubscriptionMovedEvent(sourceContact, yahooProvider
-                                       , oldParentGroup, newParentGroup);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.subscriptionMoved(evt);
-        }
-    }
-
-    /**
      * Notify all contact presence listeners of the corresponding event change
      * @param contact the contact that changed its status
      * @param oldStatus the status that the specified contact had so far
@@ -1012,7 +900,7 @@ public class OperationSetPersistentPresenceYahooImpl
     {
         ContactPresenceStatusChangeEvent evt =
             new ContactPresenceStatusChangeEvent(
-                contact, yahooProvider, parentGroup, oldStatus, newStatus);
+                contact, parentProvider, parentGroup, oldStatus, newStatus);
 
 
         logger.debug("Dispatching Contact Status Change. Listeners="
@@ -1033,46 +921,6 @@ public class OperationSetPersistentPresenceYahooImpl
             listener.contactPresenceStatusChanged(evt);
         }
     }
-    
-    /**
-     * Notify all subscription listeners of the corresponding contact property
-     * change event.
-     *
-     * @param eventID the String ID of the event to dispatch
-     * @param sourceContact the ContactJabberImpl instance that this event is
-     * pertaining to.
-     * @param oldValue the value that the changed property had before the change
-     * occurred.
-     * @param newValue the value that the changed property currently has (after
-     * the change has occurred).
-     */
-    void fireContactPropertyChangeEvent( String               eventID,
-                                         ContactYahooImpl    sourceContact,
-                                         Object               oldValue,
-                                         Object               newValue)
-    {
-        ContactPropertyChangeEvent evt =
-            new ContactPropertyChangeEvent(sourceContact, eventID
-                                  , oldValue, newValue);
-
-        logger.debug("Dispatching a Contact Property Change Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.contactModified(evt);
-        }
-    }
 
     private void handleContactStatusChange(YahooUser yFriend)
     {
@@ -1081,7 +929,7 @@ public class OperationSetPersistentPresenceYahooImpl
 
         if(sourceContact == null)
         {
-            if(yahooProvider.getAccountID().getUserID().
+            if(parentProvider.getAccountID().getUserID().
                 equals(yFriend.getId()))
             {
                 // thats my own status

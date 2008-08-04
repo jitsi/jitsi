@@ -25,15 +25,10 @@ import net.sf.jml.event.*;
  * @author Damian Minkov
  */
 public class OperationSetPersistentPresenceMsnImpl
-    implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceMsnImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceMsnImpl.class);
-
-    /**
-     * A callback to the Msn provider that created us.
-     */
-    private ProtocolProviderServiceMsnImpl msnProvider = null;
 
     /**
      * Contains our current status message. Note that this field would only
@@ -53,12 +48,6 @@ public class OperationSetPersistentPresenceMsnImpl
      * presence status.
      */
     private Vector providerPresenceStatusListeners = new Vector();
-
-    /**
-     * The list of subscription listeners interested in receiving  notifications
-     * whenever .
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * The list of presence status listeners interested in receiving presence
@@ -124,11 +113,11 @@ public class OperationSetPersistentPresenceMsnImpl
     public OperationSetPersistentPresenceMsnImpl(
         ProtocolProviderServiceMsnImpl provider)
     {
-        this.msnProvider = provider;
+        super(provider);
 
         ssContactList = new ServerStoredContactListMsnImpl( this , provider);
 
-        this.msnProvider.addRegistrationStateChangeListener(
+        parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
     }
 
@@ -174,19 +163,6 @@ public class OperationSetPersistentPresenceMsnImpl
         listener)
     {
         ssContactList.addGroupListener(listener);
-    }
-
-    /**
-     * Registers a listener that would get notifications any time a new
-     * subscription was successfully added, has failed or was removed.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners){
-           subscriptionListeners.add(listener);
-       }
     }
 
     /**
@@ -421,7 +397,7 @@ public class OperationSetPersistentPresenceMsnImpl
 
         if(status.equals(MsnStatusEnum.OFFLINE))
         {
-            msnProvider.unregister();
+            parentProvider.unregister();
             return;
         }
 
@@ -430,10 +406,10 @@ public class OperationSetPersistentPresenceMsnImpl
         //(as if set the status too early the server does not provide
         // any status information about the contacts in our list)
         if(ssContactList.isInitialized())
-            msnProvider.getMessenger().getOwner().
+            parentProvider.getMessenger().getOwner().
                 setStatus((MsnUserStatus)scToMsnModesMappings.get(status));
         else
-            msnProvider.getMessenger().getOwner().
+            parentProvider.getMessenger().getOwner().
                 setInitStatus((MsnUserStatus)scToMsnModesMappings.get(status));
     }
 
@@ -520,18 +496,6 @@ public class OperationSetPersistentPresenceMsnImpl
         listener)
     {
         ssContactList.removeGroupListener(listener);
-    }
-
-    /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners){
-            subscriptionListeners.remove(listener);
-        }
     }
 
     /**
@@ -681,11 +645,11 @@ public class OperationSetPersistentPresenceMsnImpl
      */
     private void assertConnected() throws IllegalStateException
     {
-        if (msnProvider == null)
+        if (parentProvider == null)
             throw new IllegalStateException(
                 "The provider must be non-null and signed on the msn "
                 +"service before being able to communicate.");
-        if (!msnProvider.isRegistered())
+        if (!parentProvider.isRegistered())
             throw new IllegalStateException(
                 "The provider must be signed on the msn service before "
                 +"being able to communicate.");
@@ -707,7 +671,7 @@ public class OperationSetPersistentPresenceMsnImpl
 
         ProviderPresenceStatusChangeEvent evt =
             new ProviderPresenceStatusChangeEvent(
-                msnProvider, oldStatus, newStatus);
+                parentProvider, oldStatus, newStatus);
 
         currentStatus = newStatus;
 
@@ -742,7 +706,7 @@ public class OperationSetPersistentPresenceMsnImpl
     {
 
         PropertyChangeEvent evt = new PropertyChangeEvent(
-                msnProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
+            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
                 oldStatusMessage, newStatusMessage);
 
         logger.debug("Dispatching  stat. msg change. Listeners="
@@ -786,7 +750,7 @@ public class OperationSetPersistentPresenceMsnImpl
 
             if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                msnProvider.getMessenger().
+                parentProvider.getMessenger().
                     addContactListListener(new StatusChangedListener());
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
@@ -859,82 +823,6 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param eventID the int ID of the event to dispatch
-     * @param sourceContact the ContactMsnImpl instance that this event is
-     * pertaining to.
-     * @param parentGroup the ContactGroupMsnImpl under which the corresponding
-     * subscription is located.
-     */
-    void fireSubscriptionEvent( int eventID,
-                                ContactMsnImpl sourceContact,
-                                ContactGroup parentGroup)
-    {
-        SubscriptionEvent evt =
-            new SubscriptionEvent(sourceContact, msnProvider, parentGroup,
-                                  eventID);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
-                listener.subscriptionCreated(evt);
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-                listener.subscriptionRemoved(evt);
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
-                listener.subscriptionFailed(evt);
-        }
-    }
-
-    /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param sourceContact the ContactMsnImpl instance that this event is
-     * pertaining to.
-     * @param oldParentGroup the group that was previously a parent of the
-     * source contact.
-     * @param newParentGroup the group under which the corresponding
-     * subscription is currently located.
-     */
-    void fireSubscriptionMovedEvent( ContactMsnImpl sourceContact,
-                                     ContactGroup oldParentGroup,
-                                     ContactGroup newParentGroup)
-    {
-        SubscriptionMovedEvent evt =
-            new SubscriptionMovedEvent(sourceContact, msnProvider
-                                       , oldParentGroup, newParentGroup);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.subscriptionMoved(evt);
-        }
-    }
-
-    /**
      * Notify all contact presence listeners of the corresponding event change
      * @param contact the contact that changed its status
      * @param oldStatus the status that the specified contact had so far
@@ -949,7 +837,7 @@ public class OperationSetPersistentPresenceMsnImpl
     {
         ContactPresenceStatusChangeEvent evt =
             new ContactPresenceStatusChangeEvent(
-                contact, msnProvider, parentGroup, oldStatus, newStatus);
+                contact, parentProvider, parentGroup, oldStatus, newStatus);
 
 
         logger.debug("Dispatching Contact Status Change. Listeners="
@@ -968,46 +856,6 @@ public class OperationSetPersistentPresenceMsnImpl
                 = (ContactPresenceStatusListener) listeners.next();
 
             listener.contactPresenceStatusChanged(evt);
-        }
-    }
-    
-    /**
-     * Notify all subscription listeners of the corresponding contact property
-     * change event.
-     *
-     * @param eventID the String ID of the event to dispatch
-     * @param sourceContact the ContactJabberImpl instance that this event is
-     * pertaining to.
-     * @param oldValue the value that the changed property had before the change
-     * occurred.
-     * @param newValue the value that the changed property currently has (after
-     * the change has occurred).
-     */
-    void fireContactPropertyChangeEvent( String               eventID,
-                                         ContactMsnImpl    sourceContact,
-                                         Object               oldValue,
-                                         Object               newValue)
-    {
-        ContactPropertyChangeEvent evt =
-            new ContactPropertyChangeEvent(sourceContact, eventID
-                                  , oldValue, newValue);
-
-        logger.debug("Dispatching a Contact Property Change Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.contactModified(evt);
         }
     }
 

@@ -182,9 +182,9 @@ public class ServerStoredContactListJabberImpl
             return;
         }
 
-        //dispatch
-        parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_REMOVED, contact, parentGroup);
+        // dispatch
+        parentOperationSet.fireSubscriptionEvent(contact, parentGroup,
+            SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
     /**
@@ -730,9 +730,9 @@ public class ServerStoredContactListJabberImpl
             return;
         }
 
-        //dispatch
-        parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_CREATED, contact, parentGroup);
+        // dispatch
+        parentOperationSet.fireSubscriptionEvent(contact, parentGroup,
+            SubscriptionEvent.SUBSCRIPTION_CREATED);
     }
 
     /**
@@ -750,9 +750,9 @@ public class ServerStoredContactListJabberImpl
             return;
         }
 
-        //dispatch
-        parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_RESOLVED, contact, parentGroup);
+        // dispatch
+        parentOperationSet.fireSubscriptionEvent(contact, parentGroup,
+            SubscriptionEvent.SUBSCRIPTION_RESOLVED);
     }
     
     /**

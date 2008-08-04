@@ -12,7 +12,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
-import net.java.sip.communicator.service.protocol.AuthorizationResponse.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
@@ -40,27 +39,16 @@ import net.kano.joustsim.trust.*;
  * @author Emil Ivov
  */
 public class OperationSetPersistentPresenceIcqImpl
-    implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceIcqImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceIcqImpl.class);
-
-    /**
-     * A callback to the ICQ provider that created us.
-     */
-    private ProtocolProviderServiceIcqImpl icqProvider = null;
 
     /**
      * The list of presence status listeners interested in receiving presence
      * notifications of changes in status of contacts in our contact list.
      */
     private Vector contactPresenceStatusListeners = new Vector();
-
-    /**
-     * The list of subscription listeners interested in receiving  notifications
-     * whenever .
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * The list of listeners interested in receiving changes in our local
@@ -202,12 +190,12 @@ public class OperationSetPersistentPresenceIcqImpl
                     ProtocolProviderServiceIcqImpl icqProvider,
                     String uin)
     {
-        this.icqProvider = icqProvider;
+        super(icqProvider);
 
         ssContactList = new ServerStoredContactListIcqImpl( this , icqProvider);
 
         //add a listener that'll follow the provider's state.
-        icqProvider.addRegistrationStateChangeListener(
+        parentProvider.addRegistrationStateChangeListener(
             registrationStateListener);
     }
 
@@ -248,31 +236,6 @@ public class OperationSetPersistentPresenceIcqImpl
     }
 
     /**
-     * Registers a listener that would get notifications any time a new
-     * subscription was succesfully added, has failed or was removed.
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            if(!subscriptionListeners.contains(listener))
-                subscriptionListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes the specified subscription listener.
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners){
-            subscriptionListeners.remove(listener);
-        }
-    }
-
-    /**
      * Get the PresenceStatus for a particular contact. This method is not meant
      * to be used by the user interface (which would simply register as a
      * presence listener and always follow contact status) but rather by other
@@ -307,7 +270,7 @@ public class OperationSetPersistentPresenceIcqImpl
         GetInfoCmd getInfoCmd =
             new GetInfoCmd(GetInfoCmd.CMD_USER_INFO, contactIdentifier);
 
-        icqProvider.getAimConnection().getInfoService().getOscarConnection()
+        parentProvider.getAimConnection().getInfoService().getOscarConnection()
             .sendSnacRequest(getInfoCmd, responseRetriever);
 
         synchronized(responseRetriever)
@@ -334,7 +297,7 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     private PresenceStatus statusLongToPresenceStatus(long icqStatus)
     {
-        if(icqProvider.USING_ICQ)
+        if(parentProvider.USING_ICQ)
         {
             // Fixed order of status checking
             // The order does matter, as the icqStatus consists of more than one
@@ -413,7 +376,7 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     private long presenceStatusToStatusLong(PresenceStatus status)
     {
-        if(icqProvider.USING_ICQ)
+        if(parentProvider.USING_ICQ)
             return ((Long)scToIcqStatusMappings.get(status)).longValue();
         else
             return ((Long)scToAimStatusMappings.get(status)).longValue();
@@ -624,9 +587,9 @@ public class OperationSetPersistentPresenceIcqImpl
         if(!contactIcqImpl.isPersistent())
         {
             contactGroup.removeContact(contactIcqImpl);
-            fireSubscriptionEvent(SubscriptionEvent.SUBSCRIPTION_REMOVED,
-                                  contactIcqImpl,
-                                  contactGroup);
+            fireSubscriptionEvent(contactIcqImpl,
+                                  contactGroup,
+                                  SubscriptionEvent.SUBSCRIPTION_REMOVED);
 
             return;
         }
@@ -701,9 +664,9 @@ public class OperationSetPersistentPresenceIcqImpl
         logger.debug("Will set status: " + status);
         
         MainBosService bosService
-            = icqProvider.getAimConnection().getBosService();
+            = parentProvider.getAimConnection().getBosService();
         
-        if(!icqProvider.USING_ICQ)
+        if(!parentProvider.USING_ICQ)
         {
             if(status.equals(AimStatusEnum.AWAY))
             {
@@ -741,7 +704,7 @@ public class OperationSetPersistentPresenceIcqImpl
             bosService.getOscarConnection().sendSnac(new SetExtraInfoCmd(icqStatus));
 
             if(status.equals(IcqStatusEnum.AWAY))
-                icqProvider.getAimConnection().getInfoService().
+                parentProvider.getAimConnection().getInfoService().
                     setAwayMessage(statusMessage);
             else
                 bosService.setStatusMessage(statusMessage);
@@ -749,7 +712,7 @@ public class OperationSetPersistentPresenceIcqImpl
 
         //so that everyone sees the change.
         queryContactStatus(
-            icqProvider.getAimConnection().getScreenname().getFormatted());
+            parentProvider.getAimConnection().getScreenname().getFormatted());
     }
 
     /**
@@ -928,7 +891,7 @@ public class OperationSetPersistentPresenceIcqImpl
     {
         if(supportedPresenceStatusSet.size() == 0)
         {
-            if(icqProvider.USING_ICQ)
+            if(parentProvider.USING_ICQ)
             {
                 supportedPresenceStatusSet.add(IcqStatusEnum.ONLINE);
                 supportedPresenceStatusSet.add(IcqStatusEnum.DO_NOT_DISTURB);
@@ -969,7 +932,7 @@ public class OperationSetPersistentPresenceIcqImpl
          **/
         this.authorizationHandler = handler;
 
-        icqProvider.getAimConnection().getSsiService().
+        parentProvider.getAimConnection().getSsiService().
             addBuddyAuthorizationListener(authListener);
     }
 
@@ -1048,11 +1011,11 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     private void assertConnected() throws IllegalStateException
     {
-        if (icqProvider == null)
+        if (parentProvider == null)
             throw new IllegalStateException(
                 "The icq provider must be non-null and signed on the ICQ "
                 +"service before being able to communicate.");
-        if (!icqProvider.isRegistered())
+        if (!parentProvider.isRegistered())
             throw new IllegalStateException(
                 "The icq provider must be signed on the ICQ service before "
                 +"being able to communicate.");
@@ -1141,7 +1104,7 @@ public class OperationSetPersistentPresenceIcqImpl
 
         ProviderPresenceStatusChangeEvent evt =
             new ProviderPresenceStatusChangeEvent(
-                icqProvider, oldStatus, newStatus);
+                parentProvider, oldStatus, newStatus);
 
         logger.debug("Dispatching Provider Status Change. Listeners="
                      + providerPresenceStatusListeners.size()
@@ -1173,7 +1136,7 @@ public class OperationSetPersistentPresenceIcqImpl
     {
 
         PropertyChangeEvent evt = new PropertyChangeEvent(
-                icqProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
+            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
                 oldStatusMessage, newStatusMessage);
 
         logger.debug("Dispatching  stat. msg change. Listeners="
@@ -1196,130 +1159,6 @@ public class OperationSetPersistentPresenceIcqImpl
     }
 
     /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param eventID the int ID of the event to dispatch
-     * @param sourceContact the ContactIcqImpl instance that this event is
-     * pertaining to.
-     * @param parentGroup the ContactGroupIcqImpl under which the corresponding
-     * subscription is located.
-     */
-    void fireSubscriptionEvent( int eventID,
-                                ContactIcqImpl sourceContact,
-                                ContactGroupIcqImpl parentGroup)
-    {
-        SubscriptionEvent evt =
-            new SubscriptionEvent(sourceContact, icqProvider, parentGroup,
-                                  eventID);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
-            {
-                listener.subscriptionCreated(evt);
-            }
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-            {
-                listener.subscriptionRemoved(evt);
-            }
-            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
-            {
-                listener.subscriptionFailed(evt);
-            }
-        }
-    }
-
-    /**
-     * Notify all subscription listeners of the corresponding contact property
-     * change event.
-     *
-     * @param eventID the String ID of the event to dispatch
-     * @param sourceContact the ContactIcqImpl instance that this event is
-     * pertaining to.
-     * @param oldValue the value that the changed property had before the change
-     * occurred.
-     * @param newValue the value that the changed property currently has (after
-     * the change has occurred).
-     */
-    void fireContactPropertyChangeEvent( String               eventID,
-                                         ContactIcqImpl       sourceContact,
-                                         Object               oldValue,
-                                         Object               newValue)
-    {
-        ContactPropertyChangeEvent evt =
-            new ContactPropertyChangeEvent(sourceContact, eventID
-                                  , oldValue, newValue);
-
-        logger.debug("Dispatching a Contact Property Change Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.contactModified(evt);
-        }
-    }
-
-
-    /**
-     * Notify all subscription listeners of the corresponding event.
-     *
-     * @param sourceContact the ContactIcqImpl instance that this event is
-     * pertaining to.
-     * @param oldParentGroup the group that was previously a parent of the
-     * source contact.
-     * @param newParentGroup the group under which the corresponding
-     * subscription is currently located.
-     */
-    void fireSubscriptionMovedEvent( ContactIcqImpl sourceContact,
-                                     ContactGroupIcqImpl oldParentGroup,
-                                     ContactGroupIcqImpl newParentGroup)
-    {
-        SubscriptionMovedEvent evt =
-            new SubscriptionMovedEvent(sourceContact, icqProvider
-                                       , oldParentGroup, newParentGroup);
-
-        logger.debug("Dispatching a Subscription Event to"
-                     +subscriptionListeners.size() + " listeners. Evt="+evt);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.subscriptionMoved(evt);
-        }
-    }
-
-
-    /**
      * Notify all contact presence listeners of the corresponding event change
      * @param contact the contact that changed its status
      * @param oldStatus the status that the specified contact had so far
@@ -1334,7 +1173,7 @@ public class OperationSetPersistentPresenceIcqImpl
     {
         ContactPresenceStatusChangeEvent evt =
             new ContactPresenceStatusChangeEvent(
-                contact, icqProvider, parentGroup, oldStatus, newStatus);
+                contact, parentProvider, parentGroup, oldStatus, newStatus);
 
         logger.debug("Dispatching Contact Status Change. Listeners="
                      + contactPresenceStatusListeners.size()
@@ -1377,33 +1216,33 @@ public class OperationSetPersistentPresenceIcqImpl
             if(evt.getNewState() == RegistrationState.REGISTERED)
             {
                 logger.debug("adding a Bos Service Listener");
-                icqProvider.getAimConnection().getBosService()
+                parentProvider.getAimConnection().getBosService()
                     .addMainBosServiceListener(joustSimBosListener);
 
                 ssContactList.init(
-                    icqProvider.getAimConnection().getSsiService());
+                    parentProvider.getAimConnection().getSsiService());
 
 //                /**@todo implement the following
-                 icqProvider.getAimConnection().getBuddyService()
+                parentProvider.getAimConnection().getBuddyService()
                      .addBuddyListener(joustSimBuddySerListener);
 
 //                  @todo we really need this for following the status of our
 //                 contacts and we really need it here ...*/
-                icqProvider.getAimConnection().getBuddyInfoManager()
+                parentProvider.getAimConnection().getBuddyInfoManager()
                     .addGlobalBuddyInfoListener(new GlobalBuddyInfoListener());
                 
-                icqProvider.getAimConnection().getExternalServiceManager().
+                parentProvider.getAimConnection().getExternalServiceManager().
                     getIconServiceArbiter().addIconRequestListener(
                         new IconUpdateListener());
                 
-                icqProvider.getAimConnection().getInfoService().
+                parentProvider.getAimConnection().getInfoService().
                     addInfoListener(new AwayMessageListener());
                 
-                if(icqProvider.USING_ICQ)
+                if(parentProvider.USING_ICQ)
                 {
                     opSetExtendedAuthorizations = 
                         (OperationSetExtendedAuthorizationsIcqImpl)
-                            icqProvider.getSupportedOperationSets()
+                            parentProvider.getSupportedOperationSets()
                             .get(OperationSetExtendedAuthorizations.class.getName());
                 
                     if(presenceQueryTimer == null)
@@ -1466,7 +1305,7 @@ public class OperationSetPersistentPresenceIcqImpl
                         if(!oldContactStatus.isOnline())
                             continue;
 
-                        if(icqProvider.USING_ICQ)
+                        if(parentProvider.USING_ICQ)
                         {
                             contact.updatePresenceStatus(IcqStatusEnum.OFFLINE);
 
@@ -1548,7 +1387,7 @@ public class OperationSetPersistentPresenceIcqImpl
             //update the last received field.
             long oldStatus  = currentIcqStatus;
             
-            if(icqProvider.USING_ICQ)
+            if(parentProvider.USING_ICQ)
             {
                 currentIcqStatus = userInfo.getIcqStatus();
 
@@ -1618,7 +1457,7 @@ public class OperationSetPersistentPresenceIcqImpl
             
             PresenceStatus newStatus = null;
             
-            if(!icqProvider.USING_ICQ)
+            if(!parentProvider.USING_ICQ)
             {
                 Boolean awayStatus = info.getAwayStatus();
                 if(awayStatus == null || awayStatus.equals(Boolean.FALSE))
@@ -1677,7 +1516,7 @@ public class OperationSetPersistentPresenceIcqImpl
                 = sourceContact.getPresenceStatus();
             PresenceStatus newStatus = null;
             
-            if(icqProvider.USING_ICQ)
+            if(parentProvider.USING_ICQ)
                 newStatus = IcqStatusEnum.OFFLINE;
             else
                 newStatus = AimStatusEnum.OFFLINE;
@@ -1769,7 +1608,7 @@ public class OperationSetPersistentPresenceIcqImpl
             if (authResponse.getResponseCode() == AuthorizationResponse.IGNORE)
                 return;
 
-            icqProvider.getAimConnection().getSsiService().
+            parentProvider.getAimConnection().getSsiService().
                 replyBuddyAuthorization(
                     screenname,
                     authResponse.getResponseCode() == AuthorizationResponse.ACCEPT,
@@ -1836,10 +1675,10 @@ public class OperationSetPersistentPresenceIcqImpl
             if(authRequest == null)
                 return false;
 
-            icqProvider.getAimConnection().getSsiService().
+            parentProvider.getAimConnection().getSsiService().
                 sendFutureBuddyAuthorization(screenname, authRequest.getReason());
 
-            icqProvider.getAimConnection().getSsiService().
+            parentProvider.getAimConnection().getSsiService().
                 requestBuddyAuthorization(screenname, authRequest.getReason());
 
             return true;

@@ -26,14 +26,10 @@ import org.osgi.framework.*;
  * @author Jonathan Martin
  */
 public class OperationSetPersistentPresenceZeroconfImpl
-    implements OperationSetPersistentPresence
+    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceZeroconfImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceZeroconfImpl.class);
-    /**
-     * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
-     */
-    private Vector subscriptionListeners = new Vector();
 
     /**
      * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
@@ -56,11 +52,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
      * The root of the zeroconf contact list.
      */
     private ContactGroupZeroconfImpl contactListRoot = null;
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceZeroconfImpl parentProvider = null;
 
     /**
      * The currently active status message.
@@ -86,9 +77,9 @@ public class OperationSetPersistentPresenceZeroconfImpl
      */
     public OperationSetPersistentPresenceZeroconfImpl(
             ProtocolProviderServiceZeroconfImpl        provider)
-    {
-        
-        this.parentProvider = provider;
+    {        
+        super(provider);
+
         contactListRoot = new ContactGroupZeroconfImpl("RootGroup", provider);
 
         //add our unregistration listener
@@ -142,83 +133,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
             listener.contactPresenceStatusChanged(evt);
         }
     }
-
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireSubscriptionEvent(ContactZeroconfImpl  source,
-                                      ContactGroup parentGroup,
-                                      int          eventID)
-    {
-        SubscriptionEvent evt  = new SubscriptionEvent(source
-            , this.parentProvider
-            , parentGroup
-            , eventID);
-
-        //logger.debug("ZEROCNF: Creation contact " + source.getAddress());
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            if(eventID == SubscriptionEvent.SUBSCRIPTION_CREATED)
-            {
-                listener.subscriptionCreated(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_FAILED)
-            {
-                listener.subscriptionFailed(evt);
-            }
-            else if (eventID == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-            {
-                listener.subscriptionRemoved(evt);
-            }
-        }
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has been moved..
-     * @param oldParent the group where the contact was located before being
-     * moved.
-     * @param newParent the group where the contact has been moved.
-     */
-    public void fireSubscriptionMovedEvent(Contact      source,
-                                           ContactGroup oldParent,
-                                           ContactGroup newParent)
-    {
-        SubscriptionMovedEvent evt  = new SubscriptionMovedEvent(source
-            , this.parentProvider
-            , oldParent
-            , newParent);
-
-        Iterator listeners = null;
-        synchronized (subscriptionListeners)
-        {
-            listeners = new ArrayList(subscriptionListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            SubscriptionListener listener
-                = (SubscriptionListener) listeners.next();
-
-            listener.subscriptionMoved(evt);
-        }
-    }
-
 
     /**
      * Notifies all registered listeners of the new event.
@@ -317,21 +231,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
         {
             if (!serverStoredGroupListeners.contains(listener))
                 serverStoredGroupListeners.add(listener);
-        }
-    }
-
-    /**
-     * Zeroconf implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener the SubscriptionListener to register
-     */
-    public void addSubsciptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            if (!subscriptionListeners.contains(listener))
-                this.subscriptionListeners.add(listener);
         }
     }
 
@@ -723,19 +622,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
         synchronized(serverStoredGroupListeners)
         {
             serverStoredGroupListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Removes the specified subscription listener.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeSubscriptionListener(SubscriptionListener listener)
-    {
-        synchronized(subscriptionListeners)
-        {
-            this.subscriptionListeners.remove(listener);
         }
     }
 
