@@ -554,7 +554,7 @@ public class ResourceManagementServiceImpl
      */
     public URL getSoundURL(String urlKey)
     {
-        String path = settingsResources.get(urlKey);
+        String path = soundResources.get(urlKey);
 
         if (path == null || path.length() == 0)
         {
