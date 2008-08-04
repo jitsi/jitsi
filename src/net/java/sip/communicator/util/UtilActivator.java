@@ -18,8 +18,8 @@ import java.lang.Thread.*;
  * @author Emil Ivov
  */
 public class UtilActivator
-    implements BundleActivator
-//              , Thread.UncaughtExceptionHandler
+    implements BundleActivator, 
+               Thread.UncaughtExceptionHandler
 {
     private static final Logger logger
         = Logger.getLogger(UtilActivator.class);
@@ -38,8 +38,8 @@ public class UtilActivator
     {
         logger.trace("Setting default uncaught exception handler.");
 
-//        Thread.setDefaultUncaughtExceptionHandler(this);
-//        Thread.currentThread().setDefaultUncaughtExceptionHandler(this);
+        Thread.setDefaultUncaughtExceptionHandler(this);
+        Thread.currentThread().setDefaultUncaughtExceptionHandler(this);
     }
 
     /**
