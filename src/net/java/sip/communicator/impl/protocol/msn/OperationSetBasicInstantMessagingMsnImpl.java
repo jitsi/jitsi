@@ -108,7 +108,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
      */
     public boolean isOfflineMessagingSupported()
     {
-        return false;
+        return true;
     }
     
     /**
@@ -295,6 +295,42 @@ public class OperationSetBasicInstantMessagingMsnImpl
                                            MsnContact contact)
         {
             Message newMessage = createMessage(message.getContent());
+            Contact sourceContact = opSetPersPresence.
+                findContactByID(contact.getEmail().getEmailAddress());
+
+            if(sourceContact == null)
+            {
+                logger.debug("received a message from an unknown contact: "
+                                   + contact);
+                //create the volatile contact
+                sourceContact = opSetPersPresence.
+                    createVolatileContact(contact);
+            }
+
+            MessageReceivedEvent msgReceivedEvt
+                = new MessageReceivedEvent(
+                    newMessage, sourceContact , new Date() );
+
+            fireMessageEvent(msgReceivedEvt);
+        }
+        
+        /**
+         * Received offline text message.
+         * 
+         * @param body of message
+         * @param contentType of message
+         * @param encoding of message
+         * @param displayName
+         * @param from the user who sent this message
+         */
+        public void offlineMessageReceived(String body,
+                                           String contentType, 
+                                           String encoding,
+                                           MsnContact contact)
+        {
+            Message newMessage = 
+                createMessage(body.getBytes(), contentType, encoding, null);
+
             Contact sourceContact = opSetPersPresence.
                 findContactByID(contact.getEmail().getEmailAddress());
 

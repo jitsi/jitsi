@@ -859,6 +859,9 @@ public class ServerStoredContactListMsnImpl
             // if we have received status before we have inited the list
             // sho them correctly
             parentOperationSet.earlyStatusesDispatch();
+            
+            // retreive offline messages
+            msnProvider.getMessenger().retreiveOfflineMessages();
         }
 
         public void contactStatusChanged(MsnMessenger messenger,
