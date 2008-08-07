@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.chatalerter;
 
 import java.util.*;
@@ -12,7 +18,12 @@ import net.java.sip.communicator.util.*;
 import org.jdesktop.jdic.misc.*;
 
 /**
- * The Activator of the Chat Alerter bundle.
+ * Chat Alerter plugin.
+ * 
+ * Sends alerts to the user when new message arrives and the application is not in
+ * the foreground. On Mac OS X this will bounce the dock icon until
+ * the user selects the chat windows. On Windows, Gnome and KDE this will flash the
+ * taskbar button/icon until the user selects the chat window.                                                                                                                                                   
  * 
  * @author Damian Minkov
  */
