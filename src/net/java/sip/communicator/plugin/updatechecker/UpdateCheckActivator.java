@@ -67,8 +67,8 @@ public class UpdateCheckActivator
         }
         
         ServiceReference serviceReference = bundleContext
-            .getServiceReference(
-                net.java.sip.communicator.service.version.VersionService.class.getName());
+            .getServiceReference( net.java.sip.communicator.service.version.
+                VersionService.class.getName());
 
         VersionService verService = (VersionService) bundleContext
                 .getService(serviceReference);
@@ -96,7 +96,9 @@ public class UpdateCheckActivator
             dialogMsg += 
                 getResources().getI18NString(
                 "dialogMessage2",
-                new String[]{getResources().getSettingsString("applicationName"), lastVersion});
+                new String[]{
+                    getResources().getSettingsString("applicationName"), 
+                    lastVersion});
         
         contentMessage.setText(dialogMsg);
 
@@ -104,9 +106,10 @@ public class UpdateCheckActivator
         contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPane.add(contentMessage, BorderLayout.CENTER);
         
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton closeButton = new JButton(
-            getResources().getI18NString("buttonClose"));
+        JPanel buttonPanel 
+            = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JButton closeButton 
+            = new JButton( getResources().getI18NString("buttonClose"));
         
         closeButton.addActionListener(new ActionListener() {
 
@@ -216,7 +219,8 @@ public class UpdateCheckActivator
         }
         catch (Exception e) 
         {
-            logger.error("Cannot get and compare versions!", e);
+            logger.warn("Cannot get and compare versions!");
+            logger.trace("Error was: ", e);
             // if we get an exception this mean we were unable to compare versions
             // will retrun that current is newest to prevent opening info dialog 
             // about new version

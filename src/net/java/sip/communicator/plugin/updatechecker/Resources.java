@@ -45,10 +45,10 @@ public class Resources
             
             return configProps.getProperty(key);
         }
-        catch (IOException e)
+        catch (IOException exc)
         {
-            logger.error("Cannot open config file.", e);
-
+            logger.error("Could not open config file.");
+            logger.trace("Error was: " + exc);
             return null;
         }
     }
