@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.defaultresourcepack;
 import java.util.*;
 
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The default color resource pack.
@@ -19,6 +20,11 @@ import net.java.sip.communicator.service.resources.*;
 public class DefaultColorPackImpl
     implements ColorPack
 {
+    private Logger logger = Logger.getLogger(DefaultColorPackImpl.class);
+
+    private static final String META_RESOURCE_PATH
+        = "resources.colors.meta-colors";
+
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.colors.colors";
 
@@ -31,10 +37,20 @@ public class DefaultColorPackImpl
      */
     public Map<String, String> getResources()
     {
-        ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+        ResourceBundle resourceBundle = null;
+        try
+        {
+            resourceBundle = ResourceBundle.getBundle(META_RESOURCE_PATH);
+        }
+        catch (MissingResourceException ex)
+        {
+            logger.info("Missing meta resource for colors.");
+        }
 
-        Map<String, String> resources = new Hashtable<String, String>();
+        if (resourceBundle == null)
+            resourceBundle = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+
+        Map<String, String> resources = new TreeMap<String, String>();
 
         this.initResources(resourceBundle, resources);
 

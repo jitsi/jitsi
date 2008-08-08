@@ -5,10 +5,7 @@
  */
 package net.java.sip.communicator.plugin.defaultresourcepack;
 
-import java.io.*;
-import java.net.*;
 import java.util.*;
-import java.util.jar.*;
 
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -20,6 +17,11 @@ import net.java.sip.communicator.util.*;
 public class DefaultLanguagePackImpl
     implements LanguagePack
 {
+    private Logger logger = Logger.getLogger(DefaultLanguagePackImpl.class);
+
+    private static final String META_RESOURCE_PATH
+        = "resources.languages.meta-resources";
+
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.languages.resources";
 
@@ -32,10 +34,20 @@ public class DefaultLanguagePackImpl
      */
     public Map<String, String> getResources()
     {
-        ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+        ResourceBundle resourceBundle = null;
+        try
+        {
+            resourceBundle = ResourceBundle.getBundle(META_RESOURCE_PATH);
+        }
+        catch (MissingResourceException ex)
+        {
+            logger.info("Missing meta resource for colors.");
+        }
 
-        Map<String, String> resources = new Hashtable<String, String>();
+        if (resourceBundle == null)
+            resourceBundle = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+
+        Map<String, String> resources = new TreeMap<String, String>();
 
         this.initResources(resourceBundle, Locale.getDefault(), resources);
 
