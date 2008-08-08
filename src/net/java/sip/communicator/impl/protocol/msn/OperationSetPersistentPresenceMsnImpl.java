@@ -60,6 +60,8 @@ public class OperationSetPersistentPresenceMsnImpl
      * here we store such events so we can show them correctly
      */
     private Hashtable earlyStatusChange = new Hashtable();
+    
+    private AuthorizationHandler authorizationHandler = null;
 
     /**
      * The array list we use when returning from the getSupportedStatusSet()
@@ -525,6 +527,16 @@ public class OperationSetPersistentPresenceMsnImpl
      */
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
+        this.authorizationHandler = handler;
+    }
+    
+    /**
+     * Returns the AuthorizationHandler.
+     * @return AuthorizationHandler
+     */
+    AuthorizationHandler getAuthorizationHandler()
+    {
+        return this.authorizationHandler;
     }
 
     /**

@@ -222,7 +222,7 @@ public class ServerStoredContactListMsnImpl
      * @param contact the contact that was added
      */
     private void fireContactMoved( ContactGroup oldParentGroup,
-                                   ContactGroupMsnImpl newParentGroup,
+                                   ContactGroup newParentGroup,
                                    ContactMsnImpl contact)
     {
         //bail out if no one's listening
@@ -391,7 +391,7 @@ public class ServerStoredContactListMsnImpl
         else
         {
             // add the buddy to the list as its not there
-            msnProvider.getMessenger().unblockFriend(Email.parseStr(id));
+//            msnProvider.getMessenger().unblockFriend(Email.parseStr(id));
             msnProvider.getMessenger().addFriend(Email.parseStr(id), id);
         }
     }
@@ -572,12 +572,12 @@ public class ServerStoredContactListMsnImpl
         
         MsnGroup[] belongGroups = 
             contactToRemove.getSourceContact().getBelongGroups();
-        
-        for (int i = 0; i < belongGroups.length; i++)
-        {
-            msnProvider.getMessenger().
-                removeFriend(contactsEmail, belongGroups[i].getGroupId());
-        }
+        if(belongGroups != null)
+            for (int i = 0; i < belongGroups.length; i++)
+            {
+                msnProvider.getMessenger().
+                    removeFriend(contactsEmail, belongGroups[i].getGroupId());
+            }
         
         msnProvider.getMessenger().
             removeFriend(contactsEmail, false);
@@ -603,25 +603,43 @@ public class ServerStoredContactListMsnImpl
      * @param newParent the group where we'd like the parent placed.
      */
     public void moveContact(ContactMsnImpl contact,
-                            ContactGroupMsnImpl newParent)
+                            ContactGroup newParent)
     {
         ContactGroup oldParent = contact.getParentContactGroup();
 
         if(oldParent instanceof RootContactGroupMsnImpl)
         {
             logger.trace("Will Move from root " + contact);
-            msnProvider.getMessenger().copyFriend(
-                        contact.getSourceContact().getEmail(),
-                        newParent.getSourceGroup().getGroupId());
+            msnProvider.getMessenger().
+                copyFriend(
+                    contact.getSourceContact().getEmail(),
+                    ((ContactGroupMsnImpl)newParent).getSourceGroup().getGroupId());
         }
         else
         {
+            if(newParent instanceof RootContactGroupMsnImpl &&
+                !contact.isPersistent())
+            {
+                try
+                {
+                    addContact(contact.getAddress());
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Failed to add contact from " +
+                        "NotInContactList group to new group: " + newParent, ex);
+                }
+                
+                return;
+            }
+            
             if( !contact.isPersistent() &&
                 !contact.getParentContactGroup().isPersistent())
             {
                 try
                 {
-                    addContact(newParent, contact.getAddress());
+                    addContact(
+                        (ContactGroupMsnImpl)newParent, contact.getAddress());
                 }
                 catch (OperationFailedException ex)
                 {
@@ -638,7 +656,7 @@ public class ServerStoredContactListMsnImpl
                     contact.getSourceContact().getEmail(),
                     ( (ContactGroupMsnImpl) contact.getParentContactGroup()).
                         getSourceGroup().getGroupId(),
-                    newParent.getSourceGroup().getGroupId()
+                    ((ContactGroupMsnImpl)newParent).getSourceGroup().getGroupId()
                     );
             }
         }
@@ -875,19 +893,40 @@ public class ServerStoredContactListMsnImpl
 
         public void contactAddedMe(MsnMessenger messenger, MsnContact contact)
         {
-            try
-            {
+//            try
+//            {
                 logger.trace("Contact add us " + contact);
                 ContactMsnImpl contactImpl =
                     findContactById(contact.getEmail().getEmailAddress());
 
-                if (contactImpl == null)
-                    addContact(contact.getEmail().getEmailAddress());
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error("cannot add ", ex);
-            }
+                if (contactImpl != null)
+                    return;
+                
+                contactImpl = createVolatileContact(contact);
+
+                AuthorizationRequest authRequest = new AuthorizationRequest();
+
+                AuthorizationResponse authResponse =
+                    parentOperationSet.getAuthorizationHandler().processAuthorisationRequest(
+                        authRequest, contactImpl);
+                
+                if (authResponse.getResponseCode() == AuthorizationResponse.IGNORE)
+                    return;
+                else if (authResponse.getResponseCode() 
+                            == AuthorizationResponse.REJECT)
+                    msnProvider.getMessenger().blockFriend(contact.getEmail());
+                else  if (authResponse.getResponseCode() 
+                            == AuthorizationResponse.ACCEPT)
+                {
+                    moveContact(contactImpl, rootGroup);
+//                    addContact(contact.getEmail().getEmailAddress());
+//                    msnProvider.getMessenger().unblockFriend(contact.getEmail());
+                }
+//            }
+//            catch (OperationFailedException ex)
+//            {
+//                logger.error("cannot add ", ex);
+//            }
         }
 
         public void contactRemovedMe(MsnMessenger messenger, MsnContact contact)
@@ -900,12 +939,24 @@ public class ServerStoredContactListMsnImpl
             
             if(!skipAddEvent.remove(contactID))
             {
-                ContactMsnImpl contactToAdd = 
-                    new ContactMsnImpl(
-                        contact,
-                        ServerStoredContactListMsnImpl.this, true, true);
-                rootGroup.addContact(contactToAdd);
-                fireContactAdded(rootGroup, contactToAdd);
+                ContactMsnImpl contactToAdd =
+                    findContactById(contact.getEmail().getEmailAddress());
+                
+                if(contactToAdd == null)
+                {
+                    contactToAdd = 
+                        new ContactMsnImpl(
+                            contact,
+                            ServerStoredContactListMsnImpl.this, true, true);
+                    rootGroup.addContact(contactToAdd);
+                    fireContactAdded(rootGroup, contactToAdd);
+                }
+                else
+                {
+                    ContactGroup oldGroup = contactToAdd.getParentContactGroup();
+                    
+                    fireContactMoved(oldGroup, rootGroup, contactToAdd);
+                }
             }
         }
         
@@ -961,23 +1012,53 @@ public class ServerStoredContactListMsnImpl
         }
         public void contactAddInGroupCompleted(MsnMessenger messenger, MsnContact c, MsnGroup g)
         {
-            ContactMsnImpl contactToAdd = 
-                new ContactMsnImpl(
-                        c,
-                        ServerStoredContactListMsnImpl.this, true, true);
+            ContactMsnImpl contactToAdd =
+                    findContactById(c.getEmail().getEmailAddress());
             
-            ContactGroupMsnImpl group = 
-                findContactGroupByMsnId(g.getGroupId());
-            
-            if(group == null)
+            if(contactToAdd == null)
             {
-                logger.error("Group is missing!");
-                return;
-            }
+                contactToAdd = 
+                    new ContactMsnImpl(
+                            c,
+                            ServerStoredContactListMsnImpl.this, true, true);
 
-            group.addContact(contactToAdd);
-            
-            fireContactAdded(group, contactToAdd);
+                ContactGroupMsnImpl group = 
+                    findContactGroupByMsnId(g.getGroupId());
+
+                if(group == null)
+                {
+                    logger.error("Group is missing!");
+                    return;
+                }
+
+                group.addContact(contactToAdd);
+
+                fireContactAdded(group, contactToAdd);
+            }
+            else
+            {
+                ContactGroup oldGroup = 
+                    contactToAdd.getParentContactGroup();
+                
+                ContactGroupMsnImpl group = 
+                    findContactGroupByMsnId(g.getGroupId());
+
+                if(group == null)
+                {
+                    logger.error("Group is missing!");
+                    return;
+                }
+
+                group.addContact(contactToAdd);
+                
+                
+                if(oldGroup instanceof RootContactGroupMsnImpl)
+                    ((RootContactGroupMsnImpl)oldGroup).removeContact(contactToAdd);
+                else
+                    ((ContactGroupMsnImpl)oldGroup).removeContact(contactToAdd);
+                
+                fireContactMoved(oldGroup, group, contactToAdd);
+            }
         }
         public void contactRemoveFromGroupCompleted(MsnMessenger messenger, 
             MsnContact c, MsnGroup g)
