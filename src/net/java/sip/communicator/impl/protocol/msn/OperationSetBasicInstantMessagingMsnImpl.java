@@ -176,19 +176,6 @@ public class OperationSetBasicInstantMessagingMsnImpl
                "The specified contact is not an MSN contact."
                + to);
 
-        if( to.isPersistent() &&
-            to.getPresenceStatus().equals(MsnStatusEnum.OFFLINE))
-        {
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    message,
-                    to,
-                    MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED,
-                    new Date());
-            fireMessageEvent(evt);
-            return;
-        }
-
         msnProvider.getMessenger().
             sendText(
                 ((ContactMsnImpl)to).getSourceContact().getEmail(),
