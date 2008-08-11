@@ -19,9 +19,6 @@ public class DefaultLanguagePackImpl
 {
     private Logger logger = Logger.getLogger(DefaultLanguagePackImpl.class);
 
-    private static final String META_RESOURCE_PATH
-        = "resources.languages.meta-resources";
-
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.languages.resources";
 
@@ -34,22 +31,14 @@ public class DefaultLanguagePackImpl
      */
     public Map<String, String> getResources()
     {
-        ResourceBundle resourceBundle = null;
-        try
-        {
-            resourceBundle = ResourceBundle.getBundle(META_RESOURCE_PATH);
-        }
-        catch (MissingResourceException ex)
-        {
-            logger.info("Missing meta resource for colors.");
-        }
-
-        if (resourceBundle == null)
-            resourceBundle = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+        ResourceBundle resourceBundle
+            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
 
         Map<String, String> resources = new TreeMap<String, String>();
 
-        this.initResources(resourceBundle, Locale.getDefault(), resources);
+        this.initResources(resourceBundle, resources);
+
+        this.initPluginResources(resources, Locale.getDefault());
 
         return resources;
     }
@@ -65,11 +54,13 @@ public class DefaultLanguagePackImpl
     public Map<String, String> getResources(Locale locale)
     {
         ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale);
 
         Map<String, String> resources = new Hashtable<String, String>();
 
-        this.initResources(resourceBundle, locale, resources);
+        this.initResources(resourceBundle, resources);
+
+        this.initPluginResources(resources, locale);
 
         return resources;
     }
@@ -106,7 +97,6 @@ public class DefaultLanguagePackImpl
      * @param resources A <tt>Map</tt> that would store the data.
      */
     private void initResources( ResourceBundle resourceBundle,
-                                Locale locale,
                                 Map<String, String> resources)
     {
         Enumeration colorKeys = resourceBundle.getKeys();
@@ -116,18 +106,31 @@ public class DefaultLanguagePackImpl
             String key = (String) colorKeys.nextElement();
             String value = resourceBundle.getString(key);
 
-            if (key.startsWith("$reference"))
-            {
-                ResourceBundle referenceBundle
-                    = ResourceBundle.getBundle( value,
-                                                locale);
+            resources.put(key, value);
+        }
+    }
+    
+    /**
+     * Finds all plugin color resources, matching the "images-*.properties"
+     * pattern and adds them to this resource pack.
+     */
+    private void initPluginResources(Map<String, String> resources,
+                                    Locale locale)
+    {
+        Iterator<String> pluginProperties = DefaultResourcePackActivator
+            .findResourcePaths(   "resources/languages",
+                                    "strings-*.properties");
 
-                initResources(referenceBundle, locale, resources);
-            }
-            else
-            {
-                resources.put(key, value);
-            }
+        while (pluginProperties.hasNext())
+        {
+            String resourceBundleName = pluginProperties.next();
+
+            ResourceBundle resourceBundle
+                = ResourceBundle.getBundle(
+                    resourceBundleName.substring(
+                        0, resourceBundleName.indexOf(".properties")));
+
+            initResources(resourceBundle, resources);
         }
     }
 }
