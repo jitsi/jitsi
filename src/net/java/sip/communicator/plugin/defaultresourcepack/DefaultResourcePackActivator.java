@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.plugin.defaultresourcepack;
 
-import java.util.Hashtable;
-import net.java.sip.communicator.service.resources.*;
+import java.net.*;
+import java.util.*;
 
-import net.java.sip.communicator.util.Logger;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  *
@@ -20,9 +21,9 @@ import org.osgi.framework.BundleContext;
 public class DefaultResourcePackActivator
     implements BundleActivator
 {
-
     private Logger logger =
         Logger.getLogger(DefaultResourcePackActivator.class);
+
     private static BundleContext bundleContext;
 
     public void start(BundleContext bc) throws Exception
@@ -31,55 +32,55 @@ public class DefaultResourcePackActivator
 
         DefaultColorPackImpl colPackImpl = 
             new DefaultColorPackImpl();
-        
+
         Hashtable props = new Hashtable();
         props.put(ResourcePack.RESOURCE_NAME, 
                   ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
-        
+
         bundleContext.registerService(  ColorPack.class.getName(),
                                         colPackImpl,
                                         props);
-        
+
         DefaultImagePackImpl imgPackImpl = 
             new DefaultImagePackImpl();
-        
+
         Hashtable imgProps = new Hashtable();
         imgProps.put(ResourcePack.RESOURCE_NAME, 
                     ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
-        
+
         bundleContext.registerService(  ImagePack.class.getName(),
                                         imgPackImpl,
                                         imgProps);
-        
+
         DefaultLanguagePackImpl langPackImpl = 
             new DefaultLanguagePackImpl();
-        
+
         Hashtable langProps = new Hashtable();
         langProps.put(ResourcePack.RESOURCE_NAME, 
                     LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
-        
+
         bundleContext.registerService(  LanguagePack.class.getName(),
                                         langPackImpl,
                                         langProps);
-        
+
         DefaultSettingsPackImpl setPackImpl = 
             new DefaultSettingsPackImpl();
-        
+
         Hashtable setProps = new Hashtable();
         langProps.put(ResourcePack.RESOURCE_NAME, 
                       SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
-        
+
         bundleContext.registerService(  SettingsPack.class.getName(),
                                         setPackImpl,
                                         setProps);
-        
+
         DefaultSoundPackImpl sndPackImpl = 
             new DefaultSoundPackImpl();
-        
+
         Hashtable sndProps = new Hashtable();
         langProps.put(ResourcePack.RESOURCE_NAME, 
                       SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
-        
+
         bundleContext.registerService(  SoundPack.class.getName(),
                                         sndPackImpl,
                                         sndProps);
@@ -90,5 +91,40 @@ public class DefaultResourcePackActivator
     public void stop(BundleContext bc) throws Exception
     {
 
+    }
+
+    /**
+     * Finds all properties files for the given path in this bundle.
+     * 
+     * @param path the path pointing to the properties files.
+     */
+    protected static Iterator<String> findResourcePaths(  String path,
+                                                            String pattern)
+    {
+        ArrayList<String> propertiesList = new ArrayList<String>();
+
+        Enumeration<URL> propertiesUrls = bundleContext.getBundle()
+            .findEntries(path,
+                        pattern, 
+                        false);
+
+        if (propertiesUrls != null)
+        {
+            while (propertiesUrls.hasMoreElements())
+            {
+                URL propertyUrl = propertiesUrls.nextElement();
+
+                // Remove the first slash.
+                String propertyFilePath
+                    = propertyUrl.getPath().substring(1);
+
+                // Replace all slashes with dots.
+                propertyFilePath = propertyFilePath.replaceAll("/", ".");
+
+                propertiesList.add(propertyFilePath);
+            }
+        }
+
+        return propertiesList.iterator();
     }
 }
