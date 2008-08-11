@@ -329,7 +329,7 @@
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
-    <target name="macosx"
+    <target name="macosx" depends="version"
             description="Create an .app package for MACOSX">
 
       <taskdef name="jarbundler"
@@ -577,7 +577,7 @@
     </target>
 
     <!-- Create a Debian package - This needs dpkg utilities -->
-    <target name="deb" depends="dpkg-build-warning"
+    <target name="deb" depends="version,dpkg-build-warning"
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
