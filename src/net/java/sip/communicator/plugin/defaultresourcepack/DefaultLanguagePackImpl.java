@@ -32,7 +32,8 @@ public class DefaultLanguagePackImpl
     public Map<String, String> getResources()
     {
         ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
+            = ResourceBundle.getBundle( DEFAULT_RESOURCE_PATH,
+                                        Locale.getDefault());
 
         Map<String, String> resources = new TreeMap<String, String>();
 
@@ -125,12 +126,16 @@ public class DefaultLanguagePackImpl
         {
             String resourceBundleName = pluginProperties.next();
 
-            ResourceBundle resourceBundle
-                = ResourceBundle.getBundle(
-                    resourceBundleName.substring(
-                        0, resourceBundleName.indexOf(".properties")));
+            if (resourceBundleName.indexOf("_") == -1)
+            {
+                ResourceBundle resourceBundle
+                    = ResourceBundle.getBundle(
+                        resourceBundleName.substring(
+                            0, resourceBundleName.indexOf(".properties")),
+                            locale);
 
-            initResources(resourceBundle, resources);
+                initResources(resourceBundle, resources);
+            }
         }
     }
 }
