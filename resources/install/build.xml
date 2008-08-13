@@ -367,7 +367,7 @@
                 replace="felix.cache.profiledir=$\{user.home\}/Library/Application Support/${application.name}/sip-communicator.bin"
                 flags="m"/>
       <echo file="${macosx.resrc.dir}/felix.client.run.properties"
-            append="true">felix.auto.start.70= reference:file:sc-bundles/growlnotification.jar
+            append="true">felix.auto.start.80= reference:file:sc-bundles/growlnotification.jar
       </echo>
       
       <!-- We copy macosx-specific bundles from
