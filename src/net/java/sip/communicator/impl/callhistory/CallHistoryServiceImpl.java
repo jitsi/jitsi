@@ -1077,7 +1077,7 @@ public class CallHistoryServiceImpl
      * Receive events for adding or removing participants from a call
      */
     private class HistoryCallChangeListener
-        implements CallChangeListener
+        extends CallChangeAdapter
     {
         public void callParticipantAdded(CallParticipantEvent evt)
         {
@@ -1089,7 +1089,5 @@ public class CallHistoryServiceImpl
             handleParticipantRemoved(evt.getSourceCallParticipant(),
                                      evt.getSourceCall());
         }
-
-        public void callStateChanged(CallChangeEvent evt){}
     }
 }

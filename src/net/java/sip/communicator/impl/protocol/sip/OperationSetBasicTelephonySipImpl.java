@@ -72,6 +72,7 @@ public class OperationSetBasicTelephonySipImpl
         protocolProvider.registerMethodProcessor(Request.CANCEL, this);
         protocolProvider.registerMethodProcessor(Request.ACK, this);
         protocolProvider.registerMethodProcessor(Request.BYE, this);
+        protocolProvider.registerMethodProcessor(Request.REFER, this);
     }
 
     /**
@@ -89,7 +90,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws ParseException if <tt>callee</tt> is not a valid sip address
      * string.
      */
-    public synchronized Call createCall(String callee)
+    public Call createCall(String callee)
         throws OperationFailedException, ParseException
     {
         Address toAddress = parseAddressStr(callee);
@@ -110,7 +111,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    public synchronized Call createCall(Contact callee)
+    public Call createCall(Contact callee)
         throws OperationFailedException
     {
         Address toAddress = null;
@@ -145,7 +146,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    private CallSipImpl createOutgoingCall(Address calleeAddress)
+    private synchronized CallSipImpl createOutgoingCall(Address calleeAddress)
         throws OperationFailedException
     {
         //create the invite request
@@ -394,30 +395,7 @@ public class OperationSetBasicTelephonySipImpl
         String sdpOffer) throws OperationFailedException
     {
         Dialog dialog = sipParticipant.getDialog();
-        Request invite = null;
-        try
-        {
-            invite = dialog.createRequest(Request.INVITE);
-        }
-        catch (SipException ex)
-        {
-            throwOperationFailedException("Failed to create invite request.",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        /*
-         * The authorization-related headers are the responsibility of the
-         * application (according to the Javadoc of JAIN-SIP).
-         */
-        AuthorizationHeader authorization =
-            protocolProvider.getSipSecurityManager()
-                .getCachedAuthorizationHeader(
-                    ((CallIdHeader) invite.getHeader(CallIdHeader.NAME))
-                        .getCallId());
-        if (authorization != null)
-        {
-            invite.setHeader(authorization);
-        }
+        Request invite = createRequest(dialog, Request.INVITE);
 
         try
         {
@@ -492,6 +470,7 @@ public class OperationSetBasicTelephonySipImpl
             .getServerTransaction();
         SipProvider jainSipProvider = (SipProvider)requestEvent.getSource();
         Request request = requestEvent.getRequest();
+        String requestMethod = request.getMethod();
 
         if (serverTransaction == null)
         {
@@ -516,12 +495,12 @@ public class OperationSetBasicTelephonySipImpl
                     + "transaction for an incoming request\n"
                     + "(Next message contains the request)"
                     , ex);
-                    return;
+                return;
             }
         }
 
         //INVITE
-        if (request.getMethod().equals(Request.INVITE))
+        if (requestMethod.equals(Request.INVITE))
         {
             logger.debug("received INVITE");
             DialogState dialogState = serverTransaction.getDialog().getState();
@@ -540,21 +519,27 @@ public class OperationSetBasicTelephonySipImpl
             }
         }
         //ACK
-        else if (request.getMethod().equals(Request.ACK))
+        else if (requestMethod.equals(Request.ACK))
         {
             processAck(serverTransaction, request);
         }
         //BYE
-        else if (request.getMethod().equals(Request.BYE))
+        else if (requestMethod.equals(Request.BYE))
         {
             processBye(serverTransaction, request);
         }
         //CANCEL
-        else if (request.getMethod().equals(Request.CANCEL))
+        else if (requestMethod.equals(Request.CANCEL))
         {
             processCancel(serverTransaction, request);
         }
+        // REFER
+        else if (requestMethod.equals(Request.REFER))
+        {
+            logger.debug("received REFER");
+            processRefer(serverTransaction, request, jainSipProvider);
         }
+    }
 
     /**
      * Process an asynchronously reported TransactionTerminatedEvent.
@@ -1648,8 +1633,9 @@ public class OperationSetBasicTelephonySipImpl
                             Request byeRequest)
     {
         //find the call
-        CallParticipantSipImpl callParticipant = activeCallsRepository
-            .findCallParticipant( serverTransaction.getDialog());
+        Dialog dialog = serverTransaction.getDialog();
+        CallParticipantSipImpl callParticipant =
+            activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant == null) {
             logger.debug("Received a stray bye request.");
@@ -1659,10 +1645,7 @@ public class OperationSetBasicTelephonySipImpl
         //Send OK
         Response ok = null;
         try {
-            ok = protocolProvider.getMessageFactory()
-                .createResponse(Response.OK, byeRequest);
-            protocolProvider.attachToTag(ok, serverTransaction.getDialog());
-            ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
+            ok = createOKResponse(byeRequest, dialog);
         }
         catch (ParseException ex) {
             logger.error("Error while trying to send a response to a bye", ex);
@@ -1683,9 +1666,30 @@ public class OperationSetBasicTelephonySipImpl
                           ex);
         }
 
-        //change status
-        callParticipant.setState(CallParticipantState.DISCONNECTED);
+        // change status
+        boolean dialogIsAlive;
+        try
+        {
+            dialogIsAlive = DialogUtils.processByeThenIsDialogAlive(dialog);
+        }
+        catch (SipException ex)
+        {
+            dialogIsAlive = false;
 
+            logger
+                .error(
+                    "Failed to determine whether the dialog should stay alive.",
+                    ex);
+        }
+        if (dialogIsAlive)
+        {
+            ((CallSipImpl) callParticipant.getCall()).getMediaCallSession()
+                .stopStreaming();
+        }
+        else
+        {
+            callParticipant.setState(CallParticipantState.DISCONNECTED);
+        }
     }
 
     /**
@@ -1740,12 +1744,10 @@ public class OperationSetBasicTelephonySipImpl
 
         // Cancels should be OK-ed and the initial transaction - terminated
         // (report and fix by Ranga)
-        try {
-            Response ok = protocolProvider.getMessageFactory().createResponse(
-                Response.OK, cancelRequest);
-
-            protocolProvider.attachToTag(ok, serverTransaction.getDialog());
-            ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
+        try
+        {
+            Response ok =
+                createOKResponse(cancelRequest, serverTransaction.getDialog());
             serverTransaction.sendResponse(ok);
 
             logger.debug("sent an ok response to a CANCEL request:\n" + ok);
@@ -1804,8 +1806,397 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
+     * Processes a specific REFER request i.e. attempts to transfer the
+     * call/call participant receiving the request to a specific transfer
+     * target.
+     * 
+     * @param serverTransaction the <code>ServerTransaction</code> containing
+     *            the REFER request
+     * @param referRequest the very REFER request
+     * @param sipProvider the provider containing <code>serverTransaction</code>
+     */
+    private void processRefer(ServerTransaction serverTransaction,
+        final Request referRequest, final SipProvider sipProvider)
+    {
+        ReferToHeader referToHeader =
+            (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
+        if (referToHeader == null)
+        {
+            logger.error("No Refer-To header in REFER request:\n"
+                + referRequest);
+            return;
+        }
+        Address referToAddress = referToHeader.getAddress();
+        if (referToAddress == null)
+        {
+            logger.error("No address in REFER request Refer-To header:\n"
+                + referRequest);
+            return;
+        }
+
+        // OK
+        final Dialog dialog = serverTransaction.getDialog();
+        Response ok = null;
+        boolean removeSubscription = false;
+        try
+        {
+            ok = createOKResponse(referRequest, dialog);
+        }
+        catch (ParseException ex)
+        {
+            logger.error("Failed to create OK response to REFER request:\n"
+                + referRequest, ex);
+            /*
+             * TODO Should the call transfer not be attempted because the OK
+             * couldn't be sent?
+             */
+        }
+        if (ok != null)
+        {
+            Throwable failure = null;
+            try
+            {
+                serverTransaction.sendResponse(ok);
+            }
+            catch (InvalidArgumentException ex)
+            {
+                failure = ex;
+            }
+            catch (SipException ex)
+            {
+                failure = ex;
+            }
+            if (failure != null)
+            {
+                ok = null;
+
+                logger.error("Failed to send OK response to REFER request:\n"
+                    + referRequest, failure);
+                /*
+                 * TODO Should the call transfer not be attempted because the OK
+                 * couldn't be sent?
+                 */
+            }
+            else
+            {
+
+                /*
+                 * The REFER request has created a subscription. Take it into
+                 * consideration in order to not disconnect on BYE but rather
+                 * when the last subscription terminates.
+                 */
+                try
+                {
+                    removeSubscription =
+                        DialogUtils.addSubscription(dialog, referRequest);
+                }
+                catch (SipException ex)
+                {
+                    logger.error(
+                        "Failed to make the REFER request keep the dialog alive after BYE:\n"
+                            + referRequest, ex);
+                }
+
+                // NOTIFY Trying
+                try
+                {
+                    sendReferNotifyRequest(dialog,
+                        SubscriptionStateHeader.ACTIVE, null,
+                        "SIP/2.0 100 Trying", sipProvider);
+                }
+                catch (OperationFailedException ex)
+                {
+                    /*
+                     * TODO Determine whether the failure to send the Trying
+                     * refer NOTIFY should prevent the sending of the
+                     * session-terminating refer NOTIFY.
+                     */
+                }
+            }
+        }
+
+        /*
+         * Regardless of whether the OK, NOTIFY, etc. succeeded, try to
+         * transfer the call because it's the most important goal.
+         */
+        Call referToCall;
+        try
+        {
+            referToCall = createOutgoingCall(referToAddress);
+        }
+        catch (OperationFailedException ex)
+        {
+            referToCall = null;
+
+            logger.error("Failed to create outgoing call to "
+                + referToAddress, ex);
+        }
+
+        /*
+         * Start monitoring the call in order to discover when the
+         * subscription-terminating NOTIFY with the final result of the REFER is
+         * to be sent.
+         */
+        final Call referToCallListenerSource = referToCall;
+        final boolean sendNotifyRequest = (ok != null);
+        final Object subscription = (removeSubscription ? referRequest : null);
+        CallChangeListener referToCallListener = new CallChangeAdapter()
+        {
+
+            /**
+             * The indicator which determines whether the job of this listener
+             * has been done i.e. whether a single subscription-terminating
+             * NOTIFY with the final result of the REFER has been sent.
+             */
+            private boolean done;
+
+            public synchronized void callStateChanged(CallChangeEvent evt)
+            {
+                if (!done
+                    && referToCallStateChanged(referToCallListenerSource,
+                        sendNotifyRequest, dialog, sipProvider, subscription))
+                {
+                    done = true;
+                    if (referToCallListenerSource != null)
+                    {
+                        referToCallListenerSource
+                            .removeCallChangeListener(this);
+                    }
+                }
+            }
+        };
+        if (referToCall != null)
+        {
+            referToCall.addCallChangeListener(referToCallListener);
+        }
+        referToCallListener.callStateChanged(null);
+    }
+
+    /**
+     * Tracks the state changes of a specific <code>Call</code> and sends a
+     * session-terminating NOTIFY request to the <code>Dialog</code> which
+     * referred to the call in question as soon as the outcome of the refer is
+     * determined.
+     * 
+     * @param referToCall the <code>Call</code> to track and send a NOTIFY
+     *            request for
+     * @param sendNotifyRequest <tt>true</tt> if a session-terminating NOTIFY
+     *            request should be sent to the <code>Dialog</code> which
+     *            referred to <code>referToCall</code>; <tt>false</tt> to send
+     *            no such NOTIFY request
+     * @param dialog the <code>Dialog</code> which initiated the specified call
+     *            as part of processing a REFER request
+     * @param sipProvider the <code>SipProvider</code> to send the NOTIFY
+     *            request through
+     * @param subscription the subscription to be terminated when the NOTIFY
+     *            request is sent
+     * @return <tt>true</tt> if a session-terminating NOTIFY request was sent
+     *         and the state of <code>referToCall</code> should no longer be
+     *         tracked; <tt>false</tt> if it's too early to send a
+     *         session-terminating NOTIFY request and the tracking of the state
+     *         of <code>referToCall</code> should continue
+     */
+    private boolean referToCallStateChanged(Call referToCall,
+        boolean sendNotifyRequest, Dialog dialog, SipProvider sipProvider,
+        Object subscription)
+    {
+        CallState referToCallState =
+            (referToCall == null) ? null : referToCall.getCallState();
+        if (CallState.CALL_INITIALIZATION.equals(referToCallState))
+        {
+            return false;
+        }
+
+        /*
+         * NOTIFY OK/Declined
+         * 
+         * It doesn't sound like sending NOTIFY Service Unavailable is
+         * appropriate because the REFER request has (presumably) already been
+         * accepted.
+         */
+        if (sendNotifyRequest)
+        {
+            String referStatus =
+                CallState.CALL_IN_PROGRESS.equals(referToCallState) ? "SIP/2.0 200 OK"
+                    : "SIP/2.0 603 Declined";
+            try
+            {
+                sendReferNotifyRequest(dialog,
+                    SubscriptionStateHeader.TERMINATED,
+                    SubscriptionStateHeader.NO_RESOURCE, referStatus,
+                    sipProvider);
+            }
+            catch (OperationFailedException ex)
+            {
+                // The exception has already been logged.
+            }
+        }
+
+        /*
+         * Whatever the status of the REFER is, the subscription created by it
+         * is terminated with the final NOTIFY.
+         */
+        if (DialogUtils.removeSubscriptionThenIsDialogAlive(dialog,
+            subscription) == false)
+        {
+            CallParticipantSipImpl callParticipant =
+                activeCallsRepository.findCallParticipant(dialog);
+            if (callParticipant != null)
+            {
+                callParticipant.setState(CallParticipantState.DISCONNECTED);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Sends a <code>Request.NOTIFY</code> request in a specific
+     * <code>Dialog</code> as part of the communication associated with an
+     * earlier-received <code>Request.REFER<code> request. The sent NOTIFY has
+     * a specific <code>Subscription-State</code> header and reason, carries a
+     * specific body content and is sent through a specific
+     * <code>SipProvider</code>.
+     * 
+     * @param dialog the <code>Dialog</code> to send the NOTIFY request in
+     * @param subscriptionState the <code>Subscription-State</code> header to be
+     *            sent with the NOTIFY request
+     * @param reasonCode the reason for the specified
+     *            <code>subscriptionState</code> if any; <tt>null</tt> otherwise
+     * @param content the content to be carried in the body of the sent NOTIFY
+     *            request
+     * @param sipProvider the <code>SipProvider</code> to send the NOTIFY
+     *            request through
+     * @throws OperationFailedException
+     */
+    private void sendReferNotifyRequest(Dialog dialog,
+        String subscriptionState, String reasonCode, Object content,
+        SipProvider sipProvider) throws OperationFailedException
+    {
+        Request notify = createRequest(dialog, Request.NOTIFY);
+        HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
+
+        // Populate the request.
+        String eventType = "refer";
+        try
+        {
+            notify.setHeader(headerFactory.createEventHeader(eventType));
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException("Failed to create " + eventType
+                + " Event header.", OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        SubscriptionStateHeader ssHeader = null;
+        try
+        {
+            ssHeader =
+                headerFactory.createSubscriptionStateHeader(subscriptionState);
+            if (reasonCode != null)
+                ssHeader.setReasonCode(reasonCode);
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException("Failed to create "
+                + subscriptionState + " Subscription-State header.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+        notify.setHeader(ssHeader);
+
+        ContentTypeHeader ctHeader = null;
+        try
+        {
+            ctHeader =
+                headerFactory.createContentTypeHeader("message", "sipfrag");
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException(
+                "Failed to create Content-Type header.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+        try
+        {
+            notify.setContent(content, ctHeader);
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException("Failed to set NOTIFY body/content.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        // Send the request.
+        ClientTransaction clientTransaction = null;
+        try
+        {
+            clientTransaction = sipProvider.getNewClientTransaction(notify);
+        }
+        catch (TransactionUnavailableException ex)
+        {
+            throwOperationFailedException(
+                "Failed to create a client transaction for the new refer NOTIFY.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+        try
+        {
+            dialog.sendRequest(clientTransaction);
+        }
+        catch (SipException ex)
+        {
+            throwOperationFailedException(
+                "Failed to send the new refer NOTIFY.",
+                OperationFailedException.NETWORK_FAILURE, ex);
+        }
+    }
+
+    /**
+     * Creates a new {@link Request} of a specific method which is to be sent in
+     * a specific <code>Dialog</code> and populates its generally-necessary
+     * headers such as the Authorization header.
+     * 
+     * @param dialog the <code>Dialog</code> to create the new
+     *            <code>Request</code> in
+     * @param method the method of the newly-created <code>Request<code>
+     * @return a new {@link Request} of the specified <code>method</code> which
+     *         is to be sent in the specified <code>dialog</code> and populated
+     *         with its generally-necessary headers such as the Authorization
+     *         header
+     * @throws OperationFailedException
+     */
+    private Request createRequest(Dialog dialog, String method)
+        throws OperationFailedException
+    {
+        Request request = null;
+        try
+        {
+            request = dialog.createRequest(method);
+        }
+        catch (SipException ex)
+        {
+            throwOperationFailedException("Failed to create " + method
+                + " request.", OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        /*
+         * The authorization-related headers are the responsibility of the
+         * application (according to the Javadoc of JAIN-SIP).
+         */
+        AuthorizationHeader authorization =
+            protocolProvider.getSipSecurityManager()
+                .getCachedAuthorizationHeader(
+                    ((CallIdHeader) request.getHeader(CallIdHeader.NAME))
+                        .getCallId());
+        if (authorization != null)
+        {
+            request.setHeader(authorization);
+        }
+
+        return request;
+    }
+
+    /**
      * Indicates a user request to end a call with the specified call
-     * particiapnt. Depending on the state of the call the method would send a
+     * participant. Depending on the state of the call the method would send a
      * CANCEL, BYE, or BUSY_HERE and set the new state to DISCONNECTED.
      *
      * @param participant the participant that we'd like to hang up on.
@@ -2177,12 +2568,11 @@ public class OperationSetBasicTelephonySipImpl
 
         ServerTransaction serverTransaction = (ServerTransaction) transaction;
         Response ok = null;
-        try {
-            ok = protocolProvider.getMessageFactory().createResponse(
-                Response.OK
-                ,callParticipant.getFirstTransaction().getRequest());
-            ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
-            protocolProvider.attachToTag(ok, dialog);
+        try
+        {
+            ok =
+                createOKResponse(callParticipant.getFirstTransaction()
+                    .getRequest(), dialog);
         }
         catch (ParseException ex) {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
@@ -2291,6 +2681,28 @@ public class OperationSetBasicTelephonySipImpl
                 , ex);
         }
     } //answer call
+
+    /**
+     * Creates a new {@link Response#OK} response to a specific {@link Request}
+     * which is to be sent as part of a specific {@link Dialog}.
+     * 
+     * @param request the <code>Request</code> to create the OK response for
+     * @param containingDialog the <code>Dialog</code> to send the response in
+     * @return a new
+     *         <code>Response.OK<code> response to the specified <code>request</code>
+     *         to be sent as part of the specified <code>containingDialog</code>
+     * @throws ParseException
+     */
+    private Response createOKResponse(Request request, Dialog containingDialog)
+        throws ParseException
+    {
+        Response ok =
+            protocolProvider.getMessageFactory().createResponse(Response.OK,
+                request);
+        protocolProvider.attachToTag(ok, containingDialog);
+        ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
+        return ok;
+    }
 
     /**
      * Creates a new call and call participant associated with

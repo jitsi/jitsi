@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.util.*;
 import java.util.*;
-import net.java.sip.communicator.service.protocol.event.*;
+
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import org.jivesoftware.smackx.jingle.*;
 
 /**
@@ -21,7 +22,7 @@ import org.jivesoftware.smackx.jingle.*;
  * @author Symphorien Wanko
  */
 public class ActiveCallsRepository
-    implements CallChangeListener
+    extends CallChangeAdapter
 {
     /**
      * logger of this class
@@ -59,22 +60,6 @@ public class ActiveCallsRepository
         activeCalls.put(call.getCallID(), call);
         call.addCallChangeListener(this);
     }
-
-    /**
-     * A dummy implementation of the CallChangeListener method that we don't
-     * use.
-     * @param evt unused.
-     */
-    public void callParticipantAdded(CallParticipantEvent evt)
-    {}
-
-    /**
-     * A dummy implementation of the CallChangeListener method that we don't
-     * use.
-     * @param evt unused.
-     */
-    public void callParticipantRemoved(CallParticipantEvent evt)
-    {}
 
     /**
      * If <tt>evt</tt> indicates that the call has been ended we remove it from

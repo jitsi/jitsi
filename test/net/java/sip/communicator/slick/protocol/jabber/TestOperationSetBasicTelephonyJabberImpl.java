@@ -983,7 +983,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
      * changes.
      */
     public class CallStateEventCollector
-        implements CallChangeListener
+        extends CallChangeAdapter
     {
         public ArrayList collectedEvents = new ArrayList();
         private Call listenedCall = null;
@@ -1022,22 +1022,6 @@ public class TestOperationSetBasicTelephonyJabberImpl
                     notifyAll();
                 }
             }
-        }
-
-        /**
-         * Unused by this collector.
-         * @param event ignored.
-         */
-        public void callParticipantAdded(CallParticipantEvent event)
-        {
-        }
-
-        /**
-         * Unused by this collector.
-         * @param event ignored.
-         */
-        public void callParticipantRemoved(CallParticipantEvent event)
-        {
         }
 
         /**

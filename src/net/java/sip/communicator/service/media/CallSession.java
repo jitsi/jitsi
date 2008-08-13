@@ -184,4 +184,10 @@ public interface CallSession
      *            <tt>false</tt>
      */
     public void setMute(boolean mute);
+
+    /**
+     * Stops and closes the audio and video streams flowing through this
+     * session.
+     */
+    public void stopStreaming();
 }

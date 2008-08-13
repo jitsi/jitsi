@@ -382,11 +382,19 @@ public class CallSessionImpl
      * Stops and closes all streams that have been initialized for local
      * RTP managers.
      */
-    private void stopStreaming()
+    public void stopStreaming()
     {
-        stopStreaming(getAudioRtpManager(), "audio");
+        RTPManager audioRtpManager = getAudioRtpManager();
+        if (audioRtpManager != null)
+        {
+            stopStreaming(audioRtpManager, "audio");
+        }
         this.audioRtpManager = null;
-        stopStreaming(getVideoRtpManager(), "video");
+        RTPManager videoRtpManager = getAudioRtpManager();
+        if (videoRtpManager != null)
+        {
+            stopStreaming(videoRtpManager, "video");
+        }
         this.videoRtpManager = null;
     }
 
