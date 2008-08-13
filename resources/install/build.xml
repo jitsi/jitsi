@@ -65,7 +65,7 @@
     <condition property="7zip.executable" value="7z">
         <os family="windows"/>
     </condition>
-    <condition property="7zip.executable" value="7zr">
+    <condition property="7zip.executable" value="7z">
         <equals arg1="${os.name}" arg2="linux"
                 casesensitive="false" trim="true"/>
     </condition>
