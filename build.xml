@@ -287,6 +287,7 @@
            <fileset dir="${sc.basedir}/resources">
                 <include name="**/*"/>
                 <exclude name="**/languages/**"/>
+                <exclude name="**/*.svg"/>
            </fileset>
         </copy>
     </target>
