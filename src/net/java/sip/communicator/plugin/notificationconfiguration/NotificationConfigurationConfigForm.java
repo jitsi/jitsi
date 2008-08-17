@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import java.awt.*;
@@ -37,40 +36,20 @@ public class NotificationConfigurationConfigForm
                DocumentListener,
                NotificationChangeListener
 {
-    private Logger logger
+    private final Logger logger
             = Logger.getLogger(NotificationConfigurationConfigForm.class);
-    
-    // Declaration of variables concerning the whole of JPanel
-    private GridBagConstraints constraints;
-    private GridBagLayout gridLayoutGlobal = new GridBagLayout();
-    
-     
+
     // Declaration of variables on the table notifications
     private Vector dataVector = null;
     
     private ListMulti notificationList;
 
-    private JLabel icon1
-            = new JLabel(new ImageIcon(Resources.getImageInBytes("progIcon")));
-    private JLabel icon2
-            = new JLabel(new ImageIcon(Resources.getImageInBytes("popupIcon")));
-    private JLabel icon3
-            = new JLabel(new ImageIcon(Resources.getImageInBytes("soundIcon")));
-    private Object column [] = {"Status", icon1, icon2, icon3, "Event"};
     public static final String[] columnToolTips
             = {"Enable or disable this feature",
             "Execute a program",
             "Display a messagebox",
             "Play a sound",
             "Description of event" };
-        
-    // Declaration of variables - actions
-    private GridBagLayout actionsLayout = new GridBagLayout();
-    private TitledBorder title1; 
-    private JPanel actions = new JPanel();
-    
-    private JPanel activateDescactivatePanel;
-    private FlowLayout layoutADP;
     
     private JButton activate;
     private JButton desactivate;
@@ -82,27 +61,15 @@ public class NotificationConfigurationConfigForm
     private JTextField programFileTextField;
     private JButton programFileChooser;
     private JCheckBox popupCheckBox;
-    
-    
-    // Declaration of variables - quickControl
-    private FlowLayout layoutButton = new FlowLayout(FlowLayout.CENTER,2,2);
-    private TitledBorder title2;
-    private JPanel quickControl = new JPanel();
-    
-    private String [] textComboBox
-            = {"Sounds", "Program Execution", "Messages Popup"};
+
     private JButton turnOnAll;
     private JButton turnOffAll;
     private JComboBox comboBoxTurnOn;
     private JComboBox comboBoxTurnOff;
-    
-    private JPanel applyPanel = new JPanel();
-//    private FlowLayout layoutApply = new FlowLayout(FlowLayout.RIGHT, 5,2);
-    private BorderLayout layoutApply = new BorderLayout(5,2);
+
     private JButton apply;
     private JButton restore;
-    
-    
+
     private JFileChooser fileChooserProgram;
     private JFileChooser fileChooserSound;
     
@@ -111,16 +78,22 @@ public class NotificationConfigurationConfigForm
         
     private NotificationService notificationService = null;
     
-    private NotificationConfigurationConfigForm nC = null;
-    
     private boolean noListener = false;
     
     public NotificationConfigurationConfigForm()
     {
         super();
-        this.nC = this;
+
+        JPanel actions = new JPanel();
+        GridBagLayout actionsLayout = new GridBagLayout();
+        JPanel applyPanel = new JPanel();
+        GridBagLayout gridLayoutGlobal = new GridBagLayout();
+        JPanel quickControl = new JPanel();
+        String[] textComboBox =
+            { "Sounds", "Program Execution", "Messages Popup" };
+
         // constraints on the table
-        constraints = new GridBagConstraints();
+        GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 1;
@@ -128,9 +101,17 @@ public class NotificationConfigurationConfigForm
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
-        
+
+        JLabel icon1 =
+            new JLabel(new ImageIcon(Resources.getImageInBytes("progIcon")));
+        JLabel icon2 =
+            new JLabel(new ImageIcon(Resources.getImageInBytes("popupIcon")));
+        JLabel icon3 =
+            new JLabel(new ImageIcon(Resources.getImageInBytes("soundIcon")));
+        Object column[] =
+            { "Status", icon1, icon2, icon3, "Event" };
         notificationList = new ListMulti(column, columnToolTips);
-        
+
         dataVector = new Vector();
         //dataVector.add(row1);
         //dataVector.add(row2);
@@ -140,12 +121,12 @@ public class NotificationConfigurationConfigForm
         this.add(notificationList);
                 
         // Initializing variable part of the "actions"
-        title1 = BorderFactory.createTitledBorder(
+        TitledBorder title1 = BorderFactory.createTitledBorder(
                 Resources.getString("actions"));
         actions.setBorder(title1);
         
-        activateDescactivatePanel = new JPanel();
-        layoutADP = new FlowLayout(FlowLayout.CENTER);
+        JPanel activateDescactivatePanel = new JPanel();
+        FlowLayout layoutADP = new FlowLayout(FlowLayout.CENTER);
         layoutADP.setHgap(75);
         activateDescactivatePanel.setLayout(layoutADP);
         
@@ -310,9 +291,9 @@ public class NotificationConfigurationConfigForm
         turnOffAll.addActionListener(this);
         
         
-        title2 = BorderFactory.createTitledBorder(
+        TitledBorder title2 = BorderFactory.createTitledBorder(
                 Resources.getString("quickcontrols"));
-        quickControl.setLayout(layoutButton);
+        quickControl.setLayout(new FlowLayout(FlowLayout.CENTER,2,2));
         quickControl.setBorder(title2);
         quickControl.add(turnOnAll);
         quickControl.add(comboBoxTurnOn);
@@ -345,7 +326,7 @@ public class NotificationConfigurationConfigForm
         restore.addActionListener(this);
         apply = new JButton(Resources.getString("apply"));
         apply.addActionListener(this);
-        applyPanel.setLayout(layoutApply);
+        applyPanel.setLayout(new BorderLayout(5,2));
         applyPanel.add(apply, BorderLayout.EAST);
         applyPanel.add(restore, BorderLayout.WEST);
         gridLayoutGlobal.setConstraints(applyPanel, constraints);

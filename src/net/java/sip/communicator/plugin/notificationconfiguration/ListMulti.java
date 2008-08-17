@@ -183,7 +183,6 @@ public class ListMulti extends JPanel
 {
     private MyJTable listMulti;
     private ListModel model;
-    private String colunmToolTips [] = null;
 
     ListMulti(Object columns[], String colunmToolTips [])
     {
@@ -198,7 +197,6 @@ public class ListMulti extends JPanel
         listMulti.getTableHeader().setReorderingAllowed(false);
         listMulti.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        this.colunmToolTips = colunmToolTips;
         for(int i = 0; i< columns.length; i ++)
         {
             TableColumn tmp = listMulti.getColumnModel().getColumn(i);

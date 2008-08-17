@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.gui.*;
@@ -20,16 +19,12 @@ import org.osgi.framework.*;
  */
 public class NotificationConfigurationActivator implements BundleActivator
 {
-    private Logger logger
+    private final Logger logger
         = Logger.getLogger(NotificationConfigurationActivator.class);
 
     public static BundleContext bundleContext;
 
-    private static ConfigurationService configService;
-
     private static AudioNotifierService audioService;
-
-    private static NotificationService notificationService;
 
     /**
      * Starts this bundle and adds the <tt>AudioConfigurationConfigForm</tt> 
@@ -58,27 +53,6 @@ public class NotificationConfigurationActivator implements BundleActivator
     }
     
     /**
-     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     * context
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if(configService == null)
-        {
-            ServiceReference configReference 
-                    = bundleContext.getServiceReference(
-                    ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext.getService(
-                    configReference);
-        }
-
-        return configService;
-    }
-    
-    /**
      * Returns the <tt>AudioService</tt> obtained from the bundle
      * context.
      * @return the <tt>AudioService</tt> obtained from the bundle
@@ -97,25 +71,25 @@ public class NotificationConfigurationActivator implements BundleActivator
         }
         return audioService;
     }
-    
+
     /**
      * Returns the <tt>NotificationService</tt> obtained from the bundle
      * context.
-     * @return the <tt>NotificationService</tt> obtained from the bundle
-     * context
+     * <p>
+     * <b>Note</b>: No caching of the returned value is made available. Clients
+     * interested in bringing down the penalties imposed by acquiring the value
+     * in question should provide it by themselves.
+     * </p>
+     * 
+     * @return the <tt>NotificationService</tt> obtained from the bundle context
      */
     public static NotificationService getNotificationService()
     {
-        if(notificationService == null)
-        {
-            ServiceReference notificationReference 
-                    = bundleContext.getServiceReference(
-                    NotificationService.class.getName());
+        ServiceReference notificationReference =
+            bundleContext.getServiceReference(NotificationService.class
+                .getName());
 
-            notificationService 
-                    = (NotificationService) bundleContext.getService(
-                    notificationReference);
-        }
-        return notificationService;
+        return (NotificationService) bundleContext
+            .getService(notificationReference);
     }
 }
