@@ -17,27 +17,26 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.notification.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The <tt>ConfigurationForm</tt> that would be added in the user interface
- * configuration window. It contains a list of all installed notifications.
+ * The UI of <tt>ConfigurationForm</tt> that would be added in the user
+ * interface configuration window. It contains a list of all installed
+ * notifications.
  * 
  * @author Alexandre Maillard
  */
-public class NotificationConfigurationConfigForm
+public class NotificationConfigurationPanel
     extends JPanel
-    implements ConfigurationForm,
-               ActionListener,
+    implements ActionListener,
                ItemListener,
                DocumentListener,
                NotificationChangeListener
 {
     private final Logger logger
-            = Logger.getLogger(NotificationConfigurationConfigForm.class);
+            = Logger.getLogger(NotificationConfigurationPanel.class);
 
     // Declaration of variables on the table notifications
     private Vector dataVector = null;
@@ -80,7 +79,7 @@ public class NotificationConfigurationConfigForm
     
     private boolean noListener = false;
     
-    public NotificationConfigurationConfigForm()
+    public NotificationConfigurationPanel()
     {
         super();
 
@@ -366,33 +365,6 @@ public class NotificationConfigurationConfigForm
         soundFileTextField.setText(tmpNTE.getSoundFile());
         popupCheckBox.setSelected(tmpNTE.getPopup());
         noListener = false;
-    }
-    
-    /**
-     * Implements the <tt>ConfigurationForm.getTitle()</tt> method. Returns the
-     * title of this configuration form.
-     */
-    public String getTitle()
-    {
-        return Resources.getString("notifications");
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getIcon()</tt> method. Returns the
-     * icon of this configuration form.
-     */
-    public byte[] getIcon()
-    {
-        return Resources.getImageInBytes("notificationIcon");
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getForm()</tt> method. Returns the
-     * component corresponding to this configuration form.
-     */
-    public Object getForm()
-    {
-        return this;
     }
     
     public void actionPerformed(ActionEvent e)
@@ -1216,10 +1188,5 @@ public class NotificationConfigurationConfigForm
         public void mouseReleased(MouseEvent e) {}
         public void mouseExited(MouseEvent e) {}
         public void mouseEntered(MouseEvent e) {}
-    }
-
-    public int getIndex()
-    {
-        return -1;
     }
 }

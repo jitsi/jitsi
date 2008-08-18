@@ -35,11 +35,8 @@ public class NotificationConfigurationActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        NotificationConfigurationConfigForm notificationconfiguration
-            = new NotificationConfigurationConfigForm();
-
         bundleContext.registerService(  ConfigurationForm.class.getName(),
-                                        notificationconfiguration,
+                                        new NotificationConfigurationForm(),
                                         null);
 
         logger.trace("Notification Configuration: [ STARTED ]");

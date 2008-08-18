@@ -57,13 +57,6 @@ public class ConfigFormDescriptor
         if(icon != null)
             configFormIcon
                 = new ImageIcon(ImageLoader.getBytesInImage(icon));
-        
-        if(!(configForm.getForm() instanceof Component))
-        {
-            throw new ClassCastException("ConfigurationFrame :"
-            + configForm.getForm().getClass()
-            + " is not a class supported by this ui implementation");
-        }
     }
 
     /**
@@ -83,7 +76,14 @@ public class ConfigFormDescriptor
      */
     public Component getConfigFormPanel()
     {
-        return (Component) configForm.getForm();
+        Object form = configForm.getForm();
+        if ((form instanceof Component) == false)
+        {
+            throw new ClassCastException("ConfigurationFrame :"
+                + form.getClass()
+                + " is not a class supported by this ui implementation");
+        }
+        return (Component) form;
     }
 
     /**

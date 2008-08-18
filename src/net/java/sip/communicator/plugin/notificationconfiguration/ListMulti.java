@@ -373,7 +373,7 @@ public class ListMulti extends JPanel
                     int index = columnModel.getColumnIndexAtX(p.x);
                     int realIndex = 
                             columnModel.getColumn(index).getModelIndex();
-                    return NotificationConfigurationConfigForm.columnToolTips[
+                    return NotificationConfigurationPanel.columnToolTips[
                             realIndex];
                 }
             };
