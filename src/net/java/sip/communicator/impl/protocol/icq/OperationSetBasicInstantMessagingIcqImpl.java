@@ -381,7 +381,10 @@ public class OperationSetBasicInstantMessagingIcqImpl
      */
     public boolean isOfflineMessagingSupported()
     {
-        return true;
+        if(icqProvider.USING_ICQ)
+            return true;
+        else
+            return false;
     }
     
     /**
