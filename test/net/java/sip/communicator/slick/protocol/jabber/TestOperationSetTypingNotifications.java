@@ -278,7 +278,7 @@ public class TestOperationSetTypingNotifications
          * @param event a <tt>TypingNotificationEvent</tt> containing the sender
          * of the notification and its type.
          */
-        public void typingNotificationReceifed(TypingNotificationEvent event)
+        public void typingNotificationReceived(TypingNotificationEvent event)
         {
             logger.debug("Received a typing notification: " + event);
             synchronized (this)

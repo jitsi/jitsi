@@ -13,12 +13,14 @@ import org.jivesoftware.smackx.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import org.jivesoftware.smack.*;
 
 /**
  * Maps SIP Communicator typing notifications to those going and coming from
  * smack lib.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class OperationSetTypingNotificationsJabberImpl
     implements OperationSetTypingNotifications
@@ -54,6 +56,18 @@ public class OperationSetTypingNotificationsJabberImpl
     private MessageEventManager messageEventManager = null;
 
     private Hashtable packetIDsTable = new Hashtable();
+    
+    /**
+     * The listener instance that we use to track chat states according to
+     * XEP-0085;
+     */
+    private SmackChatStateListener smackChatStateListener = null;
+    
+    /**
+     * The listener instance that we use in order to track for new chats so that
+     * we could stick a SmackChatStateListener to them. 
+     */
+    private SmackChatManagerListener smackChatManagerListener = null;
 
     /**
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
@@ -125,7 +139,7 @@ public class OperationSetTypingNotificationsJabberImpl
             TypingNotificationsListener listener
                 = (TypingNotificationsListener) listeners.next();
 
-              listener.typingNotificationReceifed(evt);
+              listener.typingNotificationReceived(evt);
         }
     }
 
@@ -155,12 +169,15 @@ public class OperationSetTypingNotificationsJabberImpl
         String packetID =
             (String)packetIDsTable.get(notifiedContact.getAddress());
 
+        //First do XEP-0022 notifications
         if(packetID != null)
         {
             if(typingState == STATE_TYPING)
+            {
                 messageEventManager.
                     sendComposingNotification(notifiedContact.getAddress(),
                                               packetID);
+            }
             else if(typingState == STATE_STOPPED)
             {
                 messageEventManager.
@@ -169,13 +186,65 @@ public class OperationSetTypingNotificationsJabberImpl
                 packetIDsTable.remove(notifiedContact.getAddress());
             }
         }
+        
+        //now handle XEP-0085
+        sendXep85ChatState(notifiedContact, typingState);
+    }
+    
+    /**
+     * Converts <tt>state</tt> into the corresponding smack <tt>ChatState</tt>
+     * and sends it to contact. 
+     * 
+     * @param contact the contact that we'd like to send our state to.
+     * @param state the state we'd like to sent.
+     */
+    private void sendXep85ChatState(Contact contact, int state)
+    {
+        logger.trace("Sending XEP-0085 chat state=" + state 
+            + " to " + contact.getAddress());
+        
+        Chat chat = jabberProvider.getConnection()
+            .getChatManager().createChat(contact.getAddress(), null);
+        
+        ChatState chatState = null;
+            
+        
+        if(state == STATE_TYPING)
+        {
+            chatState = ChatState.composing;
+        }
+        else if(state == STATE_STOPPED)
+        {
+            chatState = ChatState.inactive;
+        }
+        else if(state == STATE_PAUSED)
+        {
+            chatState = ChatState.paused;
+        }
+        else
+        {
+            chatState = ChatState.gone;
+        }
+        
+        try
+        {
+            ChatStateManager.getInstance(jabberProvider.getConnection())
+                .setCurrentState(chatState, chat);
+        }
+        catch(XMPPException exc)
+        {
+            //we don't want to bother the user with network exceptions
+            //so let's simply log it.
+            logger.warn("Failed to send state [" + state + "] to ["
+                + contact.getAddress() + "].", exc);
+        }
     }
 
     /**
      * Utility method throwing an exception if the stack is not properly
-     * initialized.
+     * initialised.
      * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered and initialized.
+     * not registered and initialised.
      */
     private void assertConnected() throws IllegalStateException
     {
@@ -221,8 +290,45 @@ public class OperationSetTypingNotificationsJabberImpl
                     new JabberMessageEventRequestListener());
                 messageEventManager.addMessageEventNotificationListener(
                     new IncomingMessageEventsListener());
+                
+                //according to the smack api documentation we need to do this
+                //every time we connect in order to reinitialize the chat state
+                //manager (@see http://tinyurl.com/6j9uqs )
+
+                ChatStateManager.getInstance(jabberProvider.getConnection());
+                
+                if(smackChatManagerListener == null)
+                    smackChatManagerListener = new SmackChatManagerListener();
+                
+                jabberProvider.getConnection().getChatManager()
+                    .addChatListener(smackChatManagerListener);
             }
         }
+    }
+    
+    /**
+     * The class that we use when listening for new chats so that we could start
+     * tracking them for chat events.
+     */
+    private class SmackChatManagerListener implements ChatManagerListener
+    {
+        /**
+         * Simply adds a chat state listener to every newly created chat 
+         * so that we could track it for chat state events.
+         * 
+         * @param chat the chat that we need to add a state listener to.
+         * @param isLocal indicates whether the chat has been initiated by us 
+         */
+        public void chatCreated(Chat chat, boolean isLocal)
+        {
+            logger.trace("Created a chat with " 
+                + chat.getParticipant() + " local="+isLocal);
+            
+            if(smackChatStateListener == null)
+                smackChatStateListener = new SmackChatStateListener();
+            
+            chat.addMessageListener(smackChatStateListener);
+        };
     }
 
     /**
@@ -304,6 +410,64 @@ public class OperationSetTypingNotificationsJabberImpl
             }
 
             fireTypingNotificationsEvent(sourceContact, STATE_STOPPED);
+        }
+    }
+    
+    
+    /**
+     * The listener that we use to track chat state notifications according
+     * to XEP-0085.
+     */
+    private class SmackChatStateListener implements ChatStateListener
+    {
+        /**
+         * Called by smack when the state of a chat changes.
+         * 
+         * @param chat the chat that is concerned by this event.
+         * @param state the new state of the chat.
+         */
+        public void stateChanged(Chat chat, ChatState state)
+        {
+            logger.trace(chat.getParticipant() + " entered the " 
+                + state.name()+ " state.");
+            
+            String fromID = StringUtils.parseBareAddress(chat.getParticipant());
+            Contact sourceContact = opSetPersPresence.findContactByID(fromID);
+
+            if(sourceContact == null)
+            {
+                //create the volatile contact
+                sourceContact = opSetPersPresence.createVolatileContact(fromID);
+            }
+            
+            if (ChatState.composing.equals(state))
+            {
+                fireTypingNotificationsEvent(sourceContact, STATE_TYPING);
+            }
+            else if (ChatState.paused.equals(state)
+                || ChatState.active.equals(state) )
+            {
+                fireTypingNotificationsEvent(sourceContact, STATE_PAUSED);
+            }
+            else if (ChatState.inactive.equals(state) 
+                || ChatState.gone.equals(state) )
+            {
+                fireTypingNotificationsEvent(sourceContact, STATE_STOPPED);
+            }
+        }
+
+        /**
+         * Called when a new message is received. We ignore this one since 
+         * we handle message reception on a lower level.
+         * 
+         * @param chat the chat that the message belongs to
+         * @param msg the message that we need to process.
+         */
+        public void processMessage(Chat chat,
+                                    org.jivesoftware.smack.packet.Message msg)
+        {
+            logger.trace("ignoring a process message");
+
         }
     }
 }

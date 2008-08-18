@@ -24,5 +24,5 @@ public interface TypingNotificationsListener
      * @param event a <tt>TypingNotificationEvent</tt> containing the sender
      * of the notification and its type.
      */
-    public void typingNotificationReceifed(TypingNotificationEvent event);
+    public void typingNotificationReceived(TypingNotificationEvent event);
 }

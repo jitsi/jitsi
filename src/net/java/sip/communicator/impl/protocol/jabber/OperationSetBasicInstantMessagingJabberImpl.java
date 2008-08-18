@@ -253,8 +253,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         org.jivesoftware.smack.packet.Message arg1) {}
             };
 
-            Chat chat = jabberProvider.getConnection().getChatManager().createChat(
-                to.getAddress(), msgListener);
+            Chat chat = jabberProvider.getConnection().getChatManager()
+                .createChat(to.getAddress(), msgListener);
             
             org.jivesoftware.smack.packet.Message msg = 
                 new org.jivesoftware.smack.packet.Message();
@@ -394,6 +394,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
         }
     }
+    
+    /**
+     * The listener that we use in order to handle incoming messages.
+     */
     private class SmackMessageListener
         implements PacketListener
     {

@@ -124,7 +124,7 @@ public class OperationSetTypingNotificationsZeroconfImpl
             
             logger.debug("ZEROCONF: Sending TypingNotif to Listener " + listener);
             
-            listener.typingNotificationReceifed(evt);
+            listener.typingNotificationReceived(evt);
         }
     }
 

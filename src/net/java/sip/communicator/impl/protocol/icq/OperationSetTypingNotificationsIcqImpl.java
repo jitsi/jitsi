@@ -133,7 +133,7 @@ public class OperationSetTypingNotificationsIcqImpl
             TypingNotificationsListener listener
                 = (TypingNotificationsListener) listeners.next();
 
-            listener.typingNotificationReceifed(evt);
+            listener.typingNotificationReceived(evt);
         }
     }
 

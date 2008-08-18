@@ -167,7 +167,7 @@ public class OperationSetTypingNotificationsSipImpl
             TypingNotificationsListener listener
                 = (TypingNotificationsListener) listeners.next();
 
-            listener.typingNotificationReceifed(evt);
+            listener.typingNotificationReceived(evt);
         }
     }
     

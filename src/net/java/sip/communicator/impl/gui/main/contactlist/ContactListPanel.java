@@ -491,7 +491,7 @@ public class ContactListPanel
      * 
      * @param evt the event containing details on the typing notification
      */
-    public void typingNotificationReceifed(TypingNotificationEvent evt)
+    public void typingNotificationReceived(TypingNotificationEvent evt)
     {
         if (typingTimer.isRunning())
             typingTimer.stop();
