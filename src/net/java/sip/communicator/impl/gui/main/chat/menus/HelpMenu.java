@@ -24,18 +24,14 @@ import org.osgi.framework.*;
  * The <tt>HelpMenu</tt> is a menu in the main application menu bar.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class HelpMenu
     extends SIPCommMenu
     implements ActionListener,
                PluginComponentListener
 {
-
-    private Logger logger = Logger.getLogger(HelpMenu.class.getName());
-
-    private I18NString aboutString = Messages.getI18NString("about");
-
-    private ChatWindow chatWindow;
+    private final Logger logger = Logger.getLogger(HelpMenu.class.getName());
 
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
@@ -45,14 +41,28 @@ public class HelpMenu
 
         super(Messages.getI18NString("help").getText());
 
-        this.chatWindow = chatWindow;
-
         this.setForeground(new Color(
             GuiActivator.getResources().getColor("chatMenuForeground")));
 
         this.setMnemonic(Messages.getI18NString("help").getMnemonic());
 
         this.initPluginComponents();
+    }
+
+    /**
+     * Runs clean-up for associated resources which need explicit disposal (e.g.
+     * listeners keeping this instance alive because they were added to the
+     * model which operationally outlives this instance).
+     */
+    public void dispose()
+    {
+        GuiActivator.getUIService().removePluginComponentListener(this);
+
+        /*
+         * Let go of all Components contributed by PluginComponents because the
+         * latter will still live in the contribution store.
+         */
+        removeAll();
     }
 
     /**

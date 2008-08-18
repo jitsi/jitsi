@@ -37,6 +37,7 @@ import net.java.sip.communicator.util.*;
  * rollover behaviour to differentiates them from normal buttons.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MainToolBar
     extends SIPCommToolBar
@@ -260,6 +261,16 @@ public class MainToolBar
                 }
             }
         });
+    }
+
+    /**
+     * Runs clean-up for associated resources which need explicit disposal (e.g.
+     * listeners keeping this instance alive because they were added to the
+     * model which operationally outlives this instance).
+     */
+    public void dispose()
+    {
+        GuiActivator.getUIService().removePluginComponentListener(this);
     }
 
     /**

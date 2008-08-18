@@ -51,7 +51,7 @@ public class ChatWindow
 {
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
 
-    private MenusPanel menusPanel;
+    private final MenusPanel menusPanel;
 
     private MainFrame mainFrame;
 
@@ -149,6 +149,7 @@ public class ChatWindow
         try
         {
             GuiActivator.getUIService().removePluginComponentListener(this);
+            menusPanel.dispose();
         }
         finally
         {

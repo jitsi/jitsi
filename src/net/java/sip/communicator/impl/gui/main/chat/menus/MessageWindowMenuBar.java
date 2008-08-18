@@ -26,20 +26,21 @@ import net.java.sip.communicator.util.*;
  * all menus are added.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MessageWindowMenuBar
     extends JMenuBar
     implements PluginComponentListener
 {
-    private Logger logger = Logger.getLogger(MessageWindowMenuBar.class);
+    private final Logger logger = Logger.getLogger(MessageWindowMenuBar.class);
 
     private FileMenu fileMenu;
 
     private EditMenu editMenu;
 
-    private HelpMenu helpMenu;
+    private final HelpMenu helpMenu;
 
-    private ChatWindow parentWindow;
+    private final ChatWindow parentWindow;
 
     /**
      * Creates an instance of <tt>MessageWindowMenuBar</tt>.
@@ -60,6 +61,17 @@ public class MessageWindowMenuBar
         this.init();
 
         this.initPluginComponents();
+    }
+
+    /**
+     * Runs clean-up for associated resources which need explicit disposal (e.g.
+     * listeners keeping this instance alive because they were added to the
+     * model which operationally outlives this instance).
+     */
+    public void dispose()
+    {
+        GuiActivator.getUIService().removePluginComponentListener(this);
+        helpMenu.dispose();
     }
 
     /**

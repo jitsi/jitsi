@@ -21,15 +21,16 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * window.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MenusPanel
     extends JPanel
 {
-    private MessageWindowMenuBar menuBar;
+    private final MessageWindowMenuBar menuBar;
 
-    private MainToolBar mainToolBar;
+    private final MainToolBar mainToolBar;
 
-    private ChatWindow parentWindow;
+    private final ChatWindow parentWindow;
 
     /**
      * Creates an instance and constructs the <tt>MenusPanel</tt>.
@@ -57,6 +58,17 @@ public class MenusPanel
 
         parentWindow.setJMenuBar(menuBar);
         this.add(mainToolBar, BorderLayout.CENTER);
+    }
+
+    /**
+     * Runs clean-up for associated resources which need explicit disposal (e.g.
+     * listeners keeping this instance alive because they were added to the
+     * model which operationally outlives this instance).
+     */
+    public void dispose()
+    {
+        mainToolBar.dispose();
+        menuBar.dispose();
     }
 
     /**
