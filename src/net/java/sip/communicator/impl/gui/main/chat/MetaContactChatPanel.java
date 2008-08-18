@@ -30,6 +30,7 @@ import net.java.sip.communicator.util.*;
  * functionalities
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MetaContactChatPanel
     extends ChatPanel
@@ -39,24 +40,21 @@ public class MetaContactChatPanel
     private static final Logger logger = Logger
         .getLogger(MetaContactChatPanel.class.getName());
 
-    private ChatWindow chatWindow;
-
     private MetaContact metaContact;
 
     private Date firstHistoryMsgTimestamp;
 
     private Date lastHistoryMsgTimestamp;
 
-    private JLabel sendViaLabel = new JLabel(
-        Messages.getI18NString("sendVia").getText());
-
     private JCheckBox sendSmsCheckBox = new JCheckBox(
         Messages.getI18NString("sendAsSms").getText());
-        /* There is some problem when adding the icon to the check box, the 
-         * check box disappears.
-         * 
-         * new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_SMS_ICON))
-         */
+
+    /*
+     * There is some problem when adding the icon to the check box, the check
+     * box disappears.
+     * 
+     * new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_SMS_ICON))
+     */
 
     private ProtocolContactSelectorBox contactSelectorBox;
     
@@ -77,38 +75,23 @@ public class MetaContactChatPanel
     {
         super(chatWindow);
 
-        this.chatWindow = chatWindow;
-
         this.metaContact = metaContact;
 
         ChatContact chatContact = new ChatContact(metaContact, protocolContact);
 
         //Add the contact to the list of contacts contained in this panel
         getChatContactListPanel().addContact(chatContact);
-
-        // Obtain the MetaContactListService and add this class to it as a
-        // listener of all events concerning the contact list.
-        chatWindow.getMainFrame().getContactList()
-            .addMetaContactListListener(this);
-
-        // Detect contact properties changes (photo) and updates them
-        Iterator iter = metaContact.getContacts(); 
-        while (iter.hasNext()) 
-        { 
-            Contact contact = (Contact)iter.next(); 
-            OperationSetPresence opsPresence =  
-                (OperationSetPresence)contact.getProtocolProvider(). 
-                    getOperationSet(OperationSetPresence.class); 
-            if(opsPresence != null) 
-                opsPresence.addSubsciptionListener(this); 
-        }
+        
+        setupListeners(true);
 
         // Initialize the "send via" selector box and adds it to the send panel.
         contactSelectorBox = new ProtocolContactSelectorBox(
             this, metaContact, protocolContact);
 
-        getChatSendPanel().getSendPanel().add(contactSelectorBox, 0);
-        getChatSendPanel().getSendPanel().add(sendViaLabel, 0);
+        JPanel sendPanel = getChatSendPanel().getSendPanel();
+        sendPanel.add(contactSelectorBox, 0);
+        sendPanel.add(new JLabel(Messages.getI18NString("sendVia").getText()),
+            0);
 
         //Enables to change the protocol provider by simply pressing the CTRL-P
         //key combination
@@ -121,6 +104,67 @@ public class MetaContactChatPanel
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
             KeyEvent.CTRL_DOWN_MASK), "ChangeProtocol");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.impl.gui.main.chat.ChatPanel#dispose()
+     */
+    public void dispose()
+    {
+        try
+        {
+            setupListeners(false);
+        }
+        finally
+        {
+            super.dispose();
+        }
+    }
+
+    /**
+     * Adds or removes the listeners which observe the model displayed by this
+     * view.
+     * 
+     * @param add <tt>true</tt> to add the listeners to the model displayed by
+     *            this view; <tt>false</tt> to remove the previously-installed
+     *            listeners from the model
+     */
+    private void setupListeners(boolean add)
+    {
+        // Obtain the MetaContactListService and add this class to it as a
+        // listener of all events concerning the contact list.
+        MetaContactListService contactList =
+            chatWindow.getMainFrame().getContactList();
+        if (add)
+        {
+            contactList.addMetaContactListListener(this);
+        }
+        else
+        {
+            contactList.removeMetaContactListListener(this);
+        }
+
+        // Detect contact properties changes (photo) and updates them
+        for (Iterator iter = metaContact.getContacts(); iter.hasNext();)
+        {
+            Contact contact = (Contact) iter.next();
+            OperationSetPresence opsPresence =
+                (OperationSetPresence) contact.getProtocolProvider()
+                    .getOperationSet(OperationSetPresence.class);
+            if (opsPresence != null)
+            {
+                if (add)
+                {
+                    opsPresence.addSubsciptionListener(this);
+                }
+                else
+                {
+                    opsPresence.removeSubscriptionListener(this);
+                }
+            }
+        }
     }
 
     /**

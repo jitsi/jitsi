@@ -37,6 +37,7 @@ import net.java.sip.communicator.util.*;
  * one chat window", each ChatPanel corresponds to a tab in the ChatWindow.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public abstract class ChatPanel
     extends JPanel
@@ -59,7 +60,7 @@ public abstract class ChatPanel
 
     protected ChatSendPanel sendPanel;
 
-    private ChatWindow chatWindow;
+    protected final ChatWindow chatWindow;
 
     /**
      * Indicates that a typing notification event is successfully sent.
@@ -71,14 +72,14 @@ public abstract class ChatPanel
      */
     public static final int TYPING_NOTIFICATION_SEND_FAILED = 0;
 
-    private Date beginLastPageTimeStamp;
-
     protected static final int MESSAGES_PER_PAGE = 20;
 
     private boolean isShown = false;
 
     private Vector focusListeners = new Vector();
-    
+
+    private final FocusPropertyChangeListener focusPropertyChangeListener;
+
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
      *
@@ -119,12 +120,19 @@ public abstract class ChatPanel
 
         this.addComponentListener(new TabSelectionComponentListener());
 
-        KeyboardFocusManager focusManager =
-            KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusPropertyChangeListener =
+            new FocusPropertyChangeListener(KeyboardFocusManager
+                .getCurrentKeyboardFocusManager());
+    }
 
-        focusManager.addPropertyChangeListener(
-            new FocusPropertyChangeListener()
-        );
+    /**
+     * Runs clean-up for associated resources which need explicit disposal (e.g.
+     * listeners keeping this instance alive because they were added to the
+     * model which operationally outlives this instance).
+     */
+    public void dispose()
+    {
+        focusPropertyChangeListener.dispose();
     }
 
     /**
@@ -711,10 +719,29 @@ public abstract class ChatPanel
      */
     private class FocusPropertyChangeListener implements PropertyChangeListener
     {
+        private final KeyboardFocusManager keyboardFocusManager;
+
+        private final String propertyName = "focusOwner";
+
+        public FocusPropertyChangeListener(
+            KeyboardFocusManager keyboardFocusManager)
+        {
+            this.keyboardFocusManager = keyboardFocusManager;
+
+            this.keyboardFocusManager.addPropertyChangeListener(propertyName,
+                this);
+        }
+
+        public void dispose()
+        {
+            keyboardFocusManager.removePropertyChangeListener(propertyName,
+                this);
+        }
+
         public void propertyChange(PropertyChangeEvent evt)
         {
             String prop = evt.getPropertyName();
-            if ((prop.equals("focusOwner")) &&
+            if ((prop.equals(propertyName)) &&
                   (evt.getNewValue() != null) &&
                   (evt.getNewValue() instanceof Component) &&
                   ((Component)evt.getNewValue())

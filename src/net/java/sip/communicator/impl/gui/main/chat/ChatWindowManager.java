@@ -465,9 +465,15 @@ public class ChatWindowManager
         if (chatWindow.getChatCount() == 0)
             disposeChatWindow(chatWindow);
 
+        ChatPanel removedChatPanel;
         synchronized (chats)
         {
-            chats.remove(chatPanel.getChatIdentifier());
+            removedChatPanel =
+                (ChatPanel) chats.remove(chatPanel.getChatIdentifier());
+        }
+        if (removedChatPanel != null)
+        {
+            removedChatPanel.dispose();
         }
     }
 
@@ -718,15 +724,36 @@ public class ChatWindowManager
      */
     private void disposeChatWindow(ChatWindow chatWindow)
     {
+        ChatPanel[] removedChatPanels = null;
         synchronized (chats)
         {
             // If we're in a tabbed window we clear the list of active chats, as
             // they'll be all gone with the window.
             if (ConfigurationManager.isMultiChatWindowEnabled())
+            {
+                Collection values = chats.values();
+                removedChatPanels = new ChatPanel[values.size()];
+                values.toArray(removedChatPanels);
+
                 chats.clear();
+            }
             else
-                chats.remove(
-                    chatWindow.getCurrentChatPanel().getChatIdentifier());
+            {
+                ChatPanel removedChatPanel =
+                    (ChatPanel) chats.remove(chatWindow.getCurrentChatPanel()
+                        .getChatIdentifier());
+                if (removedChatPanel != null)
+                {
+                    removedChatPanels = new ChatPanel[] { removedChatPanel };
+                }
+            }
+        }
+        if (removedChatPanels != null)
+        {
+            for (int i = 0; i < removedChatPanels.length; i++)
+            {
+                removedChatPanels[i].dispose();
+            }
         }
 
         if (chatWindow.getChatCount() > 0)
