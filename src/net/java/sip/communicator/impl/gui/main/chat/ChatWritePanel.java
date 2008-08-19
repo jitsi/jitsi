@@ -32,36 +32,32 @@ import net.java.sip.communicator.util.*;
  * contains an editor, where user writes the text.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ChatWritePanel
     extends JPanel
-    implements  UndoableEditListener,
+    implements  ActionListener,
                 KeyListener,
-                MouseListener
+                MouseListener,
+                UndoableEditListener
 {
-    private Logger logger = Logger.getLogger(ChatWritePanel.class);
+    private final Logger logger = Logger.getLogger(ChatWritePanel.class);
 
     private JEditorPane editorPane = new JEditorPane();
 
     private UndoManager undo = new UndoManager();
 
-    private ChatPanel chatPanel;
+    private final ChatPanel chatPanel;
 
-    private Timer stoppedTypingTimer =
-        new Timer(2 * 1000, new Timer1ActionListener());
+    private final Timer stoppedTypingTimer = new Timer(2 * 1000, this);
 
-    private Timer typingTimer = new Timer(5 * 1000, new Timer2ActionListener());
+    private final Timer typingTimer = new Timer(5 * 1000, this);
 
     private int typingState = -1;
-
-    private SIPCommHTMLEditorKit htmlEditor = new SIPCommHTMLEditorKit();
 
     private WritePanelRightButtonMenu rightButtonMenu;
 
     private EditTextToolBar editTextToolBar;
-    
-    private JScrollPane scrollPane = new JScrollPane();
-
 
     /**
      * Creates an instance of <tt>ChatWritePanel</tt>.
@@ -70,15 +66,15 @@ public class ChatWritePanel
      */
     public ChatWritePanel(ChatPanel panel)
     {
-
         super(new BorderLayout());
+        JScrollPane scrollPane = new JScrollPane();
 
         this.chatPanel = panel;
 
         this.editorPane.setContentType("text/html");
         this.editorPane.setFont(Constants.FONT);
         this.editorPane.setCaretPosition(0);
-        this.editorPane.setEditorKit(htmlEditor);
+        this.editorPane.setEditorKit(new SIPCommHTMLEditorKit());
         this.editorPane.getDocument().addUndoableEditListener(this);
         this.editorPane.addKeyListener(this);
         this.editorPane.addMouseListener(this);
@@ -91,16 +87,16 @@ public class ChatWritePanel
         this.rightButtonMenu =
             new WritePanelRightButtonMenu(chatPanel.getChatWindow());
 
-        this.scrollPane
+        scrollPane
             .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        this.scrollPane.getViewport().add(editorPane, BorderLayout.CENTER);
+        scrollPane.getViewport().add(editorPane, BorderLayout.CENTER);
 
-        this.scrollPane.setBorder(BorderFactory
+        scrollPane.setBorder(BorderFactory
             .createCompoundBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3),
                 SIPCommBorders.getBoldRoundBorder()));
 
-        this.scrollPane.getVerticalScrollBar().setUnitIncrement(30);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(30);
 
         this.typingTimer.setRepeats(true);
 
@@ -117,10 +113,30 @@ public class ChatWritePanel
                 GuiActivator.getResources().
                     getSettingsString(messageCommandProperty);
 
-        if (messageCommand == null || messageCommand.equalsIgnoreCase("enter"))
-            this.changeSendCommand(true);
-        else
-            this.changeSendCommand(false);
+        this.changeSendCommand((messageCommand == null || messageCommand
+            .equalsIgnoreCase("enter")));
+    }
+
+    /**
+     * Runs clean-up for associated resources which need explicit disposal (e.g.
+     * listeners keeping this instance alive because they were added to the
+     * model which operationally outlives this instance).
+     */
+    public void dispose()
+    {
+
+        /*
+         * Stop the Timers because they're implicitly globally referenced and
+         * thus don't let them retain this instance.
+         */
+        typingTimer.stop();
+        typingTimer.removeActionListener(this);
+        stoppedTypingTimer.stop();
+        stoppedTypingTimer.removeActionListener(this);
+        if (typingState != OperationSetTypingNotifications.STATE_STOPPED)
+        {
+            stopTypingTimer();
+        }
     }
 
     /**
@@ -138,8 +154,9 @@ public class ChatWritePanel
      */
     public void changeSendCommand(boolean isEnter)
     {
-        this.editorPane.getActionMap().put("send", new SendMessageAction());
-        this.editorPane.getActionMap().put("newLine", new NewLineAction());
+        ActionMap actionMap = editorPane.getActionMap();
+        actionMap.put("send", new SendMessageAction());
+        actionMap.put("newLine", new NewLineAction());
 
         InputMap im = this.editorPane.getInputMap();
 
@@ -300,13 +317,19 @@ public class ChatWritePanel
     {
     }
 
-    /**
-     * Listens for <code>stoppedTypingTimer</tt> events.
-     */
-    private class Timer1ActionListener
-        implements ActionListener
+    public void actionPerformed(ActionEvent e)
     {
-        public void actionPerformed(ActionEvent e)
+        Object source = e.getSource();
+
+        if (typingTimer.equals(source))
+        {
+            if (typingState == OperationSetTypingNotifications.STATE_TYPING)
+            {
+                chatPanel
+                    .sendTypingNotification(OperationSetTypingNotifications.STATE_TYPING);
+            }
+        }
+        else if (stoppedTypingTimer.equals(source))
         {
             typingTimer.stop();
             if (typingState == OperationSetTypingNotifications.STATE_TYPING)
@@ -328,22 +351,6 @@ public class ChatWritePanel
             else if (typingState == OperationSetTypingNotifications.STATE_PAUSED)
             {
                 stopTypingTimer();
-            }
-        }
-    }
-
-    /**
-     * Listens for <code>typingTimer</tt> events.
-     */
-    private class Timer2ActionListener
-        implements ActionListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            if (typingState == OperationSetTypingNotifications.STATE_TYPING)
-            {
-                chatPanel
-                    .sendTypingNotification(OperationSetTypingNotifications.STATE_TYPING);
             }
         }
     }

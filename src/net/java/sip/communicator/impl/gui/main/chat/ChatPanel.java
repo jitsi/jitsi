@@ -54,7 +54,7 @@ public abstract class ChatPanel
 
     protected ChatConversationPanel conversationPanel;
 
-    protected ChatWritePanel writeMessagePanel;
+    protected final ChatWritePanel writeMessagePanel;
 
     protected ChatContactListPanel chatContactListPanel;
 
@@ -133,6 +133,7 @@ public abstract class ChatPanel
     public void dispose()
     {
         focusPropertyChangeListener.dispose();
+        writeMessagePanel.dispose();
     }
 
     /**
