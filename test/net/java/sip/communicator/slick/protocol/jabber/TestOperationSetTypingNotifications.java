@@ -253,6 +253,10 @@ public class TestOperationSetTypingNotifications
         assertTrue("Number of typing events received was zero."
             , evtCollector.collectedEvents.size() > 0);
 
+        logger.trace("We have collected " + evtCollector.collectedEvents.size() 
+            + " typing notifications.");
+        logger.trace("Notifications: " + evtCollector.collectedEvents);
+        
         evt = (TypingNotificationEvent)evtCollector.collectedEvents.get(0);
 
         assertEquals("Source of the typing notification event"
@@ -265,7 +269,7 @@ public class TestOperationSetTypingNotifications
     }
 
     /**
-     * Simply collects allre received events and provides a mechanisim for
+     * Simply collects all received events and provides a mechanism for
      * waiting for the next event.
      */
     private class TypingEventCollector implements TypingNotificationsListener

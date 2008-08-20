@@ -1,5 +1,9 @@
-package net.java.sip.communicator.util;
-
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */package net.java.sip.communicator.util;
 import java.util.logging.*;
 
 /**
@@ -62,7 +66,6 @@ public class Logger
         throws NullPointerException
     {
         return new Logger(java.util.logging.Logger.getLogger(name));
-
     }
 
 

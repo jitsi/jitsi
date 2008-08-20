@@ -165,7 +165,13 @@ public class OperationSetTypingNotificationsJabberImpl
                "The specified contact is not a Jabber contact."
                + notifiedContact);
 
-
+        /**
+         * Emil Ivov: We used to use this in while we were still using XEP-0022
+         * to send typing notifications. I am commenting it out today on
+         * 2008-08-20 as we now also support XEP-0085 (see below) and using both
+         * mechanisms sends double notifications which, apart from simply being 
+         * redundant, is also causing the jabber slick to fail.
+         * 
         String packetID =
             (String)packetIDsTable.get(notifiedContact.getAddress());
 
@@ -186,6 +192,7 @@ public class OperationSetTypingNotificationsJabberImpl
                 packetIDsTable.remove(notifiedContact.getAddress());
             }
         }
+        */
         
         //now handle XEP-0085
         sendXep85ChatState(notifiedContact, typingState);
