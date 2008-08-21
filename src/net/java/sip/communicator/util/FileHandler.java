@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.launcher.logging;
+package net.java.sip.communicator.util;
 
 import java.io.*;
 import java.util.logging.*;

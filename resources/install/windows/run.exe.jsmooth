@@ -11,6 +11,7 @@
 <classPath>lib\jdic-all.jar</classPath>
 <classPath>lib\jdic_stub.jar</classPath>
 <classPath>sc-bundles\sc-launcher.jar</classPath>
+<classPath>sc-bundles\util.jar</classPath>
 <currentDirectory>${EXECUTABLEPATH}</currentDirectory>
 <embeddedJar>false</embeddedJar>
 <executableName>run.exe</executableName>
