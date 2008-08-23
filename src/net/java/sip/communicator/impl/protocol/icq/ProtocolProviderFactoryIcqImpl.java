@@ -313,16 +313,20 @@ public class ProtocolProviderFactoryIcqImpl
                                 Map accountProperties)
         throws NullPointerException
     {
+        // Make sure the specified arguments are valid.
+        if (protocolProvider == null)
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+        if (accountProperties == null)
+            throw new NullPointerException(
+                "The specified property map was null");
+
         BundleContext context
             = IcqActivator.getBundleContext();
 
         if (context == null)
             throw new NullPointerException(
                 "The specified BundleContext was null");
-
-        if (protocolProvider == null)
-            throw new NullPointerException(
-                "The specified Protocol Provider was null");
 
         IcqAccountID accountID = (IcqAccountID) protocolProvider.getAccountID();
 
@@ -339,10 +343,6 @@ public class ProtocolProviderFactoryIcqImpl
             registration.unregister();
 
         accountProperties.put(USER_ID, accountID.getUserID());
-
-        if (accountProperties == null)
-            throw new NullPointerException(
-                "The specified property map was null");
 
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.ICQ);

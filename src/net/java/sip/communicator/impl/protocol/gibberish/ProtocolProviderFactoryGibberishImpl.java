@@ -144,16 +144,20 @@ public class ProtocolProviderFactoryGibberishImpl
     public void modifyAccount(  ProtocolProviderService protocolProvider,
                                 Map accountProperties)
     {
+        // Make sure the specified arguments are valid.
+        if (protocolProvider == null)
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+        if (accountProperties == null)
+            throw new NullPointerException(
+                "The specified property map was null");
+
         BundleContext context
             = GibberishActivator.getBundleContext();
 
         if (context == null)
             throw new NullPointerException(
                 "The specified BundleContext was null");
-
-        if (protocolProvider == null)
-            throw new NullPointerException(
-                "The specified Protocol Provider was null");
 
         GibberishAccountID accountID
             = (GibberishAccountID) protocolProvider.getAccountID();
@@ -171,10 +175,6 @@ public class ProtocolProviderFactoryGibberishImpl
             registration.unregister();
 
         accountProperties.put(USER_ID, accountID.getUserID());
-
-        if (accountProperties == null)
-            throw new NullPointerException(
-                "The specified property map was null");
 
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.GIBBERISH);
