@@ -220,7 +220,7 @@ public class ProtocolProviderServiceSipImpl
      */
     private static final String REGISTRATION_EXPIRATION =
         "net.java.sip.communicator.impl.protocol.sip.REGISTRATION_EXPIRATION";
-    
+
     /**
      * The name of the property under which the user may specify whether or not
      * REGISTER requests should be using a route header. Default is false
@@ -245,12 +245,12 @@ public class ProtocolProviderServiceSipImpl
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
-    
+
     /**
-     * Keep-alive method can be - register,options or udp 
+     * Keep-alive method can be - register,options or udp
      */
     public static final String KEEP_ALIVE_METHOD = "KEEP_ALIVE_METHOD";
-    
+
     /**
      * The interval for keep-alive
      */
@@ -357,8 +357,8 @@ public class ProtocolProviderServiceSipImpl
      *
      * @param event The event to register
      */
-    public void registerEvent(String event) 
-	{
+    public void registerEvent(String event)
+    {
         synchronized (this.registeredEvents) {
             if (!this.registeredEvents.contains(event)) {
                 this.registeredEvents.add(event);
@@ -371,8 +371,8 @@ public class ProtocolProviderServiceSipImpl
      *
      * @return The list of all the registered events
      */
-    public List getKnownEventsList() 
-	{
+    public List getKnownEventsList()
+    {
         return this.registeredEvents;
     }
 
@@ -494,7 +494,7 @@ public class ProtocolProviderServiceSipImpl
      * provider represents.
      * @param isInstall indicates if this initialization is made due to a new
      * account installation or just an existing account loading
-     * 
+     *
      * @throws OperationFailedException with code INTERNAL_ERROR if we fail
      * initializing the SIP Stack.
      * @throws java.lang.IllegalArgumentException if one or more of the account
@@ -697,14 +697,14 @@ public class ProtocolProviderServiceSipImpl
             this.supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 opSetBasicIM);
-            
+
             // init typing notifications
             OperationSetTypingNotificationsSipImpl opSetTyping =
                 new OperationSetTypingNotificationsSipImpl(this, opSetBasicIM);
             this.supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
                 opSetTyping);
-            
+
             // init DTMF (from JM Heitz)
             OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);
             this.supportedOperationSets.put(
@@ -762,7 +762,7 @@ public class ProtocolProviderServiceSipImpl
             //init the security manager
             this.sipSecurityManager = new SipSecurityManager(accountID);
             sipSecurityManager.setHeaderFactory(headerFactory);
-            
+
             isInitialized = true;
         }
     }
@@ -832,11 +832,11 @@ public class ProtocolProviderServiceSipImpl
                 tlsJainSipProvider
                     = jainSipStack.createSipProvider(tlsListeningPoint);
                 tlsJainSipProvider.addSipListener(this);
-                
+
                 // set our custom address resolver managing SRV records
-                AddressResolverImpl addressResolver = 
+                AddressResolverImpl addressResolver =
                     new AddressResolverImpl();
-                
+
                 ((SIPTransactionStack)udpJainSipProvider.getSipStack()).
                     setAddressResolver(addressResolver);
                 ((SIPTransactionStack)tcpJainSipProvider.getSipStack()).
@@ -1067,10 +1067,10 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-        
+
         logger.debug("Found one processor for method " + method
                      + ", processor is=" + processor.toString());
-            
+
             processor.processResponse(responseEvent);
     }
 
@@ -1114,10 +1114,10 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-        
+
         logger.debug("Found one processor for method " + request.getMethod()
                      + ", processor is=" + processor.toString());
-            
+
             processor.processTimeout(timeoutEvent);
     }
 
@@ -1160,10 +1160,10 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-        
+
         logger.debug("Found one processor for method " + request.getMethod()
                      + ", processor is=" + processor.toString());
-            
+
             processor.processTransactionTerminated(transactionTerminatedEvent);
     }
 
@@ -1197,26 +1197,26 @@ public class ProtocolProviderServiceSipImpl
         logger.debug("received request=\n" + requestEvent.getRequest());
 
         Request request = requestEvent.getRequest();
-        
+
         // test if an Event header is present and known
-        EventHeader eventHeader = (EventHeader) 
+        EventHeader eventHeader = (EventHeader)
             request.getHeader(EventHeader.NAME);
-        
+
         if (eventHeader != null) {
             boolean eventKnown;
-            
+
             synchronized (this.registeredEvents) {
                 eventKnown = this.registeredEvents.contains(
                         eventHeader.getEventType());
             }
-            
+
             if (!eventKnown) {
                 // send a 489 / Bad Event response
                 ServerTransaction serverTransaction = requestEvent
                     .getServerTransaction();
                 SipProvider jainSipProvider = (SipProvider)
                     requestEvent.getSource();
-                
+
                 if (serverTransaction == null)
                 {
                     try
@@ -1243,7 +1243,7 @@ public class ProtocolProviderServiceSipImpl
                             return;
                     }
                 }
-                
+
                 Response response = null;
                 try {
                     response = this.getMessageFactory().createResponse(
@@ -1264,7 +1264,7 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
         }
-        
+
 
         String method = request.getMethod();
 
@@ -1276,10 +1276,10 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-        
+
         logger.debug("Found one processor for method " + method
                      + ", processor is=" + processor.toString());
-            
+
             processor.processRequest(requestEvent);
     }
 
@@ -1294,7 +1294,7 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-        
+
         // launch the shutdown process in a thread to free the GUI as soon
         // as possible even if the SIP unregistration process may take time
         // especially for ending SIMPLE
@@ -1303,7 +1303,7 @@ public class ProtocolProviderServiceSipImpl
         t.run();
 
     }
-    
+
     protected class ShutdownThread implements Runnable
     {
         public void run() {
@@ -1695,7 +1695,7 @@ public class ProtocolProviderServiceSipImpl
                 .get(ProtocolProviderFactory.USER_ID);
             registrarAddressStr = userID.substring( userID.indexOf("@")+1);
         }
-        
+
         InetAddress registrarAddress = null;
 
         try
@@ -1728,7 +1728,7 @@ public class ProtocolProviderServiceSipImpl
                 isServerValidated = new Boolean(serverValidatedString)
                     .booleanValue();
 
-            // We should check here if the server address was already validated. 
+            // We should check here if the server address was already validated.
             // When we load stored accounts we want to prevent checking again the
             // server address. This is needed because in the case we don't have
             // network while loading the application we still want to have our
@@ -1836,16 +1836,16 @@ public class ProtocolProviderServiceSipImpl
                 , registrarTransport
                 , expires
                 , this);
-            
+
             //determine whether we should be using route headers or not
             String useRouteString = (String) accountID.getAccountProperties()
                 .get(REGISTERS_USE_ROUTE);
-            
+
             boolean useRoute = false;
-            
+
             if (useRouteString != null)
                 useRoute = new Boolean(useRouteString).booleanValue();
-            
+
             this.sipRegistrarConnection.setRouteHeaderEnabled(useRoute);
         }
         catch (ParseException ex)
@@ -1873,12 +1873,12 @@ public class ProtocolProviderServiceSipImpl
     {
         return ourSipAddress;
     }
-    
+
     /**
      * In case we are using an outbound proxy this method returns its address.
      * The method returns <tt>null</tt> otherwise.
-     * 
-     * @return the address of our outbound proxy if we are using one and 
+     *
+     * @return the address of our outbound proxy if we are using one and
      * <tt>null</tt> otherwise.
      */
     public InetSocketAddress getOutboundProxy()
@@ -1888,10 +1888,10 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * In case we are using an outbound proxy this method returns the transport
-     * we are using to connect to it. The method returns <tt>null</tt> 
+     * we are using to connect to it. The method returns <tt>null</tt>
      * otherwise.
-     * 
-     * @return the transport used to connect to our outbound proxy if we are 
+     *
+     * @return the transport used to connect to our outbound proxy if we are
      * using one and <tt>null</tt> otherwise.
      */
     public String getOutboundProxyTransport()
@@ -1926,10 +1926,10 @@ public class ProtocolProviderServiceSipImpl
 
                 String proxyTransport = (String) accountID.getAccountProperties()
                             .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
-                
+
                 if(proxyTransport == null)
                     proxyTransport = getDefaultTransport();
-                
+
                 if(proxyTransport.equalsIgnoreCase(ListeningPoint.UDP))
                     lookupStr = "_sip._udp." + proxyAddressStr;
                 else if(proxyTransport.equalsIgnoreCase(ListeningPoint.TCP))
@@ -1979,7 +1979,7 @@ public class ProtocolProviderServiceSipImpl
                 isProxyValidated
                     = new Boolean(proxyValidatedString).booleanValue();
 
-            // We should check here if the proxy address was already validated. 
+            // We should check here if the proxy address was already validated.
             // When we load stored accounts we want to prevent checking again the
             // proxy address. This is needed because in the case we don't have
             // network while loading the application we still want to have our
@@ -2191,8 +2191,8 @@ public class ProtocolProviderServiceSipImpl
             try
             {
                 List userAgentTokens = new LinkedList();
-                
-                Version ver = 
+
+                Version ver =
                         SipActivator.getVersionService().getCurrentVersion();
 
                 userAgentTokens.add(ver.getApplicationName());
@@ -2352,7 +2352,7 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * Returns the current instance of <tt>SipStatusEnum</tt>.
-     * 
+     *
      * @return the current instance of <tt>SipStatusEnum</tt>.
      */
     SipStatusEnum getSipStatusEnum()
@@ -2366,5 +2366,41 @@ public class ProtocolProviderServiceSipImpl
     SipRegistrarConnection getRegistrarConnection()
     {
         return sipRegistrarConnection;
+    }
+
+    /**
+     * Parses the the <tt>uriStr</tt> string and returns a JAIN SIP URI.
+     *
+     * @param uriStr a <tt>String</tt> containing the uri to parse.
+     *
+     * @return a URI object corresponding to the <tt>uriStr</tt> string.
+     * @throws ParseException if uriStr is not properly formatted.
+     */
+    public Address parseAddressStr(String uriStr)
+        throws ParseException
+    {
+        uriStr = uriStr.trim();
+
+        //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
+        //assuming that if no domain name is specified then it should be the
+        //same as ours.
+        if (uriStr.indexOf('@') == -1
+            && !uriStr.trim().startsWith("tel:"))
+        {
+            uriStr = uriStr + "@"
+                + ((SipURI)getOurSipAddress().getURI()).getHost();
+        }
+
+        //Let's be uri fault tolerant and add the sip: scheme if there is none.
+        if (uriStr.toLowerCase().indexOf("sip:") == -1 //no sip scheme
+            && uriStr.indexOf('@') != -1) //most probably a sip uri
+        {
+            uriStr = "sip:" + uriStr;
+        }
+
+        //Request URI
+        Address uri = getAddressFactory().createAddress(uriStr);
+
+        return uri;
     }
 }

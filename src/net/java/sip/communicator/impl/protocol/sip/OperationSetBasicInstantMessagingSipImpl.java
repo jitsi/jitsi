@@ -31,7 +31,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
-    
+
     /**
      * A list of listeners registered for message events.
      */
@@ -41,7 +41,7 @@ public class OperationSetBasicInstantMessagingSipImpl
      * A list of processors registered for incoming sip messages.
      */
     private Vector messageProcessors = new Vector();
-    
+
     /**
      * The provider that created us.
      */
@@ -62,7 +62,7 @@ public class OperationSetBasicInstantMessagingSipImpl
      * Hashtable containing the message sent
      */
     private Hashtable sentMsg = null;
-    
+
     /**
      * It can be implemented in some servers.
      */
@@ -86,11 +86,11 @@ public class OperationSetBasicInstantMessagingSipImpl
         this.sentMsg = new Hashtable(3);
         provider.addRegistrationStateChangeListener(new
             RegistrationStateListener());
-        
+
         Object isOffMsgsSupported = provider.getAccountID().
             getAccountProperties().get("OFFLINE_MSG_SUPPORTED");
-        
-        if(isOffMsgsSupported != null && 
+
+        if(isOffMsgsSupported != null &&
             Boolean.valueOf((String)isOffMsgsSupported).booleanValue())
             offlineMessageSupported = true;
 
@@ -132,7 +132,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             this.messageListeners.remove(listener);
         }
     }
-    
+
     /**
      * Registers a SipMessageListener with this operation set so that it gets
      * notifications of successful message delivery, failure or reception of
@@ -213,7 +213,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     {
         return offlineMessageSupported;
     }
-    
+
     /**
      * Determines whether the protocol supports the supplied content type
      *
@@ -223,7 +223,7 @@ public class OperationSetBasicInstantMessagingSipImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE) 
+        if(contentType.equals(DEFAULT_MIME_TYPE)
             || contentType.equals(HTML_MIME_TYPE))
             return true;
         else
@@ -288,7 +288,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
-        
+
         try
         {
             sendRequestMessage(mes, to, message);
@@ -325,7 +325,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             return;
         }
     }
-    
+
     void sendRequestMessage(Request mes, Contact to, Message message)
         throws TransactionUnavailableException,
                SipException
@@ -342,12 +342,12 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         if(authorization != null)
             mes.addHeader(authorization);
-        
+
         //Transaction
         ClientTransaction messageTransaction;
         SipProvider jainSipProvider
             = this.sipProvider.getDefaultJainSipProvider();
-        
+
         messageTransaction = jainSipProvider.getNewClientTransaction(mes);
 
         // send the message
@@ -366,7 +366,7 @@ public class OperationSetBasicInstantMessagingSipImpl
      *
      * @param to the <tt>Contact</tt> to send <tt>message</tt> to
      * @param message the <tt>Message</tt> to send.
-     * @return a Message Request destinated to the contact
+     * @return a Message Request destined to the contact
      * @throws OperationFailedException if an error occurred during
      * the creation of the request
      */
@@ -378,7 +378,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         Address toAddress = null;
         try
         {
-            toAddress = parseAddressStr(to.getAddress());
+            toAddress = sipProvider.parseAddressStr(to.getAddress());
         }
         catch (ParseException exc)
         {
@@ -392,7 +392,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 , OperationFailedException.INTERNAL_ERROR
                 , exc);
         }
-        
+
         try
         {
             destinationInetAddress = InetAddress.getByName(
@@ -400,13 +400,13 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
         catch (UnknownHostException ex)
         {
-            //getByName() verifies host existance with an AAAA/A check and the 
-            //destination could only have an SRV record so let's not let this 
+            //getByName() verifies host existance with an AAAA/A check and the
+            //destination could only have an SRV record so let's not let this
             //bother us and only log it (report by Dan Bogos)
             logger.warn( ( (SipURI) toAddress.getURI()).getHost()
                 + " is not a valid internet address " + ex.getMessage());
-            
-            //replace the destination address with that of the proxy if we 
+
+            //replace the destination address with that of the proxy if we
             //have it or that of the registrar otherwise.
             if(sipProvider.getOutboundProxy() != null)
             {
@@ -503,7 +503,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             contTypeHeader = this.sipProvider.getHeaderFactory()
                 .createContentTypeHeader(getType(message),
                                          getSubType(message));
-            
+
             if (! DEFAULT_MIME_ENCODING.equalsIgnoreCase(message.getEncoding()))
                 contTypeHeader.setParameter("charset", message.getEncoding());
 
@@ -562,7 +562,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
 
         req.addHeader(contLengthHeader);
-        
+
         //User Agent
         UserAgentHeader userAgentHeader
             = sipProvider.getSipCommUserAgentHeader();
@@ -570,44 +570,6 @@ public class OperationSetBasicInstantMessagingSipImpl
             req.addHeader(userAgentHeader);
 
         return req;
-    }
-
-    /**
-     * Parses the the <tt>uriStr</tt> string and returns a JAIN SIP URI.
-     *
-     * @param uriStr a <tt>String</tt> containing the uri to parse.
-     *
-     * @return a URI object corresponding to the <tt>uriStr</tt> string.
-     * @throws ParseException if uriStr is not properly formatted.
-     */
-    private Address parseAddressStr(String uriStr)
-        throws ParseException
-    {
-        uriStr = uriStr.trim();
-
-        //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
-        //assuming that if no domain name is specified then it should be the
-        //same as ours.
-        if (uriStr.indexOf('@') == -1
-            && !uriStr.trim().startsWith("tel:"))
-        {
-            uriStr = uriStr + "@"
-                + ( (SipURI)this.sipProvider.getOurSipAddress().getURI())
-                .getHost();
-        }
-
-        //Let's be uri fault tolerant and add the sip: scheme if there is none.
-        if (uriStr.toLowerCase().indexOf("sip:") == -1 //no sip scheme
-            && uriStr.indexOf('@') != -1) //most probably a sip uri
-        {
-            uriStr = "sip:" + uriStr;
-        }
-
-        //Request URI
-        Address uri
-            = this.sipProvider.getAddressFactory().createAddress(uriStr);
-
-        return uri;
     }
 
     /**
@@ -695,7 +657,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         {
             listeners = new ArrayList(this.messageListeners).iterator();
         }
-        
+
         logger.debug("Dispatching Message Listeners="
                      + messageListeners.size()
                      + " evt=" + evt);
@@ -757,12 +719,12 @@ public class OperationSetBasicInstantMessagingSipImpl
                 {
                     SipMessageProcessor listener
                         = (SipMessageProcessor)iter.next();
-                    
+
                     if(!listener.processTimeout(timeoutEvent, sentMsg))
                         return;
                 }
             }
-            
+
             // this is normaly handled by the SIP stack
             logger.error("Timeout event thrown : " + timeoutEvent.toString());
 
@@ -852,18 +814,18 @@ public class OperationSetBasicInstantMessagingSipImpl
                 {
                     SipMessageProcessor listener
                         = (SipMessageProcessor)iter.next();
-                    
+
                     if(!listener.processMessage(requestEvent))
                         return;
                 }
             }
-            
+
             // get the content
             String content = null;
             Request req = requestEvent.getRequest();
             try
             {
-                
+
                 content = new String(req.getRawContent(), getCharset(req));
             }
             catch (UnsupportedEncodingException ex)
@@ -884,13 +846,13 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             Contact from = opSetPersPresence.resolveContactID(
                 fromHeader.getAddress().getURI().toString());
-            
-            ContentTypeHeader ctheader = 
+
+            ContentTypeHeader ctheader =
                 (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
-            
+
             String ctype = null;
             String cencoding = null;
-            
+
             if(ctheader == null)
             {
                 ctype = DEFAULT_MIME_TYPE;
@@ -901,11 +863,11 @@ public class OperationSetBasicInstantMessagingSipImpl
                     ctheader.getContentSubType();
                 cencoding = ctheader.getParameter("charset");
             }
-            
+
             if(cencoding == null)
                 cencoding = DEFAULT_MIME_ENCODING;
-            
-            Message newMessage = 
+
+            Message newMessage =
                 createMessage(content.getBytes(), ctype, cencoding, null);
 
             if (from == null) {
@@ -965,12 +927,12 @@ public class OperationSetBasicInstantMessagingSipImpl
                 {
                     SipMessageProcessor listener
                         = (SipMessageProcessor)iter.next();
-                    
+
                     if(!listener.processResponse(responseEvent, sentMsg))
                         return;
                 }
             }
-            
+
             Request req = responseEvent.getClientTransaction().getRequest();
             int status = responseEvent.getResponse().getStatusCode();
             // content of the response
@@ -1000,12 +962,12 @@ public class OperationSetBasicInstantMessagingSipImpl
             Contact to = opSetPersPresence.resolveContactID(toHeader.getAddress()
                     .getURI().toString());
 
-            if (to == null) 
+            if (to == null)
             {
                 logger.error(
                         "Error received a response from an unknown contact : "
                         + toHeader.getAddress().getURI().toString() + " : "
-                        + responseEvent.getResponse().getStatusCode() 
+                        + responseEvent.getResponse().getStatusCode()
                         + " "
                         + responseEvent.getResponse().getReasonPhrase());
 
@@ -1028,7 +990,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             Message newMessage = (Message) sentMsg.get(key);
 
-            if (newMessage == null) 
+            if (newMessage == null)
             {
                 // should never happen
                 logger.error("Couldn't find the message sent");
@@ -1050,7 +1012,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             if (status >= 400 && status != 401 && status != 407)
             {
                 logger.info(
-                    responseEvent.getResponse().getStatusCode() 
+                    responseEvent.getResponse().getStatusCode()
                     + " "
                     + responseEvent.getResponse().getReasonPhrase());
 
@@ -1061,7 +1023,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         to,
                         MessageDeliveryFailedEvent.NETWORK_FAILURE,
                         new Date(),
-                        responseEvent.getResponse().getStatusCode() 
+                        responseEvent.getResponse().getStatusCode()
                         + " "
                         + responseEvent.getResponse().getReasonPhrase());
                 fireMessageEvent(evt);
@@ -1072,7 +1034,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // proxy ask for authentification
                 logger.debug(
                     "proxy asks authentication : "
-                        + responseEvent.getResponse().getStatusCode() 
+                        + responseEvent.getResponse().getStatusCode()
                         + " "
                         + responseEvent.getResponse().getReasonPhrase());
 
@@ -1082,7 +1044,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                     responseEvent.getSource();
 
                 try
-                {        
+                {
                     processAuthenticationChallenge(clientTransaction,
                         responseEvent.getResponse(),
                         sourceProvider);
@@ -1090,7 +1052,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 catch (OperationFailedException ex)
                 {
                     logger.error("can't solve the challenge", ex);
-                    
+
                     // error for delivering the message
                     MessageDeliveryFailedEvent evt =
                         new MessageDeliveryFailedEvent(
@@ -1107,7 +1069,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             {
                 logger.debug(
                     "Ack received from the network : "
-                    + responseEvent.getResponse().getStatusCode() 
+                    + responseEvent.getResponse().getStatusCode()
                     + " "
                     + responseEvent.getResponse().getReasonPhrase());
 
@@ -1122,12 +1084,12 @@ public class OperationSetBasicInstantMessagingSipImpl
                 sentMsg.remove(key);
             }
         }
-        
+
         /**
          * Try to find a charset in a MESSAGE request for the
          * text content. If no charset is defined, the default charset
          * for text messages is returned.
-         * 
+         *
          * @param req the MESSAGE request in which to look for a charset
          * @return defined charset in the request or DEFAULT_MIME_ENCODING
          *  if no charset is specified
@@ -1176,7 +1138,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                     logger.trace("No password supplied or error occured!");
                     return;
                 }
-                
+
                 retryTran.sendRequest();
                 return;
             }

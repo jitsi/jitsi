@@ -22,9 +22,6 @@ import net.java.sip.communicator.util.*;
  * Contains all functionality that has anything to do with registering and
  * maintaining registrations with a SIP Registrar.
  *
- * @todo make sure that every time we change our state to unregistered we put
- * the proper state code.
- *
  * @author Emil Ivov
  */
 public class SipRegistrarConnection
@@ -88,29 +85,29 @@ public class SipRegistrarConnection
      * request.
      */
     ClientTransaction regTrans = null;
-    
+
     /**
      * Option for specifing keep-alive method
      */
     private static final String KEEP_ALIVE_METHOD = "KEEP_ALIVE_METHOD";
-    
+
     /**
      * Option for keep-alive interval
      */
     private static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
-    
+
     /**
      * Default value for keep-alive method - register
      */
     private static final String KEEP_ALIVE_INTERVAL_DEFAULT_VALUE = "25";
-    
+
     /**
-     * Specifies whether or not we should be using a route header in register 
-     * requests. This field is specified by the REGISTERS_USE_ROUTE account 
+     * Specifies whether or not we should be using a route header in register
+     * requests. This field is specified by the REGISTERS_USE_ROUTE account
      * property.
      */
     private boolean useRouteHeader = false;
-    
+
     /**
      * Creates a new instance of this class.
      *
@@ -149,6 +146,15 @@ public class SipRegistrarConnection
         //now let's register ourselves as processor for REGISTER related
         //messages.
         sipProviderCallback.registerMethodProcessor(Request.REGISTER, this);
+    }
+
+    /**
+     * Empty constructor that we only have in order to allow for classes like 
+     * SipRegistrarlessConnection to extend this class.
+     */
+    protected SipRegistrarConnection()
+    {
+
     }
 
     /**
@@ -261,9 +267,9 @@ public class SipRegistrarConnection
         try
         {
             //create a host-only uri for the request uri header.
-            String domain 
+            String domain
                 = ((SipURI) toHeader.getAddress().getURI()).getHost();
-            SipURI requestURI 
+            SipURI requestURI
                 = sipProvider.getAddressFactory().createSipURI(null,domain);
             request = sipProvider.getMessageFactory().createRequest(
                   requestURI
@@ -484,32 +490,32 @@ public class SipRegistrarConnection
         else
         {
             int scheduleTime = grantedExpiration;
-            
+
             // registration schedule interval can be forced to keep alive
-            // with setting property KEEP_ALIVE_METHOD to register and 
+            // with setting property KEEP_ALIVE_METHOD to register and
             // setting the interval with property KEEP_ALIVE_INTERVAL
             // to value in seconds, both properties are account props
             // this does not change expiration header
             // If KEEP_ALIVE_METHOD is null we default send registers on
             // interval of 25 seconds
-            String keepAliveMethod = 
+            String keepAliveMethod =
                 (String)sipProvider.getAccountID().getAccountProperties().
                     get(KEEP_ALIVE_METHOD);
-            
-            if((keepAliveMethod != null && 
-                keepAliveMethod.equalsIgnoreCase("register")) 
+
+            if((keepAliveMethod != null &&
+                keepAliveMethod.equalsIgnoreCase("register"))
                 || keepAliveMethod == null )
             {
-                String keepAliveInterval = 
+                String keepAliveInterval =
                     (String)sipProvider.getAccountID().getAccountProperties().
                         get(KEEP_ALIVE_INTERVAL);
-                
+
                 if(keepAliveInterval == null)
                     keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_VALUE;
-                
+
                 try
                 {
-                    int registrationInterval = 
+                    int registrationInterval =
                         Integer.valueOf(keepAliveInterval).intValue();
 
                     if(registrationInterval < grantedExpiration)
@@ -522,8 +528,8 @@ public class SipRegistrarConnection
                     logger.error("Wrong value for KEEP_ALIVE_INTERVAL");
                 }
             }
-            
-            
+
+
             //schedule a reregistration.
             scheduleReRegistration(scheduleTime);
 
@@ -544,7 +550,7 @@ public class SipRegistrarConnection
     {
         unregister(true);
     }
-    
+
     /**
      * Sends a unregistered request to the registrar thus ending our
      * registration.
@@ -577,7 +583,7 @@ public class SipRegistrarConnection
 
         if(!sendUnregister)
             return;
-        
+
         //We are apparently registered so send a un-Register request.
         Request unregisterRequest = (Request) registerRequest.clone();
         try
@@ -659,15 +665,15 @@ public class SipRegistrarConnection
 
             if(authorization != null)
                 unregisterRequest.addHeader(authorization);
-            
-            
+
+
             unregisterTransaction.sendRequest();
             logger.info("sent request: " + unregisterRequest);
 
             //if we're currently registered or in a process of unregistering
-            //we'll wait for an ok response before changing the status. 
+            //we'll wait for an ok response before changing the status.
             //otherwise we set it immediately.
-            if(!(getRegistrationState().equals(RegistrationState.REGISTERED) || 
+            if(!(getRegistrationState().equals(RegistrationState.REGISTERED) ||
                getRegistrationState().equals(RegistrationState.UNREGISTERING)))
             {
                 logger.info("Setting state to UNREGISTERED.");
@@ -873,7 +879,7 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
+     * Analyses the incoming <tt>responseEvent</tt> and then forwards it to the
      * proper event handler.
      *
      * @param responseEvent the responseEvent that we received
@@ -966,11 +972,11 @@ public class SipRegistrarConnection
                 unregister(false);
                 return;
             }
-            
+
             //the security manager has most probably changed the sequence number
             //so let's make sure we update it here.
             updateRegisterSequenceNumber(retryTran);
-            
+
             retryTran.sendRequest();
             return;
         }
@@ -1138,55 +1144,55 @@ public class SipRegistrarConnection
         return className + "-[dn=" + sipProvider.getOurDisplayName()
                +" addr="+sipProvider.getOurSipAddress() + "]";
     }
-    
+
     /**
      * Updates our local sequence counter based on the value in the CSeq header
-     * of the request that originated the <tt>lastClientTran</tt> transation. 
-     * The method is used after running an authentication challenge through 
-     * the security manager. The Security manager would manually increment the 
-     * CSeq number of the request so we need to update our local counter or 
+     * of the request that originated the <tt>lastClientTran</tt> transation.
+     * The method is used after running an authentication challenge through
+     * the security manager. The Security manager would manually increment the
+     * CSeq number of the request so we need to update our local counter or
      * otherwise the next REGISTER we send would have a wrong CSeq.
-     * 
-     * @param lastClientTran the transaction that we should be using to update 
+     *
+     * @param lastClientTran the transaction that we should be using to update
      * our local sequence number
      */
     private void updateRegisterSequenceNumber(ClientTransaction lastClientTran)
     {
         Request req = lastClientTran.getRequest();
-        
+
         CSeqHeader cSeqHeader = (CSeqHeader)req.getHeader(CSeqHeader.NAME);
         long sequenceNumber = cSeqHeader.getSeqNumber();
-        
+
         //sequenceNumber is the value of the CSeq header in the request we just
         //sent so the next CSeq Value should be set to seqNum + 1.
         this.nextCSeqValue = sequenceNumber + 1;
     }
-    
+
     /**
-     * Determines whether Register requests should be using a route header. The 
-     * return value of this method is specified by the REGISTERS_USE_ROUTE 
+     * Determines whether Register requests should be using a route header. The
+     * return value of this method is specified by the REGISTERS_USE_ROUTE
      * account property.
-     * 
+     *
      * Jeroen van Bemmel: The reason this may needed, is that standards-
      * compliant registrars check the domain in the request URI. If it contains
-     * an IP address, some registrars are unable to match/process it (they may 
+     * an IP address, some registrars are unable to match/process it (they may
      * forward instead, and get into a forwarding loop)
-     * 
+     *
      * @return true if we should be using a route header.
      */
     public boolean isRouteHeaderEnabled()
     {
         return useRouteHeader;
     }
-    
+
     /**
-     * Specifies whether Register requests should be using a route header. 
-     * 
+     * Specifies whether Register requests should be using a route header.
+     *
      * Jeroen van Bemmel: The reason this may needed, is that standards-
      * compliant registrars check the domain in the request URI. If it contains
-     * an IP address, some registrars are unable to match/process it (they may 
+     * an IP address, some registrars are unable to match/process it (they may
      * forward instead, and get into a forwarding loop)
-     * 
+     *
      * @return true if we should be using a route header.
      */
     public boolean setRouteHeaderEnabled(boolean useRouteHeader)

@@ -93,7 +93,7 @@ public class OperationSetBasicTelephonySipImpl
     public Call createCall(String callee)
         throws OperationFailedException, ParseException
     {
-        Address toAddress = parseAddressStr(callee);
+        Address toAddress = protocolProvider.parseAddressStr(callee);
 
         return createOutgoingCall(toAddress);
     }
@@ -118,7 +118,7 @@ public class OperationSetBasicTelephonySipImpl
 
         try
         {
-            toAddress = parseAddressStr(callee.getAddress());
+            toAddress = protocolProvider.parseAddressStr(callee.getAddress());
         }
         catch (ParseException ex)
         {
@@ -175,7 +175,7 @@ public class OperationSetBasicTelephonySipImpl
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
-        
+
         //check whether there's a cached authorization header for this
         //call id and if so - attach it to the request.
         // add authorization header
@@ -301,7 +301,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Resumes communication with a call participant previously put on hold.
-     * 
+     *
      * @param participant the call participant to put on hold.
      * @throws OperationFailedException
      */
@@ -313,7 +313,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Puts the specified CallParticipant "on hold".
-     * 
+     *
      * @param participant the participant that we'd like to put on hold.
      * @throws OperationFailedException
      */
@@ -325,7 +325,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Puts the specified <tt>CallParticipant</tt> on or off hold.
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> to be put on or off hold
      * @param on <tt>true</tt> to have the specified <tt>CallParticipant</tt>
      *            put on hold; <tt>false</tt>, otherwise
@@ -384,7 +384,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Sends an invite request with a specific SDP offer (description) within
      * the current <tt>Dialog</tt> with a specific call participant.
-     * 
+     *
      * @param sipParticipant the SIP-specific call participant to send the
      *            invite to within the current <tt>Dialog</tt>
      * @param sdpOffer the description of the SDP offer to be made to the
@@ -408,7 +408,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to parse SDP offer for the new invite.",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
-        
+
         ClientTransaction clientTransaction = null;
         try
         {
@@ -439,7 +439,7 @@ public class OperationSetBasicTelephonySipImpl
      * error using the current <tt>Logger</tt> and then throws a new
      * <tt>OperationFailedException</tt> with the message, a specific error
      * code and the cause.
-     * 
+     *
      * @param message the message to be logged and then wrapped in a new
      *            <tt>OperationFailedException</tt>
      * @param errorCode the error code to be assigned to the new
@@ -710,9 +710,9 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Handles early media in 183 Session Progress responses. Retrieves the SDP
-     * and makes sure that we start transmitting and playing early media that 
+     * and makes sure that we start transmitting and playing early media that
      * we receive. Puts the call into a CONNECTING_WITH_EARLY_MEDIA state.
-     * 
+     *
      * @param clientTransaction the <tt>ClientTransaction</tt> that the response
      * arrived in.
      * @param sessionProgress the 183 <tt>Response</tt> to process
@@ -720,13 +720,13 @@ public class OperationSetBasicTelephonySipImpl
     private void processSessionProgress(ClientTransaction clientTransaction,
                                         Response          sessionProgress)
     {
-        
+
         Dialog dialog = clientTransaction.getDialog();
         //find the call
         CallParticipantSipImpl callParticipant
             = activeCallsRepository.findCallParticipant(dialog);
 
-        if (callParticipant.getState() 
+        if (callParticipant.getState()
                 == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
         {
             // This can happen if we are receigin early media for a second time.
@@ -734,16 +734,16 @@ public class OperationSetBasicTelephonySipImpl
                          +"already exchanging early media.");
             return;
         }
-        
+
         if (sessionProgress.getContentLength().getContentLength() == 0)
         {
             logger.warn("Ignoring a 183 with no content");
             return;
         }
-        
+
         ContentTypeHeader contentTypeHeader = (ContentTypeHeader)
             sessionProgress.getHeader(ContentTypeHeader.NAME);
-        
+
         if(!contentTypeHeader.getContentType().equalsIgnoreCase("application")
            || !contentTypeHeader.getContentSubType().equalsIgnoreCase("sdp"))
         {
@@ -761,7 +761,7 @@ public class OperationSetBasicTelephonySipImpl
         //notify the media manager of the sdp content
         CallSession callSession
             = ((CallSipImpl)callParticipant.getCall()).getMediaCallSession();
-        
+
         if(callSession == null)
         {
             //unlikely to happen because it would mean we didn't send an offer
@@ -769,11 +769,11 @@ public class OperationSetBasicTelephonySipImpl
             logger.warn("Could not find call session.");
             return;
         }
-        
+
         try
         {
             callSession.processSdpAnswer(
-                callParticipant, 
+                callParticipant,
                 new String(sessionProgress.getRawContent()));
         }
         catch (ParseException exc)
@@ -804,15 +804,15 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         //set the call url in case there was one
-        /** @todo this should be done in CallSession, once we move 
+        /** @todo this should be done in CallSession, once we move
          * it here.*/
         callParticipant.setCallInfoURL(callSession.getCallInfoURL());
-        
+
         //change status
         callParticipant.setState(
                         CallParticipantState.CONNECTING_WITH_EARLY_MEDIA);
     }
-    
+
     /**
      * Sets to CONNECTED that state of the corresponding call participant and
      * sends an ACK.
@@ -831,13 +831,13 @@ public class OperationSetBasicTelephonySipImpl
         if (callParticipant == null)
         {
             // In case of forwarding a call, the dialog maybe forked.
-            // If the dialog is forked 
+            // If the dialog is forked
             // we must check whether we have early state dialogs
             // established and we must end them, do this by replacing the dialog
             // with new one
             CallIdHeader call = (CallIdHeader)ok.getHeader(CallIdHeader.NAME);
             String callid = call.getCallId();
-            
+
             Iterator activeCallsIter = activeCallsRepository.getActiveCalls();
             while (activeCallsIter.hasNext())
             {
@@ -845,15 +845,15 @@ public class OperationSetBasicTelephonySipImpl
                 Iterator callParticipantsIter = activeCall.getCallParticipants();
                 while (callParticipantsIter.hasNext())
                 {
-                    CallParticipantSipImpl cp = 
+                    CallParticipantSipImpl cp =
                         (CallParticipantSipImpl)callParticipantsIter.next();
                     Dialog callPartDialog = cp.getDialog();
                     // check if participant in same call
                     // and has the same transaction
-                    if( callPartDialog != null && 
+                    if( callPartDialog != null &&
                         callPartDialog.getCallId() != null &&
                         cp.getFirstTransaction() != null &&
-                        cp.getDialog().getCallId().getCallId().equals(callid) && 
+                        cp.getDialog().getCallId().getCallId().equals(callid) &&
                         clientTransaction.getBranchId().equals(
                             cp.getFirstTransaction().getBranchId()))
                     {
@@ -863,7 +863,7 @@ public class OperationSetBasicTelephonySipImpl
                     }
                 }
             }
-            
+
             if(callParticipant == null)
             {
                 logger.debug("Received a stray ok response.");
@@ -933,8 +933,8 @@ public class OperationSetBasicTelephonySipImpl
             {
                 if(callSession == null)
                 {
-                    //non existent call session - that means we didn't send sdp 
-                    //in the invide and this is the offer so we need to create 
+                    //non existent call session - that means we didn't send sdp
+                    //in the invide and this is the offer so we need to create
                     //the answer.
                     callSession = SipActivator.getMediaService()
                         .createCallSession(callParticipant.getCall());
@@ -942,9 +942,9 @@ public class OperationSetBasicTelephonySipImpl
                         callParticipant
                         , callParticipant.getSdpDescription());
                     ack.setContent(sdp, contentTypeHeader);
-                    
+
                     //set the call url in case there was one
-                    /** @todo this should be done in CallSession, once we move 
+                    /** @todo this should be done in CallSession, once we move
                      * it here.*/
                     callParticipant.setCallInfoURL(
                             callSession.getCallInfoURL());
@@ -974,7 +974,7 @@ public class OperationSetBasicTelephonySipImpl
                     .getSdpDescription());
             }
             //set the call url in case there was one
-            /** @todo this should be done in CallSession, once we move 
+            /** @todo this should be done in CallSession, once we move
              * it here.*/
             callParticipant.setCallInfoURL(callSession.getCallInfoURL());
         }
@@ -1066,7 +1066,7 @@ public class OperationSetBasicTelephonySipImpl
                     response
                     , clientTransaction
                     , jainSipProvider);
-            
+
             if(retryTran == null)
             {
                 logger.trace("No password supplied or error occured!");
@@ -1171,45 +1171,7 @@ public class OperationSetBasicTelephonySipImpl
         callParticipant.setState(CallParticipantState.DISCONNECTED);
 
     }
-    
-    /**
-     * Parses the the <tt>uriStr</tt> string and returns a JAIN SIP URI.
-     *
-     * @param uriStr a <tt>String</tt> containing the uri to parse.
-     *
-     * @return a URI object corresponding to the <tt>uriStr</tt> string.
-     * @throws ParseException if uriStr is not properly formatted.
-     */
-    private Address parseAddressStr(String uriStr)
-        throws ParseException
-    {
-        uriStr = uriStr.trim();
 
-        //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
-        //assuming that if no domain name is specified then it should be the
-        //same as ours.
-        if (uriStr.indexOf('@') == -1
-            && !uriStr.trim().startsWith("tel:"))
-        {
-            uriStr = uriStr + "@"
-                + ((SipURI)protocolProvider.getOurSipAddress().getURI())
-                    .getHost();
-        }
-
-        //Let's be uri fault tolerant and add the sip: scheme if there is none.
-        if (uriStr.toLowerCase().indexOf("sip:") == -1 //no sip scheme
-            && uriStr.indexOf('@') != -1) //most probably a sip uri
-        {
-            uriStr = "sip:" + uriStr;
-        }
-
-        //Request URI
-        Address uri
-            = protocolProvider.getAddressFactory().createAddress(uriStr);
-
-        return uri;
-    }
-    
     /**
      * Creates an invite request destined for <tt>callee</tt>.
      *
@@ -1517,7 +1479,7 @@ public class OperationSetBasicTelephonySipImpl
      * specific <tt>Response</tt> before it is sent to a specific
      * <tt>CallParticipant</tt> as part of the execution of
      * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> to receive a specific
      *            <tt>Response</tt>
      * @param response the <tt>Response</tt> to be sent to the
@@ -1562,7 +1524,7 @@ public class OperationSetBasicTelephonySipImpl
      * specific <tt>Response</tt> has been sent to a specific
      * <tt>CallParticipant</tt> as part of the execution of
      * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> who was sent a specific
      *            <tt>Response</tt>
      * @param response the <tt>Response</tt> that has just been sent to the
@@ -1809,7 +1771,7 @@ public class OperationSetBasicTelephonySipImpl
      * Processes a specific REFER request i.e. attempts to transfer the
      * call/call participant receiving the request to a specific transfer
      * target.
-     * 
+     *
      * @param serverTransaction the <code>ServerTransaction</code> containing
      *            the REFER request
      * @param referRequest the very REFER request
@@ -1977,7 +1939,7 @@ public class OperationSetBasicTelephonySipImpl
      * session-terminating NOTIFY request to the <code>Dialog</code> which
      * referred to the call in question as soon as the outcome of the refer is
      * determined.
-     * 
+     *
      * @param referToCall the <code>Call</code> to track and send a NOTIFY
      *            request for
      * @param sendNotifyRequest <tt>true</tt> if a session-terminating NOTIFY
@@ -2009,7 +1971,7 @@ public class OperationSetBasicTelephonySipImpl
 
         /*
          * NOTIFY OK/Declined
-         * 
+         *
          * It doesn't sound like sending NOTIFY Service Unavailable is
          * appropriate because the REFER request has (presumably) already been
          * accepted.
@@ -2056,7 +2018,7 @@ public class OperationSetBasicTelephonySipImpl
      * a specific <code>Subscription-State</code> header and reason, carries a
      * specific body content and is sent through a specific
      * <code>SipProvider</code>.
-     * 
+     *
      * @param dialog the <code>Dialog</code> to send the NOTIFY request in
      * @param subscriptionState the <code>Subscription-State</code> header to be
      *            sent with the NOTIFY request
@@ -2153,7 +2115,7 @@ public class OperationSetBasicTelephonySipImpl
      * Creates a new {@link Request} of a specific method which is to be sent in
      * a specific <code>Dialog</code> and populates its generally-necessary
      * headers such as the Authorization header.
-     * 
+     *
      * @param dialog the <code>Dialog</code> to create the new
      *            <code>Request</code> in
      * @param method the method of the newly-created <code>Request<code>
@@ -2370,8 +2332,8 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             bye = callParticipant.getDialog().createRequest(Request.BYE);
-            
-            //we have to set the via headers our selves because otherwise 
+
+            //we have to set the via headers our selves because otherwise
             //jain sip would send them with a 0.0.0.0 address
             InetAddress destinationInetAddress = null;
             String host = ( (SipURI) bye.getRequestURI()).getHost();
@@ -2382,12 +2344,12 @@ public class OperationSetBasicTelephonySipImpl
             catch (UnknownHostException ex)
             {
                 throw new IllegalArgumentException(
-                    host + " is not a valid internet address " 
+                    host + " is not a valid internet address "
                     + ex.getMessage());
             }
 
             ArrayList viaHeaders= protocolProvider.getLocalViaHeaders(
-                destinationInetAddress,  
+                destinationInetAddress,
                 protocolProvider.getRegistrarConnection()
                     .getRegistrarListeningPoint());
             bye.setHeader((ViaHeader)viaHeaders.get(0));
@@ -2624,9 +2586,9 @@ public class OperationSetBasicTelephonySipImpl
                 sdp = callSession.processSdpOffer(
                         callParticipant
                         , callParticipant.getSdpDescription());
-                
+
                 //set the call url in case there was one
-                /** @todo this should be done in CallSession, once we move 
+                /** @todo this should be done in CallSession, once we move
                  * it here.*/
                 callParticipant.setCallInfoURL(callSession.getCallInfoURL());
             }
@@ -2685,7 +2647,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Creates a new {@link Response#OK} response to a specific {@link Request}
      * which is to be sent as part of a specific {@link Dialog}.
-     * 
+     *
      * @param request the <code>Request</code> to create the OK response for
      * @param containingDialog the <code>Dialog</code> to send the response in
      * @return a new
@@ -2806,7 +2768,7 @@ public class OperationSetBasicTelephonySipImpl
      * <p>
      * The implementation sends silence through the audio stream.
      * </p>
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> who receives the audio
      *            stream to have its mute state set
      * @param mute <tt>true</tt> to mute the audio stream being sent to
