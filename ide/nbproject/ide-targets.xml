@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created by Brian Burch on August 25, 2005
+     Netbeans debug targets are now held in this file. You should copy it to 
+     ./nbproject/ide-targets.xml (when NetBeans is not running!)
+     to make it active on your own system.
+    -->
+<project basedir=".." name="SIP Communicator-IDE">
+    <import file="../build.xml"/>
+    <target depends="-deploy-os-specific-bundles"
+            description="Starts felix and runs sip-comunicator gui (use latest build)."
+            name="debug-nb-wholeApp">
+        <nbjpdastart addressproperty="jpda.address"
+                     name="SIP Communicator"
+                     transport="dt_socket">
+            <classpath  refid="project.class.path"/>
+            <sourcepath refid="project.source.path"/>
+        </nbjpdastart>
+
+        <!-- warning! fork=true prevents debug break points latching... -->
+        <java fork="false"
+              classname="net.java.sip.communicator.launcher.SIPCommunicator"
+              failonerror="true">
+            <classpath  refid="project.class.path"/>
+            <!-- Sets the charset for the messages -->
+            <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
+            <!-- Tell felix to run sip-communicator-->
+            <sysproperty key="felix.config.properties"
+                         value="file:${lib}/felix.client.run.properties"/>
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                         value="${lib}/logging.properties"/>
+            <sysproperty key="java.net.preferIPv6Addresses"
+                         value="false"/>
+            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome"/-->
+            <!-- Setting properties necessary for dependencies on native libs.-->
+            <sysproperty key="java.library.path"
+                         path="${ld.library.path}:${path}:${dyld.library.path}"/>
+            <!-- pass l10n properties from ant call for
+                 easy translation debugging -->
+            <sysproperty key="user.language" value="${user.language}"/>
+            <sysproperty key="user.country" value="${user.country}"/>
+            <sysproperty key="user.variant" value="${user.variant}"/>
+            <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
+            <env key="PATH" path="${path}"/>
+            <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Djava.compiler=none"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+        </java>
+    </target>
+</project>
