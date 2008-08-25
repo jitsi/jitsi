@@ -8,6 +8,11 @@
                  ./ide/nbproject/project.xml. You should copy it to 
                  ./nbproject/project.xml (when NetBeans is not running!)
                  to make it active on your own system.
+              ** Updated by Brian Burch on August 25, 2005
+                 Netbeans debug targets are now held in 
+                 ./ide/nbproject/ide-targets.xml. You should copy it to 
+                 ./nbproject/ide-targets.xml (when NetBeans is not running!)
+                 to make it active on your own system.
                  -->
             <name>SIP Communicator</name>
             <properties/>
@@ -42,24 +47,17 @@
                 <action name="rebuild">
                     <target>rebuild</target>
                 </action>
-                <action name="debug">
-                    <script>nbproject/ide-targets.xml</script>
-                    <target>debug-nb</target>
-                </action>
-                <action name="compile.single">
-                    <script>nbproject/ide-file-targets.xml</script>
-                    <target>compile-selected-files-in-src</target>
-                    <context>
-                        <property>files</property>
-                        <folder>src</folder>
-                        <pattern>\.java$</pattern>
-                        <format>relative-path</format>
-                        <arity>
-                            <separated-files>,</separated-files>
-                        </arity>
-                    </context>
-                </action>
             </ide-actions>
+            <export>
+                <type>folder</type>
+                <location>classes</location>
+                <build-target>make</build-target>
+            </export>
+            <export>
+                <type>folder</type>
+                <location>classes</location>
+                <build-target>make</build-target>
+            </export>
             <view>
                 <items>
                     <source-folder style="packages">
@@ -81,7 +79,11 @@
                     <ide-action name="run"/>
                     <ide-action name="test"/>
                     <ide-action name="rebuild"/>
-                    <ide-action name="debug"/>
+                    <action>
+                        <script>nbproject/ide-targets.xml</script>
+                        <label>Debug Application</label>
+                        <target>debug-nb-wholeApp</target>
+                    </action>
                 </context-menu>
             </view>
             <subprojects/>
@@ -90,12 +92,14 @@
             <compilation-unit>
                 <package-root>src</package-root>
                 <classpath mode="compile">lib/felix.jar:lib/jdic-all.jar:lib/bundle/junit.jar:lib/bundle/log4j.jar:lib/bundle/org.apache.felix.servicebinder-0.9.0-SNAPSHOT.jar:lib/installer-exclude/bcprov-jdk14-130.jar:lib/installer-exclude/commons-logging.jar:lib/installer-exclude/concurrent.jar:lib/installer-exclude/dnsjava-2.0.3.jar:lib/installer-exclude/JainSipApi1.2.jar:lib/installer-exclude/JainSipRi1.2.jar:lib/installer-exclude/jcalendar-1.3.2.jar:lib/installer-exclude/jdic_misc.jar:lib/installer-exclude/jdom.jar:lib/installer-exclude/jmf.jar:lib/installer-exclude/jml-1.0b2.jar:lib/installer-exclude/joscar-client.jar:lib/installer-exclude/joscar-common.jar:lib/installer-exclude/joscar-protocol.jar:lib/installer-exclude/jsocks-klea.jar:lib/installer-exclude/jspeex.jar:lib/installer-exclude/junit.jar:lib/installer-exclude/log4j-1.2.8.jar:lib/installer-exclude/nist-sdp-1.0.jar:lib/installer-exclude/rome-0.9.jar:lib/installer-exclude/smack.jar:lib/installer-exclude/smackx.jar:lib/installer-exclude/smackx-jingle.jar:lib/installer-exclude/Stun4J.jar:lib/installer-exclude/ymsg_network_v0_63.jar:lib/os-specific/linux/installer-exclude/jmf.jar:lib/os-specific/linux/jdic_stub.jar:lib/os-specific/mac/AppleJavaExtensions.jar:lib/os-specific/mac/growl.jar:lib/os-specific/mac/jdic_stub.jar:lib/os-specific/mac/installer-exclude/jmf.jar:lib/os-specific/mac/installer-exclude/dock.jar:lib/os-specific/windows/installer-exclude/jmf.jar:lib/os-specific/windows/installer-exclude/sound.jar:lib/installer-exclude/aclibico-2.1.jar:lib/installer-exclude/jdic_misc.jar:lib/installer-exclude/pircbot.jar:lib/os-specific/solaris/installer-exclude/jmf.jar:lib/installer-exclude/jsch-0.1.36.jar:lib/installer-exclude/apache-ant-1.7.0.jar:lib/installer-exclude/izpack-shortcut-link.jar:lib/installer-exclude/jfontchooser-1.0.5.jar:lib/installer-exclude/KeybindingUtil.jar</classpath>
+                <built-to>classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
                 <package-root>test</package-root>
                 <unit-tests/>
                 <classpath mode="compile">lib/felix.jar:lib/bundle/junit.jar:classes:lib/installer-exclude/joscar-client.jar:lib/installer-exclude/joscar-common.jar:lib/installer-exclude/joscar-protocol.jar:lib/installer-exclude/smack.jar:lib/installer-exclude/Stun4J.jar</classpath>
+                <built-to>classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
