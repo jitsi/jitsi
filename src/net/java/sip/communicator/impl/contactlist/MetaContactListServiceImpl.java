@@ -225,8 +225,8 @@ public class MetaContactListServiceImpl
 
                 if(opSetPresence != null)
                 {
-                    opSetPersPresence .removeSubscriptionListener(
-                        clSubscriptionEventHandler);
+                    opSetPresence
+                        .removeSubscriptionListener(clSubscriptionEventHandler);
                 }
             }
         }

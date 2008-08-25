@@ -119,10 +119,11 @@ public class FileAccessServiceImpl implements FileAccessService {
             String fullPath = getFullPath(fileName);
             file = this.accessibleFile(fullPath, fileName);
 
-            if (file == null) {
+            if (file == null)
+            {
                 throw new SecurityException("Insufficient rights to access "
-                        + "this file in current user's home directory: "
-                        + file.getAbsolutePath());
+                    + "this file in current user's home directory: "
+                    + new File(fullPath, fileName).getPath());
             }
         }
         finally

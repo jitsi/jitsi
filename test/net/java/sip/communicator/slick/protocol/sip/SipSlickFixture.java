@@ -109,7 +109,7 @@ public class SipSlickFixture
 
         assertTrue(
             "Failed to find a provider factory service for protocol SIP",
-            serRefs != null || serRefs.length >  0);
+            (serRefs != null) && (serRefs.length >  0));
 
         //Keep the reference for later usage.
         providerFactory = (ProtocolProviderFactory)bc.getService(serRefs[0]);

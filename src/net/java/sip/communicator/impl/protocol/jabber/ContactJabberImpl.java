@@ -48,7 +48,6 @@ public class ContactJabberImpl
                    boolean isResolved)
     {
         this.rosterEntry = rosterEntry;
-        this.isLocal = isLocal;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
@@ -63,7 +62,6 @@ public class ContactJabberImpl
                boolean isPersistent)
     {
         this.tempId = id;
-        this.isLocal = isLocal;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = false;

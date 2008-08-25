@@ -87,7 +87,7 @@ public class IcqSlickFixture extends TestCase
 
         assertTrue(
             "Failed to find a provider factory service for protocol ICQ",
-            serRefs != null || serRefs.length >  0);
+            (serRefs != null) && (serRefs.length >  0));
 
         //Keep the reference for later usage.
         providerFactory = (ProtocolProviderFactory)

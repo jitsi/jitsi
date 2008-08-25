@@ -39,7 +39,6 @@ public class ContactIcqImpl
                    boolean isResolved)
     {
         this.joustSimBuddy = buddy;
-        this.isLocal = isLocal;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
