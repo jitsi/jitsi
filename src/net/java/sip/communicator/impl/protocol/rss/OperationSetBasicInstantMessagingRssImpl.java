@@ -50,21 +50,28 @@ public class OperationSetBasicInstantMessagingRssImpl
      * The value corresponding to the time in ms
      * of the RSS refreshing period (here 5min)
      */
-//    private final int PERIOD_REFRESH_RSS = 300000;
-    private final int PERIOD_REFRESH_RSS = 5000;
-    
+    private final int PERIOD_REFRESH_RSS = 300000;
+
+    /**
+     * The value corresponding to the time in ms that we wait before the
+     * initial refresh RSS when starting the application. Ideally this should
+     * be less than <tt>PERIOD_REFRESH_RSS</tt> but more than a minute in order
+     * to prevent from overloading the system on startup.
+     */
+    private final int INITIAL_RSS_LOAD_DELAY = 150000;
+
     /**
      * The localised message that we should show to the user before we remove
      * a dead RSS contact
      */
-    private static final String MSG_CONFIRM_REMOVE_MISSING_CONTACT 
+    private static final String MSG_CONFIRM_REMOVE_MISSING_CONTACT
         = "confirmRemoveMissingContactMessage";
-    
+
     /**
      * The title of the confirmation dialog that we show to the user before we
      * remove a dead contact
      */
-    private static final String TITLE_CONFIRM_REMOVE_MISSING_CONTACT 
+    private static final String TITLE_CONFIRM_REMOVE_MISSING_CONTACT
         = "confirmRemoveMissingContactTitle";
 
     /**
@@ -168,26 +175,26 @@ public class OperationSetBasicInstantMessagingRssImpl
         String oldDisplayName = new String();
 
         RssFeedReader rssFeed = rssContact.getRssFeedReader();
-        
+
         try
         {
             rssFeed.retrieveFlow();
-            
-            //if the contact was offline then switch it to online since 
+
+            //if the contact was offline then switch it to online since
             //apparently we succeeded to retrieve its flow
             if(rssContact.getPresenceStatus() == RssStatusEnum.OFFLINE)
             {
                 getParentProvider().getOperationSetPresence()
                     .changePresenceStatusForContact(
                         rssContact, RssStatusEnum.ONLINE);
-            
+
             }
         }
         catch (FileNotFoundException ex)
         {
             //RSS flow no longer exists - ask user to remove;
             handleFileNotFoundException(rssContact, ex);
-            
+
             logger.warn("RSS flow no longer exists. Error was: "
                          + ex.getMessage());
             logger.debug(ex);
@@ -236,7 +243,7 @@ public class OperationSetBasicInstantMessagingRssImpl
             {
                 rssContact.setLastItemKey(
                     new RssItemKey(rssFeed.getLastItemKey().getItemUri()));
-                
+
                 newItem = true;
                 update = true;
             }
@@ -284,7 +291,7 @@ public class OperationSetBasicInstantMessagingRssImpl
 
     /**
      * Refreshes a specific RSS feed.
-     * 
+     *
      * @param rssURL the <tt>contact</tt> (feed) to be refreshed.
      */
     public void refreshRssFeed( ContactRssImpl rssURL)
@@ -303,7 +310,9 @@ public class OperationSetBasicInstantMessagingRssImpl
         logger.trace("Creating rss timer and task.");
         RssTimerRefreshFeed refresh = new RssTimerRefreshFeed(this);
         this.timer = new Timer();
-        this.timer.scheduleAtFixedRate(refresh, 100, PERIOD_REFRESH_RSS);
+        this.timer.scheduleAtFixedRate(refresh,
+                                       INITIAL_RSS_LOAD_DELAY,
+                                       PERIOD_REFRESH_RSS);
 
         logger.trace("Done.");
     }
@@ -317,7 +326,7 @@ public class OperationSetBasicInstantMessagingRssImpl
 
     /**
      * Retrieves the feeds for a new RSS feed just added as persistent contact.
-     * 
+     *
      * @param contact the <tt>Contact</tt> added
      */
     public void threadedContactFeedUpdate(ContactRssImpl contact)
@@ -362,9 +371,9 @@ public class OperationSetBasicInstantMessagingRssImpl
         //refresh the present rssFeed "to"
         Message msg = new MessageRssImpl("Refreshing feed...",
             DEFAULT_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
-        
+
         fireMessageEvent(new MessageDeliveredEvent(msg, to, new Date()));
-            
+
         threadedContactFeedUpdate((ContactRssImpl)to);
     }
 
@@ -484,45 +493,45 @@ public class OperationSetBasicInstantMessagingRssImpl
             timer = null;
        }
     }
-    
+
     /**
-     * Queries the user as to whether or not the specified contact should be 
+     * Queries the user as to whether or not the specified contact should be
      * removed and removes it if necessary.
-     * 
-     * @param contact the contact that has caused the 
+     *
+     * @param contact the contact that has caused the
      * <tt>FileNotFoundException</tt> and that we should probably remove.
      * @param ex the <tt>FileNotFoundException</tt>
      * that is causing all the commotion.
      */
-    private void handleFileNotFoundException(ContactRssImpl contact, 
+    private void handleFileNotFoundException(ContactRssImpl contact,
                                              FileNotFoundException ex)
     {
         new FileNotFoundExceptionHandler(contact).start();
     }
-    
+
     /**
-     * A thread that queries the user as to whether or not the specified 
+     * A thread that queries the user as to whether or not the specified
      * contact should be removed and removes it if necessary.
      */
     private class FileNotFoundExceptionHandler extends Thread
     {
         private ContactRssImpl contact = null;
-        
+
         /**
          * Creates a FileNotFoundExceptionHandler for the specified contact.
-         * 
-         * @param contact the contact that has caused the 
+         *
+         * @param contact the contact that has caused the
          * <tt>FileNotFoundException</tt> and that we should probably remove.
          */
         public FileNotFoundExceptionHandler(ContactRssImpl contact)
         {
             setName(FileNotFoundExceptionHandler.class.getName());
-            
+
             this.contact = contact;
         }
-        
+
         /**
-         * Queries the user as to whether or not the specified 
+         * Queries the user as to whether or not the specified
          * contact should be removed and removes it if necessary.
          */
         public void run()
@@ -540,17 +549,17 @@ public class OperationSetBasicInstantMessagingRssImpl
                 .getI18NString(MSG_CONFIRM_REMOVE_MISSING_CONTACT,
                     new String[]{contact.getAddress()});
 
-            //switch the contact to an offline state so that we don't ask 
+            //switch the contact to an offline state so that we don't ask
             //the user what to do about it any more.
             getParentProvider().getOperationSetPresence()
-                .changePresenceStatusForContact(contact, 
+                .changePresenceStatusForContact(contact,
                                                 RssStatusEnum.OFFLINE);
-            
+
             int result = uiService.getPopupDialog()
-                .showConfirmPopupDialog(message, 
-                                        title, 
+                .showConfirmPopupDialog(message,
+                                        title,
                                         PopupDialog.YES_NO_OPTION);
-            
+
             if (result == PopupDialog.YES_OPTION)
             {
                 //remove contact
@@ -558,12 +567,12 @@ public class OperationSetBasicInstantMessagingRssImpl
                 {
                     getParentProvider().getOperationSetPresence()
                         .unsubscribe(contact);
-                } 
+                }
                 catch (OperationFailedException exc)
                 {
                     logger.info("We could not remove a dead contact", exc);
                 }
-            } 
+            }
         }
     }
 }
