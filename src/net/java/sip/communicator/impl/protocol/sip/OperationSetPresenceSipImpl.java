@@ -39,7 +39,7 @@ import net.java.sip.communicator.util.xml.*;
  */
 public class OperationSetPresenceSipImpl
     extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceSipImpl>
-    implements SipListener
+    implements MethodProcessor
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPresenceSipImpl.class);
@@ -1673,14 +1673,17 @@ public class OperationSetPresenceSipImpl
     /**
      * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
      * proper event handler.
-     *
+     * 
      * @param responseEvent the responseEvent that we received
-     * ProtocolProviderService.
+     *            ProtocolProviderService.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processResponse(ResponseEvent responseEvent)
+    public boolean processResponse(ResponseEvent responseEvent)
     {
         if (this.presenceEnabled == false) {
-            return;
+            return false;
         }
 
         ClientTransaction clientTransaction = responseEvent
@@ -1691,11 +1694,12 @@ public class OperationSetPresenceSipImpl
         if (cseq == null)
         {
             logger.error("An incoming response did not contain a CSeq header");
-            return;
+            return false;
         }
         String method = cseq.getMethod();
 
         SipProvider sourceProvider = (SipProvider)responseEvent.getSource();
+        boolean processed = false;
 
         // SUBSCRIBE
         if (method.equals(Request.SUBSCRIBE)) {
@@ -1721,6 +1725,7 @@ public class OperationSetPresenceSipImpl
                     try {
                         processAuthenticationChallenge(clientTransaction,
                                 response, sourceProvider);
+                        processed = true;
                     } catch (OperationFailedException e) {
                         logger.error("can't handle the challenge", e);
                     }
@@ -1731,11 +1736,12 @@ public class OperationSetPresenceSipImpl
                     synchronized (this.waitedCallIds) {
                         this.waitedCallIds.remove(idheader.getCallId());
                     }
+                    processed = true;
                 }
                 // any other cases (200/202) will imply a NOTIFY, so we will
                 // handle the end of a subscription there
 
-                return;
+                return processed;
             }
 
 
@@ -1749,7 +1755,7 @@ public class OperationSetPresenceSipImpl
                     if (expHeader == null) {
                         // not conform to rfc3265
                         logger.error("no Expires header in this response");
-                        return;
+                        return false;
                     }
 
                     if (contact.getResfreshTask() != null) {
@@ -1798,7 +1804,7 @@ public class OperationSetPresenceSipImpl
                         logger.debug("failed to finalize the subscription of the" +
                                 "contact", e);
 
-                        return;
+                        return false;
                     }
                 }
             }
@@ -1819,7 +1825,7 @@ public class OperationSetPresenceSipImpl
                     if (min == null) {
                         logger.error("no minimal expires value in this 423 " +
                                 "response");
-                        return;
+                        return false;
                     }
 
                     Request request = responseEvent.getClientTransaction()
@@ -1831,7 +1837,7 @@ public class OperationSetPresenceSipImpl
                         exp.setExpires(min.getExpires());
                     } catch (InvalidArgumentException e) {
                         logger.error("can't set the new expires value", e);
-                        return;
+                        return false;
                     }
 
                     ClientTransaction transac = null;
@@ -1840,17 +1846,17 @@ public class OperationSetPresenceSipImpl
                             .getNewClientTransaction(request);
                     } catch (TransactionUnavailableException e) {
                         logger.error("can't create the client transaction", e);
-                        return;
+                        return false;
                     }
 
                     try {
                         transac.sendRequest();
                     } catch (SipException e) {
                         logger.error("can't send the new request", e);
-                        return;
+                        return false;
                     }
 
-                    return;
+                    return true;
                 // UNAUTHORIZED (401/407)
                 } else if (response.getStatusCode() == Response.UNAUTHORIZED
                     || response.getStatusCode() == Response
@@ -1912,8 +1918,30 @@ public class OperationSetPresenceSipImpl
                         response.getReasonPhrase());
                 }
             }
+
+            processed = true;
+
             // NOTIFY
-        } else if (method.equals(Request.NOTIFY)) {
+        }
+        else if (method.equals(Request.NOTIFY))
+        {
+
+            /*
+             * Make sure we're working only on responses to NOTIFY requests
+             * we're interested in.
+             */
+            Request notifyRequest = clientTransaction.getRequest();
+            if (notifyRequest != null)
+            {
+                EventHeader eventHeader =
+                    (EventHeader) notifyRequest.getHeader(EventHeader.NAME);
+                if ((eventHeader == null)
+                    || !"presence".equalsIgnoreCase(eventHeader.getEventType()))
+                {
+                    return false;
+                }
+            }
+
             // if it's a final response to a NOTIFY, we try to remove it from
             // the list of waited NOTIFY end
             if (response.getStatusCode() != Response.UNAUTHORIZED
@@ -1988,6 +2016,8 @@ public class OperationSetPresenceSipImpl
                 }
             }
 
+            processed = true;
+
         // PUBLISH
         } else if (method.equals(Request.PUBLISH)) {
             // if it's a final response to a PUBLISH, we try to remove it from
@@ -2012,7 +2042,7 @@ public class OperationSetPresenceSipImpl
                 // must be one (rfc3903)
                 if (etHeader == null) {
                     logger.debug("can't find the ETag header");
-                    return;
+                    return false;
                 }
 
                 this.distantPAET = etHeader.getETag();
@@ -2023,7 +2053,7 @@ public class OperationSetPresenceSipImpl
 
                 if (expires == null) {
                     logger.error("no Expires header in the response");
-                    return;
+                    return false;
                 }
 
                 // if it's a response to an unpublish request (Expires: 0),
@@ -2031,7 +2061,7 @@ public class OperationSetPresenceSipImpl
                 if (expires.getExpires() == 0)
                 {
                     this.distantPAET = null;
-                    return;
+                    return true;
                 }
 
                 // just to be sure to not have two refreshing task
@@ -2057,7 +2087,7 @@ public class OperationSetPresenceSipImpl
                             response, sourceProvider);
                 } catch (OperationFailedException e) {
                     logger.error("can't handle the challenge", e);
-                    return;
+                    return false;
                 }
             // INTERVAL TOO BRIEF (423)
             } else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF)
@@ -2069,7 +2099,7 @@ public class OperationSetPresenceSipImpl
                 if (min == null) {
                     logger.error("can't find a min expires header in the 423" +
                             " error message");
-                    return;
+                    return false;
                 }
 
                 // send a new publish with the new expires value
@@ -2078,7 +2108,7 @@ public class OperationSetPresenceSipImpl
                     req = createPublish(min.getExpires(), true);
                 } catch (OperationFailedException e) {
                     logger.error("can't create the new publish request", e);
-                    return;
+                    return false;
                 }
 
                 ClientTransaction transac = null;
@@ -2088,14 +2118,14 @@ public class OperationSetPresenceSipImpl
                         .getNewClientTransaction(req);
                 } catch (TransactionUnavailableException e) {
                     logger.error("can't create the client transaction", e);
-                    return;
+                    return false;
                 }
 
                 try {
                     transac.sendRequest();
                 } catch (SipException e) {
                     logger.error("can't send the PUBLISH request", e);
-                    return;
+                    return false;
                 }
 
             // CONDITIONAL REQUEST FAILED (412)
@@ -2110,7 +2140,7 @@ public class OperationSetPresenceSipImpl
                     req = createPublish(this.subscriptionDuration, true);
                 } catch (OperationFailedException e) {
                     logger.error("can't create the new publish request", e);
-                    return;
+                    return false;
                 }
 
                 ClientTransaction transac = null;
@@ -2120,14 +2150,14 @@ public class OperationSetPresenceSipImpl
                         .getNewClientTransaction(req);
                 } catch (TransactionUnavailableException e) {
                     logger.error("can't create the client transaction", e);
-                    return;
+                    return false;
                 }
 
                 try {
                     transac.sendRequest();
                 } catch (SipException e) {
                     logger.error("can't send the PUBLISH request", e);
-                    return;
+                    return false;
                 }
 
             // with every other error, we consider that we have to start a new
@@ -2138,7 +2168,7 @@ public class OperationSetPresenceSipImpl
                 this.distantPAET = null;
 
                 if (this.useDistantPA == false) {
-                    return;
+                    return true;
                 }
 
                 logger.debug("we enter into the peer to peer mode as the "
@@ -2154,7 +2184,11 @@ public class OperationSetPresenceSipImpl
                 // republish our presence state
 
             }
+
+            processed = true;
         }
+
+        return processed;
     }
 
     /**
@@ -2404,14 +2438,17 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Process a request from a distant contact
-     *
+     * 
      * @param requestEvent the <tt>RequestEvent</tt> containing the newly
-     * received request.
+     *            received request.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processRequest(RequestEvent requestEvent)
+    public boolean processRequest(RequestEvent requestEvent)
     {
         if (this.presenceEnabled == false) {
-            return;
+            return false;
         }
 
         ServerTransaction serverTransaction = requestEvent
@@ -2433,7 +2470,7 @@ public class OperationSetPresenceSipImpl
                     + "transaction for an incoming request\n"
                     + "(Next message contains the request)"
                     , ex);
-                return;
+                return false;
             }
             catch (TransactionUnavailableException ex)
             {
@@ -2442,7 +2479,7 @@ public class OperationSetPresenceSipImpl
                     + "transaction for an incoming request\n"
                     + "(Next message contains the request)"
                     , ex);
-                    return;
+                return false;
             }
         }
 
@@ -2456,9 +2493,10 @@ public class OperationSetPresenceSipImpl
             // listener is ?
 
             // don't send a 489 / Bad event answer here
-            return;
+            return false;
         }
 
+        boolean processed = false;
 
         // NOTIFY
         if (request.getMethod().equals(Request.NOTIFY)) {
@@ -2472,7 +2510,7 @@ public class OperationSetPresenceSipImpl
             // notify must contain one (rfc3265)
             if (sstateHeader == null) {
                 logger.error("no subscription state in this request");
-                return;
+                return false;
             }
 
             // first handle the case of a contact still pending
@@ -2514,7 +2552,7 @@ public class OperationSetPresenceSipImpl
                             request);
                 } catch (ParseException e) {
                     logger.error("failed to create the 481 response", e);
-                    return;
+                    return false;
                 }
 
                 try {
@@ -2527,7 +2565,7 @@ public class OperationSetPresenceSipImpl
                             " to send the response", e);
                 }
 
-                return;
+                return true;
             }
 
             // if we don't understand the content
@@ -2544,7 +2582,7 @@ public class OperationSetPresenceSipImpl
                                 request);
                 } catch (ParseException e) {
                     logger.error("failed to create the OK response", e);
-                    return;
+                    return false;
                 }
 
                 // we want PIDF
@@ -2556,7 +2594,7 @@ public class OperationSetPresenceSipImpl
                 } catch (ParseException e) {
                     // should not happen
                     logger.error("failed to create the accept header", e);
-                    return;
+                    return false;
                 }
                 response.setHeader(acceptHeader);
 
@@ -2604,7 +2642,7 @@ public class OperationSetPresenceSipImpl
                     .createResponse(Response.OK, request);
             } catch (ParseException e) {
                 logger.error("failed to create the OK response", e);
-                return;
+                return false;
             }
 
             try {
@@ -2624,6 +2662,8 @@ public class OperationSetPresenceSipImpl
             {
                 setPidfPresenceStatus(new String(request.getRawContent()));
             }
+
+            processed = true;
 
         // SUBSCRIBE
         } else if (request.getMethod().equals(Request.SUBSCRIBE)) {
@@ -2679,7 +2719,7 @@ public class OperationSetPresenceSipImpl
                         .createResponse(Response.INTERVAL_TOO_BRIEF, request);
                 } catch (Exception e) {
                     logger.error("Error while creating the response 423", e);
-                    return;
+                    return false;
                 }
                 MinExpiresHeader min = null;
 
@@ -2689,7 +2729,7 @@ public class OperationSetPresenceSipImpl
                 } catch (InvalidArgumentException e) {
                     // should not happen
                     logger.error("can't create the min expires header", e);
-                    return;
+                    return false;
                 }
                 response.setHeader(min);
 
@@ -2697,10 +2737,10 @@ public class OperationSetPresenceSipImpl
                     serverTransaction.sendResponse(response);
                 } catch (Exception e) {
                     logger.error("Error while sending the response 423", e);
-                    return;
+                    return false;
                 }
 
-                return;
+                return true;
             }
 
             // is it a subscription refresh ? (no need for synchronize the
@@ -2723,7 +2763,7 @@ public class OperationSetPresenceSipImpl
                         .createResponse(Response.OK, request);
                 } catch (Exception e) {
                     logger.error("Error while creating the response 200", e);
-                    return;
+                    return false;
                 }
 
                 // add the expire header
@@ -2732,7 +2772,7 @@ public class OperationSetPresenceSipImpl
                         .createExpiresHeader(expires);
                 } catch (InvalidArgumentException e) {
                     logger.error("Can't create the expires header");
-                    return;
+                    return false;
                 }
                 response.setHeader(expHeader);
 
@@ -2740,10 +2780,10 @@ public class OperationSetPresenceSipImpl
                     serverTransaction.sendResponse(response);
                 } catch (Exception e) {
                     logger.error("Error while sending the response 200", e);
-                    return;
+                    return false;
                 }
 
-                return;
+                return true;
             }
 
             Dialog dialog = contact.getServerDialog();
@@ -2767,7 +2807,7 @@ public class OperationSetPresenceSipImpl
                         .createResponse(Response.OK, request);
                 } catch (Exception e) {
                     logger.error("Error while creating the response 200", e);
-                    return;
+                    return false;
                 }
 
                 // add the expire header
@@ -2776,7 +2816,7 @@ public class OperationSetPresenceSipImpl
                         .createExpiresHeader(0);
                 } catch (InvalidArgumentException e) {
                     logger.error("Can't create the expires header", e);
-                    return;
+                    return false;
                 }
                 response.setHeader(expHeader);
 
@@ -2784,7 +2824,7 @@ public class OperationSetPresenceSipImpl
                     serverTransaction.sendResponse(response);
                 } catch (Exception e) {
                     logger.error("Error while sending the response 200", e);
-                    return;
+                    return false;
                 }
 
                 // then terminate the subscription with an ultimate NOTIFY
@@ -2797,17 +2837,17 @@ public class OperationSetPresenceSipImpl
                             SubscriptionStateHeader.TIMEOUT);
                 } catch (OperationFailedException e) {
                     logger.error("failed to create the new notify", e);
-                    return;
+                    return false;
                 }
 
                 try {
                     dialog.sendRequest(transac);
                 } catch (Exception e) {
                     logger.error("Can't send the request", e);
-                    return;
+                    return false;
                 }
 
-                return;
+                return true;
             }
 
             // if the contact was already subscribed, we close the last
@@ -2829,7 +2869,7 @@ public class OperationSetPresenceSipImpl
                             SubscriptionStateHeader.REJECTED);
                 } catch (OperationFailedException e) {
                     logger.error("failed to create the new notify", e);
-                    return;
+                    return false;
                 }
 
                 contact.setServerDialog(null);
@@ -2847,7 +2887,7 @@ public class OperationSetPresenceSipImpl
                     dialog.sendRequest(transac);
                 } catch (Exception e) {
                     logger.error("Can't send the request", e);
-                    return;
+                    return false;
                 }
             }
 
@@ -2866,7 +2906,7 @@ public class OperationSetPresenceSipImpl
                     .createResponse(Response.OK, request);
             } catch (Exception e) {
                 logger.error("Error while creating the response 200", e);
-                return;
+                return false;
             }
 
             // add the expire header
@@ -2875,7 +2915,7 @@ public class OperationSetPresenceSipImpl
                     .createExpiresHeader(expires);
             } catch (InvalidArgumentException e) {
                 logger.error("Can't create the expires header", e);
-                return;
+                return false;
             }
             response.setHeader(expHeader);
 
@@ -2883,7 +2923,7 @@ public class OperationSetPresenceSipImpl
                 serverTransaction.sendResponse(response);
             } catch (Exception e) {
                 logger.error("Error while sending the response 200", e);
-                return;
+                return false;
             }
 
             // send a NOTIFY
@@ -2896,14 +2936,14 @@ public class OperationSetPresenceSipImpl
                         null);
             } catch (OperationFailedException e) {
                 logger.error("failed to create the new notify", e);
-                return;
+                return false;
             }
 
             try {
                 dialog.sendRequest(transac);
             } catch (Exception e) {
                 logger.error("Can't send the request", e);
-                return;
+                return false;
             }
 
             // add him to our watcher list
@@ -2915,6 +2955,8 @@ public class OperationSetPresenceSipImpl
             watcherTimeoutTask timeout = new watcherTimeoutTask(contact);
             contact.setTimeoutTask(timeout);
             getTimer().schedule(timeout, expires * 1000);
+
+            processed = true;
 
         // PUBLISH
         } else if (request.getMethod().equals(Request.PUBLISH)) {
@@ -2928,59 +2970,79 @@ public class OperationSetPresenceSipImpl
                     .createResponse(Response.NOT_IMPLEMENTED, request);
             } catch (Exception e) {
                 logger.error("Error while creating the response 501", e);
-                return;
+                return false;
             }
 
             try {
                 serverTransaction.sendResponse(response);
             } catch (Exception e) {
                 logger.error("Error while sending the response 501", e);
-                return;
+                return false;
             }
+
+            processed = true;
         }
+
+        return processed;
     }
 
     /**
      * Called when a dialog is terminated
-     *
+     * 
      * @param dialogTerminatedEvent DialogTerminatedEvent
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processDialogTerminated(
+    public boolean processDialogTerminated(
             DialogTerminatedEvent dialogTerminatedEvent)
     {
         // never fired
+        return false;
     }
 
     /**
      * Called when an IO error occurs
-     *
+     * 
      * @param exceptionEvent IOExceptionEvent
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processIOException(IOExceptionEvent exceptionEvent)
+    public boolean processIOException(IOExceptionEvent exceptionEvent)
     {
         // never fired
+        return false;
     }
 
     /**
      * Called when a transaction is terminated
-     *
+     * 
      * @param transactionTerminatedEvent TransactionTerminatedEvent
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processTransactionTerminated(
+    public boolean processTransactionTerminated(
         TransactionTerminatedEvent transactionTerminatedEvent)
     {
         // nothing to do
+        return false;
     }
 
     /**
      * Called when a timeout occur
-     *
+     * 
      * @param timeoutEvent TimeoutEvent
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processTimeout(TimeoutEvent timeoutEvent)
+    public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
         logger.error("timeout reached, it looks really abnormal: " +
                 timeoutEvent.toString());
+        return false;
     }
 
     /**

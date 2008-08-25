@@ -95,7 +95,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             offlineMessageSupported = true;
 
         sipProvider.registerMethodProcessor(Request.MESSAGE,
-                                            new SipMessageListener());
+            new BasicInstantMessagingMethodProcessor());
 
         this.sipStatusEnum = sipProvider.getSipStatusEnum();
     }
@@ -686,31 +686,34 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Class for listening incoming packets.
      */
-    private class SipMessageListener
-        implements SipListener
+    private class BasicInstantMessagingMethodProcessor
+        implements MethodProcessor
     {
-        public void processDialogTerminated(
+        public boolean processDialogTerminated(
             DialogTerminatedEvent dialogTerminatedEvent)
         {
             // never fired
+            return false;
         }
 
-        public void processIOException(IOExceptionEvent exceptionEvent)
+        public boolean processIOException(IOExceptionEvent exceptionEvent)
         {
             // never fired
+            return false;
         }
 
-        public void processTransactionTerminated(
+        public boolean processTransactionTerminated(
             TransactionTerminatedEvent transactionTerminatedEvent)
         {
             // nothing to do
+            return false;
         }
 
         /**
          *
          * @param timeoutEvent TimeoutEvent
          */
-        public void processTimeout(TimeoutEvent timeoutEvent)
+        public boolean processTimeout(TimeoutEvent timeoutEvent)
         {
             synchronized (messageProcessors)
             {
@@ -721,7 +724,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         = (SipMessageProcessor)iter.next();
 
                     if(!listener.processTimeout(timeoutEvent, sentMsg))
-                        return;
+                        return true;
                 }
             }
 
@@ -730,7 +733,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             if (timeoutEvent.isServerTransaction()) {
                 logger.warn("The sender has probably not received our OK");
-                return;
+                return false;
             }
 
             Request req = timeoutEvent.getClientTransaction().getRequest();
@@ -753,7 +756,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             if (toHeader == null)
             {
                 logger.error("received a request without a to header");
-                return;
+                return false;
             }
 
             Contact to = opSetPersPresence.resolveContactID(
@@ -797,15 +800,20 @@ public class OperationSetBasicInstantMessagingSipImpl
                     MessageDeliveryFailedEvent.INTERNAL_ERROR,
                     new Date());
             fireMessageEvent(evt);
+
+            return true;
         }
 
         /**
          * Process a request from a distant contact
-         *
+         * 
          * @param requestEvent the <tt>RequestEvent</tt> containing the newly
-         * received request.
+         *            received request.
+         * @return <tt>true</tt> if the specified event has been handled by this
+         *         processor and shouldn't be offered to other processors
+         *         registered for the same method; <tt>false</tt>, otherwise
          */
-        public void processRequest(RequestEvent requestEvent)
+        public boolean processRequest(RequestEvent requestEvent)
         {
             synchronized (messageProcessors)
             {
@@ -816,7 +824,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         = (SipMessageProcessor)iter.next();
 
                     if(!listener.processMessage(requestEvent))
-                        return;
+                        return true;
                 }
             }
 
@@ -841,7 +849,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             if (fromHeader == null)
             {
                 logger.error("received a request without a from header");
-                return;
+                return false;
             }
 
             Contact from = opSetPersPresence.resolveContactID(
@@ -910,15 +918,20 @@ public class OperationSetBasicInstantMessagingSipImpl
                 = new MessageReceivedEvent(
                     newMessage, from, new Date());
             fireMessageEvent(msgReceivedEvt);
+
+            return true;
         }
 
         /**
          * Process a response from a distant contact.
-         *
+         * 
          * @param responseEvent the <tt>ResponseEvent</tt> containing the newly
-         * received SIP response.
+         *            received SIP response.
+         * @return <tt>true</tt> if the specified event has been handled by this
+         *         processor and shouldn't be offered to other processors
+         *         registered for the same method; <tt>false</tt>, otherwise
          */
-        public void processResponse(ResponseEvent responseEvent)
+        public boolean processResponse(ResponseEvent responseEvent)
         {
             synchronized (messageProcessors)
             {
@@ -929,7 +942,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         = (SipMessageProcessor)iter.next();
 
                     if(!listener.processResponse(responseEvent, sentMsg))
-                        return;
+                        return true;
                 }
             }
 
@@ -956,7 +969,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             {
                 // should never happen
                 logger.error("send a request without a to header");
-                return;
+                return false;
             }
 
             Contact to = opSetPersPresence.resolveContactID(toHeader.getAddress()
@@ -981,7 +994,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         new Date());
                 fireMessageEvent(evt);
 
-                return;
+                return false;
             }
 
             // we retrieve the original message
@@ -1005,7 +1018,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         new Date());
                 fireMessageEvent(evt);
 
-                return;
+                return true;
             }
 
             // status 401/407 = proxy authentification
@@ -1083,6 +1096,8 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // we don't need this message anymore
                 sentMsg.remove(key);
             }
+
+            return true;
         }
 
         /**

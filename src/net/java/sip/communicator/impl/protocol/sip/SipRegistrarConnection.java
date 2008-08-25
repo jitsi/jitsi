@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class SipRegistrarConnection
-        implements SipListener
+    implements MethodProcessor
 {
     private static final Logger logger =
         Logger.getLogger(SipRegistrarConnection.class);
@@ -879,13 +879,16 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Analyses the incoming <tt>responseEvent</tt> and then forwards it to the
+     * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
      * proper event handler.
-     *
+     * 
      * @param responseEvent the responseEvent that we received
-     * ProtocolProviderService.
+     *            ProtocolProviderService.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processResponse(ResponseEvent responseEvent)
+    public boolean processResponse(ResponseEvent responseEvent)
     {
         ClientTransaction clientTransaction = responseEvent
             .getClientTransaction();
@@ -898,14 +901,17 @@ public class SipRegistrarConnection
         Response responseClone = (Response) response.clone();
 
         SipProvider sourceProvider = (SipProvider)responseEvent.getSource();
+        boolean processed = false;
 
         //OK
         if (response.getStatusCode() == Response.OK) {
             processOK(clientTransaction, response);
+            processed = true;
         }
         //NOT_IMPLEMENTED
         else if (response.getStatusCode() == Response.NOT_IMPLEMENTED) {
             processNotImplemented(clientTransaction, response);
+            processed = true;
         }
         //Trying
         else if (response.getStatusCode() == Response.TRYING) {
@@ -919,6 +925,7 @@ public class SipRegistrarConnection
             processAuthenticationChallenge(clientTransaction
                                            , response
                                            , sourceProvider);
+            processed = true;
         }
         //403 FORBIDDEN
         else if (response.getStatusCode() == Response.FORBIDDEN)
@@ -926,6 +933,7 @@ public class SipRegistrarConnection
             processForbidden(clientTransaction
                              , response
                              , sourceProvider);
+            processed = true;
         }
         //errors
         else if ( response.getStatusCode() / 100 == 4 )
@@ -939,8 +947,11 @@ public class SipRegistrarConnection
                 , "Received an error while trying to register. "
                 + "Server returned error:" + response.getReasonPhrase()
             );
+            processed = true;
         }
         //ignore everything else.
+
+        return processed;
     }
 
     /**
@@ -1045,73 +1056,91 @@ public class SipRegistrarConnection
 
 
     /**
-     * Process an asynchronously reported DialogTerminatedEvent.
-     * When a dialog transitions to the Terminated state, the stack
-     * keeps no further records of the dialog. This notification can be used by
-     * applications to clean up any auxiliary data that is being maintained
-     * for the given dialog.
-     *
-     * @param dialogTerminatedEvent -- an event that indicates that the
-     *       dialog has transitioned into the terminated state.
+     * Process an asynchronously reported DialogTerminatedEvent. When a dialog
+     * transitions to the Terminated state, the stack keeps no further records
+     * of the dialog. This notification can be used by applications to clean up
+     * any auxiliary data that is being maintained for the given dialog.
+     * 
+     * @param dialogTerminatedEvent -- an event that indicates that the dialog
+     *            has transitioned into the terminated state.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      * @since v1.2
      */
-    public void processDialogTerminated(DialogTerminatedEvent
+    public boolean processDialogTerminated(DialogTerminatedEvent
                                         dialogTerminatedEvent)
     {
+        return false;
     }
 
     /**
      * Processes a Request received on a SipProvider upon which this SipListener
      * is registered.
      * <p>
+     * 
      * @param requestEvent requestEvent fired from the SipProvider to the
-     * SipListener representing a Request received from the network.
+     *            SipListener representing a Request received from the network.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processRequest(RequestEvent requestEvent)
+    public boolean processRequest(RequestEvent requestEvent)
     {
         /** @todo send not implemented */
+        return false;
     }
 
     /**
      * Processes a retransmit or expiration Timeout of an underlying
      * {@link Transaction}handled by this SipListener.
-     *
+     * 
      * @param timeoutEvent the timeoutEvent received indicating either the
-     * message retransmit or transaction timed out.
+     *            message retransmit or transaction timed out.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processTimeout(TimeoutEvent timeoutEvent)
+    public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
-        //don't alert the user if we're already off
-        if(getRegistrationState().equals(RegistrationState.UNREGISTERED))
-            return;
-
-        setRegistrationState(
-            RegistrationState.CONNECTION_FAILED
-            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-            , "A timeout occurred while trying to connect to the server.");
+        // don't alert the user if we're already off
+        if (getRegistrationState().equals(RegistrationState.UNREGISTERED) == false)
+        {
+            setRegistrationState(RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                "A timeout occurred while trying to connect to the server.");
+        }
+        return true;
     }
 
     /**
-     * Process an asynchronously reported TransactionTerminatedEvent.
-     * When a transaction transitions to the Terminated state, the stack
-     * keeps no further records of the transaction.
-     *
+     * Process an asynchronously reported TransactionTerminatedEvent. When a
+     * transaction transitions to the Terminated state, the stack keeps no
+     * further records of the transaction.
+     * 
      * @param transactionTerminatedEvent an event that indicates that the
-     * transaction has transitioned into the terminated state.
+     *            transaction has transitioned into the terminated state.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processTransactionTerminated(TransactionTerminatedEvent
+    public boolean processTransactionTerminated(TransactionTerminatedEvent
                                              transactionTerminatedEvent)
     {
         //doesn't mean anything. we do failure handling in processTimeout
+        return false;
     }
 
     /**
      * Process an asynchronously reported IO Exception.
-     *
+     * 
      * @param exceptionEvent The Exception event that is reported to the
-     * application.
+     *            application.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processIOException(IOExceptionEvent exceptionEvent)
+    public boolean processIOException(IOExceptionEvent exceptionEvent)
     {
         setRegistrationState(
             RegistrationState.CONNECTION_FAILED
@@ -1120,6 +1149,7 @@ public class SipRegistrarConnection
               + "[" + exceptionEvent.getHost() + "]:"
               + exceptionEvent.getPort() + "/"
               + exceptionEvent.getTransport());
+        return true;
     }
 
     /**

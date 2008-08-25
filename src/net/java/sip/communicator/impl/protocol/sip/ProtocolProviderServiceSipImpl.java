@@ -29,6 +29,7 @@ import net.java.sip.communicator.impl.protocol.sip.security.*;
  * A SIP implementation of the Protocol Provider Service.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class ProtocolProviderServiceSipImpl
   extends AbstractProtocolProviderService
@@ -128,7 +129,8 @@ public class ProtocolProviderServiceSipImpl
      * implement the SipListener interface). Whenever a new message arrives we
      * extract its method and hand it to the processor instance registered
      */
-    private Hashtable methodProcessors = new Hashtable();
+    private final Hashtable<String, List<MethodProcessor>> methodProcessors =
+        new Hashtable<String, List<MethodProcessor>>();
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -1064,17 +1066,22 @@ public class ProtocolProviderServiceSipImpl
 
         //find the object that is supposed to take care of responses with the
         //corresponding method
-        SipListener processor = (SipListener)methodProcessors.get(method);
+        List<MethodProcessor> processors = methodProcessors.get(method);
 
-        if(processor == null)
+        if (processors != null)
         {
-            return;
+            logger.debug("Found " + processors.size()
+                + " processor(s) for method " + method);
+
+            for (Iterator<MethodProcessor> processorIter =
+                processors.iterator(); processorIter.hasNext();)
+            {
+                if (processorIter.next().processResponse(responseEvent))
+                {
+                    break;
+                }
+            }
         }
-
-        logger.debug("Found one processor for method " + method
-                     + ", processor is=" + processor.toString());
-
-            processor.processResponse(responseEvent);
     }
 
     /**
@@ -1083,7 +1090,7 @@ public class ProtocolProviderServiceSipImpl
      * application that a retransmission or transaction Timer expired in the
      * SipProvider's transaction state machine. The TimeoutEvent encapsulates
      * the specific timeout type and the transaction identifier either client or
-     * server upon which the timeout occured. The type of Timeout can by
+     * server upon which the timeout occurred. The type of Timeout can by
      * determined by:
      * <code>timeoutType = timeoutEvent.getTimeout().getValue();</code>
      *
@@ -1110,18 +1117,23 @@ public class ProtocolProviderServiceSipImpl
 
         //find the object that is supposed to take care of responses with the
         //corresponding method
-        SipListener processor
-            = (SipListener)methodProcessors.get(request.getMethod());
+        String method = request.getMethod();
+        List<MethodProcessor> processors = methodProcessors.get(method);
 
-        if (processor == null)
+        if (processors != null)
         {
-            return;
+            logger.debug("Found " + processors.size()
+                + " processor(s) for method " + method);
+
+            for (Iterator<MethodProcessor> processorIter =
+                processors.iterator(); processorIter.hasNext();)
+            {
+                if (processorIter.next().processTimeout(timeoutEvent))
+                {
+                    break;
+                }
+            }
         }
-
-        logger.debug("Found one processor for method " + request.getMethod()
-                     + ", processor is=" + processor.toString());
-
-            processor.processTimeout(timeoutEvent);
     }
 
     /**
@@ -1156,18 +1168,24 @@ public class ProtocolProviderServiceSipImpl
 
         //find the object that is supposed to take care of responses with the
         //corresponding method
-        SipListener processor
-            = (SipListener)methodProcessors.get(request.getMethod());
+        String method = request.getMethod();
+        List<MethodProcessor> processors = methodProcessors.get(method);
 
-        if(processor == null)
+        if (processors != null)
         {
-            return;
+            logger.debug("Found " + processors.size()
+                + " processor(s) for method " + method);
+
+            for (Iterator<MethodProcessor> processorIter =
+                processors.iterator(); processorIter.hasNext();)
+            {
+                if (processorIter.next().processTransactionTerminated(
+                    transactionTerminatedEvent))
+                {
+                    break;
+                }
+            }
         }
-
-        logger.debug("Found one processor for method " + request.getMethod()
-                     + ", processor is=" + processor.toString());
-
-            processor.processTransactionTerminated(transactionTerminatedEvent);
     }
 
     /**
@@ -1273,17 +1291,22 @@ public class ProtocolProviderServiceSipImpl
 
         //find the object that is supposed to take care of responses with the
         //corresponding method
-        SipListener processor = (SipListener)methodProcessors.get(method);
+        List<MethodProcessor> processors = methodProcessors.get(method);
 
-        if(processor == null)
+        if (processors != null)
         {
-            return;
+            logger.debug("Found " + processors.size()
+                + " processor(s) for method " + method);
+
+            for (Iterator<MethodProcessor> processorIter =
+                processors.iterator(); processorIter.hasNext();)
+            {
+                if (processorIter.next().processRequest(requestEvent))
+                {
+                    break;
+                }
+            }
         }
-
-        logger.debug("Found one processor for method " + method
-                     + ", processor is=" + processor.toString());
-
-            processor.processRequest(requestEvent);
     }
 
     /**
@@ -2080,33 +2103,50 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Registers <tt>methodProcessor</tt> in the <tt>methorProcessors</tt>
-     * table so that it would receives all messages in a transaction initiated
-     * by a <tt>method</tt> request. If any previous processors exist for the
-     * same method, they will be replaced by this one.
-     *
+     * Registers <tt>methodProcessor</tt> in the <tt>methorProcessors</tt> table
+     * so that it would receives all messages in a transaction initiated by a
+     * <tt>method</tt> request. If any previous processors exist for the same
+     * method, they will be replaced by this one.
+     * 
      * @param method a String representing the SIP method that we're registering
-     * the processor for (e.g. INVITE, REGISTER, or SUBSCRIBE).
-     * @param methodProcessor a <tt>SipListener</tt> implementation that would
-     * handle all messages received within a <tt>method</tt> transaction.
+     *            the processor for (e.g. INVITE, REGISTER, or SUBSCRIBE).
+     * @param methodProcessor a <tt>MethodProcessor</tt> implementation that
+     *            would handle all messages received within a <tt>method</tt>
+     *            transaction.
      */
-    public void registerMethodProcessor(String      method,
-                                        SipListener methodProcessor)
+    public void registerMethodProcessor(String method,
+        MethodProcessor methodProcessor)
     {
-        this.methodProcessors.put(method, methodProcessor);
+        List<MethodProcessor> processors = methodProcessors.get(method);
+        if (processors == null)
+        {
+            processors = new LinkedList<MethodProcessor>();
+            methodProcessors.put(method, processors);
+        }
+        if (processors.contains(methodProcessor) == false)
+        {
+            processors.add(methodProcessor);
+        }
     }
 
     /**
      * Unregisters <tt>methodProcessor</tt> from the <tt>methorProcessors</tt>
      * table so that it won't receive further messages in a transaction
      * initiated by a <tt>method</tt> request.
-     *
+     * 
      * @param method the name of the method whose processor we'd like to
-     * unregister.
+     *            unregister.
+     * @param methodProcessor
      */
-    public void unregisterMethodProcessor(String      method)
+    public void unregisterMethodProcessor(String method,
+        MethodProcessor methodProcessor)
     {
-            this.methodProcessors.remove(method);
+        List<MethodProcessor> processors = methodProcessors.get(method);
+        if ((processors != null) && processors.remove(methodProcessor)
+            && (processors.size() <= 0))
+        {
+            methodProcessors.remove(method);
+        }
     }
 
     /**

@@ -28,8 +28,8 @@ import net.java.sip.communicator.util.*;
  */
 public class OperationSetBasicTelephonySipImpl
     extends AbstractOperationSetBasicTelephony
-    implements OperationSetAdvancedTelephony,
-               SipListener
+    implements MethodProcessor,
+               OperationSetAdvancedTelephony
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicTelephonySipImpl.class);
@@ -475,8 +475,11 @@ public class OperationSetBasicTelephonySipImpl
      * @param requestEvent requestEvent fired from the SipProvider to the
      *            <tt>SipListener</tt> representing a Request received from the
      *            network.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processRequest(RequestEvent requestEvent)
+    public boolean processRequest(RequestEvent requestEvent)
     {
         ServerTransaction serverTransaction =
             requestEvent.getServerTransaction();
@@ -497,7 +500,7 @@ public class OperationSetBasicTelephonySipImpl
                 logger.error("Failed to create a new server"
                     + "transaction for an incoming request\n"
                     + "(Next message contains the request)", ex);
-                return;
+                return false;
             }
             catch (TransactionUnavailableException ex)
             {
@@ -505,9 +508,11 @@ public class OperationSetBasicTelephonySipImpl
                 logger.error("Failed to create a new server"
                     + "transaction for an incoming request\n"
                     + "(Next message contains the request)", ex);
-                return;
+                return false;
             }
         }
+
+        boolean processed = false;
 
         // INVITE
         if (requestMethod.equals(Request.INVITE))
@@ -521,6 +526,7 @@ public class OperationSetBasicTelephonySipImpl
                     logger.debug("request is an INVITE. Dialog state="
                         + dialogState);
                 processInvite(jainSipProvider, serverTransaction, request);
+                processed = true;
             }
             else
             {
@@ -532,29 +538,35 @@ public class OperationSetBasicTelephonySipImpl
         else if (requestMethod.equals(Request.ACK))
         {
             processAck(serverTransaction, request);
+            processed = true;
         }
         // BYE
         else if (requestMethod.equals(Request.BYE))
         {
             processBye(serverTransaction, request);
+            processed = true;
         }
         // CANCEL
         else if (requestMethod.equals(Request.CANCEL))
         {
             processCancel(serverTransaction, request);
+            processed = true;
         }
         // REFER
         else if (requestMethod.equals(Request.REFER))
         {
             logger.debug("received REFER");
             processRefer(serverTransaction, request, jainSipProvider);
+            processed = true;
         }
         // NOTIFY
         else if (requestMethod.equals(Request.NOTIFY))
         {
             logger.debug("received NOTIFY");
-            processNotify(serverTransaction, request);
+            processed = processNotify(serverTransaction, request);
         }
+
+        return processed;
     }
 
     /**
@@ -562,11 +574,15 @@ public class OperationSetBasicTelephonySipImpl
      * 
      * @param transactionTerminatedEvent -- an event that indicates that the
      *            transaction has transitioned into the terminated state.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processTransactionTerminated(
+    public boolean processTransactionTerminated(
         TransactionTerminatedEvent transactionTerminatedEvent)
     {
         // nothing to do here.
+        return false;
     }
 
     /**
@@ -575,8 +591,11 @@ public class OperationSetBasicTelephonySipImpl
      * 
      * @param responseEvent the responseEvent that we received
      *            ProtocolProviderService.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processResponse(ResponseEvent responseEvent)
+    public boolean processResponse(ResponseEvent responseEvent)
     {
         ClientTransaction clientTransaction =
             responseEvent.getClientTransaction();
@@ -595,6 +614,7 @@ public class OperationSetBasicTelephonySipImpl
         SipProvider sourceProvider = (SipProvider) responseEvent.getSource();
 
         int responseStatusCode = response.getStatusCode();
+        boolean processed = false;
         switch (responseStatusCode)
         {
 
@@ -603,6 +623,7 @@ public class OperationSetBasicTelephonySipImpl
             if (method.equals(Request.INVITE))
             {
                 processInviteOK(clientTransaction, response);
+                processed = true;
             }
             else if (method.equals(Request.BYE))
             {
@@ -613,21 +634,25 @@ public class OperationSetBasicTelephonySipImpl
         // Ringing
         case Response.RINGING:
             processRinging(clientTransaction, response);
+            processed = true;
             break;
 
         // Session Progress
         case Response.SESSION_PROGRESS:
             processSessionProgress(clientTransaction, response);
+            processed = true;
             break;
 
         // Trying
         case Response.TRYING:
             processTrying(clientTransaction, response);
+            processed = true;
             break;
 
         // Busy here.
         case Response.BUSY_HERE:
             processBusyHere(clientTransaction, response);
+            processed = true;
             break;
 
         // Accepted
@@ -635,6 +660,7 @@ public class OperationSetBasicTelephonySipImpl
             if (Request.REFER.equals(method))
             {
                 processReferAccepted(clientTransaction, response);
+                processed = true;
             }
             break;
 
@@ -643,6 +669,7 @@ public class OperationSetBasicTelephonySipImpl
         case Response.PROXY_AUTHENTICATION_REQUIRED:
             processAuthenticationChallenge(clientTransaction, response,
                 sourceProvider);
+            processed = true;
             break;
 
         // errors
@@ -659,10 +686,13 @@ public class OperationSetBasicTelephonySipImpl
 
                 if (callParticipant != null)
                     callParticipant.setState(CallParticipantState.FAILED);
+
+                processed = true;
             }
             // ignore everything else.
             break;
         }
+        return processed;
     }
 
     /**
@@ -1159,14 +1189,17 @@ public class OperationSetBasicTelephonySipImpl
      * 
      * @param timeoutEvent the timeoutEvent received indicating either the
      *            message retransmit or transaction timed out.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processTimeout(TimeoutEvent timeoutEvent)
+    public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
         Transaction transaction;
         if (timeoutEvent.isServerTransaction())
         {
             // don't care. or maybe a stack bug?
-            return;
+            return false;
         }
         else
         {
@@ -1179,13 +1212,14 @@ public class OperationSetBasicTelephonySipImpl
         if (callParticipant == null)
         {
             logger.debug("Got a headless timeout event." + timeoutEvent);
-            return;
+            return false;
         }
 
         // change status
         callParticipant.setState(CallParticipantState.FAILED,
             "The remote party has not replied!"
                 + "The call will be disconnected");
+        return true;
     }
 
     /**
@@ -1198,11 +1232,15 @@ public class OperationSetBasicTelephonySipImpl
      * 
      * @param exceptionEvent The Exception event that is reported to the
      *            application.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processIOException(IOExceptionEvent exceptionEvent)
+    public boolean processIOException(IOExceptionEvent exceptionEvent)
     {
         logger.error("Got an asynchronous exception event. host="
             + exceptionEvent.getHost() + " port=" + exceptionEvent.getPort());
+        return true;
     }
 
     /**
@@ -1210,8 +1248,11 @@ public class OperationSetBasicTelephonySipImpl
      * 
      * @param dialogTerminatedEvent -- an event that indicates that the dialog
      *            has transitioned into the terminated state.
+     * @return <tt>true</tt> if the specified event has been handled by this
+     *         processor and shouldn't be offered to other processors registered
+     *         for the same method; <tt>false</tt>, otherwise
      */
-    public void processDialogTerminated(
+    public boolean processDialogTerminated(
         DialogTerminatedEvent dialogTerminatedEvent)
     {
         CallParticipantSipImpl callParticipant =
@@ -1220,11 +1261,12 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callParticipant == null)
         {
-            return;
+            return false;
         }
 
         // change status
         callParticipant.setState(CallParticipantState.DISCONNECTED);
+        return true;
     }
 
     /**
@@ -2005,7 +2047,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param notifyRequest the <code>Request.NOTIFY</code> request to be
      *            processed
      */
-    private void processNotify(ServerTransaction serverTransaction,
+    private boolean processNotify(ServerTransaction serverTransaction,
         Request notifyRequest)
     {
 
@@ -2018,7 +2060,7 @@ public class OperationSetBasicTelephonySipImpl
         if ((eventHeader == null)
             || !"refer".equals(eventHeader.getEventType()))
         {
-            return;
+            return false;
         }
 
         SubscriptionStateHeader ssHeader =
@@ -2028,7 +2070,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             logger
                 .error("NOTIFY of refer event type with no Subscription-State header.");
-            return;
+            return false;
         }
 
         Dialog dialog = serverTransaction.getDialog();
@@ -2037,7 +2079,7 @@ public class OperationSetBasicTelephonySipImpl
         if (participant == null)
         {
             logger.debug("Received a stray refer NOTIFY request.");
-            return;
+            return false;
         }
 
         // OK
@@ -2053,7 +2095,7 @@ public class OperationSetBasicTelephonySipImpl
 
             logger.error(message, ex);
             participant.setState(CallParticipantState.DISCONNECTED, message);
-            return;
+            return false;
         }
         try
         {
@@ -2066,7 +2108,7 @@ public class OperationSetBasicTelephonySipImpl
 
             logger.error(message, ex);
             participant.setState(CallParticipantState.DISCONNECTED, message);
-            return;
+            return false;
         }
 
         if (SubscriptionStateHeader.TERMINATED.equals(ssHeader.getState())
@@ -2096,6 +2138,8 @@ public class OperationSetBasicTelephonySipImpl
                 participant.setState(CallParticipantState.DISCONNECTED);
             }
         }
+
+        return true;
     }
 
     /**

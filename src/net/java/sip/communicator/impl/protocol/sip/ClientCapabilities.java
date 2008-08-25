@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Emil Ivov
  */
 public class ClientCapabilities
-    implements SipListener
+    implements MethodProcessor
 {
     private static Logger logger = Logger.getLogger(ClientCapabilities.class);
 
@@ -48,7 +48,7 @@ public class ClientCapabilities
     {
         this.provider = protocolProvider;
         provider.registerMethodProcessor(Request.OPTIONS, this);
-        
+
         provider.addRegistrationStateChangeListener(new RegistrationListener());
     }
 
@@ -58,7 +58,7 @@ public class ClientCapabilities
      *
      * @param requestEvent the incoming options request.
      */
-    public void processRequest(RequestEvent requestEvent)
+    public boolean processRequest(RequestEvent requestEvent)
     {
         Response optionsOK = null;
         try
@@ -101,7 +101,7 @@ public class ClientCapabilities
         {
             //What else could we do apart from logging?
             logger.warn("Failed to create an incoming OPTIONS request", ex);
-            return;
+            return false;
         }
 
         try
@@ -120,58 +120,64 @@ public class ClientCapabilities
         {
             //What else could we do apart from logging?
             logger.warn("Failed to send an incoming OPTIONS request", ex);
-            return;
+            return false;
         }
         catch (SipException ex)
         {
             //What else could we do apart from logging?
             logger.warn("Failed to send an incoming OPTIONS request", ex);
-            return;
+            return false;
         }
+
+        return true;
     }
 
     /**
      * ignore. don't needed.
      * @param dialogTerminatedEvent unused
      */
-    public void processDialogTerminated(
+    public boolean processDialogTerminated(
                             DialogTerminatedEvent dialogTerminatedEvent)
     {
-
+        return false;
     }
 
     /**
      * ignore. don't needed.
      * @param exceptionEvent unused
      */
-    public void processIOException(IOExceptionEvent exceptionEvent)
+    public boolean processIOException(IOExceptionEvent exceptionEvent)
     {
+        return false;
     }
 
     /**
      * ignore for the time being
      * @param responseEvent unused
      */
-    public void processResponse(ResponseEvent responseEvent)
+    public boolean processResponse(ResponseEvent responseEvent)
     {
+        return false;
     }
 
     /**
      * ignore for the time being.
      * @param timeoutEvent unused
      */
-    public void processTimeout(TimeoutEvent timeoutEvent)
+    public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
         disconnect();
+        return true;
     }
 
     /**
      * ignore for the time being.
      * @param transactionTerminatedEvent unused
      */
-    public void processTransactionTerminated(
+    public boolean processTransactionTerminated(
         TransactionTerminatedEvent transactionTerminatedEvent)
     {
+        return false;
     }
     
     /**
