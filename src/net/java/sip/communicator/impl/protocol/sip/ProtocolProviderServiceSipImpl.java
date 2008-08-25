@@ -673,11 +673,14 @@ public class ProtocolProviderServiceSipImpl
             initRegistrarConnection(accountID);
 
             //init our call processor
-            OperationSetBasicTelephony opSetBasicTelephony
+            OperationSetAdvancedTelephony opSetAdvancedTelephony
                 = new OperationSetBasicTelephonySipImpl(this);
             this.supportedOperationSets.put(
                 OperationSetBasicTelephony.class.getName()
-                , opSetBasicTelephony);
+                , opSetAdvancedTelephony);
+            this.supportedOperationSets.put(
+                OperationSetAdvancedTelephony.class.getName()
+                , opSetAdvancedTelephony);
 
             //init presence op set.
             OperationSetPersistentPresence opSetPersPresence

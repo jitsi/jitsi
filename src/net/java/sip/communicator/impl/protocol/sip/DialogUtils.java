@@ -68,6 +68,27 @@ public final class DialogUtils
     }
 
     /**
+     * Determines whether a BYE request has already been processed in a specific
+     * <code>Dialog</code> and thus allows determining whether the dialog in
+     * question should be terminated when the last associated subscription is
+     * terminated.
+     * 
+     * @param dialog the <code>Dialog</code> to be examined
+     * @return <tt>true</tt> if a BYE request has already been processed in the
+     *         specified <code>dialog</code>; <tt>false</tt>, otherwise
+     */
+    public static boolean isByeProcessed(Dialog dialog)
+    {
+        synchronized (dialog)
+        {
+            DialogApplicationData applicationData =
+                (DialogApplicationData) dialog.getApplicationData();
+            return (applicationData == null) ? false : applicationData
+                .isByeProcessed();
+        }
+    }
+
+    /**
      * Processes a BYE request in a specific <code>Dialog</code> for the
      * purposes of subscription associations and returns an indicator which
      * determines whether the specified dialog should still be considered alive
