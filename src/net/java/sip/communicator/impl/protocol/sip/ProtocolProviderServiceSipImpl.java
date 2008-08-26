@@ -2123,10 +2123,20 @@ public class ProtocolProviderServiceSipImpl
             processors = new LinkedList<MethodProcessor>();
             methodProcessors.put(method, processors);
         }
-        if (processors.contains(methodProcessor) == false)
+        else
         {
-            processors.add(methodProcessor);
+            Class methodProcessorClass = methodProcessor.getClass();
+            for (Iterator<MethodProcessor> processorIter =
+                processors.iterator(); processorIter.hasNext();)
+            {
+                if (processorIter.next().getClass()
+                    .equals(methodProcessorClass))
+                {
+                    processorIter.remove();
+                }
+            }
         }
+        processors.add(methodProcessor);
     }
 
     /**
