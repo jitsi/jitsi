@@ -129,19 +129,26 @@ public class FileHandler
                 LogManager.getLogManager().getProperty(
                     FileHandler.class.getName() + ".pattern");
 
-            if(pattern == null)
+            String homeLocation =
+                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION");
+            String dirName =
+                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_NAME");
+
+            if(homeLocation != null && dirName != null)
             {
-                pattern =
-                    System.getProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION") +
-                    "/" +
-                    System.getProperty("net.java.sip.communicator.SC_HOME_DIR_NAME") +
-                    "/log/sip-communicator%u.log";
+                if(pattern == null)
+                    pattern = homeLocation + "/" + dirName +
+                            "/log/sip-communicator%u.log";
+                else
+                    pattern = pattern.replaceAll("\\%s",
+                        homeLocation + "/" + dirName);
             }
 
-            pattern = pattern.replaceAll("\\%s",
-                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION") +
-                "/" +
-                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_NAME"));
+            // if pattern is missing and both dir name and home lcation
+            // properties are also not defined its most probably running from
+            // source or testing - lets create log directory in working dir.
+            if(pattern == null)
+                pattern = "./log/sip-communicator%u.log";
 
             checkDestinationDirectory(pattern);
         }
