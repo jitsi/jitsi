@@ -188,8 +188,6 @@ public class ProtocolProviderFactorySipImpl
             throw new NullPointerException(
                 "The specified property map was null");
 
-        accountProperties.put(USER_ID, accountID.getUserID());
-
         String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
 
         if(serverAddress == null)
@@ -206,14 +204,16 @@ public class ProtocolProviderFactorySipImpl
         // and check for a password.
         this.storeAccount(SipActivator.getBundleContext(), accountID);
 
+        String userIDStr = (String) accountProperties.get(USER_ID);
+
         Hashtable properties = new Hashtable();
         properties.put(PROTOCOL, ProtocolNames.SIP);
-        properties.put(USER_ID, accountID.getUserID());
+        properties.put(USER_ID, userIDStr);
 
         try
         {
             ((ProtocolProviderServiceSipImpl)protocolProvider)
-                .initialize(accountID.getUserID(), accountID);
+                .initialize(userIDStr, accountID);
 
             // We store again the account in order to store all properties added
             // during the protocol provider initialization.
