@@ -23,6 +23,7 @@ import org.osgi.framework.*;
  * 
  * @author Damian Minkov
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ResourceManagementServiceImpl
     implements ResourceManagementService,
@@ -37,7 +38,15 @@ public class ResourceManagementServiceImpl
     private Map<String, String> imageResources;
     private ResourcePack imagePack = null;
 
+    private Map<String, String> languageResources;
     private LanguagePack languagePack = null;
+
+    /**
+     * The {@link Locale} of <code>languageResources</code> so that the caching
+     * of the latter can be used when a string with the same <code>Locale</code>
+     * is requested.
+     */
+    private Locale languageLocale;
 
     private Map<String, String> settingsResources;
     private ResourcePack settingsPack = null;
@@ -69,6 +78,12 @@ public class ResourceManagementServiceImpl
         languagePack = 
             (LanguagePack) getDefaultResourcePack(LanguagePack.class.getName(),
                 LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
+
+        if (languagePack != null)
+        {
+            languageLocale = Locale.getDefault();
+            languageResources = languagePack.getResources(languageLocale);
+        }
 
         settingsPack = 
             getDefaultResourcePack(SettingsPack.class.getName(),
@@ -178,6 +193,8 @@ public class ResourceManagementServiceImpl
             else if(resourcePack instanceof LanguagePack && languagePack == null)
             {
                 languagePack = (LanguagePack) resourcePack;
+                languageLocale = Locale.getDefault();
+                languageResources = resources;
             }
             else if(resourcePack instanceof SettingsPack && settingsPack == null)
             {
@@ -408,8 +425,15 @@ public class ResourceManagementServiceImpl
      */
     public String getI18NString(String key, String[] params, Locale locale)
     {
-        Map<String, String> stringResources
-            = languagePack.getResources(locale);
+        Map<String, String> stringResources;
+        if ((locale != null) && locale.equals(languageLocale))
+        {
+            stringResources = languageResources;
+        }
+        else
+        {
+            stringResources = languagePack.getResources(locale);
+        }
 
         String resourceString = stringResources.get(key);
 
@@ -456,8 +480,15 @@ public class ResourceManagementServiceImpl
      */
     public char getI18nMnemonic(String key, Locale locale)
     {
-        Map<String,String> stringResources
-            = languagePack.getResources(locale);
+        Map<String, String> stringResources;
+        if ((locale != null) && locale.equals(languageLocale))
+        {
+            stringResources = languageResources;
+        }
+        else
+        {
+            stringResources = languagePack.getResources(locale);
+        }
 
         String resourceString = stringResources.get(key);
 

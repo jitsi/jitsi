@@ -8,7 +8,6 @@ package net.java.sip.communicator.plugin.defaultresourcepack;
 import java.util.*;
 
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * 
@@ -17,8 +16,6 @@ import net.java.sip.communicator.util.*;
 public class DefaultLanguagePackImpl
     implements LanguagePack
 {
-    private Logger logger = Logger.getLogger(DefaultLanguagePackImpl.class);
-
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.languages.resources";
 
@@ -31,17 +28,7 @@ public class DefaultLanguagePackImpl
      */
     public Map<String, String> getResources()
     {
-        ResourceBundle resourceBundle
-            = ResourceBundle.getBundle( DEFAULT_RESOURCE_PATH,
-                                        Locale.getDefault());
-
-        Map<String, String> resources = new TreeMap<String, String>();
-
-        this.initResources(resourceBundle, resources);
-
-        this.initPluginResources(resources, Locale.getDefault());
-
-        return resources;
+        return getResources(Locale.getDefault());
     }
 
     /**
@@ -94,17 +81,16 @@ public class DefaultLanguagePackImpl
      * 
      * @param resourceBundle The initial <tt>ResourceBundle</tt>, corresponding
      * to the "main" properties file.
-     * @param locale The locale we're looking for.
      * @param resources A <tt>Map</tt> that would store the data.
      */
     private void initResources( ResourceBundle resourceBundle,
                                 Map<String, String> resources)
     {
-        Enumeration colorKeys = resourceBundle.getKeys();
+        Enumeration<String> colorKeys = resourceBundle.getKeys();
 
         while (colorKeys.hasMoreElements())
         {
-            String key = (String) colorKeys.nextElement();
+            String key = colorKeys.nextElement();
             String value = resourceBundle.getString(key);
 
             resources.put(key, value);
@@ -126,7 +112,7 @@ public class DefaultLanguagePackImpl
         {
             String resourceBundleName = pluginProperties.next();
 
-            if (resourceBundleName.indexOf("_") == -1)
+            if (resourceBundleName.indexOf('_') == -1)
             {
                 ResourceBundle resourceBundle
                     = ResourceBundle.getBundle(
