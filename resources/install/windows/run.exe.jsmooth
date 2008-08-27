@@ -15,7 +15,7 @@
 <currentDirectory>${EXECUTABLEPATH}</currentDirectory>
 <embeddedJar>false</embeddedJar>
 <executableName>run.exe</executableName>
-<initialMemoryHeap>268435456</initialMemoryHeap>
+<initialMemoryHeap>-1</initialMemoryHeap>
 <javaProperties>
 <name>felix.config.properties</name>
 <value>file:./lib/felix.client.run.properties </value>
