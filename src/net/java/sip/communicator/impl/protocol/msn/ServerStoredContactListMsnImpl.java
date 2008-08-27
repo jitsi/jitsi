@@ -70,7 +70,7 @@ public class ServerStoredContactListMsnImpl
      * indicates whether or not the contactlist is initialized and ready.
      */
     private boolean isInitialized = false;
-    
+
     private Vector skipAddEvent = new Vector();
 
     /**
@@ -407,8 +407,8 @@ public class ServerStoredContactListMsnImpl
     ContactMsnImpl createVolatileContact(MsnContact contact)
     {
         //First create the new volatile contact;
-        VolatileContact volatileBuddy = 
-            new VolatileContact(contact.getId(), 
+        VolatileContact volatileBuddy =
+            new VolatileContact(contact.getId(),
                                 contact.getEmail().getEmailAddress(),
                                 contact.getDisplayName());
 
@@ -567,10 +567,10 @@ public class ServerStoredContactListMsnImpl
     void removeContact(ContactMsnImpl contactToRemove)
     {
         logger.trace("Removing msn contact " + contactToRemove.getSourceContact());
-        
+
         Email contactsEmail = contactToRemove.getSourceContact().getEmail();
-        
-        MsnGroup[] belongGroups = 
+
+        MsnGroup[] belongGroups =
             contactToRemove.getSourceContact().getBelongGroups();
         if(belongGroups != null)
             for (int i = 0; i < belongGroups.length; i++)
@@ -578,7 +578,7 @@ public class ServerStoredContactListMsnImpl
                 msnProvider.getMessenger().
                     removeFriend(contactsEmail, belongGroups[i].getGroupId());
             }
-        
+
         msnProvider.getMessenger().
             removeFriend(contactsEmail, false);
     }
@@ -629,10 +629,10 @@ public class ServerStoredContactListMsnImpl
                     logger.error("Failed to add contact from " +
                         "NotInContactList group to new group: " + newParent, ex);
                 }
-                
+
                 return;
             }
-            
+
             if( !contact.isPersistent() &&
                 !contact.getParentContactGroup().isPersistent())
             {
@@ -724,16 +724,16 @@ public class ServerStoredContactListMsnImpl
         // sometimes when adding msn contact
         // status updates comes before event for adding contact and so
         // statuses are not dispatched, we check this here
-        MsnUserStatus msnStatus = 
+        MsnUserStatus msnStatus =
             contact.getSourceContact().getStatus();
-        
+
         // for some reason when creating unresolved contact this status is null
         if(msnStatus == null)
             return;
-        
+
         PresenceStatus oldStatus
             = contact.getPresenceStatus();
-        
+
         PresenceStatus newStatus
             = parentOperationSet.msnStatusToPresenceStatus(
                 contact.getSourceContact().getStatus());
@@ -877,7 +877,7 @@ public class ServerStoredContactListMsnImpl
             // if we have received status before we have inited the list
             // sho them correctly
             parentOperationSet.earlyStatusesDispatch();
-            
+
             // retreive offline messages
             msnProvider.getMessenger().retreiveOfflineMessages();
         }
@@ -896,12 +896,16 @@ public class ServerStoredContactListMsnImpl
 //            try
 //            {
                 logger.trace("Contact add us " + contact);
+
+                if(parentOperationSet.getAuthorizationHandler() == null)
+                    return;
+
                 ContactMsnImpl contactImpl =
                     findContactById(contact.getEmail().getEmailAddress());
 
                 if (contactImpl != null)
                     return;
-                
+
                 contactImpl = createVolatileContact(contact);
 
                 AuthorizationRequest authRequest = new AuthorizationRequest();
@@ -909,13 +913,13 @@ public class ServerStoredContactListMsnImpl
                 AuthorizationResponse authResponse =
                     parentOperationSet.getAuthorizationHandler().processAuthorisationRequest(
                         authRequest, contactImpl);
-                
+
                 if (authResponse.getResponseCode() == AuthorizationResponse.IGNORE)
                     return;
-                else if (authResponse.getResponseCode() 
+                else if (authResponse.getResponseCode()
                             == AuthorizationResponse.REJECT)
                     msnProvider.getMessenger().blockFriend(contact.getEmail());
-                else  if (authResponse.getResponseCode() 
+                else  if (authResponse.getResponseCode()
                             == AuthorizationResponse.ACCEPT)
                 {
                     moveContact(contactImpl, rootGroup);
@@ -933,18 +937,18 @@ public class ServerStoredContactListMsnImpl
         {
         }
 
-        public void contactAddCompleted(MsnMessenger messenger, MsnContact contact)
+        public void contactAddCompleted(MsnMessenger messenger, MsnContact contact, MsnList list)
         {
             String contactID = contact.getEmail().getEmailAddress();
-            
+
             if(!skipAddEvent.remove(contactID))
             {
                 ContactMsnImpl contactToAdd =
                     findContactById(contact.getEmail().getEmailAddress());
-                
+
                 if(contactToAdd == null)
                 {
-                    contactToAdd = 
+                    contactToAdd =
                         new ContactMsnImpl(
                             contact,
                             ServerStoredContactListMsnImpl.this, true, true);
@@ -954,13 +958,13 @@ public class ServerStoredContactListMsnImpl
                 else
                 {
                     ContactGroup oldGroup = contactToAdd.getParentContactGroup();
-                    
+
                     fireContactMoved(oldGroup, rootGroup, contactToAdd);
                 }
             }
         }
-        
-        public void contactRemoveCompleted(MsnMessenger messenger, MsnContact contact)
+
+        public void contactRemoveCompleted(MsnMessenger messenger, MsnContact contact, MsnList list)
         {
             ContactMsnImpl contactToRemove =
                 findContactById(contact.getEmail().getEmailAddress());
@@ -984,7 +988,7 @@ public class ServerStoredContactListMsnImpl
                 fireContactRemoved(parentGroup, contactToRemove);
             }
         }
-        
+
         public void groupAddCompleted(MsnMessenger messenger, MsnGroup group)
         {
             logger.trace("groupAdded " + group);
@@ -1014,15 +1018,15 @@ public class ServerStoredContactListMsnImpl
         {
             ContactMsnImpl contactToAdd =
                     findContactById(c.getEmail().getEmailAddress());
-            
+
             if(contactToAdd == null)
             {
-                contactToAdd = 
+                contactToAdd =
                     new ContactMsnImpl(
                             c,
                             ServerStoredContactListMsnImpl.this, true, true);
 
-                ContactGroupMsnImpl group = 
+                ContactGroupMsnImpl group =
                     findContactGroupByMsnId(g.getGroupId());
 
                 if(group == null)
@@ -1037,10 +1041,10 @@ public class ServerStoredContactListMsnImpl
             }
             else
             {
-                ContactGroup oldGroup = 
+                ContactGroup oldGroup =
                     contactToAdd.getParentContactGroup();
-                
-                ContactGroupMsnImpl group = 
+
+                ContactGroupMsnImpl group =
                     findContactGroupByMsnId(g.getGroupId());
 
                 if(group == null)
@@ -1050,17 +1054,17 @@ public class ServerStoredContactListMsnImpl
                 }
 
                 group.addContact(contactToAdd);
-                
-                
+
+
                 if(oldGroup instanceof RootContactGroupMsnImpl)
                     ((RootContactGroupMsnImpl)oldGroup).removeContact(contactToAdd);
                 else
                     ((ContactGroupMsnImpl)oldGroup).removeContact(contactToAdd);
-                
+
                 fireContactMoved(oldGroup, group, contactToAdd);
             }
         }
-        public void contactRemoveFromGroupCompleted(MsnMessenger messenger, 
+        public void contactRemoveFromGroupCompleted(MsnMessenger messenger,
             MsnContact c, MsnGroup g)
         {
             String contactID = c.getEmail().getEmailAddress();
@@ -1071,7 +1075,7 @@ public class ServerStoredContactListMsnImpl
                 logger.trace("Group is null! ");
                 return;
             }
-            
+
             ContactGroupMsnImpl dstGroup =
                 findContactGroupByMsnId(g.getGroupId());
 
@@ -1089,6 +1093,10 @@ public class ServerStoredContactListMsnImpl
 
             dstGroup.removeContact(contactToRemove);
             fireContactRemoved(dstGroup, contactToRemove);
+        }
+
+        public void ownerDisplayNameChanged(MsnMessenger arg0)
+        {
         }
     }
 
@@ -1178,7 +1186,7 @@ public class ServerStoredContactListMsnImpl
     {
         this.messenger = messenger;
 
-        contactListModManager = 
+        contactListModManager =
             new EventManager(msnProvider, (BasicMessenger)messenger);
 
         contactListModManager.
@@ -1186,19 +1194,19 @@ public class ServerStoredContactListMsnImpl
 
         messenger.addContactListListener(new ContactListListener());
     }
-    
+
     /**
-     * when there is no image for contact we must retrieve it 
+     * when there is no image for contact we must retrieve it
      * add contacts for image update
      *
-     * @param c ContactJabberImpl
+     * @param c ContactMsnImpl
      */
     protected void addContactForImageUpdate(ContactMsnImpl c)
     {
         // Get the MSnObject
-        MsnObject avatar = c.getSourceContact().getAvatar(); 
-        
-        if (avatar != null) 
+        MsnObject avatar = c.getSourceContact().getAvatar();
+
+        if (avatar != null)
         {
             messenger.retrieveDisplayPicture(
                     avatar,
@@ -1266,7 +1274,7 @@ public class ServerStoredContactListMsnImpl
         }
         logger.info("---=End Printing contact list=---");
     }
-    
+
     private class ImageUpdater
             implements DisplayPictureListener
     {
@@ -1275,23 +1283,23 @@ public class ServerStoredContactListMsnImpl
         {
             this.contact = contact;
         }
-        
+
         public void notifyMsnObjectRetrieval(MsnMessenger arg0messenger,
                                              DisplayPictureRetrieveWorker worker,
-                                             MsnObject msnObject, 
+                                             MsnObject msnObject,
                                              ResultStatus result,
-                                             byte[] resultBytes, 
+                                             byte[] resultBytes,
                                              Object context)
         {
-            if (result == ResultStatus.GOOD) 
+            if (result == ResultStatus.GOOD)
             {
                 contact.setImage(resultBytes);
-                
+
                 parentOperationSet.fireContactPropertyChangeEvent(
-                                ContactPropertyChangeEvent.PROPERTY_IMAGE, 
+                                ContactPropertyChangeEvent.PROPERTY_IMAGE,
                                 contact, null, resultBytes);
             }
         }
-        
+
     }
 }
