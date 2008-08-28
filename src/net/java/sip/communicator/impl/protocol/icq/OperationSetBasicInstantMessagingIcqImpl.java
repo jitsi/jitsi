@@ -29,15 +29,10 @@ import net.java.sip.communicator.service.protocol.icqconstants.*;
  * @author Damian Minkov
  */
 public class OperationSetBasicInstantMessagingIcqImpl
-    implements OperationSetBasicInstantMessaging
+    extends AbstractOperationSetBasicInstantMessaging
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingIcqImpl.class);
-    
-    /**
-     * A list of listeneres registered for message events.
-     */
-    private Vector messageListeners = new Vector();
 
     /**
      * The icq provider that created us.
@@ -131,67 +126,10 @@ public class OperationSetBasicInstantMessagingIcqImpl
         icqProvider.addRegistrationStateChangeListener(providerRegListener);
     }
 
-    /**
-     * Registeres a MessageListener with this operation set so that it gets
-     * notifications of successful message delivery, failure or reception of
-     * incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to register.
-     */
-    public void addMessageListener(MessageListener listener)
+    public Message createMessage(String content, String contentType,
+        String encoding, String subject)
     {
-        synchronized(messageListeners)
-        {
-            if(!messageListeners.contains(listener))
-                this.messageListeners.add(listener);
-        }
-    }
-
-    /**
-     * Unregisteres <tt>listener</tt> so that it won't receive any further
-     * notifications upon successful message delivery, failure or reception of
-     * incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to unregister.
-     */
-    public void removeMessageListener(MessageListener listener)
-    {
-        synchronized(messageListeners)
-        {
-            this.messageListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Create a Message instance for sending arbitrary MIME-encoding content.
-     *
-     * @param content content value
-     * @param contentType the MIME-type for <tt>content</tt>
-     * @param contentEncoding encoding used for <tt>content</tt>
-     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now subject.
-     * @return the newly created message.
-     */
-    public Message createMessage(byte[] content, String contentType,
-                                 String contentEncoding, String subject)
-    {
-        return new MessageIcqImpl(  new String(content),
-                                    contentType,
-                                    contentEncoding,
-                                    subject,
-                                    null);
-    }
-
-    /**
-     * Create a Message instance for sending a simple text messages with
-     * default (text/plain) content type and encoding.
-     *
-     * @param messageText the string content of the message.
-     * @return Message the newly created message
-     */
-    public Message createMessage(String messageText)
-    {
-        return new MessageIcqImpl(messageText, DEFAULT_MIME_TYPE
-                                  , DEFAULT_MIME_ENCODING, null, null);
+        return new MessageIcqImpl(content, contentType, encoding, subject);
     }
 
     /**
@@ -467,41 +405,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
         }
     }
 
-
-
-    /**
-     * Delivers the specified event to all registered message listeners.
-     * @param evt the <tt>EventObject</tt> that we'd like delivered to all
-     * registered message listerners.
-     */
-    private void fireMessageEvent(EventObject evt)
-    {
-        Iterator listeners = null;
-        synchronized (messageListeners)
-        {
-            listeners = new ArrayList(messageListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MessageListener listener
-                = (MessageListener) listeners.next();
-
-            if (evt instanceof MessageDeliveredEvent)
-            {
-                listener.messageDelivered( (MessageDeliveredEvent) evt);
-            }
-            else if (evt instanceof MessageReceivedEvent)
-            {
-                listener.messageReceived( (MessageReceivedEvent) evt);
-            }
-            else if (evt instanceof MessageDeliveryFailedEvent)
-            {
-                listener.messageDeliveryFailed(
-                    (MessageDeliveryFailedEvent) evt);
-            }
-        }
-        }
     /**
      * The listener that would retrieve instant messaging events from oscar.jar.
      */
@@ -588,8 +491,9 @@ public class OperationSetBasicInstantMessagingIcqImpl
             else
                 msgContent = msgBody;
 
-            Message newMessage = createMessage(msgContent.getBytes(), 
-                    HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
+            Message newMessage =
+                createMessage(msgContent, HTML_MIME_TYPE,
+                    DEFAULT_MIME_ENCODING, null);
 
             Contact sourceContact =
                 opSetPersPresence.findContactByID( conversation.getBuddy()

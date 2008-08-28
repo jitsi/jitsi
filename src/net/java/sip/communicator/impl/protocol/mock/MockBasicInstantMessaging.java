@@ -12,18 +12,14 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * Instant messaging functionalites for the mock protocol.
+ * Instant messaging functionality for the mock protocol.
  *
  * @author Damian Minkov
  * @author Emil Ivov
  */
 public class MockBasicInstantMessaging
-    implements OperationSetBasicInstantMessaging
+    extends AbstractOperationSetBasicInstantMessaging
 {
-    /**
-     * Currently registered message listeners.
-     */
-    private Vector messageListeners = new Vector();
 
     /**
      * The currently valid persistent presence operation set..
@@ -51,89 +47,32 @@ public class MockBasicInstantMessaging
         this.parentProvider = provider;
     }
 
-    /**
-     * Registeres a MessageListener with this operation set so that it gets
-     * notifications of successful message delivery, failure or reception of
-     * incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to register.
-     */
-    public void addMessageListener(MessageListener listener)
+    public Message createMessage(String content, String contentType,
+        String encoding, String subject)
     {
-        if(!messageListeners.contains(listener))
-            messageListeners.add(listener);
-    }
-
-    /**
-     * Create a Message instance for sending arbitrary MIME-encoding content.
-     *
-     * @param content content value
-     * @param contentType the MIME-type for <tt>content</tt>
-     * @param contentEncoding encoding used for <tt>content</tt>
-     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now
-     *   subject.
-     * @return the newly created message.
-     */
-    public Message createMessage(byte[] content, String contentType,
-                                 String contentEncoding, String subject)
-    {
-        return new MockMessage(new String(content), contentType
-                                  , contentEncoding, subject);
-    }
-
-    /**
-     * Create a Message instance for sending a simple text messages with
-     * default (text/plain) content type and encoding.
-     *
-     * @param messageText the string content of the message.
-     * @return Message the newly created message
-     */
-    public Message createMessage(String messageText)
-    {
-        return new MockMessage(messageText, DEFAULT_MIME_TYPE,
-                               DEFAULT_MIME_ENCODING, null);
-    }
-
-    /**
-     * Unregisteres <tt>listener</tt> so that it won't receive any further
-     * notifications upon successful message delivery, failure or reception
-     * of incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to unregister.
-     */
-    public void removeMessageListener(MessageListener listener)
-    {
-        messageListeners.remove(listener);
+        return new MockMessage(content, contentType, encoding, subject);
     }
 
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
-     *
+     * 
      * @param to the <tt>Contact</tt> to send <tt>message</tt> to
      * @param message the <tt>Message</tt> to send.
      * @throws IllegalStateException if the underlying ICQ stack is not
-     *   registered and initialized.
+     *             registered and initialized.
      * @throws IllegalArgumentException if <tt>to</tt> is not an instance
-     *   belonging to the underlying implementation.
+     *             belonging to the underlying implementation.
      */
-    public void sendInstantMessage(Contact to, Message message) throws
-        IllegalStateException, IllegalArgumentException
+    public void sendInstantMessage(Contact to, Message message)
+        throws IllegalStateException,
+        IllegalArgumentException
     {
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(
-                message, to, new Date());
-
-        Iterator iter = messageListeners.iterator();
-        while (iter.hasNext())
-        {
-            MessageListener listener = (MessageListener)iter.next();
-            listener.messageDelivered(msgDeliveredEvt);
-        }
+        fireMessageEvent(new MessageDeliveredEvent(message, to, new Date()));
     }
 
     /**
-     * Determines wheter the protocol provider (or the protocol itself) support
+     * Determines whether the protocol provider (or the protocol itself) support
      * sending and receiving offline messages. Most often this method would
      * return true for protocols that support offline messages and false for
      * those that don't. It is however possible for a protocol to support these
@@ -152,7 +91,7 @@ public class MockBasicInstantMessaging
     }
     
     /**
-     * Determines wheter the protocol supports the supplied content type
+     * Determines whether the protocol supports the supplied content type
      *
      * @param contentType the type we want to check
      * @return <tt>true</tt> if the protocol supports it and
@@ -160,16 +99,12 @@ public class MockBasicInstantMessaging
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE))
-            return true;
-        else
-           return false;
+        return contentType.equals(DEFAULT_MIME_TYPE);
     }
 
     /**
-     * Methods for manipulating mock operation set as
-     * deliver(receive) messageop
-     *
+     * Methods for manipulating mock operation set as deliver(receive) messageop
+     * 
      * @param to the address of the contact whom we are to deliver the message.
      * @param msg the message that we are to deliver.
      */
@@ -177,14 +112,7 @@ public class MockBasicInstantMessaging
     {
         Contact sourceContact = opSetPersPresence.findContactByID(to);
 
-        MessageReceivedEvent msgReceivedEvt
-                = new MessageReceivedEvent(
-                    msg, sourceContact , new Date());
-        Iterator iter = messageListeners.iterator();
-        while (iter.hasNext())
-        {
-            MessageListener listener = (MessageListener)iter.next();
-            listener.messageReceived(msgReceivedEvt);
-        }
+        fireMessageEvent(new MessageReceivedEvent(msg, sourceContact,
+            new Date()));
     }
 }

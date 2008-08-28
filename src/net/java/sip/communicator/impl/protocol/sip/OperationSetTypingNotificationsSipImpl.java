@@ -481,12 +481,11 @@ public class OperationSetTypingNotificationsSipImpl
         }
         else // ignore other events
             return;
-        
-        Message message = opSetBasicIm.createMessage(
-            new String(opSetPersPresence.convertDocument(doc)).getBytes(),
-            CONTENT_TYPE,
-            OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
-            null);
+
+        Message message =
+            opSetBasicIm.createMessage(opSetPersPresence.convertDocument(doc),
+                CONTENT_TYPE,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, null);
             
         //create the message
         Request mes;

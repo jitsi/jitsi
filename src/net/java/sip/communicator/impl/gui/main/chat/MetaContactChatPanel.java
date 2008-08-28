@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
@@ -964,10 +963,7 @@ public class MetaContactChatPanel
                 || htmlText.indexOf("<u") > -1
                 || htmlText.indexOf("<font") > -1))
         {
-            msg = im.createMessage(     htmlText.getBytes(),
-                                        "text/html",
-                                        "utf-8",
-                                        "");
+            msg = im.createMessage(htmlText, "text/html", "utf-8", "");
         }
         else
         {

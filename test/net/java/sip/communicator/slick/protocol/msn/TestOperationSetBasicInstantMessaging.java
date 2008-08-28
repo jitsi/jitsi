@@ -11,7 +11,6 @@ import java.util.*;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -344,9 +343,8 @@ public class TestOperationSetBasicInstantMessaging
         String contentType = "text/html";
         String encoding = "UTF-16";
         String subject = "test message";
-        net.java.sip.communicator.service.protocol.Message msg
-            = opSetBasicIM1.createMessage(
-                    body.getBytes(), contentType, encoding, subject);
+        net.java.sip.communicator.service.protocol.Message msg =
+            opSetBasicIM1.createMessage(body, contentType, encoding, subject);
 
         assertEquals("message body", body, msg.getContent());
         assertTrue("message body bytes"

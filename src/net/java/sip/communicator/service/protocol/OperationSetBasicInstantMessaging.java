@@ -33,15 +33,16 @@ public interface OperationSetBasicInstantMessaging
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
-     *
+     * 
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @param contentEncoding encoding used for <tt>content</tt>
-     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now subject.
+     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now
+     *            subject.
      * @return the newly created message.
      */
-    public Message createMessage(byte[] content,         String contentType,
-                                 String contentEncoding, String subject);
+    public Message createMessage(String content, String contentType,
+        String contentEncoding, String subject);
 
     /**
      * Create a Message instance for sending a simple text messages with default

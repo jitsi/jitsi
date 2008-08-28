@@ -466,15 +466,15 @@ public class MetaContactImpl
 
             this.protoContacts.add(contact);
 
-            //if this is our firt contact and we don't already have a display
-            //name, use theirs.
-            if(this.protoContacts.size() == 1
-                &&( this.displayName == null
-                    || this.displayName.trim().length() == 0)){
-                //be careful not to use setDisplayName() here cause this will
-                //bring us into a deadlock.
-                this.displayName
-                    = new String(contact.getDisplayName().getBytes());
+            // if this is our firt contact and we don't already have a display
+            // name, use theirs.
+            if (this.protoContacts.size() == 1
+                && (this.displayName == null || this.displayName.trim()
+                    .length() == 0))
+            {
+                // be careful not to use setDisplayName() here cause this will
+                // bring us into a deadlock.
+                this.displayName = contact.getDisplayName();
             }
 
             if (parentGroup != null)

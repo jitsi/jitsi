@@ -17,7 +17,7 @@ package net.java.sip.communicator.service.protocol;
  * operation set.
  * <p>
  * All messages have message ids that allow the underlying implementation to
- * notify the user of their succesful delivery.
+ * notify the user of their successful delivery.
  *
  * @author Emil Ivov
  */

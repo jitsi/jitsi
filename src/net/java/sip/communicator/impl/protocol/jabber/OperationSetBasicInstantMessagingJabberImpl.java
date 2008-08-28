@@ -13,7 +13,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.protocol.event.MessageListener;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
@@ -32,7 +31,7 @@ import org.jivesoftware.smackx.packet.XHTMLExtension;
  * @author Damian Minkov
  */
 public class OperationSetBasicInstantMessagingJabberImpl
-    implements OperationSetBasicInstantMessaging
+    extends AbstractOperationSetBasicInstantMessaging
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingJabberImpl.class);
@@ -63,11 +62,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private LinkedList receivedKeepAlivePackets = new LinkedList();
 
     private int failedKeepalivePackets = 0;
-
-    /**
-     * A list of listeneres registered for message events.
-     */
-    private Vector messageListeners = new Vector();
 
     /**
      * The provider that created us.
@@ -115,77 +109,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
-     * Registeres a MessageListener with this operation set so that it gets
-     * notifications of successful message delivery, failure or reception of
-     * incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to register.
-     */
-    public void addMessageListener(MessageListener listener)
-    {
-        synchronized(messageListeners)
-        {
-            if(!messageListeners.contains(listener))
-            {
-                this.messageListeners.add(listener);
-            }
-        }
-    }
-
-    /**
-     * Unregisteres <tt>listener</tt> so that it won't receive any further
-     * notifications upon successful message delivery, failure or reception of
-     * incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to unregister.
-     */
-    public void removeMessageListener(MessageListener listener)
-    {
-        synchronized(messageListeners)
-        {
-            this.messageListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Create a Message instance for sending arbitrary MIME-encoding content.
-     *
-     * @param content content value
-     * @param contentType the MIME-type for <tt>content</tt>
-     * @param contentEncoding encoding used for <tt>content</tt>
-     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now subject.
-     * @return the newly created message.
-     */
-    public Message createMessage(byte[] content, String contentType,
-                                 String contentEncoding, String subject)
-    {
-        return new MessageJabberImpl(new String(content), contentType
-                                  , contentEncoding, subject);
-    }
-    
-    /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
      *
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @return the newly created message.
      */
-    public Message createMessage(byte[] content, String contentType)
+    public Message createMessage(String content, String contentType)
     {
         return createMessage(content, contentType, DEFAULT_MIME_ENCODING, null);
     }
 
-    /**
-     * Create a Message instance for sending a simple text messages with
-     * default (text/plain) content type and encoding.
-     *
-     * @param messageText the string content of the message.
-     * @return Message the newly created message
-     */
-    public Message createMessage(String messageText)
+    public Message createMessage(String content, String contentType,
+        String encoding, String subject)
     {
-        return createMessage(messageText.getBytes(), DEFAULT_MIME_TYPE
-                                  , DEFAULT_MIME_ENCODING, null);
+        return new MessageJabberImpl(content, contentType, encoding, subject);
     }
 
     /**
@@ -360,40 +298,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
         }
     }
-
-    /**
-     * Delivers the specified event to all registered message listeners.
-     * @param evt the <tt>EventObject</tt> that we'd like delivered to all
-     * registered message listerners.
-     */
-    private void fireMessageEvent(EventObject evt)
-    {
-        Iterator listeners = null;
-        synchronized (messageListeners)
-        {
-            listeners = new ArrayList(messageListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MessageListener listener
-                = (MessageListener) listeners.next();
-
-            if (evt instanceof MessageDeliveredEvent)
-            {
-                listener.messageDelivered( (MessageDeliveredEvent) evt);
-            }
-            else if (evt instanceof MessageReceivedEvent)
-            {
-                listener.messageReceived( (MessageReceivedEvent) evt);
-            }
-            else if (evt instanceof MessageDeliveryFailedEvent)
-            {
-                listener.messageDeliveryFailed(
-                    (MessageDeliveryFailedEvent) evt);
-            }
-        }
-    }
     
     /**
      * The listener that we use in order to handle incoming messages.
@@ -440,10 +344,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     String body = (String)bodies.next();
                     messageBuff.append(body);
                 }
-                
-                if(messageBuff.length() > 0)
-                    newMessage = createMessage(messageBuff.toString().getBytes(), 
-                                                HTML_MIME_TYPE);
+
+                if (messageBuff.length() > 0)
+                    newMessage =
+                        createMessage(messageBuff.toString(), HTML_MIME_TYPE);
             }
 
             Contact sourceContact =

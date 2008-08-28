@@ -21,15 +21,11 @@ import net.java.sip.communicator.util.*;
  * @author Mihai Balan
  */
 public class OperationSetBasicInstantMessagingRssImpl
-    implements OperationSetBasicInstantMessaging,
-               RegistrationStateChangeListener
+    extends AbstractOperationSetBasicInstantMessaging
+    implements RegistrationStateChangeListener
 {
     private static final Logger logger
         = Logger.getLogger(OperationSetBasicInstantMessagingRssImpl.class);
-    /**
-     * Currently registered message listeners.
-     */
-    private Vector messageListeners = new Vector();
 
     /**
      * The currently valid persistent presence operation set.
@@ -97,62 +93,22 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * Registers a MessageListener with this operation set so that it gets
-     * notifications of successful message delivery, failure or reception of
-     * incoming messages.
-     *
-     * @param listener the <tt>MessageListener</tt> to register.
-     */
-    public void addMessageListener(MessageListener listener)
-    {
-        if(!messageListeners.contains(listener))
-            messageListeners.add(listener);
-    }
-
-    /**
-     * Create a Message instance for sending arbitrary MIME-encoding content.
-     *
-     * @param content content value
-     * @param contentType the MIME-type for <tt>content</tt>
-     * @param contentEncoding encoding used for <tt>content</tt>
-     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now
-     *   subject.
-     * @return the newly created message.
-     */
-    public Message createMessage(byte[] content, String contentType,
-                                 String contentEncoding, String subject)
-    {
-        return new MessageRssImpl(new String(content),
-                                  contentType,
-                                  contentEncoding,
-                                  subject);
-    }
-
-    /**
-     * Create a Message instance for sending a simple text messages with
-     * default (text/plain) content type and encoding.
-     *
+     * Create a Message instance for sending a simple text messages with default
+     * (text/html) content type and encoding.
+     * 
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
     public Message createMessage(String messageText)
     {
-        return new MessageRssImpl(messageText,
-                                  HTML_MIME_TYPE,
-                                  DEFAULT_MIME_ENCODING,
-                                  null);
+        return createMessage(messageText, HTML_MIME_TYPE,
+            DEFAULT_MIME_ENCODING, null);
     }
 
-    /**
-     * Unregisters <tt>listener</tt> so that it won't receive any further
-     * notifications upon successful message delivery, failure or reception
-     * of incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to unregister.
-     */
-    public void removeMessageListener(MessageListener listener)
+    public Message createMessage(String content, String contentType,
+        String encoding, String subject)
     {
-        messageListeners.remove(listener);
+        return new MessageRssImpl(content, contentType, encoding, subject);
     }
 
     /**
@@ -375,40 +331,6 @@ public class OperationSetBasicInstantMessagingRssImpl
         fireMessageEvent(new MessageDeliveredEvent(msg, to, new Date()));
 
         threadedContactFeedUpdate((ContactRssImpl)to);
-    }
-
-    /**
-     * Delivers the specified event to all registered message listeners.
-     * @param evt the <tt>EventObject</tt> that we'd like delivered to all
-     * registered message listeners.
-     */
-    private void fireMessageEvent(EventObject evt)
-    {
-        Iterator listeners = null;
-        synchronized (messageListeners)
-        {
-            listeners = new ArrayList(messageListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MessageListener listener
-                = (MessageListener) listeners.next();
-
-            if (evt instanceof MessageDeliveredEvent)
-            {
-                listener.messageDelivered( (MessageDeliveredEvent) evt);
-            }
-            else if (evt instanceof MessageReceivedEvent)
-            {
-                listener.messageReceived( (MessageReceivedEvent) evt);
-            }
-            else if (evt instanceof MessageDeliveryFailedEvent)
-            {
-                listener.messageDeliveryFailed(
-                    (MessageDeliveryFailedEvent) evt);
-            }
-        }
     }
 
     /**

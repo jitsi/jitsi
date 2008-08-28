@@ -21,15 +21,10 @@ import net.java.sip.communicator.util.*;
  *
  */
 public class OperationSetBasicInstantMessagingZeroconfImpl
-    implements OperationSetBasicInstantMessaging
+    extends AbstractOperationSetBasicInstantMessaging
 {
       private static final Logger logger
         = Logger.getLogger(OperationSetBasicInstantMessagingZeroconfImpl.class);
-    
-    /**
-     * Currently registered message listeners.
-     */
-    private Vector messageListeners = new Vector();
 
     /**
      * The currently valid persistent presence operation set..
@@ -57,62 +52,11 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
         this.parentProvider = provider;
     }
 
-    /**
-     * Registers a MessageListener with this operation set so that it gets
-     * notifications of successful message delivery, failure or reception of
-     * incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to register.
-     */
-    public void addMessageListener(MessageListener listener)
+    public Message createMessage(String content, String contentType,
+        String encoding, String subject)
     {
-        if(!messageListeners.contains(listener))
-            messageListeners.add(listener);
-    }
-
-    /**
-     * Create a Message instance for sending arbitrary MIME-encoding content.
-     *
-     * @param content content value
-     * @param contentType the MIME-type for <tt>content</tt>
-     * @param contentEncoding encoding used for <tt>content</tt>
-     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now
-     *   subject.
-     * @return the newly created message.
-     */
-    public Message createMessage(byte[] content, String contentType,
-                                 String contentEncoding, String subject)
-    {
-        return new MessageZeroconfImpl(new String(content), 
-                                  contentEncoding, contentType, 
-                                  MessageZeroconfImpl.MESSAGE);
-    }
-
-    /**
-     * Create a Message instance for sending a simple text messages with
-     * default (text/plain) content type and encoding.
-     *
-     * @param messageText the string content of the message.
-     * @return Message the newly created message
-     */
-    public Message createMessage(String messageText)
-    {
-        return new MessageZeroconfImpl(messageText, 
-                            DEFAULT_MIME_ENCODING, 
-                            DEFAULT_MIME_TYPE,
-                            MessageZeroconfImpl.MESSAGE);
-    }
-
-    /**
-     * Unregisteres <tt>listener</tt> so that it won't receive any further
-     * notifications upon successful message delivery, failure or reception
-     * of incoming messages..
-     *
-     * @param listener the <tt>MessageListener</tt> to unregister.
-     */
-    public void removeMessageListener(MessageListener listener)
-    {
-        messageListeners.remove(listener);
+        return new MessageZeroconfImpl(content, encoding, contentType,
+            MessageZeroconfImpl.MESSAGE);
     }
 
     /**
@@ -203,57 +147,14 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
 
     /**
      * Notifies all registered message listeners that a message has been
-     * delivered successfully to its addressee..
-     *
-     * @param message the <tt>Message</tt> that has been delivered.
-     * @param to the <tt>Contact</tt> that <tt>message</tt> was delivered to.
-     */
-    private void fireMessageDelivered(Message message, Contact to)
-    {
-        MessageDeliveredEvent evt
-            = new MessageDeliveredEvent(message, to, new Date());
-
-        Iterator listeners = null;
-        synchronized (messageListeners)
-        {
-            listeners = new ArrayList(messageListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MessageListener listener
-                = (MessageListener) listeners.next();
-
-            listener.messageDelivered(evt);
-        }
-    }
-
-    /**
-     * Notifies all registered message listeners that a message has been
      * received.
-     *
+     * 
      * @param message the <tt>Message</tt> that has been received.
      * @param from the <tt>Contact</tt> that <tt>message</tt> was received from.
      */
     public void fireMessageReceived(Message message, Contact from)
     {
-       
-        MessageReceivedEvent evt
-            = new MessageReceivedEvent(message, from, new Date());
-
-        Iterator listeners = null;
-        synchronized (messageListeners)
-        {
-            listeners = new ArrayList(messageListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MessageListener listener
-                = (MessageListener) listeners.next();
-
-            listener.messageReceived(evt);
-        }
+        super.fireMessageReceived(message, from);
     }
 
     /**

@@ -373,9 +373,8 @@ public class TestOperationSetBasicInstantMessaging
         String contentType = "text/html";
         String encoding = "UTF-16";
         String subject = "test message";
-        net.java.sip.communicator.service.protocol.Message msg
-            = opSetBasicIM1.createMessage(
-                    body.getBytes(), contentType, encoding, subject);
+        net.java.sip.communicator.service.protocol.Message msg =
+            opSetBasicIM1.createMessage(body, contentType, encoding, subject);
 
         assertEquals("message body", body, msg.getContent());
         assertTrue("message body bytes"

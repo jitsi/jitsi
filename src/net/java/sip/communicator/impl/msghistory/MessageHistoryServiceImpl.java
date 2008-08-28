@@ -11,7 +11,6 @@ import java.util.*;
 
 import org.osgi.framework.*;
 
-import net.java.sip.communicator.impl.msghistory.MessageHistoryActivator.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.resources.*;
@@ -34,6 +33,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Alexander Pelov
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class MessageHistoryServiceImpl
     implements  MessageHistoryService,
@@ -519,7 +519,7 @@ public class MessageHistoryServiceImpl
      */
     private Object convertHistoryRecordToMessageEvent(HistoryRecord hr, Contact contact)
     {
-        MessageImpl msg = new MessageImpl(hr);
+        MessageImpl msg = createMessageFromHistoryRecord(hr);
         Date timestamp = null;
 
         // if there is value for date of receiving the message
@@ -563,7 +563,7 @@ public class MessageHistoryServiceImpl
     private Object convertHistoryRecordToMessageEvent(
         HistoryRecord hr, ChatRoom room)
     {
-        MessageImpl msg = new MessageImpl(hr);
+        MessageImpl msg = createMessageFromHistoryRecord(hr);
         Date timestamp = null;
 
         // if there is value for date of receiving the message
@@ -603,6 +603,54 @@ public class MessageHistoryServiceImpl
                         msg,
                         ChatRoomMessageReceivedEvent
                             .CONVERSATION_MESSAGE_RECEIVED);
+    }
+
+    private MessageImpl createMessageFromHistoryRecord(HistoryRecord hr)
+    {
+        // History structure
+        // 0 - dir
+        // 1 - msg_CDATA
+        // 2 - msgTyp
+        // 3 - enc
+        // 4- uid
+        // 5 - sub
+        // 6 - receivedTimestamp
+        String textContent = null;
+        String contentType = null;
+        String contentEncoding = null;
+        String messageUID = null;
+        String subject = null;
+        boolean isOutgoing = false;
+        Date messageReceivedDate = null;
+        for (int i = 0; i < hr.getPropertyNames().length; i++)
+        {
+            String propName = hr.getPropertyNames()[i];
+
+            if (propName.equals("msg") || propName.equals(STRUCTURE_NAMES[1]))
+                textContent = hr.getPropertyValues()[i];
+            else if (propName.equals(STRUCTURE_NAMES[2]))
+                contentType = hr.getPropertyValues()[i];
+            else if (propName.equals(STRUCTURE_NAMES[3]))
+                contentEncoding = hr.getPropertyValues()[i];
+            else if (propName.equals(STRUCTURE_NAMES[4]))
+                messageUID = hr.getPropertyValues()[i];
+            else if (propName.equals(STRUCTURE_NAMES[5]))
+                subject = hr.getPropertyValues()[i];
+            else if (propName.equals(STRUCTURE_NAMES[0]))
+            {
+                if (hr.getPropertyValues()[i].equals("in"))
+                    isOutgoing = false;
+                else if (hr.getPropertyValues()[i].equals("out"))
+                    isOutgoing = true;
+            }
+            else if (propName.equals(STRUCTURE_NAMES[6]))
+            {
+                messageReceivedDate =
+                    new Date(Long.parseLong(hr.getPropertyValues()[i]));
+            }
+        }
+        return new MessageImpl(textContent, contentType, contentEncoding,
+            subject, messageUID, isOutgoing, messageReceivedDate);
     }
 
     /**
@@ -1767,91 +1815,20 @@ public class MessageHistoryServiceImpl
      * Simple message implementation.
      */
     private class MessageImpl
-        implements Message
+        extends AbstractMessage
     {
-        private String textContent = null;
-        private String contentType = null;
-        private String contentEncoding = null;
-        private String messageUID = null;
-        private String subject = null;
+        private final boolean isOutgoing;
 
-        private boolean isOutgoing = false;
+        private final Date messageReceivedDate;
 
-        private Date messageReceivedDate = null;
-
-        MessageImpl(HistoryRecord hr)
+        MessageImpl(String content, String contentType, String encoding,
+            String subject, String messageUID, boolean isOutgoing,
+            Date messageReceivedDate)
         {
-            // History structure
-            // 0 - dir
-            // 1 - msg_CDATA
-            // 2 - msgTyp
-            // 3 - enc
-            // 4- uid
-            // 5 - sub
-            // 6 - receivedTimestamp
+            super(content, contentType, encoding, subject, messageUID);
 
-            for (int i = 0; i < hr.getPropertyNames().length; i++)
-            {
-                String propName = hr.getPropertyNames()[i];
-
-                if(propName.equals("msg") || propName.equals(STRUCTURE_NAMES[1]))
-                    textContent = hr.getPropertyValues()[i];
-                else if(propName.equals(STRUCTURE_NAMES[2]))
-                    contentType = hr.getPropertyValues()[i];
-                else if(propName.equals(STRUCTURE_NAMES[3]))
-                    contentEncoding = hr.getPropertyValues()[i];
-                else if(propName.equals(STRUCTURE_NAMES[4]))
-                    messageUID = hr.getPropertyValues()[i];
-                else if(propName.equals(STRUCTURE_NAMES[5]))
-                    subject = hr.getPropertyValues()[i];
-                else if(propName.equals(STRUCTURE_NAMES[0]))
-                {
-                    if (hr.getPropertyValues()[i].equals("in"))
-                        isOutgoing = false;
-                    else if (hr.getPropertyValues()[i].equals("out"))
-                        isOutgoing = true;
-                }
-                else if(propName.equals(STRUCTURE_NAMES[6]))
-                {
-                    messageReceivedDate = new Date(
-                        Long.parseLong(hr.getPropertyValues()[i]));
-                }
-            }
-        }
-
-        public String getContent()
-        {
-            return textContent;
-        }
-
-        public String getContentType()
-        {
-            return contentType;
-        }
-
-        public String getEncoding()
-        {
-            return contentEncoding;
-        }
-
-        public String getMessageUID()
-        {
-            return messageUID;
-        }
-
-        public byte[] getRawData()
-        {
-            return getContent().getBytes();
-        }
-
-        public int getSize()
-        {
-            return getContent().length();
-        }
-
-        public String getSubject()
-        {
-            return subject;
+            this.isOutgoing = isOutgoing;
+            this.messageReceivedDate = messageReceivedDate;
         }
 
         public Date getMessageReceivedDate()
