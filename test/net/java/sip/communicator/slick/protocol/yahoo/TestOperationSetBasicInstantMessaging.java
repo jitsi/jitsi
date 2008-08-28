@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.slick.protocol.yahoo;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -347,6 +348,7 @@ public class TestOperationSetBasicInstantMessaging
      * inspects its parameters.
      */
     public void testCreateMessage2()
+        throws UnsupportedEncodingException
     {
         String body = "This is an IM coming from the tested implementation"
             + " on " + new Date().toString();
@@ -355,11 +357,12 @@ public class TestOperationSetBasicInstantMessaging
         String subject = "test message";
         net.java.sip.communicator.service.protocol.Message msg =
             opSetBasicIM1.createMessage(body, contentType, encoding, subject);
+        byte[] bodyBytes = body.getBytes(encoding);
 
         assertEquals("message body", body, msg.getContent());
         assertTrue("message body bytes"
-                   , Arrays.equals(body.getBytes(), msg.getRawData()));
-        assertEquals("message length", body.length(), msg.getSize());
+                   , Arrays.equals(bodyBytes, msg.getRawData()));
+        assertEquals("message length", bodyBytes.length, msg.getSize());
         assertEquals("message content type", contentType, msg.getContentType());
         assertEquals("message encoding", encoding, msg.getEncoding());
         assertNotNull("message uid", msg.getMessageUID());
