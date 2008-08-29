@@ -839,7 +839,7 @@ public class NotificationServiceImpl
         }
     }
     
-    private boolean isDeafult(String eventType, String actionType)
+    private boolean isDefault(String eventType, String actionType)
     {
         List eventTypes = configService
                 .getPropertyNamesByPrefix(NOTIFICATIONS_PREFIX, true);
@@ -906,7 +906,7 @@ public class NotificationServiceImpl
         NotificationActionHandler handler)
             throws IllegalArgumentException
     {
-        if(isDeafult(eventType, actionType))
+        if(isDefault(eventType, actionType))
         {
             NotificationActionHandler h = 
                 getEventNotificationActionHandler(eventType, actionType);
@@ -995,7 +995,7 @@ public class NotificationServiceImpl
         logger.debug("Registering default event " + eventType + "/" + 
             actionType + "/" + actionDescriptor + "/" + defaultMessage);
         
-        if(isDeafult(eventType, actionType))
+        if(isDefault(eventType, actionType))
         {
             NotificationActionHandler handler = 
                 getEventNotificationActionHandler(eventType, actionType);
