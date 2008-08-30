@@ -378,7 +378,7 @@ public class TestOperationSetPresence
 
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-        operationSetPresence1.addSubsciptionListener(subEvtCollector);
+        operationSetPresence1.addSubscriptionListener(subEvtCollector);
 
         // second we will accept
         authEventCollector2.responseToRequest =
@@ -504,7 +504,7 @@ public class TestOperationSetPresence
         // First create a subscription and verify that it really gets created.
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-        operationSetPresence1.addSubsciptionListener(subEvtCollector);
+        operationSetPresence1.addSubscriptionListener(subEvtCollector);
 
         Contact gibberishTesterAgentContact = operationSetPresence1
             .findContactByID(fixture.userID2);

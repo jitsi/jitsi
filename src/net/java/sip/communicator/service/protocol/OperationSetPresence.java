@@ -215,7 +215,7 @@ public interface OperationSetPresence
      * subscription was succesfully added, has failed or was removed.
      * @param listener the SubscriptionListener to register
      */
-    public void addSubsciptionListener(SubscriptionListener listener);
+    public void addSubscriptionListener(SubscriptionListener listener);
 
     /**
      * Removes the specified subscription listener.

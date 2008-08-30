@@ -196,7 +196,7 @@ public class TestOperationSetPersistentPresence
         //register a subscription event listener
         SubscriptionEventCollector evtCollector
             = new SubscriptionEventCollector();
-        opSetPersPresence.addSubsciptionListener(evtCollector);
+        opSetPersPresence.addSubscriptionListener(evtCollector);
 
         //create the subscription and wait for a confirmation event.
         opSetPersPresence.subscribe(group, "38687470");
@@ -250,7 +250,7 @@ public class TestOperationSetPersistentPresence
         //register a subscription event listener
         SubscriptionEventCollector evtCollector
             = new SubscriptionEventCollector();
-        opSetPersPresence.addSubsciptionListener(evtCollector);
+        opSetPersPresence.addSubscriptionListener(evtCollector);
 
         //remove the subscription and wait for a confirmation event.
         opSetPersPresence.unsubscribe(contact);

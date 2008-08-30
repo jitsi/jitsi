@@ -156,7 +156,7 @@ public class MetaContactChatPanel
             {
                 if (add)
                 {
-                    opsPresence.addSubsciptionListener(this);
+                    opsPresence.addSubscriptionListener(this);
                 }
                 else
                 {

@@ -384,7 +384,7 @@ public class MetaContactListServiceImpl
 
         addContactToEventIgnoreList(contactID, provider);
 
-        opSetPersPresence.addSubsciptionListener(evtRetriever);
+        opSetPersPresence.addSubscriptionListener(evtRetriever);
         opSetPersPresence.addServerStoredGroupChangeListener(evtRetriever);
 
         try
@@ -1417,7 +1417,7 @@ public class MetaContactListServiceImpl
         }
 
         presenceOpSet
-            .addSubsciptionListener(clSubscriptionEventHandler);
+            .addSubscriptionListener(clSubscriptionEventHandler);
 
         presenceOpSet
             .addServerStoredGroupChangeListener(clGroupEventHandler);

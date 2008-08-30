@@ -47,7 +47,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         this.parentProvider = parentProvider;
     }
 
-    public void addSubsciptionListener(SubscriptionListener listener)
+    public void addSubscriptionListener(SubscriptionListener listener)
     {
         synchronized (subscriptionListeners)
         {

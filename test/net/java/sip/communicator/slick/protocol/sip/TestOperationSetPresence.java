@@ -363,7 +363,7 @@ public class TestOperationSetPresence
 
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-        this.operationSetPresence1.addSubsciptionListener(subEvtCollector);
+        this.operationSetPresence1.addSubscriptionListener(subEvtCollector);
 
 
         synchronized (subEvtCollector){
@@ -470,7 +470,7 @@ public class TestOperationSetPresence
         {
             // add the the user to the reverse side needed for status tests
             subEvtCollector.collectedEvents.clear();
-            this.operationSetPresence2.addSubsciptionListener(subEvtCollector);
+            this.operationSetPresence2.addSubscriptionListener(subEvtCollector);
 
             synchronized (subEvtCollector)
             {
@@ -586,7 +586,7 @@ public class TestOperationSetPresence
         // First create a subscription and verify that it really gets created.
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-        this.operationSetPresence1.addSubsciptionListener(subEvtCollector);
+        this.operationSetPresence1.addSubscriptionListener(subEvtCollector);
 
         Contact sipTesterAgentContact = this.operationSetPresence1
             .findContactByID(this.fixture.userID2);

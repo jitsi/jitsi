@@ -460,7 +460,7 @@ public class TestOperationSetPresence
             // to the list as awaiting
             SubscriptionEventCollector moveEvtCollector
                 = new SubscriptionEventCollector();
-            operationSetPresence.addSubsciptionListener(moveEvtCollector);
+            operationSetPresence.addSubscriptionListener(moveEvtCollector);
 
             logger.debug("Waiting for authorization error and authorization response...");
             authEventCollector.waitForAuthResponse(15000);
@@ -509,7 +509,7 @@ public class TestOperationSetPresence
 
             UnsubscribeWait unsubscribeEvtCollector
                 = new UnsubscribeWait();
-            operationSetPresence.addSubsciptionListener(unsubscribeEvtCollector);
+            operationSetPresence.addSubscriptionListener(unsubscribeEvtCollector);
 
             synchronized(unsubscribeEvtCollector){
                 operationSetPresence.unsubscribe(c);
@@ -538,7 +538,7 @@ public class TestOperationSetPresence
                          (operationSetPresence.findContactByID(fixture.testerAgent.getIcqUIN()) != null));
             // add the listener beacuse now our authorization will be accepted
             // and so the buddy will be finally added to the list
-            operationSetPresence.addSubsciptionListener(subEvtCollector);
+            operationSetPresence.addSubscriptionListener(subEvtCollector);
             // subscribe again so we can trigger again the authorization procedure
             operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
 
@@ -762,7 +762,7 @@ public class TestOperationSetPresence
         // First create a subscription and verify that it really gets created.
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-        operationSetPresence.addSubsciptionListener(subEvtCollector);
+        operationSetPresence.addSubscriptionListener(subEvtCollector);
 
         Contact icqTesterAgentContact = operationSetPresence
             .findContactByID(fixture.testerAgent.getIcqUIN());

@@ -831,7 +831,7 @@ public class OperationSetPersistentPresenceYahooImpl
                 
                 initContactStatuses();
                 
-                addSubsciptionListener(statusUpdater);
+                addSubscriptionListener(statusUpdater);
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED

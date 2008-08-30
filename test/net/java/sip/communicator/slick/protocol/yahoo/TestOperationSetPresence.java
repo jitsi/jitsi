@@ -351,7 +351,7 @@ public class TestOperationSetPresence
         
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-        operationSetPresence1.addSubsciptionListener(subEvtCollector);
+        operationSetPresence1.addSubscriptionListener(subEvtCollector);
 
 
         synchronized (subEvtCollector){
@@ -426,7 +426,7 @@ public class TestOperationSetPresence
             }
             
             // add it
-            operationSetPresence1.addSubsciptionListener(subEvtCollector);
+            operationSetPresence1.addSubscriptionListener(subEvtCollector);
             subEvtCollector.collectedEvents.clear();
             synchronized (subEvtCollector){
                 operationSetPresence1.subscribe(fixture.userID2);
@@ -489,7 +489,7 @@ public class TestOperationSetPresence
         {
             // add the the user to the reverse side needed for status tests
             subEvtCollector.collectedEvents.clear();
-            operationSetPresence2.addSubsciptionListener(subEvtCollector);
+            operationSetPresence2.addSubscriptionListener(subEvtCollector);
 
             synchronized (subEvtCollector)
             {
@@ -522,7 +522,7 @@ public class TestOperationSetPresence
         // First create a subscription and verify that it really gets created.
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-        operationSetPresence1.addSubsciptionListener(subEvtCollector);
+        operationSetPresence1.addSubscriptionListener(subEvtCollector);
 
         Contact yahooTesterAgentContact = operationSetPresence1
             .findContactByID(fixture.userID2);
