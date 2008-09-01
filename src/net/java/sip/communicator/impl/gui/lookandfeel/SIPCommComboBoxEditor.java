@@ -19,11 +19,19 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
-    
-    public SIPCommComboBoxEditor() {
+
+    public SIPCommComboBoxEditor()
+    {
         super();
-        
-        editor.setBorder(new EditorBorder());        
+
+        editor.setBorder(new EditorBorder());
+
+        // enables delete button
+        if (editor.getUI() instanceof SIPCommTextFieldUI)
+        {
+            ((SIPCommTextFieldUI) editor.getUI())
+                .setDeleteButtonEnabled(true);
+        }
     }
     
     protected static Insets editorBorderInsets 
