@@ -81,7 +81,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Create a new call and invite the specified CallParticipant to it.
-     * 
+     *
      * @param callee the sip address of the callee that we should invite to a
      *            new call.
      * @return CallParticipant the CallParticipant that will represented by the
@@ -106,7 +106,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Create a new call and invite the specified CallParticipant to it.
-     * 
+     *
      * @param callee the address of the callee that we should invite to a new
      *            call.
      * @return CallParticipant the CallParticipant that will represented by the
@@ -138,17 +138,17 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Init and establish the specified call.
-     * 
+     *
      * @param calleeAddress the address of the callee that we'd like to connect
      *            with.
-     * 
+     *
      * @return CallParticipant the CallParticipant that will represented by the
      *         specified uri. All following state change events will be
      *         delivered through that call participant. The Call that this
      *         participant is a member of could be retrieved from the
      *         CallParticipatn instance with the use of the corresponding
      *         method.
-     * 
+     *
      * @throws OperationFailedException with the corresponding code if we fail
      *             to create the call.
      */
@@ -282,7 +282,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Returns an iterator over all currently active calls.
-     * 
+     *
      * @return an iterator over all currently active calls.
      */
     public Iterator getActiveCalls()
@@ -292,7 +292,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Resumes communication with a call participant previously put on hold.
-     * 
+     *
      * @param participant the call participant to put on hold.
      * @throws OperationFailedException
      */
@@ -304,7 +304,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Puts the specified CallParticipant "on hold".
-     * 
+     *
      * @param participant the participant that we'd like to put on hold.
      * @throws OperationFailedException
      */
@@ -316,7 +316,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Puts the specified <tt>CallParticipant</tt> on or off hold.
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> to be put on or off hold
      * @param on <tt>true</tt> to have the specified <tt>CallParticipant</tt>
      *            put on hold; <tt>false</tt>, otherwise
@@ -375,7 +375,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Sends an invite request with a specific SDP offer (description) within
      * the current <tt>Dialog</tt> with a specific call participant.
-     * 
+     *
      * @param sipParticipant the SIP-specific call participant to send the
      *            invite to within the current <tt>Dialog</tt>
      * @param sdpOffer the description of the SDP offer to be made to the
@@ -407,7 +407,7 @@ public class OperationSetBasicTelephonySipImpl
      * Sends a specific <code>Request</code> through a given
      * <code>SipProvider</code> as part of the conversation associated with a
      * specific <code>Dialog</code>.
-     * 
+     *
      * @param sipProvider the <code>SipProvider</code> to send the specified
      *            request through
      * @param request the <code>Request</code> to send through
@@ -450,7 +450,7 @@ public class OperationSetBasicTelephonySipImpl
      * error using the current <tt>Logger</tt> and then throws a new
      * <tt>OperationFailedException</tt> with the message, a specific error code
      * and the cause.
-     * 
+     *
      * @param message the message to be logged and then wrapped in a new
      *            <tt>OperationFailedException</tt>
      * @param errorCode the error code to be assigned to the new
@@ -471,7 +471,7 @@ public class OperationSetBasicTelephonySipImpl
      * Processes a Request received on a SipProvider upon which this SipListener
      * is registered.
      * <p>
-     * 
+     *
      * @param requestEvent requestEvent fired from the SipProvider to the
      *            <tt>SipListener</tt> representing a Request received from the
      *            network.
@@ -571,7 +571,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Process an asynchronously reported TransactionTerminatedEvent.
-     * 
+     *
      * @param transactionTerminatedEvent -- an event that indicates that the
      *            transaction has transitioned into the terminated state.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -588,7 +588,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
      * proper event handler.
-     * 
+     *
      * @param responseEvent the responseEvent that we received
      *            ProtocolProviderService.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -698,7 +698,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Processes a specific <code>Response.ACCEPTED</code> response of an
      * earlier <code>Request.REFER</code> request.
-     * 
+     *
      * @param clientTransaction the <code>ClientTransaction</code> which brought
      *            the response
      * @param accepted the <code>Response.ACCEPTED</code> response to an earlier
@@ -721,7 +721,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Updates the call state of the corresponding call participant.
-     * 
+     *
      * @param clientTransaction the transaction in which the response was
      *            received.
      * @param response the trying response.
@@ -751,7 +751,7 @@ public class OperationSetBasicTelephonySipImpl
      * Updates the call state of the corresponding call participant. We'll also
      * try to extract any details here that might be of use for call participant
      * presentation and that we didn't have when establishing the call.
-     * 
+     *
      * @param clientTransaction the transaction in which the response was
      *            received.
      * @param response the Trying response.
@@ -794,7 +794,7 @@ public class OperationSetBasicTelephonySipImpl
      * Handles early media in 183 Session Progress responses. Retrieves the SDP
      * and makes sure that we start transmitting and playing early media that we
      * receive. Puts the call into a CONNECTING_WITH_EARLY_MEDIA state.
-     * 
+     *
      * @param clientTransaction the <tt>ClientTransaction</tt> that the response
      *            arrived in.
      * @param sessionProgress the 183 <tt>Response</tt> to process
@@ -894,7 +894,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Sets to CONNECTED that state of the corresponding call participant and
      * sends an ACK.
-     * 
+     *
      * @param clientTransaction the <tt>ClientTransaction</tt> that the response
      *            arrived in.
      * @param ok the OK <tt>Response</tt> to process
@@ -1001,7 +1001,10 @@ public class OperationSetBasicTelephonySipImpl
 
         // !!! set sdp content before setting call state as that is where
         // listeners get alerted and they need the sdp
-        callParticipant.setSdpDescription(new String(ok.getRawContent()));
+        // ignore sdp if we have already received one in early media
+        if(!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA.
+            equals(callParticipant.getState()))
+            callParticipant.setSdpDescription(new String(ok.getRawContent()));
 
         // notify the media manager of the sdp content
         CallSession callSession =
@@ -1050,10 +1053,14 @@ public class OperationSetBasicTelephonySipImpl
                     return;
                 }
             }
+
+            // ignore sdp process if we have already received one in early media
             CallParticipantState callParticipantState =
                 callParticipant.getState();
             if ((callParticipantState != CallParticipantState.CONNECTED)
-                && !CallParticipantState.isOnHold(callParticipantState))
+                && !CallParticipantState.isOnHold(callParticipantState)
+                && !CallParticipantState.CONNECTING_WITH_EARLY_MEDIA.
+                    equals(callParticipantState))
             {
                 callSession.processSdpAnswer(callParticipant, callParticipant
                     .getSdpDescription());
@@ -1095,7 +1102,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Sets corresponding state to the call participant associated with this
      * transaction.
-     * 
+     *
      * @param clientTransaction the transaction in which
      * @param busyHere the busy here Response
      */
@@ -1120,7 +1127,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Attempts to re-generate the corresponding request with the proper
      * credentials and terminates the call if it fails.
-     * 
+     *
      * @param clientTransaction the corresponding transaction
      * @param response the challenge
      * @param jainSipProvider the provider that received the challenge
@@ -1186,7 +1193,7 @@ public class OperationSetBasicTelephonySipImpl
      * server upon which the timeout occurred. The type of Timeout can by
      * determined by:
      * <code>timeoutType = timeoutEvent.getTimeout().getValue();</code>
-     * 
+     *
      * @param timeoutEvent the timeoutEvent received indicating either the
      *            message retransmit or transaction timed out.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1229,7 +1236,7 @@ public class OperationSetBasicTelephonySipImpl
      * to the application immediately (according to RFC 3261). This method
      * enables an implementation to propagate the asynchronous handling of IO
      * Exceptions to the application.
-     * 
+     *
      * @param exceptionEvent The Exception event that is reported to the
      *            application.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1245,7 +1252,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Process an asynchronously reported DialogTerminatedEvent.
-     * 
+     *
      * @param dialogTerminatedEvent -- an event that indicates that the dialog
      *            has transitioned into the terminated state.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1271,7 +1278,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Creates an invite request destined for <tt>callee</tt>.
-     * 
+     *
      * @param toAddress the sip address of the callee that the request is meant
      *            for.
      * @return a newly created sip <tt>Request</tt> destined for <tt>callee</tt>
@@ -1398,7 +1405,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Creates a new call and sends a RINGING response.
-     * 
+     *
      * @param sourceProvider the provider containing <tt>sourceTransaction</tt>.
      * @param serverTransaction the transaction containing the received request.
      * @param invite the Request that we've just received.
@@ -1569,7 +1576,7 @@ public class OperationSetBasicTelephonySipImpl
      * specific <tt>Response</tt> before it is sent to a specific
      * <tt>CallParticipant</tt> as part of the execution of
      * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> to receive a specific
      *            <tt>Response</tt>
      * @param response the <tt>Response</tt> to be sent to the
@@ -1614,7 +1621,7 @@ public class OperationSetBasicTelephonySipImpl
      * specific <tt>Response</tt> has been sent to a specific
      * <tt>CallParticipant</tt> as part of the execution of
      * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> who was sent a specific
      *            <tt>Response</tt>
      * @param response the <tt>Response</tt> that has just been sent to the
@@ -1676,7 +1683,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Sets the state of the corresponding call participant to DISCONNECTED and
      * sends an OK response.
-     * 
+     *
      * @param serverTransaction the ServerTransaction the the BYE request
      *            arrived in.
      * @param byeRequest the BYE request to process
@@ -1751,7 +1758,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Updates the session description and sends the state of the corresponding
      * call participant to CONNECTED.
-     * 
+     *
      * @param serverTransaction the transaction that the Ack was received in.
      * @param ackRequest Request
      */
@@ -1782,7 +1789,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Sets the state of the specifies call participant as DISCONNECTED.
-     * 
+     *
      * @param serverTransaction the transaction that the cancel was received in.
      * @param cancelRequest the Request that we've just received.
      */
@@ -1869,7 +1876,7 @@ public class OperationSetBasicTelephonySipImpl
      * Processes a specific REFER request i.e. attempts to transfer the
      * call/call participant receiving the request to a specific transfer
      * target.
-     * 
+     *
      * @param serverTransaction the <code>ServerTransaction</code> containing
      *            the REFER request
      * @param referRequest the very REFER request
@@ -2041,7 +2048,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Processes a specific <code>Request.NOTIFY</code> request for the purposes
      * of telephony.
-     * 
+     *
      * @param serverTransaction the <code>ServerTransaction</code> containing
      *            the <code>Request.NOTIFY</code> request
      * @param notifyRequest the <code>Request.NOTIFY</code> request to be
@@ -2147,7 +2154,7 @@ public class OperationSetBasicTelephonySipImpl
      * session-terminating NOTIFY request to the <code>Dialog</code> which
      * referred to the call in question as soon as the outcome of the refer is
      * determined.
-     * 
+     *
      * @param referToCall the <code>Call</code> to track and send a NOTIFY
      *            request for
      * @param sendNotifyRequest <tt>true</tt> if a session-terminating NOTIFY
@@ -2179,7 +2186,7 @@ public class OperationSetBasicTelephonySipImpl
 
         /*
          * NOTIFY OK/Declined
-         * 
+         *
          * It doesn't sound like sending NOTIFY Service Unavailable is
          * appropriate because the REFER request has (presumably) already been
          * accepted.
@@ -2226,7 +2233,7 @@ public class OperationSetBasicTelephonySipImpl
      * a specific <code>Subscription-State</code> header and reason, carries a
      * specific body content and is sent through a specific
      * <code>SipProvider</code>.
-     * 
+     *
      * @param dialog the <code>Dialog</code> to send the NOTIFY request in
      * @param subscriptionState the <code>Subscription-State</code> header to be
      *            sent with the NOTIFY request
@@ -2302,7 +2309,7 @@ public class OperationSetBasicTelephonySipImpl
      * Creates a new {@link Request} of a specific method which is to be sent in
      * a specific <code>Dialog</code> and populates its generally-necessary
      * headers such as the Authorization header.
-     * 
+     *
      * @param dialog the <code>Dialog</code> to create the new
      *            <code>Request</code> in
      * @param method the method of the newly-created <code>Request<code>
@@ -2347,7 +2354,7 @@ public class OperationSetBasicTelephonySipImpl
      * Indicates a user request to end a call with the specified call
      * participant. Depending on the state of the call the method would send a
      * CANCEL, BYE, or BUSY_HERE and set the new state to DISCONNECTED.
-     * 
+     *
      * @param participant the participant that we'd like to hang up on.
      * @throws ClassCastException if participant is not an instance of this
      *             CallParticipantSipImpl.
@@ -2414,9 +2421,9 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Sends an Internal Error response to <tt>callParticipant</tt>.
-     * 
+     *
      * @param callParticipant the call participant that we need to say bye to.
-     * 
+     *
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
@@ -2429,10 +2436,10 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Send an error response with the <tt>errorCode</tt> code to
      * <tt>callParticipant</tt>.
-     * 
+     *
      * @param callParticipant the call participant that we need to say bye to.
      * @param errorCode the code that the response should have.
-     * 
+     *
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
@@ -2497,7 +2504,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Sends a BYE request to <tt>callParticipant</tt>.
-     * 
+     *
      * @param callParticipant the call participant that we need to say bye to.
      * @return <tt>true</tt> if the <code>Dialog</code> should be considered
      *         alive after sending the BYE request (e.g. when there're still
@@ -2565,9 +2572,9 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Sends a Cancel request to <tt>callParticipant</tt>.
-     * 
+     *
      * @param callParticipant the call participant that we need to cancel.
-     * 
+     *
      * @throws OperationFailedException we failed to construct or send the
      *             CANCEL request.
      */
@@ -2605,7 +2612,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Sends a BUSY_HERE response to <tt>callParticipant</tt>.
-     * 
+     *
      * @param callParticipant the call participant that we need to send busy
      *            tone to.
      * @throws OperationFailedException if we fail to create or send the
@@ -2659,10 +2666,10 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * * Indicates a user request to answer an incoming call from the specified
      * CallParticipant.
-     * 
+     *
      * Sends an OK response to <tt>callParticipant</tt>. Make sure that the call
      * participant contains an sdp description when you call this method.
-     * 
+     *
      * @param participant the call participant that we need to send the ok to.
      * @throws OperationFailedException if we fail to create or send the
      *             response.
@@ -2809,7 +2816,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Creates a new {@link Response#OK} response to a specific {@link Request}
      * which is to be sent as part of a specific {@link Dialog}.
-     * 
+     *
      * @param request the <code>Request</code> to create the OK response for
      * @param containingDialog the <code>Dialog</code> to send the response in
      * @return a new
@@ -2831,11 +2838,11 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Creates a new call and call participant associated with
      * <tt>containingTransaction</tt>
-     * 
+     *
      * @param containingTransaction the transaction that created the call.
      * @param sourceProvider the provider that the containingTransaction belongs
      *            to.
-     * 
+     *
      * @return a new instance of a <tt>CallParticipantSipImpl</tt> corresponding
      *         to the <tt>containingTransaction</tt>.
      */
@@ -2872,7 +2879,7 @@ public class OperationSetBasicTelephonySipImpl
      * instance including information that would permit to distinguish it among
      * other instances when reading a log file.
      * <p>
-     * 
+     *
      * @return a string representation of this operation set.
      */
     public String toString()
@@ -2930,7 +2937,7 @@ public class OperationSetBasicTelephonySipImpl
      * <p>
      * The implementation sends silence through the audio stream.
      * </p>
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> who receives the audio
      *            stream to have its mute state set
      * @param mute <tt>true</tt> to mute the audio stream being sent to
@@ -2945,7 +2952,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Transfers (in the sense of call transfer) a specific
      * <code>CallParticipant</code> to a specific callee address.
-     * 
+     *
      * @param participant the <code>CallParticipant</code> to be transfered to
      *            the specified callee address
      * @param target the address of the callee to transfer

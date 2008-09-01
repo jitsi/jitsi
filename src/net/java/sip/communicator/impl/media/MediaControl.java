@@ -236,13 +236,13 @@ public class MediaControl
         setEncodingPreference(SdpConstants.H261,       800);
 
         //audio
+        setEncodingPreference(SdpConstants.PCMU,       650);
+        setEncodingPreference(SdpConstants.PCMA,       600);
         setEncodingPreference(97,                      500);
         setEncodingPreference(SdpConstants.GSM,        450);
-        setEncodingPreference(SdpConstants.PCMU,       400);
         setEncodingPreference(110,                     350);
         setEncodingPreference(SdpConstants.DVI4_8000,  300);
         setEncodingPreference(SdpConstants.DVI4_16000, 250);
-        setEncodingPreference(SdpConstants.PCMA,       200);
         setEncodingPreference(SdpConstants.G723,       150);
         setEncodingPreference(SdpConstants.G728,       100);
 
