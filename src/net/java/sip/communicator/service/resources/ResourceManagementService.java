@@ -196,6 +196,15 @@ public interface ResourceManagementService
     public URL getSoundURLForPath(String path);
 
     /**
+     * Returns the path of the sound corresponding to the given
+     * property key.
+     * 
+     * @return the path of the sound corresponding to the given
+     * property key.
+     */
+    public String getSoundPath(String soundKey);
+
+    /**
      * Constructs an <tt>ImageIcon</tt> from the specified image ID and returns
      * it.
      * 

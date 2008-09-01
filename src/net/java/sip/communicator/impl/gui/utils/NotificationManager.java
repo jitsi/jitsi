@@ -40,6 +40,8 @@ public class NotificationManager
                 null,
                 null);
 
+        System.out.println("INCOMING MESSAGE===========" + SoundProperties.INCOMING_MESSAGE);
+
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_MESSAGE,
                 NotificationService.ACTION_SOUND,

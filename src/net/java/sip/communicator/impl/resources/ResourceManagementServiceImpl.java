@@ -606,6 +606,18 @@ public class ResourceManagementServiceImpl
     }
 
     /**
+     * Returns the path of the sound corresponding to the given
+     * property key.
+     * 
+     * @return the path of the sound corresponding to the given
+     * property key.
+     */
+    public String getSoundPath(String soundKey)
+    {
+        return soundResources.get(soundKey);
+    }
+
+    /**
      * Loads an image from a given image identifier.
      * 
      * @param imageID The identifier of the image.

@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.gui.*;
+
 /**
  * Manages the access to the properties file containing all sounds paths.
  * 
@@ -17,52 +19,52 @@ import java.util.*;
 public class SoundProperties
 {
     public static String INCOMING_MESSAGE
-        = "resources/sounds/incomingMessage.wav";
+        = GuiActivator.getResources().getSoundPath("INCOMING_MESSAGE");
 
     public static String OUTGOING_CALL
-        = "resources/sounds/ring.wav";
+        = GuiActivator.getResources().getSoundPath("OUTGOING_CALL");
 
     public static String INCOMING_CALL
-        = "resources/sounds/incomingCall.wav";
+        = GuiActivator.getResources().getSoundPath("INCOMING_CALL");
 
     public static String DIAL_ZERO
-        = "resources/sounds/one_1.wav";
+        = GuiActivator.getResources().getSoundPath("DIAL_ZERO");
 
     public static String DIAL_ONE
-        = "resources/sounds/one_1.wav";
+        = GuiActivator.getResources().getSoundPath("DIAL_ONE");
 
     public static String DIAL_TWO
-        = "resources/sounds/two_2.wav";
+        = GuiActivator.getResources().getSoundPath("DIAL_TWO");
 
     public static String DIAL_THREE
-        = "resources/sounds/three_3.wav";
+        = GuiActivator.getResources().getSoundPath("DIAL_THREE");
 
     public static String DIAL_FOUR
-        = "resources/sounds/four_4.wav";
+        = GuiActivator.getResources().getSoundPath("DIAL_FOUR");
 
     public static String DIAL_FIVE
-        = "resources/sounds/five_5.wav";
+        = GuiActivator.getResources().getSoundPath("DIAL_FIVE");
 
     public static String DIAL_SIX
-        = "resources/sounds/six_6.wav";
-    
+        = GuiActivator.getResources().getSoundPath("DIAL_SIX");
+
     public static String DIAL_SEVEN
-        = "resources/sounds/seven_7.wav";
-    
+        = GuiActivator.getResources().getSoundPath("DIAL_SEVEN");
+
     public static String DIAL_EIGHT
-        = "resources/sounds/eight_8.wav";
-    
+        = GuiActivator.getResources().getSoundPath("DIAL_EIGHT");
+
     public static String DIAL_NINE
-        = "resources/sounds/nine_9.wav";
-    
+        = GuiActivator.getResources().getSoundPath("DIAL_NINE");
+
     public static String DIAL_DIEZ
-        = "resources/sounds/one_1.wav";
-    
+        = GuiActivator.getResources().getSoundPath("DIAL_DIEZ");
+
     public static String DIAL_STAR
-        = "resources/sounds/one_1.wav";
+        = GuiActivator.getResources().getSoundPath("DIAL_STAR");
 
     public static String BUSY
-        = "resources/sounds/busy.wav";
+        = GuiActivator.getResources().getSoundPath("BUSY");
 
     private static final String BUNDLE_NAME 
         = "net.java.sip.communicator.impl.gui.utils.sounds";
