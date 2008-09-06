@@ -98,6 +98,5 @@ class ArgDelegator
                 uriDelegationPeer.handleConcurrentInvocationRequest();
             }
         }
-
     }
 }

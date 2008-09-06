@@ -269,7 +269,7 @@ public class SipCommunicatorLock extends Thread
             {
                 NetworkInterface iface = interfaces.nextElement();
 
-                if (iface.isLoopback())
+                if (isLoopbackInterface(iface))
                 {
                     loopback = iface;
                     break;
@@ -781,5 +781,24 @@ public class SipCommunicatorLock extends Thread
                 printer.print(ERROR_ARG + "=" + exc.getMessage());
             }
         }
+    }
+
+    /**
+     * Determines whether or not the <tt>iface</tt> interface is a loopback
+     * interface. We use this method as a replacement to the
+     * <tt>NetworkInterface.isLoopback()</tt> method that only comes with
+     * java 1.6.
+     *
+     * @param iface the inteface that we'd like to determine as loopback or not.
+     *
+     * @return true if <tt>iface</tt> contains at least one loopback address
+     * and <tt>false</tt> otherwise.
+     */
+    private boolean isLoopbackInterface(NetworkInterface iface)
+    {
+        Enumeration<InetAddress> addresses = iface.getInetAddresses();
+
+        return addresses.hasMoreElements()
+            && addresses.nextElement().isLoopbackAddress();
     }
 }

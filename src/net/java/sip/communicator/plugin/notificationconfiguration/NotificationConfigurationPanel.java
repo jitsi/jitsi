@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
  * The UI of <tt>ConfigurationForm</tt> that would be added in the user
  * interface configuration window. It contains a list of all installed
  * notifications.
- * 
+ *
  * @author Alexandre Maillard
  */
 public class NotificationConfigurationPanel
@@ -40,7 +40,7 @@ public class NotificationConfigurationPanel
 
     // Declaration of variables on the table notifications
     private Vector dataVector = null;
-    
+
     private ListMulti notificationList;
 
     public static final String[] columnToolTips
@@ -49,7 +49,7 @@ public class NotificationConfigurationPanel
             "Display a messagebox",
             "Play a sound",
             "Description of event" };
-    
+
     private JButton activate;
     private JButton desactivate;
     private JCheckBox playSoundCheckBox;
@@ -71,14 +71,14 @@ public class NotificationConfigurationPanel
 
     private JFileChooser fileChooserProgram;
     private JFileChooser fileChooserSound;
-    
+
     private int index = -1;
     private boolean turnAll = false;
-        
+
     private NotificationService notificationService = null;
-    
+
     private boolean noListener = false;
-    
+
     public NotificationConfigurationPanel()
     {
         super();
@@ -115,20 +115,20 @@ public class NotificationConfigurationPanel
         //dataVector.add(row1);
         //dataVector.add(row2);
         //dataVector.add(row3);
-        
+
         gridLayoutGlobal.setConstraints(notificationList, constraints);
         this.add(notificationList);
-                
+
         // Initializing variable part of the "actions"
         TitledBorder title1 = BorderFactory.createTitledBorder(
                 Resources.getString("actions"));
         actions.setBorder(title1);
-        
+
         JPanel activateDescactivatePanel = new JPanel();
         FlowLayout layoutADP = new FlowLayout(FlowLayout.CENTER);
         layoutADP.setHgap(75);
         activateDescactivatePanel.setLayout(layoutADP);
-        
+
         activate = new JButton(Resources.getString("activate"));
         activate.setMinimumSize(new Dimension(150,30));
         activate.setPreferredSize(new Dimension(150,30));
@@ -166,8 +166,8 @@ public class NotificationConfigurationPanel
         programFileChooser.addActionListener(this);
         popupCheckBox = new JCheckBox(Resources.getString("displaypopup"));
         popupCheckBox.addItemListener(this);
-        
-       
+
+
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -175,13 +175,13 @@ public class NotificationConfigurationPanel
         constraints.weightx = 1.0;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(0,0,10,0);
-        
+
         activateDescactivatePanel.add(activate);
         activateDescactivatePanel.add(desactivate);
         actionsLayout.setConstraints(activateDescactivatePanel, constraints);
         actions.add(activateDescactivatePanel);
-        
-        
+
+
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
@@ -189,7 +189,7 @@ public class NotificationConfigurationPanel
         constraints.insets = new Insets(0,0,2,0);
         actionsLayout.setConstraints(playSoundCheckBox, constraints);
         actions.add(playSoundCheckBox);
-        
+
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
         constraints.gridy = 1;
@@ -198,7 +198,7 @@ public class NotificationConfigurationPanel
         constraints.anchor = GridBagConstraints.EAST;
         actionsLayout.setConstraints(playSoundButton, constraints);
         actions.add(playSoundButton);
-        
+
         constraints = new GridBagConstraints();
         constraints.gridx = 2;
         constraints.gridy = 1;
@@ -208,7 +208,7 @@ public class NotificationConfigurationPanel
         constraints.fill = GridBagConstraints.HORIZONTAL;
         actionsLayout.setConstraints(soundFileTextField, constraints);
         actions.add(soundFileTextField);
-        
+
         constraints = new GridBagConstraints();
         constraints.gridx = 3;
         constraints.gridy = 1;
@@ -217,7 +217,7 @@ public class NotificationConfigurationPanel
         constraints.insets = new Insets(0,5,2,0);
         actionsLayout.setConstraints(soundFileChooser, constraints);
         actions.add(soundFileChooser);
-        
+
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.gridwidth = 2;
@@ -226,7 +226,7 @@ public class NotificationConfigurationPanel
         constraints.insets = new Insets(0,0,2,0);
         actionsLayout.setConstraints(programCheckBox, constraints);
         actions.add(programCheckBox);
-        
+
         constraints = new GridBagConstraints();
         constraints.gridx = 2;
         constraints.gridy = 2;
@@ -236,7 +236,7 @@ public class NotificationConfigurationPanel
         constraints.insets = new Insets(0,0,2,0);
         actionsLayout.setConstraints(programFileTextField, constraints);
         actions.add(programFileTextField);
-        
+
         constraints = new GridBagConstraints();
         constraints.gridx = 3;
         constraints.gridy = 2;
@@ -245,7 +245,7 @@ public class NotificationConfigurationPanel
         constraints.anchor = GridBagConstraints.WEST;
         actionsLayout.setConstraints(programFileChooser, constraints);
         actions.add(programFileChooser);
-        
+
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 3;
@@ -254,9 +254,9 @@ public class NotificationConfigurationPanel
         constraints.fill = GridBagConstraints.HORIZONTAL;
         actionsLayout.setConstraints(popupCheckBox, constraints);
         actions.add(popupCheckBox);
-                
+
         actions.setLayout(actionsLayout);
-                
+
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
@@ -267,9 +267,9 @@ public class NotificationConfigurationPanel
         constraints.fill = GridBagConstraints.BOTH;
         gridLayoutGlobal.setConstraints(actions, constraints);
         this.add(actions);
-        
-        
-        
+
+
+
         // Initializing variables of the "quickControl"
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -279,7 +279,7 @@ public class NotificationConfigurationPanel
         constraints.weightx = 1.0;
         //constraints.weighty = 10.0;
         constraints.fill = GridBagConstraints.BOTH;
-        
+
         comboBoxTurnOn = new JComboBox(textComboBox);
         comboBoxTurnOn.addActionListener(this);
         comboBoxTurnOff = new JComboBox(textComboBox);
@@ -288,8 +288,8 @@ public class NotificationConfigurationPanel
         turnOnAll.addActionListener(this);
         turnOffAll = new JButton(Resources.getString("turnoffall"));
         turnOffAll.addActionListener(this);
-        
-        
+
+
         TitledBorder title2 = BorderFactory.createTitledBorder(
                 Resources.getString("quickcontrols"));
         quickControl.setLayout(new FlowLayout(FlowLayout.CENTER,2,2));
@@ -300,19 +300,19 @@ public class NotificationConfigurationPanel
         quickControl.add(comboBoxTurnOff);
         gridLayoutGlobal.setConstraints(quickControl, constraints);
 //        this.add(quickControl);
-        
+
         this.setLayout(gridLayoutGlobal);
-        
-        
+
+
         fileChooserSound = new JFileChooser();
         fileChooserProgram = new JFileChooser();
         fileChooserSound.setMultiSelectionEnabled(false);
         fileChooserProgram.setMultiSelectionEnabled(false);
         fileChooserSound.addChoosableFileFilter(new SoundFilter());
-        
+
         notificationList.addMouseListener(new MyMouseAdapter());
-        
-        
+
+
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 3;
@@ -320,7 +320,7 @@ public class NotificationConfigurationPanel
         constraints.gridheight = 1;
         constraints.weightx = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
-        
+
         restore = new JButton(Resources.getString("restore"));
         restore.addActionListener(this);
         apply = new JButton(Resources.getString("apply"));
@@ -330,14 +330,14 @@ public class NotificationConfigurationPanel
         applyPanel.add(restore, BorderLayout.WEST);
         gridLayoutGlobal.setConstraints(applyPanel, constraints);
         this.add(applyPanel);
-        
-        
+
+
         notificationService
                 = NotificationConfigurationActivator.getNotificationService();
         notificationService.addNotificationChangeListener(this);
         this.buildingVector();
         this.updateTable();
-        
+
         if(dataVector.size() > 0)
         {
             NotificationsTableEntry tmpNTE
@@ -348,7 +348,7 @@ public class NotificationConfigurationPanel
             index = 0;
         }
     }
-    
+
     private void updatePanel(NotificationsTableEntry tmpNTE)
     {
         noListener = true;
@@ -366,22 +366,22 @@ public class NotificationConfigurationPanel
         popupCheckBox.setSelected(tmpNTE.getPopup());
         noListener = false;
     }
-    
+
     public void actionPerformed(ActionEvent e)
     {
         if(e.getSource() == activate)
         {
-            NotificationsTableEntry tmpNTE 
+            NotificationsTableEntry tmpNTE
                     = (NotificationsTableEntry) dataVector.elementAt(index);
             tmpNTE.setEnabled(true);
             this.updateTableRow(tmpNTE, index);
             activate.setEnabled(false);
             desactivate.setEnabled(true);
             tmpNTE.setModify(true);
-        }    
+        }
         else if(e.getSource() == desactivate)
         {
-            NotificationsTableEntry tmpNTE 
+            NotificationsTableEntry tmpNTE
                     = (NotificationsTableEntry) dataVector.elementAt(index);
             tmpNTE.setEnabled(false);
             this.updateTableRow(tmpNTE, index);
@@ -392,7 +392,7 @@ public class NotificationConfigurationPanel
         else if(e.getSource() == soundFileChooser)
         {
             int returnVal = fileChooserSound.showOpenDialog(this);
-            
+
             noListener = true;
             if (returnVal == JFileChooser.APPROVE_OPTION)
             {
@@ -424,7 +424,7 @@ public class NotificationConfigurationPanel
         {
             int returnVal = fileChooserProgram.showOpenDialog(this);
             noListener = true;
-            
+
             if (returnVal == JFileChooser.APPROVE_OPTION)
             {
                 NotificationsTableEntry tmpNTE
@@ -450,11 +450,11 @@ public class NotificationConfigurationPanel
             if(playSoundCheckBox.isSelected() == true)
             {
                 String soundFile = soundFileTextField.getText();
-                
+
                 logger.debug("****"+soundFile+"****"+soundFile.length());
                 if(soundFile.length() != 0)
                 {
-                    AudioNotifierService audioNotifServ 
+                    AudioNotifierService audioNotifServ
                             = NotificationConfigurationActivator
                             .getAudioNotifierService();
                     SCAudioClip sound = audioNotifServ.createAudio(soundFile);
@@ -476,10 +476,10 @@ public class NotificationConfigurationPanel
             Iterator it = dataVector.iterator();
             NotificationsTableEntry tmpNTE = null;
             int cpt = 0;
-            
+
             if(!it.hasNext())
                 return;
-            
+
             turnAll = true;
             while(it.hasNext())
             {
@@ -533,10 +533,10 @@ public class NotificationConfigurationPanel
             Iterator it = dataVector.iterator();
             NotificationsTableEntry tmpNTE = null;
             int cpt = 0;
-            
+
             if(!it.hasNext())
                 return;
-            
+
             turnAll = true;
             while(it.hasNext())
             {
@@ -580,7 +580,7 @@ public class NotificationConfigurationPanel
             turnAll = false;
         }
         else if(e.getSource() == apply)
-        {          
+        {
             Iterator it = dataVector.iterator();
             NotificationsTableEntry tmpNTE = null;
             while(it.hasNext())
@@ -590,7 +590,7 @@ public class NotificationConfigurationPanel
                 if(tmpNTE.isModified())
                 {
                     logger.debug("Event modify : "+tmpNTE.getEvent());
-                    
+
                     notificationService.setActive(tmpNTE.getEvent(),
                             tmpNTE.getEnabled());
                     if(tmpNTE.getSound() == true)
@@ -609,7 +609,7 @@ public class NotificationConfigurationPanel
                                 notificationService.ACTION_SOUND);
                         logger.debug("Deleting Sound");
                     }
-                    
+
                     if(tmpNTE.getProgram() == true)
                     {
                         notificationService.registerNotificationForEvent(
@@ -626,7 +626,7 @@ public class NotificationConfigurationPanel
                                 notificationService.ACTION_COMMAND);
                         logger.debug("Deleting Program");
                     }
-                    
+
                     if(tmpNTE.getPopup())
                     {
                         notificationService.registerNotificationForEvent(
@@ -650,9 +650,9 @@ public class NotificationConfigurationPanel
         else if(e.getSource() == restore)
         {
             notificationService.restoreDefaults();
-            
+
             int ix = notificationList.getLine();
-            
+
             if(ix >= 0)
             {
                 NotificationsTableEntry tmpNTE
@@ -661,7 +661,7 @@ public class NotificationConfigurationPanel
             }
         }
     }
-    
+
     /*
      * Listener of Checkbox
      */
@@ -717,15 +717,15 @@ public class NotificationConfigurationPanel
         tmpNTE.setModify(true);
         this.updateTableRow(tmpNTE, index);
     }
-    
+
     /*
      * Listener for TextFields
      */
-    
+
     public void insertUpdate(DocumentEvent de)
     {
         if(!turnAll)
-        {   
+        {
             if(index != -1 && noListener == false)
             {
                 NotificationsTableEntry tmpNTE
@@ -743,7 +743,7 @@ public class NotificationConfigurationPanel
             }
         }
     }
-    
+
     public void removeUpdate(DocumentEvent de)
     {
         if(!turnAll)
@@ -766,7 +766,7 @@ public class NotificationConfigurationPanel
         }
     }
     public void changedUpdate(DocumentEvent de) {}
-    
+
     /*
      * Action Listener Service Notifications
      */
@@ -777,15 +777,15 @@ public class NotificationConfigurationPanel
         Iterator it = null;
         int row = 0;
         NotificationsTableEntry tmpNTE = null;
-        
+
         NotificationActionHandler handler = event.getActionHandler();
         boolean isActionEnabled = (handler != null && handler.isEnabled());
-        
+
         if(dataVector.size() <= 0)
         {
             tmpNTE = new NotificationsTableEntry();
             tmpNTE.setEvent(eventName);
-            
+
             if(event.getSourceActionType()
                     .equals(NotificationService.ACTION_POPUP_MESSAGE))
             {
@@ -795,7 +795,7 @@ public class NotificationConfigurationPanel
                     .equals(notificationService.ACTION_COMMAND))
             {
                 tmpNTE.setProgram(isActionEnabled);
-                
+
                 tmpNTE.setProgramFile(((CommandNotificationHandler)event
                         .getActionHandler()).getDescriptor());
             }
@@ -803,7 +803,7 @@ public class NotificationConfigurationPanel
                     .equals(NotificationService.ACTION_SOUND))
             {
                 tmpNTE.setSound(isActionEnabled);
-                
+
                 tmpNTE.setSoundFile(((SoundNotificationHandler)event
                         .getActionHandler()).getDescriptor());
             }
@@ -815,8 +815,8 @@ public class NotificationConfigurationPanel
             return;
         }
         /*
-         * Si le Vecteur contient des évènements et que l'élément auquel on veut
-         * rajouter l'action existe déjà.
+         * If the vector already contains events and the element that we want to
+         * add the action to, already exists.
          */
         it = dataVector.iterator();
         while(it.hasNext())
@@ -828,7 +828,7 @@ public class NotificationConfigurationPanel
                         .equals(NotificationService.ACTION_POPUP_MESSAGE))
                 {
                     tmpNTE.setPopup(isActionEnabled);
-                     
+
                 }
                 else if(event.getSourceActionType()
                         .equals(notificationService.ACTION_COMMAND))
@@ -854,8 +854,8 @@ public class NotificationConfigurationPanel
             row ++;
         }
         /*
-         * Le vecteur contient déjà des évènements mais pas l'évènement auquel
-         * on veut rajouter l'action. On le créé et l'ajoute au vecteur.
+         * The vector already contains events but not the one that we want
+         * to attach the action to. We create it and add it to the vector.
          */
         tmpNTE = new NotificationsTableEntry();
         tmpNTE.setEvent(eventName);
@@ -882,13 +882,13 @@ public class NotificationConfigurationPanel
         this.addRowAtVector(tmpNTE);
         updatePanel(tmpNTE);
         notificationList.setRowSelectionInterval(
-            notificationList.getRowCount() - 1, 
+            notificationList.getRowCount() - 1,
             notificationList.getRowCount() - 1);
-        
+
         logger.debug("End action added");
         return;
     }
-    
+
     public void actionRemoved(NotificationActionTypeEvent event)
     {
         logger.debug("Start action remove");
@@ -897,7 +897,7 @@ public class NotificationConfigurationPanel
         NotificationsTableEntry tmpNTE = null;
         if(dataVector.size() == 0)
             return;
-        
+
         it = dataVector.iterator();
         while(it.hasNext())
         {
@@ -926,7 +926,7 @@ public class NotificationConfigurationPanel
             }
         }
     }
-    
+
     public void actionChanged(NotificationActionTypeEvent event)
     {
         logger.debug("Start action changed");
@@ -960,7 +960,7 @@ public class NotificationConfigurationPanel
             row ++;
         }
     }
-    
+
     public void eventTypeAdded(NotificationEventTypeEvent event)
     {
         String eventAdded = (String) event.getSourceEventType();
@@ -977,13 +977,13 @@ public class NotificationConfigurationPanel
         tmpNTE.setEnabled(notificationService.isActive(event.getSourceEventType()));
         this.addRowAtVector(tmpNTE);
     }
-    
+
     public void eventTypeRemoved(NotificationEventTypeEvent event)
     {
         Iterator it = null;
         NotificationsTableEntry tmpNTE = null;
         int row = 0;
-        
+
         if(dataVector.size() <= 0)
             return;
         it = dataVector.iterator();
@@ -999,8 +999,8 @@ public class NotificationConfigurationPanel
             row ++;
         }
     }
-    
-    
+
+
     public void updateTable()
     {
         Iterator it = dataVector.iterator();
@@ -1024,7 +1024,7 @@ public class NotificationConfigurationPanel
             programFileTextField.setEnabled(false);
             playSoundCheckBox.setSelected(false);
             playSoundButton.setEnabled(false);
-            soundFileChooser.setEnabled(false);      
+            soundFileChooser.setEnabled(false);
             soundFileTextField.setEnabled(false);
             popupCheckBox.setSelected(false);
             turnOnAll.setEnabled(false);
@@ -1032,17 +1032,17 @@ public class NotificationConfigurationPanel
             turnOffAll.setEnabled(false);
             comboBoxTurnOff.setEnabled(false);
             index = -1;
-            
+
             return;
         }
-        
+
         while(it.hasNext())
         {
             tmpNTE = (NotificationsTableEntry) it.next();
             notificationList.addLine(tmpNTE);
         }
     }
-    
+
     public void buildingVector()
     {
         Iterator it = notificationService.getRegisteredEvents();
@@ -1050,17 +1050,17 @@ public class NotificationConfigurationPanel
         String event = null;
         Map actionsMap = null;
         int i;
-        
+
         dataVector.removeAllElements();
-        
+
         if(!it.hasNext())
             return;
-        
+
         while(it.hasNext())
         {
             String actionType = null;
             event = (String) it.next();
-            
+
             tmpNTE = new NotificationsTableEntry(
                     notificationService.isActive(event),
                     false,
@@ -1070,7 +1070,7 @@ public class NotificationConfigurationPanel
                     "",
                     event,
                     false);
-            
+
             actionsMap = notificationService.getEventNotifications(event);
             if(actionsMap != null)
             {
@@ -1083,15 +1083,15 @@ public class NotificationConfigurationPanel
                     actionType = (String) mEntry.getKey();
 
                     NotificationActionHandler handler = null;
-                    
+
                     boolean isActionEnabled = false;
-                    
+
                     if(mEntry.getValue() instanceof NotificationActionHandler)
                     {
                         handler = (NotificationActionHandler)mEntry.getValue();
                         isActionEnabled = handler.isEnabled();
                     }
-                    
+
                     if(actionType
                             .equals(notificationService.ACTION_POPUP_MESSAGE))
                     {
@@ -1119,33 +1119,33 @@ public class NotificationConfigurationPanel
             dataVector.add(tmpNTE);
         }
     }
-    
+
     public void addRowAtVector(NotificationsTableEntry tmpNTE)
     {
         dataVector.add(tmpNTE);
         notificationList.addLine(tmpNTE);
     }
-    
+
     public void updateTableRow(NotificationsTableEntry entry, int index)
     {
         notificationList.setLine(entry, index);
     }
-    
+
     class MyMouseAdapter implements MouseListener
     {
         public void mouseClicked(MouseEvent me)
         {
             index = notificationList.rowAtPoint(me.getPoint());
-            
+
             noListener = true;
-            
+
             if(index != -1)
             {
                 NotificationsTableEntry tmpNTE
                         = (NotificationsTableEntry) dataVector.elementAt(index);
                 activate.setEnabled(!tmpNTE.getEnabled());
                 desactivate.setEnabled(tmpNTE.getEnabled());
-                if(tmpNTE.getProgram() 
+                if(tmpNTE.getProgram()
                     && tmpNTE.getProgramFile().trim().length() > 0)
                 {
                     programCheckBox.setSelected(true);
@@ -1173,7 +1173,7 @@ public class NotificationConfigurationPanel
                 {
                     playSoundCheckBox.setSelected(false);
                     playSoundButton.setEnabled(false);
-                    soundFileChooser.setEnabled(false);          
+                    soundFileChooser.setEnabled(false);
                     soundFileTextField.setEnabled(false);
                     soundFileTextField.setText(tmpNTE.getSoundFile());
                 }
@@ -1183,7 +1183,7 @@ public class NotificationConfigurationPanel
                 return;
             }
         }
-        
+
         public void mousePressed(MouseEvent e) {}
         public void mouseReleased(MouseEvent e) {}
         public void mouseExited(MouseEvent e) {}
