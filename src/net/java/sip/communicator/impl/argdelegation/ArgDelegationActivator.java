@@ -45,7 +45,7 @@ public class ArgDelegationActivator
      *
      * @param bc a reference to the currently active bundle context.
      */
-    public void start(BundleContext context) throws Exception
+    public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
         delegationPeer = new ArgDelegationPeerImpl(bc);
