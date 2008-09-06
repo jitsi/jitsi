@@ -45,8 +45,7 @@ public class ArgDelegationActivator
      *
      * @param bc a reference to the currently active bundle context.
      */
-    @Override
-    public void start(BundleContext bc) throws Exception
+    public void start(BundleContext context) throws Exception
     {
         bundleContext = bc;
         delegationPeer = new ArgDelegationPeerImpl(bc);
@@ -63,7 +62,6 @@ public class ArgDelegationActivator
      *
      * @param bc an instance of the currently valid bundle context.
      */
-    @Override
     public void stop(BundleContext bc) throws Exception
     {
         uiService = null;

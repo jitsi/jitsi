@@ -12,7 +12,7 @@ import javax.swing.*;
 /**
  * Utility methods for image manipulation.
  *
- * @author Sébastien Mazy
+ * @author Sebastien Mazy
  */
 public class ImageUtils
 {
