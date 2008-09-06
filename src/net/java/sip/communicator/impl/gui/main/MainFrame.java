@@ -1579,6 +1579,7 @@ public class MainFrame
                 {
                     MainFrame.this.addNativePlugins();
                     MainFrame.super.setVisible(isVisible);
+                    MainFrame.super.setExtendedState(MainFrame.NORMAL);
                     MainFrame.super.toFront();
                 }
                 else

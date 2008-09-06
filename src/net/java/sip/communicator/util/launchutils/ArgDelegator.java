@@ -10,25 +10,26 @@ import java.util.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The <tt>UriArgManager</tt> implements an utility for handling URIs that have
- * been passed as command line arguments. The class maintains a list of
- * registered delegates that do the actual URI handling. The UriArgDelegator
- * is previewed for use with SIP Communicator argdelegation service. It would
- * therefore record all URIs until the corresponding DelegationPeer has been
- * registered with the UriArgManager.
+ * The <tt>ArgDelegator</tt> implements an utility for handling args that have
+ * been passed as command line arguments but that need the OSGi environment
+ * and SIP Communicator to be fully loaded. The class maintains a list of
+ * registered delegates (<tt>ArgDelegationPeer</tt>s) that do the actual arg
+ * handling. The <tt>ArgDelegator</tt> is previewed for use with the SIP
+ * Communicator argdelegation service. It would therefore record all args
+ * until the corresponding <tt>DelegationPeer</tt> has registered here.
  *
  * @author Emil Ivov
  */
-class UriArgManager
+class ArgDelegator
 {
-    private static final Logger logger = Logger.getLogger(UriArgManager.class);
+    private static final Logger logger = Logger.getLogger(ArgDelegator.class);
 
     /**
     * The delegation peer that we pass arguments to. This peer is going to
     * get set only after Felix starts and all its services have been properly
     * loaded.
     */
-    private UriDelegationPeer uriDelegationPeer = null;
+    private ArgDelegationPeer uriDelegationPeer = null;
 
     /**
     * We use this list to store arguments that we have been asked to handle
@@ -64,7 +65,7 @@ class UriArgManager
      * @param delegationPeer the delegation peer that we can use to deliver
      * command line URIs to.
      */
-    public void setDelegationPeer(UriDelegationPeer delegationPeer)
+    public void setDelegationPeer(ArgDelegationPeer delegationPeer)
     {
         synchronized(recordedArgs)
         {
@@ -80,5 +81,23 @@ class UriArgManager
 
             recordedArgs.clear();
         }
+    }
+
+    /**
+     * Called when the user has tried to launch a second instance of
+     * SIP Communicator while a first one was already running. This method
+     * simply calls its peer method from the <tt>ArgDelegationPeer</tt> and
+     * does nothing if no peer is currently registered.
+     */
+    public void handleConcurrentInvocationRequest()
+    {
+        synchronized(recordedArgs)
+        {
+            if(uriDelegationPeer != null)
+            {
+                uriDelegationPeer.handleConcurrentInvocationRequest();
+            }
+        }
+
     }
 }

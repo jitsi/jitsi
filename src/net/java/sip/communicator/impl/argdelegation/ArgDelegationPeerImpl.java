@@ -24,11 +24,11 @@ import net.java.sip.communicator.util.launchutils.*;
  *
  * @author Emil Ivov
  */
-public class UriDelegationPeerImpl
-    implements UriDelegationPeer, ServiceListener
+public class ArgDelegationPeerImpl
+    implements ArgDelegationPeer, ServiceListener
 {
     private static final Logger logger =
-        Logger.getLogger(UriDelegationPeerImpl.class);
+        Logger.getLogger(ArgDelegationPeerImpl.class);
 
     /**
      * The list of uriHandlers that we are currently aware of.
@@ -38,12 +38,12 @@ public class UriDelegationPeerImpl
 
     /**
      * Creates an instance of this peer and scans <tt>bundleContext</tt> for all
-     * existing <tt>UriHandler</tt>s
+     * existing <tt>UriHandler</tt>
      *
      * @param bundleContext a reference to a currently valid instance of a
      * bundle context.
      */
-    public UriDelegationPeerImpl(BundleContext bundleContext)
+    public ArgDelegationPeerImpl(BundleContext bundleContext)
     {
         ServiceReference[] uriHandlerRefs = null;
 
@@ -180,6 +180,18 @@ public class UriDelegationPeerImpl
                  PopupDialog.ERROR_MESSAGE);
             logger.error("Failed to handle \""+ uriArg +"\"", thr);
         }
+    }
+
+    /**
+     * This method would simply bring the application on focus as it is called
+     * when the user has tried to launch a second instance of SIP Communicator
+     * while a first one was already running.  Future implementations may also
+     * show an error/information message to the user notifying them that a
+     * second instance is not to be launched.
+     */
+    public void handleConcurrentInvocationRequest()
+    {
+        ArgDelegationActivator.getUIService().setVisible(true);
     }
 
 

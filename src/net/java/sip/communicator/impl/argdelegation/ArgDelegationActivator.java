@@ -31,7 +31,7 @@ public class ArgDelegationActivator
      * A reference to the delegation peer implementation that is currently
      * handling uri arguments.
      */
-    private UriDelegationPeerImpl delegationPeer = null;
+    private ArgDelegationPeerImpl delegationPeer = null;
 
     /**
      * A reference to the <tt>UIService</tt> currently in use in
@@ -49,7 +49,7 @@ public class ArgDelegationActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
-        delegationPeer = new UriDelegationPeerImpl(bc);
+        delegationPeer = new ArgDelegationPeerImpl(bc);
         bc.addServiceListener(delegationPeer);
 
         //register our instance of delegation peer.

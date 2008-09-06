@@ -81,10 +81,10 @@ public class SIPCommunicator
             System.exit(argHandler.getErrorCode());
         }
 
-        //lock our config di so that we would only have a single instance of
+        //lock our config dir so that we would only have a single instance of
         //sip communicator, no matter how many times we start it (use mainly
         //for handling sip: uris after starting the application)
-        if ( argHandlerRes != LaunchArgHandler.ACTION_CONTINUE_MULTIINSTANCE )
+        if ( argHandlerRes != LaunchArgHandler.ACTION_CONTINUE_LOCK_DISABLED )
         {
             SipCommunicatorLock lock = new SipCommunicatorLock();
 

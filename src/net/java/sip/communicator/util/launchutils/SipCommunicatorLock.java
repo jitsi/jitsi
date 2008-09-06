@@ -769,7 +769,8 @@ public class SipCommunicatorLock extends Thread
 
                 // now let's handle what we've got
                 String[] args = new String[argsList.size()];
-                LaunchArgHandler.getInstance().handleArgs(
+                LaunchArgHandler.getInstance()
+                    .handleConcurrentInvocationRequestArgs(
                                 argsList.toArray(args));
             }
             catch (IOException exc)

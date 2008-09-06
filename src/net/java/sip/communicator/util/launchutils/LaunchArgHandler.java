@@ -66,7 +66,7 @@ public class LaunchArgHandler
      * successfully parsed and one of them indicates that the user has requested
      * a multi instance launch.
      */
-    public static final int ACTION_CONTINUE_MULTIINSTANCE = 3;
+    public static final int ACTION_CONTINUE_LOCK_DISABLED = 3;
 
     /**
      * The error code returned when we couldn't parse one of the options.
@@ -112,7 +112,7 @@ public class LaunchArgHandler
     /**
      * A reference to the instance of the
      */
-    private UriArgManager uriArgManager = new UriArgManager();
+    private ArgDelegator argDelegator = new ArgDelegator();
 
     /**
      * The singleton instance of this handler.
@@ -205,7 +205,8 @@ public class LaunchArgHandler
                 //make sure we have at least one more argument left.
                 if( i == args.length - 1)
                 {
-                    System.out.println("The \"-c\" option expects a directory parameter.");
+                    System.out.println(
+                        "The \"-c\" option expects a directory parameter.");
                     returnAction = ACTION_ERROR;
                     break;
                 }
@@ -214,7 +215,7 @@ public class LaunchArgHandler
             }
             else if (args[i].equals("--multiple") || args[i].equals("-m"))
             {
-                handleMultipleArg(args[i]);
+                returnAction = ACTION_CONTINUE_LOCK_DISABLED;
                 continue;
             }
             //if this is the last arg and it's not an option then it's probably
@@ -245,22 +246,13 @@ public class LaunchArgHandler
     private void handleUri(String uri)
     {
         logger.trace("Handling uri "+ uri);
-        uriArgManager.handleUri(uri);
+        argDelegator.handleUri(uri);
     }
 
     /**
      * Instructs SIP Communicator to print logging messages to the console.
      */
     private void handleDebugArg(String arg)
-    {
-        System.out.println("Option " + arg + " is not yet implemented!");
-    }
-
-    /**
-     * Instructs SIP Communicator to allow for more than a single running
-     * instance.
-     */
-    private void handleMultipleArg(String arg)
     {
         System.out.println("Option " + arg + " is not yet implemented!");
     }
@@ -397,8 +389,35 @@ public class LaunchArgHandler
      * @param delegationPeer the <tt>delegationPeer</tt> that should handle URIs
      * or <tt>null</tt> if we'd like to unset a previously set peer.
      */
-    public void setDelegationPeer(UriDelegationPeer delegationPeer)
+    public void setDelegationPeer(ArgDelegationPeer delegationPeer)
     {
-        this.uriArgManager.setDelegationPeer(delegationPeer);
+        this.argDelegator.setDelegationPeer(delegationPeer);
+    }
+
+    /**
+     * Called when the user has tried to launch a second instance of
+     * SIP Communicator while a first one was already running. This method
+     * only handles arguments that need to be handled by a running instance
+     * of SIP Communicator assuming that simple ones such as "--version" or
+     * "--help" have been handled by the calling instance.
+     *
+     * @param args the args that we need to handle.
+     */
+    public void handleConcurrentInvocationRequestArgs(String[] args)
+    {
+        //if the arg list is empty, then we simply notify SC of the request
+        //so that it could do stuff like showing the contact list for example.
+        if(args.length == 0)
+        {
+            this.argDelegator.handleConcurrentInvocationRequest();
+        }
+        //if we 1 or more args then we only handle the last one as the only
+        //interinstance arg we currently know how to handle are URIs. Change
+        //this if we one day implement fun stuff like inter instance command
+        //execution.
+        else if(args.length >=1)
+        {
+            this.argDelegator.handleUri(args[args.length -1]);
+        }
     }
 }

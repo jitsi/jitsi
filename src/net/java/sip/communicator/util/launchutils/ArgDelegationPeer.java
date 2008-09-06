@@ -15,7 +15,7 @@ package net.java.sip.communicator.util.launchutils;
  *
  * @author Emil Ivov
  */
-public interface UriDelegationPeer
+public interface ArgDelegationPeer
 {
     /**
      * Handles <tt>uriArg</tt> in whatever way it finds fit.
@@ -23,4 +23,13 @@ public interface UriDelegationPeer
      * @param uriArg the uri argument that this delegate has to handle.
      */
     public void handleUri(String uriArg);
+
+    /**
+     * Called when the user has tried to launch a second instance of
+     * SIP Communicator while a first one was already running. A typical
+     * implementation of this method would simply bring the application on
+     * focus but it may also show an error/information message to the user
+     * notifying them that a second instance is not to be launched.
+     */
+    public void handleConcurrentInvocationRequest();
 }

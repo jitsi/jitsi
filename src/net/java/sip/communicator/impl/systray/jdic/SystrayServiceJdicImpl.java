@@ -72,9 +72,9 @@ public class SystrayServiceJdicImpl
     private int maxMessageNumber = 3;
 
     private SystrayMessage aggregatedMessage;
-    
+
     /**
-     * Stores the system time, when the main window was restored the last time 
+     * Stores the system time, when the main window was restored the last time
      */
     private long setVisibleTime = 0;
 
@@ -95,14 +95,14 @@ public class SystrayServiceJdicImpl
     private ImageIcon logoIconWhite;
     private ImageIcon envelopeIcon;
     private ImageIcon envelopeIconWhite;
-    
+
     /**
      * The dock Icons used only in Mac version
      */
     private URL dockIconOffline;
     private URL dockIconAway;
     private URL dockIconFFC;
-    
+
     private boolean initialized = false;
 
     /**
@@ -153,7 +153,7 @@ public class SystrayServiceJdicImpl
             logoIconFFC = Resources.getImage("trayIconWindowsFFC");
             envelopeIcon = Resources.getImage("messageIconWindows");
         }
-        // If we're running under MacOSX, we use a special black and 
+        // If we're running under MacOSX, we use a special black and
         // white icons without background.
         else if (osName.startsWith("Mac OS X"))
         {
@@ -173,19 +173,19 @@ public class SystrayServiceJdicImpl
 
         if (!osName.startsWith("Mac OS X"))
         {
-            // default to set offline , if any protocols become 
+            // default to set offline , if any protocols become
             // online will set it to online
             currentIcon = logoIconOffline;
         }
         else
             currentIcon = logoIcon;
-            
+
         trayIcon = new TrayIcon(currentIcon,
                                 Resources.getApplicationString("applicationName"),
                                 menu);
 
         trayIcon.setIconAutoSize(true);
-        
+
         if (osName.startsWith("Mac OS X"))
         {
             // init dock Icons
@@ -208,7 +208,7 @@ public class SystrayServiceJdicImpl
                 if (isVisible) {
                     setVisibleTime = currentTime;
                 }
-                else if (currentTime < (setVisibleTime + doubleClickSpeed)) 
+                else if (currentTime < (setVisibleTime + doubleClickSpeed))
                 {
                     // Do nothing. the last restore is less than 2 seconds, so it is very
                     // likely, that the user made a double click. prevent the main window
@@ -227,7 +227,7 @@ public class SystrayServiceJdicImpl
             }
         });
 
-        // Change the MacOSX icon with the white one when the popup 
+        // Change the MacOSX icon with the white one when the popup
         // menu appears
         if (osName.startsWith("Mac OS X"))
         {
@@ -243,11 +243,11 @@ public class SystrayServiceJdicImpl
                     else
                     {
                         trayIcon.setIcon(logoIconWhite);
-                        currentIcon = logoIconWhite;                        
+                        currentIcon = logoIconWhite;
                     }
                 }
 
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) 
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
                 {
                     if (currentIcon == envelopeIconWhite)
                     {
@@ -260,11 +260,11 @@ public class SystrayServiceJdicImpl
                         currentIcon = logoIcon;
                     }
                 }
-        
-                public void popupMenuCanceled(PopupMenuEvent e) 
+
+                public void popupMenuCanceled(PopupMenuEvent e)
                 {
                     popupMenuWillBecomeInvisible(e);
-                } 
+                }
             });
         }
 
@@ -297,8 +297,8 @@ public class SystrayServiceJdicImpl
      * Saves the last status for all accounts. This information is used
      * on logging. Each time user logs in he's logged with the same status
      * as he was the last time before closing the application.
-     * 
-     * @param protocolProvider  the protocol provider for which we save the 
+     *
+     * @param protocolProvider  the protocol provider for which we save the
      * last selected status
      * @param statusName the status name to save
      */
@@ -359,10 +359,10 @@ public class SystrayServiceJdicImpl
      * Implements the <tt>SystratService.showPopupMessage</tt> method. Shows
      * a pop up message, above the Systray icon, which has the given title,
      * message content and message type.
-     * 
+     *
      * @param title the title of the message
      * @param messageContent the content text
-     * @param messageType the type of the message 
+     * @param messageType the type of the message
      */
     public void showPopupMessage(   String title,
                                     String messageContent,
@@ -370,7 +370,7 @@ public class SystrayServiceJdicImpl
     {
         if(!checkInitialized())
             return;
-        
+
         int trayMsgType = TrayIcon.NONE_MESSAGE_TYPE;
 
         if (messageType == SystrayService.ERROR_MESSAGE_TYPE)
@@ -391,7 +391,7 @@ public class SystrayServiceJdicImpl
 
     /**
      * Implements the <tt>SystrayService.addPopupMessageListener</tt> method.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addPopupMessageListener(SystrayPopupMessageListener listener)
@@ -404,7 +404,7 @@ public class SystrayServiceJdicImpl
 
     /**
      * Implements the <tt>SystrayService.removePopupMessageListener</tt> method.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removePopupMessageListener(SystrayPopupMessageListener listener)
@@ -418,7 +418,7 @@ public class SystrayServiceJdicImpl
     /**
      * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
      * has occured.
-     * 
+     *
      * @param sourceObject the source of this event
      */
     private void firePopupMessageEvent(Object sourceObject)
@@ -445,16 +445,16 @@ public class SystrayServiceJdicImpl
 
     /**
      * Sets a new Systray icon.
-     * 
+     *
      * @param imageType the type of the image to set.
      */
     public void setSystrayIcon(int imageType)
     {
         if(!checkInitialized())
             return;
-        
+
         String osName = System.getProperty("os.name");
-        
+
         ImageIcon toChangeSystrayIcon = null;
 
         if (imageType == SystrayService.SC_IMG_TYPE)
@@ -500,13 +500,13 @@ public class SystrayServiceJdicImpl
                 toChangeSystrayIcon = envelopeIcon;
             }
         }
-        
+
         if(toChangeSystrayIcon != null)
         {
             this.trayIcon.setIcon(toChangeSystrayIcon);
             this.currentIcon = toChangeSystrayIcon;
         }
-        
+
         if (osName.startsWith("Mac OS X"))
         {
             URL toChangeDockIcon = null;
@@ -522,7 +522,7 @@ public class SystrayServiceJdicImpl
                 case SystrayService.SC_IMG_FFC_TYPE :
                     toChangeDockIcon = dockIconFFC; break;
             }
-            
+
             try
             {
                 if(toChangeDockIcon != null)
@@ -538,7 +538,7 @@ public class SystrayServiceJdicImpl
             }
         }
     }
-    
+
     private boolean checkInitialized()
     {
         if(!initialized)
@@ -549,7 +549,7 @@ public class SystrayServiceJdicImpl
         else
             return true;
     }
-    
+
     /**
      * Shows the oldest message in the message queue and then removes it from
      * the queue.
@@ -616,7 +616,7 @@ public class SystrayServiceJdicImpl
          * Creates an instance of <tt>SystrayMessage</tt> by specifying the
          * message <tt>title</tt>, the content of the message and the type of
          * the message.
-         * 
+         *
          * @param title the title of the message
          * @param messageContent the content of the message
          * @param messageType the type of the message
@@ -635,7 +635,7 @@ public class SystrayServiceJdicImpl
          * message <tt>title</tt>, the content of the message, the type of
          * the message and the number of messages that this message has
          * aggregated.
-         * 
+         *
          * @param messageContent the content of the message
          * @param aggregatedMessageNumber the number of messages that this
          * message has aggregated
@@ -655,7 +655,7 @@ public class SystrayServiceJdicImpl
 
         /**
          * Returns the title of the message.
-         * 
+         *
          * @return the title of the message
          */
         public String getTitle()
@@ -665,7 +665,7 @@ public class SystrayServiceJdicImpl
 
         /**
          * Returns the message content.
-         * 
+         *
          * @return the message content
          */
         public String getMessageContent()
@@ -675,7 +675,7 @@ public class SystrayServiceJdicImpl
 
         /**
          * Returns the message type.
-         * 
+         *
          * @return the message type
          */
         public int getMessageType()
@@ -685,7 +685,7 @@ public class SystrayServiceJdicImpl
 
         /**
          * Returns the number of aggregated messages this message represents.
-         * 
+         *
          * @return the number of aggregated messages this message represents.
          */
         public int getAggregatedMessageNumber()
@@ -696,7 +696,7 @@ public class SystrayServiceJdicImpl
         /**
          * Adds the given number of messages to the number of aggregated
          * messages contained in this message.
-         * 
+         *
          * @param messageNumber the number of messages to add to the number of
          * aggregated messages contained in this message
          */
