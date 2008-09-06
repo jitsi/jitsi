@@ -9,25 +9,28 @@ package net.java.sip.communicator.launcher;
 import java.awt.*;
 import java.io.*;
 
+import net.java.sip.communicator.util.launchutils.*;
+
 import org.apache.felix.main.*;
 
 /**
  * Starts the SIP Communicator.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Emil Ivov
  */
 public class SIPCommunicator
 {
-    private static final String PNAME_SC_HOME_DIR_LOCATION =
+    public static final String PNAME_SC_HOME_DIR_LOCATION =
             "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
 
-    private static final String PNAME_SC_HOME_DIR_NAME =
+    public static final String PNAME_SC_HOME_DIR_NAME =
             "net.java.sip.communicator.SC_HOME_DIR_NAME";
 
     /**
      * Starts the SIP Communicator.
-     * 
+     *
      * @param args
      */
     public static void main(String[] args)
@@ -68,6 +71,51 @@ public class SIPCommunicator
             return;
         }
 
+        //first - pass the arguments to our arg handler
+        LaunchArgHandler argHandler = LaunchArgHandler.getInstance();
+        int argHandlerRes = argHandler.handleArgs(args);
+
+        if ( argHandlerRes == LaunchArgHandler.ACTION_EXIT
+             || argHandlerRes == LaunchArgHandler.ACTION_ERROR)
+        {
+            System.exit(argHandler.getErrorCode());
+        }
+
+        //lock our config di so that we would only have a single instance of
+        //sip communicator, no matter how many times we start it (use mainly
+        //for handling sip: uris after starting the application)
+        if ( argHandlerRes != LaunchArgHandler.ACTION_CONTINUE_MULTIINSTANCE )
+        {
+            SipCommunicatorLock lock = new SipCommunicatorLock();
+
+            int lockResult = lock.tryLock(args);
+
+            if( lockResult == SipCommunicatorLock.LOCK_ERROR )
+            {
+                System.err.print("Failed to lock SIP Communicator's "
+                                +"configuration directory.\n"
+                                +"Try launching with the --multiple param.");
+                System.exit(SipCommunicatorLock.LOCK_ERROR);
+
+            }
+            else if(lockResult == SipCommunicatorLock.ALREADY_STARTED)
+            {
+                System.err.print(
+                    "SIP Communicator is already running and will "
+                    +"handle your parameters (if any).\n"
+                    +"Launch with the --multiple param to override this "
+                    +"behaviour.");
+
+                //we exit with succes because for the user that's what it is.
+                System.exit(SipCommunicatorLock.SUCCESS);
+            }
+            else if(lockResult == SipCommunicatorLock.SUCCESS)
+            {
+                //Successfully locked, continue as normal.
+            }
+        }
+
+        //there was no error, continue;
         Main.main(args);
     }
 
@@ -75,13 +123,12 @@ public class SIPCommunicator
      * Sets the system properties net.java.sip.communicator.SC_HOME_DIR_LOCATION
      * and net.java.sip.communicator.SC_HOME_DIR_NAME (if they aren't already
      * set) in accord with the OS conventions specified by the name of the OS.
-     * 
+     *
      * @param osName the name of the OS according to which the SC_HOME_DIR_*
      *            properties are to be set
      */
     private static void setScHomeDir(String osName)
     {
-
         /*
          * Though we'll be setting the SC_HOME_DIR_* property values depending
          * on the OS running the application, we have to make sure we are

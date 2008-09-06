@@ -312,6 +312,9 @@ public class ProtocolProviderServiceSipImpl
      */
     private ProtocolIconSipImpl protocolIcon;
 
+    /**
+     * The presence status set supported by this provider
+     */
     private SipStatusEnum sipStatusEnum;
 
     /**
@@ -2107,7 +2110,7 @@ public class ProtocolProviderServiceSipImpl
      * so that it would receives all messages in a transaction initiated by a
      * <tt>method</tt> request. If any previous processors exist for the same
      * method, they will be replaced by this one.
-     * 
+     *
      * @param method a String representing the SIP method that we're registering
      *            the processor for (e.g. INVITE, REGISTER, or SUBSCRIBE).
      * @param methodProcessor a <tt>MethodProcessor</tt> implementation that
@@ -2143,7 +2146,7 @@ public class ProtocolProviderServiceSipImpl
      * Unregisters <tt>methodProcessor</tt> from the <tt>methorProcessors</tt>
      * table so that it won't receive further messages in a transaction
      * initiated by a <tt>method</tt> request.
-     * 
+     *
      * @param method the name of the method whose processor we'd like to
      *            unregister.
      * @param methodProcessor

@@ -10,6 +10,7 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -26,14 +27,17 @@ public class SipActivator
     private Logger logger = Logger.getLogger(SipActivator.class.getName());
 
     private        ServiceRegistration  sipPpFactoryServReg   = null;
-    static BundleContext        bundleContext         = null;
+            static BundleContext        bundleContext         = null;
     private static ConfigurationService configurationService  = null;
     private static NetworkAddressManagerService networkAddressManagerService
-                                                                        = null;
+                                                              = null;
     private static MediaService         mediaService          = null;
     private static VersionService       versionService        = null;
+    private static UIService            uiService             = null;
 
     private static ProtocolProviderFactorySipImpl sipProviderFactory = null;
+
+    private static UriHandlerSipImpl    uriHandler            = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -62,6 +66,8 @@ public class SipActivator
                     ProtocolProviderFactory.class.getName(),
                     sipProviderFactory,
                     hashtable);
+
+        uriHandler = new UriHandlerSipImpl(sipProviderFactory);
 
         logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
     }
@@ -148,7 +154,7 @@ public class SipActivator
         }
         return mediaService;
     }
-    
+
     /**
      * Returns a reference to a VersionService implementation currently registered
      * in the bundle context or null if no such implementation was found.
@@ -167,6 +173,26 @@ public class SipActivator
                 .getService(versionServiceReference);
         }
         return versionService;
+    }
+
+    /**
+     * Returns a reference to the UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to a UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+        {
+            ServiceReference uiServiceReference
+                = bundleContext.getServiceReference(
+                    UIService.class.getName());
+            uiService = (UIService)bundleContext
+                .getService(uiServiceReference);
+        }
+        return uiService;
     }
 
     /**

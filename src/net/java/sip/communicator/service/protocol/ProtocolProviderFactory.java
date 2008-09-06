@@ -133,12 +133,12 @@ public abstract class ProtocolProviderFactory
      * resource property.
      */
     public static final String RESOURCE = "RESOURCE";
-    
+
     /**
      * The name of the property under which we store resource priority.
      */
     public static final String RESOURCE_PRIORITY = "RESOURCE_PRIORITY";
-    
+
     /**
      * The name of the property under which we store the boolean value
      * indicating if the user name should be automatically changed if the
@@ -146,44 +146,44 @@ public abstract class ProtocolProviderFactory
      * implementations.
      */
     public static final String AUTO_CHANGE_USER_NAME = "AUTO_CHANGE_USER_NAME";
-    
+
     /**
      * The name of the property under which we store the boolean value
      * indicating if a password is required. Initially this property is meant to
      * be used by IRC implementations.
      */
     public static final String NO_PASSWORD_REQUIRED = "NO_PASSWORD_REQUIRED";
-    
+
     /**
      * The name of the property under which we store if the presence is enabled.
      */
     public static final String IS_PRESENCE_ENABLED = "IS_PRESENCE_ENABLED";
-    
+
     /**
      * The name of the property under which we store if the p2p mode for SIMPLE
      * should be forced.
      */
     public static final String FORCE_P2P_MODE = "FORCE_P2P_MODE";
-    
+
     /**
      * The name of the property under which we store the offline contact polling
      * period for SIMPLE.
      */
-    public static final String POLLING_PERIOD = "POLLING_PERIOD"; 
-    
+    public static final String POLLING_PERIOD = "POLLING_PERIOD";
+
     /**
      * The name of the property under which we store the chosen default
      * subscription expiration value for SIMPLE.
      */
     public static final String SUBSCRIPTION_EXPIRATION
                                                 = "SUBSCRIPTION_EXPIRATION";
-    
+
     /**
      * Indicates if the server address has been validated.
      */
     public static final String SERVER_ADDRESS_VALIDATED
                                                 = "SERVER_ADDRESS_VALIDATED";
-    
+
     /**
      * Indicates if the proxy address has been validated.
      */
@@ -240,7 +240,7 @@ public abstract class ProtocolProviderFactory
      * the modified account.
      * @param accountProperties a set of protocol (or implementation) specific
      * properties defining the new account.
-     * 
+     *
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
     public abstract void modifyAccount(
@@ -254,7 +254,7 @@ public abstract class ProtocolProviderFactory
      * @return a copy of the list containing the <tt>AccountID</tt>s of all
      * accounts currently registered in this protocol provider.
      */
-    public abstract ArrayList getRegisteredAccounts();
+    public abstract ArrayList<AccountID> getRegisteredAccounts();
 
     /**
      * Returns the ServiceReference for the protocol provider corresponding to
@@ -531,7 +531,7 @@ public abstract class ProtocolProviderFactory
                             Base64.decode(storedPropertyValue));
                     }
                 }
-                
+
                 if(storedPropertyValue != null)
                     accountProperties.put(propertyName, storedPropertyValue);
             }
@@ -558,7 +558,7 @@ public abstract class ProtocolProviderFactory
      *
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
-     * 
+     *
      * @return the AccountID of the newly loaded account
      */
     protected abstract AccountID loadAccount(   Map accountProperties);

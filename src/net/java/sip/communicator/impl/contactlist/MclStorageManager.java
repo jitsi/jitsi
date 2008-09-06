@@ -91,7 +91,7 @@ public class MclStorageManager
      * A reference to the file containing the locally stored meta contact list.
      */
     private File contactlistFile = null;
-    
+
     /**
      * A reference to the failsafe transaction used with the contactlist file.
      */
@@ -174,13 +174,13 @@ public class MclStorageManager
      */
     private static final String META_CONTACT_DISPLAY_NAME_NODE_NAME
         = "display-name";
-    
+
     /**
      * The name of the XML node that contains meta contact detail.
      */
     private static final String META_CONTACT_DETAIL_NAME_NODE_NAME
         = "detail";
-    
+
     /**
      * The name of the XML attribute that contains detail name.
      */
@@ -190,7 +190,7 @@ public class MclStorageManager
      * The name of the XML attribute that contains detail value.
      */
     private static final String DETAIL_VALUE_ATTR_NAME = "value";
-    
+
     /**
      * The name of the XML node that contains information of a proto contact
      */
@@ -400,7 +400,7 @@ public class MclStorageManager
             } catch (IllegalStateException e) {
                 logger.error("the contactlist file is missing", e);
             }
-            
+
             // really write the modification
             OutputStream stream = new FileOutputStream(contactlistFile);
             XMLUtils.indentedWriteXML(contactListDocument,
@@ -573,14 +573,14 @@ public class MclStorageManager
     {
         if(!isStarted())
             return;
-        
+
         //we don't want to receive meta contact events triggerred by ourselves
         //so we stop listening. it is possible but very unlikely that other
         //events, not triggerred by us are received while we're off the channel
         //but that would be a very bizzare case ..... I guess we got to live
         //with the risk.
         this.mclServiceImpl.removeMetaContactListListener(this);
-        
+
         try
         {
             Element root = findMetaContactGroupNode(
@@ -591,12 +591,12 @@ public class MclStorageManager
                 // If there is no root, there is definitely something wrong
                 // really broken file will create it again
                 logger.fatal("The contactlist file is recreated cause its broken");
-                
+
                 DocumentBuilderFactory factory =
                     DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 contactListDocument = builder.newDocument();
-                
+
                 initVirginDocument(mclServiceImpl, contactListDocument);
 
                 //write the contact list so that it is there for the parser
@@ -608,11 +608,11 @@ public class MclStorageManager
                 //parse the group node and extract all its child groups and contacts
                 processGroupXmlNode(mclServiceImpl, accountID, root
                                 , null, null);
-                
+
                 //now save the contact list in case it has changed
                 scheduleContactListStorage();
             }
-             
+
         }catch(Throwable exc)
         {
             // catch everything because we MUST NOT disturb the thread
@@ -779,7 +779,7 @@ public class MclStorageManager
                 //contain any contacts matching the currently parsed account id.
                 if (protoContacts.size() < 1)
                     continue;
-                
+
                 // Extract contact details.
                 Hashtable details = new Hashtable();
                 try
@@ -787,7 +787,7 @@ public class MclStorageManager
                     List detailsNodes = XMLUtils.findChildren(
                         (Element) currentMetaContactNode
                         , META_CONTACT_DETAIL_NAME_NODE_NAME);
-                    for (int j = 0; j < detailsNodes.size(); j++) 
+                    for (int j = 0; j < detailsNodes.size(); j++)
                     {
                         Element e = (Element)detailsNodes.get(j);
                         String name = e.getAttribute(DETAIL_NAME_ATTR_NAME);
@@ -795,7 +795,7 @@ public class MclStorageManager
 
                         Object detailsObj = details.get(name);
                         if(detailsObj == null)
-                        {   
+                        {
                             ArrayList ds = new ArrayList();
                             ds.add(value);
                             details.put(name, ds);
@@ -808,7 +808,7 @@ public class MclStorageManager
                 {
                     // catch any exception from loading contacts
                     // that will prevent loading the contact
-                    logger.error("Cannot load details for contact node " + 
+                    logger.error("Cannot load details for contact node " +
                             currentMetaContactNode, ex);
                 }
 
@@ -1203,7 +1203,7 @@ public class MclStorageManager
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
-    {  
+    {
         //if the group was created as an encapsulator of a non persistent proto
         //group then we'll ignore it.
         if (evt.getSourceProtoGroup() != null
@@ -1449,7 +1449,7 @@ public class MclStorageManager
                          + evt.getSourceMetaContact(), ex);
         }
     }
-    
+
     /**
      * Indicates that a MetaContact has been modified.
      * @param evt the MetaContactModifiedEvent containing the corresponding contact
@@ -1457,7 +1457,7 @@ public class MclStorageManager
     public void metaContactModified(MetaContactModifiedEvent evt)
     {
         String name = evt.getModificationName();
-        
+
         Element metaContactNode = findMetaContactNode(
             evt.getSourceMetaContact().getMetaUID());
 
@@ -1469,26 +1469,26 @@ public class MclStorageManager
                          + evt.getSourceMetaContact());
             return;
         }
-        
+
         Object oldValue = evt.getOldValue();
         Object newValue = evt.getNewValue();
-        
+
         boolean isChanged = false;
-        
+
         if(oldValue == null && newValue != null)
         {
             // indicates add
-            
+
             if(!(newValue instanceof String))
                 return;
-            
+
             Element detailElement = contactListDocument.createElement(
                         META_CONTACT_DETAIL_NAME_NODE_NAME);
-            
+
             detailElement.setAttribute(DETAIL_NAME_ATTR_NAME, name);
-            detailElement.setAttribute(DETAIL_VALUE_ATTR_NAME, 
+            detailElement.setAttribute(DETAIL_VALUE_ATTR_NAME,
                     (String)newValue);
-            
+
             metaContactNode.appendChild(detailElement);
             isChanged = true;
         }
@@ -1506,7 +1506,7 @@ public class MclStorageManager
                     , name);
 
                 ArrayList nodesToRemove = new ArrayList();
-                for (int i = 0; i < nodes.size(); i++) 
+                for (int i = 0; i < nodes.size(); i++)
                 {
                     Element e = (Element)nodes.get(i);
                     if(valuesToRemove.contains(
@@ -1515,8 +1515,8 @@ public class MclStorageManager
                         nodesToRemove.add(e);
                     }
                 }
-                
-                for (int i = 0; i < nodesToRemove.size(); i++) 
+
+                for (int i = 0; i < nodesToRemove.size(); i++)
                 {
                     Element e = (Element)nodesToRemove.get(i);
                     metaContactNode.removeChild(e);
@@ -1534,7 +1534,7 @@ public class MclStorageManager
                     , name);
 
                 Element elementToRemove = null;
-                for (int i = 0; i < nodes.size(); i++) 
+                for (int i = 0; i < nodes.size(); i++)
                 {
                     Element e = (Element)nodes.get(i);
                     if(e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
@@ -1543,12 +1543,12 @@ public class MclStorageManager
                         break;
                     }
                 }
-            
+
                 if(elementToRemove == null)
                     return;
-                
+
                 metaContactNode.removeChild(elementToRemove);
-                
+
                 isChanged = true;
             }
         }
@@ -1562,7 +1562,7 @@ public class MclStorageManager
                 , name);
 
             Element changedElement = null;
-            for (int i = 0; i < nodes.size(); i++) 
+            for (int i = 0; i < nodes.size(); i++)
             {
                 Element e = (Element)nodes.get(i);
                 if(e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
@@ -1571,16 +1571,16 @@ public class MclStorageManager
                     break;
                 }
             }
-            
+
             if(changedElement == null)
                 return;
-            
-            changedElement.setAttribute(DETAIL_VALUE_ATTR_NAME, 
+
+            changedElement.setAttribute(DETAIL_VALUE_ATTR_NAME,
                     (String)newValue);
-            
+
             isChanged = true;
         }
-        
+
         if(!isChanged)
             return;
 

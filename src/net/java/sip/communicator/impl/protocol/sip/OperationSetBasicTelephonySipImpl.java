@@ -155,6 +155,14 @@ public class OperationSetBasicTelephonySipImpl
     private synchronized CallSipImpl createOutgoingCall(Address calleeAddress)
         throws OperationFailedException
     {
+        if(!protocolProvider.isRegistered())
+        {
+            throw new OperationFailedException(
+                "The protocol provider should be registered "
+                +"before placing an outgoing call.",
+                OperationFailedException.PROVIDER_NOT_REGISTERED);
+        }
+
         // create the invite request
         Request invite = createInviteRequest(calleeAddress);
 

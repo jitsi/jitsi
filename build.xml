@@ -358,7 +358,7 @@
         <replace file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
             token="build.id" value="${build.label}"/>
     </target>
-    
+
     <!-- SIP Communicator Version -->
     <target name="version" depends="-pre-version">
         <!-- Recompile ant task classes-->
@@ -378,7 +378,7 @@
 
         <sip-communicator-version property="sip-communicator.version" />
 
-        <echo message="SIP Communicator version ${sip-communicator.version}" />        
+        <echo message="SIP Communicator version ${sip-communicator.version}" />
     </target>
 
     <!--INIT-->
@@ -418,7 +418,7 @@
         <!--internal-target- prepare to run a single Service Impl Compatibility Kit -->
         <!-- extract the simple Test class name. -->
         <basename property="simple.test.names" file="${test.name}"/>
-        <echo message="single test prepared: ${simple.test.names}" />        
+        <echo message="single test prepared: ${simple.test.names}" />
     </target>
 
     <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
@@ -457,7 +457,7 @@
             <!-- Tell the slick runner about TestSutes we've preregistered. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
                 value="${simple.test.names}"/>
-                
+
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
                 value="${lib}/logging.properties"/>
@@ -514,6 +514,12 @@
     <target name="run" depends="-deploy-os-specific-bundles"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
+        <!-- we allow users to pass command line args using the "args" system
+             property. However we need to manually set tha prop to an empty
+             string here or otherwise the application would get an argument with
+             the value ${args}-->
+        <property name="args" value=""/>
+
          <!-- forking prevents from debugging -->
         <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
             fork="true"
@@ -550,6 +556,9 @@
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
             <env key="PATH" path="${path}"/>
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
+
+            <!-- pass to SC args that have been specified by the user -->
+            <arg line="${args}"/>
         </java>
 
     </target>
@@ -623,7 +632,7 @@
     </target>
 
 
-    <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -  - -->
+    <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -       -->
     <!--ALL BUNDLES-->
     <target name="bundles"
         depends="bundle-sc-launcher,bundle-util,bundle-configuration,bundle-configuration-slick,
@@ -659,7 +668,8 @@
         bundle-updatecheckplugin,
         bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
-        bundle-plugin-googletalkaccregwizz"/>
+        bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
+        bundle-argdelegation"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -754,7 +764,15 @@
     </target>
 
     <!--BUNDLE-UTIL-->
-    <target name="bundle-util">
+    <target name="bundle-util" depends="version">
+        <!-- Create a properties file that the arg handler could use
+        to determine SC's version -->
+        <echo file="${dest}/net/java/sip/communicator/util/launchutils/version.properties"
+                    message="APPLICATION_NAME=SIP Communicator${line.separator}" />
+        <echo file="${dest}/net/java/sip/communicator/util/launchutils/version.properties"
+              message="APPLICATION_VERSION=${sip-communicator.version}${line.separator}"
+              append="true"/>
+        <!-- Create the util.jar-->
         <jar compress="false" destfile="${bundles.dest}/util.jar"
             manifest="${src}/net/java/sip/communicator/util/util.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
@@ -1052,7 +1070,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
-    
+
     <!-- BUNDLE-SSH -->
     <target name="bundle-ssh">
         <!-- Creates a bundle containing the SSH impl of the protocol provider.-->
@@ -1407,7 +1425,7 @@ javax.swing.event, javax.swing.border"/>
         <zipfileset src="${lib.noinst}/aclibico-2.1.jar" prefix=""/>
         </jar>
     </target>
-    
+
     <!-- BUNDLE-RSS-SLICK -->
     <!-- Creates a bundle containing the slick for the Gibberish protocol
          provider.-->
@@ -1563,7 +1581,7 @@ javax.swing.event, javax.swing.border"/>
                     prefix="net/java/sip/communicator/impl/protocol/dict"/>
         </jar>
     </target>
-   
+
     <!-- BUNDLE-PLUGIN-DICTACCREGWIZZ -->
     <target name="bundle-plugin-dictaccregwizz">
         <!-- Creates a bundle for the plugin Dict Account Registration
@@ -1574,7 +1592,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/dictaccregwizz"/>
         </jar>
     </target>
-    
+
     <!--BUNDLE-UpdateCheckPlugin-->
     <target name="bundle-updatecheckplugin">
         <jar compress="false" destfile="${bundles.dest}/updatechecker.jar"
@@ -1583,7 +1601,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/updatechecker" />
         </jar>
     </target>
-    
+
     <!--BUNDLE-AutoAwayPlugin-->
     <target name="bundle-plugin-autoaway">
         <jar compress="false" destfile="${bundles.dest}/autoaway.jar"
@@ -1625,7 +1643,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/KeybindingUtil.jar" prefix=""/>
         </jar>
     </target>
-        
+
     <!--BUNDLE-PLUGIN-KeybindingChooser-->
     <target name="bundle-plugin-keybindingChooser">
         <jar compress="false" destfile="${bundles.dest}/keybindingChooser.jar"
@@ -1685,12 +1703,32 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-
+    <!-- BUNDLE-JFontChooser -->
     <target name="bundle-jfontchooserlib">
         <!-- Creates a bundle containing the jfontchooser lib.-->
         <jar compress="false" destfile="${bundles.dest}/jfontchooserlib.jar"
             manifest="${lib.noinst}/jfontchooser.manifest.mf">
             <zipfileset src="${lib.noinst}/jfontchooser-1.0.5.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE Arg Delegation Service -->
+    <target name="bundle-argdelegation-service">
+        <!-- Creates a bundle for the notifications.-->
+        <jar compress="false" destfile="${bundles.dest}/argdelegation-service.jar"
+            manifest="${src}/net/java/sip/communicator/service/argdelegation/argdelegation.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/argdelegation/"
+                prefix="net/java/sip/communicator/service/argdelegation"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE Arg Delegation Implementation-->
+    <target name="bundle-argdelegation">
+        <!-- Creates a bundle for the notifications.-->
+        <jar compress="false" destfile="${bundles.dest}/argdelegation.jar"
+            manifest="${src}/net/java/sip/communicator/impl/argdelegation/argdelegation.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/argdelegation/"
+                prefix="net/java/sip/communicator/impl/argdelegation/"/>
         </jar>
     </target>
 </project>

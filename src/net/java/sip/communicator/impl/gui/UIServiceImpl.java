@@ -329,7 +329,7 @@ public class UIServiceImpl
     /**
      * Unregisters the given <tt>ExportedWindow</tt> from the list of windows
      * that could be accessed from other bundles.
-     * 
+     *
      * @param window the window to no longer be exported
      */
     public void unregisterExportedWindow(ExportedWindow window)
@@ -482,7 +482,7 @@ public class UIServiceImpl
 
     /**
      * Returns the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
-     * 
+     *
      * @param chatRoom the <tt>ChatRoom</tt> for which the searched chat is
      * about.
      * @return the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
@@ -557,6 +557,25 @@ public class UIServiceImpl
                                         realm,
                                         userCredentials,
                                         isUserNameEditable);
+    }
+
+    /**
+     * Returns a default implementation of the <tt>SecurityAuthority</tt>
+     * interface that can be used by non-UI components that would like to launch
+     * the registration process for a protocol provider. Initially this method
+     * was meant for use by the systray bundle and the protocol URI handlers.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> for which
+     * the authentication window is about.
+     *
+     * @return a default implementation of the <tt>SecurityAuthority</tt>
+     * interface that can be used by non-UI components that would like to launch
+     * the registration process for a protocol provider.
+     */
+    public SecurityAuthority getDefaultSecurityAuthority(
+                    ProtocolProviderService protocolProvider)
+    {
+        return new DefaultSecurityAuthority(protocolProvider);
     }
 
     /**
@@ -683,7 +702,7 @@ public class UIServiceImpl
     /**
      * Returns the corresponding <tt>BorderLayout</tt> constraint from the given
      * <tt>Container</tt> constraint.
-     * 
+     *
      * @param containerConstraints constraints defined in the <tt>Container</tt>
      * @return the corresponding <tt>BorderLayout</tt> constraint from the given
      * <tt>Container</tt> constraint.
@@ -710,7 +729,7 @@ public class UIServiceImpl
 
         return layoutConstraint;
     }
-    
+
     private class DefaultPluginComponent implements PluginComponent
     {
         private Component component;

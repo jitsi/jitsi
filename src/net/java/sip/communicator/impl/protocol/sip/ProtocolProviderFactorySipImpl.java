@@ -27,7 +27,8 @@ public class ProtocolProviderFactorySipImpl
     /**
      * The table that we store our accounts in.
      */
-    private Hashtable registeredAccounts = new Hashtable();
+    private Hashtable<AccountID, ServiceRegistration> registeredAccounts
+        = new Hashtable<AccountID, ServiceRegistration>();
 
     /**
      * Constructs a new instance of the ProtocolProviderFactorySipImpl.
@@ -63,9 +64,9 @@ public class ProtocolProviderFactorySipImpl
      * @return a copy of the llist containing all accounts currently installed
      * in the protocol provider.
      */
-    public ArrayList getRegisteredAccounts()
+    public ArrayList<AccountID> getRegisteredAccounts()
     {
-        return new ArrayList(registeredAccounts.keySet());
+        return new ArrayList<AccountID>(registeredAccounts.keySet());
     }
 
     /**
@@ -153,7 +154,7 @@ public class ProtocolProviderFactorySipImpl
      * the modified account.
      * @param accountProperties a set of protocol (or implementation) specific
      * properties defining the new account.
-     * 
+     *
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
     public void modifyAccount(  ProtocolProviderService protocolProvider,
@@ -235,7 +236,7 @@ public class ProtocolProviderFactorySipImpl
                 + ex.getMessage());
         }
     }
-    
+
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the

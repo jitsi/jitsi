@@ -61,7 +61,7 @@ public class MainFrame
     private JPanel contactListPanel = new JPanel(new BorderLayout());
 
     private JPanel mainPanel = new JPanel(new BorderLayout(0, 5));
-    
+
     private MainMenu menu;
 
     private CallManager callManager;
@@ -171,7 +171,7 @@ public class MainFrame
         this.getContentPane().add(northPanel, BorderLayout.NORTH);
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     }
-    
+
     /**
      * Sets frame size and position.
      */
@@ -341,7 +341,7 @@ public class MainFrame
             multiUserChat.addInvitationListener(multiUserChatManager);
             multiUserChat.addInvitationRejectionListener(multiUserChatManager);
             multiUserChat.addPresenceListener(multiUserChatManager);
-            
+
             this.getChatRoomsListPanel()
                 .getChatRoomsList()
                 .addChatServer(protocolProvider, multiUserChat);
@@ -357,7 +357,7 @@ public class MainFrame
     {
         return ((LinkedHashMap)protocolProviders.clone()).keySet().iterator();
     }
-    
+
     /**
      * Returns the protocol provider associated to the account given
      * by the account user identifier.
@@ -429,10 +429,10 @@ public class MainFrame
     public void addAccount(ProtocolProviderService protocolProvider)
     {
         if (!getStatusPanel().containsAccount(protocolProvider)) {
-            
+
             logger.trace("Add the following account to the status bar: "
                 + protocolProvider.getAccountID().getAccountAddress());
-            
+
             this.getStatusPanel().addAccount(protocolProvider);
 
             //request the focus in the contact list panel, which
@@ -440,7 +440,7 @@ public class MainFrame
             this.tabbedPane.getContactListPanel().getContactList()
                     .requestFocus();
         }
-                
+
         if(!callManager.containsCallAccount(protocolProvider)
             && getTelephonyOpSet(protocolProvider) != null) {
             callManager.addCallAccount(protocolProvider);
@@ -503,10 +503,10 @@ public class MainFrame
     {
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetPresence.class);
-        
+
         if(opSet != null && opSet instanceof OperationSetPresence)
             return (OperationSetPresence) opSet;
-        
+
         return null;
     }
 
@@ -521,13 +521,13 @@ public class MainFrame
      */
     public OperationSetWebContactInfo getWebContactInfoOpSet(
             ProtocolProviderService protocolProvider)
-    {           
+    {
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetWebContactInfo.class);
-        
+
         if(opSet != null && opSet instanceof OperationSetWebContactInfo)
             return (OperationSetWebContactInfo) opSet;
-        
+
         return null;
     }
 
@@ -544,13 +544,13 @@ public class MainFrame
     {
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetBasicTelephony.class);
-        
+
         if(opSet != null && opSet instanceof OperationSetBasicTelephony)
             return (OperationSetBasicTelephony) opSet;
-        
+
         return null;
     }
-    
+
     /**
      * Returns the multi user chat operation set for the given protocol provider.
      *
@@ -564,10 +564,10 @@ public class MainFrame
     {
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetMultiUserChat.class);
-        
+
         if(opSet != null && opSet instanceof OperationSetMultiUserChat)
             return (OperationSetMultiUserChat) opSet;
-        
+
         return null;
     }
 
@@ -598,7 +598,7 @@ public class MainFrame
     {
         /**
          * Indicates that a contact has changed its status.
-         * 
+         *
          * @param evt the presence event containing information about the
          * contact status change
          */
@@ -716,7 +716,7 @@ public class MainFrame
                 ConfigurationManager.setApplicationVisible(false);
             }
         }
-        
+
         public void windowClosed(WindowEvent e)
         {
             if(GuiActivator.getUIService().getExitOnMainWindowClose())
@@ -738,7 +738,7 @@ public class MainFrame
                 //System.exit(0);
             }
         }
-    }    
+    }
 
     /**
      * Returns the class that manages user login.
@@ -771,7 +771,7 @@ public class MainFrame
     {
         return this.tabbedPane.getContactListPanel();
     }
-    
+
     /**
      * Returns the panel containing the chat rooms list.
      * @return the panel containing the chat rooms list
@@ -802,7 +802,7 @@ public class MainFrame
         // Should remove all participant panels explicetly, thus removing also
         // all related dialogs (like dialpad for example).
         callPanel.removeDialogs();
-        
+
         tabbedPane.remove(callPanel);
 
         Component c = getSelectedTab();
@@ -1180,7 +1180,7 @@ public class MainFrame
     };
 
     /**
-     * 
+     *
      * @param protocolProvider
      * @param contactHandler
      */
@@ -1194,7 +1194,7 @@ public class MainFrame
     /**
      * Returns the <tt>ContactEventHandler</tt> registered for this protocol
      * provider.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt> for which
      * we are searching a <tt>ContactEventHandler</tt>.
      * @return the <tt>ContactEventHandler</tt> registered for this protocol
@@ -1207,7 +1207,7 @@ public class MainFrame
     }
 
     /**
-     * 
+     *
      * @param protocolProvider
      * @return
      */
@@ -1434,7 +1434,7 @@ public class MainFrame
 
         /**
          * Paints the logo bar.
-         * 
+         *
          * @param g the <tt>Graphics</tt> object used to paint the background
          * image of this logo bar.
          */
@@ -1538,7 +1538,7 @@ public class MainFrame
     {
         this.setExtendedState(JFrame.ICONIFIED);
     }
-    
+
     /**
      * Implements <code>isVisible</code> in the UIService interface. Checks if
      * the main application window is visible.
@@ -1559,7 +1559,7 @@ public class MainFrame
         else
             return false;
     }
-    
+
     /**
      * Implements <code>setVisible</code> in the UIService interface. Shows or
      * hides the main application window depending on the parameter
@@ -1576,15 +1576,15 @@ public class MainFrame
             public void run()
             {
                 if(isVisible)
-        {
-            MainFrame.this.addNativePlugins();
-            MainFrame.super.setVisible(isVisible);
-            MainFrame.super.toFront();
-        }
-        else
-        {
-            MainFrame.super.setVisible(isVisible);
-        }
+                {
+                    MainFrame.this.addNativePlugins();
+                    MainFrame.super.setVisible(isVisible);
+                    MainFrame.super.toFront();
+                }
+                else
+                {
+                    MainFrame.super.setVisible(isVisible);
+                }
             }
         });
     }
@@ -1592,7 +1592,7 @@ public class MainFrame
     /**
      * Adds the given component with to the container corresponding to the
      * given constraints.
-     * 
+     *
      * @param c the component to add
      * @param constraints the constraints determining the container
      */
@@ -1632,7 +1632,7 @@ public class MainFrame
     /**
      * Removes the given component from the container corresponding to the given
      * constraints.
-     * 
+     *
      * @param c the component to remove
      * @param constraints the constraints determining the container
      */

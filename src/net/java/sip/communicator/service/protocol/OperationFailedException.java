@@ -122,10 +122,15 @@ public class OperationFailedException
     public static final int AUTHENTICATION_CANCELED = 15;
 
     /**
+     * Indicates that the operation has been canceled by the user.
+     */
+    public static final int OPERATION_CANCELED = 16;
+
+    /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;
-    
+
     /**
      * Creates an exception with the specified error message and error code.
      * @param message A message containing details on the error that caused the

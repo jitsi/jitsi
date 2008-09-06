@@ -71,7 +71,7 @@ public class MessageHistoryServiceImpl
     private ConfigurationService configService;
 
     private MessageHistoryPropertyChangeListener msgHistoryPropListener;
-    
+
     private static ResourceManagementService resourcesService;
 
     public HistoryService getHistoryService()
@@ -96,7 +96,7 @@ public class MessageHistoryServiceImpl
         Hashtable readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
-        
+
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -141,7 +141,7 @@ public class MessageHistoryServiceImpl
         Hashtable readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
-        
+
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -186,7 +186,7 @@ public class MessageHistoryServiceImpl
         Hashtable readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
-        
+
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -353,11 +353,11 @@ public class MessageHistoryServiceImpl
         }
 
         LinkedList resultAsList = new LinkedList(result);
-        
+
         int toIndex = count;
         if(toIndex > resultAsList.size())
             toIndex = resultAsList.size();
-        
+
         return resultAsList.subList(0, toIndex);
     }
 
@@ -443,10 +443,10 @@ public class MessageHistoryServiceImpl
 
         return retVal;
     }
-    
+
     /**
      * Returns the history by specified local contact
-     * (if is null the default is used) 
+     * (if is null the default is used)
      * and by the chat room
      *
      * @param room The chat room
@@ -456,20 +456,20 @@ public class MessageHistoryServiceImpl
     private History getHistoryForMultiChat(
                         Contact localContact,
                         ChatRoom room)
-        throws IOException 
+        throws IOException
     {
         AccountID account = room.getParentProvider().getAccountID();
 
         return this.getHistoryForMultiChat(
-            null, 
+            null,
             account.getAccountUniqueID(),
             account.getService(),
             room.getName());
     }
-    
+
     /**
      * Returns the history by specified local contact
-     * (if is null the default is used) 
+     * (if is null the default is used)
      * and by accountUniqueID, channel and server
      * used by the multichat account.
      *
@@ -485,7 +485,7 @@ public class MessageHistoryServiceImpl
                         String account,
                         String server,
                         String channel)
-        throws IOException 
+        throws IOException
     {
         History retVal = null;
 
@@ -494,8 +494,8 @@ public class MessageHistoryServiceImpl
 
         HistoryID historyId = HistoryID.createFromRawID(
             new String[] { "messages",
-                            localId, 
-                            account, 
+                            localId,
+                            account,
                             channel + "@" + server });
 
         if (this.historyService.isHistoryExisting(historyId))
@@ -550,9 +550,9 @@ public class MessageHistoryServiceImpl
                         contact,
                         timestamp);
     }
-    
+
     /**
-     * Used to convert HistoryRecord in ChatRoomMessageDeliveredEvent or 
+     * Used to convert HistoryRecord in ChatRoomMessageDeliveredEvent or
      * ChatRoomMessageReceivedEvent
      * which are returned by the finder methods
      *
@@ -580,10 +580,10 @@ public class MessageHistoryServiceImpl
         }
         else
             timestamp = hr.getTimestamp();
-        
+
         // 5 is the index of the subject in the structure
         String fromStr = hr.getPropertyValues()[5];
-        
+
         ChatRoomMember from = new ChatRoomMemberImpl(fromStr, room, null);
 
         if(msg.isOutgoing)
@@ -669,15 +669,15 @@ public class MessageHistoryServiceImpl
         configService = (ConfigurationService)
             bundleContext.getService(refConfig);
 
-        // Check if the message history is enabled in the configuration 
+        // Check if the message history is enabled in the configuration
         // service, and if not do not register the service.
         String isMessageHistoryEnabledPropertyString =
             "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled";
         String isMessageHistoryEnabledString = configService.getString(
             isMessageHistoryEnabledPropertyString);
-        
+
         if(isMessageHistoryEnabledString == null)
-            isMessageHistoryEnabledString = 
+            isMessageHistoryEnabledString =
                 getResources().
                 getSettingsString(isMessageHistoryEnabledPropertyString);
 
@@ -737,19 +737,19 @@ public class MessageHistoryServiceImpl
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
     {
     }
-        
+
     // //////////////////////////////////////////////////////////////////////////
     // ChatRoomMessageListener implementation methods
-    
+
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
-        try 
+        try
         {
             History history = this.getHistoryForMultiChat(
-                null, 
+                null,
                 evt.getSourceChatRoom());
-            
-            writeMessage(history, "in", evt.getSourceChatRoomMember(), 
+
+            writeMessage(history, "in", evt.getSourceChatRoomMember(),
                 evt.getMessage(), evt.getTimestamp());
         } catch (IOException e)
         {
@@ -759,13 +759,13 @@ public class MessageHistoryServiceImpl
 
     public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
     {
-        try 
+        try
         {
             History history = this.
                 getHistoryForMultiChat(
-                null, 
+                null,
                 evt.getSourceChatRoom());
-            
+
             writeMessage(history, "out", evt.getMessage(), evt.getTimestamp());
         } catch (IOException e)
         {
@@ -776,11 +776,11 @@ public class MessageHistoryServiceImpl
     public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
     {
     }
-    
+
     /**
      * Writes message to the history
      * @param direction String direction of the message
-     * @param source The source Contact 
+     * @param source The source Contact
      * @param destination The destiantion Contact
      * @param message Message message to be written
      * @param messageTimestamp Date this is the timestamp when was message received
@@ -791,14 +791,14 @@ public class MessageHistoryServiceImpl
     {
         try {
             History history = this.getHistory(source, destination);
-            
+
             writeMessage(history, direction, message, messageTimestamp);
         } catch (IOException e)
         {
             logger.error("Could not add message to history", e);
         }
     }
-    
+
     /**
      * Writes message to the history
      * @param history The history to which will write the message
@@ -821,7 +821,7 @@ public class MessageHistoryServiceImpl
             logger.error("Could not add message to history", e);
         }
     }
-    
+
     /**
      * Writes message to the history
      * @param history The history to which will write the message
@@ -838,7 +838,7 @@ public class MessageHistoryServiceImpl
             historyWriter.addRecord(new String[] { direction,
                     message.getContent(), message.getContentType(),
                     message.getEncoding(), message.getMessageUID(),
-                    from.getContactAddress(), 
+                    from.getContactAddress(),
                     String.valueOf(messageTimestamp.getTime()) },
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
@@ -846,7 +846,7 @@ public class MessageHistoryServiceImpl
             logger.error("Could not add message to history", e);
         }
     }
-    
+
     // //////////////////////////////////////////////////////////////////////////
 
     /**
@@ -942,7 +942,7 @@ public class MessageHistoryServiceImpl
         {
             logger.trace("Service did not have a im op. set.");
         }
-        
+
         OperationSetMultiUserChat opSetMultiUChat
             = (OperationSetMultiUserChat) provider
             .getSupportedOperationSets().get(
@@ -950,7 +950,7 @@ public class MessageHistoryServiceImpl
 
         if (opSetMultiUChat != null)
         {
-            Iterator iter = 
+            Iterator iter =
                 opSetMultiUChat.getCurrentlyJoinedChatRooms().iterator();
 
             while(iter.hasNext())
@@ -958,7 +958,7 @@ public class MessageHistoryServiceImpl
                 ChatRoom room =  (ChatRoom)iter.next();
                 room.addMessageListener(this);
             }
-            
+
             opSetMultiUChat.addPresenceListener(this);
         }
         else
@@ -984,7 +984,7 @@ public class MessageHistoryServiceImpl
         {
             opSetIm.removeMessageListener(this);
         }
-        
+
          OperationSetMultiUserChat opSetMultiUChat
             = (OperationSetMultiUserChat) provider
             .getSupportedOperationSets().get(
@@ -992,9 +992,9 @@ public class MessageHistoryServiceImpl
 
         if (opSetMultiUChat != null)
         {
-            Iterator iter = 
+            Iterator iter =
                 opSetMultiUChat.getCurrentlyJoinedChatRooms().iterator();
-            
+
             while(iter.hasNext())
             {
                 ChatRoom room =  (ChatRoom)iter.next();
@@ -1002,7 +1002,7 @@ public class MessageHistoryServiceImpl
             }
         }
     }
-    
+
     /**
      * Called to notify interested parties that a change in our presence in
      * a chat room has occured. Changes may include us being kicked, join,
@@ -1012,7 +1012,7 @@ public class MessageHistoryServiceImpl
      */
     public void localUserPresenceChanged(LocalUserChatRoomPresenceChangeEvent evt)
     {
-        if(evt.getEventType() == 
+        if(evt.getEventType() ==
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED)
         {
             if (!evt.getChatRoom().isSystem())
@@ -1119,7 +1119,7 @@ public class MessageHistoryServiceImpl
         Hashtable readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
-        
+
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -1167,7 +1167,7 @@ public class MessageHistoryServiceImpl
         Hashtable readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
-        
+
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -1215,7 +1215,7 @@ public class MessageHistoryServiceImpl
         Hashtable readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
-        
+
         Iterator iter = readers.keySet().iterator();
         while (iter.hasNext())
         {
@@ -1269,22 +1269,22 @@ public class MessageHistoryServiceImpl
         }
         return readers;
     }
-    
+
     /**
      * Total count of records for supplied history readers will read through
-     * 
+     *
      * @param readers hashtable with pairs contact <-> history reader
      * @return the number of searched messages
-     * @throws UnsupportedOperationException 
+     * @throws UnsupportedOperationException
      *              Thrown if an exception occurs during the execution of the
      *              query, such as internal IO error.
      */
     public int countRecords(Hashtable readers)
     {
         int result = 0;
-        
+
         Enumeration readersEnum = readers.elements();
-        
+
         while (readersEnum.hasMoreElements())
         {
             HistoryReader r = (HistoryReader)readersEnum.nextElement();
@@ -1293,9 +1293,9 @@ public class MessageHistoryServiceImpl
 
         return result;
     }
-    
+
     /**
-     * Returns all the messages exchanged in the supplied 
+     * Returns all the messages exchanged in the supplied
      * chat room after the given date
      *
      * @param room The chat room
@@ -1310,7 +1310,7 @@ public class MessageHistoryServiceImpl
         try
         {
             // get the readers for this room
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
 
             // add the progress listeners
@@ -1328,12 +1328,12 @@ public class MessageHistoryServiceImpl
         {
             logger.error("Could not read history", e);
         }
-        
+
         return result;
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room before the given date
      *
      * @param room The chat room
@@ -1348,7 +1348,7 @@ public class MessageHistoryServiceImpl
         try
         {
             // get the readers for this room
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
 
             // add the progress listeners
@@ -1371,7 +1371,7 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room between the given dates
      *
      * @param room The chat room
@@ -1387,7 +1387,7 @@ public class MessageHistoryServiceImpl
         try
         {
             // get the readers for this room
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
 
             // add the progress listeners
@@ -1405,12 +1405,12 @@ public class MessageHistoryServiceImpl
         {
             logger.error("Could not read history", e);
         }
-        
+
         return result;
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room between the given dates and having the given
      * keywords
      *
@@ -1421,7 +1421,7 @@ public class MessageHistoryServiceImpl
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByPeriod(ChatRoom room, 
+    public Collection findByPeriod(ChatRoom room,
             Date startDate, Date endDate, String[] keywords)
         throws RuntimeException
     {
@@ -1429,7 +1429,7 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room between the given dates and having the given
      * keywords
      *
@@ -1449,7 +1449,7 @@ public class MessageHistoryServiceImpl
         try
         {
             // get the readers for this room
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
 
             // add the progress listeners
@@ -1468,12 +1468,12 @@ public class MessageHistoryServiceImpl
         {
             logger.error("Could not read history", e);
         }
-        
+
         return result;
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied room having the given keyword
      *
      * @param room The Chat room
@@ -1488,7 +1488,7 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room having the given keyword
      *
      * @param room The chat room
@@ -1497,7 +1497,7 @@ public class MessageHistoryServiceImpl
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeyword(ChatRoom room, String keyword, 
+    public Collection findByKeyword(ChatRoom room, String keyword,
             boolean caseSensitive)
         throws RuntimeException
     {
@@ -1505,7 +1505,7 @@ public class MessageHistoryServiceImpl
         try
         {
             // get the readers for this room
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
 
             // add the progress listeners
@@ -1529,7 +1529,7 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room having the given keywords
      *
      * @param room The chat room
@@ -1544,7 +1544,7 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room having the given keywords
      *
      * @param room The chat room
@@ -1553,7 +1553,7 @@ public class MessageHistoryServiceImpl
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeywords(ChatRoom room, String[] keywords, 
+    public Collection findByKeywords(ChatRoom room, String[] keywords,
             boolean caseSensitive)
         throws RuntimeException
     {
@@ -1561,7 +1561,7 @@ public class MessageHistoryServiceImpl
         try
         {
             // get the readers for this room
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
 
             // add the progress listeners
@@ -1580,12 +1580,12 @@ public class MessageHistoryServiceImpl
         {
             logger.error("Could not read history", e);
         }
-        
+
         return result;
     }
 
     /**
-     * Returns the supplied number of recent messages exchanged 
+     * Returns the supplied number of recent messages exchanged
      * in the supplied chat room
      *
      * @param room The chat room
@@ -1597,12 +1597,12 @@ public class MessageHistoryServiceImpl
         throws RuntimeException
     {
         TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
-        
+
         try
         {
             // get the readers for this room
-            HistoryReader reader = 
-                this.getHistoryForMultiChat(null, room).getReader();            
+            HistoryReader reader =
+                this.getHistoryForMultiChat(null, room).getReader();
             Iterator recs = reader.findLast(count);
             while (recs.hasNext())
             {
@@ -1616,7 +1616,7 @@ public class MessageHistoryServiceImpl
         {
             logger.error("Could not read history", e);
         }
-        
+
         LinkedList resultAsList = new LinkedList(result);
         int startIndex = resultAsList.size() - count;
 
@@ -1643,7 +1643,7 @@ public class MessageHistoryServiceImpl
 
         try
         {
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
             Iterator recs = reader.findFirstRecordsAfter(date, count);
             while (recs.hasNext())
@@ -1660,11 +1660,11 @@ public class MessageHistoryServiceImpl
         }
 
         LinkedList resultAsList = new LinkedList(result);
-        
+
         int toIndex = count;
         if(toIndex > resultAsList.size())
             toIndex = resultAsList.size();
-        
+
         return resultAsList.subList(0, toIndex);
     }
 
@@ -1685,7 +1685,7 @@ public class MessageHistoryServiceImpl
 
         try
         {
-            HistoryReader reader = 
+            HistoryReader reader =
                 this.getHistoryForMultiChat(null, room).getReader();
             Iterator recs = reader.findLastRecordsBefore(date, count);
             while (recs.hasNext())
@@ -1709,7 +1709,7 @@ public class MessageHistoryServiceImpl
 
         return resultAsList.subList(startIndex, resultAsList.size());
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
@@ -1719,8 +1719,8 @@ public class MessageHistoryServiceImpl
 
             if(serviceReference == null)
                 return null;
-            
-            resourcesService = (ResourceManagementService) 
+
+            resourcesService = (ResourceManagementService)
                 MessageHistoryActivator.bundleContext
                 .getService(serviceReference);
         }
@@ -1742,7 +1742,7 @@ public class MessageHistoryServiceImpl
         double accumulatedRatio = 0;
         double currentProgress = 0;
         double lastHistoryProgress = 0;
-        
+
         // used for more precise calculations with double values
         int raiser = 1000;
 
@@ -1750,12 +1750,12 @@ public class MessageHistoryServiceImpl
         {
             this.listener = listener;
         }
-        
+
         private void setCurrentValues(HistoryReader currentReader, int allRecords)
         {
             this.allRecords = allRecords;
             this.reader = currentReader;
-            currentReaderProgressRatio = 
+            currentReaderProgressRatio =
                     (double)currentReader.countRecords()/allRecords * raiser;
             accumulatedRatio += currentReaderProgressRatio;
         }
@@ -1779,15 +1779,15 @@ public class MessageHistoryServiceImpl
          */
         private int getProgressMapping(ProgressEvent evt)
         {
-            double tmpHistoryProgress = 
+            double tmpHistoryProgress =
                     currentReaderProgressRatio * evt.getProgress();
-            
+
             currentProgress += tmpHistoryProgress - lastHistoryProgress;
-            
+
             if(evt.getProgress() == HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
             {
                 lastHistoryProgress = 0;
-                
+
                 // this is the last one and the last event fire the max
                 // there will be looses in currentProgress due to the devision
                 if((int)accumulatedRatio == raiser)
@@ -1796,7 +1796,7 @@ public class MessageHistoryServiceImpl
             }
             else
                 lastHistoryProgress = tmpHistoryProgress;
-            
+
             return (int)currentProgress;
         }
 
@@ -1804,7 +1804,7 @@ public class MessageHistoryServiceImpl
          * clear the values
          */
         void clear()
-        {            
+        {
             allRecords = 0;
             currentProgress = 0;
             lastHistoryProgress = 0;
@@ -1866,9 +1866,9 @@ public class MessageHistoryServiceImpl
             return date1.compareTo(date2);
         }
     }
-    
+
     /**
-     * Used to compare ChatRoomMessageDeliveredEvent 
+     * Used to compare ChatRoomMessageDeliveredEvent
      * or ChatRoomMessageReceivedEvent
      * and to be ordered in TreeSet according their timestamp
      */
@@ -1879,7 +1879,7 @@ public class MessageHistoryServiceImpl
         {
             Date date1 = null;
             Date date2 = null;
-            
+
             if(o1 instanceof ChatRoomMessageDeliveredEvent)
                 date1 = ((ChatRoomMessageDeliveredEvent)o1).getTimestamp();
             else if(o1 instanceof ChatRoomMessageReceivedEvent)
@@ -1897,7 +1897,7 @@ public class MessageHistoryServiceImpl
             return date1.compareTo(date2);
         }
     }
-    
+
     /**
      * Simple ChatRoomMember implementation.
      */
@@ -1908,7 +1908,7 @@ public class MessageHistoryServiceImpl
         private String name;
         private ChatRoomMemberRole role;
 
-        public ChatRoomMemberImpl(String name, ChatRoom chatRoom, 
+        public ChatRoomMemberImpl(String name, ChatRoom chatRoom,
             ChatRoomMemberRole role)
         {
             this.chatRoom = chatRoom;
@@ -1941,7 +1941,7 @@ public class MessageHistoryServiceImpl
             return role;
         }
     }
-    
+
     /**
      * Handles <tt>PropertyChangeEvent</tt> triggered from the modification of
      * the isMessageHistoryEnabled property.
