@@ -7,21 +7,21 @@ function print_help() {
 	echo -e "\t-V, --version\t show version"
 }
 
-TEMP=`getopt -o hVv -l help -l version -l verbose -n 'SIP Communicator' -- "$@"`
+#TEMP=`getopt -o hVv -l help -l version -l verbose -n 'SIP Communicator' -- "$@"`
 
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+#if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
-eval set -- "$TEMP"
+#eval set -- "$TEMP"
 
-while true ; do
-        case "$1" in
-				-h|--help) print_help; exit 0;;
-                -V|--version) echo "SIP Communicator version _SC_VERSION_"; exit 0;;
-                -v|--verbose) VERBOSE="yes" ; shift ;;
-                --) shift ; break ;;
-                *) echo "Internal error!" ; exit 1 ;;
-        esac
-done
+#while true ; do
+#        case "$1" in
+#				-h|--help) print_help; exit 0;;
+#                -V|--version) echo "SIP Communicator version _SC_VERSION_"; exit 0;;
+#                -v|--verbose) VERBOSE="yes" ; shift ;;
+#                --) shift ; break ;;
+#                *) echo "Internal error!" ; exit 1 ;;
+#        esac
+#done
 
 javabin=`which java`
 
@@ -43,12 +43,16 @@ mkdir -p $HOME/.sip-communicator/log
 
 cd $SCDIR
 
-if [ -f $javabin ]
-then
-	if [ $VERBOSE ] ; then
-		exec $COMMAND
-	else
-		exec $COMMAND > /dev/null 2>&1
-	fi
-	exit $?
-fi
+
+exec $COMMAND $*
+#commenting out silent execution handling as it is now being implemented in SC
+#(even though it currently works worse than what's in here)
+#if [ -f $javabin ]
+#then
+#	if [ $VERBOSE ] ; then
+#		exec $COMMAND
+#	else
+#		exec $COMMAND > /dev/null 2>&1
+#	fi
+#	exit $?
+#fi
