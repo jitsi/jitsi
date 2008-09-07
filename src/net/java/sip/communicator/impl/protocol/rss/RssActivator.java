@@ -10,6 +10,9 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.util.*;
 import java.util.*;
+
+import javax.net.ssl.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -20,6 +23,7 @@ import net.java.sip.communicator.service.resources.*;
  *
  * @author Jean-Albert Vescovo
  * @author Mihai Balan
+ * @author Emil Ivov
  */
 public class RssActivator
     implements BundleActivator
@@ -48,7 +52,7 @@ public class RssActivator
      * The <tt>ResourceManagementService</tt> that we use in this provider.
      */
     private static ResourceManagementService resourcesService = null;
-    
+
     /**
      * The <tt>UIService</tt> that we use in this provider.
      */
@@ -92,6 +96,29 @@ public class RssActivator
             + "/"
             + System.getProperty("sip-communicator.version"));
         logger.debug("User-Agent set to " + System.getProperty("http.agent"));
+
+        installCustomSSLTrustManager();
+
+        new UriHandlerRssImpl();
+    }
+
+    /**
+     * Installs a trust manager that would accept all certificates so that
+     * we could install rss feeds from sites with expired/self-signed
+     * certificates.
+     */
+    private void installCustomSSLTrustManager() throws Exception
+    {
+        // Let us create the factory where we can set some parameters for the
+        //connection
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null,
+                new TrustManager[]{ new TrustlessManager()},
+                new java.security.SecureRandom());
+
+        // Create the socket connection and open it to the secure remote web server
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
     }
 
     /**
@@ -153,7 +180,7 @@ public class RssActivator
 
         return resourcesService;
     }
-    
+
     /**
      * Returns a reference to the <tt>UIService</tt> instance that is currently
      * in use.
@@ -174,5 +201,70 @@ public class RssActivator
         }
 
         return uiService;
+    }
+
+    /**
+     * A trust manager that would accept all certificates so that we would be
+     * able to add rss feeds from sites with expired/self-signed certificates.
+     */
+    private class TrustlessManager implements X509TrustManager
+    {
+
+        public java.security.cert.X509Certificate[] getAcceptedIssuers()
+        {
+            return null;
+        }
+
+        /**
+         * Given the partial or complete certificate chain provided by the peer,
+         * build a certificate path to a trusted root and return if it can be
+         * validated and is trusted for client SSL authentication based on the
+         * authentication type. The authentication type is determined by the
+         * actual certificate used. For instance, if RSAPublicKey is used, the
+         * authType should be "RSA". Checking is case-sensitive.
+         *
+         * @param chain the peer certificate chain
+         * @param authType the authentication type based on the client
+         * certificate
+         *
+         * @throws IllegalArgumentException - if null or zero-length chain is
+         * passed in for the chain parameter or if null or zero-length string
+         * is passed in for the authType parameter
+         * @throws CertificateException - if the certificate chain is not
+         * trusted by this TrustManager.
+         */
+        public void checkClientTrusted(
+                        java.security.cert.X509Certificate[] certs,
+                        String authType)
+        {
+        }
+
+        /**
+         * Given the partial or complete certificate chain provided by the peer,
+         * build a certificate path to a trusted root and return if it can be
+         * validated and is trusted for server SSL authentication based on the
+         * authentication type. The authentication type is the key exchange
+         * algorithm portion of the cipher suites represented as a String, such
+         * as "RSA", "DHE_DSS". Note: for some exportable cipher suites, the
+         * key exchange algorithm is determined at run time during the
+         * handshake. For instance, for TLS_RSA_EXPORT_WITH_RC4_40_MD5, the
+         * authType should be RSA_EXPORT when an ephemeral RSA key is used for
+         * the key exchange, and RSA when the key from the server certificate
+         * is used. Checking is case-sensitive.
+         *
+         * @param chain the peer certificate chain
+         * @param authType the key exchange algorithm used
+         *
+         * @throws IllegalArgumentException if null or zero-length chain is
+         * passed in for the chain parameter or if null or zero-length string
+         * is passed in for the authType parameter
+         * @throws CertificateException if the certificate chain is not trusted
+         * by this TrustManager.
+         */
+        public void checkServerTrusted(
+                        java.security.cert.X509Certificate[] certs,
+                        String authType)
+        {
+        }
     }
 }

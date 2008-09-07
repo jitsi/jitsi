@@ -18,15 +18,15 @@ import net.java.sip.communicator.util.*;
  * Lookup for SRV records for given host. If nothing found
  * the original host is returned this way when a Socket
  * is constructed another dns lookup will be made for the A record.
- * 
+ *
  * @author Damian Minkov
  */
-public class AddressResolverImpl 
+public class AddressResolverImpl
     implements AddressResolver
 {
     private static final Logger logger
         = Logger.getLogger(AddressResolverImpl.class);
-    
+
     public Hop resolveAddress(Hop inputAddress)
     {
         try
@@ -46,10 +46,10 @@ public class AddressResolverImpl
             {
                 logger.trace("Will set server address from SRV records "
                    + hosts[0]);
-                
+
                 return new HopImpl(
-                    hosts[0].getHostName(), 
-                    hosts[0].getPort(), 
+                    hosts[0].getHostName(),
+                    hosts[0].getPort(),
                     inputAddress.getTransport());
             }
         }
@@ -57,14 +57,16 @@ public class AddressResolverImpl
         {
             logger.error("Domain not resolved " + ex.getMessage());
         }
-        
+
         if  (inputAddress.getPort()  != -1)
-			return inputAddress;
-		else 
         {
-			return new HopImpl(inputAddress.getHost(), 
+            return inputAddress;
+        }
+        else
+        {
+            return new HopImpl(inputAddress.getHost(),
                 MessageProcessor.getDefaultPort(
                     inputAddress.getTransport()),inputAddress.getTransport());
-		}
+        }
     }
 }

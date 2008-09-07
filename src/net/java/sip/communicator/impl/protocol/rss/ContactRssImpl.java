@@ -32,15 +32,15 @@ public class ContactRssImpl
      * Item key identifying the last item retrieved and displayed.
      */
     private RssItemKey lastItem = new RssItemKey(new Date(0));
-    
+
     /***
      * Contact's nickname.
-     */    
+     */
     private String nickName = null;
 
     private static final Logger logger
         = Logger.getLogger(ContactRssImpl.class);
-    
+
     /**
      * The path within the bundle for the default RSS 64x64 icon.
      */
@@ -50,12 +50,12 @@ public class ContactRssImpl
      * Stores the contact's display image to avoid downloading it multiple times.
      */
     private byte[] icon;
-    
+
     /**
      * This contact's URL (URL of the RSS feed).
      */
     private URL rssURL = null;
-    
+
     /**
      * This contact id (http://... or feed://...)
      */
@@ -189,10 +189,10 @@ public class ContactRssImpl
      * Sets the key identifying the last item in the feed. It's usually used in
      * conjunction with a new <tt>RssItemKey</tt> object. For instance:
      * <code>contact.setLastItemKey(new RssItemKey(new Date()));</code>
-     * 
+     *
      * @param key key identifying the last item in the feed or (at least)
      * allowing differencing for newer items.
-     * 
+     *
      * @see RssItemKey
      */
     public void setLastItemKey(RssItemKey key)
@@ -261,7 +261,7 @@ public class ContactRssImpl
             if (crtDescriptor == -1)
             {
                 icon = getDefaultRssIcon();
-                
+
                 return icon;
             }
 
@@ -297,7 +297,7 @@ public class ContactRssImpl
         }
 
         icon = getDefaultRssIcon();
-        
+
         return icon;
     }
 
@@ -423,7 +423,7 @@ public class ContactRssImpl
      * initialized. This data contains the key identifying the last displayed
      * item, so that upon restart, items that have already been displayed in
      * older sessions don't get displayed again.
-     * 
+     *
      * @see #setPersistentData(String)
      */
     public String getPersistentData()
@@ -437,7 +437,7 @@ public class ContactRssImpl
     /***
      * Restores feed item identification data from their textual representation.
      * @param persistentData textual representation of item key.
-     * 
+     *
      * #setPersistentData()
      */
     public void setPersistentData(String persistentData)
@@ -495,7 +495,7 @@ public class ContactRssImpl
     /**
      * Overrides <tt>hashCode</tt> from <tt>Object</tt> to ensure that
      * equal objects have same hashcode
-     * 
+     *
      * http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html#equals(java.lang.Object)
      */
     public int hashCode() {
@@ -530,7 +530,7 @@ public class ContactRssImpl
 
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return null as the protocol has no support of status messages
      */
     public String getStatusMessage()

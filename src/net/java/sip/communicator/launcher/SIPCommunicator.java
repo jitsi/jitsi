@@ -9,6 +9,7 @@ package net.java.sip.communicator.launcher;
 import java.awt.*;
 import java.io.*;
 
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.launchutils.*;
 
 import org.apache.felix.main.*;
@@ -92,7 +93,7 @@ public class SIPCommunicator
 
             if( lockResult == SipCommunicatorLock.LOCK_ERROR )
             {
-                System.err.print("Failed to lock SIP Communicator's "
+                System.err.println("Failed to lock SIP Communicator's "
                                 +"configuration directory.\n"
                                 +"Try launching with the --multiple param.");
                 System.exit(SipCommunicatorLock.LOCK_ERROR);
@@ -100,7 +101,7 @@ public class SIPCommunicator
             }
             else if(lockResult == SipCommunicatorLock.ALREADY_STARTED)
             {
-                System.err.print(
+                System.out.println(
                     "SIP Communicator is already running and will "
                     +"handle your parameters (if any).\n"
                     +"Launch with the --multiple param to override this "
@@ -116,6 +117,7 @@ public class SIPCommunicator
         }
 
         //there was no error, continue;
+        System.setOut(new ScStdOut(System.out));
         Main.main(args);
     }
 

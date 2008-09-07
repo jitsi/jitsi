@@ -685,6 +685,8 @@ public class UIServiceImpl
             {
                 logger.error("Plugin Component type is not supported." +
                             "Should provide a plugin in AWT, SWT or Swing.");
+                logger.debug("Logging exception to show the calling plugin",
+                            new Exception(""));
                 return;
             }
 

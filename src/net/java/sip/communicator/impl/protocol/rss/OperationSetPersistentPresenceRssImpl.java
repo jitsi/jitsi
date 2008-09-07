@@ -692,19 +692,28 @@ public class OperationSetPersistentPresenceRssImpl
                 OperationFailedException
     {
         URL rssURL = null;
-        
+
         String contactIdentifierURL = contactIdentifier;
         // in order to allow adding of URIs like feed://a.host.com/feed.xml
-        if (contactIdentifierURL.startsWith("feed"))
-            contactIdentifierURL = contactIdentifierURL.replaceFirst("feed", "http");
-        
+        // or like  feed:https://a.host.com/feed.xml
+        if (contactIdentifierURL.startsWith("feed:https"))
+        {
+            contactIdentifierURL = contactIdentifierURL
+                .replaceFirst("feed:https", "https");
+        }
+        else if (contactIdentifierURL.startsWith("feed"))
+        {
+            contactIdentifierURL = contactIdentifierURL
+                .replaceFirst("feed", "http");
+        }
+
         if(findContactByID(contactIdentifier) != null)
         {
             logger.debug(
                 "contact with same id already exists - " + contactIdentifier);
             return;
         }
-        
+
         try
         {
             rssURL = new URL(contactIdentifierURL);
@@ -732,8 +741,8 @@ public class OperationSetPersistentPresenceRssImpl
         catch(FileNotFoundException ex)
         {
             //means the feed is no longer there.
-            //ignore and subscribe the contact so that the exception would 
-            //occur while we try to refresh it. This way we would ask the 
+            //ignore and subscribe the contact so that the exception would
+            //occur while we try to refresh it. This way we would ask the
             //user whether they want it removed.
             logger.debug("failed to create a URL for address "
                 + contactIdentifier
@@ -863,12 +872,21 @@ public class OperationSetPersistentPresenceRssImpl
         throws IllegalArgumentException
     {
         URL rssURL = null;
-        
+
         String contactIdentifierURL = address;
         // in order to allow adding of URIs like feed://a.host.com/feed.xml
-        if (contactIdentifierURL.startsWith("feed"))
-            contactIdentifierURL = contactIdentifierURL.replaceFirst("feed", "http");
-        
+        // or like  feed:https://a.host.com/feed.xml
+        if (contactIdentifierURL.startsWith("feed:https"))
+        {
+            contactIdentifierURL = contactIdentifierURL
+                .replaceFirst("feed:https", "https");
+        }
+        else if (contactIdentifierURL.startsWith("feed"))
+        {
+            contactIdentifierURL = contactIdentifierURL
+                .replaceFirst("feed", "http");
+        }
+
         try
         {
             rssURL = new URL(contactIdentifierURL);

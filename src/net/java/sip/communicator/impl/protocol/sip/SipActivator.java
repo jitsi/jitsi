@@ -37,8 +37,6 @@ public class SipActivator
 
     private static ProtocolProviderFactorySipImpl sipProviderFactory = null;
 
-    private static UriHandlerSipImpl    uriHandler            = null;
-
     /**
      * Called when this bundle is started so the Framework can perform the
      * bundle-specific activities necessary to start this bundle.
@@ -67,7 +65,7 @@ public class SipActivator
                     sipProviderFactory,
                     hashtable);
 
-        uriHandler = new UriHandlerSipImpl(sipProviderFactory);
+        new UriHandlerSipImpl(sipProviderFactory);
 
         logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
     }

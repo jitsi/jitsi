@@ -42,14 +42,14 @@ public class UpdateCheckActivator
     private static BundleContext bundleContext = null;
 
     private static BrowserLauncherService browserLauncherService;
-    
+
     private static ResourceManagementService resourcesService;
-    
+
     private String downloadLink = null;
     private String lastVersion = null;
 
     /**
-     * Starts this bundle 
+     * Starts this bundle
      *
      * @param bundleContext BundleContext
      * @throws Exception
@@ -65,20 +65,20 @@ public class UpdateCheckActivator
         {
             logger.logExit();
         }
-        
+
         ServiceReference serviceReference = bundleContext
             .getServiceReference( net.java.sip.communicator.service.version.
                 VersionService.class.getName());
 
         VersionService verService = (VersionService) bundleContext
                 .getService(serviceReference);
-        
-        net.java.sip.communicator.service.version.Version 
+
+        net.java.sip.communicator.service.version.Version
             ver = verService.getCurrentVersion();
-        
+
         if(isNewestVersion(ver.toString()))
             return;
-        
+
         final JDialog dialog = new JDialog();
         dialog.setTitle(
             getResources().getI18NString("dialogTitle"));
@@ -87,30 +87,30 @@ public class UpdateCheckActivator
         contentMessage.setContentType("text/html");
         contentMessage.setOpaque(false);
         contentMessage.setEditable(false);
-        
-        String dialogMsg = 
+
+        String dialogMsg =
             getResources().getI18NString("dialogMessage1",
             new String[]{getResources().getSettingsString("applicationName")});
-        
+
         if(lastVersion != null)
-            dialogMsg += 
+            dialogMsg +=
                 getResources().getI18NString(
                 "dialogMessage2",
                 new String[]{
-                    getResources().getSettingsString("applicationName"), 
+                    getResources().getSettingsString("applicationName"),
                     lastVersion});
-        
+
         contentMessage.setText(dialogMsg);
 
         JPanel contentPane = new JPanel(new BorderLayout(5,5));
         contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPane.add(contentMessage, BorderLayout.CENTER);
-        
-        JPanel buttonPanel 
+
+        JPanel buttonPanel
             = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton closeButton 
+        JButton closeButton
             = new JButton( getResources().getI18NString("buttonClose"));
-        
+
         closeButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e)
@@ -118,12 +118,12 @@ public class UpdateCheckActivator
                 dialog.setVisible(false);
             }
         });
-        
+
         if(downloadLink != null)
         {
-            JButton downloadButton = 
+            JButton downloadButton =
                 new JButton(getResources().getI18NString("buttonDownload"));
-        
+
             downloadButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e)
@@ -132,25 +132,25 @@ public class UpdateCheckActivator
                     dialog.dispose();
                 }
             });
-            
+
             buttonPanel.add(downloadButton);
         }
-        
+
         buttonPanel.add(closeButton);
-        
+
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
-        
+
         dialog.setContentPane(contentPane);
-        
+
         dialog.pack();
-        
+
         dialog.setLocation(
             Toolkit.getDefaultToolkit().getScreenSize().width/2
                 - dialog.getWidth()/2,
             Toolkit.getDefaultToolkit().getScreenSize().height/2
                 - dialog.getHeight()/2
         );
-        
+
         dialog.setVisible(true);
     }
 
@@ -180,7 +180,7 @@ public class UpdateCheckActivator
 
         return browserLauncherService;
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
@@ -190,14 +190,14 @@ public class UpdateCheckActivator
 
             if(serviceReference == null)
                 return null;
-            
+
             resourcesService = (ResourceManagementService) bundleContext
                 .getService(serviceReference);
         }
 
         return resourcesService;
     }
-    
+
     /**
      * Check the first link as files on the web are sorted by date
      * @param currentVersionStr
@@ -207,22 +207,30 @@ public class UpdateCheckActivator
     {
         try
         {
-            URL url = new URL(Resources.getConfigString("update_link"));
-    
+            String configString = Resources.getConfigString("update_link");
+
+            if(configString == null)
+            {
+                logger.debug("Updates are disabled. Faking latest version.");
+                return true;
+            }
+
+            URL url = new URL(configString);
+
             Properties props = new Properties();
             props.load(url.openStream());
-            
+
             lastVersion = props.getProperty("last_version");
             downloadLink = props.getProperty("download_link");
-            
+
             return lastVersion.compareTo(currentVersionStr) <= 0;
         }
-        catch (Exception e) 
+        catch (Exception e)
         {
             logger.warn("Cannot get and compare versions!");
-            logger.trace("Error was: ", e);
+            logger.debug("Error was: ", e);
             // if we get an exception this mean we were unable to compare versions
-            // will retrun that current is newest to prevent opening info dialog 
+            // will retrun that current is newest to prevent opening info dialog
             // about new version
             return true;
         }

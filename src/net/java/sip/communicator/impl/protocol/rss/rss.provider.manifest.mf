@@ -4,11 +4,14 @@ Bundle-Description: A bundle providing support for the Rss protocol.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
+ org.apache.log4j,
  org.xml.sax,
  org.xml.sax.helpers,
  org.xml.sax.ext,
  org.w3c.dom,
  javax.xml.parsers,
+ javax.imageio,
+ javax.net.ssl,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.service.contactlist,
@@ -16,7 +19,6 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
- org.apache.log4j,
- javax.imageio,
- net.java.sip.communicator.service.gui
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.argdelegation
 

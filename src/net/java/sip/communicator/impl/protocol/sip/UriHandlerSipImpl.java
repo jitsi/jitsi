@@ -11,7 +11,6 @@ import java.util.*;
 
 import org.osgi.framework.*;
 
-import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -267,11 +266,9 @@ public class UriHandlerSipImpl
      */
     private class ProtocolRegistrationThread
         extends Thread
-        implements SecurityAuthority,
-                   RegistrationStateChangeListener
+        implements RegistrationStateChangeListener
     {
 
-        private boolean isUserNameEditable = false;
         private ProtocolProviderService handlerProvider = null;
 
         /**
@@ -297,75 +294,6 @@ public class UriHandlerSipImpl
         }
 
         /**
-         * Used to login to the protocol providers
-         *
-         * @param realm the realm that the credentials are needed for
-         * @param userCredentials the values to propose the user by default
-         * @return The Credentials associated with the speciefied realm
-         */
-        public UserCredentials obtainCredentials(
-                String realm,
-                UserCredentials userCredentials)
-        {
-            return obtainCredentials(   realm,
-                                        userCredentials,
-                                        SecurityAuthority.AUTHENTICATION_REQUIRED);
-        }
-
-
-        /**
-         * Used to login to the protocol providers
-         *
-         * @param realm the realm that the credentials are needed for
-         * @param userCredentials the values to propose the user by default
-         * @param reasonCode the reason for which we're asking for credentials
-         * @return The Credentials associated with the speciefied realm
-         */
-        public UserCredentials obtainCredentials(
-                String realm,
-                UserCredentials userCredentials,
-                int reasonCode)
-        {
-            ExportedWindow loginWindow
-                = SystrayActivator.getUIService()
-                    .getAuthenticationWindow(handlerProvider,
-                                            realm,
-                                            userCredentials,
-                                            isUserNameEditable);
-
-            loginWindow.setVisible(true);
-
-            return userCredentials;
-        }
-
-
-        /**
-         * Sets the userNameEditable property, which should indicate to the
-         * implementations of this interface if the user name could be changed
-         * by user or not.
-         *
-         * @param isUserNameEditable indicates if the user name could be changed
-         * by user in the implementation of this interface.
-         */
-        public void setUserNameEditable(boolean isUserNameEditable)
-        {
-            this.isUserNameEditable = isUserNameEditable;
-        }
-
-        /**
-         * Indicates if the user name is currently editable, i.e. could be
-         * changed by user or not.
-         *
-         * @return <tt>true</tt> if the user name could be changed and
-         * <tt>false</tt> otherwise.
-         */
-        public boolean isUserNameEditable()
-        {
-            return isUserNameEditable;
-        }
-
-
-        /**
          * Starts the registration process, ads this class as a registration
          * listener and then tries to rehandle the uri this thread was initiaded
          * with.
@@ -377,7 +305,8 @@ public class UriHandlerSipImpl
 
             try
             {
-                handlerProvider.register(this);
+                handlerProvider.register(SipActivator.getUIService()
+                                .getDefaultSecurityAuthority(handlerProvider));
             }
             catch (OperationFailedException exc)
             {

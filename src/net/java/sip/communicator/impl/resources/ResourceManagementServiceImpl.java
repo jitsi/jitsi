@@ -20,7 +20,7 @@ import org.osgi.framework.*;
 
 /**
  * A default implementation of the ResourceManagementService.
- * 
+ *
  * @author Damian Minkov
  * @author Yana Stamcheva
  * @author Lubomir Marinov
@@ -61,21 +61,21 @@ public class ResourceManagementServiceImpl
     {
         ResourceManagementActivator.bundleContext.addServiceListener(this);
 
-        colorPack = 
+        colorPack =
             getDefaultResourcePack(ColorPack.class.getName(),
                 ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (colorPack != null)
             colorResources = getResources(colorPack);
 
-        imagePack = 
+        imagePack =
             getDefaultResourcePack(ImagePack.class.getName(),
                 ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (imagePack != null)
             imageResources = getResources(imagePack);
 
-        languagePack = 
+        languagePack =
             (LanguagePack) getDefaultResourcePack(LanguagePack.class.getName(),
                 LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -85,14 +85,14 @@ public class ResourceManagementServiceImpl
             languageResources = languagePack.getResources(languageLocale);
         }
 
-        settingsPack = 
+        settingsPack =
             getDefaultResourcePack(SettingsPack.class.getName(),
                 SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (settingsPack != null)
             settingsResources = getResources(settingsPack);
 
-        soundPack = 
+        soundPack =
             getDefaultResourcePack(SoundPack.class.getName(),
                 SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -147,7 +147,7 @@ public class ResourceManagementServiceImpl
     /**
      * Returns the <tt>Map</tt> of (key, value) pairs contained in the given
      * resource pack.
-     * 
+     *
      * @param resourcePack The <tt>ResourcePack</tt> from which we're obtaining
      * the resources.
      * @return the <tt>Map</tt> of (key, value) pairs contained in the given
@@ -212,7 +212,7 @@ public class ResourceManagementServiceImpl
             if(resourcePack instanceof ColorPack
                     && colorPack.equals(resourcePack))
             {
-                colorPack = 
+                colorPack =
                     getDefaultResourcePack(ColorPack.class.getName(),
                         ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -222,7 +222,7 @@ public class ResourceManagementServiceImpl
             else if(resourcePack instanceof ImagePack
                     && imagePack.equals(resourcePack))
             {
-                imagePack = 
+                imagePack =
                     getDefaultResourcePack(ImagePack.class.getName(),
                         ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -232,7 +232,7 @@ public class ResourceManagementServiceImpl
             else if(resourcePack instanceof LanguagePack
                     && languagePack.equals(resourcePack))
             {
-                languagePack = 
+                languagePack =
                     (LanguagePack) getDefaultResourcePack(
                         LanguagePack.class.getName(),
                         LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
@@ -240,7 +240,7 @@ public class ResourceManagementServiceImpl
             else if(resourcePack instanceof SettingsPack
                     && settingsPack.equals(resourcePack))
             {
-                settingsPack = 
+                settingsPack =
                     getDefaultResourcePack(SettingsPack.class.getName(),
                         SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -250,7 +250,7 @@ public class ResourceManagementServiceImpl
             else if(resourcePack instanceof SoundPack
                     && soundPack.equals(resourcePack))
             {
-                soundPack = 
+                soundPack =
                     getDefaultResourcePack(SoundPack.class.getName(),
                         SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -263,7 +263,7 @@ public class ResourceManagementServiceImpl
     /**
      * Returns the int representation of the color corresponding to the
      * given key.
-     * 
+     *
      * @param key The key of the color in the colors properties file.
      * @return the int representation of the color corresponding to the
      * given key.
@@ -285,7 +285,7 @@ public class ResourceManagementServiceImpl
     /**
      * Returns the string representation of the color corresponding to the
      * given key.
-     * 
+     *
      * @param key The key of the color in the colors properties file.
      * @return the string representation of the color corresponding to the
      * given key.
@@ -307,7 +307,7 @@ public class ResourceManagementServiceImpl
     /**
      * Returns the <tt>InputStream</tt> of the image corresponding to the given
      * path.
-     * 
+     *
      * @param path The path to the image file.
      * @return the <tt>InputStream</tt> of the image corresponding to the given
      * path.
@@ -316,11 +316,11 @@ public class ResourceManagementServiceImpl
     {
        return imagePack.getClass().getClassLoader().getResourceAsStream(path);
     }
-    
+
     /**
      * Returns the <tt>InputStream</tt> of the image corresponding to the given
      * key.
-     * 
+     *
      * @param streamKey The identifier of the image in the resource properties
      * file.
      * @return the <tt>InputStream</tt> of the image corresponding to the given
@@ -335,13 +335,13 @@ public class ResourceManagementServiceImpl
             logger.warn("Missing resource for key: " + streamKey);
             return null;
         }
-        
+
         return getImageInputStreamForPath(path);
     }
-    
+
     /**
      * Returns the <tt>URL</tt> of the image corresponding to the given key.
-     * 
+     *
      * @param urlKey The identifier of the image in the resource properties file.
      * @return the <tt>URL</tt> of the image corresponding to the given key
      */
@@ -351,7 +351,7 @@ public class ResourceManagementServiceImpl
 
         if (path == null || path.length() == 0)
         {
-            logger.warn("Missing resource for key: " + urlKey);
+            logger.info("Missing resource for key: " + urlKey);
             return null;
         }
         return getImageURLForPath(path);
@@ -359,7 +359,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns the image path corresponding to the given key.
-     * 
+     *
      * @param key The identifier of the image in the resource properties file.
      * @return the image path corresponding to the given key.
      */
@@ -370,7 +370,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns the <tt>URL</tt> of the image corresponding to the given path.
-     * 
+     *
      * @param path The path to the given image file.
      * @return the <tt>URL</tt> of the image corresponding to the given path.
      */
@@ -382,7 +382,7 @@ public class ResourceManagementServiceImpl
     // Language pack methods
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The identifier of the string in the resources properties file.
      * @return An internationalized string corresponding to the given key.
      */
@@ -393,7 +393,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The identifier of the string in the resources properties file.
      * @param locale The locale.
      * @return An internationalized string corresponding to the given key and
@@ -406,7 +406,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The identifier of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -417,7 +417,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The identifier of the string in the resources properties
      * file.
      * @param locale The locale.
@@ -452,17 +452,17 @@ public class ResourceManagementServiceImpl
 
             resourceString = firstPart.concat(secondPart);
         }
-        
+
         if(params != null)
-             resourceString 
+             resourceString
                 = MessageFormat.format(resourceString, (Object[])params);
 
         return resourceString;
     }
-    
+
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The identifier of the string in the resources properties file.
      * @return An internationalized string corresponding to the given key.
      */
@@ -473,7 +473,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The identifier of the string in the resources properties file.
      * @param locale The locale that we'd like to receive the result in.
      * @return An internationalized string corresponding to the given key.
@@ -507,10 +507,10 @@ public class ResourceManagementServiceImpl
 
         return 0;
     }
-    
+
     /**
      * Returns the int value of the corresponding configuration key.
-     * 
+     *
      * @param key The identifier of the string in the resources properties file.
      * @return the int value of the corresponding configuration key.
      */
@@ -521,7 +521,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns the int value of the corresponding configuration key.
-     * 
+     *
      * @param key The identifier of the string in the resources properties file.
      * @return the int value of the corresponding configuration key.
      */
@@ -534,13 +534,13 @@ public class ResourceManagementServiceImpl
             logger.warn("Missing resource for key: " + key);
             return 0;
         }
-        
+
         return Integer.parseInt(resourceString);
     }
 
     /**
      * Returns an <tt>URL</tt> from a given identifier.
-     * 
+     *
      * @param urlKey The identifier of the url.
      * @return The url for the given identifier.
      */
@@ -558,7 +558,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Returns a stream from a given identifier.
-     * 
+     *
      * @param streamKey The identifier of the stream.
      * @return The stream for the given identifier.
      */
@@ -579,7 +579,7 @@ public class ResourceManagementServiceImpl
     /**
      * Returns the <tt>URL</tt> of the sound corresponding to the given
      * property key.
-     * 
+     *
      * @return the <tt>URL</tt> of the sound corresponding to the given
      * property key.
      */
@@ -594,10 +594,10 @@ public class ResourceManagementServiceImpl
         }
         return getSoundURLForPath(path);
     }
-    
+
     /**
      * Returns the <tt>URL</tt> of the sound corresponding to the given path.
-     * 
+     *
      * @return the <tt>URL</tt> of the sound corresponding to the given path.
      */
     public URL getSoundURLForPath(String path)
@@ -608,7 +608,7 @@ public class ResourceManagementServiceImpl
     /**
      * Returns the path of the sound corresponding to the given
      * property key.
-     * 
+     *
      * @return the path of the sound corresponding to the given
      * property key.
      */
@@ -619,17 +619,17 @@ public class ResourceManagementServiceImpl
 
     /**
      * Loads an image from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
     public byte[] getImageInBytes(String imageID)
     {
         InputStream in = getImageInputStream(imageID);
-        
+
         if(in == null)
             return null;
-        
+
         byte[] image = null;
 
         try
@@ -644,10 +644,10 @@ public class ResourceManagementServiceImpl
 
         return image;
     }
-    
+
     /**
      * Loads an image from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -656,10 +656,10 @@ public class ResourceManagementServiceImpl
         BufferedImage image = null;
 
         InputStream in = getImageInputStream(imageID);
-        
+
         if(in == null)
             return null;
-        
+
         try
         {
             image = ImageIO.read(in);

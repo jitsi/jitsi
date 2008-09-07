@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * WhiteboardMenuItem
- * 
+ *
  * @author Julien Waechter
  */
 public class WhiteboardMenuItem
@@ -56,20 +56,20 @@ public class WhiteboardMenuItem
     public void setCurrentContact (MetaContact metaContact)
     {
         this.metaContact = metaContact;
-        
+
         this.whiteboardMenu.removeAll();
-        
+
         Iterator iter = metaContact.getContacts();
         while (iter.hasNext())
         {
             Contact contact = (Contact)iter.next();
             ProtocolProviderService pps = contact.getProtocolProvider();
-            
+
             OperationSetWhiteboarding opSetWb = (OperationSetWhiteboarding)
                 pps.getOperationSet(OperationSetWhiteboarding.class);
 
             String contactDisplayName = contact.getDisplayName();
-            
+
             JMenuItem contactItem = new JMenuItem(contactDisplayName);
             contactItem.setName(contact.getDisplayName() + pps.getProtocolName());
 
@@ -83,7 +83,7 @@ public class WhiteboardMenuItem
                 contactItem.setToolTipText(
                         Resources.getString("whiteboardMenuItemNotSupportedTooltip"));
             }
-            
+
             this.whiteboardMenu.add(contactItem);
         }
     }
@@ -99,7 +99,7 @@ public class WhiteboardMenuItem
 
     /**
      * Invoked when an action occurs: user start a whiteboard session.
-     * 
+     *
      * @param e event
      */
     public void actionPerformed (ActionEvent e)
@@ -107,14 +107,14 @@ public class WhiteboardMenuItem
         String itemID = ((JMenuItem)e.getSource()).getName();
         Iterator i = this.metaContact.getContacts();
 
-        while(i.hasNext()) 
+        while(i.hasNext())
         {
             Contact contact = (Contact)i.next();
 
             String id = contact.getAddress()
                 + contact.getProtocolProvider().getProtocolName();
 
-            if(itemID.equals(id)) 
+            if(itemID.equals(id))
                 session.initWhiteboard (contact);
         }
     }
@@ -132,24 +132,29 @@ public class WhiteboardMenuItem
     public Object getComponent()
     {
         if(metaContact == null)
-            return null;
+        {
+            whiteboardMenu.setEnabled(false);
+            return whiteboardMenu;
+        }
 
         Iterator iter = metaContact.getContacts();
         while (iter.hasNext())
         {
             Contact contact = (Contact)iter.next();
             ProtocolProviderService pps = contact.getProtocolProvider();
-            
+
             OperationSetWhiteboarding opSetWb = (OperationSetWhiteboarding)
                 pps.getOperationSet(OperationSetWhiteboarding.class);
-           
+
             if (opSetWb != null)
             {
-                return whiteboardMenu; 
+                whiteboardMenu.setEnabled(true);
+                return whiteboardMenu;
             }
         }
-        
-        return null;
+
+        whiteboardMenu.setEnabled(false);
+        return whiteboardMenu;
     }
 
     public String getName()

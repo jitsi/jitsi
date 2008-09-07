@@ -8,6 +8,8 @@
 package net.java.sip.communicator.util.launchutils;
 
 import java.util.*;
+import java.util.logging.*;
+
 import net.java.sip.communicator.util.*;
 import java.io.*;
 
@@ -20,8 +22,8 @@ import java.io.*;
  */
 public class LaunchArgHandler
 {
-     private static final Logger logger =
-        Logger.getLogger(LaunchArgHandler.class);
+     private static final net.java.sip.communicator.util.Logger logger =
+        net.java.sip.communicator.util.Logger.getLogger(LaunchArgHandler.class);
 
      /**
       * The name of the property that contains the location of the SC
@@ -254,7 +256,32 @@ public class LaunchArgHandler
      */
     private void handleDebugArg(String arg)
     {
-        System.out.println("Option " + arg + " is not yet implemented!");
+        //first enable standard out printing
+        ScStdOut.setStdOutPrintingEnabled(true);
+
+        //then find a console handler (or create a new one) and set its level
+        //to FINEST
+        java.util.logging.Logger rootLogger = java.util.logging
+            .Logger.getAnonymousLogger().getParent();
+
+        Handler[] handlers = rootLogger.getHandlers();
+        ConsoleHandler conHan = null;
+        for (int i = 0; i < handlers.length; i++)
+        {
+            if(handlers[i] instanceof ConsoleHandler)
+            {
+                conHan = (ConsoleHandler)handlers[i];
+                break;
+            }
+        }
+
+        if(conHan == null)
+        {
+            conHan = new ConsoleHandler();
+            rootLogger.addHandler(conHan);
+        }
+
+        conHan.setLevel(Level.FINEST);
     }
 
     /**
@@ -405,19 +432,20 @@ public class LaunchArgHandler
      */
     public void handleConcurrentInvocationRequestArgs(String[] args)
     {
-        //if the arg list is empty, then we simply notify SC of the request
-        //so that it could do stuff like showing the contact list for example.
-        if(args.length == 0)
-        {
-            this.argDelegator.handleConcurrentInvocationRequest();
-        }
-        //if we 1 or more args then we only handle the last one as the only
-        //interinstance arg we currently know how to handle are URIs. Change
-        //this if we one day implement fun stuff like inter instance command
-        //execution.
-        else if(args.length >=1)
+        //if we have 1 or more args then we only care about the last one since
+        //the only interinstance arg we currently know how to handle are URIs.
+        //Change this if one day we implement fun stuff like inter instance
+        //command execution.
+        if(args.length >=1
+             && !args[args.length -1].startsWith("-"))
         {
             this.argDelegator.handleUri(args[args.length -1]);
+        }
+        //otherwise, we simply notify SC of the request so that it could do
+        //stuff like showing the contact list for example.
+        else
+        {
+            this.argDelegator.handleConcurrentInvocationRequest();
         }
     }
 }

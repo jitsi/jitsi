@@ -31,7 +31,7 @@ public class WhiteboardActivator implements BundleActivator
 
     /**
      * Starts this bundle.
-     * 
+     *
      * @param bc bundle context
      * @throws java.lang.Exception
      */
@@ -58,7 +58,7 @@ public class WhiteboardActivator implements BundleActivator
 
     /**
      * Stops this bundle.
-     * 
+     *
      * @param bc bundle context
      * @throws java.lang.Exception
      */
@@ -68,7 +68,7 @@ public class WhiteboardActivator implements BundleActivator
 
     /**
      * Returns the <tt>UIService</tt>, giving access to the main GUI.
-     * 
+     *
      * @return the <tt>UIService</tt>, giving access to the main GUI.
      */
     public static UIService getUiService()

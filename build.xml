@@ -557,6 +557,9 @@
             <env key="PATH" path="${path}"/>
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
 
+            <!-- make sure that we automatically enable system.out when running
+                 SIP Communicator from Ant-->
+            <arg line="--debug"/>
             <!-- pass to SC args that have been specified by the user -->
             <arg line="${args}"/>
         </java>

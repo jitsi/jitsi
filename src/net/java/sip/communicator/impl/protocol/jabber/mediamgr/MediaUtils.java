@@ -11,7 +11,7 @@ import javax.media.format.*;
 import javax.sdp.*;
 import net.java.sip.communicator.util.*;
 
-// 
+//
 // TODO: merge this MediaUtils with the one in impl/media
 // There is a MediaUtils class in package impl.media
 // which isn't exposed by the media service. It will
@@ -158,11 +158,11 @@ public abstract class MediaUtils
                 return "G729";
             default:
                 //throw new IllegalStateException("Unknown payload type");
-                logger.warn("unknown payload type : " + payloadType);
+                logger.debug("unknown payload type : " + payloadType);
                 return null;
         }
     }
-    
+
     /**
      * Convert a <tt>SdpConstant</tt> to the corresponding payload type.
      *
@@ -209,7 +209,7 @@ public abstract class MediaUtils
                 return 18;
             default:
                 //throw new IllegalStateException("Unknown sdp constant");
-                logger.warn("unknown sdp constant : " + sdpConstant);
+                logger.debug("unknown sdp constant : " + sdpConstant);
                 return -1;
         }
     }
