@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Alan Kelly
  */
 public class OperationSetBasicTelephonySipImpl
     extends AbstractOperationSetBasicTelephony
@@ -242,9 +243,29 @@ public class OperationSetBasicTelephonySipImpl
 
                 try
                 {
-                    intendedDestination = InetAddress.getByName(host);
-                    invite
-                        .setContent(callSession
+                    // Detect probable IPv4 and IPv6 addresses,
+                    // and avoid attempting a DNS lookup on them.
+                    if (NetworkUtils.isValidIPAddress(host))
+                    {
+                        byte[] addr = null;
+                        // attempt parse as IPv4 address
+                        addr = IPAddressUtil.textToNumericFormatV4(host);
+                        // if not IPv4, parse as IPv6 address
+                        if (addr == null)
+                        {
+                            addr = IPAddressUtil.textToNumericFormatV6(host);
+                        }
+
+                        //obtain the address without a DNS query.
+                        intendedDestination =
+                            InetAddress.getByAddress(host, addr);
+
+                    }
+                    else
+                    {
+                        intendedDestination = InetAddress.getByName(host);
+                    }
+                    invite.setContent(callSession
                             .createSdpOffer(intendedDestination),
                             contentTypeHeader);
                 }
@@ -1298,10 +1319,32 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException
     {
         InetAddress destinationInetAddress = null;
+
         try
         {
-            destinationInetAddress =
-                InetAddress.getByName(((SipURI) toAddress.getURI()).getHost());
+            String destinationURI = ((SipURI) toAddress.getURI()).getHost();
+
+            // Detect probable IPv4 and IPv6 addresses,
+            // and avoid attempting a DNS lookup on them.
+            if (NetworkUtils.isValidIPAddress(destinationURI))
+            {
+                byte[] addr = null;
+
+                // attempt parse as IPv4 address
+                addr = IPAddressUtil.textToNumericFormatV4(destinationURI);
+
+                // if not IPv4, parse as Pv6 address
+                if (addr == null)
+                {
+                    addr = IPAddressUtil.textToNumericFormatV6(destinationURI);
+                }
+                destinationInetAddress =
+                    InetAddress.getByAddress(destinationURI, addr);
+            }
+            else
+            {
+                destinationInetAddress = InetAddress.getByName(destinationURI);
+            }
         }
         catch (UnknownHostException ex)
         {
@@ -1343,7 +1386,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // FromHeader
-        String localTag = protocolProvider.generateLocalTag();
+        String localTag = ProtocolProviderServiceSipImpl.generateLocalTag();
         FromHeader fromHeader = null;
         ToHeader toHeader = null;
         try

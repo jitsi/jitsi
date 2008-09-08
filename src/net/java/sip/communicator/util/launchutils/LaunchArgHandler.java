@@ -193,6 +193,16 @@ public class LaunchArgHandler
                 handleDebugArg(args[i]);
                 continue;
             }
+            else if (args[i].equals("--ipv6") || args[i].equals("-6"))
+            {
+                handleIPv6Enforcement();
+                break;
+            }
+            else if (args[i].equals("--ipv4") || args[i].equals("-4"))
+            {
+                handleIPv4Enforcement();
+                break;
+            }
             else if (args[i].startsWith("--config="))
             {
                 returnAction = handleConfigArg(args[i]);
@@ -238,6 +248,25 @@ public class LaunchArgHandler
         }
 
         return returnAction;
+    }
+
+    /**
+     * Forces use of IPv6 addresses where possible. (This should one day
+     * become a default mode of operation.)
+     */
+    private void handleIPv6Enforcement()
+    {
+        System.setProperty("java.net.preferIPv4Stack", "false");
+        System.setProperty("java.net.preferIPv6Addresses", "true");
+    }
+
+    /**
+     * Forces non-support for IPv6 and use of IPv4 only.
+     */
+    private void handleIPv4Enforcement()
+    {
+        System.setProperty("java.net.preferIPv4Stack", "true");
+        System.setProperty("java.net.preferIPv6Addresses", "false");
     }
 
     /**
@@ -394,6 +423,8 @@ public class LaunchArgHandler
         System.out.println("  -d, --debug       print debugging messages to stdout");
         System.out.println("  -h, --help        display this help message and exit");
         System.out.println("  -m, --multiple    do not ensure single instance");
+        System.out.println("  -6, --ipv6        prefer IPv6 addresses where possible only");
+        System.out.println("  -4, --ipv4        forces use of IPv4 only");
         System.out.println("  -v, --version     display the current version and exit");
     }
 

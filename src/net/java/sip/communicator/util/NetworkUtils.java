@@ -17,6 +17,7 @@ import java.text.*;
  * @author Emil Ivov
  * @author Damian Minkov
  * @author Vincent Lucas
+ * @author Alan Kelly
  */
 public class NetworkUtils
 {
@@ -137,16 +138,91 @@ public class NetworkUtils
     }
 
     /**
+     * Verifies whether <tt>address</tt> could be an IPv4 address string.
+     *
+     * @param address the String that we'd like to determine as an IPv4 address.
+     *
+     * @return true if the address contained by <tt>address</tt> is an IPv4
+     * address and false otherwise.
+     */
+    public static boolean isIPv4Address(String address)
+    {
+        return IPAddressUtil.isIPv4LiteralAddress(address);
+    }
+
+    /**
      * Verifies whether <tt>address</tt> could be an IPv6 address string.
      *
      * @param address the String that we'd like to determine as an IPv6 address.
      *
-     * @return true if the address containaed by <tt>address</tt> is an ipv6
-     * address and falase otherwise.
+     * @return true if the address contained by <tt>address</tt> is an IPv6
+     * address and false otherwise.
      */
     public static boolean isIPv6Address(String address)
     {
-        return (address != null && address.indexOf(':') != -1);
+        return IPAddressUtil.isIPv6LiteralAddress(address);
+    }
+
+    /**
+     * Checks whether <tt>address</tt> is a valid IP address string.
+     *
+     * @param address the address that we'd like to check
+     * @return true if address is an IPv4 or IPv6 address and false otherwise.
+     */
+    public static boolean isValidIPAddress(String address)
+    {
+        // empty string
+        if (address == null || address.length() == 0)
+        {
+            return false;
+        }
+
+        // look for IPv6 brackets and remove brackets for parsing
+        boolean ipv6Expected = false;
+        if (address.charAt(0) == '[')
+        {
+            // This is supposed to be an IPv6 litteral
+            if (address.length() > 2
+                            && address.charAt(address.length() - 1) == ']')
+            {
+                // remove brackets from IPv6
+                address = address.substring(1, address.length() - 1);
+                ipv6Expected = true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        // look for IP addresses
+        if (Character.digit(address.charAt(0), 16) != -1
+                        || (address.charAt(0) == ':'))
+        {
+            byte[] addr = null;
+
+            // see if it is IPv4 address
+            addr = IPAddressUtil.textToNumericFormatV4(address);
+            // if not, see if it is IPv6 address
+            if (addr == null)
+            {
+                addr = IPAddressUtil.textToNumericFormatV6(address);
+            }
+            // if IPv4 is found when IPv6 is expected
+            else if (ipv6Expected)
+            {
+                // invalid address: IPv4 address surrounded with brackets!
+                return false;
+            }
+            // if an IPv4 or IPv6 address is found
+            if (addr != null)
+            {
+                // is an IP address
+                return true;
+            }
+        }
+        // no matches found
+        return false;
     }
 
     /**
@@ -192,12 +268,12 @@ public class NetworkUtils
         }
 
         /* sort the SRV RRs by RR value (lower is preferred) */
-        Arrays.sort(pvhn, new Comparator()
+        Arrays.sort(pvhn, new Comparator<String[]>()
         {
-            public int compare(Object o1, Object o2)
+            public int compare(String array1[], String array2[])
             {
-                return (Integer.parseInt( ( (String[]) o1)[0])
-                        - Integer.parseInt( ( (String[]) o2)[0]));
+                return (Integer.parseInt(   array1[0])
+                        - Integer.parseInt( array2[0]));
             }
         });
 
@@ -205,7 +281,7 @@ public class NetworkUtils
         InetSocketAddress[] sortedHostNames = new InetSocketAddress[pvhn.length];
         for (int i = 0; i < pvhn.length; i++)
         {
-            sortedHostNames[i] = 
+            sortedHostNames[i] =
                 new InetSocketAddress(pvhn[i][3], Integer.valueOf(pvhn[i][2]));
         }
 
@@ -218,6 +294,5 @@ public class NetworkUtils
             }
         }
         return sortedHostNames;
-
     }
 }
