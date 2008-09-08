@@ -734,10 +734,11 @@ public class SipCommunicatorLock extends Thread
             int argCount = 1024;
             try
             {
+                BufferedReader lineReader = 
+                    new BufferedReader(new InputStreamReader(is));
+                
                 while (true)
                 {
-                    BufferedReader lineReader = new BufferedReader(
-                                    new InputStreamReader(is));
                     String line = lineReader.readLine();
 
                     logger.debug(line);
