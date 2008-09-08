@@ -1501,6 +1501,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
             <manifest>
                 <attribute name="Export-Package" value="org.apache.log4j"/>
+                <attribute name="Bundle-Name" value="Apache log4j logging system"/>
+                <attribute name="Bundle-Description" value="Logging system."/>
             </manifest>
         </jar>
     </target>
