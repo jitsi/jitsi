@@ -6,7 +6,6 @@
 <JVMSearchPath>jdkpath</JVMSearchPath>
 <JVMSearchPath>exepath</JVMSearchPath>
 <JVMSearchPath>jview</JVMSearchPath>
-<arguments></arguments>
 <classPath>lib\felix.jar</classPath>
 <classPath>lib\jdic-all.jar</classPath>
 <classPath>lib\jdic_stub.jar</classPath>
@@ -47,7 +46,7 @@
 </skeletonProperties>
 <skeletonProperties>
 <key>SingleInstance</key>
-<value>1</value>
+<value>0</value>
 </skeletonProperties>
 <skeletonProperties>
 <key>JniSmooth</key>
