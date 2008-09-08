@@ -1258,7 +1258,7 @@ public class MainFrame
 
         String osgiFilter = "("
             + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_CONTACT_LIST.getID()+")";
+            + "="+Container.CONTAINER_MAIN_WINDOW.getID()+")";
 
         try
         {
@@ -1309,7 +1309,7 @@ public class MainFrame
         PluginComponent pluginComponent = event.getPluginComponent();
 
         if (pluginComponent.getContainer()
-                .equals(Container.CONTAINER_CONTACT_LIST))
+                .equals(Container.CONTAINER_MAIN_WINDOW))
         {
             Object constraints = null;
 
@@ -1358,7 +1358,7 @@ public class MainFrame
 
         Container containerID = pluginComponent.getContainer();
 
-        if (containerID.equals(Container.CONTAINER_CONTACT_LIST))
+        if (containerID.equals(Container.CONTAINER_MAIN_WINDOW))
         {
             Object constraints = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(

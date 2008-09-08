@@ -97,10 +97,16 @@ public class Container
             = new Container("CONTAINER_CHAT_HELP_MENU");
 
     /**
-     * Chat window "south area" container.
+     * Chat window container.
      */
     public static final Container CONTAINER_CHAT_WINDOW
             = new Container("CONTAINER_CHAT_WINDOW");
+
+    /**
+     * Main window container.
+     */
+    public static final Container CONTAINER_MAIN_WINDOW
+            = new Container("CONTAINER_MAIN_WINDOW");
 
     /**
      * The contact list panel.
