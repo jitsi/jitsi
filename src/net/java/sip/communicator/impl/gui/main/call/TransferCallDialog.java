@@ -218,6 +218,6 @@ public class TransferCallDialog
     {
         String target = targetComboBox.getEditor().getItem().toString().trim();
 
-        return ((target == null) || target.isEmpty()) ? null : target;
+        return ((target == null) || (target.length() <= 0)) ? null : target;
     }
 }

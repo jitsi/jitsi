@@ -119,7 +119,7 @@ public class TransferCallButton
                 call.addCallChangeListener(callChangeListener);
                 try
                 {
-                    dialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
+                    dialog.setModal(true);
                     dialog.pack();
                     dialog.setVisible(true);
                 }
@@ -129,7 +129,7 @@ public class TransferCallButton
                 }
 
                 String target = dialog.getTarget();
-                if ((target != null) && !target.isEmpty())
+                if ((target != null) && (target.length() > 0))
                 {
                     try
                     {
