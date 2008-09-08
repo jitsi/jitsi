@@ -9,20 +9,25 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.Timer;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -35,14 +40,17 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ContactListPanel
-    extends JScrollPane
+    extends JPanel
     implements  MessageListener,
                 TypingNotificationsListener,
-                ContactListListener
+                ContactListListener,
+                PluginComponentListener
 {
     private MainFrame mainFrame;
 
     private ContactList contactList;
+
+    private JScrollPane contactListScrollPane = new JScrollPane();
 
     private JPanel treePanel = new JPanel(new BorderLayout());
 
@@ -59,7 +67,9 @@ public class ContactListPanel
      * 
      * @param mainFrame The parent frame.
      */
-    public ContactListPanel(MainFrame mainFrame) {
+    public ContactListPanel(MainFrame mainFrame)
+    {
+        super(new BorderLayout());
 
         this.mainFrame = mainFrame;
 
@@ -67,18 +77,21 @@ public class ContactListPanel
 
         this.treePanel.setOpaque(false);
 
-        this.setViewport(new ImageBackgroundViewport());
+        contactListScrollPane.setViewport(new ImageBackgroundViewport());
 
-        this.getViewport().setView(treePanel);
+        contactListScrollPane.getViewport().setView(treePanel);
 
-        this.setHorizontalScrollBarPolicy(
+        contactListScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        this.getVerticalScrollBar().setUnitIncrement(30);
+        contactListScrollPane.getVerticalScrollBar().setUnitIncrement(30);
 
         this.setPreferredSize(new Dimension(200, 450));
         this.setMinimumSize(new Dimension(80, 200));
 
+        this.add(contactListScrollPane);
+
+        this.initPluginComponents();
     }
 
     /**
@@ -112,7 +125,6 @@ public class ContactListPanel
 
         this.treePanel.add(contactList, BorderLayout.NORTH);
 
-        this.treePanel.setBackground(Color.WHITE);
         this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         this.getActionMap().put("runChat", new ContactListPanelEnterAction());
@@ -623,5 +635,114 @@ public class ContactListPanel
                 }
             }
         }
+    }
+
+    private void initPluginComponents()
+    {
+     // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CONTACT_LIST.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
+
+                    Object selectedValue = mainFrame.getContactListPanel()
+                    .getContactList().getSelectedValue();
+
+                if(selectedValue instanceof MetaContact)
+                {
+                    component.setCurrentContact((MetaContact)selectedValue);
+                }
+                else if(selectedValue instanceof MetaContactGroup)
+                {
+                    component
+                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
+                }
+
+                Object constraints = null;
+
+                if (component.getConstraints() != null)
+                    constraints = UIServiceImpl
+                        .getBorderLayoutConstraintsFromContainer(
+                            component.getConstraints());
+                else
+                    constraints = BorderLayout.SOUTH;
+
+                this.add((Component)component.getComponent(), constraints);
+
+                this.repaint();
+            }
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        PluginComponent pluginComponent = event.getPluginComponent();
+
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!pluginComponent.getContainer()
+                .equals(Container.CONTAINER_CONTACT_LIST))
+            return;
+
+        Object constraints = UIServiceImpl
+            .getBorderLayoutConstraintsFromContainer(
+                    pluginComponent.getConstraints());
+
+        if (constraints == null)
+            constraints = BorderLayout.SOUTH;
+
+        this.add((Component) pluginComponent.getComponent(), constraints);
+
+        Object selectedValue = mainFrame.getContactListPanel()
+                .getContactList().getSelectedValue();
+        
+        if(selectedValue instanceof MetaContact)
+        {
+            pluginComponent
+                .setCurrentContact((MetaContact)selectedValue);
+        }
+        else if(selectedValue instanceof MetaContactGroup)
+        {
+            pluginComponent
+                .setCurrentContactGroup((MetaContactGroup)selectedValue);
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        PluginComponent c = event.getPluginComponent();
+        
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!c.getContainer()
+                .equals(Container.CONTAINER_CONTACT_LIST))
+            return;
+
+        this.remove((Component) c.getComponent());
     }
 }
