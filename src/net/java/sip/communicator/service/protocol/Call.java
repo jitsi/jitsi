@@ -99,7 +99,7 @@ public abstract class Call
      * Returns an iterator over all call participants.
      * @return an Iterator over all participants currently involved in the call.
      */
-    public abstract Iterator getCallParticipants();
+    public abstract Iterator<CallParticipant> getCallParticipants();
 
     /**
      * Returns the number of participants currently associated with this call.

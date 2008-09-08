@@ -540,8 +540,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="false"/>
 
-            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}/schome"/-->
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
@@ -1156,6 +1156,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
+            <zipfileset src="lib/installer-exclude/jna.jar" prefix=""/>
+            <zipfileset src="lib/installer-exclude/transparency.jar" prefix=""/>
         </jar>
     </target>
 

@@ -144,14 +144,14 @@ public class ChatRoomRightButtonMenu
         {
             ChatWindowManager chatWindowManager
                 = mainFrame.getChatWindowManager();
-            
+
             ConferenceChatPanel chatPanel
                 = chatWindowManager.getMultiChat(chatRoomWrapper);
-            
+
             chatWindowManager.closeChat(chatPanel);
-            
-            mainFrame.getChatRoomsListPanel()
-                .getChatRoomsList().removeChatRoom(chatRoomWrapper);
+
+            mainFrame.getMultiUserChatManager()
+                .getChatRoomList().removeChatRoom(chatRoomWrapper);
 
             if(chatRoom == null)
                 return;

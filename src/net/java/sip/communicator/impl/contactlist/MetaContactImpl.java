@@ -6,12 +6,15 @@
  */
 package net.java.sip.communicator.impl.contactlist;
 
+import gov.nist.javax.sip.header.*;
+
+import java.io.*;
 import java.util.*;
 
-import java.util.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.util.*;
 /**
  * A default implementation of the MetaContact interface.
@@ -49,6 +52,11 @@ public class MetaContactImpl
     private String displayName = "";
 
     /**
+     * The image (e.g. person photo or customized icon) of this meta contact.
+     */
+    private byte[] contactImage = null;
+
+    /**
      * The contact that should be chosen by default when communicating with this
      * meta contact.
      */
@@ -76,6 +84,25 @@ public class MetaContactImpl
      * The service that is creating the contact.
      */
     private MetaContactListServiceImpl mclServiceImpl  = null;
+
+    private final static String AVATAR_DIR = "avatarcache";
+
+    /**
+     *  Characters and their replacement in created folder names
+     */
+    private final static String[][] ESCAPE_SEQUENCES = new String[][]
+    {
+        {"&", "&_amp"},
+        {"/", "&_sl"},
+        {"\\\\", "&_bs"},   // the char \
+        {":", "&_co"},
+        {"\\*", "&_as"},    // the char *
+        {"\\?", "&_qm"},    // the char ?
+        {"\"", "&_pa"},     // the char "
+        {"<", "&_lt"},
+        {">", "&_gt"},
+        {"\\|", "&_pp"}     // the char |
+    };
 
     /**
      * Creates new meta contact with a newly generated meta contact UID.
@@ -421,6 +448,68 @@ public class MetaContactImpl
     public String getDisplayName()
     {
         return displayName;
+    }
+
+    /**
+     * Returns the avatar of this contact, that can be used when including this
+     * <tt>MetaContact</tt> in user interface.
+     * 
+     * @return an avatar (e.g. user photo) of this contact.
+     */
+    public byte[] getAvatar()
+    {
+        Iterator i = this.getContacts();
+
+        while(i.hasNext())
+        {
+            Contact protoContact = (Contact) i.next();
+
+            try
+            {
+                contactImage = protoContact.getImage();
+
+                if (contactImage != null && contactImage.length > 0)
+                {
+                    this.storeAvatar(protoContact, contactImage);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.error("Failed to load contact photo.", ex);
+            }
+        }
+
+        return contactImage;
+    }
+
+    /**
+     * Returns the avatar of this contact, that can be used when including this
+     * <tt>MetaContact</tt> in user interface. The isLazy
+     * parameter would tell the implementation if it could return the locally
+     * stored avatar or it should obtain the avatar right from the server.
+     * 
+     * @param isLazy Indicates if this method should return the locally stored
+     * avatar or it should obtain the avatar right from the server.
+     * @return an avatar (e.g. user photo) of this contact.
+     */
+    public byte[] getAvatar(boolean isLazy)
+    {
+        if (!isLazy)
+            return getAvatar();
+
+        Iterator iter = this.getContacts();
+        while (iter.hasNext())
+        {
+            Contact protoContact = (Contact) iter.next();
+
+            String avatarPath = AVATAR_DIR + "/"
+                + protoContact.getProtocolProvider().getProtocolName() + "/"
+                + escapeSpecialCharacters(protoContact.getAddress());
+
+            return getLocalAvatar(avatarPath);
+        }
+
+        return null;
     }
 
     /**
@@ -816,5 +905,107 @@ public class MetaContactImpl
             values = (ArrayList)values.clone();
         
         return values;
+    }
+
+    /**
+     * Stores avatar bytes in the given <tt>History</tt>.
+     * 
+     * @param history The history in which we store the avatar.
+     * @param avatarBytes The avatar image bytes.
+     */
+    private void storeAvatar(   Contact protoContact,
+                                byte[] avatarBytes)
+    {
+        String protocolName
+            = protoContact.getProtocolProvider().getProtocolName();
+
+        String avatarDirPath = AVATAR_DIR + "/" + protocolName;
+
+        String escapedProtocolId
+            = escapeSpecialCharacters(protoContact.getAddress());
+
+        try
+        {
+            File avatarDir = ContactlistActivator.getFileAccessService()
+                .getPrivatePersistentDirectory(avatarDirPath);
+
+            File avatarFile
+                = ContactlistActivator.getFileAccessService()
+                    .getPrivatePersistentFile(
+                        avatarDirPath + "/" + escapedProtocolId);
+
+            if(!avatarFile.exists())
+            {
+                if (!avatarDir.exists())
+                    if (!avatarDir.mkdirs())
+                        throw new IOException("Failed to create directory: "
+                            + avatarDir.getAbsolutePath());
+
+                if (!avatarFile.createNewFile())
+                    throw new IOException("Failed to create file"
+                                          + avatarFile.getAbsolutePath());
+            }
+
+            FileOutputStream fileOutStream = new FileOutputStream(avatarFile);
+
+            fileOutStream.write(avatarBytes);
+            fileOutStream.flush();
+            fileOutStream.close();
+        }
+        catch (Exception e)
+        {
+            logger.error("Failed to store avatar.", e);
+        }
+    }
+
+    /**
+     * Returns the avatar image corresponding to the given avatar path.
+     * 
+     * @param avatarPath The path to the lovally stored avatar.
+     * @return the avatar image corresponding to the given avatar path.
+     */
+    private byte[] getLocalAvatar(String avatarPath)
+    {
+        try
+        {
+            File avatarFile = ContactlistActivator.getFileAccessService()
+                .getPrivatePersistentFile(avatarPath);
+
+            if(avatarFile.exists())
+            {
+                FileInputStream fileInStream = new FileInputStream(avatarFile);
+
+                byte[] bs = new byte[fileInStream.available()];
+                fileInStream.read(bs);
+                fileInStream.close();
+
+                return bs;
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error("Could not read avatar image", e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Replacing the characters that we must escape
+     * used for the created filename.
+     * 
+     * @param ids Ids - folder names as we are using 
+     *          FileSystem for storing files.
+     */
+    private String escapeSpecialCharacters(String id)
+    {
+        String resultId = null;
+        for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
+        {
+            resultId = id.
+                replaceAll(ESCAPE_SEQUENCES[j][0], ESCAPE_SEQUENCES[j][1]);
+        }
+
+        return resultId;
     }
 }

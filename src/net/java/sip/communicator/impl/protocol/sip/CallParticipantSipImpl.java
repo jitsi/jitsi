@@ -122,7 +122,7 @@ public class CallParticipantSipImpl
      */
     public String getAddress()
     {
-        return this.participantAddress.toString();
+        return this.participantAddress.getURI().toString();
     }
 
     /**
@@ -458,10 +458,11 @@ public class CallParticipantSipImpl
     public Contact getContact()
     {
         ProtocolProviderService pps = call.getProtocolProvider();
-        OperationSetPresence opSetPresence = (OperationSetPresence) pps
+        OperationSetPresenceSipImpl opSetPresence
+            = (OperationSetPresenceSipImpl) pps
                 .getOperationSet(OperationSetPresence.class);
 
-        return opSetPresence.findContactByID(getAddress());
+        return opSetPresence.resolveContactID(getAddress());
     }
 
     /**

@@ -20,11 +20,11 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
-import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
@@ -58,21 +58,19 @@ public class MainFrame
 {
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
 
-    private JPanel contactListPanel = new JPanel(new BorderLayout());
+    private JPanel centerPanel = new JPanel(new BorderLayout());
 
     private JPanel mainPanel = new JPanel(new BorderLayout(0, 5));
 
     private MainMenu menu;
 
-    private CallManager callManager;
-
-    private StatusPanel statusPanel;
-
-    private MainTabbedPane tabbedPane;
+    private MainCallPanel mainCallPanel;
 
     private JComponent quickMenu;
 
     private LinkedHashMap protocolProviders = new LinkedHashMap();
+
+    private AccountStatusPanel accountStatusPanel;
 
     private MetaContactListService contactList;
 
@@ -95,6 +93,8 @@ public class MainFrame
     private JPanel pluginPanelWest = new JPanel();
     private JPanel pluginPanelEast = new JPanel();
 
+    private ContactListPanel contactListPanel;
+
     /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
@@ -102,10 +102,13 @@ public class MainFrame
     {
         this.chatWindowManager = new ChatWindowManager(this);
 
-        callManager = new CallManager(this);
-        multiUserChatManager = new MultiUserChatManager(this);
+        this.mainCallPanel = new MainCallPanel(this);
 
-        tabbedPane = new MainTabbedPane(this);
+        this.multiUserChatManager = new MultiUserChatManager(this);
+
+        this.contactListPanel = new ContactListPanel(this);
+
+        this.accountStatusPanel = new AccountStatusPanel(this);
 
         String isToolbarExtendedString
             = GuiActivator.getResources().
@@ -119,7 +122,6 @@ public class MainFrame
         else
             quickMenu = new QuickMenu(this);
 
-        statusPanel = new StatusPanel(this);
         menu = new MainMenu(this);
 
         this.addWindowListener(new MainFrameWindowAdapter());
@@ -146,16 +148,17 @@ public class MainFrame
     {
         this.setKeybindingInput(KeybindingSet.Category.MAIN);
         this.addKeybindingAction("main-rename", new RenameAction());
-        this.addKeybindingAction("main-nextTab", new ForwordTabAction());
-        this.addKeybindingAction("main-previousTab", new BackwordTabAction());
 
-        this.contactListPanel.add(tabbedPane, BorderLayout.CENTER);
-        this.contactListPanel.add(callManager, BorderLayout.SOUTH);
+        this.mainPanel.setOpaque(false);
+        this.contactListPanel.setOpaque(false);
+        this.centerPanel.setOpaque(false);
+        this.mainCallPanel.setOpaque(false);
 
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        this.centerPanel.add(contactListPanel, BorderLayout.CENTER);
+        this.centerPanel.add(mainCallPanel, BorderLayout.SOUTH);
 
-        this.mainPanel.add(contactListPanel, BorderLayout.CENTER);
-        this.mainPanel.add(statusPanel, BorderLayout.SOUTH);
+        this.mainPanel.add(accountStatusPanel, BorderLayout.NORTH);
+        this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         JPanel menusPanel = new JPanel(new BorderLayout(0, 5));
 
@@ -165,6 +168,7 @@ public class MainFrame
 
         JPanel northPanel = new JPanel(new BorderLayout());
 
+        menusPanel.setUI(new SIPCommOpaquePanelUI());
         northPanel.add(new LogoBar(), BorderLayout.NORTH);
         northPanel.add(menusPanel, BorderLayout.CENTER);
 
@@ -231,22 +235,16 @@ public class MainFrame
     {
         this.contactList = contactList;
 
-        ContactListPanel clistPanel = this.tabbedPane.getContactListPanel();
-
-        clistPanel.initList(contactList);
+        contactListPanel.initList(contactList);
 
         CListKeySearchListener keyListener
-            = new CListKeySearchListener(clistPanel.getContactList());
+            = new CListKeySearchListener(contactListPanel.getContactList());
 
-        //add a key listener to the tabbed pane, when the contactlist is
-        //initialized
-        this.tabbedPane.addKeyListener(keyListener);
+        contactListPanel.addKeyListener(keyListener);
 
-        clistPanel.addKeyListener(keyListener);
+        contactListPanel.getContactList().addKeyListener(keyListener);
 
-        clistPanel.getContactList().addKeyListener(keyListener);
-
-        clistPanel.getContactList().addListSelectionListener(callManager);
+        contactListPanel.getContactList().addListSelectionListener(mainCallPanel);
     }
 
     /**
@@ -323,10 +321,7 @@ public class MainFrame
                 = (OperationSetBasicTelephony)
                     supportedOperationSets.get(telOpSetClassName);
 
-            telephony.addCallListener(callManager);
-            this.getContactListPanel().getContactList()
-                .addListSelectionListener(callManager);
-            this.tabbedPane.addChangeListener(callManager);
+            telephony.addCallListener(new CallManager.GuiCallListener());
         }
 
         // Obtain the multi user chat operation set.
@@ -341,10 +336,6 @@ public class MainFrame
             multiUserChat.addInvitationListener(multiUserChatManager);
             multiUserChat.addInvitationRejectionListener(multiUserChatManager);
             multiUserChat.addPresenceListener(multiUserChatManager);
-
-            this.getChatRoomsListPanel()
-                .getChatRoomsList()
-                .addChatServer(protocolProvider, multiUserChat);
         }
     }
 
@@ -428,22 +419,23 @@ public class MainFrame
      */
     public void addAccount(ProtocolProviderService protocolProvider)
     {
-        if (!getStatusPanel().containsAccount(protocolProvider)) {
-
+        if (!accountStatusPanel.containsAccount(protocolProvider))
+        {
             logger.trace("Add the following account to the status bar: "
                 + protocolProvider.getAccountID().getAccountAddress());
 
-            this.getStatusPanel().addAccount(protocolProvider);
+            accountStatusPanel.addAccount(protocolProvider);
 
             //request the focus in the contact list panel, which
             //permits to search in the contact list
-            this.tabbedPane.getContactListPanel().getContactList()
+            this.contactListPanel.getContactList()
                     .requestFocus();
         }
 
-        if(!callManager.containsCallAccount(protocolProvider)
-            && getTelephonyOpSet(protocolProvider) != null) {
-            callManager.addCallAccount(protocolProvider);
+        if(!mainCallPanel.containsCallAccount(protocolProvider)
+            && getTelephonyOpSet(protocolProvider) != null)
+        {
+            mainCallPanel.addCallAccount(protocolProvider);
         }
     }
 
@@ -457,29 +449,15 @@ public class MainFrame
         this.protocolProviders.remove(protocolProvider);
         this.updateProvidersIndexes(protocolProvider);
 
-        if (getStatusPanel().containsAccount(protocolProvider))
+        if (accountStatusPanel.containsAccount(protocolProvider))
         {
-            this.getStatusPanel().removeAccount(protocolProvider);
+            accountStatusPanel.removeAccount(protocolProvider);
         }
 
-        if(callManager.containsCallAccount(protocolProvider))
+        if(mainCallPanel.containsCallAccount(protocolProvider))
         {
-            callManager.removeCallAccount(protocolProvider);
+            mainCallPanel.removeCallAccount(protocolProvider);
         }
-
-        // Remove all related chat rooms.
-        this.getChatRoomsListPanel().getChatRoomsList()
-            .removeChatServer(protocolProvider);
-    }
-
-    /**
-     * Activates an account. Here we start the connecting process.
-     *
-     * @param protocolProvider The protocol provider of this account.
-     */
-    public void activateAccount(ProtocolProviderService protocolProvider)
-    {
-        this.getStatusPanel().startConnecting(protocolProvider);
     }
 
     /**
@@ -572,24 +550,6 @@ public class MainFrame
     }
 
     /**
-     * Returns the call manager.
-     * @return CallManager The call manager.
-     */
-    public CallManager getCallManager()
-    {
-        return callManager;
-    }
-
-    /**
-     * Returns the status panel.
-     * @return StatusPanel The status panel.
-     */
-    public StatusPanel getStatusPanel()
-    {
-        return statusPanel;
-    }
-
-    /**
      * Listens for all contactPresenceStatusChanged events in order
      * to refresh the contact list, when a status is changed.
      */
@@ -605,8 +565,6 @@ public class MainFrame
         public void contactPresenceStatusChanged(
                 ContactPresenceStatusChangeEvent evt)
         {
-            ContactListPanel clistPanel = tabbedPane.getContactListPanel();
-
             Contact sourceContact = evt.getSourceContact();
 
             MetaContact metaContact = contactList
@@ -616,7 +574,7 @@ public class MainFrame
                 && (evt.getOldStatus() != evt.getNewStatus()))
             {
                 // Update the status in the contact list.
-                clistPanel.getContactList().refreshContact(metaContact);
+                contactListPanel.getContactList().refreshContact(metaContact);
 
                 // Update the status in chat window.
                 if(chatWindowManager.isChatOpenedForContact(metaContact))
@@ -643,11 +601,11 @@ public class MainFrame
         {
             ProtocolProviderService pps = evt.getProvider();
 
-            getStatusPanel().updateStatus(pps, evt.getNewStatus());
+            accountStatusPanel.updateStatus(pps, evt.getNewStatus());
 
-            if(callManager.containsCallAccount(pps))
+            if(mainCallPanel.containsCallAccount(pps))
             {
-                callManager.updateCallAccountStatus(pps);
+                mainCallPanel.updateCallAccountStatus(pps);
             }
         }
 
@@ -758,72 +716,14 @@ public class MainFrame
         this.loginManager = loginManager;
     }
 
-    public CallListPanel getCallListManager()
-    {
-        return this.tabbedPane.getCallListPanel();
-    }
-
     /**
      * Returns the panel containing the ContactList.
      * @return ContactListPanel the panel containing the ContactList
      */
     public ContactListPanel getContactListPanel()
     {
-        return this.tabbedPane.getContactListPanel();
+        return this.contactListPanel;
     }
-
-    /**
-     * Returns the panel containing the chat rooms list.
-     * @return the panel containing the chat rooms list
-     */
-    public ChatRoomsListPanel getChatRoomsListPanel()
-    {
-        return this.tabbedPane.getChatRoomsListPanel();
-    }
-
-    /**
-     * Adds a tab in the main tabbed pane, where the given call panel
-     * will be added.
-     */
-    public void addCallPanel(CallPanel callPanel)
-    {
-        this.tabbedPane.addTab(callPanel.getTitle(), callPanel);
-        this.tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-        this.tabbedPane.revalidate();
-    }
-
-
-    /**
-     * Removes the tab in the main tabbed pane, where the given call panel
-     * is contained.
-     */
-    public void removeCallPanel(CallPanel callPanel)
-    {
-        // Should remove all participant panels explicetly, thus removing also
-        // all related dialogs (like dialpad for example).
-        callPanel.removeDialogs();
-
-        tabbedPane.remove(callPanel);
-
-        Component c = getSelectedTab();
-
-        if(c == null || !(c instanceof CallPanel))
-            this.tabbedPane.setSelectedIndex(0);
-
-        this.tabbedPane.revalidate();
-    }
-
-    /**
-     * Returns the component contained in the currently selected tab.
-     * @return the selected CallPanel or null if there's no CallPanel selected
-     */
-    public Component getSelectedTab()
-    {
-        Component c = this.tabbedPane.getSelectedComponent();
-
-        return c;
-    }
-
 
     /**
      * Checks in the configuration xml if there is already stored index for
@@ -992,8 +892,6 @@ public class MainFrame
                             new Integer(0));
                 }
             }
-
-            this.getStatusPanel().updateAccountIndex(currentProvider);
         }
     }
 
@@ -1009,10 +907,10 @@ public class MainFrame
             ProtocolProviderService protocolProvider)
     {
         if(getProtocolPresenceOpSet(protocolProvider) != null)
-            return this.statusPanel
+            return accountStatusPanel
                 .getLastPresenceStatus(protocolProvider);
         else
-            return this.statusPanel.getLastStatusString(protocolProvider);
+            return accountStatusPanel.getLastStatusString(protocolProvider);
     }
 
     /**
@@ -1077,16 +975,21 @@ public class MainFrame
         CommonRightButtonMenu commonPopupMenu
             = getContactListPanel().getCommonRightButtonMenu();
 
-        if(contactPopupMenu != null && contactPopupMenu.isVisible()) {
+        if(contactPopupMenu != null && contactPopupMenu.isVisible())
+        {
             contactPopupMenu.setVisible(false);
         }
-        else if(groupPopupMenu != null && groupPopupMenu.isVisible()) {
+        else if(groupPopupMenu != null && groupPopupMenu.isVisible())
+        {
             groupPopupMenu.setVisible(false);
         }
-        else if(commonPopupMenu != null && commonPopupMenu.isVisible()) {
+        else if(commonPopupMenu != null && commonPopupMenu.isVisible())
+        {
             commonPopupMenu.setVisible(false);
         }
-        else if(statusPanel.hasSelectedMenus() || menu.hasSelectedMenus()) {
+        else if(accountStatusPanel.hasSelectedMenus()
+                || menu.hasSelectedMenus())
+        {
             MenuSelectionManager selectionManager
                 = MenuSelectionManager.defaultManager();
 
@@ -1130,53 +1033,6 @@ public class MainFrame
     public MultiUserChatManager getMultiUserChatManager()
     {
         return multiUserChatManager;
-    };
-
-    /**
-     * The <tt>ForwordTabAction</tt> is an <tt>AbstractAction</tt> that
-     * changes the currently selected tab with the next one. Each time when the
-     * last tab index is reached the first one is selected.
-     */
-    private class ForwordTabAction
-        extends AbstractAction
-    {
-        /**
-         * Changes the currently selected tab with the next one. Each time when
-         * the last tab index is reached the first one is selected.
-         * @param e the action event
-         */
-        public void actionPerformed(ActionEvent e)
-        {
-            int selectedIndex = tabbedPane.getSelectedIndex();
-
-            if (selectedIndex < tabbedPane.getTabCount() - 1)
-                tabbedPane.setSelectedIndex(selectedIndex + 1);
-            else
-                tabbedPane.setSelectedIndex(0);
-        }
-    };
-
-    /**
-     * The <tt>BackwordTabAction</tt> is an <tt>AbstractAction</tt> that
-     * changes the currently selected tab with the previous one. Each time when
-     * the first tab index is reached the last one is selected.
-     */
-    private class BackwordTabAction
-        extends AbstractAction
-    {
-        /**
-         * Changes the currently selected tab with the previous one. Each time
-         * when the first tab index is reached the last one is selected.
-         * @param e the action event
-         */
-        public void actionPerformed(ActionEvent e)
-        {
-            int selectedIndex = tabbedPane.getSelectedIndex();
-            if (selectedIndex != 0)
-                tabbedPane.setSelectedIndex(selectedIndex - 1);
-            else
-                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-        }
     };
 
     /**
@@ -1645,5 +1501,14 @@ public class MainFrame
             pluginPanelWest.remove(c);
         else if (constraints.equals(BorderLayout.EAST))
             pluginPanelEast.remove(c);
+    }
+
+    /**
+     * Returns the account status panel.
+     * @return the account status panel.
+     */
+    public AccountStatusPanel getAccountStatusPanel()
+    {
+        return accountStatusPanel;
     }
 }

@@ -441,7 +441,7 @@ public class ChatWindowManager
             // Search in the chat room's list for a chat room that correspond
             // to the given one.
             ChatRoomWrapper chatRoomWrapper
-                = mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                = mainFrame.getMultiUserChatManager().getChatRoomList()
                     .findChatRoomWrapperFromChatRoom(chatRoom);
 
             if(chatRoomWrapper == null)
@@ -632,10 +632,11 @@ public class ChatWindowManager
         {
             // If we're in a tabbed window we're looking for the chat window
             // through one of the already created chats.
-            if(chats.keys().hasMoreElements())
+            if(chats.elements().hasMoreElements())
             {
                 chatWindow
-                    = ((ChatPanel) chats.keys().nextElement()).getChatWindow();
+                    = ((ChatPanel) chats.elements()
+                        .nextElement()).getChatWindow();
             }
             else
             {

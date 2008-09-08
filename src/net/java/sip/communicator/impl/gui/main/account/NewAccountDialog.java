@@ -25,7 +25,7 @@ public class NewAccountDialog
 
     private JPanel accountPanel = new JPanel(new BorderLayout());
 
-    private JPanel networkPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel networkPanel = new JPanel(new BorderLayout());
 
     private JLabel networkLabel = new JLabel(
         Messages.getI18NString("network").getText());
@@ -58,6 +58,9 @@ public class NewAccountDialog
 
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        this.networkPanel.setBorder(
+            BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
         this.buttonPanel.add(advancedButton, BorderLayout.WEST);
@@ -177,6 +180,8 @@ public class NewAccountDialog
         public NetworkListCellRenderer()
         {
             this.setOpaque(true);
+
+            this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
         }
 
         public Component getListCellRendererComponent(JList list, Object value,

@@ -10,8 +10,10 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -29,11 +31,9 @@ import net.java.sip.communicator.util.*;
 
 public class DialPanel
     extends JPanel
-    implements  MouseListener
+    implements MouseListener
 {
     private Logger logger = Logger.getLogger(DialPanel.class);
-
-    private JComboBox phoneNumberCombo;
 
     private DialButton oneButton = new DialButton(
         ImageLoader.getImage(ImageLoader.ONE_DIAL_BUTTON));
@@ -87,35 +87,20 @@ public class DialPanel
 
     private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, hgap, vgap));
 
-    private CallManager callManager;
+    private Iterator callParticipants;
 
-    private CallParticipant callParticipant;
-
-    private OperationSetDTMF dtmfOpSet;
+    private MainCallPanel parentCallPanel;
 
     /**
      * Creates an instance of <tt>DialPanel</tt>.
      */
-    public DialPanel(CallManager callManager)
+    public DialPanel(MainCallPanel parentCallPanel)
     {
         super(new FlowLayout(FlowLayout.CENTER));
 
-        this.callManager = callManager;
-
-        this.dialPadPanel.setOpaque(false);
-
-        this.phoneNumberCombo = callManager.getCallComboBox();
-
-        this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-
-        int width = GuiActivator.getResources().getSettingsInt("dialPadWidth");
-        int height = GuiActivator.getResources().getSettingsInt("dialPadHeight");
-
-        this.dialPadPanel.setPreferredSize(new Dimension(width, height));
+        this.parentCallPanel = parentCallPanel;
 
         this.init();
-
-        this.plusZeroTimer.setRepeats(false);
     }
 
     /**
@@ -127,20 +112,11 @@ public class DialPanel
      * @param callParticipant the <tt>CallParticipant</tt>, for which the
      * dialpad will be opened.
      */
-    public DialPanel(CallManager callManager, CallParticipant callParticipant)
+    public DialPanel(Iterator<CallParticipant> callParticipants)
     {
-        this(callManager);
+        this.callParticipants = callParticipants;
 
-        this.callParticipant = callParticipant;
-
-        if(callParticipant != null
-            && callParticipant.getProtocolProvider()
-            .getOperationSet(OperationSetDTMF.class) != null)
-        {
-            dtmfOpSet = (OperationSetDTMF) callParticipant.getProtocolProvider()
-                .getOperationSet(OperationSetDTMF.class);
-        }
-
+        this.init();
     }
 
     /**
@@ -148,6 +124,17 @@ public class DialPanel
      */
     public void init()
     {
+        this.dialPadPanel.setOpaque(false);
+
+        this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        int width = GuiActivator.getResources().getSettingsInt("dialPadWidth");
+        int height = GuiActivator.getResources().getSettingsInt("dialPadHeight");
+
+        this.dialPadPanel.setPreferredSize(new Dimension(width, height));
+
+        this.plusZeroTimer.setRepeats(false);
+
         oneButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
         twoButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
         threeButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
@@ -299,74 +286,71 @@ public class DialPanel
     {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
-        String phoneNumber = "";
-
-        if (this.phoneNumberCombo.getEditor().getItem() != null)
-            phoneNumber = (String) this.phoneNumberCombo.getEditor().getItem();
+        String phoneNumber = parentCallPanel.getPhoneNumberComboText();
 
         DTMFTone dtmfTone = null;
         if (buttonName.equals("one"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_1;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "1");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "1");
         }
         else if (buttonName.equals("two"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_2;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "2");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "2");
         }
         else if (buttonName.equals("three"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_3;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "3");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "3");
         }
         else if (buttonName.equals("four"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_4;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "4");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "4");
         }
         else if (buttonName.equals("five"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_5;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "5");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "5");
         }
         else if (buttonName.equals("six"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_6;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "6");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "6");
         }
         else if (buttonName.equals("seven"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_7;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "7");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "7");
         }
         else if (buttonName.equals("eight"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_8;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "8");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "8");
         }
         else if (buttonName.equals("nine"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_9;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "9");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "9");
         }
         else if (buttonName.equals("zero"))
         {
@@ -378,30 +362,30 @@ public class DialPanel
             else
                 plusZeroTimer.stop();
 
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_0;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "0");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "0");
         }
         else if (buttonName.equals("diez"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_SHARP;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "#");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "#");
         }
         else if (buttonName.equals("star"))
         {
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
                 dtmfTone = DTMFTone.DTMF_STAR;
             else
-                this.phoneNumberCombo.getEditor().setItem(phoneNumber + "*");
+                this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "*");
         }
 
         if(dtmfTone != null)
             this.sendDtmfTone(dtmfTone);
         else
-            this.phoneNumberCombo.requestFocus();
+            this.parentCallPanel.requestFocusInPhoneCombo();
     }
     
     private class DialButton extends SIPCommButton
@@ -418,6 +402,9 @@ public class DialPanel
         }
     }
 
+    /**
+     * Paints the main background image to the background of this dial panel.
+     */
     public void paintComponent(Graphics g)
     {
      // do the superclass behavior first
@@ -475,17 +462,15 @@ public class DialPanel
 
             plusZeroTimer.stop();
 
-            if(dtmfOpSet != null)
+            if(callParticipants != null)
             {
                 sendDtmfTone(DTMFTone.DTMF_0);
                 sendDtmfTone(DTMFTone.DTMF_0);
             }
             else
             {
-                ComboBoxEditor phoneNumberEditor
-                    = phoneNumberCombo.getEditor();
-
-                phoneNumberEditor.setItem(phoneNumberEditor.getItem() + "+");
+                parentCallPanel.setPhoneNumberComboText(
+                    parentCallPanel.getPhoneNumberComboText() + "+");
             }
         }
     }
@@ -493,13 +478,27 @@ public class DialPanel
     /**
      * Sends a DTMF tone to the current DTMF operation set.
      * 
-     * @param dtmfTone
+     * @param dtmfTone The DTMF tone to send.
      */
     private void sendDtmfTone(DTMFTone dtmfTone)
     {
         try
         {
-            dtmfOpSet.sendDTMF(callParticipant, dtmfTone);
+            while (callParticipants.hasNext())
+            {
+                CallParticipant participant
+                    = (CallParticipant) callParticipants.next();
+
+                if (participant.getProtocolProvider()
+                    .getOperationSet(OperationSetDTMF.class) != null)
+                {
+                    OperationSetDTMF dtmfOpSet
+                        = (OperationSetDTMF) participant.getProtocolProvider()
+                            .getOperationSet(OperationSetDTMF.class);
+
+                    dtmfOpSet.sendDTMF(participant, dtmfTone);
+                }
+            }
         }
         catch (NullPointerException e1)
         {

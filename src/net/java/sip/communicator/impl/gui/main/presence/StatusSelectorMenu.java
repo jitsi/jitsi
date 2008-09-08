@@ -10,6 +10,8 @@ import java.awt.Dimension;
 import java.awt.image.*;
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -18,15 +20,25 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * A parent class for all status selector boxes.
  * 
- * @see SimpleStatusSelectorBox
+ * @see SimpleStatusMenu
  * @see PresenceStatusSelectorBox
  * @see GlobalStatusSelectorBox
  * 
  * @author Yana Stamcheva
  */
-public abstract class StatusSelectorBox
+public abstract class StatusSelectorMenu
     extends SIPCommMenu
 {
+    public StatusSelectorMenu()
+    {
+        super();
+    }
+
+    public StatusSelectorMenu(String text, Icon defaultIcon)
+    {
+        super(text, defaultIcon);
+    }
+
     /**
      * Starts the connecting animation.
      * 

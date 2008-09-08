@@ -8,9 +8,11 @@ package net.java.sip.communicator.impl.contactlist;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  *
@@ -25,6 +27,10 @@ public class ContactlistActivator
     ServiceRegistration mclServiceRegistration = null;
     MetaContactListServiceImpl mclServiceImpl  = null;
 
+    private static FileAccessService fileAccessService;
+
+    private static BundleContext bundleContext;
+
     /**
      * Called when this bundle is started.
      *
@@ -33,6 +39,8 @@ public class ContactlistActivator
      */
     public void start(BundleContext context) throws Exception
     {
+        bundleContext = context;
+
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
         Hashtable hashtable = new Hashtable();
 
@@ -64,5 +72,25 @@ public class ContactlistActivator
         logger.trace("Stopping the contact list.");
         if(mclServiceImpl != null)
             mclServiceImpl.stop(context);
+    }
+
+    /**
+     * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
+     * 
+     * @return the <tt>FileAccessService</tt> obtained from the bundle context
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if (fileAccessService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(FileAccessService.class.getName());
+
+            if (serviceReference != null)
+                fileAccessService = (FileAccessService) bundleContext
+                    .getService(serviceReference);
+        }
+
+        return fileAccessService;
     }
 }

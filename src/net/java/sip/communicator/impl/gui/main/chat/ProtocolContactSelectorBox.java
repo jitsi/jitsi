@@ -14,6 +14,8 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -53,6 +55,7 @@ public class ProtocolContactSelectorBox
         this.currentProtoContact = protocolContact;
 
         this.menu.setPreferredSize(new Dimension(28, 24));
+        this.menu.setUI(new SIPCommSelectorMenuUI());
 
         this.add(menu);
 
@@ -203,17 +206,19 @@ public class ProtocolContactSelectorBox
     private void setSelected(Contact protoContact, ImageIcon icon)
     {
         this.currentProtoContact = protoContact;
-        
-        this.menu.setSelected(protoContact, icon);
-        
+
+        SelectedObject selectedObject = new SelectedObject(icon, protoContact);
+
+        this.menu.setSelected(selectedObject);
+
         String tooltipText;
-        
+
         if(!protoContact.getDisplayName().equals(protoContact.getAddress()))
             tooltipText = protoContact.getDisplayName()
                 + " (" + protoContact.getAddress() + ")";
         else
             tooltipText = protoContact.getDisplayName();
-        
+
         this.menu.setToolTipText(tooltipText);
     }
     

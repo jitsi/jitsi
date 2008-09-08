@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
 package net.java.sip.communicator.plugin.pluginmanager;
@@ -17,17 +16,19 @@ import org.osgi.framework.*;
  * 
  * @author Yana Stamcheva
  */
-public class PluginManagerActivator implements BundleActivator
+public class PluginManagerActivator
+    implements BundleActivator
 {
     public static BundleContext bundleContext;
-    
+
     private static UIService uiService;
-    
+
     private static ConfigurationService configService;
-   
+
     /**
-     * Starts this bundle and adds the <td>PluginManagerConfigForm</tt> contained
-     * in it to the configuration window obtained from the <tt>UIService</tt>.
+     * Starts this bundle and adds the
+     * <td>PluginManagerConfigForm</tt> contained in it to the configuration
+     * window obtained from the <tt>UIService</tt>.
      */
     public void start(BundleContext bc) throws Exception
     {
@@ -35,41 +36,55 @@ public class PluginManagerActivator implements BundleActivator
 
         PluginManagerConfigForm pluginManager = new PluginManagerConfigForm();
 
-        bundleContext.registerService(  ConfigurationForm.class.getName(),
-                                        pluginManager,
-                                        null);
+        bundleContext.registerService(ConfigurationForm.class.getName(),
+            pluginManager, null);
     }
 
     /**
      * Stops this bundles.
      */
     public void stop(BundleContext arg0) throws Exception
-    {   
+    {
     }
-    
+
     /**
      * Returns the <tt>UIService</tt> obtained from the bundle context.
+     * 
      * @return the <tt>UIService</tt> obtained from the bundle context
      */
     public static UIService getUIService()
     {
+        if (uiService == null)
+        {
+            ServiceReference uiReference =
+                bundleContext.getServiceReference(UIService.class.getName());
+
+            uiService =
+                (UIService) bundleContext
+                    .getService(uiReference);
+        }
+
         return uiService;
     }
-    
 
     /**
      * Returns the <tt>ConfigurationService</tt> obtained from the bundle
      * context.
+     * 
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     * context
+     *         context
      */
-    public static ConfigurationService getConfigurationService() {
-        if(configService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configService == null)
+        {
+            ServiceReference configReference =
+                bundleContext.getServiceReference(ConfigurationService.class
+                    .getName());
 
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
+            configService =
+                (ConfigurationService) bundleContext
+                    .getService(configReference);
         }
 
         return configService;

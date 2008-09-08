@@ -46,11 +46,15 @@ public class ConfigurationManager
     
     private static int chatHistorySize;
     
+    private static int windowTransparency;
+    
+    private static boolean isTransparentWindowEnabled;
+    
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
     
     private static String lastContactParent = null;
-
+    
     /**
      * 
      */
@@ -58,11 +62,11 @@ public class ConfigurationManager
     {
         configService.addPropertyChangeListener(
             new ConfigurationChangeListener());
-        
+
         // Load the "auPopupNewMessage" property.
         String autoPopupProperty = 
             "net.java.sip.communicator.impl.gui.autoPopupNewMessage";
-        
+
         String autoPopup = configService.getString(autoPopupProperty);
         
         if(autoPopup == null)
@@ -223,6 +227,45 @@ public class ConfigurationManager
                 .intValue();
         }
 
+        // Load the "isTransparentWindowEnabled" property.
+        String isTransparentWindowEnabledProperty =
+            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled";
+
+        String isTransparentWindowEnabledString
+            = configService.getString(isTransparentWindowEnabledProperty);
+
+        if(isTransparentWindowEnabledString == null)
+            isTransparentWindowEnabledString = 
+                GuiActivator.getResources().
+                    getSettingsString(isTransparentWindowEnabledProperty);
+
+        if(isTransparentWindowEnabledString != null
+            && isTransparentWindowEnabledString.length() > 0)
+        {
+            isTransparentWindowEnabled
+                = new Boolean(isTransparentWindowEnabledString).booleanValue();
+        }
+
+        // Load the "windowTransparency" property.
+        String windowTransparencyProperty =
+            "net.java.sip.communicator.impl.gui.windowTransparency";
+
+        String windowTransparencyString
+            = configService.getString(windowTransparencyProperty);
+
+        if(windowTransparencyString == null)
+            windowTransparencyString = 
+                GuiActivator.getResources().
+                    getSettingsString(windowTransparencyProperty);
+
+        if(windowTransparencyString != null
+            && windowTransparencyString.length() > 0)
+        {
+            windowTransparency
+                = new Integer(windowTransparencyString).intValue();
+        }
+
+        // Load the "lastContactParent" property.
         lastContactParent = configService.getString(
             "net.java.sip.communicator.impl.gui.addcontact.lastContactParent");
     }
@@ -383,6 +426,38 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns <code>true</code> if transparent windows are enabled,
+     * <code>false</code> otherwise.
+     * 
+     * @return <code>true</code> if transparent windows are enabled,
+     * <code>false</code> otherwise.
+     */
+    public static boolean isTransparentWindowEnabled()
+    {
+        return isTransparentWindowEnabled;
+    }
+
+    /**
+     * Returns the transparency value for all transparent windows.
+     * 
+     * @return the transparency value for all transparent windows.
+     */
+    public static int getWindowTransparency()
+    {
+        return windowTransparency;
+    }
+
+    /**
+     * Sets the transparency value for all transparent windows.
+     * 
+     * @param the transparency value for all transparent windows.
+     */
+    public static void setWindowTransparency(int transparency)
+    {
+        windowTransparency = transparency;
+    }
+
+    /**
      * Updates the "showOffline" property through the
      * <tt>ConfigurationService</tt>.
      * 
@@ -477,6 +552,22 @@ public class ConfigurationManager
         configService.setProperty(
             "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested",
             Boolean.toString(isMoveContactConfirmationRequested));
+    }
+
+    /**
+     * Updates the "isTransparentWindowEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isTransparent indicates if the transparency is enabled in the
+     * application.
+     */
+    public static void setTransparentWindowEnabled(boolean isTransparent)
+    {
+        isTransparentWindowEnabled = isTransparent;
+
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled",
+                Boolean.toString(isTransparentWindowEnabled));
     }
 
     /**
@@ -850,6 +941,22 @@ public class ConfigurationManager
                 
                 chatHistorySize
                     = new Integer(chatHistorySizeString).intValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled"))
+            {
+                String isTransparentString = (String) evt.getNewValue();
+
+                isTransparentWindowEnabled
+                    = new Boolean(isTransparentString).booleanValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.windowTransparency"))
+            {
+                String windowTransparencyString = (String) evt.getNewValue();
+
+                windowTransparency
+                    = new Integer(windowTransparencyString).intValue();
             }
         }
     }

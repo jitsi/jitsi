@@ -119,6 +119,12 @@ public class Container
     public static final Container CONTAINER_CALL_HISTORY
             = new Container("CONTAINER_CALL_HISTORY");
 
+    /**
+     * Call dialog container.
+     */
+    public static final Container CONTAINER_CALL_DIALOG
+            = new Container("CONTAINER_CALL_DIALOG");
+
     /*
      * Constraints
      */

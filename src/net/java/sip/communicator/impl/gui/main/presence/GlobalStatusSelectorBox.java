@@ -9,14 +9,17 @@ package net.java.sip.communicator.impl.gui.main.presence;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
@@ -34,11 +37,13 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class GlobalStatusSelectorBox
-    extends StatusSelectorBox
+    extends StatusSelectorMenu
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(
-        PresenceStatusSelectorBox.class.getName());
+        GlobalStatusSelectorBox.class.getName());
+
+    private Hashtable accountMenus = new Hashtable();
 
     private MainFrame mainFrame;
 
@@ -88,7 +93,10 @@ public class GlobalStatusSelectorBox
     {
         this.mainFrame = mainFrame;
 
-        this.setPreferredSize(new Dimension(28, 24));
+        this.setUI(new SIPCommStatusMenuUI());
+
+        this.setText("Offline");
+        this.setIcon(offlineIcon);
 
         String tooltip = "<html><b>"
             + "Set global status"
@@ -100,13 +108,11 @@ public class GlobalStatusSelectorBox
         offlineItem.setName(Constants.OFFLINE_STATUS);
         awayItem.setName(Constants.AWAY_STATUS);
         ffcItem.setName(Constants.FREE_FOR_CHAT_STATUS);
-//      dndItem.setName(Constants.DO_NOT_DISTURB_STATUS);
 
         onlineItem.addActionListener(this);
         offlineItem.addActionListener(this);
         awayItem.addActionListener(this);
         ffcItem.addActionListener(this);
-//      dndItem.addActionListener(this);
 
         titleLabel = new JLabel("Set global status");
 
@@ -117,14 +123,78 @@ public class GlobalStatusSelectorBox
         this.addSeparator();
 
         this.add(onlineItem);
-        this.addSeparator();
         this.add(ffcItem);
         this.add(awayItem);
-        this.addSeparator();
         this.add(offlineItem);
-//        this.add(dndItem);
+        this.addSeparator();
+    }
 
-        setSelected(offlineItem, offlineIcon);
+    public void addAccount(ProtocolProviderService protocolProvider)
+    {
+        OperationSetPersistentPresence presenceOpSet
+            = (OperationSetPersistentPresence) protocolProvider
+                .getOperationSet(OperationSetPresence.class);
+
+        boolean isHidden = 
+            protocolProvider.getAccountID().
+                getAccountProperties().get(
+                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+
+        if (isHidden)
+            return;
+
+        StatusSelectorMenu statusSelectorMenu = null;
+
+        if (presenceOpSet != null)
+        {
+            statusSelectorMenu
+                = new PresenceStatusMenu(mainFrame, protocolProvider);
+        }
+        else
+        {
+            statusSelectorMenu
+                = new SimpleStatusMenu(mainFrame, protocolProvider);
+        }
+
+        this.add(statusSelectorMenu);
+
+        this.accountMenus.put(protocolProvider, statusSelectorMenu);
+    }
+
+    public void removeAccount(ProtocolProviderService protocolProvider)
+    {
+        StatusSelectorMenu statusSelectorMenu
+            = (StatusSelectorMenu) this.accountMenus.get(protocolProvider);
+
+        this.remove(statusSelectorMenu);
+
+        this.accountMenus.remove(protocolProvider);
+    }
+
+    public boolean containsAccount(ProtocolProviderService protocolProvider)
+    {
+        return accountMenus.containsKey(protocolProvider);
+    }
+
+    /**
+     * Returns TRUE if there are selected status selector boxes, otherwise
+     * returns FALSE.
+     */
+    public boolean hasSelectedMenus()
+    {
+        Enumeration statusMenus = accountMenus.elements();
+
+        while (statusMenus.hasMoreElements())
+        {
+            StatusSelectorMenu statusSelectorMenu =
+                (StatusSelectorMenu) statusMenus.nextElement();
+
+            if (statusSelectorMenu.isSelected())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -334,11 +404,81 @@ public class GlobalStatusSelectorBox
         }
     }
 
+    public void updateStatus(ProtocolProviderService protocolProvider)
+    {
+        StatusSelectorMenu accountMenu =
+            (StatusSelectorMenu) accountMenus.get(protocolProvider);
+
+        if (accountMenu == null)
+            return;
+
+        if (accountMenu instanceof PresenceStatusMenu)
+        {
+            PresenceStatusMenu presenceStatusMenu =
+                (PresenceStatusMenu) accountMenu;
+
+            if (!protocolProvider.isRegistered())
+                presenceStatusMenu.updateStatus(presenceStatusMenu
+                    .getOfflineStatus());
+            else
+            {
+                if (presenceStatusMenu.getLastSelectedStatus() != null)
+                {
+                    presenceStatusMenu.updateStatus(presenceStatusMenu
+                        .getLastSelectedStatus());
+                }
+                else
+                {
+                    PresenceStatus lastStatus =
+                        getLastPresenceStatus(protocolProvider);
+
+                    if (lastStatus == null)
+                    {
+                        presenceStatusMenu.updateStatus(presenceStatusMenu
+                            .getOnlineStatus());
+                    }
+                    else
+                    {
+                        presenceStatusMenu.updateStatus(lastStatus);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ((SimpleStatusMenu) accountMenu).updateStatus();
+        }
+
+        accountMenu.repaint();
+
+        this.updateGlobalStatus();
+    }
+
+    public void updateStatus(ProtocolProviderService protocolProvider,
+                            PresenceStatus presenceStatus)
+    {
+        StatusSelectorMenu accountMenu =
+            (StatusSelectorMenu) accountMenus.get(protocolProvider);
+
+        if (accountMenu == null)
+            return;
+
+        if (accountMenu instanceof PresenceStatusMenu)
+        {
+            PresenceStatusMenu presenceStatusMenu =
+                (PresenceStatusMenu) accountMenu;
+
+            presenceStatusMenu.updateStatus(presenceStatus);
+        }
+
+        this.updateGlobalStatus();
+    }
+
     /**
      * Updates the global status by picking the most connected protocol provider
      * status.
      */
-    public void updateStatus()
+    private void updateGlobalStatus()
     {
         int status = 0;
 
@@ -385,11 +525,17 @@ public class GlobalStatusSelectorBox
 
         JMenuItem item = getItemFromStatus(status);
 
-        setSelected(item, (ImageIcon)item.getIcon());
+        SelectedObject selectedObject
+            = new SelectedObject(item.getText(),
+                                (ImageIcon)item.getIcon(),
+                                item);
 
+        setSelected(selectedObject);
+
+        this.revalidate();
         setSystrayIcon(status);
     }
-    
+
     private void setSystrayIcon(int status)
     {
         SystrayService trayServce = GuiActivator.getSystrayService();
@@ -526,5 +672,84 @@ public class GlobalStatusSelectorBox
         {
             return offlineItem;
         }
+    }
+
+    /**
+     * Returns the last status that was stored in the configuration xml for the
+     * given protocol provider.
+     * 
+     * @param protocolProvider the protocol provider
+     * @return the last status that was stored in the configuration xml for the
+     *         given protocol provider
+     */
+    public PresenceStatus getLastPresenceStatus(
+        ProtocolProviderService protocolProvider)
+    {
+        String lastStatus = getLastStatusString(protocolProvider);
+
+        OperationSetPresence presence =
+            (OperationSetPresence) protocolProvider
+                .getOperationSet(OperationSetPresence.class);
+
+        if (presence == null)
+            return null;
+
+        Iterator i = presence.getSupportedStatusSet();
+
+        if (lastStatus != null)
+        {
+            PresenceStatus status;
+            while (i.hasNext())
+            {
+                status = (PresenceStatus) i.next();
+                if (status.getStatusName().equals(lastStatus))
+                {
+                    return status;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the last contact status saved in the configuration.
+     * 
+     * @param protocolProvider the protocol provider to which the status
+     *            corresponds
+     * @return the last contact status saved in the configuration.
+     */
+    public String getLastStatusString(ProtocolProviderService protocolProvider)
+    {
+        ConfigurationService configService =
+            GuiActivator.getConfigurationService();
+
+        // find the last contact status saved in the configuration.
+        String lastStatus = null;
+
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        List accounts = configService.getPropertyNamesByPrefix(prefix, true);
+
+        Iterator accountsIter = accounts.iterator();
+
+        while (accountsIter.hasNext())
+        {
+            String accountRootPropName = (String) accountsIter.next();
+
+            String accountUID = configService.getString(accountRootPropName);
+
+            if (accountUID.equals(protocolProvider.getAccountID()
+                .getAccountUniqueID()))
+            {
+                lastStatus =
+                    configService.getString(accountRootPropName
+                        + ".lastAccountStatus");
+
+                if (lastStatus != null)
+                    break;
+            }
+        }
+
+        return lastStatus;
     }
 }

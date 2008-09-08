@@ -226,7 +226,7 @@ public class ChatContactPanel
             g2.setStroke(new BasicStroke(1.5f));
             g2.drawRoundRect(1, 0, this.getWidth() - 1, this.getHeight() - 1,
                     7, 7);
-        }   
+        }
     }
 
     /**
@@ -252,8 +252,6 @@ public class ChatContactPanel
         // telephony contact in its enclosing metacontact
         if(button.getName().equals("call"))
         {
-            CallManager cm =
-                    chatPanel.getChatWindow().getMainFrame().getCallManager();
             Object o = chatContact.getSourceContact();
 
             OperationSetBasicTelephony opSetBT
@@ -267,10 +265,11 @@ public class ChatContactPanel
                 {
                     Vector v = new Vector();
                     v.add((Contact)chatContact.getSourceContact());
-                    cm.createCall(v);
+                    CallManager.createCall(chatContact.getProtocolProvider(), v);
                 }
                 else // hope an appropriate telephony will be used.
-                    cm.createCall(((ChatRoomMember) o).getContactAddress());
+                    CallManager.createCall(chatContact.getProtocolProvider(),
+                        ((ChatRoomMember) o).getContactAddress());
             }
             else if (o instanceof Contact)
             {
@@ -279,7 +278,7 @@ public class ChatContactPanel
 
                 Vector v = new Vector();
                 v.add(m.getDefaultContact(OperationSetBasicTelephony.class));
-                cm.createCall(v);
+                CallManager.createCall(chatContact.getProtocolProvider(), v);
             }
 
             chatPanel.getChatWindow().getMainFrame().toFront();

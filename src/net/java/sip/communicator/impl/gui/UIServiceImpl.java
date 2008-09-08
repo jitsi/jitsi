@@ -12,7 +12,9 @@ import java.util.List;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
@@ -22,11 +24,14 @@ import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import com.sun.jna.examples.*;
 
 import org.osgi.framework.*;
 
@@ -38,7 +43,8 @@ import org.osgi.framework.*;
  */
 public class UIServiceImpl
     implements  UIService,
-                ServiceListener
+                ServiceListener,
+                PropertyChangeListener
 {
     private static final Logger logger = Logger.getLogger(UIServiceImpl.class);
 
@@ -106,8 +112,21 @@ public class UIServiceImpl
 
         mainFrame.setContactList(GuiActivator.getMetaContactListService());
 
+        if (ConfigurationManager.isTransparentWindowEnabled())
+        {
+            try
+            {
+                WindowUtils.setWindowTransparent(mainFrame, true);
+            }
+            catch (UnsupportedOperationException ex)
+            {
+                logger.error(ex.getMessage(), ex);
+                ConfigurationManager.setTransparentWindowEnabled(false);
+            }
+        }
+
         if(ConfigurationManager.isApplicationVisible())
-            SwingUtilities.invokeLater(new RunApplicationGui());
+            mainFrame.setVisible(true);
 
         SwingUtilities.invokeLater(new RunLoginGui());
 
@@ -787,6 +806,43 @@ public class UIServiceImpl
         public boolean isNativeComponent()
         {
             return false;
+        }
+    }
+
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if (evt.getPropertyName().equals(
+            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled"))
+        {
+            String isTransparentString = (String) evt.getNewValue();
+
+            boolean isTransparentWindowEnabled
+                = new Boolean(isTransparentString).booleanValue();
+
+            try
+            {
+                WindowUtils.setWindowTransparent(   mainFrame,
+                    isTransparentWindowEnabled);
+            }
+            catch (UnsupportedOperationException ex)
+            {
+                logger.error(ex.getMessage(), ex);
+
+                if (isTransparentWindowEnabled)
+                {
+                    new ErrorDialog(mainFrame,
+                        Messages.getI18NString("error").getText(),
+                        Messages.getI18NString("transparencyNotEnabled").getText())
+                    .showDialog();
+                }
+                
+                ConfigurationManager.setTransparentWindowEnabled(false);
+            }
+        }
+        else if (evt.getPropertyName().equals(
+            "net.java.sip.communicator.impl.gui.windowTransparency"))
+        {
+            mainFrame.repaint();
         }
     }
 }

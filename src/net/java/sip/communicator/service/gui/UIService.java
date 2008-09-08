@@ -32,7 +32,7 @@ import net.java.sip.communicator.service.protocol.*;
  * best to the required dialog.
  * <p>
  * Certain components within the GUI, like "AddContact" window for example,
- * could be also shown from outside the ui. To make one of
+ * could be also shown from outside the UI bundle. To make one of
  * these component exportable, the <tt>UIService</tt> implementation should attach
  * to it an <tt>WindowID</tt>. A window then could be shown, by invoking
  * <code>getExportedWindow(WindowID)</code> and then

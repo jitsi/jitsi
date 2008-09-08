@@ -18,6 +18,12 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.keybindings.*;
 import java.util.*;
 
+/**
+ * A custom frame that remembers its size and location and could have a
+ * semi transparent background.
+ * 
+ * @author Yana Stamcheva
+ */
 public abstract class SIPCommFrame
     extends JFrame
     implements Observer
@@ -29,6 +35,16 @@ public abstract class SIPCommFrame
     KeybindingSet bindings = null;
 
     public SIPCommFrame()
+    {
+        this.setContentPane(new MainPanel());
+
+        this.init();
+    }
+
+    /**
+     * Initializes this frame.
+     */
+    private void init()
     {
         this.setIconImage(
             ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
@@ -380,6 +396,31 @@ public abstract class SIPCommFrame
                 String action = changedBindings.getBindings().get(binding);
                 imap.put(binding, action);
             }
+        }
+    }
+
+    private class MainPanel extends JPanel
+    {
+        public MainPanel()
+        {
+            super(new BorderLayout());
+
+            this.setOpaque(false);
+        }
+
+        protected void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+
+            Graphics2D g2 = (Graphics2D) g;
+
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+
+            g2.setColor(new Color(255, 255, 255,
+                ConfigurationManager.getWindowTransparency()));
+
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 5, 5);
         }
     }
 

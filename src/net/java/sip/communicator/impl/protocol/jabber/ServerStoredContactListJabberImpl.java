@@ -1054,9 +1054,9 @@ public class ServerStoredContactListJabberImpl
                 logger.error("Cannot load image for contact "
                     + this + " : " + exc.getMessage()
                     , exc);
-            }
 
-            return null;
+                return new byte[0];
+            }
         }
     }
 }

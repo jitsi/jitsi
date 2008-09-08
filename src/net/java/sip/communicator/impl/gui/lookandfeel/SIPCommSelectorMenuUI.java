@@ -51,8 +51,6 @@ public class SIPCommSelectorMenuUI
     {
         AntialiasingManager.activateAntialiasing(g);
 
-        super.paintBackground(g, menuItem, bgColor);
-
         int menuWidth = menuItem.getWidth();
         int menuHeight = menuItem.getHeight();
 

@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -622,7 +623,8 @@ public class ContactRightButtonMenu
         {
             Vector<Contact> contacts = new Vector<Contact>();
             contacts.add(contact);
-            mainFrame.getCallManager().createCall(contacts);
+
+            CallManager.createCall(contact.getProtocolProvider(), contacts);
             // wow, it's really tricky, I wonder there isn't a simple method
             // CallManager#createCall(Contact contact);
         }

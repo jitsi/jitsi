@@ -65,11 +65,8 @@ public class LoginManager
      */
     public void login(ProtocolProviderService protocolProvider)
     {
-
         SecurityAuthorityImpl secAuth = new SecurityAuthorityImpl(mainFrame,
             protocolProvider);
-
-        this.mainFrame.activateAccount(protocolProvider);
 
         new RegisterProvider(protocolProvider, secAuth).start();
     }
@@ -169,15 +166,6 @@ public class LoginManager
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED))
         {
-            this.mainFrame.getStatusPanel().updateStatus(protocolProvider);
-
-            if (mainFrame.getCallManager()
-                .containsCallAccount(protocolProvider))
-            {
-                this.mainFrame.getCallManager().updateCallAccountStatus(
-                    protocolProvider);
-            }
-
             if (presence != null)
             {
                 presence.setAuthorizationHandler(new AuthorizationHandlerImpl(
@@ -186,7 +174,7 @@ public class LoginManager
 
             if(multiUserChat != null)
             {
-                mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                mainFrame.getMultiUserChatManager().getChatRoomList()
                     .synchronizeOpSetWithLocalContactList(
                         protocolProvider, multiUserChat); 
             }
@@ -194,8 +182,6 @@ public class LoginManager
         else if (evt.getNewState().equals(
             RegistrationState.AUTHENTICATION_FAILED))
         {
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED)
             {
@@ -220,24 +206,11 @@ public class LoginManager
                     Messages.getI18NString("error").getText(),
                     msgText).showDialog();
             }
-//            else if (evt.getReasonCode() == RegistrationStateChangeEvent
-//                                                .REASON_AUTHENTICATION_FAILED)
-//            {
-//                String msgText = Messages.getI18NString("authenticationFailed",
-//                    new String[]
-//                    { accountID.getUserID(), accountID.getService() })
-//                    .getText();
-//
-//                new ErrorDialog(null,
-//                    Messages.getI18NString("error").getText(),
-//                    msgText).showDialog();
-//            }
+
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-
             String msgText = Messages.getI18NString("connectionFailedMessage",
                 new String[]
                 { accountID.getUserID(), accountID.getService() }).getText();
@@ -257,8 +230,6 @@ public class LoginManager
         }
         else if (evt.getNewState().equals(RegistrationState.EXPIRED))
         {
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-
             String msgText = Messages.getI18NString("connectionExpiredMessage",
                 new String[]
                 { protocolProvider.getProtocolDisplayName() }).getText();
@@ -271,15 +242,6 @@ public class LoginManager
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
         {
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-
-            if (mainFrame.getCallManager()
-                .containsCallAccount(protocolProvider))
-            {
-                this.mainFrame.getCallManager().updateCallAccountStatus(
-                    protocolProvider);
-            }
-
             if (!manuallyDisconnected)
             {
                 if (evt.getReasonCode() == RegistrationStateChangeEvent
@@ -536,8 +498,6 @@ public class LoginManager
                 {
                     logger.error("Provider could not be registered.", ex);
                 }
-
-                mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
             catch (Throwable ex)
             {
@@ -552,8 +512,6 @@ public class LoginManager
                         protocolProvider.getAccountID().getService()
                         }).getText())
                     .showDialog();
-
-                mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
         }
     }

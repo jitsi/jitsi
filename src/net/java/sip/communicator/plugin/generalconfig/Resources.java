@@ -42,7 +42,7 @@ public class Resources
      * @param key The key of the string.
      * @return A string corresponding to the given key.
      */
-    public static String getApplicationString(String key)
+    public static String getSettingsString(String key)
     {
         return getResources().getSettingsString(key);
     }

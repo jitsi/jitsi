@@ -105,10 +105,10 @@ public class ChatWindow
 
                     if(tabIndex == -1)
                         return;
-                    
+
                     ChatPanel chatPanel
                         = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
-                    
+
                     fireChatChangeEvent(chatPanel);
                 }
             });
@@ -342,12 +342,12 @@ public class ChatWindow
     {
         logger.debug("Set current chat panel to: "
             + chatPanel.getChatName());
-        
+
         if(getChatTabCount() > 0)
             this.chatTabbedPane.setSelectedComponent(chatPanel);
-        
+
         this.setTitle(chatPanel.getChatName());
-        
+
         chatPanel.requestFocusInWriteArea();
     }
     

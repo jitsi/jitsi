@@ -14,10 +14,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -31,6 +28,8 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The contactlist panel not only contains the contact list but it has the role
@@ -76,8 +75,8 @@ public class ContactListPanel
         this.chatWindowManager = mainFrame.getChatWindowManager();
 
         this.treePanel.setOpaque(false);
-
-        contactListScrollPane.setViewport(new ImageBackgroundViewport());
+        this.setOpaque(false);
+        contactListScrollPane.getViewport().setOpaque(false);
 
         contactListScrollPane.getViewport().setView(treePanel);
 
@@ -88,7 +87,6 @@ public class ContactListPanel
 
         this.setPreferredSize(new Dimension(200, 450));
         this.setMinimumSize(new Dimension(80, 200));
-
         this.add(contactListScrollPane);
 
         this.initPluginComponents();

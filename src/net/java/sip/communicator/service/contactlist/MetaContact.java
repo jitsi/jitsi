@@ -114,6 +114,26 @@ public interface MetaContact extends Comparable
     public String getDisplayName();
 
     /**
+     * Returns the avatar of this contact, that can be used when including this
+     * <tt>MetaContact</tt> in user interface.
+     * 
+     * @return an avatar (e.g. user photo) of this contact.
+     */
+    public byte[] getAvatar();
+
+    /**
+     * Returns the avatar of this contact, that can be used when including this
+     * <tt>MetaContact</tt> in user interface. The isLazy
+     * parameter would tell the implementation if it could return the locally
+     * stored avatar or it should obtain the avatar right from the server.
+     * 
+     * @param isLazy Indicates if this method should return the locally stored
+     * avatar or it should obtain the avatar right from the server.
+     * @return an avatar (e.g. user photo) of this contact.
+     */
+    public byte[] getAvatar(boolean isLazy);
+
+    /**
      * Returns a String representation of this <tt>MetaContact</tt>.
      * @return a String representation of this <tt>MetaContact</tt>.
      */

@@ -10,6 +10,9 @@ import java.util.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -18,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -32,7 +36,8 @@ public class MultiUserChatManager
     implements  ChatRoomMessageListener,
                 ChatRoomInvitationListener,
                 ChatRoomInvitationRejectionListener,
-                LocalUserChatRoomPresenceListener
+                LocalUserChatRoomPresenceListener,
+                ServiceListener
 {
     private Logger logger = Logger.getLogger(MultiUserChatManager.class);
 
@@ -41,6 +46,8 @@ public class MultiUserChatManager
     private ChatWindowManager chatWindowManager;
 
     private Hashtable chatRoomHistory = new Hashtable();
+
+    private ChatRoomsList chatRoomList;
 
     /**
      * Creates an instance of <tt>MultiUserChatManager</tt>, by passing to it
@@ -51,8 +58,24 @@ public class MultiUserChatManager
     public MultiUserChatManager(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
-        
+
         this.chatWindowManager = mainFrame.getChatWindowManager();
+
+        this.chatRoomList = new ChatRoomsList(mainFrame);
+
+        this.initChatRoomsList();
+
+        GuiActivator.bundleContext.addServiceListener(this);
+    }
+
+    /**
+     * Returns the JList containing the list of chat rooms.
+     * 
+     * @return the JList containing the list of chat rooms.
+     */
+    public ChatRoomsList getChatRoomList()
+    {
+        return chatRoomList;
     }
 
     public void invitationReceived(ChatRoomInvitationReceivedEvent evt)
@@ -151,9 +174,6 @@ public class MultiUserChatManager
 
         Date date = evt.getTimestamp();
         Message message = evt.getMessage();
-
-        ChatRoomsList chatRoomList
-            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
 
         ConferenceChatPanel chatPanel = null;
 
@@ -265,10 +285,7 @@ public class MultiUserChatManager
     {
         ChatRoom sourceChatRoom = evt.getChatRoom();
 
-        ChatRoomsList chatRoomsList
-            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
-
-        ChatRoomWrapper chatRoomWrapper = chatRoomsList
+        ChatRoomWrapper chatRoomWrapper = chatRoomList
             .findChatRoomWrapperFromChatRoom(sourceChatRoom);
 
         if (evt.getEventType().equals(
@@ -276,7 +293,7 @@ public class MultiUserChatManager
         {
             if(chatRoomWrapper != null)
             {
-                chatRoomsList.refresh();
+                chatRoomList.refresh();
 
                 ConferenceChatPanel chatPanel
                     = (ConferenceChatPanel) chatWindowManager
@@ -301,7 +318,7 @@ public class MultiUserChatManager
             if (sourceChatRoom.isSystem())
             {
                 MultiUserChatServerWrapper serverWrapper
-                    = chatRoomsList.findServerWrapperFromProvider(
+                    = chatRoomList.findServerWrapperFromProvider(
                         sourceChatRoom.getParentProvider());
 
                 serverWrapper.setSystemRoom(sourceChatRoom);
@@ -326,8 +343,7 @@ public class MultiUserChatManager
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
-            mainFrame.getChatRoomsListPanel()
-                .getChatRoomsList().refresh();
+            chatRoomList.refresh();
 
             sourceChatRoom.removeMessageListener(this);
         }
@@ -338,8 +354,7 @@ public class MultiUserChatManager
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
-            mainFrame.getChatRoomsListPanel()
-                .getChatRoomsList().refresh();
+            chatRoomList.refresh();
 
             sourceChatRoom.removeMessageListener(this);
         }
@@ -350,8 +365,7 @@ public class MultiUserChatManager
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
-            mainFrame.getChatRoomsListPanel()
-                .getChatRoomsList().refresh();
+            chatRoomList.refresh();
 
             sourceChatRoom.removeMessageListener(this);
         }
@@ -368,10 +382,7 @@ public class MultiUserChatManager
         ChatRoom chatRoom = invitation.getTargetChatRoom();
         byte[] password = invitation.getChatRoomPassword();
 
-        ChatRoomsList chatRoomsList
-            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
-
-        chatRoomsList.addChatRoom(new ChatRoomWrapper(chatRoom));
+        chatRoomList.addChatRoom(new ChatRoomWrapper(chatRoom));
 
         try
         {
@@ -425,9 +436,6 @@ public class MultiUserChatManager
                 chatRoom.joinAs(nickname, password);
             else
                 chatRoom.joinAs(nickname);
-
-            ChatRoomsList chatRoomList
-                = mainFrame.getChatRoomsListPanel().getChatRoomsList();
 
             ChatRoomWrapper chatRoomWrapper
                 = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
@@ -517,9 +525,6 @@ public class MultiUserChatManager
         {
             chatRoom.join();
 
-            ChatRoomsList chatRoomList
-                = mainFrame.getChatRoomsListPanel().getChatRoomsList();
-
             ChatRoomWrapper chatRoomWrapper
                 = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
 
@@ -604,9 +609,6 @@ public class MultiUserChatManager
     public void leaveChatRoom(ChatRoom chatRoom)
     {
         chatRoom.leave();
-
-        ChatRoomsList chatRoomList
-            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
 
         ChatRoomWrapper chatRoomWrapper
             = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
@@ -706,6 +708,113 @@ public class MultiUserChatManager
                     chatWindowManager.closeChat(chatPanel);
                 }
             });
+        }
+    }
+
+    /**
+     * Initializes the list of chat rooms.
+     */
+    private void initChatRoomsList()
+    {
+        try
+        {
+            ServiceReference[] serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                                        ProtocolProviderService.class.getName(),
+                                        null);
+
+            // If we don't have providers at this stage we just return.
+            if (serRefs == null)
+                return;
+
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                ServiceReference protocolProviderRef = serRefs[i];
+
+                ProtocolProviderService protocolProvider
+                    = (ProtocolProviderService) GuiActivator
+                        .bundleContext.getService(protocolProviderRef);
+
+                this.addChatRoomProvider(protocolProvider);
+            }
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("Failed to obtain service references.", e);
+        }
+    }
+
+    /**
+     * Handles <tt>ServiceEvent</tt>s triggered by adding or removing a
+     * ProtocolProviderService. Updates the list of available chat rooms and
+     * chat room servers.
+     * 
+     * @param event The event to handle.
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        // if the event is caused by a bundle being stopped, we don't want to
+        // know
+        if (event.getServiceReference().getBundle().getState()
+                == Bundle.STOPPING)
+        {
+            return;
+        }
+
+        Object service = GuiActivator.bundleContext.getService(event
+            .getServiceReference());
+
+        // we don't care if the source service is not a protocol provider
+        if (!(service instanceof ProtocolProviderService))
+        {
+            return;
+        }
+
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            this.addChatRoomProvider((ProtocolProviderService) service);
+        }
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.removeChatRoomProvider((ProtocolProviderService) service);
+        }
+
+    }
+    
+    /**
+     * Adds the given provider to the list of chat room providers.
+     * 
+     * @param protocolProvider The provider to add.
+     */
+    private void addChatRoomProvider(ProtocolProviderService protocolProvider)
+    {
+        Object multiUserChatOpSet
+            = protocolProvider
+                .getOperationSet(OperationSetMultiUserChat.class);
+
+        if (multiUserChatOpSet != null)
+        {
+            chatRoomList.addChatServer(protocolProvider,
+                    (OperationSetMultiUserChat) multiUserChatOpSet);
+        }
+    }
+
+    /**
+     * Removes the given provider from the list of chat room providers.
+     * 
+     * @param protocolProvider The provider to remove.
+     */
+    private void removeChatRoomProvider(
+        ProtocolProviderService protocolProvider)
+    {
+        Object multiUserChatOpSet
+            = protocolProvider
+                .getOperationSet(OperationSetMultiUserChat.class);
+
+        if (multiUserChatOpSet != null)
+        {
+            // Remove all related chat rooms.
+            chatRoomList.removeChatServer(protocolProvider);
         }
     }
 }

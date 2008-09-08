@@ -8,16 +8,13 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>ChatRoomsListPanel</tt> is the panel that contains the
@@ -40,11 +37,11 @@ public class ChatRoomsListPanel
      *
      * @param frame the main application frame
      */
-    public ChatRoomsListPanel(MainFrame frame)
+    public ChatRoomsListPanel(MainFrame frame, ChatRoomsList chatRoomsList)
     {
         this.mainFrame = frame;
 
-        this.chatRoomsList = new ChatRoomsList(mainFrame);
+        this.chatRoomsList = chatRoomsList;
 
         this.treePanel.add(chatRoomsList, BorderLayout.NORTH);
 
@@ -66,16 +63,6 @@ public class ChatRoomsListPanel
 
         this.setPreferredSize(new Dimension(200, 450));
         this.setMinimumSize(new Dimension(80, 200));
-    }
-
-    /**
-     * Returns the <tt>ChatRoomsList</tt> component contained in this panel.
-     *
-     * @return the <tt>ChatRoomsList</tt> component contained in this panel
-     */
-    public ChatRoomsList getChatRoomsList()
-    {
-        return chatRoomsList;
     }
 
     /**

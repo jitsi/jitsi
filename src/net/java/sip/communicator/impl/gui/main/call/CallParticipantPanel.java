@@ -13,7 +13,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -27,7 +26,6 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class CallParticipantPanel
     extends JPanel
-    implements ContainerListener
 {
     private JLayeredPane contactPanel = new JLayeredPane();
     
@@ -42,11 +40,7 @@ public class CallParticipantPanel
     private JLabel photoLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
     
-    private DialButton dialButton;
-    
     private JPanel northPanel = new JPanel();
-    
-    private CallParticipantDialpadDialog dialpadDialog;
     
     private Date callStartTime;
     
@@ -60,8 +54,6 @@ public class CallParticipantPanel
     
     private String participantName;
     
-    private CallManager callManager;
-    
     private CallParticipant callParticipant;
     
     /**
@@ -70,13 +62,12 @@ public class CallParticipantPanel
      * @param callManager the <tt>CallManager</tt> that manages the call
      * @param callParticipant a call participant
      */
-    public CallParticipantPanel(CallManager callManager,
-        CallParticipant callParticipant)
-    {   
-        this(callManager, callParticipant.getAddress());
-        
+    public CallParticipantPanel(CallParticipant callParticipant)
+    {
+        this(callParticipant.getAddress());
+
         this.callParticipant = callParticipant;
-        
+
         this.stateLabel.setText(callParticipant.getState().getStateString());
 
         Component holdButton = new HoldButton(this.callParticipant);
@@ -86,63 +77,54 @@ public class CallParticipantPanel
         Component muteButton = new MuteButton(this.callParticipant);
         muteButton.setBounds(36, 74, 36, 36);
         contactPanel.add(muteButton, new Integer(1));
-        
-        dialButton = new DialButton(callManager,
-            new ImageIcon(ImageLoader.getImage(ImageLoader.DIAL_BUTTON)));
-        
-        dialButton.setBounds(94, 74, 36, 36);
-        
-        contactPanel.add(dialButton, new Integer(2));
     }
-    
+
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given participant name.
      * 
      * @param callManager the <tt>CallManager</tt> that manages the call
      * @param participantName a string representing the participant name
      */
-    public CallParticipantPanel(CallManager callManager, String participantName)
+    public CallParticipantPanel(String participantName)
     {   
         super(new BorderLayout());
-        
-        this.callManager = callManager;
-        
+
         // Initialize the call start time. This date is meant to be used in
         // the GuiCallParticipantRecord, which is added to the CallList after
         // a call.        
         this.callStartTime = new Date(System.currentTimeMillis());
-        
+
         this.participantName = participantName;
-        
+
         this.nameLabel.setText(participantName);
-        
+
         this.timer = new Timer(1000, new CallTimerListener());
         this.timer.setRepeats(true);
-        
+
         //Initialize the date to 0
         //Need to use Calendar because new Date(0) retuns a date where the
         //hour is intialized to 1.
         Calendar c = Calendar.getInstance();
         c.set(0, 0, 0, 0, 0, 0);
         this.callDuration = c.getTime();
-        
+
         namePanel.add(nameLabel);
         namePanel.add(stateLabel);
         namePanel.add(timeLabel);
 
         contactPanel.setPreferredSize(new Dimension(130, 150));
-        
+
         photoLabel.setBounds(20, 0, 90, 100);
         namePanel.setBounds(0, 110, 130, 40);
-        
+
         contactPanel.add(photoLabel, new Integer(0));
         contactPanel.add(namePanel, new Integer(0));
-        
+
         northPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        
+
         northPanel.add(contactPanel);
-        
-        this.add(northPanel, BorderLayout.NORTH);        
+
+        this.add(northPanel, BorderLayout.NORTH);
     }
     
     /**
@@ -257,72 +239,5 @@ public class CallParticipantPanel
     public String getParticipantName()
     {
         return participantName;
-    }
-    
-    /**
-     * Customized button for dialpad.
-     */
-    private class DialButton extends JButton
-    {
-        private CallManager callManager;
-        
-        public DialButton(CallManager manager, ImageIcon iconImage)
-        {
-            super(iconImage);
-            
-            this.callManager = manager;
-            
-            this.setOpaque(false);
-            
-            this.setToolTipText(Messages.getI18NString("dialpad").getText());
-            
-            dialpadDialog
-                = new CallParticipantDialpadDialog(callManager, callParticipant);
-            
-            this.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    if(!dialpadDialog.isVisible())
-                    {
-                        dialpadDialog.setSize(
-                            callManager.getMainFrame().getWidth() - 20,
-                            dialpadDialog.getHeight());
-                        
-                        dialpadDialog.setLocation(
-                            callManager.getMainFrame().getX() + 10,
-                            getLocationOnScreen().y + getHeight());
-                        
-                        dialpadDialog.setVisible(true);
-                    }
-                    else
-                    {
-                        dialpadDialog.setVisible(false);
-                    }
-                }
-            });
-        }
-    }
-
-    public void componentAdded(ContainerEvent e)
-    {}
-
-    /**
-     * Remove all dialogs open by this participant panel.
-     */
-    public void componentRemoved(ContainerEvent e)
-    {   
-        this.removeDialogs();
-        
-        e.getContainer().removeContainerListener(this);        
-    }
-    
-    /**
-     * Removes all dialogs open by this participant panel.
-     */
-    public void removeDialogs()
-    {
-        if(dialpadDialog != null && dialpadDialog.isVisible())
-            dialpadDialog.setVisible(false);        
     }
 }

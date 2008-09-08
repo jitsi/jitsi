@@ -11,7 +11,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -37,7 +36,18 @@ public class SIPCommMenu
      */
     public SIPCommMenu()
     {
-        this.setUI(new SIPCommSelectorMenuUI());
+        super();
+    }
+
+    /**
+     * Creates an instance of <tt>SIPCommMenu</tt> by specifying
+     * the text and the icon.
+     */
+    public SIPCommMenu(String text, Icon defaultIcon)
+    {
+        super(text);
+
+        this.setIcon(defaultIcon);
     }
 
     /**
@@ -71,13 +81,19 @@ public class SIPCommMenu
     /**
      * Selects the given item.
      * 
-     * @param o The object to select.
+     * @param selectedObject The object to select.
      * @param icon The icon to select.
      */
-    public void setSelected(Object o, ImageIcon icon)
+    public void setSelected(SelectedObject selectedObject)
     {
-        this.setIcon(icon);
-        this.setSelectedObject(o);
+        if (selectedObject.getIcon() != null)
+            this.setIcon(selectedObject.getIcon());
+
+        if (selectedObject.getText() != null)
+            this.setText(selectedObject.getText());
+
+        if (selectedObject.getObject() != null)
+            this.setSelectedObject(selectedObject.getObject());
     }
 
     /**

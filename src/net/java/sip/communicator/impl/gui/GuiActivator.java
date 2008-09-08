@@ -69,7 +69,7 @@ public class GuiActivator implements BundleActivator
     public void start(BundleContext bundleContext) throws Exception {
 
         GuiActivator.bundleContext = bundleContext;
-        
+
         NotificationManager.registerGuiNotifications();
         bundleContext.addServiceListener(new NotificationServiceListener());
 
@@ -94,6 +94,9 @@ public class GuiActivator implements BundleActivator
             logger.logExit();
         }
 
+        GuiActivator.getConfigurationService()
+            .addPropertyChangeListener(uiService);
+
         bundleContext.addServiceListener(uiService);
     }
 
@@ -107,8 +110,13 @@ public class GuiActivator implements BundleActivator
      *   listeners, unregister all services registered by the bundle, and
      *   release all services used by the bundle.
      */
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext) throws Exception
+    {
         logger.info("UI Service ...[STOPPED]");
+
+        GuiActivator.getConfigurationService()
+            .removePropertyChangeListener(uiService);
+
     }
 
     /**

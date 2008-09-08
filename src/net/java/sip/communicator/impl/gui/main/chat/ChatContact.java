@@ -174,35 +174,18 @@ public class ChatContact
     public ImageIcon getImage()
     {
         byte[] contactImage = null;
-        
+
         if(!(sourceContact instanceof Contact))
             return null;
-        
+
         Contact contact = (Contact)sourceContact;
-        
+
         MetaContact metaContact = GuiActivator.getMetaContactListService()
             .findMetaContactByContact(contact);
-        
+
         if(metaContact != null)
         {
-            Iterator i = metaContact.getContacts();
-            
-            while(i.hasNext())
-            {
-                Contact protoContact = (Contact) i.next();
-                
-                try
-                {
-                    contactImage = protoContact.getImage();
-                }
-                catch (Exception ex)
-                {
-                    logger.error("Failed to load contact photo.", ex);
-                }
-                
-                if(contactImage != null && contactImage.length > 0)
-                    break;
-            }
+            contactImage = metaContact.getAvatar();
         }
         else if(contact != null)
         {
@@ -215,7 +198,7 @@ public class ChatContact
                 logger.error("Failed to load contact photo.", ex);
             }
         }
-        
+
         if(contactImage != null)
         {
             Image image = ImageLoader.getBytesInImage(contactImage);

@@ -31,6 +31,10 @@ public class ConfigurationManager
     
     private static int chatHistorySize;
     
+    private static int windowTransparency;
+    
+    private static boolean isTransparentWindowEnabled;
+    
     private static ConfigurationService configService
         = GeneralConfigPluginActivator.getConfigurationService();
 
@@ -46,7 +50,7 @@ public class ConfigurationManager
         String autoPopup = configService.getString(autoPopupProperty);
 
         if(autoPopup == null)
-            autoPopup = Resources.getApplicationString(autoPopupProperty);
+            autoPopup = Resources.getSettingsString(autoPopupProperty);
         
         if(autoPopup != null && autoPopup.equalsIgnoreCase("yes"))
             autoPopupNewMessage = true;
@@ -58,7 +62,7 @@ public class ConfigurationManager
         
         if(messageCommand == null)
             messageCommand = 
-                Resources.getApplicationString(messageCommandProperty);
+                Resources.getSettingsString(messageCommandProperty);
 
         if(messageCommand != null && messageCommand.length() > 0)
         {
@@ -73,7 +77,7 @@ public class ConfigurationManager
         
         if(isSendTypingNotif == null)
             isSendTypingNotif = 
-                Resources.getApplicationString(isSendTypingNotifProperty);
+                Resources.getSettingsString(isSendTypingNotifProperty);
 
         if(isSendTypingNotif != null && isSendTypingNotif.length() > 0)
         {
@@ -91,7 +95,7 @@ public class ConfigurationManager
         if(isMultiChatWindowEnabledString == null)
             isMultiChatWindowEnabledString = 
                 Resources.
-                getApplicationString(isMultiChatWindowEnabledStringProperty);
+                getSettingsString(isMultiChatWindowEnabledStringProperty);
 
         if(isMultiChatWindowEnabledString != null
             && isMultiChatWindowEnabledString.length() > 0)
@@ -112,7 +116,7 @@ public class ConfigurationManager
         if(isHistoryLoggingEnabledString == null)
             isHistoryLoggingEnabledString = 
                 Resources.
-                getApplicationString(isHistoryLoggingEnabledPropertyString);
+                getSettingsString(isHistoryLoggingEnabledPropertyString);
 
         if(isHistoryLoggingEnabledString != null
             && isHistoryLoggingEnabledString.length() > 0)
@@ -131,7 +135,7 @@ public class ConfigurationManager
         
         if(isHistoryShownString == null)
             isHistoryShownString = 
-                Resources.getApplicationString(isHistoryShownStringProperty);
+                Resources.getSettingsString(isHistoryShownStringProperty);
 
         if(isHistoryShownString != null
             && isHistoryShownString.length() > 0)
@@ -140,16 +144,16 @@ public class ConfigurationManager
                 = new Boolean(isHistoryShownString)
                     .booleanValue();
         }
-        
+
         // Load the "chatHistorySize" property.
         String chatHistorySizeStringProperty =
             "net.java.sip.communicator.impl.gui.messageHistorySize";
         String chatHistorySizeString
             = configService.getString(chatHistorySizeStringProperty);
-        
+
         if(chatHistorySizeString == null)
             chatHistorySizeString = 
-                Resources.getApplicationString(chatHistorySizeStringProperty);
+                Resources.getSettingsString(chatHistorySizeStringProperty);
 
         if(chatHistorySizeString != null
             && chatHistorySizeString.length() > 0)
@@ -157,6 +161,42 @@ public class ConfigurationManager
             chatHistorySize
                 = new Integer(chatHistorySizeString)
                 .intValue();
+        }
+
+        // Load the "isTransparentWindowEnabled" property.
+        String isTransparentWindowEnabledProperty =
+            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled";
+
+        String isTransparentWindowEnabledString
+            = configService.getString(isTransparentWindowEnabledProperty);
+
+        if(isTransparentWindowEnabledString == null)
+            isTransparentWindowEnabledString = 
+                Resources.getSettingsString(isTransparentWindowEnabledProperty);
+
+        if(isTransparentWindowEnabledString != null
+            && isTransparentWindowEnabledString.length() > 0)
+        {
+            isTransparentWindowEnabled
+                = new Boolean(isTransparentWindowEnabledString).booleanValue();
+        }
+
+        // Load the "windowTransparency" property.
+        String windowTransparencyProperty =
+            "net.java.sip.communicator.impl.gui.windowTransparency";
+
+        String windowTransparencyString
+            = configService.getString(windowTransparencyProperty);
+
+        if(windowTransparencyString == null)
+            windowTransparencyString = 
+                Resources.getSettingsString(windowTransparencyProperty);
+
+        if(windowTransparencyString != null
+            && windowTransparencyString.length() > 0)
+        {
+            windowTransparency
+                = new Integer(windowTransparencyString).intValue();
         }
     }
 
@@ -244,6 +284,48 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns <code>true</code> if transparent windows are enabled,
+     * <code>false</code> otherwise.
+     * 
+     * @return <code>true</code> if transparent windows are enabled,
+     * <code>false</code> otherwise.
+     */
+    public static boolean isTransparentWindowEnabled()
+    {
+        return isTransparentWindowEnabled;
+    }
+
+    public static void setTransparentWindowEnabled(
+        boolean isTransparentWindowEnabled)
+    {
+        ConfigurationManager.isTransparentWindowEnabled =
+            isTransparentWindowEnabled;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled",
+            new Boolean(isTransparentWindowEnabled).toString());
+    }
+
+    /**
+     * Returns the transparency value for all transparent windows.
+     * 
+     * @return the transparency value for all transparent windows.
+     */
+    public static int getWindowTransparency()
+    {
+        return windowTransparency;
+    }
+
+    public static void setWindowTransparency(int windowTransparency)
+    {
+        ConfigurationManager.windowTransparency = windowTransparency;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.windowTransparency",
+            new Integer(windowTransparency).toString());
+    }
+
+    /**
      * Updates the "autoPopupNewMessage" property.
      * 
      * @param autoPopupNewMessage indicates to the user interface whether new
@@ -252,7 +334,7 @@ public class ConfigurationManager
     public static void setAutoPopupNewMessage(boolean autoPopupNewMessage)
     {
         ConfigurationManager.autoPopupNewMessage = autoPopupNewMessage;
-          
+
         if(autoPopupNewMessage)
             configService.setProperty(
                     "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
@@ -273,7 +355,7 @@ public class ConfigurationManager
     public static void setSendTypingNotifications(boolean isSendTypingNotif)
     {
         isSendTypingNotifications = isSendTypingNotif;
-            
+
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.sendTypingNotifications",
                 Boolean.toString(isSendTypingNotif));

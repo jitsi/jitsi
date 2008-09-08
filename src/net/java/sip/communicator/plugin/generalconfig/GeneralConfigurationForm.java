@@ -4,19 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
-/**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
 package net.java.sip.communicator.plugin.generalconfig;
 
 import java.awt.*;
@@ -220,6 +207,60 @@ public class GeneralConfigurationForm
                     Resources.getString("bringWindowToFront"));
                 bringToFrontCheckBox.addActionListener(this);
             }
+//            {
+//                JPanel transparencyPanel = new JPanel();
+//                BorderLayout transparencyPanelLayout
+//                    = new BorderLayout(10, 10);
+//                transparencyPanel.setLayout(transparencyPanelLayout);
+//                mainPanel.add(transparencyPanel);
+//                mainPanel.add(Box.createVerticalStrut(10));
+//                transparencyPanel.setAlignmentX(0.0f);
+//                transparencyPanel.setPreferredSize(
+//                    new java.awt.Dimension(380, 60));
+//                {
+//                    final JCheckBox enableTransparencyCheckBox
+//                        = new JCheckBox(
+//                            Resources.getString("enableTransparency"),
+//                            ConfigurationManager.isTransparentWindowEnabled());
+//                    transparencyPanel.add(
+//                        enableTransparencyCheckBox, BorderLayout.NORTH);
+//
+//                    enableTransparencyCheckBox.addChangeListener(
+//                        new ChangeListener()
+//                    {
+//                        public void stateChanged(ChangeEvent e)
+//                        {
+//                            ConfigurationManager.setTransparentWindowEnabled(
+//                                enableTransparencyCheckBox.isSelected());
+//                        }
+//                    });
+//
+//                }
+//                {
+//                    JLabel transparencyLabel = new JLabel(
+//                        Resources.getString("transparency"));
+//
+//                    transparencyPanel.add(  transparencyLabel,
+//                                            BorderLayout.WEST);
+//                }
+//                {
+//                    final JSlider transparencySlider
+//                        = new JSlider(0, 255,
+//                            ConfigurationManager.getWindowTransparency());
+//
+//                    transparencyPanel.add(  transparencySlider,
+//                                            BorderLayout.CENTER);
+//
+//                    transparencySlider.addChangeListener(new ChangeListener()
+//                    {
+//                        public void stateChanged(ChangeEvent e)
+//                        {
+//                            int value = transparencySlider.getValue();
+//                            ConfigurationManager.setWindowTransparency(value);
+//                        }
+//                    });
+//                }
+//            }
         }
     }
 
@@ -227,16 +268,16 @@ public class GeneralConfigurationForm
     {
         groupMessagesCheckBox.setSelected(
             ConfigurationManager.isMultiChatWindowEnabled());
-        
+
         logHistoryCheckBox.setSelected(
             ConfigurationManager.isHistoryLoggingEnabled());
-        
+
         showHistoryCheckBox.setSelected(
             ConfigurationManager.isHistoryShown());
-        
+
         historySizeSpinner.setValue(
             ConfigurationManager.getChatHistorySize());
-        
+
         if (!ConfigurationManager.isHistoryLoggingEnabled())
         {
             showHistoryCheckBox.setEnabled(false);
@@ -250,10 +291,10 @@ public class GeneralConfigurationForm
 
         sendMessageComboBox.setSelectedItem(
             ConfigurationManager.getSendMessageCommand());
-        
+
         enableTypingNotifiCheckBox.setSelected(
             ConfigurationManager.isSendTypingNotifications());
-        
+
         bringToFrontCheckBox.setSelected(
             ConfigurationManager.isAutoPopupNewMessage());
     }
@@ -289,7 +330,7 @@ public class GeneralConfigurationForm
                 String workingDir = new File(".").getCanonicalPath();
                 
                 String appName = 
-                        Resources.getApplicationString("applicationName");
+                        Resources.getSettingsString("applicationName");
                 ShellLink shortcut = new ShellLink(ShellLink.STARTUP, appName);
                 shortcut.setUserType(ShellLink.CURRENT_USER);
                 shortcut.setDescription(
@@ -364,14 +405,13 @@ public class GeneralConfigurationForm
                 bringToFrontCheckBox.isSelected());
         }
     }
-    
-    
+
     private void initAutoStartCheckBox()
     {
         try 
         {
             String appName = 
-                        Resources.getApplicationString("applicationName");
+                        Resources.getSettingsString("applicationName");
             ShellLink shortcut = 
                 new ShellLink(
                     ShellLink.STARTUP, 

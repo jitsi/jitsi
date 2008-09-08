@@ -189,6 +189,13 @@ public class Constants
         = new Color(GuiActivator.getResources().
             getColor("listSelectionBorderColor"));
 
+    /**
+     * The color used to paint the background of contact list groups.
+     */
+    public static final Color CONTACT_LIST_GROUP_BG_COLOR
+        = new Color(GuiActivator.getResources()
+                .getColor("contactListGroupRowColor"));
+
     /*
      * ======================================================================
      * --------------------------- FONT CONSTANTS ---------------------------

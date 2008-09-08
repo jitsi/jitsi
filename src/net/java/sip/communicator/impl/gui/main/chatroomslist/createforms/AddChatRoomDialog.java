@@ -123,8 +123,8 @@ public class AddChatRoomDialog
                         newChatRoom = multiUserChatOpSet
                             .createChatRoom(chatRoomName,
                                 new Hashtable());
-                        
-                        mainFrame.getChatRoomsListPanel().getChatRoomsList()
+
+                        mainFrame.getMultiUserChatManager().getChatRoomList()
                             .addChatRoom(new ChatRoomWrapper(newChatRoom));
                     }
                     catch (OperationFailedException e)

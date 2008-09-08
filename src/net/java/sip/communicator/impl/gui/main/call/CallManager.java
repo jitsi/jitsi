@@ -6,21 +6,15 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.text.*;
 import java.util.*;
 
-import javax.swing.*;
 import javax.swing.Timer;
-import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -34,492 +28,69 @@ import net.java.sip.communicator.util.*;
  */
 
 public class CallManager
-    extends JPanel
-    implements  ActionListener,
-                CallListener,
-                ListSelectionListener,
-                ChangeListener
 {
-    private Logger logger = Logger.getLogger(CallManager.class.getName());
+    private static Logger logger = Logger.getLogger(CallManager.class.getName());
 
-    private CallComboBox phoneNumberCombo;
+    private static Hashtable activeCalls = new Hashtable();
 
-    private JPanel comboPanel = new JPanel(new BorderLayout());
-
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,
-        10, 0));
-
-    private JLabel callViaLabel = new JLabel(Messages.getI18NString("callVia")
-        .getText()
-        + " ");
-
-    private JPanel callViaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT,
-        0, 4));
-
-    private AccountSelectorBox accountSelectorBox;
-
-    private SIPCommButton callButton = new SIPCommButton(ImageLoader
-        .getImage(ImageLoader.CALL_BUTTON_BG), ImageLoader
-        .getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG), null, ImageLoader
-        .getImage(ImageLoader.CALL_BUTTON_PRESSED_BG));
-
-    private SIPCommButton hangupButton = new SIPCommButton(ImageLoader
-        .getImage(ImageLoader.HANGUP_BUTTON_BG), ImageLoader
-        .getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG), null, ImageLoader
-        .getImage(ImageLoader.HANGUP_BUTTON_PRESSED_BG));
-
-    private SIPCommButton minimizeButton = new SIPCommButton(ImageLoader
-        .getImage(ImageLoader.CALL_PANEL_MINIMIZE_BUTTON), ImageLoader
-        .getImage(ImageLoader.CALL_PANEL_MINIMIZE_ROLLOVER_BUTTON));
-
-    private SIPCommButton restoreButton = new SIPCommButton(ImageLoader
-        .getImage(ImageLoader.CALL_PANEL_RESTORE_BUTTON), ImageLoader
-        .getImage(ImageLoader.CALL_PANEL_RESTORE_ROLLOVER_BUTTON));
-
-    private JPanel minimizeButtonPanel = new JPanel(new FlowLayout(
-        FlowLayout.RIGHT));
-
-    private MainFrame mainFrame;
-
-    private Hashtable activeCalls = new Hashtable();
-
-    private boolean isCallMetaContact;
-
-    private Hashtable removeCallTimers = new Hashtable();
-
-    private ProtocolProviderService selectedCallProvider;
-
-    /**
-     * Creates an instance of <tt>CallManager</tt>.
-     * 
-     * @param mainFrame The main application window.
-     */
-    public CallManager(MainFrame mainFrame)
+    public static class GuiCallListener implements CallListener
     {
-        super(new BorderLayout());
-
-        this.mainFrame = mainFrame;
-
-        this.phoneNumberCombo = new CallComboBox(this);
-
-        this.accountSelectorBox = new AccountSelectorBox(this);
-
-        this.buttonsPanel
-            .setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
-
-        this.comboPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 0, 5));
-
-        this.init();
-    }
-
-    /**
-     * Initializes and constructs this panel.
-     */
-    private void init()
-    {
-        this.phoneNumberCombo.setEditable(true);
-
-        this.callViaPanel.add(callViaLabel);
-        this.callViaPanel.add(accountSelectorBox);
-
-        this.comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
-
-        this.callButton.setName("call");
-        this.hangupButton.setName("hangup");
-        this.minimizeButton.setName("minimize");
-        this.restoreButton.setName("restore");
-
-        this.callButton.setToolTipText(
-            Messages.getI18NString("call").getText());
-
-        this.hangupButton.setToolTipText(
-            Messages.getI18NString("hangUp").getText());
-
-        this.minimizeButton.setToolTipText(Messages.getI18NString(
-            "hideCallPanel").getText()
-            + " Ctrl - H");
-        this.restoreButton.setToolTipText(Messages.getI18NString(
-            "showCallPanel").getText()
-            + " Ctrl - H");
-
-        this.callButton.addActionListener(this);
-        this.hangupButton.addActionListener(this);
-        this.minimizeButton.addActionListener(this);
-        this.restoreButton.addActionListener(this);
-
-        this.buttonsPanel.add(callButton);
-        this.buttonsPanel.add(hangupButton);
-
-        this.callButton.setEnabled(false);
-
-        this.hangupButton.setEnabled(false);
-
-        this.add(minimizeButtonPanel, BorderLayout.SOUTH);
-
-        this.setCallPanelVisible(ConfigurationManager.isCallPanelShown());
-    }
-
-    /**
-     * Handles the <tt>ActionEvent</tt> generated when user presses one of the
-     * buttons in this panel.
-     */
-    public void actionPerformed(ActionEvent evt)
-    {
-        JButton button = (JButton) evt.getSource();
-        String buttonName = button.getName();
-
-        if (buttonName.equals("call"))
+        /**
+         * Implements CallListener.incomingCallReceived. When a call is received
+         * creates a <tt>ReceivedCallDialog</tt> and plays the
+         * ring phone sound to the user.
+         */
+        public void incomingCallReceived(CallEvent event)
         {
-            Component selectedPanel = mainFrame.getSelectedTab();
+            Call sourceCall = event.getSourceCall();
 
-            // call button is pressed over an already open call panel
-            if (selectedPanel != null
-                && selectedPanel instanceof CallPanel
-                && ((CallPanel) selectedPanel).getCall()
-                    .getCallState() == CallState.CALL_INITIALIZATION)
+            ReceivedCallDialog receivedCallDialog
+                = new ReceivedCallDialog(sourceCall);
+
+            receivedCallDialog.setVisible(true);
+
+            NotificationManager.fireNotification(
+                NotificationManager.INCOMING_CALL,
+                null,
+                "Incoming call recived from: "
+                    + sourceCall.getCallParticipants().next());
+
+            activeCalls.put(sourceCall, receivedCallDialog);
+        }
+
+        /**
+         * Implements CallListener.callEnded. Stops sounds that are playing at the
+         * moment if there're any. Removes the call panel and disables the hangup
+         * button.
+         */
+        public void callEnded(CallEvent event)
+        {
+            Call sourceCall = event.getSourceCall();
+
+            NotificationManager.stopSound(NotificationManager.BUSY_CALL);
+            NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
+            NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+
+            if (activeCalls.get(sourceCall) != null)
             {
+                CallDialog callDialog = (CallDialog) activeCalls.get(sourceCall);
 
-                NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-                NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-
-                CallPanel callPanel = (CallPanel) selectedPanel;
-
-                Iterator participantPanels = callPanel.getParticipantsPanels();
-
-                while (participantPanels.hasNext())
-                {
-                    CallParticipantPanel panel
-                        = (CallParticipantPanel) participantPanels.next();
-
-                    panel.setState("Connecting");
-                }
-
-                Call call = callPanel.getCall();
-
-                answerCall(call);
-            }
-            // call button is pressed over the call list
-            else if (selectedPanel != null
-                && selectedPanel instanceof CallListPanel
-                && ((CallListPanel) selectedPanel).getCallList()
-                    .getSelectedIndex() != -1)
-            {
-
-                CallListPanel callListPanel = (CallListPanel) selectedPanel;
-
-                GuiCallParticipantRecord callRecord
-                    = (GuiCallParticipantRecord) callListPanel
-                        .getCallList().getSelectedValue();
-
-                String stringContact = callRecord.getParticipantName();
-
-                createCall(stringContact);
-            }
-            // call button is pressed over the contact list
-            else if (selectedPanel != null
-                && selectedPanel instanceof ContactListPanel)
-            {
-                // call button is pressed when a meta contact is selected
-                if (isCallMetaContact)
-                {
-                    Object[] selectedContacts = mainFrame.getContactListPanel()
-                        .getContactList().getSelectedValues();
-
-                    Vector telephonyContacts = new Vector();
-
-                    for (int i = 0; i < selectedContacts.length; i++)
-                    {
-
-                        Object o = selectedContacts[i];
-
-                        if (o instanceof MetaContact)
-                        {
-
-                            Contact contact = ((MetaContact) o)
-                                    .getDefaultContact(
-                                    OperationSetBasicTelephony.class);
-
-                            if (contact != null)
-                                telephonyContacts.add(contact);
-                            else
-                            {
-                                new ErrorDialog(
-                                    this.mainFrame,
-                                    Messages.getI18NString("warning").getText(),
-                                    Messages.getI18NString(
-                                        "contactNotSupportingTelephony",
-                                        new String[]
-                                        { ((MetaContact) o).getDisplayName() })
-                                            .getText())
-                                    .showDialog();
-                            }
-                        }
-                    }
-
-                    if (telephonyContacts.size() > 0)
-                        createCall(telephonyContacts);
-
-                }
-                else if (!phoneNumberCombo.isComboFieldEmpty())
-                {
-
-                    // if no contact is selected checks if the user has chosen
-                    // or has
-                    // writen something in the phone combo box
-
-                    String stringContact = phoneNumberCombo.getEditor()
-                        .getItem().toString();
-
-                    createCall(stringContact);
-                }
-            }
-            else if (selectedPanel != null
-                && selectedPanel instanceof DialPanel)
-            {
-                String stringContact = phoneNumberCombo.getEditor().getItem()
-                    .toString();
-                createCall(stringContact);
+                disposeCallDialogWait(callDialog);
             }
         }
-        else if (buttonName.equalsIgnoreCase("hangup"))
+
+        public void outgoingCallCreated(CallEvent event)
         {
-            Component selectedPanel = this.mainFrame.getSelectedTab();
+            Call sourceCall = event.getSourceCall();
 
-            if (selectedPanel != null && selectedPanel instanceof CallPanel)
-            {
+            CallPanel callPanel
+                = new CallPanel(sourceCall,
+                                GuiCallParticipantRecord.OUTGOING_CALL);
 
-                NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-                NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-                NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+            CallDialog callDialog = CallManager.openCallDialog(callPanel);
 
-                CallPanel callPanel = (CallPanel) selectedPanel;
-
-                Call call = callPanel.getCall();
-
-                if (removeCallTimers.containsKey(callPanel))
-                {
-                    ((Timer) removeCallTimers.get(callPanel)).stop();
-                    removeCallTimers.remove(callPanel);
-                }
-
-                removeCallPanel(callPanel);
-
-                if(call != null)
-                {
-                    ProtocolProviderService pps = call.getProtocolProvider();
-
-                    OperationSetBasicTelephony telephony = mainFrame
-                        .getTelephonyOpSet(pps);
-
-                    Iterator participants = call.getCallParticipants();
-
-                    while (participants.hasNext())
-                    {
-                        try
-                        {
-                            // now we hang up the first call participant in the
-                            // call
-                            telephony
-                                .hangupCallParticipant((CallParticipant) participants
-                                    .next());
-                        }
-                        catch (OperationFailedException e)
-                        {
-                            logger.error("Hang up was not successful: " + e);
-                        }
-                    }
-                }
-            }
+            activeCalls.put(sourceCall, callDialog);
         }
-        else if (buttonName.equalsIgnoreCase("minimize"))
-        {
-            JCheckBoxMenuItem hideCallPanelItem = mainFrame.getMainMenu()
-                .getViewMenu().getHideCallPanelItem();
-
-            if (!hideCallPanelItem.isSelected())
-                hideCallPanelItem.setSelected(true);
-
-            this.setCallPanelVisible(false);
-        }
-        else if (buttonName.equalsIgnoreCase("restore"))
-        {
-
-            JCheckBoxMenuItem hideCallPanelItem = mainFrame.getMainMenu()
-                .getViewMenu().getHideCallPanelItem();
-
-            if (hideCallPanelItem.isSelected())
-                hideCallPanelItem.setSelected(false);
-
-            this.setCallPanelVisible(true);
-        }
-    }
-
-    /**
-     * Hides the panel containing call and hangup buttons.
-     */
-    public void setCallPanelVisible(boolean isVisible)
-    {
-        if (isVisible)
-        {
-            this.add(comboPanel, BorderLayout.NORTH);
-            this.add(buttonsPanel, BorderLayout.CENTER);
-
-            this.minimizeButtonPanel.removeAll();
-            this.minimizeButtonPanel.add(minimizeButton);
-        }
-        else
-        {
-            this.remove(comboPanel);
-            this.remove(buttonsPanel);
-
-            this.minimizeButtonPanel.removeAll();
-            this.minimizeButtonPanel.add(restoreButton);
-
-            if (mainFrame.isVisible())
-                this.mainFrame.getContactListPanel().getContactList()
-                    .requestFocus();
-        }
-
-        if (ConfigurationManager.isCallPanelShown() != isVisible)
-            ConfigurationManager.setShowCallPanel(isVisible);
-
-        this.mainFrame.validate();
-    }
-
-    /**
-     * Adds the given call account to the list of call via accounts.
-     * 
-     * @param pps the protocol provider service corresponding to the account
-     */
-    public void addCallAccount(ProtocolProviderService pps)
-    {
-        if (accountSelectorBox.getAccountsNumber() > 0)
-        {
-            this.comboPanel.add(callViaPanel, BorderLayout.SOUTH);
-        }
-        accountSelectorBox.addAccount(pps);
-    }
-
-    /**
-     * Removes the account corresponding to the given protocol provider from the
-     * call via selector box.
-     * 
-     * @param pps the protocol provider service to remove
-     */
-    public void removeCallAccount(ProtocolProviderService pps)
-    {
-        this.accountSelectorBox.removeAccount(pps);
-
-        if (accountSelectorBox.getAccountsNumber() < 2)
-        {
-            this.comboPanel.remove(callViaPanel);
-        }
-    }
-
-    /**
-     * Returns TRUE if the account corresponding to the given protocol provider
-     * is already contained in the call via selector box, otherwise returns
-     * FALSE.
-     * 
-     * @param pps the protocol provider service for the account
-     * @return TRUE if the account corresponding to the given protocol provider
-     *         is already contained in the call via selector box, otherwise
-     *         returns FALSE
-     */
-    public boolean containsCallAccount(ProtocolProviderService pps)
-    {
-        return accountSelectorBox.containsAccount(pps);
-    }
-
-    /**
-     * Updates the call via account status.
-     * 
-     * @param pps the protocol provider service for the account
-     */
-    public void updateCallAccountStatus(ProtocolProviderService pps)
-    {
-        accountSelectorBox.updateAccountStatus(pps);
-    }
-
-    /**
-     * Returns the account selector box.
-     * 
-     * @return the account selector box.
-     */
-    public AccountSelectorBox getAccountSelectorBox()
-    {
-        return accountSelectorBox;
-    }
-
-    /**
-     * Sets the protocol provider to use for a call.
-     * 
-     * @param provider the protocol provider to use for a call.
-     */
-    public void setCallProvider(ProtocolProviderService provider)
-    {
-        this.selectedCallProvider = provider;
-    }
-
-    /**
-     * Implements CallListener.incomingCallReceived. When a call is received
-     * creates a call panel and adds it to the main tabbed pane and plays the
-     * ring phone sound to the user.
-     */
-    public void incomingCallReceived(CallEvent event)
-    {
-        Call sourceCall = event.getSourceCall();
-
-        CallPanel callPanel = new CallPanel(this, sourceCall,
-            GuiCallParticipantRecord.INCOMING_CALL);
-
-        mainFrame.addCallPanel(callPanel);
-
-        if (mainFrame.getState() == JFrame.ICONIFIED)
-            mainFrame.setState(JFrame.NORMAL);
-
-        if(!mainFrame.isVisible())
-            mainFrame.setVisible(true);
-
-        mainFrame.toFront();
-
-        this.callButton.setEnabled(true);
-        this.hangupButton.setEnabled(true);
-
-        NotificationManager.fireNotification(
-            NotificationManager.INCOMING_CALL,
-            null,
-            "Incoming call recived from: "
-                + sourceCall.getCallParticipants().next());
-
-        activeCalls.put(sourceCall, callPanel);
-
-        this.setCallPanelVisible(true);
-    }
-
-    /**
-     * Implements CallListener.callEnded. Stops sounds that are playing at the
-     * moment if there're any. Removes the call panel and disables the hangup
-     * button.
-     */
-    public void callEnded(CallEvent event)
-    {
-        Call sourceCall = event.getSourceCall();
-
-        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
-
-        if (activeCalls.get(sourceCall) != null)
-        {
-            CallPanel callPanel = (CallPanel) activeCalls.get(sourceCall);
-
-            this.removeCallPanelWait(callPanel);
-        }
-    }
-
-    public void outgoingCallCreated(CallEvent event)
-    {
     }
 
     /**
@@ -527,169 +98,38 @@ public class CallManager
      * 
      * @param callPanel the CallPanel to remove
      */
-    public void removeCallPanelWait(CallPanel callPanel)
+    public static void disposeCallDialogWait(CallDialog callDialog)
     {
-        Timer timer = new Timer(5000, new RemoveCallPanelListener(callPanel));
-
-        this.removeCallTimers.put(callPanel, timer);
+        Timer timer = new Timer(5000, new DisposeCallDialogListener(callDialog));
 
         timer.setRepeats(false);
         timer.start();
     }
 
     /**
-     * Removes the given call panel tab.
-     * 
-     * @param callPanel the CallPanel to remove
-     */
-    private void removeCallPanel(CallPanel callPanel)
-    {
-        if(callPanel.getCall() != null
-                && activeCalls.contains(callPanel.getCall()))
-        {
-            this.activeCalls.remove(callPanel.getCall());
-        }
-        
-        mainFrame.removeCallPanel(callPanel);
-        updateButtonsStateAccordingToSelectedPanel();
-    }
-
-    /**
      * Removes the given CallPanel from the main tabbed pane.
      */
-    private class RemoveCallPanelListener
-        implements
-        ActionListener
+    private static class DisposeCallDialogListener
+        implements ActionListener
     {
-        private CallPanel callPanel;
+        private CallDialog callDialog;
 
-        public RemoveCallPanelListener(CallPanel callPanel)
+        public DisposeCallDialogListener(CallDialog callDialog)
         {
-            this.callPanel = callPanel;
+            this.callDialog = callDialog;
         }
 
         public void actionPerformed(ActionEvent e)
         {
-            removeCallPanel(callPanel);
-        }
-    }
+            callDialog.dispose();
 
-    /**
-     * Implements ListSelectionListener.valueChanged. Enables or disables call
-     * and hangup buttons depending on the selection in the contactlist.
-     */
-    public void valueChanged(ListSelectionEvent e)
-    {
-        Object o = mainFrame.getContactListPanel().getContactList()
-            .getSelectedValue();
+            Call call = callDialog.getCall();
 
-        if ((e.getFirstIndex() != -1 || e.getLastIndex() != -1)
-            && (o instanceof MetaContact))
-        {
-            setCallMetaContact(true);
-            
-            // Switch automatically to the appropriate pps in account selector
-            // box and enable callButton if telephony is supported.            
-            Contact contact = ((MetaContact) o)
-                    .getDefaultContact(OperationSetBasicTelephony.class);
-            
-            if (contact != null)
-            {   
-                callButton.setEnabled(true);
-                
-                if(contact.getProtocolProvider().isRegistered())
-                    getAccountSelectorBox().
-                        setSelected(contact.getProtocolProvider());
-            }
-            else
+            if(call != null && activeCalls.containsKey(call))
             {
-                callButton.setEnabled(false);
+                activeCalls.remove(call);
             }
         }
-        else if (phoneNumberCombo.isComboFieldEmpty())
-        {
-            callButton.setEnabled(false);
-        }
-    }
-
-    /**
-     * Implements ChangeListener.stateChanged. Enables the hangup button if ones
-     * selects a tab in the main tabbed pane that contains a call panel.
-     */
-    public void stateChanged(ChangeEvent e)
-    {
-        this.updateButtonsStateAccordingToSelectedPanel();
-        
-        Component selectedPanel = mainFrame.getSelectedTab();
-        if (selectedPanel == null || !(selectedPanel instanceof CallPanel))
-        {
-            Iterator callPanels = activeCalls.values().iterator();
-            
-            while(callPanels.hasNext())
-            {
-                CallPanel callPanel = (CallPanel) callPanels.next();
-                
-                callPanel.removeDialogs();
-            }
-        }
-    }
-
-    /**
-     * Updates call and hangup buttons' states aa
-     * 
-     */
-    private void updateButtonsStateAccordingToSelectedPanel()
-    {
-        Component selectedPanel = mainFrame.getSelectedTab();
-        if (selectedPanel != null && selectedPanel instanceof CallPanel)
-        {
-            this.hangupButton.setEnabled(true);
-        }
-        else
-        {
-            this.hangupButton.setEnabled(false);
-        }
-    }
-
-    /**
-     * Returns the call button.
-     * 
-     * @return the call button
-     */
-    public SIPCommButton getCallButton()
-    {
-        return callButton;
-    }
-
-    /**
-     * Returns the hangup button.
-     * 
-     * @return the hangup button
-     */
-    public SIPCommButton getHangupButton()
-    {
-        return hangupButton;
-    }
-
-    /**
-     * Returns the main application frame. Meant to be used from the contained
-     * components that do not have direct access to the MainFrame.
-     * 
-     * @return the main application frame
-     */
-    public MainFrame getMainFrame()
-    {
-        return mainFrame;
-    }
-
-    /**
-     * Returns the combo box, where user enters the phone number to call to.
-     * 
-     * @return the combo box, where user enters the phone number to call to.
-     */
-    public JComboBox getCallComboBox()
-    {
-        return phoneNumberCombo;
     }
 
     /**
@@ -697,35 +137,28 @@ public class CallManager
      * 
      * @param call the call to answer
      */
-    public void answerCall(Call call)
+    public static void answerCall(final Call call)
     {
+        CallPanel callPanel = new CallPanel(call,
+            GuiCallParticipantRecord.INCOMING_CALL);
+
+        CallManager.openCallDialog(callPanel);
+
         new AnswerCallThread(call).start();
     }
 
     /**
-     * Returns TRUE if this call is a call to an internal meta contact from the
-     * contact list, otherwise returns FALSE.
+     * Hangups the given call.
      * 
-     * @return TRUE if this call is a call to an internal meta contact from the
-     *         contact list, otherwise returns FALSE
+     * @param call the call to answer
      */
-    public boolean isCallMetaContact()
+    public static void hangupCall(final Call call)
     {
-        return isCallMetaContact;
-    }
+        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
+        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
+        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
 
-    /**
-     * Sets the isCallMetaContact variable to TRUE or FALSE. This defines if
-     * this call is a call to a given meta contact selected from the contact
-     * list or a call to an external contact or phone number.
-     * 
-     * @param isCallMetaContact TRUE to define this call as a call to an
-     *            internal meta contact and FALSE to define it as a call to an
-     *            external contact or phone number.
-     */
-    public void setCallMetaContact(boolean isCallMetaContact)
-    {
-        this.isCallMetaContact = isCallMetaContact;
+        new HangupCallThread(call).start();
     }
 
     /**
@@ -733,13 +166,10 @@ public class CallManager
      * 
      * @param contact the contact to call to
      */
-    public void createCall(String contact)
+    public static void createCall(  ProtocolProviderService protocolProvider,
+                                    String contact)
     {
-        CallPanel callPanel = new CallPanel(this, contact);
-
-        mainFrame.addCallPanel(callPanel);
-
-        new CreateCallThread(contact, callPanel).start();
+        new CreateCallThread(protocolProvider, contact).start();
     }
 
     /**
@@ -747,128 +177,104 @@ public class CallManager
      * 
      * @param contacts the list of contacts to call to
      */
-    public void createCall(Vector contacts)
+    public static void createCall(  ProtocolProviderService protocolProvider,
+                                    Vector contacts)
     {
-        CallPanel callPanel = new CallPanel(this, contacts);
+        new CreateCallThread(protocolProvider, contacts).start();
+    }
 
-        mainFrame.addCallPanel(callPanel);
+    /**
+     * Opens a call dialog.
+     * 
+     * @param callPanel The call panel.
+     */
+    public static CallDialog openCallDialog(CallPanel callPanel)
+    {
+        CallDialog callDialog = new CallDialog(callPanel);
 
-        new CreateCallThread(contacts, callPanel).start();
+        callDialog.pack();
+
+        callDialog.setVisible(true);
+
+        return callDialog;
     }
 
     /**
      * Creates a call from a given Contact or a given String.
      */
-    private class CreateCallThread
+    private static class CreateCallThread
         extends Thread
     {
         Vector contacts;
 
-        CallPanel callPanel;
-
         String stringContact;
 
-        OperationSetBasicTelephony telephony;
+        ProtocolProviderService protocolProvider;
 
-        public CreateCallThread(String contact, CallPanel callPanel)
+        public CreateCallThread(ProtocolProviderService protocolProvider,
+                                String contact)
         {
+            this.protocolProvider = protocolProvider;
             this.stringContact = contact;
-            this.callPanel = callPanel;
-
-            if (selectedCallProvider != null)
-                telephony = mainFrame.getTelephonyOpSet(selectedCallProvider);
         }
 
-        public CreateCallThread(Vector contacts, CallPanel callPanel)
+        public CreateCallThread(ProtocolProviderService protocolProvider,
+                                Vector contacts)
         {
+            this.protocolProvider = protocolProvider;
             this.contacts = contacts;
-            this.callPanel = callPanel;
-
-            if (selectedCallProvider != null)
-                telephony = mainFrame.getTelephonyOpSet(selectedCallProvider);
         }
 
         public void run()
         {
-            if (telephony == null)
+            OperationSetBasicTelephony telephonyOpSet
+                = (OperationSetBasicTelephony) protocolProvider
+                    .getOperationSet(OperationSetBasicTelephony.class);
+
+            if (telephonyOpSet == null)
                 return;
-            
-            Call createdCall = null;
 
-            if (contacts != null)
+            // NOTE: The multi user call is not yet implemented!
+            // We just get the first contact and create a call for him.
+            try
             {
-                Contact contact = (Contact) contacts.get(0);
-                
-                // NOTE: The multi user call is not yet implemented!
-                // We just get the first contact and create a call for him.
-                try
-                {   
-                    createdCall = telephony.createCall(contact);
-                }
-                catch (OperationFailedException e)
+                if (contacts != null)
                 {
-                    logger.error("The call could not be created: " + e);
+                    Contact contact = (Contact) contacts.get(0);
 
-                    callPanel.getParticipantPanel(contact.getDisplayName())
-                        .setState(e.getMessage());
-                    
-                    removeCallPanelWait(callPanel);
+                    telephonyOpSet.createCall(contact);
                 }
-                
-                // If the call is successfully created we set the created
-                // Call instance to the already existing CallPanel and we
-                // add this call to the active calls.
-                if (createdCall != null)
+                else
                 {
-                    callPanel.setCall(createdCall,
-                        GuiCallParticipantRecord.OUTGOING_CALL);
-
-                    activeCalls.put(createdCall, callPanel);
-                }                                    
+                    telephonyOpSet.createCall(stringContact);
+                }
             }
-            else
+            catch (OperationFailedException e)
             {
-                try
-                {
-                    createdCall = telephony.createCall(stringContact);    
-                }
-                catch (ParseException e)
-                {
-                    logger.error("The call could not be created: " + e);
+                logger.error("The call could not be created: " + e);
 
-                    callPanel.getParticipantPanel(stringContact)
-                        .setState(e.getMessage());
+                new ErrorDialog(null,
+                    GuiActivator.getResources().getI18NString("error"),
+                    e.getMessage(),
+                    ErrorDialog.ERROR).showDialog();
+            }
+            catch (ParseException e)
+            {
+                logger.error("The call could not be created: " + e);
 
-                    removeCallPanelWait(callPanel);
-                }
-                catch (OperationFailedException e)
-                {
-                    logger.error("The call could not be created: " + e);
-                    
-                    callPanel.getParticipantPanel(stringContact)
-                        .setState(e.getMessage());
-
-                    removeCallPanelWait(callPanel);
-                }
-                
-                // If the call is successfully created we set the created
-                // Call instance to the already existing CallPanel and we
-                // add this call to the active calls.
-                if (createdCall != null)
-                {   
-                    callPanel.setCall(createdCall,
-                        GuiCallParticipantRecord.OUTGOING_CALL);
-
-                    activeCalls.put(createdCall, callPanel);
-                }
-            }                    
+                new ErrorDialog(null,
+                    GuiActivator.getResources().getI18NString("error"),
+                    e.getMessage(),
+                    ErrorDialog.ERROR).showDialog();
+            }
         }
     }
+    
 
     /**
      * Answers all call participants in the given call.
      */
-    private class AnswerCallThread
+    private static class AnswerCallThread
         extends Thread
     {
         private Call call;
@@ -889,12 +295,54 @@ public class CallManager
                 CallParticipant participant = (CallParticipant) participants
                     .next();
 
-                OperationSetBasicTelephony telephony = mainFrame
-                    .getTelephonyOpSet(pps);
+                OperationSetBasicTelephony telephony
+                    = (OperationSetBasicTelephony) pps
+                        .getOperationSet(OperationSetBasicTelephony.class);
 
                 try
                 {
                     telephony.answerCallParticipant(participant);
+                }
+                catch (OperationFailedException e)
+                {
+                    logger.error("Could not answer to : " + participant
+                        + " caused by the following exception: " + e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Hangups all call participants in the given call.
+     */
+    private static class HangupCallThread
+        extends Thread
+    {
+        private Call call;
+
+        public HangupCallThread(Call call)
+        {
+            this.call = call;
+        }
+
+        public void run()
+        {
+            ProtocolProviderService pps = call.getProtocolProvider();
+
+            Iterator participants = call.getCallParticipants();
+
+            while (participants.hasNext())
+            {
+                CallParticipant participant = (CallParticipant) participants
+                    .next();
+
+                OperationSetBasicTelephony telephony
+                    = (OperationSetBasicTelephony) pps
+                        .getOperationSet(OperationSetBasicTelephony.class);
+
+                try
+                {
+                    telephony.hangupCallParticipant(participant);
                 }
                 catch (OperationFailedException e)
                 {

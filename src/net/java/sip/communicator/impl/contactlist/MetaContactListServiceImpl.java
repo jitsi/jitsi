@@ -185,6 +185,9 @@ public class MetaContactListServiceImpl
                 this.handleProviderAdded(provider);
             }
         }
+
+        // Load all avatars.
+        AvatarManager.loadAvatars(rootMetaGroup);
     }
 
     /**

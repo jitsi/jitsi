@@ -108,7 +108,7 @@ public class TrayMenu
             
         }
         else if(itemName.equals("addContact"))
-        {                   
+        {
             ExportedWindow dialog
                 = SystrayActivator.getUIService().getExportedWindow(
                     ExportedWindow.ADD_CONTACT_WINDOW);

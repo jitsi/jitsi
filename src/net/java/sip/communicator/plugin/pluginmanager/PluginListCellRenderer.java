@@ -101,39 +101,40 @@ public class PluginListCellRenderer extends JPanel
      */
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int rowIndex, int vColIndex)
-    {   
+    {
         Bundle bundle = (Bundle) value;
-        
+
         Object bundleName
             = bundle.getHeaders().get(Constants.BUNDLE_NAME);
         Object bundleVersion
             = bundle.getHeaders().get(Constants.BUNDLE_VERSION);
         Object bundleDescription
             = bundle.getHeaders().get(Constants.BUNDLE_DESCRIPTION);
+
         Object bundleIconPath = bundle.getHeaders().get("Bundle-Icon-Path");
         Icon stateIcon = getStateIcon(bundle.getState());
-        
+
         if(bundleName != null)
             this.nameLabel.setText(bundleName.toString());
         else
             this.nameLabel.setText("unknown");
-        
+
         if(bundleVersion != null)
             this.versionLabel.setText(bundleVersion.toString());
         else
             this.versionLabel.setText("");
-        
+
         if(bundleDescription != null)
             this.descriptionLabel.setText(bundleDescription.toString());
         else
             this.descriptionLabel.setText("");
-            
+
         if(stateIcon != null)
             this.stateLabel.setIcon(stateIcon);
-        
+
         Object sysBundleProp
             = bundle.getHeaders().get("System-Bundle");
-        
+
         this.nameVersionPanel.remove(systemLabel);
         
         if(sysBundleProp != null && sysBundleProp.equals("yes"))

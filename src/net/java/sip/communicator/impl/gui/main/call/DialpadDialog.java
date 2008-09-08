@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -15,12 +16,11 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>ContactInfoPanel</tt> is a popup dialog containing the contact
- * detailed info.
+ * The <tt>DialpadDialog</tt> is a popup dialog containing a dialpad.
  * 
  * @author Yana Stamcheva
  */
-public class CallParticipantDialpadDialog
+public class DialpadDialog
     extends JDialog
 {
     private DialPanel dialPanel;
@@ -28,18 +28,35 @@ public class CallParticipantDialpadDialog
     private BackgroundPanel bgPanel;
 
     /**
-     * Creates an instance of the <tt>ContactInfoPanel</tt>.
+     * Creates an instance of the <tt>DialpadDialog</tt>.
      * 
-     * @param callManager the call manager
-     * @param callParticipant the corresponding call participant
+     * @param callParticipants The corresponding call participants.
      */
-    public CallParticipantDialpadDialog(CallManager callManager,
-        CallParticipant callParticipant)
+    public DialpadDialog(Iterator<CallParticipant> callParticipants)
     {
-        super(callManager.getMainFrame(), false);
-        
-        dialPanel = new DialPanel(callManager, callParticipant);
-        
+        this.setModal(false);
+
+        dialPanel = new DialPanel(callParticipants);
+
+        this.init();
+    }
+
+    /**
+     * Creates an instance of the <tt>DialpadDialog</tt>.
+     * 
+     * @param mainCallPanel The call panel.
+     */
+    public DialpadDialog(MainCallPanel mainCallPanel)
+    {
+        super();
+
+        dialPanel = new DialPanel(mainCallPanel);
+
+        this.init();
+    }
+
+    private void init()
+    {
         this.setUndecorated(true);
 
         this.dialPanel.setOpaque(false);
@@ -49,16 +66,20 @@ public class CallParticipantDialpadDialog
         this.bgPanel.setLayout(new BorderLayout());
 
         this.bgPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        
+
         this.getContentPane().setLayout(new BorderLayout());
 
         this.getContentPane().add(bgPanel, BorderLayout.CENTER);
 
         this.bgPanel.add(dialPanel, BorderLayout.CENTER);
-        
+
         this.pack();
     }
-    
+
+    /**
+     * New panel used as background for the dialpad which would be painted with
+     * round corners and a gradient background.
+     */
     private class BackgroundPanel extends JPanel
     {
         public void paintComponent(Graphics g)
@@ -73,7 +94,7 @@ public class CallParticipantDialpadDialog
                     Constants.GRADIENT_LIGHT_COLOR);
 
             g2.setPaint(p);
-            
+
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
 
             g2.setColor(Constants.GRADIENT_DARK_COLOR);

@@ -141,21 +141,21 @@ public class PluginTableModel extends AbstractTableModel
         {
             showSystem = showSystemBundles;
         }
-        
+
         if(showSystem)
             return bundles[row];
         else
         {
             int bundleCounter = 0;
-            
-            for(int i = 0; i < bundles.length; i++)   
-            {   
-                if(bundleCounter == row)   
-                    return bundles[i];   
-                    
+
+            for(int i = 0; i < bundles.length; i++)
+            {
+                if(bundleCounter == row)
+                    return bundles[i];
+
                 Object sysBundleProp
                     = bundles[i+1].getHeaders().get("System-Bundle");
-        
+
                 if(sysBundleProp == null || !sysBundleProp.equals("yes"))
                     bundleCounter++;
             }

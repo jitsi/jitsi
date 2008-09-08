@@ -41,25 +41,25 @@ public class NewBundleDialog
     public NewBundleDialog ()
     {
         this.mainPanel.setPreferredSize(new Dimension(450, 150));
-        
+
         this.getContentPane().add(mainPanel);
-        
+
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.mainPanel.add(dataPanel, BorderLayout.NORTH);
-        
+
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-        
+
         this.buttonsPanel.add(installButton);
         this.buttonsPanel.add(cancelButton);
-        
+
         this.installButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
         this.fileChooserButton.addActionListener(this);
-     
+
         this.dataPanel.add(bundlePathLabel, BorderLayout.WEST);
-        
+
         this.dataPanel.add(bundlePathField, BorderLayout.CENTER);
-        
+
         this.dataPanel.add(fileChooserButton, BorderLayout.EAST);
     }
 
@@ -74,7 +74,7 @@ public class NewBundleDialog
                 try
                 {
                     PluginManagerActivator.bundleContext
-                        .installBundle(bundlePathField.getText(), null);                    
+                        .installBundle(bundlePathField.getText());
                 }
                 catch (BundleException ex)
                 {
@@ -82,6 +82,10 @@ public class NewBundleDialog
                     PluginManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
                         PopupDialog.ERROR_MESSAGE);
+                }
+                catch (Throwable ex)
+                {
+                    ex.printStackTrace();
                 }
                 finally
                 {

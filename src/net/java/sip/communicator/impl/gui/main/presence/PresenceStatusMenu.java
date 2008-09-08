@@ -8,11 +8,9 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -30,17 +28,11 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class PresenceStatusSelectorBox
-    extends StatusSelectorBox
+public class PresenceStatusMenu
+    extends StatusSelectorMenu
 {
     private Logger logger =
-        Logger.getLogger(PresenceStatusSelectorBox.class.getName());
-
-    private MainFrame mainFrame;
-
-    private BufferedImage[] animatedImageArray;
-
-    private Connecting connecting = new Connecting();
+        Logger.getLogger(PresenceStatusMenu.class.getName());
 
     private ProtocolProviderService protocolProvider;
 
@@ -56,7 +48,7 @@ public class PresenceStatusSelectorBox
 
     private JLabel titleLabel;
 
-    private int accountIndex;
+    private MainFrame mainFrame;
 
     /**
      * Creates an instance of <tt>StatusSelectorBox</tt> and initializes the
@@ -67,16 +59,20 @@ public class PresenceStatusSelectorBox
      * @param accountIndex If we have more than one account for a protocol, each
      *            account has an index.
      */
-    public PresenceStatusSelectorBox(MainFrame mainFrame,
-        ProtocolProviderService protocolProvider, int accountIndex)
+    public PresenceStatusMenu(  MainFrame mainFrame,
+                                ProtocolProviderService protocolProvider)
     {
-        this.mainFrame = mainFrame;
+        super(protocolProvider.getAccountID().getUserID(),
+            new ImageIcon(protocolProvider
+                .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+
         this.protocolProvider = protocolProvider;
-        this.accountIndex = accountIndex;
 
-        this.setPreferredSize(new Dimension(28, 24));
+        this.mainFrame = mainFrame;
 
-        this.presence = mainFrame.getProtocolPresenceOpSet(protocolProvider);
+        this.presence
+            = (OperationSetPresence) protocolProvider
+                .getOperationSet(OperationSetPresence.class);
 
         this.statusIterator = this.presence.getSupportedStatusSet();
 
@@ -163,6 +159,7 @@ public class PresenceStatusSelectorBox
 
                                 loginManager.logoff(protocolProvider);
                             }
+
                             setSelectedStatus(status);
                         }
                         else if (protocolProvider.getRegistrationState()
@@ -201,23 +198,6 @@ public class PresenceStatusSelectorBox
     }
 
     /**
-     * Starts the timer that changes the images given by the array, thus
-     * creating an animated image that indicates that the user is connecting.
-     * 
-     * @param images A <tt>BufferedImage</tt> array that contains all images
-     *            from which to create the animated image indicating the
-     *            connecting state.
-     */
-    public void startConnecting(BufferedImage[] images)
-    {
-        this.animatedImageArray = images;
-
-        this.setIcon(new ImageIcon(images[0]));
-
-        this.connecting.start();
-    }
-
-    /**
      * Stops the timer that manages the connecting animated icon.
      */
     public void updateStatus(Object presenceStatus)
@@ -231,53 +211,12 @@ public class PresenceStatusSelectorBox
             + protocolProvider.getAccountID().getAccountAddress()
             + ". The new status will be: " + status.getStatusName());
 
-        if (connecting.isRunning())
-        {
-            logger.trace("Stop the connecting icon for provider: "
-                + protocolProvider.getAccountID().getAccountAddress());
-
-            this.connecting.stop();
-        }
-
         this.setSelectedStatus(status);
 
         if (protocolProvider.isRegistered()
             && !presence.getPresenceStatus().equals(status))
         {
             new PublishPresenceStatusThread(status).start();
-        }
-    }
-
-    /**
-     * A <tt>Timer</tt> that creates an animated icon, which indicates the
-     * connecting state.
-     */
-    private class Connecting
-        extends Timer
-    {
-
-        public Connecting()
-        {
-
-            super(100, null);
-
-            this.addActionListener(new TimerActionListener());
-        }
-
-        private class TimerActionListener
-            implements ActionListener
-        {
-
-            private int j = 1;
-
-            public void actionPerformed(ActionEvent evt)
-            {
-
-                setIcon(new ImageIcon(animatedImageArray[j]));
-
-                j = (j + 1) % animatedImageArray.length;
-            }
-
         }
     }
 
@@ -290,7 +229,11 @@ public class PresenceStatusSelectorBox
     {
         Image statusImage = ImageLoader.getBytesInImage(status.getStatusIcon());
 
-        this.setSelected(status.getStatusName(), new ImageIcon(statusImage));
+        SelectedObject selectedObject
+            = new SelectedObject(new ImageIcon(statusImage),
+                                status.getStatusName());
+
+        this.setSelected(selectedObject);
 
         String tooltip = this.getToolTipText();
 
@@ -327,29 +270,6 @@ public class PresenceStatusSelectorBox
     public PresenceStatus getLastSelectedStatus()
     {
         return lastSelectedStatus;
-    }
-
-    public int getAccountIndex()
-    {
-        return accountIndex;
-    }
-
-    public void setAccountIndex(int accountIndex)
-    {
-        this.accountIndex = accountIndex;
-    }
-
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-
-        if (accountIndex > 0)
-        {
-            AntialiasingManager.activateAntialiasing(g);
-            g.setColor(Color.DARK_GRAY);
-            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-            g.drawString(new Integer(accountIndex + 1).toString(), 20, 12);
-        }
     }
 
     public void updateStatus()

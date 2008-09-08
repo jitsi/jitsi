@@ -5,7 +5,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.Component;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -15,7 +14,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.CallState;
 
 /**
  * The <tt>CallComboBox</tt> is a history editable combo box that is
@@ -30,13 +28,19 @@ public class CallComboBox
                 DocumentListener,
                 FocusListener
 {
-    private CallManager callManager;
-
     public final static int MAX_COMBO_SIZE = 10;
 
-    public CallComboBox(CallManager callManager)
+    private MainCallPanel parentCallPanel;
+
+    /**
+     * Creates a <tt>CallComboBox</tt> by specifying the parent panel, where
+     * this combo box will be placed.
+     * 
+     * @param parentCallPanel The parent panel.
+     */
+    public CallComboBox(MainCallPanel parentCallPanel)
     {
-        this.callManager = callManager;
+        this.parentCallPanel = parentCallPanel;
 
         this.setUI(new SIPCommCallComboBoxUI());
         this.addActionListener(this);
@@ -76,8 +80,8 @@ public class CallComboBox
      */
     public void actionPerformed(ActionEvent e)
     {
-        callManager.setCallMetaContact(false);
-        callManager.getCallButton().setEnabled(true);
+        parentCallPanel.setCallMetaContact(false);
+        parentCallPanel.setCallButtonEnabled(true);
     }
 
     public void insertUpdate(DocumentEvent e)
@@ -104,21 +108,21 @@ public class CallComboBox
 
         if (item.length() > 0)
         {
-            callManager.setCallMetaContact(false);
+            parentCallPanel.setCallMetaContact(false);
 
             ContactList clist =
-                this.callManager.getMainFrame().getContactListPanel()
+                parentCallPanel.getMainFrame().getContactListPanel()
                     .getContactList();
 
             clist.removeSelectionInterval(clist.getSelectedIndex(), clist
                 .getSelectedIndex());
 
-            callManager.getCallButton().setEnabled(true);
+            parentCallPanel.setCallButtonEnabled(true);
         }
         else
         {
             Object o =
-                callManager.getMainFrame().getContactListPanel()
+                parentCallPanel.getMainFrame().getContactListPanel()
                     .getContactList().getSelectedValue();
 
             boolean enabled = true;
@@ -128,22 +132,18 @@ public class CallComboBox
                 enabled = false;
             }
 
-            Component selectedPanel = callManager.getMainFrame()
-                    .getSelectedTab();
-            if (selectedPanel != null && selectedPanel instanceof CallPanel)
-            {
-                // but an incoming call is currently active. enable the button
-                // so that the call can be answered
-                CallState state = ((CallPanel) selectedPanel).getCall()
-                        .getCallState();
-                if (state == CallState.CALL_INITIALIZATION)
-                {
-                    enabled = true;
-                }
-            }
-            callManager.getCallButton().setEnabled(enabled);
+            parentCallPanel.setCallButtonEnabled(enabled);
 
         }
+    }
+
+    public void focusGained(FocusEvent e)
+    {
+        this.handleChange();
+    }
+
+    public void focusLost(FocusEvent e)
+    {
     }
 
     /**
@@ -158,21 +158,12 @@ public class CallComboBox
             String item = ((CallComboEditor) getEditor()).getItem().toString();
 
             if (item.length() > 0)
-                callManager.createCall(item);
+                CallManager.createCall(parentCallPanel.getCallProvider(), item);
             else
             {
                 if (!isPopupVisible())
                     setPopupVisible(true);
             }
         }
-    }
-
-    public void focusGained(FocusEvent e)
-    {
-        this.handleChange();
-    }
-
-    public void focusLost(FocusEvent e)
-    {
     }
 }

@@ -161,7 +161,7 @@ public class CreateChatRoomDialog
             }
 
             if(chatRoom != null)
-                mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                mainFrame.getMultiUserChatManager().getChatRoomList()
                     .addChatRoom(new ChatRoomWrapper(chatRoom));
         }
     }

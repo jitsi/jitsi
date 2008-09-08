@@ -24,6 +24,13 @@ public abstract class SIPCommDialog extends JDialog
     
     private boolean isSaveSizeAndLocation = true;
 
+    public SIPCommDialog()
+    {
+        this.addWindowListener(new DialogWindowAdapter());
+
+        this.initInputMap();
+    }
+
     public SIPCommDialog(Dialog owner)
     {
         super(owner);
@@ -77,7 +84,7 @@ public abstract class SIPCommDialog extends JDialog
         {
             if(isSaveSizeAndLocation)
                 saveSizeAndLocation();
-            
+
             close(true);
         }
     }
@@ -108,7 +115,7 @@ public abstract class SIPCommDialog extends JDialog
         {
             if(isSaveSizeAndLocation)
                 saveSizeAndLocation();
-            
+
             close(false);
         }
     }

@@ -33,7 +33,7 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
                 .setDeleteButtonEnabled(true);
         }
     }
-    
+
     protected static Insets editorBorderInsets 
         = new Insets(2, 2, 2, 0);
     private static final Insets SAFE_EDITOR_BORDER_INSETS 

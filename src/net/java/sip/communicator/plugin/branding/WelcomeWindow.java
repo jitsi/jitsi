@@ -12,7 +12,8 @@ public class WelcomeWindow extends JDialog
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel
-        = new JLabel(BrandingActivator.getResources().getSettingsString("applicationName"));
+        = new JLabel(BrandingActivator.getResources()
+                .getSettingsString("applicationName"));
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
