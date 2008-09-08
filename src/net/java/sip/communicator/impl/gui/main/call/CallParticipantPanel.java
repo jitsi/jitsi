@@ -71,12 +71,19 @@ public class CallParticipantPanel
         this.stateLabel.setText(callParticipant.getState().getStateString());
 
         Component holdButton = new HoldButton(this.callParticipant);
-        holdButton.setBounds(0, 74, 36, 36);
+        holdButton.setBounds(9, 74, 36, 36);
         contactPanel.add(holdButton, new Integer(1));
 
         Component muteButton = new MuteButton(this.callParticipant);
-        muteButton.setBounds(36, 74, 36, 36);
+        muteButton.setBounds(45, 74, 36, 36);
         contactPanel.add(muteButton, new Integer(1));
+
+        Component transferCallButton = createTransferCallButton();
+        if (transferCallButton != null)
+        {
+            transferCallButton.setBounds(81, 74, 36, 36);
+            contactPanel.add(transferCallButton, new Integer(1));
+        }
     }
 
     /**
@@ -125,6 +132,33 @@ public class CallParticipantPanel
         northPanel.add(contactPanel);
 
         this.add(northPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * Creates a new <code>Component</code> representing a UI means to transfer
+     * the <code>Call</code> of the associated <code>callParticipant</code> or
+     * <tt>null</tt> if call-transfer is unsupported.
+     * 
+     * @return a new <code>Component</code> representing the UI means to
+     *         transfer the <code>Call</code> of <code>callParticipant</code> or
+     *         <tt>null</tt> if call-transfer is unsupported
+     */
+    private Component createTransferCallButton()
+    {
+        Call call = callParticipant.getCall();
+
+        if (call != null)
+        {
+            OperationSetAdvancedTelephony telephony =
+                (OperationSetAdvancedTelephony) call.getProtocolProvider()
+                    .getOperationSet(OperationSetAdvancedTelephony.class);
+
+            if (telephony != null)
+            {
+                return new TransferCallButton(callParticipant);
+            }
+        }
+        return null;
     }
     
     /**

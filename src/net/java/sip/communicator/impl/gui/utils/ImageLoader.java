@@ -409,6 +409,12 @@ public class ImageLoader {
     public static final ImageID MUTE_BUTTON = new ImageID("MUTE_BUTTON");
 
     /**
+     * A call-transfer button icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID TRANSFER_CALL_BUTTON =
+        new ImageID("TRANSFER_CALL_BUTTON");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO
