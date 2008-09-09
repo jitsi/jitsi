@@ -1,7 +1,14 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.branding;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.io.*;
 
 import javax.imageio.*;
@@ -181,24 +188,36 @@ public class WelcomeWindow extends JDialog
     private class WindowBackground
         extends JPanel
     {
-        private Image bgImage;
+        private BufferedImage cache;
+
+        private int cacheHeight;
+
+        private int cacheWidth;
+
+        private final Image image;
 
         public WindowBackground()
         {
-            this.setOpaque(true);
-            
+            setOpaque(true);
+
+            Image image = null;
             try
             {
-                bgImage = ImageIO.read(
-                    BrandingActivator.getResources().getImageURL("splashScreenBg"));
+                image =
+                    ImageIO.read(BrandingActivator.getResources().getImageURL(
+                        "splashScreenBg"));
             }
             catch (IOException e)
             {
                 e.printStackTrace();
             }
+            this.image = image;
 
-            this.setPreferredSize(new Dimension(bgImage.getWidth(this), bgImage
-                .getHeight(this)));
+            if (image != null)
+            {
+                setPreferredSize(new Dimension(image.getWidth(this), image
+                    .getHeight(this)));
+            }
         }
 
         protected void paintComponent(Graphics g)
@@ -210,11 +229,56 @@ public class WelcomeWindow extends JDialog
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2.drawImage(bgImage, 0, 0, null);
+            /*
+             * Drawing an Image with a data layout and color model compatible
+             * with this JPanel is magnitudes faster so create and use such an
+             * Image from the original drawn by this instance.
+             */
+            int width = getWidth();
+            int height = getHeight();
+            boolean imageIsChanging = false;
+            if ((cache == null) || (cacheWidth != width)
+                || (cacheHeight != height))
+            {
+                cache =
+                    g2.getDeviceConfiguration().createCompatibleImage(width,
+                        height);
+                cacheWidth = width;
+                cacheHeight = height;
 
-            g2.setColor(new Color(150, 150, 150));
+                Graphics2D cacheGraphics = cache.createGraphics();
+                try
+                {
+                    super.paintComponent(cacheGraphics);
 
-            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 5, 5);
+                    cacheGraphics.setRenderingHint(
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+
+                    imageIsChanging =
+                        !cacheGraphics.drawImage(image, 0, 0, null);
+
+                    cacheGraphics.setColor(new Color(150, 150, 150));
+                    cacheGraphics.drawRoundRect(0, 0, width - 1, height - 1, 5,
+                        5);
+                }
+                finally
+                {
+                    cacheGraphics.dispose();
+                }
+            }
+
+            g2.drawImage(cache, 0, 0, null);
+
+            /*
+             * Once the original Image drawn by this instance has been fully
+             * loaded, we're free to use its "compatible" caching representation
+             * for the purposes of optimized execution speed.
+             */
+            if (imageIsChanging)
+            {
+                cache = null;
+            }
         }
     }
 }
