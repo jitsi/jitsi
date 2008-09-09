@@ -130,7 +130,7 @@ public class MediaServiceImpl
      */
     public String[] getSupportedVideoEncodings()
     {
-        return defaultMediaControl.getSupportedAudioEncodings();
+        return defaultMediaControl.getSupportedVideoEncodings();
     }
 
 

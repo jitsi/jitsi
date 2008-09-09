@@ -1361,15 +1361,16 @@ public class CallSessionImpl
         throws SdpException
               ,MediaException
     {
-        //supported audio formats.
-        String[] supportedAudioEncodings = mediaServCallback
-            .getMediaControl(getCall())
-                .getSupportedAudioEncodings();
+        MediaControl mediaControl =
+            mediaServCallback.getMediaControl(getCall());
 
-        //supported video formats
-        String[] supportedVideoEncodings = mediaServCallback
-            .getMediaControl(getCall())
-                .getSupportedVideoEncodings();
+        // supported audio formats.
+        String[] supportedAudioEncodings =
+            mediaControl.getSupportedAudioEncodings();
+
+        // supported video formats
+        String[] supportedVideoEncodings =
+            mediaControl.getSupportedVideoEncodings();
 
         //if there was an offer extract the offered media formats and use
         //the intersection between the formats we support and those in the
@@ -1523,15 +1524,16 @@ public class CallSessionImpl
                             Hashtable<String, List<String>> offeredEncodings)
         throws MediaException
     {
-        //audio encodings supported by the media controller
-        String[] supportedAudioEncodings = mediaServCallback
-            .getMediaControl(getCall())
-                .getSupportedAudioEncodings();
+        MediaControl mediaControl =
+            mediaServCallback.getMediaControl(getCall());
 
-        //video encodings supported by the media controller
-        String[] supportedVideoEncodings = mediaServCallback
-            .getMediaControl(getCall())
-                .getSupportedVideoEncodings();
+        // audio encodings supported by the media controller
+        String[] supportedAudioEncodings =
+            mediaControl.getSupportedAudioEncodings();
+
+        // video encodings supported by the media controller
+        String[] supportedVideoEncodings =
+            mediaControl.getSupportedVideoEncodings();
 
         //audio encodings offered by the remote party
         List offeredAudioEncodings = (List)offeredEncodings.get("audio");

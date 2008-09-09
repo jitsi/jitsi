@@ -517,7 +517,7 @@ public class MediaControl
             }
 
             // 1. Changing buffer size. The default buffer size (for javasound)
-            // is 125 milliseconds - 1/8 sec. On MacOS this leeds to exception and
+            // is 125 milliseconds - 1/8 sec. On MacOS this leads to exception and
             // no audio capture. 30 value of buffer fix the problem and is ok
             // when using some pstn gateways
             // 2. Changing to 60. When it is 30 there are some issues 
@@ -581,8 +581,8 @@ public class MediaControl
         //supported formats arrays.
         TrackControl[] trackControls = sourceProcessor.getTrackControls();
         logger.debug("We will be able to transmit in:");
-        List transmittableAudioEncodings = new ArrayList();
-        List transmittableVideoEncodings = new ArrayList();
+        List<String> transmittableAudioEncodings = new ArrayList<String>();
+        List<String> transmittableVideoEncodings = new ArrayList<String>();
 
         for (int i = 0; i < trackControls.length; i++)
         {
@@ -591,7 +591,7 @@ public class MediaControl
             {
                 Format format = formats[j];
                 String encoding = format.getEncoding();
-                
+
                 int sdpInt = MediaUtils.jmfToSdpEncoding(encoding);
                 if (sdpInt != MediaUtils.UNKNOWN_ENCODING)
                 {
@@ -604,20 +604,20 @@ public class MediaControl
                         {
                             if (logger.isDebugEnabled())
                             {
-                                logger.debug("Audio=[" + (j + 1) + "]=" +
-                                              encoding + "; sdp=" + sdp);
+                                logger.debug("Audio=[" + (j + 1) + "]="
+                                    + encoding + "; sdp=" + sdp);
                             }
                             transmittableAudioEncodings.add(sdp);
                         }
                     }
-                    if (format instanceof VideoFormat)
+                    else if (format instanceof VideoFormat)
                     {
                         if (!transmittableVideoEncodings.contains(sdp))
                         {
                             if (logger.isDebugEnabled())
                             {
-                                logger.debug("Video=[" + (j + 1) + "]=" +
-                                              encoding + "; sdp=" + sdp);
+                                logger.debug("Video=[" + (j + 1) + "]="
+                                    + encoding + "; sdp=" + sdp);
                             }
                             transmittableVideoEncodings.add(sdp);
                         }
@@ -632,20 +632,16 @@ public class MediaControl
 
         //now update the supported encodings arrays.
 
-        if(transmittableAudioEncodings.size() > 0)
+        final int transmittableAudioEncodingCount =
+            transmittableAudioEncodings.size();
+        if (transmittableAudioEncodingCount > 0)
         {
-            supportedAudioEncodings
-                = new String[transmittableAudioEncodings.size()];
+            supportedAudioEncodings =
+                transmittableAudioEncodings
+                    .toArray(new String[transmittableAudioEncodingCount]);
 
-            for (int i = 0; i < supportedAudioEncodings.length; i++)
-            {
-                supportedAudioEncodings[i]
-                    = (String) transmittableAudioEncodings.get(i);
-            }
-
-            //sort the supported encodings according to user preferences.
+            // sort the supported encodings according to user preferences.
             this.sortEncodingsArray(supportedAudioEncodings);
-
         }
         //else
         {
@@ -654,18 +650,15 @@ public class MediaControl
             //everything.
         }
 
-
-        if(transmittableVideoEncodings.size() > 0)
+        final int transmittableVideoEncodingCount =
+            transmittableVideoEncodings.size();
+        if (transmittableVideoEncodingCount > 0)
         {
-            supportedVideoEncodings
-                = new String[transmittableVideoEncodings.size()];
-            for (int i = 0; i < supportedVideoEncodings.length; i++)
-            {
-                supportedVideoEncodings[i]
-                    = (String) transmittableVideoEncodings.get(i);
-            }
+            supportedVideoEncodings =
+                transmittableVideoEncodings
+                    .toArray(new String[transmittableVideoEncodingCount]);
 
-            //sort the supported encodings according to user preferences.
+            // sort the supported encodings according to user preferences.
             this.sortEncodingsArray(supportedVideoEncodings);
         }
         //else
@@ -677,7 +670,7 @@ public class MediaControl
     }
 
     /**
-     * Closes all curently used capture devices and data sources so that they
+     * Closes all currently used capture devices and data sources so that they
      * would be usable by other applications.
      *
      * @throws MediaException if closing the devices fails with an IO
