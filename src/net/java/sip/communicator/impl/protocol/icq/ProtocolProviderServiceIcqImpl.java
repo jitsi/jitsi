@@ -99,6 +99,11 @@ public class ProtocolProviderServiceIcqImpl
      * Used when we need to re-register
      */
     private SecurityAuthority authority = null;
+    
+    /**
+     * Keeping track of the last fired registration state.
+     */
+    private RegistrationState lastRegistrationState = null;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -628,6 +633,8 @@ public class ProtocolProviderServiceIcqImpl
             = joustSimStateToRegistrationState(newJoustSimState
                                                , newJoustSimStateInfo);
 
+        lastRegistrationState = newRegistrationState;
+        
         fireRegistrationStateChanged(oldRegistrationState, newRegistrationState
                                      , reasonCode, reason);
 
@@ -768,14 +775,43 @@ public class ProtocolProviderServiceIcqImpl
                 reconnect(SecurityAuthority.WRONG_PASSWORD);
             }
 
-            //now tell all interested parties about what happened.
-            fireRegistrationStateChanged(
-                oldState,
-                event.getOldStateInfo(),
-                newState,
-                event.getNewStateInfo(),
-                reasonCode,
-                reasonStr);
+            if (newState == State.ONLINE)
+            {
+                // temp fix we must wait a little bit before firing registered
+                // event , waiting for ClientReadyCommand to be sent successfully
+                new RegisteredEventThread().start();
+            }
+            else
+            {
+                //now tell all interested parties about what happened.
+                fireRegistrationStateChanged(
+                    oldState,
+                    event.getOldStateInfo(),
+                    newState,
+                    event.getNewStateInfo(),
+                    reasonCode,
+                    reasonStr);
+            }
+        }
+    }
+    
+    private class RegisteredEventThread extends Thread
+    {
+        public void run()
+        {
+            Object w = new Object();
+            synchronized(w)
+            {
+                try
+                {
+                    w.wait(1500);
+                }
+                catch (Exception e)
+                {}
+            }
+            
+            fireRegistrationStateChanged(lastRegistrationState, 
+                RegistrationState.REGISTERED, -1, null);
         }
     }
 
