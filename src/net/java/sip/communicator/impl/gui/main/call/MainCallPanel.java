@@ -14,13 +14,20 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The panel containing the call field and button, serving to make calls.
@@ -31,8 +38,11 @@ public class MainCallPanel
     extends JPanel
     implements  ActionListener,
                 ListSelectionListener,
-                RegistrationStateChangeListener
+                RegistrationStateChangeListener,
+                PluginComponentListener
 {
+    private Logger logger = Logger.getLogger(MainCallPanel.class);
+
     private static final String CALL_BUTTON = "CallButton";
 
     private static final String DIAL_BUTTON = "HangupButton";
@@ -40,6 +50,9 @@ public class MainCallPanel
     private MainFrame mainFrame;
 
     private ProtocolProviderService protocolProvider;
+
+    private JPanel buttonsPanel
+        = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
     private SIPCommButton callButton = new SIPCommButton(ImageLoader
         .getImage(ImageLoader.CALL_BUTTON_BG), ImageLoader
@@ -88,9 +101,11 @@ public class MainCallPanel
         callViaPanel.add(callViaLabel);
         callViaPanel.add(accountSelectorBox);
 
+        buttonsPanel.add(callButton);
+
         comboPanel.add(dialButton, BorderLayout.WEST);
         comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
-        comboPanel.add(callButton, BorderLayout.EAST);
+        comboPanel.add(buttonsPanel, BorderLayout.EAST);
 
         callButton.setName(CALL_BUTTON);
         dialButton.setName(DIAL_BUTTON);
@@ -100,6 +115,8 @@ public class MainCallPanel
 
         callButton.addActionListener(this);
         dialButton.addActionListener(this);
+
+        this.initPluginComponents();
     }
 
     /**
@@ -384,4 +401,114 @@ public class MainCallPanel
         this.updateCallAccountStatus(protocolProvider);
     }
 
+    private void initPluginComponents()
+    {
+     // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CALL_BUTTONS_PANEL.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
+
+                    Object selectedValue = mainFrame.getContactListPanel()
+                    .getContactList().getSelectedValue();
+
+                if(selectedValue instanceof MetaContact)
+                {
+                    component.setCurrentContact((MetaContact)selectedValue);
+                }
+                else if(selectedValue instanceof MetaContactGroup)
+                {
+                    component
+                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
+                }
+
+                Object constraints = null;
+
+                if (component.getConstraints() != null)
+                    constraints = UIServiceImpl
+                        .getBorderLayoutConstraintsFromContainer(
+                            component.getConstraints());
+                else
+                    constraints = BorderLayout.SOUTH;
+
+                this.buttonsPanel.add(
+                    (Component)component.getComponent(), constraints);
+
+                this.repaint();
+            }
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        PluginComponent pluginComponent = event.getPluginComponent();
+
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!pluginComponent.getContainer()
+                .equals(Container.CONTAINER_CALL_BUTTONS_PANEL))
+            return;
+
+        Object constraints = UIServiceImpl
+            .getBorderLayoutConstraintsFromContainer(
+                    pluginComponent.getConstraints());
+
+        if (constraints == null)
+            constraints = BorderLayout.SOUTH;
+
+        this.buttonsPanel.add(
+            (Component) pluginComponent.getComponent(), constraints);
+
+        Object selectedValue = mainFrame.getContactListPanel()
+                .getContactList().getSelectedValue();
+
+        if(selectedValue instanceof MetaContact)
+        {
+            pluginComponent
+                .setCurrentContact((MetaContact)selectedValue);
+        }
+        else if(selectedValue instanceof MetaContactGroup)
+        {
+            pluginComponent
+                .setCurrentContactGroup((MetaContactGroup)selectedValue);
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        PluginComponent c = event.getPluginComponent();
+
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!c.getContainer()
+                .equals(Container.CONTAINER_CALL_BUTTONS_PANEL))
+            return;
+
+        this.buttonsPanel.remove((Component) c.getComponent());
+    }
 }

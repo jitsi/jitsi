@@ -125,6 +125,12 @@ public class Container
     public static final Container CONTAINER_CALL_DIALOG
             = new Container("CONTAINER_CALL_DIALOG");
 
+    /**
+     * Call panel container.
+     */
+    public static final Container CONTAINER_CALL_BUTTONS_PANEL
+            = new Container("CONTAINER_CALL_BUTTONS_PANEL");
+
     /*
      * Constraints
      */
