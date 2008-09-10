@@ -1570,6 +1570,15 @@ public class MainFrame
             this.setBackground(new Color(
                 GuiActivator.getResources()
                 .getColor("desktopBackgroundColor")));
+
+            int borderSize = GuiActivator.getResources()
+                .getSettingsInt("mainWindowBorderSize");
+
+            this.setBorder(BorderFactory
+                .createEmptyBorder( borderSize,
+                                    borderSize,
+                                    borderSize,
+                                    borderSize));
         }
     }
 }
