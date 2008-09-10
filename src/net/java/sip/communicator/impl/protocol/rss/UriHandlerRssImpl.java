@@ -53,18 +53,13 @@ public class UriHandlerRssImpl
     protected UriHandlerRssImpl()
         throws NullPointerException
     {
-        //we listen for service events so that we can disable ourselves in
-        //case our protocol factory decides to leave.
-        RssActivator.bundleContext.addServiceListener(this);
-
-        registerHandlerService();
     }
 
     /**
      * Registers this UriHandler with the bundle context so that it could
      * start handling URIs
      */
-    private void registerHandlerService()
+    public void registerHandlerService()
     {
         synchronized(registrationLock)
         {
@@ -91,7 +86,7 @@ public class UriHandlerRssImpl
     /**
      * Unregisters this UriHandler from the bundle context.
      */
-    private void unregisterHandlerService()
+    public void unregisterHandlerService()
     {
         synchronized(registrationLock)
         {

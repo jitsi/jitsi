@@ -59,6 +59,11 @@ public class RssActivator
     private static UIService uiService = null;
 
     /**
+     * The uri handler that would be handling all feed:// links.
+     */
+    private UriHandlerRssImpl uriHandler = null;
+
+    /**
      * Called when this bundle is started. In here we'll export the
      * rss ProtocolProviderFactory implementation so that it could be
      * possible to register accounts with it in SIP Communicator.
@@ -99,7 +104,9 @@ public class RssActivator
 
         installCustomSSLTrustManager();
 
-        new UriHandlerRssImpl();
+        uriHandler = new UriHandlerRssImpl();
+        bundleContext.addServiceListener(uriHandler);
+        uriHandler.registerHandlerService();
     }
 
     /**
@@ -157,6 +164,9 @@ public class RssActivator
     {
         this.rssProviderFactory.stop();
         rssPpFactoryServReg.unregister();
+
+        context.removeServiceListener(uriHandler);
+
         logger.info("RSS protocol implementation [STOPPED].");
     }
 

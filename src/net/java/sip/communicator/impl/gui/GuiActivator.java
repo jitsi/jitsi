@@ -36,42 +36,48 @@ public class GuiActivator implements BundleActivator
         = Logger.getLogger(GuiActivator.class.getName());
 
     private static UIServiceImpl uiService = null;
-    
+
     public static BundleContext bundleContext;
 
     private static ConfigurationService configService;
-    
+
     private static MessageHistoryService msgHistoryService;
-    
+
     private static MetaContactListService metaCListService;
-    
+
     private static CallHistoryService callHistoryService;
-    
+
     private static AudioNotifierService audioNotifierService;
 
     private static BrowserLauncherService browserLauncherService;
 
     private static NotificationService notificationService;
+    private        NotificationServiceListener notificationServiceListener;
 
     private static SystrayService systrayService;
-    
+
     private static ResourceManagementService resourcesService;
 
     private static KeybindingsService keybindingsService;
 
     private static Map providerFactoriesMap = new Hashtable();
 
+    public  static boolean isStarted = false;
+
     /**
      * Called when this bundle is started.
      *
      * @param bundleContext The execution context of the bundle being started.
      */
-    public void start(BundleContext bundleContext) throws Exception {
-
+    public void start(BundleContext bundleContext)
+        throws Exception
+    {
+        isStarted = true;
         GuiActivator.bundleContext = bundleContext;
 
         NotificationManager.registerGuiNotifications();
-        bundleContext.addServiceListener(new NotificationServiceListener());
+        notificationServiceListener = new NotificationServiceListener();
+        bundleContext.addServiceListener(notificationServiceListener);
 
         ConfigurationManager.loadGuiConfigurations();
 
@@ -87,7 +93,7 @@ public class GuiActivator implements BundleActivator
             logger.info("UI Service ...[REGISTERED]");
 
             this.uiService.loadApplicationGui();
-            
+
             logger.logEntry();
         }
         finally {
@@ -113,10 +119,13 @@ public class GuiActivator implements BundleActivator
     public void stop(BundleContext bundleContext) throws Exception
     {
         logger.info("UI Service ...[STOPPED]");
+        isStarted = false;
 
         GuiActivator.getConfigurationService()
             .removePropertyChangeListener(uiService);
 
+        bundleContext.removeServiceListener(uiService);
+        bundleContext.removeServiceListener(notificationServiceListener);
     }
 
     /**
@@ -177,7 +186,7 @@ public class GuiActivator implements BundleActivator
         return (ProtocolProviderFactory) GuiActivator
             .bundleContext.getService(serRefs[0]);
     }
-    
+
     /**
      * Returns the <tt>ConfigurationService</tt> obtained from the bundle
      * context.
@@ -195,7 +204,7 @@ public class GuiActivator implements BundleActivator
 
         return configService;
     }
-    
+
     /**
      * Returns the <tt>MessageHistoryService</tt> obtained from the bundle
      * context.
@@ -215,7 +224,7 @@ public class GuiActivator implements BundleActivator
 
         return msgHistoryService;
     }
-    
+
     /**
      * Returns the <tt>MetaContactListService</tt> obtained from the bundle
      * context.
@@ -226,14 +235,14 @@ public class GuiActivator implements BundleActivator
         if (metaCListService == null) {
             ServiceReference clistReference = bundleContext
                 .getServiceReference(MetaContactListService.class.getName());
-    
+
             metaCListService = (MetaContactListService) bundleContext
                     .getService(clistReference);
         }
 
         return metaCListService;
     }
-    
+
     /**
      * Returns the <tt>CallHistoryService</tt> obtained from the bundle
      * context.
@@ -251,7 +260,7 @@ public class GuiActivator implements BundleActivator
 
         return callHistoryService;
     }
-    
+
     /**
      * Returns the <tt>AudioNotifierService</tt> obtained from the bundle
      * context.
@@ -269,7 +278,7 @@ public class GuiActivator implements BundleActivator
 
         return audioNotifierService;
     }
-  
+
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context.
@@ -287,7 +296,7 @@ public class GuiActivator implements BundleActivator
 
         return browserLauncherService;
     }
-  
+
     /**
      * Returns the current implementation of the <tt>UIService</tt>.
      * @return the current implementation of the <tt>UIService</tt>
@@ -299,7 +308,7 @@ public class GuiActivator implements BundleActivator
 
     /**
      * Returns the <tt>SystrayService</tt> obtained from the bundle context.
-     * 
+     *
      * @return the <tt>SystrayService</tt> obtained from the bundle context
      */
     public static SystrayService getSystrayService()
@@ -311,7 +320,7 @@ public class GuiActivator implements BundleActivator
 
             if(serviceReference == null)
                 return null;
-            
+
             systrayService = (SystrayService) bundleContext
                 .getService(serviceReference);
         }
@@ -321,7 +330,7 @@ public class GuiActivator implements BundleActivator
 
     /**
      * Returns the <tt>KeybindingsService</tt> obtained from the bundle context.
-     * 
+     *
      * @return the <tt>KeybindingsService</tt> obtained from the bundle context
      */
     public static KeybindingsService getKeybindingsService()
@@ -341,7 +350,7 @@ public class GuiActivator implements BundleActivator
     /**
      * Returns the <tt>ResourceManagementService</tt>, through which we will
      * access all resources.
-     * 
+     *
      * @return the <tt>ResourceManagementService</tt>, through which we will
      * access all resources.
      */
@@ -364,7 +373,7 @@ public class GuiActivator implements BundleActivator
 
     /**
      * Returns the <tt>NotificationService</tt> obtained from the bundle context.
-     * 
+     *
      * @return the <tt>NotificationService</tt> obtained from the bundle context
      */
     public static NotificationService getNotificationService()
@@ -380,7 +389,7 @@ public class GuiActivator implements BundleActivator
 
         return notificationService;
     }
-    
+
     /**
      * Implements the <tt>ServiceListener</tt>. Verifies whether the
      * passed event concerns a <tt>NotificationService</tt> and if so
@@ -392,7 +401,7 @@ public class GuiActivator implements BundleActivator
          * Implements the <tt>ServiceListener</tt> method. Verifies whether the
          * passed event concerns a <tt>NotificationService</tt> and if so
          * initiates the NotificationManager.
-         * 
+         *
          * @param event The <tt>ServiceEvent</tt> object.
          */
         public void serviceChanged(ServiceEvent event)
@@ -415,7 +424,7 @@ public class GuiActivator implements BundleActivator
             }
 
             if (event.getType() == ServiceEvent.REGISTERED)
-            {   
+            {
                 NotificationManager.registerGuiNotifications();
             }
         }

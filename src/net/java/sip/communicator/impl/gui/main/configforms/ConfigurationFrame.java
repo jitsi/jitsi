@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
@@ -24,7 +24,7 @@ import org.osgi.framework.*;
 
 /**
  * The implementation of the <tt>ConfigurationManager</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConfigurationFrame
@@ -47,7 +47,7 @@ public class ConfigurationFrame
 
     /**
      * Creates an instance of <tt>ConfigurationManagerImpl</tt>.
-     * 
+     *
      * @param mainFrame The main application window.
      */
     public ConfigurationFrame(MainFrame mainFrame)
@@ -78,7 +78,7 @@ public class ConfigurationFrame
         this.getContentPane().add(mainPanel);
 
         GuiActivator.bundleContext.addServiceListener(this);
-        
+
         ServiceReference[] confFormsRefs = null;
         try
         {
@@ -89,7 +89,7 @@ public class ConfigurationFrame
         }
         catch (InvalidSyntaxException ex)
         {}
-        
+
         if(confFormsRefs != null)
         {
             for (int i = 0; i < confFormsRefs.length; i++)
@@ -115,7 +115,7 @@ public class ConfigurationFrame
     /**
      * Shows on the right the configuration form given by the given
      * <tt>ConfigFormDescriptor</tt>.
-     * 
+     *
      * @param configFormDescriptor the descriptor of the for we will be showing.
      */
     public void showFormContent(ConfigFormDescriptor configFormDescriptor)
@@ -136,9 +136,9 @@ public class ConfigurationFrame
 
     /**
      * Implements <code>ApplicationWindow.show</code> method.
-     * 
+     *
      * @see net.java.sip.communicator.service.gui.ExportedWindow#setVisible(boolean)
-     * 
+     *
      * @param isVisible specifies whether the frame is to be visible or not.
      */
     public void setVisible(boolean isVisible)
@@ -155,7 +155,7 @@ public class ConfigurationFrame
 
     /**
      * Implements <code>ApplicationWindow.minimizeWindow</code> method.
-     * 
+     *
      * @see net.java.sip.communicator.service.gui.ExportedWindow#minimize()
      */
     public void minimize()
@@ -164,7 +164,7 @@ public class ConfigurationFrame
 
     /**
      * Implements <code>ApplicationWindow.maximizeWindow</code> method.
-     * 
+     *
      * @see net.java.sip.communicator.service.gui.ExportedWindow#maximize()
      */
     public void maximize()
@@ -174,7 +174,7 @@ public class ConfigurationFrame
     /**
      * Implements <tt>SIPCommFrame.close()</tt> method. Performs a click on
      * the close button.
-     * 
+     *
      * @param isEscaped specifies whether the close was triggered by pressing
      *            the escape key.
      */
@@ -184,7 +184,7 @@ public class ConfigurationFrame
 
     /**
      * Returns the identifier of this <tt>ExportedWindow</tt>.
-     * 
+     *
      * @return a reference to the <tt>WindowID</tt> instance representing this
      *         frame.
      */
@@ -204,7 +204,7 @@ public class ConfigurationFrame
 
     /**
      * The source of the window
-     * 
+     *
      * @return the source of the window
      */
     public Object getSource()
@@ -217,6 +217,8 @@ public class ConfigurationFrame
      */
     public void serviceChanged(ServiceEvent event)
     {
+        if(!GuiActivator.isStarted)
+            return;
         Object sService =
             GuiActivator.bundleContext.getService(event.getServiceReference());
 
@@ -245,9 +247,9 @@ public class ConfigurationFrame
      * method. Checks if the form contained in the <tt>ConfigurationForm</tt>
      * is an instance of java.awt.Component and if so adds the form in this
      * dialog, otherwise throws a ClassCastException.
-     * 
+     *
      * @param configForm the form we are adding
-     * 
+     *
      * @see ConfigurationWindow#addConfigurationForm(ConfigurationForm)
      */
     private void addConfigurationForm(ConfigurationForm configForm)
@@ -266,9 +268,9 @@ public class ConfigurationFrame
     /**
      * Implements <code>ConfigurationManager.removeConfigurationForm</code>
      * method. Removes the given <tt>ConfigurationForm</tt> from this dialog.
-     * 
+     *
      * @param configForm the form we are removing.
-     * 
+     *
      * @see ConfigurationWindow#removeConfigurationForm(ConfigurationForm)
      */
     private void removeConfigurationForm(ConfigurationForm configForm)

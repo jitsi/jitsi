@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatContactPanel</tt> is the panel that appears on the right of the
@@ -58,7 +59,12 @@ public class ChatContactPanel
 
     private JPanel personPhotoPanel = new JPanel(new BorderLayout());
 
-    private JLabel personPhotoLabel = new JLabel();
+    private JLabel personPhotoLabel = new JLabel(ImageUtils
+            .scaleIconWithinBounds(
+                new ImageIcon(ImageLoader
+                    .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
+                    ChatContact.AVATAR_ICON_WIDTH,
+                    ChatContact.AVATAR_ICON_HEIGHT));
 
     private JLabel personNameLabel = new JLabel();
 
@@ -71,7 +77,7 @@ public class ChatContactPanel
     private ChatContact chatContact;
 
     private ChatPanel chatPanel;
-    
+
     /**
      * Creates an instance of the <tt>ChatContactPanel</tt>.
      *
@@ -150,11 +156,11 @@ public class ChatContactPanel
 
             if (m.getDefaultContact(OperationSetBasicTelephony.class)
                     == null)
-                this.callButton.setEnabled(false); 
+                this.callButton.setEnabled(false);
 
             if (m.getDefaultContact(OperationSetFileTransfer.class)
                     == null)
-                this.sendFileButton.setEnabled(false); 
+                this.sendFileButton.setEnabled(false);
         }
         else
         {
@@ -207,18 +213,18 @@ public class ChatContactPanel
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        
+
         Graphics2D g2 = (Graphics2D) g;
-        
+
         AntialiasingManager.activateAntialiasing(g2);
-        
+
         if(chatContact.isSelected())
         {
             GradientPaint p = new GradientPaint(this.getWidth()/2, 0,
               Constants.SELECTED_COLOR,
               this.getWidth()/2, this.getHeight(),
               Constants.GRADIENT_LIGHT_COLOR);
-                
+
             g2.setPaint(p);
             g2.fillRoundRect(1, 0, this.getWidth(), this.getHeight(), 7, 7);
 
@@ -311,7 +317,7 @@ public class ChatContactPanel
 
     /**
      * Sets explicetly an image to the contact.
-     * 
+     *
      * @param contactPhoto the image of the contact
      */
     public void setContactPhoto(ImageIcon contactPhoto)
@@ -320,13 +326,13 @@ public class ChatContactPanel
 
         this.personPhotoLabel.setIcon(contactPhotoIcon);
     }
-    
+
     /**
      * If isSelected is set to TRUE expands this panel, by adding the buttons
      * panel. The ButtonsPanel contains buttons that offer different
      * functionalities, as "Make a call", "See user info", etc. When the
      * isSelected is set to FALSE, this panel is reduced to its basic content.
-     * 
+     *
      * @param isSelected indicates if this chat contact panel is selected
      */
     public void setSelected(boolean isSelected)
@@ -350,33 +356,33 @@ public class ChatContactPanel
     }
 
     public void mouseClicked(MouseEvent e)
-    {   
+    {
     }
 
     public void mouseEntered(MouseEvent e)
-    {   
+    {
     }
 
     public void mouseExited(MouseEvent e)
-    {   
+    {
     }
 
     public void mousePressed(MouseEvent e)
     {
         if(!(chatPanel instanceof ConferenceChatPanel))
             return;
-        
+
         if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
         {
             ChatContactRightButtonMenu rightButtonMenu
                 = new ChatContactRightButtonMenu(chatPanel, chatContact);
-            
+
             rightButtonMenu.setInvoker(this);
-            
+
             Point mousePoint = e.getPoint();
-            
+
             SwingUtilities.convertPointToScreen(mousePoint, this);
-            
+
             rightButtonMenu.setLocation((int) mousePoint.getX(),
                 (int) mousePoint.getY());
 
@@ -385,6 +391,6 @@ public class ChatContactPanel
     }
 
     public void mouseReleased(MouseEvent e)
-    {   
+    {
     }
 }

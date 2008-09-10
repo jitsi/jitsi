@@ -97,10 +97,9 @@ public class AccountInfoUtils
             image = imageDetails.next();
         }
 
-        if(image == null)
-            return null;
-
-        return image.getBytes();
+        return (image != null)
+            ? image.getBytes()
+            : null;
     }
 
     /**

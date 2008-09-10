@@ -97,18 +97,42 @@ public class ContactJabberImpl
     }
 
     /**
-     *  Returns the image of the contact or null if absent
+     * Returns an avatar if one is already present or <tt>null</tt> in case it
+     * is not in which case it the method also queues the contact for image
+     * updates.
+     *
+     * @return the avatar of this contact or <tt>null</tt> if no avatar is
+     * currently available.
      */
     public byte[] getImage()
     {
-        if(image == null)
+        return getImage(true);
+    }
+
+    /**
+     * Returns a reference to the image assigned to this contact. If no image
+     * is present and the retrieveIfNecessary flag is true, we schedule the
+     * image for retrieval from the server.
+     *
+     * @param retrieveIfNecessary specifies whether the method should queue
+     * this contact for avatar update from the server.
+     *
+     * @return a reference to the image currently stored by this contact.
+     */
+    byte[] getImage(boolean retrieveIfNecessary)
+    {
+        if(image == null && retrieveIfNecessary)
+        {
             ssclCallback.addContactForImageUpdate(this);
+        }
 
         return image;
     }
-    
+
     /**
      *  Set the image of the contact
+     *
+     *  @param the bytes of the image that we'd like to set.
      */
     void setImage(byte[] imgBytes)
     {
@@ -311,10 +335,10 @@ public class ContactJabberImpl
     {
         return rosterEntry;
     }
-    
+
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return the current status message
      */
     public String getStatusMessage()

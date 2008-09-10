@@ -18,9 +18,9 @@ import ymsg.network.*;
 public class ContactYahooImpl
     implements Contact
 {
-    private static final Logger logger = 
+    private static final Logger logger =
         Logger.getLogger(ContactYahooImpl.class);
-    
+
     private YahooUser contact = null;
     private byte[] image = null;
     private PresenceStatus status = YahooStatusEnum.OFFLINE;
@@ -28,10 +28,10 @@ public class ContactYahooImpl
     private boolean isPersistent = false;
     private boolean isResolved = false;
     private boolean isVolatile = false;
-    
+
     private String yahooID = null;
     private String id = null;
-    
+
     private String statusMessage = null;
 
     /**
@@ -52,18 +52,18 @@ public class ContactYahooImpl
                    boolean isResolved)
     {
         this.yahooID = yahooID;
-        
+
         this.contact = contact;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
-        
+
         if(contact != null)
             id = contact.getId();
         else if(yahooID != null)
             id = YahooSession.getYahooUserID(yahooID);
     }
-    
+
     /**
      * Creates an YahooContactImpl
      * @param contact the contact object that we will be encapsulating.
@@ -81,7 +81,7 @@ public class ContactYahooImpl
     {
         this(null, contact, ssclCallback, isPersistent, isResolved);
     }
-    
+
     /**
      * Creates volatile or unresolved contact
      */
@@ -97,7 +97,7 @@ public class ContactYahooImpl
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
         this.isVolatile = isVolatile;
-        
+
         if(id != null)
             this.id = YahooSession.getYahooUserID(yahooID);
     }
@@ -115,7 +115,7 @@ public class ContactYahooImpl
         else
             return contact.getId();
     }
-    
+
     /**
      * Returns the custom yahooID if set
      */
@@ -123,16 +123,16 @@ public class ContactYahooImpl
     {
         return yahooID;
     }
-    
+
     /**
-     * Returns the contact Id. 
+     * Returns the contact Id.
      * If contact missing the yahooID without @yahoo.com part is returned
      */
     String getID()
     {
         return id;
     }
-    
+
     /**
      * Returns whether the contact is volatile.
      */
@@ -141,23 +141,52 @@ public class ContactYahooImpl
         return isVolatile;
     }
 
+    /**
+     * Returns an avatar if one is already present or <tt>null</tt> in case it
+     * is not in which case it the method also queues the contact for image
+     * updates.
+     *
+     * @return the avatar of this contact or <tt>null</tt> if no avatar is
+     * currently available.
+     */
     public byte[] getImage()
+    {
+        return getImage(true);
+    }
+
+    /**
+     * Returns a reference to the image assigned to this contact. If no image
+     * is present and the retrieveIfNecessary flag is true, we schedule the
+     * image for retrieval from the server.
+     *
+     * @param retrieveIfNecessary specifies whether the method should queue
+     * this contact for avatar update from the server.
+     *
+     * @return a reference to the image currently stored by this contact.
+     */
+    public byte[] getImage(boolean retrieveIfNecessary)
     {
         try
         {
-            YahooSession ses = ssclCallback.getParentProvider().
-                getYahooSession();
-            if(image == null && ses != null)
-                ses.requestPicture(id);
+            if(retrieveIfNecessary)
+            {
+                YahooSession ses = ssclCallback.getParentProvider().
+                    getYahooSession();
+                if(image == null && ses != null)
+                    ses.requestPicture(id);
+            }
         }
         catch (Exception e)
         {
-            logger.warn("Error requesting image!", e);
+            logger.info("Error requesting image!", e);
         }
-logger.info("returning picture " + image);
+
+        if(logger.isDebugEnabled())
+            logger.debug("returning picture " + image);
+
         return image;
     }
-    
+
     /**
      * Used to set the image of the contact if it is updated
      *
@@ -165,7 +194,9 @@ logger.info("returning picture " + image);
      */
     protected void setImage(byte[] image)
     {
-logger.info("setting image " + image);        
+        if(logger.isDebugEnabled())
+            logger.info("setting image " + image);
+
         this.image = image;
     }
 
@@ -355,14 +386,14 @@ logger.info("setting image " + image);
 
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return the current status message
      */
     public String getStatusMessage()
     {
         return statusMessage;
     }
-    
+
     /**
      * Sets the current status message for this contact
      * @param statusMessage the message

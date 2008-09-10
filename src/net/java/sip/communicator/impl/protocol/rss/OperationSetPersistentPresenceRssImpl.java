@@ -69,6 +69,11 @@ public class OperationSetPersistentPresenceRssImpl
     private AuthorizationHandler authorizationHandler = null;
 
     /**
+     * The image retriever that we use to retrieve rss contacts
+     */
+    private ImageRetriever imageRetriever = null;
+
+    /**
      * Creates an instance of this operation set keeping a reference to the
      * specified parent <tt>provider</tt>.
      * @param provider the ProtocolProviderServiceRssImpl instance that
@@ -84,6 +89,10 @@ public class OperationSetPersistentPresenceRssImpl
         // add our un-registration listener
         parentProvider.addRegistrationStateChangeListener(
             new UnregistrationListener());
+
+        imageRetriever = new ImageRetriever(this);
+
+        imageRetriever.start();
     }
 
     /**
@@ -928,6 +937,10 @@ public class OperationSetPersistentPresenceRssImpl
         //which represents the date of the last item seen by the user
         contact.setPersistentData(persistentData);
 
+        //hack: make sure we launch the image cache thread here because
+        //the meta cl service isn't listening for contact_resolved events yet.
+        contact.getImage();
+
         return contact;
     }
 
@@ -1005,5 +1018,17 @@ public class OperationSetPersistentPresenceRssImpl
             }
 
         }
+    }
+
+    /**
+     * Returns the image retriever that we are using in this opset to retrieve
+     * avatars (favicons) for our icons.
+     *
+     * @return the <tt>ImageRetriever</tt> that we use to retrieve favicons for
+     * our rss contacts.
+     */
+    public ImageRetriever getImageRetriever()
+    {
+        return imageRetriever;
     }
 }

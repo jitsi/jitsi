@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.account;
@@ -25,7 +25,7 @@ import org.osgi.framework.*;
 
 /**
  * The implementation of the <tt>AccountRegistrationWizardContainer</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AccountRegWizardContainerImpl
@@ -99,7 +99,7 @@ public class AccountRegWizardContainerImpl
     /**
      * Adds the given <tt>AccountRegistrationWizard</tt> to the list of
      * containing wizards.
-     * 
+     *
      * @param wizard the <tt>AccountRegistrationWizard</tt> to add
      */
     public void addAccountRegistrationWizard(   String protocolName,
@@ -114,7 +114,7 @@ public class AccountRegWizardContainerImpl
     /**
      * Removes the given <tt>AccountRegistrationWizard</tt> from the list of
      * containing wizards.
-     * 
+     *
      * @param wizard the <tt>AccountRegistrationWizard</tt> to remove
      */
     public void removeAccountRegistrationWizard(String protocolName,
@@ -128,7 +128,7 @@ public class AccountRegWizardContainerImpl
 
     /**
      * Returns the summary wizard page.
-     * 
+     *
      * @return the summary wizard page
      */
     public AccountRegSummaryPage getSummaryPage()
@@ -139,7 +139,7 @@ public class AccountRegWizardContainerImpl
     /**
      * Opens the corresponding wizard to modify an existing account given by the
      * <tt>protocolProvider</tt> parameter.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> for the
      *            account to modify.
      */
@@ -189,7 +189,7 @@ public class AccountRegWizardContainerImpl
     /**
      * Saves the (protocol provider, wizard) pair in through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param protocolProvider the protocol provider to save
      * @param wizard the wizard to save
      */
@@ -237,7 +237,7 @@ public class AccountRegWizardContainerImpl
 
     /**
      * Returns the currently used <tt>AccountRegistrationWizard</tt>.
-     * 
+     *
      * @return the currently used <tt>AccountRegistrationWizard</tt>
      */
     public AccountRegistrationWizard getCurrentWizard()
@@ -247,7 +247,7 @@ public class AccountRegWizardContainerImpl
 
     /**
      * Sets the currently used <tt>AccountRegistrationWizard</tt>.
-     * 
+     *
      * @param wizard the <tt>AccountRegistrationWizard</tt> to set as
      *            current one
      */
@@ -303,6 +303,9 @@ public class AccountRegWizardContainerImpl
      */
     public void serviceChanged(ServiceEvent event)
     {
+        if(!GuiActivator.isStarted)
+            return;
+
         ServiceReference serRef = event.getServiceReference();
 
         String protocolName

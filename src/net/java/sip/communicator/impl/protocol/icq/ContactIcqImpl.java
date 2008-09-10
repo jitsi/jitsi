@@ -73,6 +73,10 @@ public class ContactIcqImpl
         return isLocal;
     }
 
+    /**
+     * Checks if an avatar or an image already exists for this contact and
+     * returns it. This method DOES NOT perform any network operations.
+     */
     public byte[] getImage()
     {
         return image;
@@ -341,14 +345,14 @@ public class ContactIcqImpl
 
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return the current status message
-     */    
+     */
     public String getStatusMessage()
     {
         return statusMessage;
     }
-    
+
     /**
      * Sets the current status message for this contact
      * @param statusMessage the message

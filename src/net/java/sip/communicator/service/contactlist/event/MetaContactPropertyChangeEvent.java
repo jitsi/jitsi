@@ -49,7 +49,14 @@ public abstract class MetaContactPropertyChangeEvent
      * addition of a protocol specific contact to an existing MetaContact.
      */
     public static final String PROTO_CONTACT_MOVED = "ProtoContactMoved";
-    
+
+    /**
+     * Indicates that the MetaContactEvent instance was triggered by the update
+     * of an Avatar for one of its encapsulated contacts.
+     */
+    public static final String PROTO_CONTACT_AVATAR_UPDATE
+                                            = "ProtoContactAvatarUpdate";
+
     /**
      * Indicates that the meta contact has been modified. The old and new value
      * arguments contain the old and new values of the modification.

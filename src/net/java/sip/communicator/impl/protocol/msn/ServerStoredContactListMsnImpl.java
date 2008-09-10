@@ -1293,11 +1293,13 @@ public class ServerStoredContactListMsnImpl
         {
             if (result == ResultStatus.GOOD)
             {
+                byte[] oldImage = contact.getImage(false);
+
                 contact.setImage(resultBytes);
 
                 parentOperationSet.fireContactPropertyChangeEvent(
                                 ContactPropertyChangeEvent.PROPERTY_IMAGE,
-                                contact, null, resultBytes);
+                                contact, oldImage, resultBytes);
             }
         }
 

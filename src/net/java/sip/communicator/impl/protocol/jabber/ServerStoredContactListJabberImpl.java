@@ -60,7 +60,7 @@ public class ServerStoredContactListJabberImpl
      * names or other properties, removal or creation of groups.
      */
     private Vector serverStoredGroupListeners = new Vector();
-    
+
     /**
      *  Thread retreiving images for contacts
      */
@@ -655,6 +655,10 @@ public class ServerStoredContactListJabberImpl
                 {
                     // if contact exist so resolve it
                     contact.setResolved(item);
+
+                    //fire an event saying that the unfiled contact has been
+                    //resolved
+                    fireContactResolved(rootGroup, contact);
                 }
             }
         }
@@ -722,7 +726,7 @@ public class ServerStoredContactListJabberImpl
      * @param contact the contact that was added
      */
     void fireContactAdded( ContactGroup parentGroup,
-                                   ContactJabberImpl contact)
+                           ContactJabberImpl contact)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
@@ -741,8 +745,8 @@ public class ServerStoredContactListJabberImpl
      * @param parentGroup the group that the resolved contact belongs to.
      * @param contact the contact that was resolved
      */
-    void fireContactResolved( ContactGroupJabberImpl parentGroup,
-                                      ContactJabberImpl contact)
+    void fireContactResolved( ContactGroup parentGroup,
+                              ContactJabberImpl contact)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
@@ -754,9 +758,9 @@ public class ServerStoredContactListJabberImpl
         parentOperationSet.fireSubscriptionEvent(contact, parentGroup,
             SubscriptionEvent.SUBSCRIPTION_RESOLVED);
     }
-    
+
     /**
-     * when there is no image for contact we must retreive it 
+     * when there is no image for contact we must retreive it
      * add contacts for image update
      *
      * @param c ContactJabberImpl
@@ -768,7 +772,7 @@ public class ServerStoredContactListJabberImpl
             imageRetriever = new ImageRetriever();
             imageRetriever.start();
         }
-        
+
         imageRetriever.addContact(c);
     }
 
@@ -963,15 +967,16 @@ public class ServerStoredContactListJabberImpl
         public void presenceChanged(Presence presence)
         {}
     }
-    
+
     private class ImageRetriever
         extends Thread
     {
         /**
          * list with the accounts with missing image
          */
-        private Vector contactsForUpdate = new Vector();
-        
+        private Vector<ContactJabberImpl> contactsForUpdate
+                                        = new Vector<ContactJabberImpl>();
+
         ImageRetriever()
         {
             setDaemon(true);
@@ -981,7 +986,7 @@ public class ServerStoredContactListJabberImpl
         {
             try
             {
-                Collection copyContactsForUpdate = null;
+                Collection<ContactJabberImpl> copyContactsForUpdate = null;
                 while (true)
                 {
                     synchronized(contactsForUpdate){
@@ -989,24 +994,27 @@ public class ServerStoredContactListJabberImpl
                         if(contactsForUpdate.isEmpty())
                             contactsForUpdate.wait();
 
-                        copyContactsForUpdate = new Vector(contactsForUpdate);
+                        copyContactsForUpdate
+                            = new Vector<ContactJabberImpl>(contactsForUpdate);
                         contactsForUpdate.clear();
                     }
 
-                    Iterator iter = copyContactsForUpdate.iterator();
+                    Iterator<ContactJabberImpl> iter
+                        = copyContactsForUpdate.iterator();
                     while (iter.hasNext())
                     {
-                        ContactJabberImpl contact = (ContactJabberImpl) iter.next();
-                        
+                        ContactJabberImpl contact = iter.next();
+
                         byte[] imgBytes = getAvatar(contact);
-                        
+
                         if(imgBytes != null)
                         {
+                            byte[] oldImage = contact.getImage(false);
                             contact.setImage(imgBytes);
-                            
+
                             parentOperationSet.fireContactPropertyChangeEvent(
-                                ContactPropertyChangeEvent.PROPERTY_IMAGE, 
-                                contact, null, imgBytes);
+                                ContactPropertyChangeEvent.PROPERTY_IMAGE,
+                                contact, oldImage, imgBytes);
                         }
                     }
                 }
@@ -1051,7 +1059,7 @@ public class ServerStoredContactListJabberImpl
             }
             catch (Exception exc)
             {
-                logger.error("Cannot load image for contact "
+                logger.debug("Cannot load image for contact "
                     + this + " : " + exc.getMessage()
                     , exc);
 

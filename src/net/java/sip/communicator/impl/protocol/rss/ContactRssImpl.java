@@ -33,18 +33,13 @@ public class ContactRssImpl
      */
     private RssItemKey lastItem = new RssItemKey(new Date(0));
 
-    /***
+    /**
      * Contact's nickname.
      */
     private String nickName = null;
 
     private static final Logger logger
         = Logger.getLogger(ContactRssImpl.class);
-
-    /**
-     * The path within the bundle for the default RSS 64x64 icon.
-     */
-    private String defaultIconId = "pageImageRss";
 
     /***
      * Stores the contact's display image to avoid downloading it multiple times.
@@ -201,118 +196,50 @@ public class ContactRssImpl
     }
 
     /**
-     * Returns a byte array containing an image to represent the contact. It is
-     * acquired either via the <tt>favicon.ico</tt> file on the server where the
-     * feed resides, or a default standard RSS icon is returned.
+     * Returns an avatar if one is already present or <tt>null</tt> in case it
+     * is not in which case it the method also queues the contact for image
+     * updates.
      *
-     * @return byte[] the binary representation of the best available image in
-     * the icon, or <tt>null</tt> in case the image is invalid or inexistent.
+     * @return the avatar of this contact or <tt>null</tt> if no avatar is
+     * currently available.
      */
     public byte[] getImage()
     {
-        if (icon != null)
-            return icon;
+        return getImage(true);
+    }
 
-        Image selectedIcon;
-
-        //we use these to get the best possible icon in case our favicon is a
-        //multi-page icon.
-        int maxWidth = 0;
-        int maxColors = 0;
-        int crtDescriptor = -1;
-
-        //used for ICO to PNG translation. Uses PNG as it's the "safest" choice.
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] result = null;
-
-        URL feedLocation = getRssURL();
-
-        // TODO: Fix aclico log4j-related errors. Fixed now?
-
-        try
+    /**
+     * Returns a reference to the image assigned to this contact. If no image
+     * is present and the retrieveIfNecessary flag is true, we schedule the
+     * image for retrieval from the server.
+     *
+     * @param retrieveIfNecessary specifies whether the method should queue
+     * this contact for avatar update from the server.
+     *
+     * @return a reference to the image currently stored by this contact.
+     */
+    byte[] getImage(boolean retrieveIfNecessary)
+    {
+        if(icon == null && retrieveIfNecessary)
         {
-            URL location = new URL(feedLocation.getProtocol() + "://"
-                   + feedLocation.getHost() + "/favicon.ico");
+            OperationSetPersistentPresenceRssImpl pres
+                = (OperationSetPersistentPresenceRssImpl)this.parentProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
 
-            ICOFile favicon = new ICOFile(location);
-
-            logger.trace("Icon has " + favicon.getImageCount() + " pages");
-
-            for (int i = 0; i < favicon.getDescriptors().size(); i++)
-            {
-                BitmapDescriptor bmpDesc = favicon.getDescriptor(i);
-                if ((maxWidth < bmpDesc.getWidth()))
-                {
-                    maxWidth = bmpDesc.getWidth();
-                    maxColors = bmpDesc.getColorCount();
-                    crtDescriptor = i;
-                }
-
-                if ((maxColors < bmpDesc.getColorCount()))
-                {
-                    maxWidth = bmpDesc.getWidth();
-                    maxColors = bmpDesc.getColorCount();
-                    crtDescriptor = i;
-                }
-            }
-
-            //if icons is either invalid or contains no data, return the default
-            // RSS icon.
-            if (crtDescriptor == -1)
-            {
-                icon = getDefaultRssIcon();
-
-                return icon;
-            }
-
-            selectedIcon = favicon.getDescriptor(crtDescriptor).getImageRGB();
-
-            //decode ICO as a PNG and return the result
-            ImageIO.write((BufferedImage)selectedIcon, "PNG", output);
-            result =  output.toByteArray();
-
-            logger.trace("Result has " + result.length + " bytes");
-            logger.trace("Icon is " + maxWidth + " px X " + maxWidth + " px @ "
-                    + maxColors + " colors");
-
-            output.close();
-            icon = result;
-            return icon;
+            pres.getImageRetriever().addContact(this);
         }
-        catch (MalformedURLException murlex)
-        {
-            //this shouldn't happen. Ever.
-            logger.error("Malformed URL " + murlex,
-                         murlex);
-        }
-        catch (IOException ioex)
-        {
-            logger.error("I/O Error on favicon retrieval. " + ioex);
-            logger.debug("I/O Error on favicon retrieval. " + ioex,
-                         ioex);
-        }
-        catch(Exception ex)
-        {
-            logger.error("Unknown error on favicon retrieval. " + ex, ex);
-        }
-
-        icon = getDefaultRssIcon();
 
         return icon;
     }
 
     /**
-     * Returns the default icon in case the feed has no favicon on the server.
-     * Uses the <tt>defaultIconPath</tt> constant to locate the default icon to
-     * be displayed.
+     *  Set the image of the contact.
      *
-     * @return binary representation of the default icon.
+     * @param the bytes of the image that we'd like to set.
      */
-    private byte[] getDefaultRssIcon()
+    void setImage(byte[] imgBytes)
     {
-        logger.trace("Loading default icon at " + defaultIconId);
-
-        return ProtocolIconRssImpl.getImageInBytes(defaultIconId);
+        this.icon = imgBytes;
     }
 
     /**

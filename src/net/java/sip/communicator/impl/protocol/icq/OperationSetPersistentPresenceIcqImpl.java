@@ -1704,15 +1704,22 @@ public class OperationSetPersistentPresenceIcqImpl
     private class IconUpdateListener
         implements IconRequestListener
     {
-        public void buddyIconCleared(IconService iconService, Screenname screenname, ExtraInfoData extraInfoData)
+        public void buddyIconCleared(IconService iconService,
+                                     Screenname screenname,
+                                     ExtraInfoData extraInfoData)
         {
             updateBuddyyIcon(screenname, null);
         }
 
-        public void buddyIconUpdated(IconService iconService, Screenname screenname, ExtraInfoData extraInfoData, ByteBlock byteBlock)
+        public void buddyIconUpdated(IconService iconService,
+                                     Screenname screenname,
+                                     ExtraInfoData extraInfoData,
+                                     ByteBlock byteBlock)
         {
             if(byteBlock != null)
+            {
                 updateBuddyyIcon(screenname, byteBlock.toByteArray());
+            }
         }
 
         /**
@@ -1722,11 +1729,20 @@ public class OperationSetPersistentPresenceIcqImpl
          */
         private void updateBuddyyIcon(Screenname screenname, byte[] icon)
         {
-            ContactIcqImpl contact =
-                ssContactList.findContactByScreenName(screenname.getFormatted());
+            ContactIcqImpl contact = ssContactList.findContactByScreenName(
+                            screenname.getFormatted());
 
             if(contact != null)
-               contact.setImage(icon);
+            {
+                byte[] oldImage = contact.getImage();
+
+                contact.setImage(icon);
+                fireContactPropertyChangeEvent(
+                               ContactPropertyChangeEvent.PROPERTY_IMAGE,
+                               contact,
+                               null,
+                               icon);
+            }
         }
     }
 

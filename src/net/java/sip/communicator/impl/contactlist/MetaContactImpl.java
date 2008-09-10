@@ -34,7 +34,7 @@ public class MetaContactImpl
      * MetaContact.
      *
      */
-    private Vector protoContacts = new Vector();
+    private Vector<Contact> protoContacts = new Vector<Contact>();
 
     /**
      * The number of contacts online in this meta contact.
@@ -52,15 +52,16 @@ public class MetaContactImpl
     private String displayName = "";
 
     /**
-     * The image (e.g. person photo or customized icon) of this meta contact.
-     */
-    private byte[] contactImage = null;
-
-    /**
      * The contact that should be chosen by default when communicating with this
      * meta contact.
      */
     private Contact defaultContact = null;
+
+    /**
+     * A locally cached copy of an avatar that we should return for lazy calls
+     * to the getAvatarMethod() in order to speed up display.
+     */
+    private byte[] cachedAvatar = null;
 
     /**
      * A callback to the meta contact group that is currently our parent. If
@@ -73,13 +74,13 @@ public class MetaContactImpl
      * A sync lock for use when modifying the parentGroup field.
      */
     private Object parentGroupModLock = new Object();
-    
+
     /**
      * Hashtable containing the contact details.
      * Name -> Value or Name -> (List of values).
      */
     private Hashtable details = new Hashtable();
-    
+
     /**
      * The service that is creating the contact.
      */
@@ -123,7 +124,7 @@ public class MetaContactImpl
      * @param mclServiceImpl the service that creates the contact.
      * @param details the already stored details for the contact.
      */
-    MetaContactImpl(MetaContactListServiceImpl mclServiceImpl, 
+    MetaContactImpl(MetaContactListServiceImpl mclServiceImpl,
             String metaUID, Hashtable details)
     {
         this.uid = metaUID;
@@ -275,9 +276,9 @@ public class MetaContactImpl
      * <tt>Contact</tt>s that were registered as subcontacts for this
      * <tt>MetaContact</tt>
      */
-    public Iterator getContacts()
+    public Iterator<Contact> getContacts()
     {
-        List contactsCopy = new LinkedList(protoContacts);
+        List<Contact> contactsCopy = new LinkedList<Contact>(protoContacts);
         return contactsCopy.iterator();
     }
 
@@ -451,18 +452,20 @@ public class MetaContactImpl
     }
 
     /**
-     * Returns the avatar of this contact, that can be used when including this
-     * <tt>MetaContact</tt> in user interface.
-     * 
-     * @return an avatar (e.g. user photo) of this contact.
+     * Queries the underlying contacts for an avatar, caches all existing
+     * images, and returns one of them.
+     *
+     * @return a cached or locally stored copy of an avatar (e.g. user photo) for
+     * this contact.
      */
     public byte[] getAvatar()
     {
-        Iterator i = this.getContacts();
+        Iterator<Contact> i = this.getContacts();
+        byte[] contactImage = null;
 
         while(i.hasNext())
         {
-            Contact protoContact = (Contact) i.next();
+            Contact protoContact = i.next();
 
             try
             {
@@ -471,6 +474,8 @@ public class MetaContactImpl
                 if (contactImage != null && contactImage.length > 0)
                 {
                     this.storeAvatar(protoContact, contactImage);
+
+                    cachedAvatar = contactImage;
                 }
             }
             catch (Exception ex)
@@ -479,15 +484,15 @@ public class MetaContactImpl
             }
         }
 
-        return contactImage;
+        return cachedAvatar;
     }
 
     /**
      * Returns the avatar of this contact, that can be used when including this
-     * <tt>MetaContact</tt> in user interface. The isLazy
-     * parameter would tell the implementation if it could return the locally
-     * stored avatar or it should obtain the avatar right from the server.
-     * 
+     * <tt>MetaContact</tt> in user interface. The isLazy parameter would tell
+     * the implementation if it could return the locally stored avatar or it
+     * should obtain the avatar right from the server.
+     *
      * @param isLazy Indicates if this method should return the locally stored
      * avatar or it should obtain the avatar right from the server.
      * @return an avatar (e.g. user photo) of this contact.
@@ -497,16 +502,21 @@ public class MetaContactImpl
         if (!isLazy)
             return getAvatar();
 
-        Iterator iter = this.getContacts();
+        if(cachedAvatar != null)
+            return cachedAvatar;
+
+        Iterator<Contact> iter = this.getContacts();
         while (iter.hasNext())
         {
-            Contact protoContact = (Contact) iter.next();
+            Contact protoContact = iter.next();
 
             String avatarPath = AVATAR_DIR + "/"
                 + protoContact.getProtocolProvider().getProtocolName() + "/"
                 + escapeSpecialCharacters(protoContact.getAddress());
 
-            return getLocalAvatar(avatarPath);
+            cachedAvatar = getLocallyStoredAvatar(avatarPath);
+
+            return cachedAvatar;
         }
 
         return null;
@@ -793,21 +803,21 @@ public class MetaContactImpl
     }
 
     /**
-     * Adds a custom detail to this contact. 
+     * Adds a custom detail to this contact.
      * @param name name of the detail.
      * @param value the value of the detail.
      */
     public void addDetail(String name, String value)
     {
         ArrayList values = (ArrayList)details.get(name);
-        
+
         if(values == null)
             values = new ArrayList();
-        
+
         values.add(value);
-        
+
         details.put(name, values);
-        
+
         mclServiceImpl.fireMetaContactEvent(
             new MetaContactModifiedEvent(
                 this,
@@ -815,7 +825,7 @@ public class MetaContactImpl
                 null,
                 value));
     }
-    
+
     /**
      * Remove the given detail.
      * @param name of the detail to be removed.
@@ -824,12 +834,12 @@ public class MetaContactImpl
     public void removeDetail(String name, String value)
     {
         ArrayList values = (ArrayList)details.get(name);
-        
+
         if(values == null)
             return;
-        
+
         values.remove(value);
-        
+
         mclServiceImpl.fireMetaContactEvent(
             new MetaContactModifiedEvent(
                 this,
@@ -837,7 +847,7 @@ public class MetaContactImpl
                 value,
                 null));
     }
-    
+
     /**
      * Remove all details with given name.
      * @param name of the details to be removed.
@@ -845,7 +855,7 @@ public class MetaContactImpl
     public void removeDetails(String name)
     {
         Object removed = details.remove(name);
-        
+
         mclServiceImpl.fireMetaContactEvent(
             new MetaContactModifiedEvent(
                 this,
@@ -853,7 +863,7 @@ public class MetaContactImpl
                 removed,
                 null));
     }
-    
+
     /**
      * Change the detail.
      * @param name of the detail to be changed.
@@ -863,13 +873,13 @@ public class MetaContactImpl
     public void changeDetail(String name, String oldValue, String newValue)
     {
         ArrayList values = (ArrayList)details.get(name);
-        
+
         if(values == null)
             return;
-        
+
         int changedIx = -1;
-        
-        for (int i = 0; i < values.size(); i++) 
+
+        for (int i = 0; i < values.size(); i++)
         {
             if(values.get(i).equals(oldValue))
             {
@@ -877,12 +887,12 @@ public class MetaContactImpl
                 break;
             }
         }
-        
+
         if(changedIx == -1)
             return;
-        
+
         values.set(changedIx, newValue);
-        
+
         mclServiceImpl.fireMetaContactEvent(
             new MetaContactModifiedEvent(
                 this,
@@ -890,7 +900,7 @@ public class MetaContactImpl
                 oldValue,
                 newValue));
     }
-    
+
     /**
      * Get all details with given name.
      * @param name the name of the details we are searching.
@@ -898,41 +908,47 @@ public class MetaContactImpl
     public List getDetails(String name)
     {
         ArrayList values = (ArrayList)details.get(name);
-        
+
         if(values == null)
             values = new ArrayList();
         else
             values = (ArrayList)values.clone();
-        
+
         return values;
     }
 
     /**
      * Stores avatar bytes in the given <tt>History</tt>.
-     * 
+     *
      * @param history The history in which we store the avatar.
      * @param avatarBytes The avatar image bytes.
      */
-    private void storeAvatar(   Contact protoContact,
-                                byte[] avatarBytes)
+    public void storeAvatar( Contact protoContact,
+                             byte[] avatarBytes)
     {
         String protocolName
             = protoContact.getProtocolProvider().getProtocolName();
 
-        String avatarDirPath = AVATAR_DIR + "/" + protocolName;
+        String avatarDirPath = AVATAR_DIR
+            + File.separator
+            + protocolName;
 
         String escapedProtocolId
             = escapeSpecialCharacters(protoContact.getAddress());
 
+        File avatarDir = null;
+        File avatarFile = null;
         try
         {
-            File avatarDir = ContactlistActivator.getFileAccessService()
+            avatarDir = ContactlistActivator.getFileAccessService()
                 .getPrivatePersistentDirectory(avatarDirPath);
 
-            File avatarFile
+            avatarFile
                 = ContactlistActivator.getFileAccessService()
                     .getPrivatePersistentFile(
-                        avatarDirPath + "/" + escapedProtocolId);
+                        avatarDirPath
+                        + File.separator
+                        + escapedProtocolId);
 
             if(!avatarFile.exists())
             {
@@ -954,17 +970,20 @@ public class MetaContactImpl
         }
         catch (Exception e)
         {
-            logger.error("Failed to store avatar.", e);
+            logger.error("Failed to store avatar. dir ="
+                            + avatarDir
+                            + " file="
+                            + avatarFile, e);
         }
     }
 
     /**
      * Returns the avatar image corresponding to the given avatar path.
-     * 
+     *
      * @param avatarPath The path to the lovally stored avatar.
      * @return the avatar image corresponding to the given avatar path.
      */
-    private byte[] getLocalAvatar(String avatarPath)
+    private byte[] getLocallyStoredAvatar(String avatarPath)
     {
         try
         {
@@ -993,16 +1012,16 @@ public class MetaContactImpl
     /**
      * Replacing the characters that we must escape
      * used for the created filename.
-     * 
-     * @param ids Ids - folder names as we are using 
+     *
+     * @param ids Ids - folder names as we are using
      *          FileSystem for storing files.
      */
     private String escapeSpecialCharacters(String id)
     {
-        String resultId = null;
+        String resultId = new String(id);
         for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
         {
-            resultId = id.
+            resultId = resultId.
                 replaceAll(ESCAPE_SEQUENCES[j][0], ESCAPE_SEQUENCES[j][1]);
         }
 

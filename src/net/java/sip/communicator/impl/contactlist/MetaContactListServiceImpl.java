@@ -41,7 +41,8 @@ public class MetaContactListServiceImpl
     /**
      * The list of protocol providers that we're currently aware of.
      */
-    private Map currentlyInstalledProviders = new Hashtable();
+    private Map<String, ProtocolProviderService> currentlyInstalledProviders
+        = new Hashtable<String, ProtocolProviderService>();
 
     /**
      * The root of the meta contact list.
@@ -185,9 +186,6 @@ public class MetaContactListServiceImpl
                 this.handleProviderAdded(provider);
             }
         }
-
-        // Load all avatars.
-        AvatarManager.loadAvatars(rootMetaGroup);
     }
 
     /**
@@ -439,14 +437,14 @@ public class MetaContactListServiceImpl
                 , null
                 , MetaContactListException.CODE_NETWORK_ERROR);
         }
-        
+
         if (evtRetriever.evt instanceof SubscriptionEvent &&
-            ((SubscriptionEvent)evtRetriever.evt).getEventID() == 
+            ((SubscriptionEvent)evtRetriever.evt).getEventID() ==
             SubscriptionEvent.SUBSCRIPTION_FAILED)
         {
             throw new MetaContactListException(
                 "Failed to create a contact with address: "
-                + contactID + " " 
+                + contactID + " "
                 + ((SubscriptionEvent)evtRetriever.evt).getErrorReason()
                 , null
                 , MetaContactListException.CODE_UNKNOWN_ERROR);
@@ -824,6 +822,35 @@ public class MetaContactListServiceImpl
     }
 
     /**
+     * Sets the avatar for <tt>metaContact</tt> to be <tt>newAvatar</tt>.
+     * <p>
+     * @param metaContact the <tt>MetaContact</tt> that we are renaming
+     * @param newDisplayName a <tt>String</tt> containing the new display name
+     * for <tt>metaContact</tt>.
+     * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    public void changeMetaContactAvatar(MetaContact metaContact,
+                                        Contact protoContact,
+                                        byte[] newAvatar)
+        throws IllegalArgumentException
+    {
+        if (! (metaContact instanceof MetaContactImpl))
+        {
+            throw new IllegalArgumentException(
+                metaContact + " is not a MetaContactImpl instance.");
+        }
+
+        byte[] oldAvatar = metaContact.getAvatar(true);
+        ((MetaContactImpl)metaContact).storeAvatar(protoContact, newAvatar);
+
+        fireMetaContactPropertyChangeEvent(new MetaContactAvatarUpdate(
+            metaContact,
+            oldAvatar,
+            newAvatar));
+    }
+
+    /**
      * Makes the specified <tt>contact</tt> a child of the
      * <tt>newParentMetaGroup</tt> MetaContactGroup. If <tt>contact</tt> was
      * previously a child of a meta contact, it will be removed from its
@@ -1008,13 +1035,13 @@ public class MetaContactListServiceImpl
         catch (Exception ex)
         {
             logger.error("Cannot move contact", ex);
-            
+
             // now move the contact to prevoius parent
             ((MetaContactGroupImpl)newMetaGroup).
                 removeMetaContact( (MetaContactImpl) metaContact);
 
             currentParent.addMetaContact((MetaContactImpl) metaContact);
-            
+
             throw new MetaContactListException(ex.getMessage(),
                 MetaContactListException.CODE_MOVE_CONTACT_ERROR);
         }
@@ -1161,10 +1188,10 @@ public class MetaContactListServiceImpl
             }
         }catch(Exception ex)
         {
-            throw new MetaContactListException(ex.getMessage(), 
+            throw new MetaContactListException(ex.getMessage(),
                 MetaContactListException.CODE_REMOVE_GROUP_ERROR);
         }
-        
+
 
         MetaContactGroupImpl parentMetaGroup = (MetaContactGroupImpl)
             findParentMetaContactGroup( (MetaContactGroupImpl) groupToRemove);
@@ -1197,7 +1224,7 @@ public class MetaContactListServiceImpl
         //removed
         locallyRemoveAllContactsForProvider(metaContainer
                                             , groupToRemove);
-        
+
         fireMetaContactGroupEvent(metaContainer, sourceProvider, groupToRemove
             , MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP);
 
@@ -1532,7 +1559,8 @@ public class MetaContactListServiceImpl
                 .getName());
 
         this.currentlyInstalledProviders.put(
-                           provider.getAccountID().getAccountUniqueID(), provider);
+                           provider.getAccountID().getAccountUniqueID(),
+                           provider);
 
         //If we have a persistent presence op set - then retrieve its contat
         //list and merge it with the local one.
@@ -1607,15 +1635,14 @@ public class MetaContactListServiceImpl
             ContactGroup group = (ContactGroup)subgroups.next();
             //remove the group
             this.removeContactGroupFromMetaContactGroup(
-                (MetaContactGroupImpl)findMetaContactGroupByContactGroup(group), 
-                group, 
+                (MetaContactGroupImpl)findMetaContactGroupByContactGroup(group),
+                group,
                 provider);
         }
 
         //remove the root group
         this.removeContactGroupFromMetaContactGroup(
             this.rootMetaGroup, rootGroup, provider);
-
     }
 
     /**
@@ -1931,6 +1958,9 @@ public class MetaContactListServiceImpl
             fireMetaContactEvent(newMetaContact,
                                  parentGroup,
                                  MetaContactEvent.META_CONTACT_ADDED);
+
+            //make sure we have a local copy of the avatar;
+            newMetaContact.getAvatar();
         }
 
         /**
@@ -2054,7 +2084,13 @@ public class MetaContactListServiceImpl
          */
         public void subscriptionResolved(SubscriptionEvent evt)
         {
-            //who cares?
+            //this was a contact we already had so all we need to do is
+            //update it's details
+            MetaContactImpl mc = (MetaContactImpl) findMetaContactByContact(evt
+                            .getSourceContact());
+
+            if(mc != null)
+                mc.getAvatar();
         }
 
         /**
@@ -2075,12 +2111,21 @@ public class MetaContactListServiceImpl
                 = (MetaContactImpl)findMetaContactByContact(
                     evt.getSourceContact());
 
-            if( evt.getPropertyName().equals(ContactPropertyChangeEvent
-                                             .PROPERTY_DISPLAY_NAME)
+            if( ContactPropertyChangeEvent.PROPERTY_DISPLAY_NAME
+                            .equals(evt.getPropertyName())
                 && evt.getOldValue() != null
                 && ((String)evt.getOldValue()).equals(mc.getDisplayName()))
             {
                 renameMetaContact(mc, (String)evt.getNewValue());
+            }
+            else if( ContactPropertyChangeEvent.PROPERTY_IMAGE
+                            .equals(evt.getPropertyName())
+                && evt.getNewValue() != null)
+            {
+                changeMetaContactAvatar(
+                                mc,
+                                evt.getSourceContact(),
+                                (byte[])evt.getNewValue());
             }
         }
 
@@ -2939,7 +2984,7 @@ public class MetaContactListServiceImpl
         {}
 
         /**
-         * Called whenever an indication is received that a subscription 
+         * Called whenever an indication is received that a subscription
          * creation has failed.
          * @param evt a <tt>SubscriptionEvent</tt> containing a reference to
          * the contact we are trying to subscribe.

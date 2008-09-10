@@ -24,13 +24,15 @@ public class ResourceManagementActivator
         Logger.getLogger(ResourceManagementActivator.class);
     static BundleContext bundleContext;
 
+    private ResourceManagementServiceImpl resPackImpl = null;
+
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
 
-        ResourceManagementServiceImpl resPackImpl = 
+        resPackImpl =
             new ResourceManagementServiceImpl();
-        
+
         bundleContext.registerService(  ResourceManagementService.class.getName(),
                                         resPackImpl,
                                         null);
@@ -40,6 +42,6 @@ public class ResourceManagementActivator
 
     public void stop(BundleContext bc) throws Exception
     {
-
+        bc.removeServiceListener(resPackImpl);
     }
 }

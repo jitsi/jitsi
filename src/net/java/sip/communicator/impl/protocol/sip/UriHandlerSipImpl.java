@@ -65,19 +65,13 @@ public class UriHandlerSipImpl
         }
 
         this.protoFactory = protoFactory;
-
-        //we listen for service events so that we can disable ourselves in
-        //case our protocol factory decides to leave.
-        SipActivator.bundleContext.addServiceListener(this);
-
-        registerHandlerService();
     }
 
     /**
      * Registers this UriHandler with the bundle context so that it could
      * start handling URIs
      */
-    private void registerHandlerService()
+    public void registerHandlerService()
     {
         synchronized(registrationLock)
         {
@@ -104,7 +98,7 @@ public class UriHandlerSipImpl
     /**
      * Unregisters this UriHandler from the bundle context.
      */
-    private void unregisterHandlerService()
+    public void unregisterHandlerService()
     {
         synchronized(registrationLock)
         {
