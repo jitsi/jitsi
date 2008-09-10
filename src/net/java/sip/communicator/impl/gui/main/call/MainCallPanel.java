@@ -104,6 +104,7 @@ public class MainCallPanel
         buttonsPanel.add(callButton);
 
         this.setOpaque(false);
+        callViaPanel.setOpaque(false);
         comboPanel.setOpaque(false);
         buttonsPanel.setOpaque(false);
         phoneNumberCombo.setOpaque(false);
