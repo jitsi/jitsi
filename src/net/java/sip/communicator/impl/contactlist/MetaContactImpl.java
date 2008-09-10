@@ -503,7 +503,15 @@ public class MetaContactImpl
             return getAvatar();
 
         if(cachedAvatar != null)
+        {
+            if(cachedAvatar.length == 0)
+            {
+                //means we already tried and there was no locally stored
+                //avatar either.
+                return null;
+            }
             return cachedAvatar;
+        }
 
         Iterator<Contact> iter = this.getContacts();
         while (iter.hasNext())
@@ -516,8 +524,13 @@ public class MetaContactImpl
 
             cachedAvatar = getLocallyStoredAvatar(avatarPath);
 
-            return cachedAvatar;
+            if(cachedAvatar != null)
+                return cachedAvatar;
         }
+
+        //we don't want to open local files on every cell render so this is our
+        //way of saying that we already tried the local storage.
+        cachedAvatar = new byte[0];
 
         return null;
     }
