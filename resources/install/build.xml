@@ -499,14 +499,35 @@
     <target name="dmg" depends="macosx-sparkle"
             if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
-                
+
       <propertyfile file="${macosx.app.dir}/versionupdate.properties" 
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
             <entry  key="download_link" 
                     value="http://download.sip-communicator.org/nightly/macosx/${package.name}-${sip-communicator.version}.dmg"/>
       </propertyfile>
-                
+
+      <!-- Copy the urlhandler application to destination dir-->
+      <copy todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app">
+        <fileset dir="${macosx.resrc.dir}/URLHandler.app"/>
+      </copy>
+      <!-- copy and icon as it uses our application icon -->
+      <copy todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Resources">
+        <fileset file="resources/images/logo/sc_logo_128x128.icns"/>
+      </copy>
+      <!-- move our application plist template -->
+      <move file="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Info.plist.tmpl"
+              tofile="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Info.plist"/>
+      <!-- change name of the urlhandler application-->
+      <replace
+        file="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Info.plist"
+        value="${application.name}">
+            <replacefilter
+                token="APP_NAME"/>
+      </replace>
+      <!-- make sure that launcher is executable -->
+      <chmod file="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/MacOS/URLHandler" perm="+x"/>
+
       <property name="macosx.dmg.name"
                 value="${package.name}-${sip-communicator.version}.dmg"/>
       <property name="macosx.dmg.tmpname"
