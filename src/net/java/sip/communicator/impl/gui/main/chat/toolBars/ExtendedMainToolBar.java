@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 
 import javax.swing.*;
 
@@ -43,49 +44,51 @@ public class ExtendedMainToolBar
 {
     private Logger logger = Logger.getLogger(ExtendedMainToolBar.class);
 
+    BufferedImage backgroundImage
+        = ImageLoader.getImage(ImageLoader.TOOL_BAR_BACKGROUND);
+
+    Rectangle rectangle
+        = new Rectangle(0, 0,
+                    backgroundImage.getWidth(null),
+                    backgroundImage.getHeight(null));
+
+    TexturePaint texture = new TexturePaint(backgroundImage, rectangle);
+
     private ToolBarButton copyButton = new ToolBarButton(
-        Messages.getI18NString("copy").getText(),
         ImageLoader.getImage(ImageLoader.COPY_ICON));
 
     private ToolBarButton cutButton = new ToolBarButton(
-        Messages.getI18NString("cut").getText(),
         ImageLoader.getImage(ImageLoader.CUT_ICON));
 
     private ToolBarButton pasteButton = new ToolBarButton(
-        Messages.getI18NString("paste").getText(),
         ImageLoader.getImage(ImageLoader.PASTE_ICON));
 
     private ToolBarButton saveButton = new ToolBarButton(
-        Messages.getI18NString("save").getText(),
         ImageLoader.getImage(ImageLoader.SAVE_ICON));
 
     private ToolBarButton printButton = new ToolBarButton(
-        Messages.getI18NString("print").getText(),
         ImageLoader.getImage(ImageLoader.PRINT_ICON));
 
     private ToolBarButton previousButton = new ToolBarButton(
-        Messages.getI18NString("back").getText(),
         ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
 
     private ToolBarButton nextButton = new ToolBarButton(
-        Messages.getI18NString("next").getText(),
         ImageLoader.getImage(ImageLoader.NEXT_ICON));
 
     private ToolBarButton historyButton = new ToolBarButton(
-        Messages.getI18NString("history").getText(),
         ImageLoader.getImage(ImageLoader.HISTORY_ICON));
     
     private ToolBarButton addButton = new ToolBarButton(
-        Messages.getI18NString("addContact").getText(),
         ImageLoader.getImage(ImageLoader.QUICK_MENU_ADD_ICON));
     
     private ToolBarButton sendFileButton = new ToolBarButton(
-        Messages.getI18NString("sendFile").getText(),
         ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
     private ToolBarButton fontButton = new ToolBarButton(
-        Messages.getI18NString("font").getText(),
         ImageLoader.getImage(ImageLoader.FONT_ICON));
+
+    private ToolBarButton settingsButton = new ToolBarButton(
+        ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON));
 
     private static int DEFAULT_BUTTON_HEIGHT
         = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
@@ -120,6 +123,10 @@ public class ExtendedMainToolBar
         this.add(cutButton);
         this.add(copyButton);
         this.add(pasteButton);
+
+        this.addSeparator();
+
+        this.add(settingsButton);
 
         this.addSeparator();
 
@@ -160,11 +167,11 @@ public class ExtendedMainToolBar
 
         this.previousButton.setName("previous");
         this.previousButton.setToolTipText(
-            Messages.getI18NString("previous").getText());
+            Messages.getI18NString("previousTooltip").getText());
 
         this.nextButton.setName("next");
         this.nextButton.setToolTipText(
-            Messages.getI18NString("next").getText());
+            Messages.getI18NString("nextTooltip").getText());
 
         this.sendFileButton.setName("sendFile");
         this.sendFileButton.setToolTipText(
@@ -177,33 +184,37 @@ public class ExtendedMainToolBar
         this.addButton.setName("addContact");
         this.addButton.setToolTipText(
             Messages.getI18NString("addContact").getText());
-        
+
         this.fontButton.setName("font");
         this.fontButton.setToolTipText(
             Messages.getI18NString("font").getText());
 
-        int buttonWidth = calculateButtonWidth();
+        this.settingsButton.setName("settings");
+        this.settingsButton.setToolTipText(
+            Messages.getI18NString("settings").getText());
 
         this.saveButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.printButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.cutButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.copyButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.pasteButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.previousButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.nextButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.sendFileButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.historyButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
         this.fontButton.setPreferredSize(
-            new Dimension(buttonWidth, DEFAULT_BUTTON_HEIGHT));
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
+        this.settingsButton.setPreferredSize(
+            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
 
         this.saveButton.addMouseListener(this);
         this.printButton.addMouseListener(this);
@@ -272,6 +283,124 @@ public class ExtendedMainToolBar
      */
     public void mousePressed(MouseEvent e)
     {
+        ToolBarButton button = (ToolBarButton) e.getSource();
+        button.setMousePressed(true);
+    }
+
+    private void initPluginComponents()
+    {
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CHAT_TOOL_BAR.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
+
+                this.add((Component)component.getComponent());
+
+                this.revalidate();
+                this.repaint();
+            }
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+    private class ToolBarButton
+        extends JLabel
+    {
+        private Image iconImage;
+    
+        private boolean isMouseOver = false;
+    
+        private boolean isMousePressed = false;
+    
+        public ToolBarButton(Image iconImage)
+        {
+            super(new ImageIcon(iconImage));
+    
+            this.setFont(getFont().deriveFont(Font.BOLD, 10f));
+            this.setForeground(new Color(
+                GuiActivator.getResources().getColor("toolBarForeground")));
+    
+            this.setVerticalTextPosition(SwingConstants.BOTTOM);
+            this.setHorizontalTextPosition(SwingConstants.CENTER);
+        }
+    
+        public void setMouseOver(boolean isMouseOver)
+        {
+            this.isMouseOver = isMouseOver;
+            this.repaint();
+        }
+    
+        public void setMousePressed(boolean isMousePressed)
+        {
+            this.isMousePressed = isMousePressed;
+            this.repaint();
+        }
+    
+        public void paintComponent(Graphics g)
+        {
+            Graphics2D g2 = (Graphics2D) g;
+    
+            AntialiasingManager.activateAntialiasing(g2);
+    
+            Color color = null;
+    
+            if(isMouseOver)
+            {
+                color = new Color(
+                    GuiActivator.getResources()
+                    .getColor("toolbarRolloverBackground"));
+    
+                g2.setColor(color);
+    
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 2, 8, 8);
+            }
+    
+            if (isMousePressed)
+            {
+                color = new Color(
+                    GuiActivator.getResources().getColor("toolbarBackground"));
+    
+                g2.setColor(new Color(   color.getRed(),
+                                        color.getGreen(),
+                                        color.getBlue(),
+                                        100));
+    
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 2, 8, 8);
+            }
+    
+            super.paintComponent(g2);
+        }
+        
+        public Action getAction()
+        {
+            return null;
+        }
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {
         JLabel button = (JLabel) e.getSource();
         String buttonText = button.getName();
 
@@ -337,9 +466,6 @@ public class ExtendedMainToolBar
                                                                 history);
             }
         }
-        else if (buttonText.equalsIgnoreCase("font")) {
-
-        }
         else if (buttonText.equalsIgnoreCase("addContact")) 
         {
             if(currentChatContact != null)
@@ -353,101 +479,13 @@ public class ExtendedMainToolBar
                 addCWizz.setVisible(true);
             }
         }
-    }
-
-    private void initPluginComponents()
-    {
-        // Search for plugin components registered through the OSGI bundle
-        // context.
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_CHAT_TOOL_BAR.getID()+")";
-
-        try
+        else if (buttonText.equalsIgnoreCase("settings"))
         {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
-                osgiFilter);
+            ExportedWindow configDialog = GuiActivator.getUIService()
+                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
+
+            configDialog.setVisible(true);
         }
-        catch (InvalidSyntaxException exc)
-        {
-            logger.error("Could not obtain plugin reference.", exc);
-        }
-
-        if (serRefs != null)
-        {
-            for (int i = 0; i < serRefs.length; i ++)
-            {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
-
-                this.add((Component)component.getComponent());
-
-                this.revalidate();
-                this.repaint();
-            }
-        }
-
-        GuiActivator.getUIService().addPluginComponentListener(this);
-    }
-
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-
-        Image backgroundImage
-            = ImageLoader.getImage(ImageLoader.TOOL_BAR_BACKGROUND);
-
-        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
-    }
-
-    private class ToolBarButton
-        extends JLabel
-    {
-        private Image iconImage;
-
-        private boolean isMouseOver = false;
-
-        public ToolBarButton(String text, Image iconImage)
-        {
-            super(text, new ImageIcon(iconImage), JLabel.CENTER);
-
-            this.setFont(getFont().deriveFont(Font.BOLD, 10f));
-            this.setForeground(new Color(
-                GuiActivator.getResources().getColor("toolBarForeground")));
-
-            this.setVerticalTextPosition(SwingConstants.BOTTOM);
-            this.setHorizontalTextPosition(SwingConstants.CENTER);
-        }
-
-        public void setMouseOver(boolean isMouseOver)
-        {
-            this.isMouseOver = isMouseOver;
-            this.repaint();
-        }
-
-        public void paintComponent(Graphics g)
-        {
-            Graphics2D g2 = (Graphics2D) g;
-
-            AntialiasingManager.activateAntialiasing(g2);
-
-            super.paintComponent(g2);
-
-            g2.setStroke(new BasicStroke(1.5f));
-
-            g2.setColor(new Color(0x646464));
-
-            if (isMouseOver)
-                g.drawRoundRect(0, 0, this.getWidth() - 1,
-                                this.getHeight() - 3, 5, 5);
-        }
-    }
-
-    public void mouseClicked(MouseEvent e)
-    {
     }
 
     public void mouseEntered(MouseEvent e)
@@ -464,58 +502,27 @@ public class ExtendedMainToolBar
 
     public void mouseReleased(MouseEvent e)
     {
+        ToolBarButton button = (ToolBarButton) e.getSource();
+        button.setMousePressed(false);
     }
-    
-    private int calculateButtonWidth()
+
+    public void paintComponent(Graphics g)
     {
-        int width = DEFAULT_BUTTON_WIDTH;
+        super.paintComponent(g);
 
-        FontMetrics fontMetrics
-            = copyButton.getFontMetrics(copyButton.getFont());
+        if (backgroundImage != null)
+        {
+            Graphics2D g2 = (Graphics2D) g;
 
-        int textWidth = fontMetrics.stringWidth(
-            Messages.getI18NString("copy").getText());
+            g2.setPaint(texture);
 
-        if (textWidth > width)
-            width = textWidth;
+            g2.fillRect(0, 2, this.getWidth(), this.getHeight() - 2);
 
-        textWidth = fontMetrics.stringWidth(
-            Messages.getI18NString("cut").getText());
+            g2.setColor(new Color(
+                GuiActivator.getResources()
+                .getColor("desktopBackgroundColor")));
 
-        if (textWidth > width)
-            width = textWidth;
-
-        textWidth = fontMetrics.stringWidth(
-            Messages.getI18NString("paste").getText());
-
-        if (textWidth > width)
-            width = textWidth;
-
-        textWidth = fontMetrics.stringWidth(
-            Messages.getI18NString("back").getText());
-
-        if (textWidth > width)
-            width = textWidth;
-
-        textWidth = fontMetrics.stringWidth(
-            Messages.getI18NString("next").getText());
-
-        if (textWidth > width)
-            width = textWidth;
-
-        textWidth = fontMetrics.stringWidth(
-            Messages.getI18NString("history").getText());
-
-        if (textWidth > width)
-            width = textWidth;
-
-        textWidth = fontMetrics.stringWidth(
-            Messages.getI18NString("smiley").getText());
-
-        if (textWidth > width)
-            width = textWidth;
-
-        // Return the width by 
-        return width + 5;
+            g2.drawRect(0, this.getHeight() - 2, this.getWidth(), 2);
+        }
     }
 }
