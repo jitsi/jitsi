@@ -135,13 +135,13 @@ public class InfoRetreiver
             responseRetriever.waitForLastInfo(60000);
 
             result = responseRetriever.result;
-            
+
             if(result == null)
                 result = new LinkedList();
-            
+
             retreivedDetails.put(uin, result);
         }
-        
+
         return new LinkedList(result);
     }
 
@@ -573,10 +573,13 @@ public class InfoRetreiver
                 // because their string representations are stored in array
                 category = category - 99;
             }
-            infoData.add(
-                new OperationSetServerStoredAccountInfoIcqImpl.InterestDetail(
-                    interests[i],
-                    OperationSetServerStoredAccountInfoIcqImpl.interestsCategories[category]));
+            if(category <= interests.length)
+            {
+                infoData.add(
+                    new OperationSetServerStoredAccountInfoIcqImpl.InterestDetail(
+                        interests[i],
+                        OperationSetServerStoredAccountInfoIcqImpl.interestsCategories[category]));
+            }
         }
     }
 

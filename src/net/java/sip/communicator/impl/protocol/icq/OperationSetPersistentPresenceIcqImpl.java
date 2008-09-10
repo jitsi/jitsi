@@ -109,30 +109,30 @@ public class OperationSetPersistentPresenceIcqImpl
 
     private AuthorizationHandler authorizationHandler = null;
     private AuthListener authListener = new AuthListener();
-    
+
     /**
      * The timer scheduling task that will query awaiting authorization
      * contacts for their status
      */
     private Timer presenceQueryTimer = null;
-    
+
     /**
      *  Interval between queries for awaiting authorization
      *  contact statuses
-     */ 
+     */
     private long PRESENCE_QUERY_INTERVAL = 120000l;
 
     /**
-     *  Used to request authorization when a user comes online 
+     *  Used to request authorization when a user comes online
      *  and haven't granted one
      */
     private OperationSetExtendedAuthorizationsIcqImpl opSetExtendedAuthorizations = null;
-    
+
     /**
      *  Buddies seen availabel
      */
     private Vector buddiesSeenAvailable = new Vector();
-    
+
     /**
      * The array list we use when returning from the getSupportedStatusSet()
      * method.
@@ -162,7 +162,7 @@ public class OperationSetPersistentPresenceIcqImpl
                                   new Long(ICQ_ONLINE_MASK));
 
     }
-    
+
     private static Map scToAimStatusMappings = new Hashtable();
     static{
 
@@ -174,7 +174,7 @@ public class OperationSetPersistentPresenceIcqImpl
                                   new Long(ICQ_ONLINE_MASK));
 
     }
-    
+
     /**
      * The server stored contact list that will be encapsulating joustsim's
      * buddy list.
@@ -595,15 +595,15 @@ public class OperationSetPersistentPresenceIcqImpl
         }
 
         logger.trace("Going to remove contact from ss-list : " + contact);
-        
+
         if( !contactGroup.isPersistent()
             && contactIcqImpl.getJoustSimBuddy().isAwaitingAuthorization())
         {
             // this is contact in AwaitingAuthorization group
             // we must find the original parent and remove it from there
-            ContactGroupIcqImpl origParent = 
+            ContactGroupIcqImpl origParent =
                 ssContactList.findGroup(contactIcqImpl.getJoustSimBuddy());
-            
+
             if(origParent != null)
             {
                 origParent.getJoustSimSourceGroup().
@@ -660,19 +660,19 @@ public class OperationSetPersistentPresenceIcqImpl
         if (!(status instanceof IcqStatusEnum || status instanceof AimStatusEnum))
             throw new IllegalArgumentException(
                             status + " is not a valid ICQ/AIM status");
-        
+
         logger.debug("Will set status: " + status);
-        
+
         MainBosService bosService
             = parentProvider.getAimConnection().getBosService();
-        
+
         if(!parentProvider.USING_ICQ)
         {
             if(status.equals(AimStatusEnum.AWAY))
             {
                 if(getPresenceStatus().equals(AimStatusEnum.INVISIBLE))
                     bosService.setVisibleStatus(true);
-                
+
                 bosService.getOscarConnection().sendSnac(new SetInfoCmd(
                     new InfoData(null, "I'm away!", null, null)));
             }
@@ -681,7 +681,7 @@ public class OperationSetPersistentPresenceIcqImpl
                 if(getPresenceStatus().equals(AimStatusEnum.AWAY))
                     bosService.getOscarConnection().sendSnac(new SetInfoCmd(
                         new InfoData(null, InfoData.NOT_AWAY, null, null)));
-                
+
                 bosService.setVisibleStatus(false);
             }
             else if(status.equals(AimStatusEnum.ONLINE))
@@ -832,26 +832,26 @@ public class OperationSetPersistentPresenceIcqImpl
             throw new IllegalArgumentException(
                 "The specified group is not an icq contact group."
                 + newParent);
-        
-        ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
+
+        ContactGroupIcqImpl theAwaitingAuthorizationGroup =
             ssContactList.findContactGroup(
                 ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
-        
+
         if(newParent.equals(theAwaitingAuthorizationGroup))
                 throw new IllegalArgumentException(
-                "Cannot move contacts to this group : " + 
+                "Cannot move contacts to this group : " +
                     theAwaitingAuthorizationGroup);
-        
-        if(((ContactIcqImpl)contactToMove).isPersistent() 
+
+        if(((ContactIcqImpl)contactToMove).isPersistent()
             && !contactToMove.getParentContactGroup().isPersistent())
         {
             if(contactToMove.getParentContactGroup().equals(
                 theAwaitingAuthorizationGroup))
                 throw new IllegalArgumentException(
-                "Cannot move contacts from this group : " + 
+                "Cannot move contacts from this group : " +
                     theAwaitingAuthorizationGroup);
         }
-        
+
         ssContactList.moveContact((ContactIcqImpl)contactToMove,
                                   (ContactGroupIcqImpl)newParent);
     }
@@ -910,7 +910,7 @@ public class OperationSetPersistentPresenceIcqImpl
                 supportedPresenceStatusSet.add(AimStatusEnum.OFFLINE);
             }
         }
-        
+
         return supportedPresenceStatusSet.iterator();
     }
 
@@ -969,8 +969,8 @@ public class OperationSetPersistentPresenceIcqImpl
                     {
                         this.status = userInfo.getIcqStatus();
 
-                        // StatusResponseRetriever is used when query for 
-                        // user status if status is not set (is -1) 
+                        // StatusResponseRetriever is used when query for
+                        // user status if status is not set (is -1)
                         // this means user is offline.
                         //if (this.status == -1)
                         //    status = ICQ_ONLINE_MASK;
@@ -1213,7 +1213,7 @@ public class OperationSetPersistentPresenceIcqImpl
             logger.debug("The ICQ provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
-            if(evt.getNewState() == RegistrationState.REGISTERED)
+            if(evt.getNewState() == RegistrationState.FINALIZING_REGISTRATION)
             {
                 logger.debug("adding a Bos Service Listener");
                 parentProvider.getAimConnection().getBosService()
@@ -1230,21 +1230,23 @@ public class OperationSetPersistentPresenceIcqImpl
 //                 contacts and we really need it here ...*/
                 parentProvider.getAimConnection().getBuddyInfoManager()
                     .addGlobalBuddyInfoListener(new GlobalBuddyInfoListener());
-                
+
                 parentProvider.getAimConnection().getExternalServiceManager().
                     getIconServiceArbiter().addIconRequestListener(
                         new IconUpdateListener());
-                
+
                 parentProvider.getAimConnection().getInfoService().
                     addInfoListener(new AwayMessageListener());
-                
+            }
+            else if(evt.getNewState() == RegistrationState.REGISTERED)
+            {
                 if(parentProvider.USING_ICQ)
                 {
-                    opSetExtendedAuthorizations = 
+                    opSetExtendedAuthorizations =
                         (OperationSetExtendedAuthorizationsIcqImpl)
                             parentProvider.getSupportedOperationSets()
                             .get(OperationSetExtendedAuthorizations.class.getName());
-                
+
                     if(presenceQueryTimer == null)
                         presenceQueryTimer = new Timer();
                     else
@@ -1257,7 +1259,7 @@ public class OperationSetPersistentPresenceIcqImpl
                     AwaitingAuthorizationContactsPresenceTimer
                         queryTask = new AwaitingAuthorizationContactsPresenceTimer();
 
-                    // start after 15 seconds. wait for login to be completed and 
+                    // start after 15 seconds. wait for login to be completed and
                     // list and statuses to be gathered
                     presenceQueryTimer.scheduleAtFixedRate(
                             queryTask, 15000, PRESENCE_QUERY_INTERVAL);
@@ -1386,7 +1388,7 @@ public class OperationSetPersistentPresenceIcqImpl
 
             //update the last received field.
             long oldStatus  = currentIcqStatus;
-            
+
             if(parentProvider.USING_ICQ)
             {
                 currentIcqStatus = userInfo.getIcqStatus();
@@ -1413,8 +1415,8 @@ public class OperationSetPersistentPresenceIcqImpl
                     currentIcqStatus = userInfo.getIcqStatus();
                 }
                 else // online status
-                    currentIcqStatus = ICQ_ONLINE_MASK;                
-                
+                    currentIcqStatus = ICQ_ONLINE_MASK;
+
                 if( oldStatus != currentIcqStatus )
                     fireProviderPresenceStatusChangeEvent(oldStatus,
                                                         currentIcqStatus);
@@ -1454,9 +1456,9 @@ public class OperationSetPersistentPresenceIcqImpl
             }
             PresenceStatus oldStatus
                 = sourceContact.getPresenceStatus();
-            
+
             PresenceStatus newStatus = null;
-            
+
             if(!parentProvider.USING_ICQ)
             {
                 Boolean awayStatus = info.getAwayStatus();
@@ -1467,7 +1469,7 @@ public class OperationSetPersistentPresenceIcqImpl
             }
             else
                 newStatus = statusLongToPresenceStatus(info.getIcqStatus());
-            
+
             sourceContact.updatePresenceStatus(newStatus);
 
             ContactGroupIcqImpl parent
@@ -1488,7 +1490,7 @@ public class OperationSetPersistentPresenceIcqImpl
                     }
                 }
             }
-            
+
             logger.debug("Will Dispatch the contact status event.");
             fireContactPresenceStatusChangeEvent(sourceContact, parent,
                                                  oldStatus, newStatus);
@@ -1515,7 +1517,7 @@ public class OperationSetPersistentPresenceIcqImpl
             PresenceStatus oldStatus
                 = sourceContact.getPresenceStatus();
             PresenceStatus newStatus = null;
-            
+
             if(parentProvider.USING_ICQ)
                 newStatus = IcqStatusEnum.OFFLINE;
             else
@@ -1543,15 +1545,15 @@ public class OperationSetPersistentPresenceIcqImpl
             logger.debug("info.getAwayMessage()=" + info.getAwayMessage());
             logger.debug("info.getOnlineSince()=" + info.getOnlineSince());
             logger.debug("info.getStatusMessage()=" + statusMessage);
-            
+
             ContactIcqImpl sourceContact
                 = ssContactList.findContactByScreenName(buddy.getFormatted());
-            
+
             if(sourceContact != null)
             {
                 sourceContact.setStatusMessage(statusMessage);
             }
-            
+
         }
 
     }
@@ -1620,32 +1622,32 @@ public class OperationSetPersistentPresenceIcqImpl
             logger.trace("authorizationRequired from " + screenname);
 
             logger.trace("finding buddy : " + screenname);
-            ContactIcqImpl srcContact = 
+            ContactIcqImpl srcContact =
                 ssContactList.findContactByScreenName(screenname.getFormatted());
 
             if(srcContact == null)
             {
-                ContactGroupIcqImpl parent = 
+                ContactGroupIcqImpl parent =
                     ssContactList.findContactGroup(parentGroup);
                 srcContact = ssContactList.
                     createUnresolvedContact((ContactGroupIcqImpl)parent, screenname);
-                
+
                 Buddy buddy = ((ContactIcqImpl)srcContact).getJoustSimBuddy();
-                
+
                 if(buddy instanceof VolatileBuddy)
                     ((VolatileBuddy)buddy).setAwaitingAuthorization(true);
-                
-                 ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
+
+                 ContactGroupIcqImpl theAwaitingAuthorizationGroup =
                      ssContactList.findContactGroup(
-                        ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);   
-                 
-                 
+                        ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
+
+
                 if(theAwaitingAuthorizationGroup == null)
                 {
                     List emptyBuddies = new LinkedList();
                     theAwaitingAuthorizationGroup = new ContactGroupIcqImpl(
                         new VolatileGroup(
-                            ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName), 
+                            ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName),
                             emptyBuddies, ssContactList, false);
 
                     ((RootContactGroupIcqImpl)ssContactList.getRootGroup()).
@@ -1654,17 +1656,17 @@ public class OperationSetPersistentPresenceIcqImpl
                     ssContactList.fireGroupEvent(theAwaitingAuthorizationGroup
                         , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
                 }
-                 
-                 
+
+
                  ((ContactGroupIcqImpl)parent).removeContact(srcContact);
                  theAwaitingAuthorizationGroup.addContact(srcContact);
-                 
+
                  Object lock = new Object();
                  synchronized(lock){
                      try{ lock.wait(500); }catch(Exception e){}
                  }
-                 
-                 fireSubscriptionMovedEvent(srcContact, 
+
+                 fireSubscriptionMovedEvent(srcContact,
                      parent, theAwaitingAuthorizationGroup);
             }
 
@@ -1695,7 +1697,7 @@ public class OperationSetPersistentPresenceIcqImpl
             logger.trace("youWereAdded from " + screenname);
         }
     }
-    
+
     /**
      * Notified if buddy icon is changed
      */
@@ -1712,7 +1714,7 @@ public class OperationSetPersistentPresenceIcqImpl
             if(byteBlock != null)
                 updateBuddyyIcon(screenname, byteBlock.toByteArray());
         }
-        
+
         /**
          * Changes the Contact image
          * @param screenname the contact screenname
@@ -1720,28 +1722,28 @@ public class OperationSetPersistentPresenceIcqImpl
          */
         private void updateBuddyyIcon(Screenname screenname, byte[] icon)
         {
-            ContactIcqImpl contact = 
+            ContactIcqImpl contact =
                 ssContactList.findContactByScreenName(screenname.getFormatted());
-            
+
             if(contact != null)
                contact.setImage(icon);
         }
     }
-    
+
     private class AwaitingAuthorizationContactsPresenceTimer
         extends TimerTask
     {
         public void run()
         {
             logger.trace("Running status retreiver for AwaitingAuthorizationContacts");
-            
-            ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
+
+            ContactGroupIcqImpl theAwaitingAuthorizationGroup =
                 ssContactList.findContactGroup(
                     ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
-            
+
             if(theAwaitingAuthorizationGroup == null)
                 return;
-            
+
             Iterator iter = theAwaitingAuthorizationGroup.contacts();
             while (iter.hasNext())
             {
@@ -1751,18 +1753,15 @@ public class OperationSetPersistentPresenceIcqImpl
 
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
-                
+
                 if(newStatus.equals(oldStatus))
-                   continue; 
+                   continue;
 
                 sourceContact.updatePresenceStatus(newStatus);
 
-                ContactGroupIcqImpl parent
-                    = ssContactList.findContactGroup(sourceContact);
-
                 fireContactPresenceStatusChangeEvent(sourceContact, theAwaitingAuthorizationGroup,
                                                  oldStatus, newStatus);
-                
+
                 if( !newStatus.equals(IcqStatusEnum.OFFLINE) &&
                     !buddiesSeenAvailable.contains(sourceContact.getAddress()))
                 {
@@ -1771,14 +1770,14 @@ public class OperationSetPersistentPresenceIcqImpl
                     {
                         AuthorizationRequest req = new AuthorizationRequest();
                         req.setReason("I'm resending my request. Please authorize me!");
-                        
+
                         opSetExtendedAuthorizations.reRequestAuthorization(req, sourceContact);
                     } catch (OperationFailedException ex)
                     {
                         logger.error("failed to reRequestAuthorization", ex);
                     }
-                }   
-            }           
+                }
+            }
         }
     }
 
@@ -1793,7 +1792,7 @@ public class OperationSetPersistentPresenceIcqImpl
         {
             ContactIcqImpl sourceContact
                 = ssContactList.findContactByScreenName(buddy.getFormatted());
-            
+
             if(sourceContact != null)
             {
                 sourceContact.setStatusMessage(awayMessage);

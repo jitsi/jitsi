@@ -241,7 +241,7 @@ public class OperationSetTypingNotificationsIcqImpl
             logger.debug("The ICQ provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
-            if (evt.getNewState() == RegistrationState.REGISTERED)
+            if (evt.getNewState() == RegistrationState.FINALIZING_REGISTRATION)
             {
                 icqProvider.getAimConnection().getIcbmService()
                     .addIcbmListener(joustSimIcbmListener);

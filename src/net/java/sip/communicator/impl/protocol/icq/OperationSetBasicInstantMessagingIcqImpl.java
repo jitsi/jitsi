@@ -324,7 +324,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         else
             return false;
     }
-    
+
     /**
      * Determines wheter the protocol supports the supplied content type
      *
@@ -334,7 +334,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE) || 
+        if(contentType.equals(DEFAULT_MIME_TYPE) ||
            (contentType.equals(HTML_MIME_TYPE)))
             return true;
         else
@@ -360,7 +360,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             logger.debug("The ICQ provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
-            if (evt.getNewState() == RegistrationState.REGISTERED)
+            if(evt.getNewState() == RegistrationState.FINALIZING_REGISTRATION)
             {
                 logger.debug("adding a Bos Service Listener");
                 icqProvider.getAimConnection().getIcbmService()
@@ -369,7 +369,9 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 opSetPersPresence = (OperationSetPersistentPresenceIcqImpl)
                     icqProvider.getSupportedOperationSets()
                         .get(OperationSetPersistentPresence.class.getName());
-
+            }
+            else if (evt.getNewState() == RegistrationState.REGISTERED)
+            {
                 if(icqProvider.USING_ICQ)
                     retreiveOfflineMessages();
 

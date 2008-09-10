@@ -83,13 +83,13 @@ public class ProtocolProviderServiceIcqImpl
      */
     private ProtocolIconIcqImpl icqIcon
         = new ProtocolIconIcqImpl();
-    
+
     /**
      * The icon corresponding to the aim protocol.
      */
     private ProtocolIconAimImpl aimIcon
         = new ProtocolIconAimImpl();
-    
+
     /**
      *  Property whether we are using AIM or ICQ service
      */
@@ -99,7 +99,7 @@ public class ProtocolProviderServiceIcqImpl
      * Used when we need to re-register
      */
     private SecurityAuthority authority = null;
-    
+
     /**
      * Keeping track of the last fired registration state.
      */
@@ -281,7 +281,7 @@ public class ProtocolProviderServiceIcqImpl
                         RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
                     return;
                 }
-                
+
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
 
@@ -314,7 +314,7 @@ public class ProtocolProviderServiceIcqImpl
             session = new DefaultAppSession();
             aimSession = session.openAimSession(
                 new Screenname(getAccountID().getUserID()));
-                    
+
             String proxyAddress =
                 (String)getAccountID().getAccountProperties().get(
                     ProtocolProviderFactory.PROXY_ADDRESS);
@@ -354,7 +354,7 @@ public class ProtocolProviderServiceIcqImpl
                     // If we are using http proxy, sometimes
                     // default port 5190 is forbidden, so force
                     // http/https port
-                    AimConnectionProperties connProps = 
+                    AimConnectionProperties connProps =
                         new AimConnectionProperties(
                             new Screenname(getAccountID().getUserID())
                             , password);
@@ -425,7 +425,7 @@ public class ProtocolProviderServiceIcqImpl
     /**
      * Returns the protocol display name. This is the name that would be used
      * by the GUI to display the protocol name.
-     * 
+     *
      * @return a String containing the display name of the protocol this service
      * is implementing
      */
@@ -486,7 +486,7 @@ public class ProtocolProviderServiceIcqImpl
 
             if(IcqAccountID.isAIM(accountID.getAccountProperties()))
                     USING_ICQ = false;
-            
+
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
                 new OperationSetPersistentPresenceIcqImpl(this, screenname);
@@ -514,7 +514,7 @@ public class ProtocolProviderServiceIcqImpl
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
-            
+
             if(USING_ICQ)
             {
                 this.infoRetreiver = new InfoRetreiver(this, screenname);
@@ -547,14 +547,14 @@ public class ProtocolProviderServiceIcqImpl
                 supportedOperationSets.put(
                     OperationSetWebContactInfo.class.getName(),
                     webContactInfo);
-            
+
                 OperationSetExtendedAuthorizationsIcqImpl extendedAuth =
                     new OperationSetExtendedAuthorizationsIcqImpl(this);
                 supportedOperationSets.put(
                     OperationSetExtendedAuthorizations.class.getName(),
                     extendedAuth);
             }
-            
+
             isInitialized = true;
         }
     }
@@ -633,11 +633,8 @@ public class ProtocolProviderServiceIcqImpl
             = joustSimStateToRegistrationState(newJoustSimState
                                                , newJoustSimStateInfo);
 
-        lastRegistrationState = newRegistrationState;
-        
         fireRegistrationStateChanged(oldRegistrationState, newRegistrationState
                                      , reasonCode, reason);
-
     }
 
     /**
@@ -665,6 +662,8 @@ public class ProtocolProviderServiceIcqImpl
             // still connected disconneted
             unregister();
         }
+
+        lastRegistrationState = newState;
 
         super.fireRegistrationStateChanged(oldState, newState, reasonCode, reason);
     }
@@ -720,7 +719,7 @@ public class ProtocolProviderServiceIcqImpl
                 if(service != null)
                 {
                     int discconectCode = service.getOscarConnection()
-                        .getLastCloseCode();                    
+                        .getLastCloseCode();
                     reasonCode = ConnectionClosedListener
                         .convertCodeToRegistrationStateChangeEvent(
                             discconectCode);
@@ -739,7 +738,7 @@ public class ProtocolProviderServiceIcqImpl
                     logger.debug("The aim Connection failed! "
                                  + event.getNewStateInfo());
                 }
-            
+
             if(event.getNewStateInfo() instanceof LoginFailureStateInfo)
             {
                 LoginFailureInfo loginFailure =
@@ -777,7 +776,12 @@ public class ProtocolProviderServiceIcqImpl
 
             if (newState == State.ONLINE)
             {
-                // temp fix we must wait a little bit before firing registered
+                // we will fire FINALIZING_REGISTRATION and will wait
+                // for the registration to finnish.
+                fireRegistrationStateChanged(lastRegistrationState,
+                    RegistrationState.FINALIZING_REGISTRATION, -1, null);
+
+                // we must wait a little bit before firing registered
                 // event , waiting for ClientReadyCommand to be sent successfully
                 new RegisteredEventThread().start();
             }
@@ -794,7 +798,7 @@ public class ProtocolProviderServiceIcqImpl
             }
         }
     }
-    
+
     private class RegisteredEventThread extends Thread
     {
         public void run()
@@ -804,13 +808,13 @@ public class ProtocolProviderServiceIcqImpl
             {
                 try
                 {
-                    w.wait(1500);
+                    w.wait(2000);
                 }
                 catch (Exception e)
                 {}
             }
-            
-            fireRegistrationStateChanged(lastRegistrationState, 
+
+            fireRegistrationStateChanged(lastRegistrationState,
                 RegistrationState.REGISTERED, -1, null);
         }
     }

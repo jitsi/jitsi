@@ -148,11 +148,11 @@ public class CallSessionImpl
      * The Custom Data Destination used for this call session.
      */
     private URL dataSink = null;
-    
+
     /**
-     * RFC 4566 specifies that an SDP description may contain a URI with 
-     * additional call information. Some servers, such as SEMS use this URI to 
-     * deliver a link to a call control page, so in case it is there we better 
+     * RFC 4566 specifies that an SDP description may contain a URI with
+     * additional call information. Some servers, such as SEMS use this URI to
+     * deliver a link to a call control page, so in case it is there we better
      * store it and show it to the user.
      */
     private URL callURL = null;
@@ -178,12 +178,12 @@ public class CallSessionImpl
     /**
      * List of RTP format strings which are supported by SIP Communicator in addition
      * to the JMF standard formats.
-     * 
+     *
      * @see #registerCustomCodecFormats(RTPManager)
      * @see MediaControl#registerCustomCodecs()
      */
-    private static final javax.media.Format[] CUSTOM_CODEC_FORMATS 
-        = new javax.media.Format[] 
+    private static final javax.media.Format[] CUSTOM_CODEC_FORMATS
+        = new javax.media.Format[]
     {
         // these formats are specific, since RTP uses format numbers with no parameters.
         new AudioFormat(Constants.ILBC_RTP,
@@ -205,11 +205,11 @@ public class CallSessionImpl
                 -1,
                 AudioFormat.SIGNED)
     };
-    
+
     /**
-     * JMF stores CUSTOM_CODEC_FORMATS statically, so they only need to be 
-     * registered once. FMJ does this dynamically (per instance), so it needs 
-     * to be done for every time we instantiate an RTP manager. This varia 
+     * JMF stores CUSTOM_CODEC_FORMATS statically, so they only need to be
+     * registered once. FMJ does this dynamically (per instance), so it needs
+     * to be done for every time we instantiate an RTP manager. This varia
      */
     private static boolean formatsRegisteredOnce = false;
 
@@ -221,18 +221,18 @@ public class CallSessionImpl
      * @param mediaServCallback the media service instance that created us.
      * @param dataSink the place to send incoming data.
      */
-    public CallSessionImpl(Call call, 
+    public CallSessionImpl(Call call,
                            MediaServiceImpl mediaServCallback,
                            URL dataSink )
     {
         this.call = call;
         this.mediaServCallback = mediaServCallback;
         this.dataSink = dataSink;
-        
+
         registerCustomCodecFormats(audioRtpManager);
-        
+
         // not currently needed, we don't have any custom video formats.
-        // registerCustomCodecFormats(videoRtpManager); 
+        // registerCustomCodecFormats(videoRtpManager);
 
         call.addCallChangeListener(this);
         initializePortNumbers();
@@ -390,7 +390,7 @@ public class CallSessionImpl
             stopStreaming(audioRtpManager, "audio");
         }
         this.audioRtpManager = null;
-        RTPManager videoRtpManager = getAudioRtpManager();
+        RTPManager videoRtpManager = getVideoRtpManager();
         if (videoRtpManager != null)
         {
             stopStreaming(videoRtpManager, "video");
@@ -547,7 +547,7 @@ public class CallSessionImpl
      * The method is meant for use by protocol service implementations when
      * willing to send an in-dialog invitation to a remote callee to put her
      * on/off hold or to send an answer to an offer to be put on/off hold.
-     * 
+     *
      * @param participantSdpDescription the last SDP description of the remote
      *            callee
      * @param on <tt>true</tt> if the SDP description should offer the remote
@@ -603,7 +603,7 @@ public class CallSessionImpl
                 modifyMediaDescriptionForHold(on, mediaDescription, attributes);
             }
             catch (SdpException ex)
-     
+
             {
                 throwMediaException(
                     "Failed to modify media description for hold.",
@@ -628,7 +628,7 @@ public class CallSessionImpl
     /**
      * Modifies the attributes of a specific <tt>MediaDescription</tt> in
      * order to make them reflect the state of being on/off hold.
-     * 
+     *
      * @param on <tt>true</tt> if the state described by the modified
      *            <tt>MediaDescription</tt> should reflect being put on hold;
      *            <tt>false</tt> for being put off hold
@@ -673,7 +673,7 @@ public class CallSessionImpl
      * error using the current <tt>Logger</tt> and then throws a new
      * <tt>MediaException</tt> with the message, a specific error code and the
      * cause.
-     * 
+     *
      * @param message the message to be logged and then wrapped in a new
      *            <tt>MediaException</tt>
      * @param errorCode the error code to be assigned to the new
@@ -692,7 +692,7 @@ public class CallSessionImpl
     /**
      * Determines whether a specific SDP description <tt>String</tt> offers
      * this party to be put on hold.
-     * 
+     *
      * @param sdpOffer the SDP description <tt>String</tt> to be examined for
      *            an offer to this party to be put on hold
      * @return <tt>true</tt> if the specified SDP description <tt>String</tt>
@@ -772,7 +772,7 @@ public class CallSessionImpl
      * For example, a remote request to have this party put off hold cannot
      * override an earlier local request to put the remote party on hold.
      * </p>
-     * 
+     *
      * @param on <tt>true</tt> to request the media of this
      *            <tt>CallSession</tt> be put on hold; <tt>false</tt>,
      *            otherwise
@@ -813,7 +813,7 @@ public class CallSessionImpl
     /**
      * Puts a the <tt>SendSteam</tt>s of a specific <tt>RTPManager</tt>
      * on/off hold i.e. stops/starts them.
-     * 
+     *
      * @param rtpManager the <tt>RTPManager</tt> to have its
      *            <tt>SendStream</tt>s on/off hold i.e. stopped/started
      * @param on <tt>true</tt> to have the <tt>SendStream</tt>s of
@@ -866,7 +866,7 @@ public class CallSessionImpl
      * @throws ParseException if sdpAnswerStr does not contain a valid sdp
      * String.
      */
-    public void processSdpAnswer(CallParticipant responder, 
+    public void processSdpAnswer(CallParticipant responder,
                                               String sdpAnswerStr)
         throws MediaException, ParseException
     {
@@ -885,10 +885,10 @@ public class CallSessionImpl
                                      , ex.getCharOffset());
         }
 
-        //extract URI (rfc4566 says that if present it should be before the 
+        //extract URI (rfc4566 says that if present it should be before the
         //media description so let's start with it)
         setCallURL(sdpAnswer.getURI());
-        
+
         //extract media descriptions
         Vector mediaDescriptions = null;
         try
@@ -902,7 +902,7 @@ public class CallSessionImpl
                                     , MediaException.INTERNAL_ERROR
                                     , exc);
         }
-        
+
         //add the RTP targets
         this.initStreamTargets(sdpAnswer.getConnection(), mediaDescriptions);
 
@@ -977,42 +977,42 @@ public class CallSessionImpl
     /**
      * Tries to extract a java.net.URL from the specified sdpURI param and sets
      * it as the default call info URL for this call session.
-     * 
+     *
      * @param sdpURI the sdp uri as extracted from the call session description.
      */
     private void setCallURL(javax.sdp.URI sdpURI)
     {
-        if (sdpURI == null) 
+        if (sdpURI == null)
         {
             logger.trace("Call URI was null.");
             return;
         }
 
-        try 
+        try
         {
             this.callURL = sdpURI.get();
-        } 
-        catch (SdpParseException exc) 
+        }
+        catch (SdpParseException exc)
         {
             logger.warn("Failed to parse SDP URI.", exc);
         }
     }
-    
+
     /**
-     * RFC 4566 specifies that an SDP description may contain a URI (i.r. a 
-     * "u=" param ) with additional call information. Some servers, such as 
+     * RFC 4566 specifies that an SDP description may contain a URI (i.r. a
+     * "u=" param ) with additional call information. Some servers, such as
      * SEMS use this URI to deliver a link to a call control page. This method
-     * returns this call URL or <tt>null</tt> if the call session description 
+     * returns this call URL or <tt>null</tt> if the call session description
      * did not contain a "u=" parameter.
-     * 
-     * @return a call URL as indicated by the "u=" parameter of the call 
+     *
+     * @return a call URL as indicated by the "u=" parameter of the call
      * session description or null if there was no such parameter.
      */
     public URL getCallInfoURL()
     {
         return this.callURL;
     }
-    
+
     /**
      * Creates a DataSource for all encodings in the mediaDescriptions vector
      * and initializes send streams in our rtp managers for every stream in the
@@ -1402,20 +1402,20 @@ public class CallSessionImpl
             }
 
             //now intersect the offered encodings with what we support
-            Hashtable<String, List<String>> encodings 
+            Hashtable<String, List<String>> encodings
                                 = new Hashtable<String, List<String>>(2);
             encodings.put("audio", offeredAudioEncodings);
             encodings.put("video", offeredVideoEncodings);
             encodings = intersectMediaEncodings(encodings);
-            List<String> intersectedAudioEncsList 
+            List<String> intersectedAudioEncsList
                 = (List<String>)encodings.get("audio");
-            List<String> intersectedVideoEncsList 
+            List<String> intersectedVideoEncsList
                 = (List<String>)encodings.get("video");
 
             //now replace the encodings arrays with the intersection
-            supportedAudioEncodings 
+            supportedAudioEncodings
                 = intersectedAudioEncsList.toArray(new String[0]);
-            supportedVideoEncodings 
+            supportedVideoEncodings
                 = intersectedVideoEncsList.toArray(new String[0]);
         }
         Vector mediaDescs = new Vector();
@@ -1477,7 +1477,7 @@ public class CallSessionImpl
      * Sets the call-hold related attribute of a specific
      * <tt>MediaDescription</tt> to a specific value depending on the type of
      * hold this <tt>CallSession</tt> is currently in.
-     * 
+     *
      * @param mediaDescription the <tt>MediaDescription</tt> to set the
      *            call-hold related attribute of
      * @param onHold the call-hold state of this <tt>CallSession</tt> which is
@@ -1750,11 +1750,11 @@ public class CallSessionImpl
     }
 
     /**
-     * Looks for free ports and initializes the RTP manager according toe the 
+     * Looks for free ports and initializes the RTP manager according toe the
      * specified <tt>intendedDestination</tt>.
-     * 
+     *
      * @param intendedDestination the InetAddress that we will be transmitting
-     * to. 
+     * to.
      * @throws MediaException if we fail initializing the RTP managers.
      */
     private void allocateMediaPorts(InetAddress intendedDestination)
@@ -1886,14 +1886,14 @@ public class CallSessionImpl
         rtpManager.addSendStreamListener(this);
         rtpManager.addSessionListener(this);
     }
-    
+
     /**
-     * Registers the RTP formats which are supported by SIP Communicator in 
-     * addition to the JMF standard formats. This has to be done for every RTP 
+     * Registers the RTP formats which are supported by SIP Communicator in
+     * addition to the JMF standard formats. This has to be done for every RTP
      * Manager instance.
      * <p>
-     * JMF stores this statically, so it only has to be done once.  FMJ does it 
-     * dynamically (per instance, so it needs to be done for each instance. 
+     * JMF stores this statically, so it only has to be done once.  FMJ does it
+     * dynamically (per instance, so it needs to be done for each instance.
      * <p>
      * @param rtpManager The manager with which to register the formats.
      * @see MediaControl#registerCustomCodecs()
@@ -1902,26 +1902,26 @@ public class CallSessionImpl
     {
         // if we have already registered custom formats and we are running JMF
         // we bail out.
-        if (!FMJConditionals.REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER 
+        if (!FMJConditionals.REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER
             && formatsRegisteredOnce)
         {
             return;
         }
 
-        for (int i=0; i<CUSTOM_CODEC_FORMATS.length; i++) 
+        for (int i=0; i<CUSTOM_CODEC_FORMATS.length; i++)
         {
             javax.media.Format format = CUSTOM_CODEC_FORMATS[i];
             logger.debug("registering format " + format + " with RTP manager");
             /*
-             * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat 
-             * leaks memory, since it stores the Format in a static Vector. 
-             * AFAIK there is no easy way around it, but the memory impact 
+             * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat
+             * leaks memory, since it stores the Format in a static Vector.
+             * AFAIK there is no easy way around it, but the memory impact
              * should not be too bad.
              */
             rtpManager.addFormat(
                 format, MediaUtils.jmfToSdpEncoding(format.getEncoding()));
         }
-        
+
         formatsRegisteredOnce = true;
     }
 
@@ -1948,7 +1948,7 @@ public class CallSessionImpl
                 logger.error("Failed to start streaming.", ex);
             }
         }
-        else if( evt.getNewValue() == CallState.CALL_ENDED 
+        else if( evt.getNewValue() == CallState.CALL_ENDED
                  && evt.getNewValue() != evt.getOldValue())
         {
             logger.warn("Stopping streaming.");
@@ -2240,7 +2240,7 @@ public class CallSessionImpl
         {
 
             //set the volume as it is not on max by default.
-            //XXX: I am commenting this since apparently it is causing some 
+            //XXX: I am commenting this since apparently it is causing some
             //problems on windows.
             //GainControl gc
             //    = (GainControl)player.getControl(GainControl.class.getName());
@@ -2261,7 +2261,7 @@ public class CallSessionImpl
                 try
                 {
                     logger.info("starting recording to file: "+dataSink);
-                    MediaLocator dest = new MediaLocator(dataSink);    
+                    MediaLocator dest = new MediaLocator(dataSink);
                     DataSource ds = ((Processor)player).getDataOutput();
                     DataSink sink = Manager.createDataSink(
                         ((Processor)player).getDataOutput(), dest);
@@ -2326,7 +2326,7 @@ public class CallSessionImpl
 
     /**
      * The record initiator is started after taking a call that is supposed to
-     * be answered by a mailbox plug-in. It waits for the outgoing message to 
+     * be answered by a mailbox plug-in. It waits for the outgoing message to
      * stop transmitting and starts recording whatever comes after that.
      */
     private class RecordInitiator extends Thread
@@ -2340,7 +2340,7 @@ public class CallSessionImpl
 
         public void run()
         {
-            //determine how long to wait for the outgoing 
+            //determine how long to wait for the outgoing
             //message to stop playing
             javax.media.Time timeToWait = mediaServCallback
                                     .getMediaControl(call)
@@ -2382,7 +2382,7 @@ public class CallSessionImpl
 
     /**
      * Determines whether the audio of this session is (set to) mute.
-     * 
+     *
      * @return <tt>true</tt> if the audio of this session is (set to) mute;
      *         otherwise, <tt>false</tt>
      */
@@ -2393,7 +2393,7 @@ public class CallSessionImpl
 
     /**
      * Sets the mute state of the audio of this session.
-     * 
+     *
      * @param mute <tt>true</tt> to mute the audio of this session; otherwise,
      *            <tt>false</tt>
      */
