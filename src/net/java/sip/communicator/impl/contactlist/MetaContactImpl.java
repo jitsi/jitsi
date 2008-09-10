@@ -518,8 +518,13 @@ public class MetaContactImpl
         {
             Contact protoContact = iter.next();
 
-            String avatarPath = AVATAR_DIR + "/"
-                + protoContact.getProtocolProvider().getProtocolName() + "/"
+            String accountUID = escapeSpecialCharacters(protoContact
+                .getProtocolProvider().getAccountID().getAccountUniqueID());
+
+            String avatarPath = AVATAR_DIR
+                + File.separator
+                + accountUID
+                + File.separator
                 + escapeSpecialCharacters(protoContact.getAddress());
 
             cachedAvatar = getLocallyStoredAvatar(avatarPath);
@@ -939,12 +944,14 @@ public class MetaContactImpl
     public void storeAvatar( Contact protoContact,
                              byte[] avatarBytes)
     {
-        String protocolName
-            = protoContact.getProtocolProvider().getProtocolName();
+        String accountUID = protoContact.getProtocolProvider()
+            .getAccountID().getAccountUniqueID();
+
+        accountUID = escapeSpecialCharacters(accountUID);
 
         String avatarDirPath = AVATAR_DIR
             + File.separator
-            + protocolName;
+            + accountUID;
 
         String escapedProtocolId
             = escapeSpecialCharacters(protoContact.getAddress());
