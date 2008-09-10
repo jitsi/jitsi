@@ -45,6 +45,7 @@ public class AccountStatusPanel
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        this.setOpaque(false);
         this.accountNameLabel.setOpaque(false);
         this.rightPanel.setOpaque(false);
 
@@ -182,6 +183,8 @@ public class AccountStatusPanel
 
     protected void paintComponent(Graphics g)
     {
+        AntialiasingManager.activateAntialiasing(g);
+
         super.paintComponent(g);
 
         Color bgColor = new Color(

@@ -96,12 +96,17 @@ public class MainCallPanel
 
         callButton.setEnabled(false);
 
-        this.add(comboPanel, BorderLayout.CENTER);
+        this.add(comboPanel, BorderLayout.NORTH);
 
         callViaPanel.add(callViaLabel);
         callViaPanel.add(accountSelectorBox);
 
         buttonsPanel.add(callButton);
+
+        this.setOpaque(false);
+        comboPanel.setOpaque(false);
+        buttonsPanel.setOpaque(false);
+        phoneNumberCombo.setOpaque(false);
 
         comboPanel.add(dialButton, BorderLayout.WEST);
         comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);

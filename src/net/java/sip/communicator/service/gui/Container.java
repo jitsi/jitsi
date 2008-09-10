@@ -131,6 +131,12 @@ public class Container
     public static final Container CONTAINER_CALL_BUTTONS_PANEL
             = new Container("CONTAINER_CALL_BUTTONS_PANEL");
 
+    /**
+     * Status bar container.
+     */
+    public static final Container CONTAINER_STATUS_BAR
+            = new Container("CONTAINER_STATUS_BAR");
+
     /*
      * Constraints
      */

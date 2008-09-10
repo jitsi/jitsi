@@ -50,6 +50,8 @@ public class ConfigurationManager
     
     private static boolean isTransparentWindowEnabled;
     
+    private static boolean isWindowDecorated;
+    
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
     
@@ -265,6 +267,25 @@ public class ConfigurationManager
                 = new Integer(windowTransparencyString).intValue();
         }
 
+        // Load the "isWindowDecorated" property.
+        String isWindowDecoratedProperty
+            = "net.java.sip.communicator.impl.gui.isWindowDecorated";
+
+        String isWindowDecoratedString
+            = configService.getString(isWindowDecoratedProperty);
+
+        if(isWindowDecoratedString == null)
+            isWindowDecoratedString = 
+                GuiActivator.getResources().
+                    getSettingsString(isWindowDecoratedProperty);
+
+        if(isWindowDecoratedString != null
+            && isWindowDecoratedString.length() > 0)
+        {
+            isWindowDecorated
+                = new Boolean(isWindowDecoratedString).booleanValue();
+        }
+
         // Load the "lastContactParent" property.
         lastContactParent = configService.getString(
             "net.java.sip.communicator.impl.gui.addcontact.lastContactParent");
@@ -392,6 +413,17 @@ public class ConfigurationManager
         return isHistoryShown;
     }
     
+    /**
+     * Returns <code>true</code> if the "isWindowDecorated" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "isWindowDecorated" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isWindowDecorated()
+    {
+        return isWindowDecorated;
+    }
+
     /**
      * Return the "sendMessageCommand" property that was saved previously
      * through the <tt>ConfigurationService</tt>. Indicates to the user

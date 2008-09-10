@@ -56,6 +56,42 @@ public class ImageLoader {
         = new ImageID("BUTTON_ROLLOVER");
 
     /**
+     * The background image of a button.
+     */
+    public static final ImageID BUTTON_BG_LEFT
+        = new ImageID("BUTTON_BG_LEFT");
+
+    /**
+     * The background image of a button.
+     */
+    public static final ImageID BUTTON_BG_RIGHT
+        = new ImageID("BUTTON_BG_RIGHT");
+
+    /**
+     * The background image of a button.
+     */
+    public static final ImageID BUTTON_BG_MIDDLE
+        = new ImageID("BUTTON_BG_MIDDLE");
+
+    /**
+     * The background image of a button.
+     */
+    public static final ImageID BUTTON_ROLLOVER_BG_LEFT
+        = new ImageID("BUTTON_ROLLOVER_BG_LEFT");
+
+    /**
+     * The background image of a button.
+     */
+    public static final ImageID BUTTON_ROLLOVER_BG_RIGHT
+        = new ImageID("BUTTON_ROLLOVER_BG_RIGHT");
+
+    /**
+     * The background image of a button.
+     */
+    public static final ImageID BUTTON_ROLLOVER_BG_MIDDLE
+        = new ImageID("BUTTON_ROLLOVER_BG_MIDDLE");
+
+    /**
      * The pressed toggle button background image. 
      */
     public static final ImageID TOGGLE_BUTTON_PRESSED
@@ -213,6 +249,12 @@ public class ImageLoader {
      */
     public static final ImageID MAIN_WINDOW_BACKGROUND
         = new ImageID("MAIN_WINDOW_BACKGROUND");
+
+    /**
+     * The background of the main window and chat window.
+     */
+    public static final ImageID MORE_BUTTON
+        = new ImageID("MORE_BUTTON");
 
     /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
@@ -626,6 +668,18 @@ public class ImageLoader {
      */
     public static final ImageID WINDOW_TITLE_BAR_BG
         = new ImageID("WINDOW_TITLE_BAR_BG");
+
+    /**
+     * Title bar background image.
+     */
+    public static final ImageID QUICK_MENU_ABOUT_ICON
+        = new ImageID("QUICK_MENU_ABOUT_ICON");
+
+    /**
+     * Title bar background image.
+     */
+    public static final ImageID QUICK_MENU_CREATE_GROUP_ICON
+        = new ImageID("QUICK_MENU_CREATE_GROUP_ICON");
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 

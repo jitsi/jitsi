@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.gui;
 
+import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -66,6 +67,37 @@ public interface UIService
      * @see #isVisible()
      */
     public void setVisible(boolean visible);
+
+    /**
+     * Returns the current location of the main application window. The returned
+     * point is the top left corner of the window.
+     *
+     * @return The top left corner coordinates of the main application window.
+     */
+    public Point getLocation();
+
+    /**
+     * Locates the main application window to the new x and y coordinates.
+     *
+     * @param x The new x coordinate.
+     * @param y The new y coordinate.
+     */
+    public void setLocation(int x, int y);
+
+    /**
+     * Returns the size of the main application window.
+     *
+     * @return the size of the main application window.
+     */
+    public Dimension getSize();
+
+    /**
+     * Sets the size of the main application window.
+     *
+     * @param width The width of the window.
+     * @param height The height of the window.
+     */
+    public void setSize(int width, int height);
 
     /**
      * Minimizes the main application window.

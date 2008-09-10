@@ -58,9 +58,9 @@ public class MainFrame
 {
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
 
-    private JPanel centerPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new JPanel(new BorderLayout());
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(0, 5));
+    private JPanel statusBarPanel = new JPanel(new BorderLayout());
 
     private MainMenu menu;
 
@@ -89,6 +89,7 @@ public class MainFrame
 
     private Hashtable nativePluginsTable = new Hashtable();
 
+    private JPanel pluginPanelNorth = new JPanel();
     private JPanel pluginPanelSouth = new JPanel();
     private JPanel pluginPanelWest = new JPanel();
     private JPanel pluginPanelEast = new JPanel();
@@ -100,6 +101,11 @@ public class MainFrame
      */
     public MainFrame()
     {
+        if (!ConfigurationManager.isWindowDecorated())
+        {
+            this.setUndecorated(true);
+        }
+
         this.chatWindowManager = new ChatWindowManager(this);
 
         this.mainCallPanel = new MainCallPanel(this);
@@ -136,6 +142,12 @@ public class MainFrame
 
         this.setTitle(applicationName);
 
+        this.setContentPane(new MainContentPane());
+
+        this.mainPanel.setBackground(new Color(
+                GuiActivator.getResources()
+                    .getColor("mainWindowBackground")));
+
         this.init();
 
         this.initPluginComponents();
@@ -149,31 +161,38 @@ public class MainFrame
         this.setKeybindingInput(KeybindingSet.Category.MAIN);
         this.addKeybindingAction("main-rename", new RenameAction());
 
-        this.mainPanel.setOpaque(false);
+        JPanel northPanel = new JPanel(new BorderLayout());
+        JPanel centerPanel = new JPanel(new BorderLayout());
+
+        northPanel.setOpaque(false);
+        centerPanel.setOpaque(false);
+        this.statusBarPanel.setOpaque(false);
         this.contactListPanel.setOpaque(false);
-        this.centerPanel.setOpaque(false);
         this.mainCallPanel.setOpaque(false);
 
-        this.centerPanel.add(contactListPanel, BorderLayout.CENTER);
-        this.centerPanel.add(mainCallPanel, BorderLayout.SOUTH);
+        JPanel menusPanel = new JPanel(new BorderLayout());
 
-        this.mainPanel.add(accountStatusPanel, BorderLayout.NORTH);
-        this.mainPanel.add(centerPanel, BorderLayout.CENTER);
-
-        JPanel menusPanel = new JPanel(new BorderLayout(0, 5));
-
-        this.setJMenuBar(menu);
+        String osName = System.getProperty("os.name");
+        if (osName.startsWith("Mac"))
+        // this.setJMenuBar(menu);
+        // menusPanel.add(menu, BorderLayout.CENTER);
 
         menusPanel.add(quickMenu, BorderLayout.SOUTH);
 
-        JPanel northPanel = new JPanel(new BorderLayout());
-
         menusPanel.setUI(new SIPCommOpaquePanelUI());
+
         northPanel.add(new LogoBar(), BorderLayout.NORTH);
         northPanel.add(menusPanel, BorderLayout.CENTER);
 
-        this.getContentPane().add(northPanel, BorderLayout.NORTH);
+        centerPanel.add(accountStatusPanel, BorderLayout.NORTH);
+        centerPanel.add(contactListPanel, BorderLayout.CENTER);
+        centerPanel.add(mainCallPanel, BorderLayout.SOUTH);
+
+        this.mainPanel.add(northPanel, BorderLayout.NORTH);
+        this.mainPanel.add(centerPanel, BorderLayout.CENTER);
+
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+        this.getContentPane().add(statusBarPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -181,8 +200,10 @@ public class MainFrame
      */
     private void initBounds()
     {
-        int width = GuiActivator.getResources().getSettingsInt("mainWindowWidth");
-        int height = GuiActivator.getResources().getSettingsInt("mainWindowHeight");
+        int width
+            = GuiActivator.getResources().getSettingsInt("mainWindowWidth");
+        int height
+            = GuiActivator.getResources().getSettingsInt("mainWindowHeight");
 
         this.setSize(width, height);
 
@@ -1097,24 +1118,29 @@ public class MainFrame
      */
     private void initPluginComponents()
     {
-        pluginPanelEast.setLayout(
-            new BoxLayout(pluginPanelEast, BoxLayout.Y_AXIS));
         pluginPanelSouth.setLayout(
             new BoxLayout(pluginPanelSouth, BoxLayout.Y_AXIS));
+        pluginPanelNorth.setLayout(
+            new BoxLayout(pluginPanelNorth, BoxLayout.Y_AXIS));
+        pluginPanelEast.setLayout(
+            new BoxLayout(pluginPanelEast, BoxLayout.Y_AXIS));
         pluginPanelWest.setLayout(
             new BoxLayout(pluginPanelWest, BoxLayout.Y_AXIS));
 
+        this.getContentPane().add(pluginPanelNorth, BorderLayout.NORTH);
         this.getContentPane().add(pluginPanelEast, BorderLayout.EAST);
-        this.getContentPane().add(pluginPanelSouth, BorderLayout.SOUTH);
         this.getContentPane().add(pluginPanelWest, BorderLayout.WEST);
+        this.mainPanel.add(pluginPanelSouth, BorderLayout.SOUTH);
 
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
 
-        String osgiFilter = "("
+        String osgiFilter = "(|("
             + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_MAIN_WINDOW.getID()+")";
+            + "="+Container.CONTAINER_MAIN_WINDOW.getID()+")"
+            + "(" + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_STATUS_BAR.getID()+"))";
 
         try
         {
@@ -1147,8 +1173,9 @@ public class MainFrame
                     else
                         constraints = BorderLayout.SOUTH;
 
-                    this.addPluginComponent(  (Component) c.getComponent(),
-                                              constraints);
+                    this.addPluginComponent((Component) c.getComponent(),
+                                            c.getContainer(),
+                                            constraints);
                 }
             }
         }
@@ -1165,7 +1192,9 @@ public class MainFrame
         PluginComponent pluginComponent = event.getPluginComponent();
 
         if (pluginComponent.getContainer()
-                .equals(Container.CONTAINER_MAIN_WINDOW))
+                .equals(Container.CONTAINER_MAIN_WINDOW)
+            || pluginComponent.getContainer()
+                .equals(Container.CONTAINER_STATUS_BAR))
         {
             Object constraints = null;
 
@@ -1197,6 +1226,7 @@ public class MainFrame
             {
                 this.addPluginComponent(
                     (Component) pluginComponent.getComponent(),
+                    pluginComponent.getContainer(),
                     constraints);
             }
         }
@@ -1236,7 +1266,10 @@ public class MainFrame
                     {
                         public void run()
                         {
-                            removePluginComponent(c, finalConstraints);
+                            removePluginComponent(
+                                c,
+                                pluginComponent.getContainer(),
+                                finalConstraints);
 
                             getContentPane().repaint();
                             pack();
@@ -1248,6 +1281,7 @@ public class MainFrame
             {
                 this.removePluginComponent(
                     (Component) pluginComponent.getComponent(),
+                    pluginComponent.getContainer(),
                     constraints);
             }
 
@@ -1337,7 +1371,9 @@ public class MainFrame
             if (constraints == null)
                 constraints = BorderLayout.SOUTH;
 
-            this.removePluginComponent(c, constraints);
+            this.removePluginComponent( c,
+                                        pluginComponent.getContainer(),
+                                        constraints);
 
             this.getContentPane().repaint();
         }
@@ -1364,7 +1400,7 @@ public class MainFrame
 
             Component c = (Component) plugin.getComponent();
 
-            this.addPluginComponent(c, constraints);
+            this.addPluginComponent(c, plugin.getContainer(), constraints);
 
             this.nativePluginsTable.put(plugin, c);
         }
@@ -1453,34 +1489,36 @@ public class MainFrame
      * @param c the component to add
      * @param constraints the constraints determining the container
      */
-    private void addPluginComponent(Component c, Object constraints)
+    private void addPluginComponent(Component c,
+                                    Container container,
+                                    Object constraints)
     {
-        if (constraints.equals(BorderLayout.SOUTH))
+        if (container.equals(Container.CONTAINER_MAIN_WINDOW))
         {
-            if (pluginPanelSouth.getComponentCount() == 0)
-                pluginPanelSouth.setBorder(
-                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            pluginPanelSouth.add(c);
-            pluginPanelSouth.repaint();
+            if (constraints.equals(BorderLayout.NORTH))
+            {
+                pluginPanelNorth.add(c);
+                pluginPanelNorth.repaint();
+            }
+            else if (constraints.equals(BorderLayout.SOUTH))
+            {
+                pluginPanelSouth.add(c);
+                pluginPanelSouth.repaint();
+            }
+            else if (constraints.equals(BorderLayout.WEST))
+            {
+                pluginPanelWest.add(c);
+                pluginPanelSouth.repaint();
+            }
+            else if (constraints.equals(BorderLayout.EAST))
+            {
+                pluginPanelEast.add(c);
+                pluginPanelSouth.repaint();
+            }
         }
-        else if (constraints.equals(BorderLayout.WEST))
+        else if (container.equals(Container.CONTAINER_STATUS_BAR))
         {
-            if (pluginPanelWest.getComponentCount() == 0)
-                pluginPanelWest.setBorder(
-                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            pluginPanelWest.add(c);
-            pluginPanelSouth.repaint();
-        }
-        else if (constraints.equals(BorderLayout.EAST))
-        {
-            if (pluginPanelEast.getComponentCount() == 0)
-                pluginPanelEast.setBorder(
-                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            pluginPanelEast.add(c);
-            pluginPanelSouth.repaint();
+            statusBarPanel.add(c);
         }
 
         this.getContentPane().repaint();
@@ -1493,14 +1531,25 @@ public class MainFrame
      * @param c the component to remove
      * @param constraints the constraints determining the container
      */
-    private void removePluginComponent(Component c, Object constraints)
+    private void removePluginComponent( Component c,
+                                        Container container,
+                                        Object constraints)
     {
-        if (constraints.equals(BorderLayout.SOUTH))
-            pluginPanelSouth.remove(c);
-        else if (constraints.equals(BorderLayout.WEST))
-            pluginPanelWest.remove(c);
-        else if (constraints.equals(BorderLayout.EAST))
-            pluginPanelEast.remove(c);
+        if (container.equals(Container.CONTAINER_MAIN_WINDOW))
+        {
+            if (constraints.equals(BorderLayout.NORTH))
+                pluginPanelNorth.remove(c);
+            else if (constraints.equals(BorderLayout.SOUTH))
+                pluginPanelSouth.remove(c);
+            else if (constraints.equals(BorderLayout.WEST))
+                pluginPanelWest.remove(c);
+            else if (constraints.equals(BorderLayout.EAST))
+                pluginPanelEast.remove(c);
+        }
+        else if (container.equals(Container.CONTAINER_STATUS_BAR))
+        {
+            this.statusBarPanel.remove(c);
+        }
     }
 
     /**
@@ -1510,5 +1559,17 @@ public class MainFrame
     public AccountStatusPanel getAccountStatusPanel()
     {
         return accountStatusPanel;
+    }
+
+    private class MainContentPane extends JPanel
+    {
+        public MainContentPane()
+        {
+            super(new BorderLayout());
+
+            this.setBackground(new Color(
+                GuiActivator.getResources()
+                .getColor("desktopBackgroundColor")));
+        }
     }
 }

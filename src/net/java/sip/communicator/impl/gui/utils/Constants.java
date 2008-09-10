@@ -196,6 +196,14 @@ public class Constants
         = new Color(GuiActivator.getResources()
                 .getColor("contactListGroupRowColor"));
 
+    /**
+     * The end color used to paint a gradient mouse over background of some
+     * components.
+     */
+    public static final Color CONTACT_LIST_GROUP_BG_GRADIENT_COLOR
+        = new Color(GuiActivator.getResources().
+            getColor("contactListGroupGradientColor"));
+
     /*
      * ======================================================================
      * --------------------------- FONT CONSTANTS ---------------------------

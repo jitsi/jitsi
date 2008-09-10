@@ -242,7 +242,14 @@ public class ContactListCellRenderer
 
         if (!this.isLeaf)
         {
-            g2.setColor(Constants.CONTACT_LIST_GROUP_BG_COLOR);
+            GradientPaint p = new GradientPaint(this.getWidth()/2, 0,
+                Constants.CONTACT_LIST_GROUP_BG_COLOR,
+                this.getWidth()/2,
+                this.getHeight(),
+                Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR);
+
+            g2.setPaint(p);
+
             g2.fillRoundRect(1, 1, this.getWidth(), this.getHeight() - 1, 7, 7);
         }
         else if (index%2 > 0)

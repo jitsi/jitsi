@@ -220,6 +220,49 @@ public class UIServiceImpl
     }
 
     /**
+     * Locates the main application window to the new x and y coordinates.
+     *
+     * @param x The new x coordinate.
+     * @param y The new y coordinate.
+     */
+    public void setLocation(int x, int y)
+    {
+        mainFrame.setLocation(x, y);
+    }
+
+    /**
+     * Returns the current location of the main application window. The returned
+     * point is the top left corner of the window.
+     *
+     * @return The top left corner coordinates of the main application window.
+     */
+    public Point getLocation()
+    {
+        return mainFrame.getLocation();
+    }
+
+    /**
+     * Returns the size of the main application window.
+     *
+     * @return the size of the main application window.
+     */
+    public Dimension getSize()
+    {
+        return mainFrame.getSize();
+    }
+
+    /**
+     * Sets the size of the main application window.
+     *
+     * @param width The width of the window.
+     * @param height The height of the window.
+     */
+    public void setSize(int width, int height)
+    {
+        mainFrame.setSize(width, height);
+    }
+
+    /**
      * Implements <code>minimize</code> in the UIService interface. Minimizes
      * the main application window.
      *
