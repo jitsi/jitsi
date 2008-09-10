@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
  * Utility class that would give to interested parties an easy access to some of
  * most popular account details, like : first name, last name, birth date, image,
  * etc.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AccountInfoUtils
@@ -22,7 +22,7 @@ public class AccountInfoUtils
     /**
      * Returns the first name of the account, to which the given
      * accountInfoOpSet belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the first name of the account, to which the given
@@ -41,13 +41,16 @@ public class AccountInfoUtils
             firstName = firstNameDetails.next();
         }
 
+        if(firstName == null)
+            return null;
+
         return firstName.getString();
     }
 
     /**
      * Returns the last name of the account, to which the given
      * accountInfoOpSet belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the last name of the account, to which the given
@@ -66,13 +69,16 @@ public class AccountInfoUtils
             lastName = lastNameDetails.next();
         }
 
+        if(lastName == null)
+            return null;
+
         return lastName.getString();
     }
 
     /**
      * Returns the image of the account, to which the given accountInfoOpSet
      * belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the image of the account, to which the given accountInfoOpSet
@@ -91,13 +97,16 @@ public class AccountInfoUtils
             image = imageDetails.next();
         }
 
+        if(image == null)
+            return null;
+
         return image.getBytes();
     }
 
     /**
      * Returns the birth date of the account, to which the given
      * accountInfoOpSet belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the birth date of the account, to which the given
@@ -116,13 +125,16 @@ public class AccountInfoUtils
             date = dateDetails.next();
         }
 
+        if(date == null)
+            return null;
+
         return date.getCalendar();
     }
 
     /**
      * Returns the gender of the account, to which the given
      * accountInfoOpSet belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the gender of the account, to which the given
@@ -141,13 +153,16 @@ public class AccountInfoUtils
             gender = genderDetails.next();
         }
 
+        if(gender == null)
+            return null;
+
         return gender.getGender();
     }
 
     /**
      * Returns the address of the account, to which the given
      * accountInfoOpSet belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the address of the account, to which the given
@@ -166,13 +181,16 @@ public class AccountInfoUtils
             address = addressDetails.next();
         }
 
+        if(address == null)
+            return null;
+
         return address.getAddress();
     }
 
     /**
      * Returns the work address of the account, to which the given
      * accountInfoOpSet belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the work address of the account, to which the given
@@ -191,13 +209,16 @@ public class AccountInfoUtils
             address = addressDetails.next();
         }
 
+        if(address == null)
+            return null;
+
         return address.getAddress();
     }
 
     /**
      * Returns the email address of the account, to which the given
      * accountInfoOpSet belongs.
-     * 
+     *
      * @param accountInfoOpSet The account info operation set corresponding to
      * the searched account.
      * @return the email address of the account, to which the given
@@ -215,6 +236,9 @@ public class AccountInfoUtils
         {
             address = addressDetails.next();
         }
+
+        if(address == null)
+            return null;
 
         return address.getEMailAddress();
     }
