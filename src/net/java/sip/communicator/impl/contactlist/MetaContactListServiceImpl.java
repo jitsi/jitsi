@@ -841,7 +841,7 @@ public class MetaContactListServiceImpl
                 metaContact + " is not a MetaContactImpl instance.");
         }
 
-        byte[] oldAvatar = metaContact.getAvatar();
+        byte[] oldAvatar = metaContact.getAvatar(true);
         ((MetaContactImpl)metaContact).storeAvatar(protoContact, newAvatar);
 
         fireMetaContactPropertyChangeEvent(new MetaContactAvatarUpdate(
@@ -2090,7 +2090,9 @@ public class MetaContactListServiceImpl
                             .getSourceContact());
 
             if(mc != null)
+            {
                 mc.getAvatar();
+            }
         }
 
         /**
