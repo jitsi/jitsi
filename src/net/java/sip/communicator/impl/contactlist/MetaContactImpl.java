@@ -502,14 +502,10 @@ public class MetaContactImpl
         if (!isLazy)
             return getAvatar();
 
-        if(cachedAvatar != null)
+        if(cachedAvatar != null
+           && cachedAvatar.length > 0)
         {
-            if(cachedAvatar.length == 0)
-            {
-                //means we already tried and there was no locally stored
-                //avatar either.
-                return null;
-            }
+            //we already have an avatar.
             return cachedAvatar;
         }
 
@@ -532,10 +528,6 @@ public class MetaContactImpl
             if(cachedAvatar != null)
                 return cachedAvatar;
         }
-
-        //we don't want to open local files on every cell render so this is our
-        //way of saying that we already tried the local storage.
-        cachedAvatar = new byte[0];
 
         return null;
     }

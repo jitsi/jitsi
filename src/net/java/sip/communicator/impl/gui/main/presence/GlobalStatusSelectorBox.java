@@ -485,7 +485,7 @@ public class GlobalStatusSelectorBox
         Iterator pProviders = mainFrame.getProtocolProviders();
 
         boolean isProtocolHidden;
-System.out.println("PROTOCOL PROVIDERRRSSSSSSSSSSSSSSSSSSS ============" + pProviders.hasNext());
+
         while (pProviders.hasNext())
         {
             ProtocolProviderService protocolProvider
