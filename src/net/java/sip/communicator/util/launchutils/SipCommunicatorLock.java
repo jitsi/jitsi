@@ -153,7 +153,7 @@ public class SipCommunicatorLock extends Thread
         }
         catch (IOException e)
         {
-            logger.error("Failed to create lock file", e);
+            logger.error("Failed to create lock file" + lockFile, e);
         }
 
         lockFile.deleteOnExit();
@@ -734,9 +734,9 @@ public class SipCommunicatorLock extends Thread
             int argCount = 1024;
             try
             {
-                BufferedReader lineReader = 
+                BufferedReader lineReader =
                     new BufferedReader(new InputStreamReader(is));
-                
+
                 while (true)
                 {
                     String line = lineReader.readLine();
