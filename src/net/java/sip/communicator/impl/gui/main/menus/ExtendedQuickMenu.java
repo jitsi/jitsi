@@ -563,11 +563,6 @@ public class ExtendedQuickMenu
 
             if(ConfigurationManager.isShowOffline())
             {
-                button.setText(
-                    "<html><center>"
-                    + Messages.getI18NString("showOffline").getText()
-                    + "</center></html>");
-
                 button.setIcon(new ImageIcon(ImageLoader.getImage(
                     ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON)));
 
@@ -576,11 +571,6 @@ public class ExtendedQuickMenu
             }
             else
             {
-                button.setText(
-                    "<html><center>"
-                    + Messages.getI18NString("hideOffline").getText()
-                    + "</center></html>");
-
                 button.setIcon(new ImageIcon(ImageLoader.getImage(
                     ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON)));
 
