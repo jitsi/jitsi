@@ -458,9 +458,11 @@
       </echo>
 
       <!-- Remove the path to the updatechecker bundle in the felix.client.run.properties file -->
-	  <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
                token="reference:file:sc-bundles/updatechecker.jar"
                value=""/>
+      <delete file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/sc-bundles/updatechecker.jar"
+              failonerror="false" />
 
       <!-- Add the Sparkle bundle and JNI to the application package -->
       <copy file="${bundles.dest}/sparkle.jar" 
