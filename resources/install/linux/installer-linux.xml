@@ -12,6 +12,11 @@
 	<variables>
 		<variable name="app-version" value="@VERSION@"/>
 		<variable name="released-on" value="@BUILDDATE@"/>
+                
+                <variable name="HelloPanel2.WelcomeText1" value="@DEVELOPED_BY@"/>
+                <variable name="HelloPanel2.WelcomeText2" value="@LINK@"/>
+                <variable name="HelloPanel2.PoweredByText" value="@POWERED_BY@"/>
+
 	</variables>
 
 	<guiprefs height="600" resizable="yes" width="800"/>
@@ -54,7 +59,7 @@
 	</resources>
 
 	<panels>
-		<panel classname="HelloPanel"/>
+		<panel classname="HelloPanel2"/>
 		<panel classname="LicencePanel"/>
 		<panel classname="TargetPanel"/>
 		<panel classname="InstallPanel"/>

@@ -255,6 +255,9 @@
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_WEB" value="${application.web}" />
         <filter token="DEST_DIR" value="${release}" />
+	<filter token="DEVELOPED_BY" value="${installer.welcome.developedby}" />
+	<filter token="LINK" value="${installer.welcome.url}" />
+	<filter token="POWERED_BY" value="${installer.welcome.poweredby}" />
             
         <copy 
             tofile="${windows.app.dir}/tmp-windows_shortcut_specification.xml" 

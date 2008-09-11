@@ -1,18 +1,22 @@
 <installation version="1.0">
-    <info>
-        <appname>@PKG_NAME@</appname>
-        <appversion>@VERSION@</appversion>
-        <authors>
-            <author name="@APP_NAME@" email="@APP_EMAIL@" />
-        </authors>
-        <url>@APP_WEB@</url>
-        <javaversion>1.5</javaversion>
-        <uninstaller/>
-    </info>
-    <variables>
-        <variable name="app-version" value="@VERSION@"/>
-        <variable name="released-on" value="@BUILDDATE@"/>
-    </variables>
+	<info>
+		<appname>@PKG_NAME@</appname>
+		<appversion>@VERSION@</appversion>
+		<authors>
+			<author name="@APP_NAME@" email="@APP_EMAIL@" />
+		</authors>
+		<url>@APP_WEB@</url>
+		<javaversion>1.5</javaversion>
+		<uninstaller/>
+	</info>
+	<variables>
+		<variable name="app-version" value="@VERSION@"/>
+		<variable name="released-on" value="@BUILDDATE@"/>
+                
+                <variable name="HelloPanel2.WelcomeText1" value="@DEVELOPED_BY@"/>
+                <variable name="HelloPanel2.WelcomeText2" value="@LINK@"/>
+                <variable name="HelloPanel2.PoweredByText" value="@POWERED_BY@"/>
+	</variables>
 
     <guiprefs height="600" resizable="yes" width="800"/>
 
@@ -52,23 +56,23 @@
             <res id="Installer.image.0" src="resources/install/doc/welcome.png" />
             <res src="resources/install/windows/SCRegistrySpec.xml" id="RegistrySpec.xml"/>
     </resources>
-
-    <listeners>
-        <listener installer="RegistryInstallerListener"
-                uninstaller="RegistryUninstallerListener" >
-                <os family="windows"/>
-        </listener>
-    </listeners>
-
-    <native type="3rdparty" name="COIOSHelper.dll">
+	
+	<listeners>
+    <listener installer="RegistryInstallerListener"
+        uninstaller="RegistryUninstallerListener" >
         <os family="windows"/>
-    </native>
+    </listener>
+</listeners>
+
+	<native type="3rdparty" name="COIOSHelper.dll">
+		<os family="windows"/>
+	</native>
 
 
     <native type="izpack" name="ShellLink.dll"/>
 
     <panels>
-        <panel classname="HelloPanel"/>
+        <panel classname="HelloPanel2"/>
         <panel classname="LicencePanel"/>
         <panel classname="TargetPanel"/>
         <panel classname="InstallPanel"/>
