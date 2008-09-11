@@ -32,15 +32,11 @@ public class MainMenu
 
     private ToolsMenu toolsMenu;
 
-    private ViewMenu viewMenu;
-
     private HelpMenu helpMenu;
 
     private I18NString fileString = Messages.getI18NString("file");
     
     private I18NString toolsString = Messages.getI18NString("tools");
-    
-    private I18NString viewString = Messages.getI18NString("view");
     
     private I18NString helpString = Messages.getI18NString("help");
     
@@ -51,7 +47,6 @@ public class MainMenu
     {
         this.fileMenu = new FileMenu(mainFrame);
         this.toolsMenu = new ToolsMenu(mainFrame);
-        this.viewMenu = new ViewMenu(mainFrame);
         this.helpMenu = new HelpMenu(mainFrame);
 
         this.init();
@@ -70,17 +65,16 @@ public class MainMenu
         toolsMenu.setMnemonic(toolsString.getMnemonic());
         toolsMenu.setToolTipText(toolsString.getText());
 
-        viewMenu.setText(viewString.getText());
-        viewMenu.setMnemonic(viewString.getMnemonic());
-        viewMenu.setToolTipText(viewString.getText());
-
         helpMenu.setText(helpString.getText());
         helpMenu.setMnemonic(helpString.getMnemonic());
         helpMenu.setToolTipText(helpString.getText());
 
+        this.fileMenu.setOpaque(false);
+        this.toolsMenu.setOpaque(false);
+        this.helpMenu.setOpaque(false);
+
         this.add(fileMenu);
         this.add(toolsMenu);
-        this.add(viewMenu);
         this.add(helpMenu);
     }
     
@@ -103,16 +97,6 @@ public class MainMenu
             }
         }
         return false;
-    }
-
-    /**
-     * Returns the <tt>ViewMenu</tt>, contained in this menu bar.
-     * 
-     * @return the <tt>ViewMenu</tt>, contained in this menu bar.
-     */
-    public ViewMenu getViewMenu()
-    {
-        return viewMenu;
     }
 
     /**
