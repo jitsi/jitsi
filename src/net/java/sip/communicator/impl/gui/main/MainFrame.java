@@ -173,9 +173,8 @@ public class MainFrame
         JPanel menusPanel = new JPanel(new BorderLayout());
 
         String osName = System.getProperty("os.name");
-        if (osName.startsWith("Mac"))
-        // this.setJMenuBar(menu);
-        // menusPanel.add(menu, BorderLayout.CENTER);
+
+        this.setJMenuBar(menu);
 
         menusPanel.add(quickMenu, BorderLayout.SOUTH);
 
