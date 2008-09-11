@@ -271,18 +271,6 @@ public class MediaServiceImpl
         }
     }
 
-
-    /**
-     * Open capture devices specified by configuration service.
-     *
-     * @throws MediaException if opening the devices fails.
-     */
-    private void openCaptureDevices()
-        throws MediaException
-    {
-        defaultMediaControl.initCaptureDevices();
-    }
-
     /**
      * Close capture devices specified by configuration service.
      *

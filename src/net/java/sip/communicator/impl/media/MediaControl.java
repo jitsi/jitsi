@@ -34,22 +34,12 @@ import net.java.sip.communicator.util.*;
  */
 public class MediaControl
 {
-    private Logger logger = Logger.getLogger(MediaControl.class);
+    private final Logger logger = Logger.getLogger(MediaControl.class);
 
     /**
      * Our configuration helper.
      */
     private DeviceConfiguration deviceConfiguration = null;
-
-    /**
-     * The device that we use for audio capture
-     */
-    private CaptureDevice audioCaptureDevice = null;
-
-    /**
-     * The device the we use for video capture.
-     */
-    private CaptureDevice videoCaptureDevice = null;
 
     /**
      * A data source merging our audio and video data sources.
@@ -101,17 +91,26 @@ public class MediaControl
             //Integer.toString(SdpConstants.G729)
         };
 
+    /**
+     * The indicator which determines whether {@link #supportedAudioEncodings}
+     * and {@link #supportedVideoEncodings} are already calculated to be
+     * up-to-date with the current {@link #sourceProcessor} and the lock to
+     * synchronize the access to the mentioned calculation.
+     */
+    private final boolean[] supportedEncodingsAreCalculated = new boolean[1];
+
     private static final String PROP_SDP_PREFERENCE
                             = "net.java.sip.communicator.impl.media.sdppref";
 
     /**
      * That's where we keep format preferences matching SDP formats to integers.
-     * We keep preferences for both  audio and video formats here in case we'd
+     * We keep preferences for both audio and video formats here in case we'd
      * ever need to compare them to one another. In most cases however both
-     * would be decorelated and other components (such as the UI) should
-     * present them separately.
+     * would be decorelated and other components (such as the UI) should present
+     * them separately.
      */
-    private Hashtable encodingPreferences = new Hashtable();
+    private final Hashtable<String, Integer> encodingPreferences =
+        new Hashtable<String, Integer>();
 
     /**
      * The processor that will be handling content coming from our capture data
@@ -298,15 +297,13 @@ public class MediaControl
      */
     private int compareEncodingPreferences(String enc1, String enc2)
     {
-        Integer pref1 = (Integer)this.encodingPreferences.get(enc1);
-        if(pref1 == null)
-            pref1 = new Integer(0);
+        Integer pref1 = encodingPreferences.get(enc1);
+        int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
 
-        Integer pref2 = (Integer)this.encodingPreferences.get(enc2);
-        if(pref2 == null)
-            pref2 = new Integer(0);
+        Integer pref2 = encodingPreferences.get(enc2);
+        int pref2IntValue = (pref2 == null) ? 0 : pref2.intValue();
 
-        return pref2.intValue() - pref1.intValue();
+        return pref2IntValue - pref1IntValue;
     }
 
     /**
@@ -358,10 +355,15 @@ public class MediaControl
 
     /**
      * Opens all detected capture devices making them ready to capture.
-     *
+     * <p>
+     * The method is kept private because it relies on
+     * {@link #deviceConfiguration} which is (publicly) set only through
+     * {@link #initialize(DeviceConfiguration)}.
+     * </p>
+     * 
      * @throws MediaException if opening the devices fails.
      */
-    public void initCaptureDevices()
+    private void initCaptureDevices()
         throws MediaException
     {
         // Init Capture devices
@@ -375,7 +377,6 @@ public class MediaControl
         if (audioDeviceInfo != null)
         {
             audioDataSource = createDataSource(audioDeviceInfo.getLocator());
-            audioCaptureDevice = (CaptureDevice) audioDataSource;
 
             /* Provide mute support for the audio (if possible). */
             if (audioDataSource instanceof PushBufferDataSource)
@@ -390,7 +391,6 @@ public class MediaControl
         if (videoDeviceInfo != null)
         {
             videoDataSource = createDataSource(videoDeviceInfo.getLocator());
-            videoCaptureDevice = (CaptureDevice) videoDataSource;
         }
 
         // Create the av data source
@@ -530,7 +530,6 @@ public class MediaControl
 
             if(ctl != null)
             {
-                
                 if(!System.getProperty("os.name")
                     .toLowerCase().contains("linux"))
                 {
@@ -577,6 +576,23 @@ public class MediaControl
         sourceProcessor.setContentDescriptor(new ContentDescriptor(
             ContentDescriptor.RAW_RTP));
 
+        /*
+         * The lists of the supported audio and video encodings will have to be
+         * calculated again in order to get them up-to-date with the current
+         * sourceProcessor.
+         */
+        synchronized (supportedEncodingsAreCalculated)
+        {
+            supportedEncodingsAreCalculated[0] = false;
+        }
+    }
+
+    /**
+     * Calculates the audio and video encodings supported by the current
+     * {@link #sourceProcessor}.
+     */
+    private void calculateSupportedEncodings()
+    {
         //check out the formats that our processor supports and update our
         //supported formats arrays.
         TrackControl[] trackControls = sourceProcessor.getTrackControls();
@@ -666,6 +682,23 @@ public class MediaControl
             //just leave supportedVideoEncodings as  it was in the beginning
             //as it will be only receiving so it could say it supports
             //everything.
+        }
+    }
+
+    /**
+     * Ensures {@link #supportedAudioEncodings} and
+     * {@link #supportedVideoEncodings} are up-to-date with the current
+     * {@link #sourceProcessor} i.e. calculates them if necessary.
+     */
+    private void ensureSupportedEncodingsAreCalculated()
+    {
+        synchronized (supportedEncodingsAreCalculated)
+        {
+            if (!supportedEncodingsAreCalculated[0])
+            {
+                calculateSupportedEncodings();
+                supportedEncodingsAreCalculated[0] = true;
+            }
         }
     }
 
@@ -1048,6 +1081,7 @@ public class MediaControl
      */
     public String[] getSupportedVideoEncodings()
     {
+        ensureSupportedEncodingsAreCalculated();
         return this.supportedVideoEncodings;
     }
 
@@ -1059,6 +1093,7 @@ public class MediaControl
      */
     public String[] getSupportedAudioEncodings()
     {
+        ensureSupportedEncodingsAreCalculated();
         return this.supportedAudioEncodings;
     }
 
@@ -1096,8 +1131,7 @@ public class MediaControl
         if( sourceProcessor.getState() ==  Processor.Started )
             sourceProcessor.stop();
 
-        if(processorReaders.contains(reader))
-            processorReaders.remove(reader);
+        processorReaders.remove(reader);
     }
 
     /**
