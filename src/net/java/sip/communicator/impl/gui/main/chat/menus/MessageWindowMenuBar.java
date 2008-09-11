@@ -58,6 +58,10 @@ public class MessageWindowMenuBar
 
         helpMenu = new HelpMenu(this.parentWindow);
 
+        fileMenu.setOpaque(false);
+        editMenu.setOpaque(false);
+        helpMenu.setOpaque(false);
+
         this.init();
 
         this.initPluginComponents();
