@@ -149,6 +149,7 @@ public class SipCommunicatorLock extends Thread
         // right the bind address in the file
         try
         {
+            lockFile.getParentFile().mkdirs();
             lockFile.createNewFile();
         }
         catch (IOException e)
