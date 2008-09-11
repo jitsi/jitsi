@@ -696,7 +696,10 @@ public class MediaControl
         {
             if (!supportedEncodingsAreCalculated[0])
             {
-                calculateSupportedEncodings();
+                if (sourceProcessor != null)
+                {
+                    calculateSupportedEncodings();
+                }
                 supportedEncodingsAreCalculated[0] = true;
             }
         }
