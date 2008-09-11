@@ -137,6 +137,12 @@ public class Container
     public static final Container CONTAINER_STATUS_BAR
             = new Container("CONTAINER_STATUS_BAR");
 
+    /**
+     * Status bar container.
+     */
+    public static final Container CONTAINER_CHAT_STATUS_BAR
+            = new Container("CONTAINER_CHAT_STATUS_BAR");
+
     /*
      * Constraints
      */

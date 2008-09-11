@@ -58,9 +58,14 @@ public class ChatWindow
     private SIPCommTabbedPane chatTabbedPane = null;
 
     private int chatCount = 0;
-    
+
     private Vector chatChangeListeners = new Vector();
 
+    private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+
+    private JPanel statusBarPanel = new JPanel(new BorderLayout());
+
+    private JPanel pluginPanelNorth = new JPanel();
     private JPanel pluginPanelSouth = new JPanel();
     private JPanel pluginPanelWest = new JPanel();
     private JPanel pluginPanelEast = new JPanel();
@@ -74,6 +79,11 @@ public class ChatWindow
     public ChatWindow(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
+
+        if (!ConfigurationManager.isWindowDecorated())
+        {
+            this.setUndecorated(true);
+        }
 
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -121,8 +131,10 @@ public class ChatWindow
         northPanel.add(new LogoBar(), BorderLayout.NORTH);
         northPanel.add(menusPanel, BorderLayout.CENTER);
 
-        this.getContentPane().setLayout(new BorderLayout(5, 5));
-        this.getContentPane().add(northPanel, BorderLayout.NORTH);
+        this.mainPanel.add(northPanel, BorderLayout.NORTH);
+
+        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+        this.getContentPane().add(statusBarPanel, BorderLayout.SOUTH);
 
         this.initPluginComponents();
 
@@ -200,7 +212,7 @@ public class ChatWindow
      */
     private void addSimpleChat(ChatPanel chatPanel)
     {
-        this.getContentPane().add(chatPanel, BorderLayout.CENTER);
+        this.mainPanel.add(chatPanel, BorderLayout.CENTER);
       
         fireChatChangeEvent(chatPanel);
     }
@@ -217,7 +229,7 @@ public class ChatWindow
 
         if (getCurrentChatPanel() == null)
         {
-            this.getContentPane().add(chatPanel, BorderLayout.CENTER);
+            this.mainPanel.add(chatPanel, BorderLayout.CENTER);
             fireChatChangeEvent(chatPanel);
         }
         else
@@ -249,8 +261,8 @@ public class ChatWindow
                 firstChatPanel.setCaretToEnd();
 
                 //add the chatTabbedPane to the window
-                this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
-                this.getContentPane().validate();
+                this.mainPanel.add(chatTabbedPane, BorderLayout.CENTER);
+                this.mainPanel.validate();
             }
             else
             {
@@ -279,7 +291,7 @@ public class ChatWindow
         //pane.
         if(getChatTabCount() == 0)
         {
-            this.getContentPane().remove(chatPanel);
+            this.mainPanel.remove(chatPanel);
 
             chatCount --;
 
@@ -300,9 +312,9 @@ public class ChatWindow
 
                 this.chatTabbedPane.removeAll();
 
-                this.getContentPane().remove(chatTabbedPane);
+                this.mainPanel.remove(chatTabbedPane);
 
-                this.getContentPane().add(currentChatPanel, BorderLayout.CENTER);
+                this.mainPanel.add(currentChatPanel, BorderLayout.CENTER);
 
                 this.setCurrentChatPanel(currentChatPanel);
             }
@@ -323,7 +335,7 @@ public class ChatWindow
         {
             this.chatTabbedPane.removeAll();
 
-            this.getContentPane().remove(chatTabbedPane);
+            this.mainPanel.remove(chatTabbedPane);
 
             chatCount = 0;
         }
@@ -378,11 +390,11 @@ public class ChatWindow
             return (ChatPanel)chatTabbedPane.getSelectedComponent();
         else
         {
-            int componentCount = getContentPane().getComponentCount();
+            int componentCount = mainPanel.getComponentCount();
             
             for (int i = 0; i < componentCount; i ++)
             {
-                Component c = getContentPane().getComponent(i);
+                Component c = mainPanel.getComponent(i);
 
                 if(c instanceof ChatPanel)
                 {
@@ -688,6 +700,8 @@ public class ChatWindow
      */
     private void initPluginComponents()
     {
+        pluginPanelNorth.setLayout(
+            new BoxLayout(pluginPanelNorth, BoxLayout.Y_AXIS));
         pluginPanelEast.setLayout(
             new BoxLayout(pluginPanelEast, BoxLayout.Y_AXIS));
         pluginPanelSouth.setLayout(
@@ -695,17 +709,20 @@ public class ChatWindow
         pluginPanelWest.setLayout(
             new BoxLayout(pluginPanelWest, BoxLayout.Y_AXIS));
 
+        this.getContentPane().add(pluginPanelNorth, BorderLayout.NORTH);
         this.getContentPane().add(pluginPanelEast, BorderLayout.EAST);
-        this.getContentPane().add(pluginPanelSouth, BorderLayout.SOUTH);
         this.getContentPane().add(pluginPanelWest, BorderLayout.WEST);
+        this.mainPanel.add(pluginPanelSouth, BorderLayout.SOUTH);
 
         // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
 
-        String osgiFilter = "("
+        String osgiFilter = "(|("
             + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_CHAT_WINDOW.getID()+")";
+            + "="+Container.CONTAINER_CHAT_WINDOW.getID()+")"
+            + "(" + Container.CONTAINER_ID
+            + "="+Container.CONTAINER_CHAT_STATUS_BAR.getID()+"))";
 
         try
         {
@@ -730,7 +747,8 @@ public class ChatWindow
                     .getBorderLayoutConstraintsFromContainer(c.getConstraints());
 
                 this.addPluginComponent((Component)c.getComponent(),
-                    borderLayoutConstraint);
+                                        c.getContainer(),
+                                        borderLayoutConstraint);
             }
         }
 
@@ -741,13 +759,15 @@ public class ChatWindow
     {
         PluginComponent c = event.getPluginComponent();
 
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
+        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW)
+            || c.getContainer().equals(Container.CONTAINER_CHAT_STATUS_BAR))
         {
             Object borderLayoutConstraints = UIServiceImpl
                 .getBorderLayoutConstraintsFromContainer(c.getConstraints());
 
             this.addPluginComponent((Component) c.getComponent(),
-                borderLayoutConstraints);
+                                    c.getContainer(),
+                                    borderLayoutConstraints);
         }
     }
 
@@ -755,12 +775,14 @@ public class ChatWindow
     {
         PluginComponent c = event.getPluginComponent();
 
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW))
+        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW)
+            || c.getContainer().equals(Container.CONTAINER_CHAT_STATUS_BAR))
         {
             Object borderLayoutConstraint = UIServiceImpl
                 .getBorderLayoutConstraintsFromContainer(c.getConstraints());
 
             this.removePluginComponent( (Component) c.getComponent(),
+                                        c.getContainer(),
                                         borderLayoutConstraint);
 
             this.pack();
@@ -882,31 +904,36 @@ public class ChatWindow
      * @param c the component to add
      * @param constraints the constraints determining the container
      */
-    private void addPluginComponent(Component c, Object constraints)
+    private void addPluginComponent(Component c,
+                                    Container container,
+                                    Object constraints)
     {
-        if (constraints.equals(BorderLayout.SOUTH))
+        if (container.equals(Container.CONTAINER_CHAT_WINDOW))
         {
-            if (pluginPanelSouth.getComponentCount() == 0)
-                pluginPanelSouth.setBorder(
-                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            pluginPanelSouth.add(c);
+            if (constraints.equals(BorderLayout.NORTH))
+            {
+                pluginPanelNorth.add(c);
+                pluginPanelNorth.repaint();
+            }
+            else if (constraints.equals(BorderLayout.SOUTH))
+            {
+                pluginPanelSouth.add(c);
+                pluginPanelSouth.repaint();
+            }
+            else if (constraints.equals(BorderLayout.WEST))
+            {
+                pluginPanelWest.add(c);
+                pluginPanelSouth.repaint();
+            }
+            else if (constraints.equals(BorderLayout.EAST))
+            {
+                pluginPanelEast.add(c);
+                pluginPanelSouth.repaint();
+            }
         }
-        else if (constraints.equals(BorderLayout.WEST))
+        else if (container.equals(Container.CONTAINER_CHAT_STATUS_BAR))
         {
-            if (pluginPanelWest.getComponentCount() == 0)
-                pluginPanelWest.setBorder(
-                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            pluginPanelWest.add(c);
-        }
-        else if (constraints.equals(BorderLayout.EAST))
-        {
-            if (pluginPanelEast.getComponentCount() == 0)
-                pluginPanelEast.setBorder(
-                    BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            pluginPanelEast.add(c);
+            statusBarPanel.add(c);
         }
 
         this.getContentPane().repaint();
@@ -919,13 +946,24 @@ public class ChatWindow
      * @param c the component to remove
      * @param constraints the constraints determining the container
      */
-    private void removePluginComponent(Component c, Object constraints)
+    private void removePluginComponent( Component c,
+                                        Container container,
+                                        Object constraints)
     {
-        if (constraints.equals(BorderLayout.SOUTH))
-            pluginPanelSouth.remove(c);
-        else if (constraints.equals(BorderLayout.WEST))
-            pluginPanelWest.remove(c);
-        else if (constraints.equals(BorderLayout.EAST))
-            pluginPanelEast.remove(c);
+        if (container.equals(Container.CONTAINER_CHAT_WINDOW))
+        {
+            if (constraints.equals(BorderLayout.NORTH))
+                pluginPanelNorth.remove(c);
+            else if (constraints.equals(BorderLayout.SOUTH))
+                pluginPanelSouth.remove(c);
+            else if (constraints.equals(BorderLayout.WEST))
+                pluginPanelWest.remove(c);
+            else if (constraints.equals(BorderLayout.EAST))
+                pluginPanelEast.remove(c);
+        }
+        else if (container.equals(Container.CONTAINER_CHAT_STATUS_BAR))
+        {
+            this.statusBarPanel.remove(c);
+        }
     }
 }
