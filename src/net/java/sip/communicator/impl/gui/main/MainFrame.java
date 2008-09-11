@@ -172,8 +172,6 @@ public class MainFrame
 
         JPanel menusPanel = new JPanel(new BorderLayout());
 
-        String osName = System.getProperty("os.name");
-
         this.setJMenuBar(menu);
 
         menusPanel.add(quickMenu, BorderLayout.SOUTH);
@@ -1215,8 +1213,6 @@ public class MainFrame
                         public void run()
                         {
                             addNativePlugins();
-
-                            pack();
                         }
                     });
                 }
@@ -1229,8 +1225,6 @@ public class MainFrame
                     constraints);
             }
         }
-
-        this.pack();
     }
 
     /**
@@ -1271,7 +1265,6 @@ public class MainFrame
                                 finalConstraints);
 
                             getContentPane().repaint();
-                            pack();
                         }
                     });
                 }
