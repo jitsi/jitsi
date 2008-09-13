@@ -371,10 +371,8 @@ public class UIServiceImpl
      */
     public void initExportedWindows()
     {
-        AddContactWizard addContactWizard = new AddContactWizard(mainFrame);
-
         registerExportedWindow(configurationFrame);
-        registerExportedWindow(addContactWizard);
+        registerExportedWindow(new AddContactWizardExportedWindow(mainFrame));
     }
 
     /**

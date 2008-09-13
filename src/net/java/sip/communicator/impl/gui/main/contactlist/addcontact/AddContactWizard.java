@@ -14,7 +14,6 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -26,8 +25,7 @@ import net.java.sip.communicator.util.*;
  */
 public class AddContactWizard
     extends Wizard
-    implements  WizardListener,
-                ExportedWindow
+    implements  WizardListener
 {
     private Logger logger = Logger.getLogger(AddContactWizard.class.getName());
     
@@ -211,37 +209,6 @@ public class AddContactWizard
     }
 
     /**
-     * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
-     */
-    public WindowID getIdentifier()
-    {
-        return ExportedWindow.ADD_CONTACT_WINDOW;
-    }
-
-    /**
-     * This dialog could not be minimized.
-     */
-    public void minimize()
-    {
-    }
-
-    /**
-     * This dialog could not be maximized.
-     */
-    public void maximize()
-    {   
-    }
-    
-    /**
-     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
-     * window to front.
-     */
-    public void bringToFront()
-    {
-        this.toFront();
-    }
-    
-    /**
      * Returns the main application window.
      * 
      * @return the main application window
@@ -249,14 +216,5 @@ public class AddContactWizard
     public MainFrame getMainFrame()
     {
         return mainFrame;
-    }
-    
-    /**
-     * The source of the window
-     * @return the source of the window
-     */
-    public Object getSource()
-    {
-        return this;
     }
 }
