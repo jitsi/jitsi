@@ -530,7 +530,11 @@ public class ContactListPanel
             // Proactive typing notification
             if (!chatWindowManager.isChatOpenedForContact(metaContact))
             {
-                NotificationManager.fireNotification(NotificationManager.PROACTIVE_NOTIFICATION, contactName.trim(), "is writing a message");
+                notificationMsg = Messages.getI18NString("proactiveNotification")
+                    .getText();
+                NotificationManager.fireNotification(
+                        NotificationManager.PROACTIVE_NOTIFICATION,
+                        contactName.trim(), notificationMsg);
                 return;
             }
         }
