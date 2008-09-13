@@ -1729,7 +1729,7 @@ public class ProtocolProviderServiceSipImpl
 
         try
         {
-            registrarAddress = InetAddress.getByName(registrarAddressStr);
+            registrarAddress = NetworkUtils.getInetAddress(registrarAddressStr);
 
             // We should set here the property to indicate that the server
             // address is validated. When we load stored accounts we check
@@ -2458,5 +2458,86 @@ public class ProtocolProviderServiceSipImpl
         Address uri = getAddressFactory().createAddress(uriStr);
 
         return uri;
+    }
+
+    /**
+     * Tries to resolve <tt>address</tt> into a valid InetSocketAddress using
+     * an <tt>SRV</tt> query where it exists and A/AAAA where it doesn't.
+     *
+     * @param address the address we'd like to resolve.
+     * @param transport the protocol that we'd like to use when accessing
+     * address.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance containing the
+     * <tt>SRV</tt> record for <tt>address</tt> if one has been defined and the
+     * A/AAAA record where it hasn't.
+     *
+     * @throws UnknownHostException if <tt>address</tt> is not a valid host
+     * address.
+     */
+    public InetSocketAddress resolveSipAddress(String address, String transport)
+        throws UnknownHostException
+    {
+        InetSocketAddress sockAddr = null;
+
+        //we need to resolve the address only if its a hostname.
+        if(NetworkUtils.isValidIPAddress(address))
+        {
+            InetAddress addressObj = NetworkUtils.getInetAddress(address);
+
+            return new InetSocketAddress(addressObj,
+                            getListeningPoint(transport).getPort());
+        }
+
+        //try to obtain SRV mappings from the DNS
+        try
+        {
+            if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+            {
+                sockAddr = NetworkUtils.getSRVRecord(
+                                "sips", ListeningPoint.TCP, address);
+            }
+            else
+            {
+                sockAddr = NetworkUtils.getSRVRecord("sip", transport, address);
+            }
+        }
+        catch (ParseException e)
+        {
+            throw new UnknownHostException(address);
+        }
+
+        if(sockAddr != null)
+            return sockAddr;
+
+        //there were no SRV mappings so we only need to A/AAAA resolve the
+        //address. Do this before we instantiate the resulting InetSocketAddress
+        //because its constructor suprresses UnknownHostException-s and we want
+        //to know if something goes wrong.
+        InetAddress addressObj = InetAddress.getByName(address);
+
+        return new InetSocketAddress(addressObj,
+                        getListeningPoint(transport).getPort());
+    }
+
+    /**
+     * Tries to resolve <tt>address</tt> into a valid InetSocketAddress using
+     * an <tt>SRV</tt> query where it exists and A/AAAA where it doesn't. The
+     * method assumes that the transport that we'll be using when connecting to
+     * address is the one that has been defined as default for this provider.
+     *
+     * @param address the address we'd like to resolve.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance containing the
+     * <tt>SRV</tt> record for <tt>address</tt> if one has been defined and the
+     * A/AAAA record where it hasn't.
+     *
+     * @throws UnknownHostException if <tt>address</tt> is not a valid host
+     * address.
+     */
+    public InetSocketAddress resolveSipAddress(String address)
+        throws UnknownHostException
+    {
+        return resolveSipAddress(address, getDefaultTransport());
     }
 }

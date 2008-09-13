@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
  * the "Call" and "Hangup" buttons panel. Here are handles incoming and outgoing
  * calls from and to the call operation set.
- * 
+ *
  * @author Yana Stamcheva
  */
 
@@ -31,7 +31,12 @@ public class CallManager
 {
     private static Logger logger = Logger.getLogger(CallManager.class.getName());
 
-    private static Hashtable activeCalls = new Hashtable();
+    /**
+     * A table mapping protocol <tt>Call</tt> objects to the GUI dialogs
+     * that are currently used to display them.
+     */
+    private static Hashtable<Call, CallDialog> activeCalls
+                                            = new Hashtable<Call, CallDialog>();
 
     public static class GuiCallListener implements CallListener
     {
@@ -54,14 +59,12 @@ public class CallManager
                 null,
                 "Incoming call recived from: "
                     + sourceCall.getCallParticipants().next());
-
-            activeCalls.put(sourceCall, receivedCallDialog);
         }
 
         /**
-         * Implements CallListener.callEnded. Stops sounds that are playing at the
-         * moment if there're any. Removes the call panel and disables the hangup
-         * button.
+         * Implements CallListener.callEnded. Stops sounds that are playing at
+         * the moment if there're any. Removes the call panel and disables the
+         * hangup button.
          */
         public void callEnded(CallEvent event)
         {
@@ -79,6 +82,10 @@ public class CallManager
             }
         }
 
+        /**
+         * Creats and opens a call dialog. Implements
+         * CallListener.outGoingCallCreated. .
+         */
         public void outgoingCallCreated(CallEvent event)
         {
             Call sourceCall = event.getSourceCall();
@@ -95,7 +102,7 @@ public class CallManager
 
     /**
      * Removes the given call panel tab.
-     * 
+     *
      * @param callPanel the CallPanel to remove
      */
     public static void disposeCallDialogWait(CallDialog callDialog)
@@ -134,7 +141,7 @@ public class CallManager
 
     /**
      * Answers the given call.
-     * 
+     *
      * @param call the call to answer
      */
     public static void answerCall(final Call call)
@@ -149,7 +156,7 @@ public class CallManager
 
     /**
      * Hangups the given call.
-     * 
+     *
      * @param call the call to answer
      */
     public static void hangupCall(final Call call)
@@ -163,7 +170,7 @@ public class CallManager
 
     /**
      * Creates a call to the contact represented by the given string.
-     * 
+     *
      * @param contact the contact to call to
      */
     public static void createCall(  ProtocolProviderService protocolProvider,
@@ -174,7 +181,7 @@ public class CallManager
 
     /**
      * Creates a call to the given list of contacts.
-     * 
+     *
      * @param contacts the list of contacts to call to
      */
     public static void createCall(  ProtocolProviderService protocolProvider,
@@ -185,7 +192,7 @@ public class CallManager
 
     /**
      * Opens a call dialog.
-     * 
+     *
      * @param callPanel The call panel.
      */
     public static CallDialog openCallDialog(CallPanel callPanel)
@@ -269,7 +276,7 @@ public class CallManager
             }
         }
     }
-    
+
 
     /**
      * Answers all call participants in the given call.

@@ -33,12 +33,12 @@ public class ClientCapabilities
      * The protocol provider that created us.
      */
     private ProtocolProviderServiceSipImpl provider = null;
-    
+
     /**
      * The timer that runs the keep-alive task
      */
     private Timer keepAliveTimer = null;
-    
+
     /**
      * The next long to use as a cseq header value.
      */
@@ -82,18 +82,18 @@ public class ClientCapabilities
                 optionsOK.addHeader(
                     provider.getHeaderFactory().createAllowHeader(method));
             }
-            
+
             Iterator events = provider.getKnownEventsList().iterator();
-            
+
             synchronized (provider.getKnownEventsList()) {
                 while (events.hasNext()) {
                     String event = (String) events.next();
-                    
+
                     optionsOK.addHeader(provider.getHeaderFactory()
                             .createAllowEventsHeader(event));
                 }
             }
-            
+
             //add a user agent header.
             optionsOK.setHeader(provider.getSipCommUserAgentHeader());
         }
@@ -115,6 +115,17 @@ public class ClientCapabilities
             }
 
             sTran.sendResponse(optionsOK);
+        }
+        catch(TransactionUnavailableException ex)
+        {
+            //this means that we received an OPTIONS request outside the scope
+            //of a transaction which could mean that someone is simply sending
+            //us b***shit to keep a NAT connection alive, so let's not get too
+            //excited.
+            logger.info("Failed to respond to an incoming "
+                            +"transactionless OPTIONS request");
+            logger.trace("Exception was:", ex);
+            return false;
         }
         catch (InvalidArgumentException ex)
         {
@@ -179,7 +190,7 @@ public class ClientCapabilities
     {
         return false;
     }
-    
+
     /**
      * Returns the next long to use as a cseq header value.
      * @return the next long to use as a cseq header value.
@@ -188,9 +199,9 @@ public class ClientCapabilities
     {
         return nextCSeqValue++;
     }
-    
+
     /**
-     * Fire event that connection has failed and we had to unregister 
+     * Fire event that connection has failed and we had to unregister
      * the protocol provider.
      */
     private void disconnect()
@@ -205,7 +216,7 @@ public class ClientCapabilities
             , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
             , "A timeout occurred while trying to connect to the server.");
     }
-    
+
     private class KeepAliveTask
         extends TimerTask
     {
@@ -254,7 +265,7 @@ public class ClientCapabilities
                     return;
                 }
 
-                //To Header 
+                //To Header
                 ToHeader toHeader = null;
                 try
                 {
@@ -293,9 +304,9 @@ public class ClientCapabilities
                 try
                 {
                     //create a host-only uri for the request uri header.
-                    String domain 
+                    String domain
                         = ((SipURI) toHeader.getAddress().getURI()).getHost();
-                    SipURI requestURI 
+                    SipURI requestURI
                         = provider.getAddressFactory().createSipURI(null,domain);
                     request = provider.getMessageFactory().createRequest(
                           requestURI
@@ -312,10 +323,10 @@ public class ClientCapabilities
                     logger.error("Could not create the register request!", ex);
                     return;
                 }
-                
+
                 Iterator supportedMethods
                     = provider.getSupportedMethods().iterator();
-                
+
                 //add to the allows header all methods that we support
                 while(supportedMethods.hasNext())
                 {
@@ -331,9 +342,9 @@ public class ClientCapabilities
 
                 Iterator events = provider.getKnownEventsList().iterator();
 
-                synchronized (provider.getKnownEventsList()) 
+                synchronized (provider.getKnownEventsList())
                 {
-                    while (events.hasNext()) 
+                    while (events.hasNext())
                     {
                         String event = (String) events.next();
 
@@ -377,13 +388,13 @@ public class ClientCapabilities
                 catch (SipException ex)
                 {
                     logger.error("Could not send out the options request!", ex);
-                    
+
                     if(ex.getCause() instanceof IOException)
                     {
                         // IOException problem with network
                         disconnect();
                     }
-                    
+
                     return;
                 }
             }catch(Exception ex)
@@ -392,7 +403,7 @@ public class ClientCapabilities
             }
         }
    }
-    
+
     private class RegistrationListener
         implements RegistrationStateChangeListener
     {
@@ -408,11 +419,11 @@ public class ClientCapabilities
         */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            if(evt.getNewState() == RegistrationState.UNREGISTERING || 
+            if(evt.getNewState() == RegistrationState.UNREGISTERING ||
                 evt.getNewState() == RegistrationState.CONNECTION_FAILED)
             {
                 // stop any task associated with the timer
-                if (keepAliveTimer != null) 
+                if (keepAliveTimer != null)
                 {
                     keepAliveTimer.cancel();
                     keepAliveTimer = null;
@@ -422,15 +433,15 @@ public class ClientCapabilities
                 String keepAliveMethod = (String)provider.getAccountID().
                     getAccountProperties().
                         get(ProtocolProviderServiceSipImpl.KEEP_ALIVE_METHOD);
-                
-                if(keepAliveMethod == null || 
+
+                if(keepAliveMethod == null ||
                     !keepAliveMethod.equalsIgnoreCase("options"))
                     return;
-                
+
                 String keepAliveIntStr = (String)provider.getAccountID().
                     getAccountProperties().
                         get(ProtocolProviderServiceSipImpl.KEEP_ALIVE_INTERVAL);
-                
+
                 if(keepAliveIntStr != null)
                 {
                     int keepAliveInterval = -1;
@@ -447,7 +458,7 @@ public class ClientCapabilities
                     {
                         if(keepAliveTimer == null)
                             keepAliveTimer = new Timer();
-                        
+
                         keepAliveTimer.schedule(
                             new KeepAliveTask(), 0, keepAliveInterval * 1000);
                     }

@@ -659,7 +659,7 @@ public class CallSessionImpl
                     newAttribute = on ? "inactive" : "recvonly";
             }
         if (newAttribute == null)
-        	newAttribute = on ? "sendonly" : "sendrecv";
+            newAttribute = on ? "sendonly" : "sendrecv";
 
         mediaDescription.removeAttribute("inactive");
         mediaDescription.removeAttribute("recvonly");
@@ -1115,8 +1115,8 @@ public class CallSessionImpl
                 int port = mediaDescription.getMedia().getMediaPort();
                 String type = mediaDescription.getMedia().getMediaType();
 
-                // If there\u2019s a global address, we use it.
-                // If there isn\u2019t a global address, we get the address from
+                // If there's a global address, we use it.
+                // If there is no global address, we get the address from
                 // the media Description
                 // Fix by Pablo L. - Telefonica
                 String address;
@@ -1249,12 +1249,41 @@ public class CallSessionImpl
                                     ex);
                     }
                 }
+
+                //in case the offer contains a media level connection param, it
+                //needs to override the connection one.
+                Iterator<MediaDescription> mediaDescriptions
+                    = (Iterator<MediaDescription>)offer
+                        .getMediaDescriptions(true).iterator();
+
+                while(mediaDescriptions.hasNext())
+                {
+                    Connection conn = mediaDescriptions.next().getConnection();
+
+                    if(conn == null)
+                        continue;
+
+                    try
+                    {
+                        intendedDestination
+                            = NetworkUtils.getInetAddress(conn.getAddress());
+
+                        break;
+                    }
+                    catch (UnknownHostException e)
+                    {
+                        logger.debug("Couldn't determine indtended "
+                                        +"destination from address"
+                                        + conn.getAddress(), e);
+                    }
+
+                }
             }
 
             /*
-             * For example, issuing a Request.INVITE for putting a
-             * CallParticipant on hold also needs a SessionDescrption. However,
-             * it just wants to describe the current state.
+             * Only allocate ports if this is a call establishing event.
+             * The opposite could happen for example, when issuing a
+             * Request.INVITE that would put a CallParticipant on hold.
              */
             if ((audioSessionAddress == null) || (videoSessionAddress == null))
             {

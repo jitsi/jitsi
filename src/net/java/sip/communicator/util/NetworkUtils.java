@@ -295,4 +295,75 @@ public class NetworkUtils
         }
         return sortedHostNames;
     }
+
+    /**
+     * Returns an <tt>InetSocketAddress</tt> representing the first SRV
+     * record available for the specified domain or <tt>null</tt> if there are
+     * not SRV records for <tt>domain</tt>.
+     *
+     * @param domain the name of the domain we'd like to resolve.
+     * @param service the service that we are trying to get a record for.
+     * @param proto the protocol that we'd like <tt>service</tt> on.
+     *
+     * @return the first InetSocketAddress containing records returned by the
+     * DNS server - address and port .
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     */
+    public static InetSocketAddress getSRVRecord(  String service,
+                                                   String proto,
+                                                   String domain)
+        throws ParseException
+    {
+        InetSocketAddress[] records = getSRVRecords("_" + service
+                                                 + "._" + proto
+                                                 + "."  + domain);
+
+        if(records == null || records.length == 0)
+            return null;
+
+        return records[0];
+    }
+
+    /**
+     * Creates an InetAddress from the specified <tt>hostAddress</tt>. The point
+     * of using the method rather than creating the address by yourself is that
+     * it would first check whether the specified <tt>hostAddress</tt> is indeed
+     * a valid ip address. It this is the case, the method would create the
+     * <tt>InetAddress</tt> using the <tt>InetAddress.getByAddress()</tt>
+     * method so that no DNS resolution is attempted by the JRE. Otherwise
+     * it would simply use <tt>InetAddress.getByName()</tt> so that we would an
+     * <tt>InetAddress</tt> instance even at the cost of a potential DNS
+     * resolution.
+     *
+     * @param hostAddress the <tt>String</tt> representation of the address
+     * that we would like to create an <tt>InetAddress</tt> instance for.
+     *
+     * @return an <tt>InetAddress</tt> instance corresponding to the specified
+     * <tt>hostAddress</tt>.
+     *
+     * @throws UnknownHostException if any of the <tt>InetAddress</tt> methods
+     * we are using throw an exception.
+     */
+    public static InetAddress getInetAddress(String hostAddress)
+        throws UnknownHostException
+    {
+        if (NetworkUtils.isValidIPAddress(hostAddress))
+        {
+            byte[] addr = null;
+
+            // attempt parse as IPv4 address
+            addr = IPAddressUtil.textToNumericFormatV4(hostAddress);
+
+            // if not IPv4, parse as Pv6 address
+            if (addr == null)
+            {
+                addr = IPAddressUtil.textToNumericFormatV6(hostAddress);
+            }
+            return InetAddress.getByAddress(hostAddress, addr);
+        }
+        else
+        {
+            return InetAddress.getByName(hostAddress);
+        }
+    }
 }

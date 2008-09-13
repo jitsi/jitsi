@@ -241,40 +241,22 @@ public class OperationSetBasicTelephonySipImpl
             {
                 String host = ((SipURI) calleeURI).getHost();
 
-                try
-                {
-                    // Detect probable IPv4 and IPv6 addresses,
-                    // and avoid attempting a DNS lookup on them.
-                    if (NetworkUtils.isValidIPAddress(host))
-                    {
-                        byte[] addr = null;
-                        // attempt parse as IPv4 address
-                        addr = IPAddressUtil.textToNumericFormatV4(host);
-                        // if not IPv4, parse as IPv6 address
-                        if (addr == null)
-                        {
-                            addr = IPAddressUtil.textToNumericFormatV6(host);
-                        }
-
-                        //obtain the address without a DNS query.
-                        intendedDestination =
-                            InetAddress.getByAddress(host, addr);
-
-                    }
-                    else
-                    {
-                        intendedDestination = InetAddress.getByName(host);
-                    }
-                    invite.setContent(callSession
+                intendedDestination = protocolProvider
+                        .resolveSipAddress(host).getAddress();
+                invite.setContent(callSession
                             .createSdpOffer(intendedDestination),
                             contentTypeHeader);
-                }
-                catch (UnknownHostException ex)
-                {
-                    logger.warn("Failed to obtain an InetAddress for " + host,
-                        ex);
-                }
             }
+        }
+        catch (UnknownHostException ex)
+        {
+            logger.warn("Failed to obtain an InetAddress." + ex.getMessage(),
+                ex);
+            throw new OperationFailedException(
+                            "Failed to obtain an InetAddress for "
+                            + ex.getMessage(),
+                            OperationFailedException.NETWORK_FAILURE,
+                            ex);
         }
         catch (ParseException ex)
         {
@@ -1324,27 +1306,8 @@ public class OperationSetBasicTelephonySipImpl
         {
             String destinationURI = ((SipURI) toAddress.getURI()).getHost();
 
-            // Detect probable IPv4 and IPv6 addresses,
-            // and avoid attempting a DNS lookup on them.
-            if (NetworkUtils.isValidIPAddress(destinationURI))
-            {
-                byte[] addr = null;
-
-                // attempt parse as IPv4 address
-                addr = IPAddressUtil.textToNumericFormatV4(destinationURI);
-
-                // if not IPv4, parse as Pv6 address
-                if (addr == null)
-                {
-                    addr = IPAddressUtil.textToNumericFormatV6(destinationURI);
-                }
-                destinationInetAddress =
-                    InetAddress.getByAddress(destinationURI, addr);
-            }
-            else
-            {
-                destinationInetAddress = InetAddress.getByName(destinationURI);
-            }
+            destinationInetAddress = protocolProvider
+                .resolveSipAddress(destinationURI).getAddress();
         }
         catch (UnknownHostException ex)
         {

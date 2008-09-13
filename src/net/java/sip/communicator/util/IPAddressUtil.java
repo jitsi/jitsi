@@ -32,6 +32,8 @@
  */
 package net.java.sip.communicator.util;
 
+import java.net.*;
+
 /**
  * Contains utility methods for work with IPv4 and IPv6 addresses.
  *
