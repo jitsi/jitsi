@@ -23,6 +23,8 @@ public class NotificationManager
     
     public static final String BUSY_CALL = "BusyCall";
     
+    public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
+    
     private static Hashtable soundHandlers = new Hashtable();
     
     public static void registerGuiNotifications()
@@ -88,6 +90,12 @@ public class NotificationManager
     
         soundHandlers.put(OUTGOING_CALL, outCallSoundHandler);
 
+        // Register proactive notifications.
+        notificationService.registerDefaultNotificationForEvent(
+                PROACTIVE_NOTIFICATION,
+                NotificationService.ACTION_POPUP_MESSAGE,
+                null,
+                null);
     }
     
     /**
@@ -109,7 +117,6 @@ public class NotificationManager
             return;
 
         notificationService.fireNotification(eventType, messageTitle, message);
-
     }
 
     /**

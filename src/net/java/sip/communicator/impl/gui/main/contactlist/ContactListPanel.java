@@ -14,7 +14,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.UIServiceImpl;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -88,7 +89,6 @@ public class ContactListPanel
         this.setPreferredSize(new Dimension(200, 450));
         this.setMinimumSize(new Dimension(80, 200));
         this.add(contactListScrollPane);
-
         this.initPluginComponents();
     }
 
@@ -508,19 +508,16 @@ public class ContactListPanel
 
         String notificationMsg = "";
 
-        String contactName = this.mainFrame.getContactList()
-                .findMetaContactByContact(evt.getSourceContact())
-                .getDisplayName()
-                + " ";
+        MetaContact metaContact = mainFrame.getContactList()
+                .findMetaContactByContact(evt.getSourceContact());
+        String contactName = metaContact.getDisplayName() + " ";
 
         if (contactName.equals("")) {
             contactName = Messages.getI18NString("unknown").getText() + " ";
         }
 
         int typingState = evt.getTypingState();
-        MetaContact metaContact = mainFrame.getContactList()
-                .findMetaContactByContact(evt.getSourceContact());
-
+        
         if (typingState == OperationSetTypingNotifications.STATE_TYPING)
         {
             notificationMsg
@@ -529,6 +526,13 @@ public class ContactListPanel
             
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
+            
+            // Proactive typing notification
+            if (!chatWindowManager.isChatOpenedForContact(metaContact))
+            {
+                NotificationManager.fireNotification(NotificationManager.PROACTIVE_NOTIFICATION, contactName.trim(), "is writing a message");
+                return;
+            }
         }
         else if (typingState == OperationSetTypingNotifications.STATE_PAUSED)
         {
