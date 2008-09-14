@@ -61,7 +61,7 @@ public class MediaServiceImpl
     /**
      * The lock object that we use for synchronization during startup.
      */
-    private Object startingLock = new Object();
+    private final Object startingLock = new Object();
 
     /**
      * Our event dispatcher.
@@ -78,7 +78,7 @@ public class MediaServiceImpl
      * using for reading media for all calls that do not have a custom media
      * control mapping.
      */
-    private MediaControl defaultMediaControl = new MediaControl();
+    private final MediaControl defaultMediaControl = new MediaControl();
 
     /**
      * Mappings of calls to instances of <tt>MediaControl</tt>. In case a call
@@ -88,7 +88,8 @@ public class MediaServiceImpl
      * have been answered by a mailbox plug-in and that will be using a file
      * as their sound source. 
      */
-    private Map callMediaControlMappings = new Hashtable();
+    private final Map<Call, MediaControl> callMediaControlMappings =
+            new Hashtable<Call, MediaControl>();
 
     /**
      * Mappings of calls to custom data sinks. Used by mailbox plug-ins for
@@ -118,7 +119,7 @@ public class MediaServiceImpl
      */
     public String[] getSupportedAudioEncodings()
     {
-        return defaultMediaControl.getSupportedAudioEncodings();
+        return getMediaControl().getSupportedAudioEncodings();
     }
 
     /**
@@ -130,7 +131,7 @@ public class MediaServiceImpl
      */
     public String[] getSupportedVideoEncodings()
     {
-        return defaultMediaControl.getSupportedVideoEncodings();
+        return getMediaControl().getSupportedVideoEncodings();
     }
 
 
@@ -149,7 +150,6 @@ public class MediaServiceImpl
         throws MediaException
     {
         waitUntilStarted();
-        assertStarted();
 
         //if we have this call mapped to a custom data destination, pass that
         //destination on to the callSession.
@@ -186,7 +186,6 @@ public class MediaServiceImpl
         throws MediaException
     {
         waitUntilStarted();
-        assertStarted();
 
         RtpFlowImpl rtpFlow = new RtpFlowImpl(this, localIP, remoteIP,
                 localPort, remotePort, new Hashtable(mediaEncodings));
@@ -221,7 +220,14 @@ public class MediaServiceImpl
      */
     public void start()
     {
-        new DeviceConfigurationThread().run();
+        /*
+         * TODO The method is called only once (in MediaActivator) at the time
+         * of this writing. However, it being public suggests it may be called
+         * more than once and, if it becomes the case one day, care should be
+         * taken to not start a new DeviceConfigurationThread while a previous
+         * one is running.
+         */
+        new DeviceConfigurationThread().start();
     }
 
     /**
@@ -255,7 +261,7 @@ public class MediaServiceImpl
      * Verifies whether the media service is started and ready for use and 
      * throws an exception otherwise.
      *
-     * @throws MediaException if  the media service is not started and ready for
+     * @throws MediaException if the media service is not started and ready for
      * use.
      */
     protected void assertStarted()
@@ -279,7 +285,7 @@ public class MediaServiceImpl
     private void closeCaptureDevices()
         throws MediaException
     {
-        defaultMediaControl.closeCaptureDevices();
+        getMediaControl().closeCaptureDevices();
     }
 
 
@@ -314,6 +320,15 @@ public class MediaServiceImpl
      */
     public MediaControl getMediaControl()
     {
+        try
+        {
+            waitUntilStarted();
+        }
+        catch (MediaException ex)
+        {
+            throw new IllegalStateException(ex);
+        }
+
         return defaultMediaControl;
     }
 
@@ -329,16 +344,9 @@ public class MediaServiceImpl
      */
     public MediaControl getMediaControl(Call call)
     {
-        if (callMediaControlMappings.containsKey(call))
-        {
-            return (MediaControl)callMediaControlMappings.get(call);
-        }
-        else
-        {
-            return defaultMediaControl;
-        }
+        MediaControl mediaControl = callMediaControlMappings.get(call);
+        return (mediaControl != null) ? mediaControl : getMediaControl();
     }
-
 
     /**
      * A valid instance of the DeviceConfiguration that a call session may use
@@ -399,28 +407,27 @@ public class MediaServiceImpl
     /**
      * A utility method that would block until the media service has been
      * started or, in case it already is started, return immediately.
+     *
+     * @throws MediaException if the media service is not started and ready for
+     * use.
      */
     private void waitUntilStarted()
+        throws MediaException
     {
-        synchronized(startingLock)
-        {
-            if(!isStarting)
-            {
-                return;
-            }
-
-            try
-            {
-                startingLock.wait();
-            }
-            catch (InterruptedException ex)
-            {
-                logger.warn("Interrupted while waiting for the stack to start",
-                            ex);
+        synchronized (startingLock) {
+            if (isStarting) {
+                try {
+                    startingLock.wait();
+                } catch (InterruptedException ex) {
+                    logger.warn(
+                        "Interrupted while waiting for the stack to start", ex);
+                }
             }
         }
+
+        assertStarted();
     }
-    
+
     /**
      * Sets the data source for <tt>call</tt> to the URL <tt>dataSourceURL</tt>
      * instead of the default data source. This is used (for instance)
@@ -504,8 +511,7 @@ public class MediaServiceImpl
     public static void main(String[] args)
         throws Throwable
     {
-        MediaServiceImpl msimpl = new MediaServiceImpl();
-        msimpl.start();
+        new MediaServiceImpl().start();
 
         System.out.println("done");
     }

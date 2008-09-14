@@ -7,11 +7,12 @@
 package net.java.sip.communicator.plugin.mailbox;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.media.MediaService;
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.resources.*;
 
 /**
@@ -52,12 +53,6 @@ public class MailboxActivator
      * that is currently registered with the bundle context.
      */
     private static FileAccessService fileAccessService = null;
-
-    /**
-     * A reference to the ConfigurationService implementation instance that
-     * is currently registered with the bundle context.
-     */
-    private static UIService uiService = null;
     
     private static ResourceManagementService resourcesService;
 
@@ -73,7 +68,7 @@ public class MailboxActivator
     public void start(BundleContext bundleContext) throws Exception
     {
         logger.info("Mailbox plug-in...[STARTING]");
-        this.bundleContext = bundleContext;
+        MailboxActivator.bundleContext = bundleContext;
 
         //Create and start the Mailbox Service
         mailbox = new Mailbox();

@@ -29,10 +29,11 @@ public class JingleScMediaManager extends JingleMediaManager
     private Logger logger = Logger.getLogger(JingleScMediaManager.class);
 
     /**
-     * List of payload that this media manager supports.
-     * This list is based on the one reported by the media service.
+     * List of payload that this media manager supports. This list is based on
+     * the one reported by the media service.
      */
-    private List payloads = new ArrayList();
+    private List<PayloadType.Audio> payloads =
+        new ArrayList<PayloadType.Audio>();
 
     /**
      * Creates a new instance of JingleScMediaManager
@@ -64,7 +65,7 @@ public class JingleScMediaManager extends JingleMediaManager
      * Setup API supported Payloads
      *
      * http://tools.ietf.org/html/rfc3551#page-32 to view the
-     * corresponsdance between PayloadType and codec
+     * correspondence between PayloadType and codec
      */
     private void setupPayloads() {
 

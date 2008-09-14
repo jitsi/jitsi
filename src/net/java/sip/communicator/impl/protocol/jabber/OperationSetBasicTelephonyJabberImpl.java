@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.text.*;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
@@ -16,7 +15,6 @@ import org.jivesoftware.smackx.jingle.media.*;
 import org.jivesoftware.smackx.jingle.listeners.*;
 import org.jivesoftware.smackx.jingle.nat.*;
 
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
