@@ -132,6 +132,13 @@ public class LaunchArgHandler
         {
             versionProperties.load(
                 getClass().getResourceAsStream(VERSION_PROPERTIES));
+            
+            // start url handler for mac os.
+            String osName = System.getProperty("os.name");
+            if (osName.startsWith("Mac"))
+            {
+                new AEGetURLEventHandler(this);
+            }
         }
         catch(IOException exc)
         {

@@ -121,6 +121,10 @@
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_WEB" value="${application.web}" />
         <filter token="DEST_DIR" value="${release}" />
+        <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
+        <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
+        <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
+
         <copy 
             tofile="${generic.app.dir}/tmp-installer-generic.xml" 
             file="${inst.resrc}/generic/installer-generic.xml" 
@@ -174,6 +178,9 @@
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_WEB" value="${application.web}" />
         <filter token="DEST_DIR" value="${release}" />
+        <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
+        <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
+        <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
         
         <copy todir="${linux.app.dir}/tmp" filtering="yes" >
             <fileset dir="${inst.resrc}/linux">
@@ -255,9 +262,9 @@
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_WEB" value="${application.web}" />
         <filter token="DEST_DIR" value="${release}" />
-	<filter token="DEVELOPED_BY" value="${installer.welcome.developedby}" />
-	<filter token="LINK" value="${installer.welcome.url}" />
-	<filter token="POWERED_BY" value="${installer.welcome.poweredby}" />
+        <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
+        <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
+        <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
             
         <copy 
             tofile="${windows.app.dir}/tmp-windows_shortcut_specification.xml" 
@@ -407,7 +414,8 @@
                   bundleid="org.sip-communicator"
                   stubfile="${macosx.stubfile}"
                   extraclasspath="/System/Library/Java"
-                  workingdirectory="$APP_PACKAGE/Contents/Resources/Java">
+                  workingdirectory="$APP_PACKAGE/Contents/Resources/Java"
+                  vmoptions="-agentlib:AEGetURLEventHandlerAgent">
 
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
@@ -446,6 +454,24 @@
                       files="versionupdate.properties"/>
       </jarbundler>
       <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/log"/>
+      
+      <!-- Add the url types in the Info.plist file -->
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+        <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
+        <replacevalue><![CDATA[<key>CFBundleURLTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleURLSchemes</key>
+          <array>
+            <string>sip</string>
+            <string>feed</string>
+          </array>
+        </dict>
+      </array>
+      <key>CFBundleName</key>]]></replacevalue>    
+      </replace>
+      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib" link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+      
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.
@@ -511,27 +537,6 @@
             <entry  key="download_link" 
                     value="http://download.sip-communicator.org/nightly/macosx/${package.name}-${sip-communicator.version}.dmg"/>
       </propertyfile>
-
-      <!-- Copy the urlhandler application to destination dir-->
-      <copy todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app">
-        <fileset dir="${macosx.resrc.dir}/URLHandler.app"/>
-      </copy>
-      <!-- copy and icon as it uses our application icon -->
-      <copy todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Resources">
-        <fileset file="resources/images/logo/sc_logo_128x128.icns"/>
-      </copy>
-      <!-- move our application plist template -->
-      <move file="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Info.plist.tmpl"
-              tofile="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Info.plist"/>
-      <!-- change name of the urlhandler application-->
-      <replace
-        file="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/Info.plist"
-        value="${application.name}">
-            <replacefilter
-                token="APP_NAME"/>
-      </replace>
-      <!-- make sure that launcher is executable -->
-      <chmod file="${macosx.app.dir}/${application.name}.app/Contents/Resources/URLHandler.app/Contents/MacOS/URLHandler" perm="+x"/>
 
       <property name="macosx.dmg.name"
                 value="${package.name}-${sip-communicator.version}.dmg"/>
