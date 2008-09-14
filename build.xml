@@ -520,6 +520,13 @@
              the value ${args}-->
         <property name="args" value=""/>
 
+        <!-- SIP Communicator on Mac OS X uses a JVMTI agent to handle kAEGetURL
+             AppleScript events. -->
+        <condition property="jvmarg.line"
+                value="-agentlib:AEGetURLEventHandlerAgent" else="">
+            <isset property="is.running.macos"/>
+        </condition>
+
          <!-- forking prevents from debugging -->
         <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
             fork="true"
@@ -540,8 +547,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="false"/>
 
-            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}/schome"/>
+            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome"/-->
 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
@@ -562,6 +569,8 @@
             <arg line="--debug"/>
             <!-- pass to SC args that have been specified by the user -->
             <arg line="${args}"/>
+
+            <jvmarg line="${jvmarg.line}"/>
         </java>
 
     </target>
