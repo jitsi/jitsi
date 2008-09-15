@@ -43,6 +43,10 @@ public class ContactListCellRenderer
             .getImage(ImageLoader.MORE_INFO_ICON), ImageLoader
             .getImage(ImageLoader.MORE_INFO_ICON));
 
+    private int rowTransparency
+        = GuiActivator.getResources()
+            .getSettingsInt("contactListRowTransparency");
+
     private boolean isSelected = false;
 
     private int index = 0;
@@ -260,7 +264,7 @@ public class ContactListCellRenderer
             g2.setColor(new Color(  bgColor.getRed(),
                                     bgColor.getGreen(),
                                     bgColor.getBlue(),
-                                    200));
+                                    rowTransparency));
             g2.fillRect(0, 0, this.getWidth(), this.getHeight());
         }
 
