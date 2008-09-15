@@ -111,7 +111,7 @@ public class ExtendedMainToolBar
 
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        this.setPreferredSize(new Dimension(300, DEFAULT_BUTTON_HEIGHT));
+        this.setPreferredSize(new Dimension(300, DEFAULT_BUTTON_HEIGHT + 5));
 
 //        this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
 

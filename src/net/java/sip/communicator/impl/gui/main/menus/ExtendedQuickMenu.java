@@ -117,8 +117,8 @@ public class ExtendedQuickMenu
 
         this.toolBar.setFloatable(true);
 
-        this.setMinimumSize(new Dimension(650, 40));
-        this.setPreferredSize(new Dimension(650, 40));
+        this.setMinimumSize(new Dimension(650, DEFAULT_BUTTON_HEIGHT + 5));
+        this.setPreferredSize(new Dimension(650, DEFAULT_BUTTON_HEIGHT + 5));
 
         this.infoButton.setPreferredSize(
             new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
