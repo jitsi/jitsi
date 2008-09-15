@@ -14,8 +14,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.UIServiceImpl;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -89,6 +89,7 @@ public class ContactListPanel
         this.setPreferredSize(new Dimension(200, 450));
         this.setMinimumSize(new Dimension(80, 200));
         this.add(contactListScrollPane);
+
         this.initPluginComponents();
     }
 
@@ -165,9 +166,12 @@ public class ContactListPanel
         ProtocolProviderService protoContactProvider;
         OperationSetBasicInstantMessaging protoContactIM;
 
+        boolean isOfflineMessagingSupported
+            = defaultIM != null && !defaultIM.isOfflineMessagingSupported();
+
         if (defaultContact.getPresenceStatus().getStatus() < 1
-                && (!defaultIM.isOfflineMessagingSupported()
-                        || !defaultProvider.isRegistered()))
+                && (!isOfflineMessagingSupported
+                    || !defaultProvider.isRegistered()))
         {
             Iterator<Contact> protoContacts = metaContact.getContacts();
 
@@ -181,7 +185,8 @@ public class ContactListPanel
                     protoContactProvider.getOperationSet(
                         OperationSetBasicInstantMessaging.class);
 
-                if(protoContactIM.isOfflineMessagingSupported()
+                if(protoContactIM != null
+                        && protoContactIM.isOfflineMessagingSupported()
                         && protoContactProvider.isRegistered())
                 {
                     defaultContact = contact;
