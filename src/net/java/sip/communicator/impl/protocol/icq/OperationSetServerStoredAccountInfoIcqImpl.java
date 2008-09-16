@@ -17,6 +17,9 @@ import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joscar.*;
 import java.io.*;
+import net.kano.joscar.snaccmd.*;
+import net.kano.joustsim.*;
+import net.kano.joustsim.oscar.oscar.service.icon.*;
 
 /**
  * @author Damian Minkov
@@ -80,8 +83,23 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         supportedTypes.put(ServerStoredDetails.TimeZoneDetail.class,    new int[]{1, 0x0316});
     }
 
+    /**
+     * Our image.
+     */
+    private ImageDetail accountImage = null;
+    
+    /**
+     * Listener waiting for our image.
+     */
+    private IconUpdateListener iconListener = null;
 
-
+    /**
+     * Creates instance of OperationSetServerStoredAccountInfo
+     * for icq protocol.
+     * @param infoRetreiver the info retreiver
+     * @param uin our own account uin
+     * @param icqProvider the provider
+     */
     public OperationSetServerStoredAccountInfoIcqImpl
         (InfoRetreiver infoRetreiver, String uin,
          ProtocolProviderServiceIcqImpl icqProvider)
@@ -100,8 +118,13 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     public Iterator getAllAvailableDetails()
     {
         assertConnected();
+
+        List ds = infoRetreiver.getContactDetails(uin);
+        Object img = getImage();
+        if(img != null)
+            ds.add(img);
         
-        return infoRetreiver.getContactDetails(uin).iterator();
+        return ds.iterator();
     }
 
     /**
@@ -117,6 +140,13 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     {
         assertConnected();
         
+        if(detailClass.equals(ImageDetail.class))
+        {
+            Vector res = new Vector();
+            res.add(getImage());
+            return res.iterator();
+        }
+
         return infoRetreiver.getDetails(uin, detailClass);
     }
 
@@ -133,6 +163,13 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     public Iterator getDetailsAndDescendants(Class detailClass)
     {
         assertConnected();
+
+        if(ImageDetail.class.isAssignableFrom(detailClass))
+        {
+            Vector res = new Vector();
+            res.add(getImage());
+            return res.iterator();
+        }
         
         return infoRetreiver.getDetailsAndDescendants(uin, detailClass);
     }
@@ -175,7 +212,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     {
         return supportedTypes.get(detailClass) != null;
     }
-    
+
     /**
      * Utility method throwing an exception if the icq stack is not properly
      * initialized.
@@ -219,7 +256,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         OperationFailedException, ArrayIndexOutOfBoundsException
     {
         assertConnected();
-        
+
         if(!isDetailClassSupported(detail.getClass()))
             throw new IllegalArgumentException(
                 "implementation does not support such details " +
@@ -362,7 +399,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         OperationFailedException
     {
         assertConnected();
-        
+
         // as there is no remove method for the details we will
         // set it with empty or default value
 
@@ -486,14 +523,14 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         ClassCastException, OperationFailedException
     {
         assertConnected();
-        
+
         if(!newDetailValue.getClass().equals(currentDetailValue.getClass()))
             throw new ClassCastException("New value to be replaced is not as the current one");
 
-        // if values are the same no change 
+        // if values are the same no change
         if(currentDetailValue.equals(newDetailValue))
             return true;
-        
+
         boolean isFound = false;
         Vector alreadySetDetails = new Vector();
         Iterator iter = infoRetreiver.getDetails(uin, currentDetailValue.getClass());
@@ -674,6 +711,37 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         }
         else
             return false;
+    }
+
+    /**
+     * Requests the account image if its missing.
+     * @return the new image or the one that has been already downloaded.
+     */
+    private ImageDetail getImage()
+    {
+        if(accountImage != null)
+            return accountImage;
+        
+        if(iconListener == null)
+        {
+            iconListener = new IconUpdateListener();
+            
+            this.icqProvider.getAimConnection().getExternalServiceManager().
+            getIconServiceArbiter().addIconRequestListener(
+                new IconUpdateListener());        
+        }
+
+        ExtraInfoData infoData =
+            new ExtraInfoData(
+                ExtraInfoData.FLAG_HASH_PRESENT,
+                ByteBlock.EMPTY_BLOCK);
+        icqProvider.getAimConnection().getExternalServiceManager().
+            getIconServiceArbiter().requestIcon(new Screenname(uin), infoData);
+
+        // now wait image to come
+        iconListener.waitForImage(22000);
+
+        return accountImage;
     }
 
     /**
@@ -1406,6 +1474,54 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         countryIndexToLocaleString.put(new Integer(994), "az"); //Azerbaijan
         countryIndexToLocaleString.put(new Integer(995), "ge"); //Georgia
 //        countryIndexToLocaleString.put(new Integer(9999),""); //other
+    }
+
+    /**
+     * Notified if buddy icon is changed
+     */
+    private class IconUpdateListener
+        implements IconRequestListener
+    {
+        public void buddyIconCleared(IconService iconService,
+                                     Screenname screenname,
+                                     ExtraInfoData extraInfoData)
+        {}
+
+        public void buddyIconUpdated(IconService iconService,
+                                     Screenname screenname,
+                                     ExtraInfoData extraInfoData,
+                                     ByteBlock byteBlock)
+        {
+            if(byteBlock != null)
+            {
+                if(screenname.getFormatted().equals(uin))
+                {
+                    synchronized(this)
+                    {
+                        accountImage = new ImageDetail("Account Image",
+                            byteBlock.toByteArray());
+
+                        this.notifyAll();
+                    }
+                }
+            }
+        }
+
+        public void waitForImage(long waitFor)
+        {
+            synchronized(this)
+            {
+                try{
+                    if(accountImage == null)
+                        wait(waitFor);
+                }
+                catch (InterruptedException ex)
+                {
+                    logger.debug(
+                        "Interrupted while waiting for a subscription evt", ex);
+                }
+            }
+        }
     }
 
     /**

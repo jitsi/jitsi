@@ -132,52 +132,57 @@ public class AccountStatusPanel
 
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        ProtocolProviderService protocolProvider = evt.getProvider();
+        final ProtocolProviderService protocolProvider = evt.getProvider();
 
         this.updateStatus(protocolProvider);
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED))
         {
-            OperationSetServerStoredAccountInfo accountInfoOpSet
-                = (OperationSetServerStoredAccountInfo) protocolProvider
-                    .getOperationSet(OperationSetServerStoredAccountInfo.class);
+            SwingUtilities.invokeLater(new Runnable() {
 
-            if (accountInfoOpSet != null)
-            {
-                byte[] accountImage
-                    = AccountInfoUtils.getImage(accountInfoOpSet);
-
-                if (accountImageLabel.getIcon() == null
-                    && accountImage != null)
+                public void run()
                 {
-                    accountImageLabel.setIcon(new ImageIcon(accountImage));
+                    OperationSetServerStoredAccountInfo accountInfoOpSet
+                        = (OperationSetServerStoredAccountInfo) protocolProvider
+                            .getOperationSet(OperationSetServerStoredAccountInfo.class);
+
+                    if (accountInfoOpSet != null)
+                    {
+                        byte[] accountImage
+                            = AccountInfoUtils.getImage(accountInfoOpSet);
+
+                        if (accountImage != null)
+                        {
+                            accountImageLabel.setIcon(new ImageIcon(accountImage));
+                        }
+
+                        String firstName
+                            = AccountInfoUtils.getFirstName(accountInfoOpSet);
+
+                        String lastName
+                            = AccountInfoUtils.getLastName(accountInfoOpSet);
+
+                        String accountName = "";
+                        if (firstName != null)
+                        {
+                            accountName += firstName;
+                        }
+
+                        if (lastName != null)
+                        {
+                            accountName += " " + lastName;
+                        }
+
+                        if (accountName.length() > 0)
+                        {
+                            accountNameLabel.setText(accountName);
+                        }
+
+                        revalidate();
+                        repaint();
+                    }
                 }
-
-                String firstName
-                    = AccountInfoUtils.getFirstName(accountInfoOpSet);
-
-                String lastName
-                    = AccountInfoUtils.getLastName(accountInfoOpSet);
-
-                String accountName = "";
-                if (firstName != null)
-                {
-                    accountName += firstName;
-                }
-
-                if (lastName != null)
-                {
-                    accountName += " " + lastName;
-                }
-
-                if (accountName.length() > 0)
-                {
-                    accountNameLabel.setText(accountName);
-                }
-
-                this.revalidate();
-                this.repaint();
-            }
+            });
         }
     }
 
