@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
@@ -16,6 +22,11 @@ public class AccountStatusPanel
     extends JPanel
     implements RegistrationStateChangeListener
 {
+
+    static final int AVATAR_ICON_HEIGHT = 45;
+
+    static final int AVATAR_ICON_WIDTH = 40;
+
     private JMenuBar statusMenuBar = new JMenuBar();
 
     private GlobalStatusSelectorBox statusComboBox;
@@ -25,7 +36,7 @@ public class AccountStatusPanel
     private ImageIcon imageIcon = ImageUtils.scaleIconWithinBounds(
         new ImageIcon(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
-        40, 45);
+                AVATAR_ICON_WIDTH, AVATAR_ICON_HEIGHT);
 
     private JLabel accountImageLabel = new JLabel(imageIcon);
 
@@ -122,7 +133,7 @@ public class AccountStatusPanel
 
     private void initAccountImageLabel()
     {
-        
+
     }
 
     private void initAccountNameLabel()
@@ -153,7 +164,11 @@ public class AccountStatusPanel
 
                         if (accountImage != null)
                         {
-                            accountImageLabel.setIcon(new ImageIcon(accountImage));
+                            accountImageLabel.setIcon( ImageUtils
+                                .scaleIconWithinBounds(
+                                     new ImageIcon(accountImage),
+                                     AVATAR_ICON_WIDTH,
+                                     AVATAR_ICON_HEIGHT));
                         }
 
                         String firstName
