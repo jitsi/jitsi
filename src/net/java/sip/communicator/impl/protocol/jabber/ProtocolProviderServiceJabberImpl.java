@@ -595,13 +595,23 @@ public class ProtocolProviderServiceJabberImpl
             supportedOperationSets.put(
                 OperationSetMultiUserChat.class.getName(),
                 multiUserChat);
-            
+
+            InfoRetreiver infoRetreiver = new InfoRetreiver(this, screenname);
+
             OperationSetServerStoredContactInfo contactInfo =
-                new OperationSetServerStoredContactInfoJabberImpl(this);
+                new OperationSetServerStoredContactInfoJabberImpl(infoRetreiver);
 
             supportedOperationSets.put(
                 OperationSetServerStoredContactInfo.class.getName(),
                 contactInfo);
+
+            OperationSetServerStoredAccountInfo accountInfo =
+                new OperationSetServerStoredAccountInfoJabberImpl(
+                        this, infoRetreiver, screenname);
+
+            supportedOperationSets.put(
+                OperationSetServerStoredAccountInfo.class.getName(),
+                accountInfo);
 
             // TODO: this is the "main" feature to advertise when a client
             // support muc. We have to add some features for

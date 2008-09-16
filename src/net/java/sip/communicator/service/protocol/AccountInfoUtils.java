@@ -74,6 +74,34 @@ public class AccountInfoUtils
 
         return lastName.getString();
     }
+    
+    /**
+     * Returns the display name of the account, to which the given
+     * accountInfoOpSet belongs.
+     *
+     * @param accountInfoOpSet The account info operation set corresponding to
+     * the searched account.
+     * @return the display name of the account, to which the given
+     * accountInfoOpSet belongs.
+     */
+    public static String getDisplayName(
+            OperationSetServerStoredAccountInfo accountInfoOpSet)
+    {
+        DisplayNameDetail displayName = null;
+        Iterator<DisplayNameDetail> displayNameDetails
+            =  accountInfoOpSet.getDetails(
+                    ServerStoredDetails.DisplayNameDetail.class);
+
+        if (displayNameDetails.hasNext())
+        {
+            displayName = displayNameDetails.next();
+        }
+
+        if(displayName == null)
+            return null;
+
+        return displayName.getString();
+    }
 
     /**
      * Returns the image of the account, to which the given accountInfoOpSet

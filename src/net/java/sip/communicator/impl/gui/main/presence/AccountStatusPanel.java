@@ -173,6 +173,12 @@ public class AccountStatusPanel
                             accountName += " " + lastName;
                         }
 
+                        if(accountName.length() == 0)
+                        {
+                            accountName +=
+                                AccountInfoUtils.getDisplayName(accountInfoOpSet);
+                        }
+
                         if (accountName.length() > 0)
                         {
                             accountNameLabel.setText(accountName);
