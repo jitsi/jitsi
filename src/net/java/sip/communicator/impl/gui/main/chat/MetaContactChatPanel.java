@@ -92,6 +92,12 @@ public class MetaContactChatPanel
         sendPanel.add(new JLabel(Messages.getI18NString("sendVia").getText()),
             0);
 
+        Object smsOpSet = protocolContact.getProtocolProvider()
+            .getOperationSet(OperationSetSmsMessaging.class);
+
+        if (smsOpSet == null)
+            sendSmsCheckBox.setEnabled(false);
+
         //Enables to change the protocol provider by simply pressing the CTRL-P
         //key combination
         ActionMap amap = this.getActionMap();
