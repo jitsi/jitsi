@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -22,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class DialpadDialog
     extends JDialog
+    implements FocusListener
 {
     private DialPanel dialPanel;
 
@@ -39,6 +41,8 @@ public class DialpadDialog
         dialPanel = new DialPanel(callParticipants);
 
         this.init();
+
+        this.addFocusListener(this);
     }
 
     /**
@@ -53,6 +57,8 @@ public class DialpadDialog
         dialPanel = new DialPanel(mainCallPanel);
 
         this.init();
+
+        this.addFocusListener(this);
     }
 
     private void init()
@@ -101,5 +107,14 @@ public class DialpadDialog
 
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
         }
+    }
+
+    public void focusGained(FocusEvent e)
+    {
+    }
+
+    public void focusLost(FocusEvent e)
+    {
+        this.dispose();
     }
 }
