@@ -1124,7 +1124,7 @@ public class MediaControl
      * really stop the processor.
      *
      * @param reader a reference to the object calling this method, that we
-     * could use for keeping the number of simulaneous active readers.
+     * could use for keeping the number of simultaneous active readers.
      */
     public void stopProcessingMedia(Object reader)
     {
@@ -1132,7 +1132,19 @@ public class MediaControl
             return;
 
         if( sourceProcessor.getState() ==  Processor.Started )
+        {
             sourceProcessor.stop();
+
+            avDataSource.disconnect();
+            try
+            {
+                initProcessor(avDataSource);
+            }
+            catch (Exception e)
+            {
+                logger.error("Error initing media processor.", e);
+            }
+        }
 
         processorReaders.remove(reader);
     }
