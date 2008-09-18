@@ -87,6 +87,7 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
                 isUserNameEditable,
                 errorMessage);
 
+        loginWindow.pack();
         loginWindow.setVisible(true);
 
         return userCredentials;

@@ -350,7 +350,6 @@ public abstract class SIPCommFrame
     {
         if (isVisible)
         {
-            this.pack();
             this.setSizeAndLocation();
 
             this.ensureOnScreenLocationAndSize();

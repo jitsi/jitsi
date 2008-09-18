@@ -124,8 +124,6 @@ public class ChatWindow
             });
         }
 
-        this.setSizeAndLocation();
-
         JPanel northPanel = new JPanel(new BorderLayout());
 
         northPanel.add(new LogoBar(), BorderLayout.NORTH);
@@ -148,6 +146,13 @@ public class ChatWindow
         this.addKeybindingAction("chat-close", new CloseAction());
 
         this.addWindowListener(new ChatWindowAdapter());
+
+        int width
+            = GuiActivator.getResources().getSettingsInt("chatWindowWidth");
+        int height
+            = GuiActivator.getResources().getSettingsInt("chatWindowHeight");
+
+        this.setSize(width, height);
     }
 
     /*
