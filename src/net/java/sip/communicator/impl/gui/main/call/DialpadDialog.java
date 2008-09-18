@@ -115,6 +115,6 @@ public class DialpadDialog
 
     public void focusLost(FocusEvent e)
     {
-        this.dispose();
+        this.setVisible(false);
     }
 }

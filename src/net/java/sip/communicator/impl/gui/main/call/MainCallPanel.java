@@ -201,6 +201,7 @@ public class MainCallPanel
                         - dialpadDialog.getHeight());
 
                 dialpadDialog.setVisible(true);
+                dialpadDialog.requestFocus();
             }
             else
             {
