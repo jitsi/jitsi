@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -27,7 +28,8 @@ import net.java.sip.communicator.util.*;
  */
 public class ReceivedCallDialog
     extends SIPCommFrame
-    implements ActionListener
+    implements  ActionListener,
+                CallListener
 {
     private static final String CALL_BUTTON = "CallButton";
 
@@ -59,6 +61,12 @@ public class ReceivedCallDialog
         this.setUndecorated(true);
 
         this.initComponents();
+
+        OperationSetBasicTelephony telephonyOpSet
+            = (OperationSetBasicTelephony) call.getProtocolProvider()
+                .getOperationSet(OperationSetBasicTelephony.class);
+
+        telephonyOpSet.addCallListener(this);
     }
 
     /**
@@ -205,6 +213,19 @@ public class ReceivedCallDialog
 
     @Override
     protected void close(boolean isEscaped)
+    {
+    }
+
+    public void callEnded(CallEvent event)
+    {
+        this.dispose();
+    }
+
+    public void incomingCallReceived(CallEvent event)
+    {
+    }
+
+    public void outgoingCallCreated(CallEvent event)
     {
     }
 }
