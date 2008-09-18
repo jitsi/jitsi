@@ -149,7 +149,7 @@ public class AccountStatusPanel
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED))
         {
-            SwingUtilities.invokeLater(new Runnable() {
+            new Thread(new Runnable() {
 
                 public void run()
                 {
@@ -190,8 +190,11 @@ public class AccountStatusPanel
 
                         if(accountName.length() == 0)
                         {
-                            accountName +=
+                            String displayName =
                                 AccountInfoUtils.getDisplayName(accountInfoOpSet);
+
+                            if(displayName != null)
+                                accountName = displayName;
                         }
 
                         if (accountName.length() > 0)
@@ -203,7 +206,7 @@ public class AccountStatusPanel
                         repaint();
                     }
                 }
-            });
+            }).start();
         }
     }
 
