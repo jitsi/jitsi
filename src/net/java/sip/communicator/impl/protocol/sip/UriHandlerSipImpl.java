@@ -25,8 +25,8 @@ import net.java.sip.communicator.util.*;
  */
 public class UriHandlerSipImpl
     implements UriHandler,
-               ServiceListener
-
+               ServiceListener,
+               AccountManagerListener
 {
     private static final Logger logger =
         Logger.getLogger(UriHandlerSipImpl.class);
@@ -34,7 +34,7 @@ public class UriHandlerSipImpl
     /**
      * The protocol provider factory that created us.
      */
-    private ProtocolProviderFactory protoFactory = null;
+    private final ProtocolProviderFactory protoFactory;
 
     /**
      * A reference to the OSGi registration we create with this handler.
@@ -44,27 +44,105 @@ public class UriHandlerSipImpl
     /**
      * The object that we are using to synchronize our service registration.
      */
-    private Object registrationLock = new Object();
+    private final Object registrationLock = new Object();
+
+    private AccountManager accountManager;
+
+    private final boolean[] storedAccountsAreLoaded = new boolean[1];
+
+    private List<String> uris;
 
     /**
      * Creates an instance of this uri handler, so that it would start handling
-     * URIs by passing them to the providers registered by <tt>protoFactory</tt>.
-     *
+     * URIs by passing them to the providers registered by <tt>protoFactory</tt>
+     * .
+     * 
      * @param parentProvider the provider that created us.
-     *
+     * 
      * @throws NullPointerException if <tt>protoFactory</tt> is <tt>null</tt>.
      */
-    protected UriHandlerSipImpl(ProtocolProviderFactory protoFactory)
+    public UriHandlerSipImpl(ProtocolProviderFactorySipImpl protoFactory)
         throws NullPointerException
     {
-        if(protoFactory == null)
+        if (protoFactory == null)
         {
             throw new NullPointerException(
-             "The ProtocolProviderFactory that a UriHandler is created with "
-             + " cannot be null.");
+                "The ProtocolProviderFactory that a UriHandler is created with "
+                    + " cannot be null.");
         }
 
         this.protoFactory = protoFactory;
+
+        hookStoredAccounts();
+
+        this.protoFactory.getBundleContext().addServiceListener(this);
+        /*
+         * Registering the UriHandler isn't strictly necessary if the
+         * requirement to register the protoFactory after creating this instance
+         * is met.
+         */
+        registerHandlerService();
+    }
+
+    public void dispose()
+    {
+        protoFactory.getBundleContext().removeServiceListener(this);
+        unregisterHandlerService();
+
+        unhookStoredAccounts();
+    }
+
+    private void hookStoredAccounts()
+    {
+        if (accountManager == null)
+        {
+            BundleContext bundleContext = protoFactory.getBundleContext();
+
+            accountManager =
+                (AccountManager) bundleContext.getService(bundleContext
+                    .getServiceReference(AccountManager.class.getName()));
+            accountManager.addListener(this);
+        }
+    }
+
+    private void unhookStoredAccounts()
+    {
+        if (accountManager != null)
+        {
+            accountManager.removeListener(this);
+            accountManager = null;
+        }
+    }
+
+    public void handleAccountManagerEvent(AccountManagerEvent event)
+    {
+        if ((AccountManagerEvent.STORED_ACCOUNTS_LOADED == event.getType())
+            && (protoFactory == event.getFactory()))
+        {
+            List<String> uris = null;
+
+            synchronized (storedAccountsAreLoaded)
+            {
+                storedAccountsAreLoaded[0] = true;
+
+                if (this.uris != null)
+                {
+                    uris = this.uris;
+                    this.uris = null;
+                }
+            }
+
+            unhookStoredAccounts();
+
+            if (uris != null)
+            {
+                for (Iterator<String> uriIter = uris.iterator(); uriIter
+                    .hasNext();)
+                {
+                    handleUri(uriIter.next());
+                }
+            }
+        }
     }
 
     /**
@@ -102,8 +180,11 @@ public class UriHandlerSipImpl
     {
         synchronized(registrationLock)
         {
-            ourServiceRegistration.unregister();
-            ourServiceRegistration = null;
+            if (ourServiceRegistration != null)
+            {
+                ourServiceRegistration.unregister();
+                ourServiceRegistration = null;
+            }
         }
     }
 
@@ -127,6 +208,23 @@ public class UriHandlerSipImpl
      */
     public void handleUri(String uri)
     {
+        /*
+         * TODO If the requirement to register the factory service after
+         * creating this instance is broken, we'll end up not handling the URIs.
+         */
+        synchronized (storedAccountsAreLoaded)
+        {
+            if (!storedAccountsAreLoaded[0])
+            {
+                if (uris == null)
+                {
+                    uris = new LinkedList<String>();
+                }
+                uris.add(uri);
+                return;
+            }
+        }
+
         ProtocolProviderService provider;
         try
         {
@@ -143,10 +241,8 @@ public class UriHandlerSipImpl
         if(provider == null)
         {
             showErrorMessage(
-                "You need to configure at least one "
-                + "SIP" +" account \n"
-                +"to be able to call " + uri,
-                null);
+                "You need to configure at least one SIP account \n"
+                    + "to be able to call " + uri, null);
             return;
         }
 
@@ -213,26 +309,25 @@ public class UriHandlerSipImpl
         Object sourceService = SipActivator.bundleContext
             .getService(event.getServiceReference());
 
-        //ignore anything but our protocol factory.
-        if( ! (sourceService instanceof ProtocolProviderFactorySipImpl)
-            || (sourceService != protoFactory))
+        // ignore anything but our protocol factory.
+        if (sourceService != protoFactory)
         {
             return;
         }
 
-        if(event.getType() == ServiceEvent.REGISTERED)
+        switch (event.getType())
         {
-            //our factory has just been registered as a service ...
+        case ServiceEvent.REGISTERED:
+            // our factory has just been registered as a service ...
             registerHandlerService();
-        }
-        else if(event.getType() == ServiceEvent.UNREGISTERING)
-        {
-            //our factory just died - seppuku.
+            break;
+        case ServiceEvent.UNREGISTERING:
+            // our factory just died - seppuku.
             unregisterHandlerService();
-        }
-        else if(event.getType() == ServiceEvent.MODIFIED)
-        {
-            //we don't care.
+            break;
+        default:
+            // we don't care.
+            break;
         }
     }
 

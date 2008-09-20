@@ -1,4 +1,3 @@
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -7,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.msn;
 
-import java.io.*;
 import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
@@ -335,8 +333,11 @@ public class ProtocolProviderServiceMsnImpl
     public void shutdown()
     {
         synchronized(initializationLock){
-            messenger.logout();
-            messenger = null;
+            if (messenger != null)
+            {
+                messenger.logout();
+                messenger = null;
+            }
             isInitialized = false;
         }
     }

@@ -128,22 +128,37 @@ public class LaunchArgHandler
      */
     private LaunchArgHandler()
     {
-        try
+        InputStream versionPropertiesStream =
+            getClass().getResourceAsStream(VERSION_PROPERTIES);
+        boolean versionPropertiesAreLoaded = false;
+        if (versionPropertiesStream != null)
         {
-            versionProperties.load(
-                getClass().getResourceAsStream(VERSION_PROPERTIES));
-            
-            // start url handler for mac os.
-            String osName = System.getProperty("os.name");
-            if (osName.startsWith("Mac"))
+            try
             {
-                new AEGetURLEventHandler(this);
+                try
+                {
+                    versionProperties.load(versionPropertiesStream);
+                    versionPropertiesAreLoaded = true;
+                }
+                finally
+                {
+                    versionPropertiesStream.close();
+                }
+            }
+            catch (IOException exc)
+            {
+                // no need to worry the user, so only print if we're in FINEST
             }
         }
-        catch(IOException exc)
+        if (!versionPropertiesAreLoaded)
         {
-            //no need to worry the user, so only print if we're in FINEST
             logger.trace("Couldn't open version.properties");
+        }
+
+        // Start url handler for Mac OS X.
+        if (System.getProperty("os.name").startsWith("Mac"))
+        {
+            new AEGetURLEventHandler(this);
         }
     }
 

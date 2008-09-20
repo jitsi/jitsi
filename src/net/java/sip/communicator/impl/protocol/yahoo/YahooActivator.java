@@ -48,9 +48,6 @@ public class YahooActivator
 
         yahooProviderFactory = new ProtocolProviderFactoryYahooImpl();
 
-        //load all yahoo providers
-        yahooProviderFactory.loadStoredAccounts();
-
         //reg the yahoo account man.
         yahooPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

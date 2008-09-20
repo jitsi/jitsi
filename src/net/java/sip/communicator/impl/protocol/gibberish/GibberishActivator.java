@@ -65,9 +65,6 @@ public class GibberishActivator
 
         gibberishProviderFactory = new ProtocolProviderFactoryGibberishImpl();
 
-        //load all stored Gibberish accounts.
-        gibberishProviderFactory.loadStoredAccounts();
-
         //reg the gibberish provider factory.
         gibberishPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

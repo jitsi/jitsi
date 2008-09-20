@@ -68,12 +68,9 @@ public class SSHActivator
         
         Hashtable hashtable = new Hashtable();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, "SSH");
-        
+
         sshProviderFactory = new ProtocolProviderFactorySSHImpl();
-        
-        //load all stored SSH accounts.
-        sshProviderFactory.loadStoredAccounts();
-        
+
         //reg the ssh provider factory.
         sshPpFactoryServReg =  context.registerService(
                 ProtocolProviderFactory.class.getName(),

@@ -19,46 +19,13 @@ import net.java.sip.communicator.service.protocol.*;
 public class ProtocolProviderFactoryYahooImpl
     extends ProtocolProviderFactory
 {
-    /**
-     * The table that we store our accounts in.
-     */
-    private Hashtable registeredAccounts = new Hashtable();
 
     /**
      * Creates an instance of the ProtocolProviderFactoryYahooImpl.
      */
     protected ProtocolProviderFactoryYahooImpl()
     {
-    }
-
-    /**
-     * Returns a copy of the list containing all accounts currently
-     * registered in this protocol provider.
-     *
-     * @return a copy of the llist containing all accounts currently installed
-     * in the protocol provider.
-     */
-    public ArrayList getRegisteredAccounts()
-    {
-        return new ArrayList(registeredAccounts.keySet());
-    }
-
-    /**
-     * Returns the ServiceReference for the protocol provider corresponding to
-     * the specified accountID or null if the accountID is unknown.
-     * @param accountID the accountID of the protocol provider we'd like to get
-     * @return a ServiceReference object to the protocol provider with the
-     * specified account id and null if the account id is unknwon to the
-     * provider factory.
-     */
-    public ServiceReference getProviderForAccount(AccountID accountID)
-    {
-        ServiceRegistration registration
-            = (ServiceRegistration)registeredAccounts.get(accountID);
-
-        return (registration == null )
-                    ? null
-                    : registration.getReference();
+        super(YahooActivator.getBundleContext(), ProtocolNames.YAHOO);
     }
 
     /**
@@ -100,167 +67,26 @@ public class ProtocolProviderFactoryYahooImpl
         //an osgi event, the osgi event triggers (trhgough the UI) a call to
         //the register() method and it needs to acces the configuration service
         //and check for a password.
-        this.storeAccount(
-            YahooActivator.getBundleContext()
-            , accountID);
+        this.storeAccount(accountID);
 
         accountID = loadAccount(accountProperties);
 
         return accountID;
     }
 
-    /**
-     * Initializes and creates an account corresponding to the specified
-     * accountProperties and registers the resulting ProtocolProvider in the
-     * <tt>context</tt> BundleContext parameter.
-     *
-     * @param accountProperties a set of protocol (or implementation)
-     *   specific properties defining the new account.
-     * @return the AccountID of the newly created account
-     */
-    public AccountID loadAccount( Map accountProperties)
+    protected AccountID createAccountID(String userID, Map accountProperties)
     {
-        BundleContext context
-            = YahooActivator.getBundleContext();
-        if(context == null)
-            throw new NullPointerException("The specified BundleContext was null");
-
-        String userIDStr = (String)accountProperties.get(USER_ID);
-
-        AccountID accountID = new YahooAccountID(userIDStr, accountProperties);
-
-        //get a reference to the configuration service and register whatever
-        //properties we have in it.
-
-        Hashtable properties = new Hashtable();
-        properties.put(PROTOCOL, ProtocolNames.YAHOO);
-        properties.put(USER_ID, userIDStr);
-
-        ProtocolProviderServiceYahooImpl yahooProtocolProvider
-            = new ProtocolProviderServiceYahooImpl();
-
-        yahooProtocolProvider.initialize(userIDStr, accountID);
-
-        ServiceRegistration registration
-            = context.registerService( ProtocolProviderService.class.getName(),
-                                       yahooProtocolProvider,
-                                       properties);
-
-        registeredAccounts.put(accountID, registration);
-        return accountID;
+        return new YahooAccountID(userID, accountProperties);
     }
 
-
-    /**
-     * Removes the specified account from the list of accounts that this
-     * provider factory is handling. If the specified accountID is unknown to
-     * the ProtocolProviderFactory, the call has no effect and false is returned.
-     * This method is persistent in nature and once called the account
-     * corresponding to the specified ID will not be loaded during future runs
-     * of the project.
-     *
-     * @param accountID the ID of the account to remove.
-     * @return true if an account with the specified ID existed and was removed
-     * and false otherwise.
-     */
-    public boolean uninstallAccount(AccountID accountID)
+    protected ProtocolProviderService createService(String userID,
+        AccountID accountID)
     {
-        ServiceRegistration registration
-            = (ServiceRegistration)registeredAccounts.remove(accountID);
+        ProtocolProviderServiceYahooImpl service =
+            new ProtocolProviderServiceYahooImpl();
 
-        if(registration == null)
-            return false;
-
-        //kill the service
-        registration.unregister();
-
-        return removeStoredAccount(
-            YahooActivator.getBundleContext()
-            , accountID);
-    }
-
-    /**
-     * Loads (and hence installs) all accounts previously stored in the
-     * configuration service.
-     */
-    public void loadStoredAccounts()
-    {
-        super.loadStoredAccounts( YahooActivator.getBundleContext());
-    }
-
-    /**
-     * Prepares the factory for bundle shutdown.
-     */
-    public void stop()
-    {
-        Enumeration registrations = this.registeredAccounts.elements();
-
-        while(registrations.hasMoreElements())
-        {
-            ServiceRegistration reg
-                = ((ServiceRegistration)registrations.nextElement());
-
-            reg.unregister();
-        }
-
-        Enumeration idEnum = registeredAccounts.keys();
-
-        while(idEnum.hasMoreElements())
-        {
-            registeredAccounts.remove(idEnum.nextElement());
-        }
-    }
-
-    /**
-     * Returns the configuraiton service property name prefix that we use to
-     * store properties concerning the account with the specified id.
-     * @param accountID the AccountID whose property name prefix we're looking
-     * for.
-     * @return the prefix  of the configuration service property name that
-     * we're using when storing properties for the specified account.
-     */
-    public String findAccountPrefix(AccountID accountID)
-    {
-        return super.findAccountPrefix(YahooActivator.getBundleContext()
-                                       , accountID);
-    }
-
-    /**
-     * Saves the password for the specified account after scrambling it a bit
-     * so that it is not visible from first sight (Method remains highly
-     * insecure).
-     *
-     * @param accountID the AccountID for the account whose password we're
-     * storing.
-     * @param passwd the password itself.
-     *
-     * @throws java.lang.IllegalArgumentException if no account corresponding
-     * to <tt>accountID</tt> has been previously stored.
-     */
-    public void storePassword(AccountID accountID, String passwd)
-        throws IllegalArgumentException
-    {
-        super.storePassword(YahooActivator.getBundleContext()
-                            , accountID
-                            , passwd);
-    }
-
-    /**
-     * Returns the password last saved for the specified account.
-     *
-     * @param accountID the AccountID for the account whose password we're
-     * looking for..
-     *
-     * @return a String containing the password for the specified accountID.
-     *
-     * @throws java.lang.IllegalArgumentException if no account corresponding
-     * to <tt>accountID</tt> has been previously stored.
-     */
-    public String loadPassword(AccountID accountID)
-        throws IllegalArgumentException
-    {
-        return super.loadPassword(YahooActivator.getBundleContext()
-                                  , accountID );
+        service.initialize(userID, accountID);
+        return service;
     }
 
     @Override
@@ -309,7 +135,7 @@ public class ProtocolProviderFactoryYahooImpl
         // an osgi event, the osgi event triggers (trhgough the UI) a call to
         // the register() method and it needs to acces the configuration service
         // and check for a password.
-        this.storeAccount(YahooActivator.getBundleContext(), accountID);
+        this.storeAccount(accountID);
 
         Hashtable properties = new Hashtable();
         properties.put(PROTOCOL, ProtocolNames.YAHOO);
@@ -320,8 +146,7 @@ public class ProtocolProviderFactoryYahooImpl
 
         // We store again the account in order to store all properties added
         // during the protocol provider initialization.
-        this.storeAccount(
-            YahooActivator.getBundleContext(), accountID);
+        this.storeAccount(accountID);
 
         registration
             = context.registerService(

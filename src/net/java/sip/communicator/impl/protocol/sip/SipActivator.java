@@ -52,24 +52,25 @@ public class SipActivator
     public void start(BundleContext context) throws Exception
     {
         logger.debug("Started.");
-        this.bundleContext = context;
-        Hashtable hashtable = new Hashtable();
-        hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.SIP);
+
+        SipActivator.bundleContext = context;
 
         sipProviderFactory = new ProtocolProviderFactorySipImpl();
 
-        //load all sip providers
-        sipProviderFactory.loadStoredAccounts();
+        /*
+         * Install the UriHandler prior to registering the factory service in
+         * order to allow it to detect when the stored accounts are loaded
+         * (because they may be asynchronously loaded).
+         */
+        uriHandlerSipImpl = new UriHandlerSipImpl(sipProviderFactory);
 
         //reg the sip account man.
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.SIP);
         sipPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     sipProviderFactory,
-                    hashtable);
-
-        uriHandlerSipImpl = new UriHandlerSipImpl(sipProviderFactory);
-        context.addServiceListener(uriHandlerSipImpl);
-        uriHandlerSipImpl.registerHandlerService();
+                    properties);
 
         logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
     }
@@ -211,6 +212,11 @@ public class SipActivator
     {
         sipProviderFactory.stop();
         sipPpFactoryServReg.unregister();
-        context.removeServiceListener(uriHandlerSipImpl);
+
+        if (uriHandlerSipImpl != null)
+        {
+            uriHandlerSipImpl.dispose();
+            uriHandlerSipImpl = null;
+        }
     }
 }

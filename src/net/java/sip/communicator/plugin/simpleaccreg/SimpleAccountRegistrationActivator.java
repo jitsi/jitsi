@@ -9,7 +9,6 @@ package net.java.sip.communicator.plugin.simpleaccreg;
 import java.awt.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -24,17 +23,20 @@ public class SimpleAccountRegistrationActivator
 
     public static BundleContext bundleContext;
 
-    private static ConfigurationService configService;
-
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
 
-        if (!hasRegisteredAccounts())
+        /*
+         * Because the stored accounts may be asynchronously loaded, relying
+         * only on the registered accounts isn't possible. Instead, presume the
+         * stored accounts are valid and will later successfully be registered.
+         */
+        if (!hasStoredAccounts())
         {
             // If no preferred wizard is specified we launch the default wizard.
-            InitialAccountRegistrationFrame accountRegFrame
-                = new InitialAccountRegistrationFrame();
+            InitialAccountRegistrationFrame accountRegFrame =
+                new InitialAccountRegistrationFrame();
 
             accountRegFrame.pack();
 
@@ -51,24 +53,6 @@ public class SimpleAccountRegistrationActivator
 
     public void stop(BundleContext bc) throws Exception
     {
-    }
-
-    /**
-     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     * context
-     */
-    public static ConfigurationService getConfigurationService() {
-        if(configService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-        }
-
-        return configService;
     }
 
     /**
@@ -93,27 +77,22 @@ public class SimpleAccountRegistrationActivator
             logger.error("Unable to obtain service references. " + e);
         }
 
-        for (int i = 0; i < serRefs.length; i++)
+        for (int serRefIndex = 0; serRefIndex < serRefs.length; serRefIndex++)
         {
-            ProtocolProviderFactory providerFactory
-                = (ProtocolProviderFactory) bundleContext
-                    .getService(serRefs[i]);
+            ProtocolProviderFactory providerFactory =
+                (ProtocolProviderFactory) bundleContext
+                    .getService(serRefs[serRefIndex]);
 
-            ArrayList accountsList = providerFactory.getRegisteredAccounts();
-
-            AccountID accountID;
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
-
-            for (int j = 0; j < accountsList.size(); j++)
+            for (Iterator<AccountID> registeredAccountIter =
+                providerFactory.getRegisteredAccounts().iterator(); registeredAccountIter
+                .hasNext();)
             {
-                accountID = (AccountID) accountsList.get(j);
+                AccountID accountID = registeredAccountIter.next();
+                boolean isHidden =
+                    accountID.getAccountProperties().get(
+                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
-                boolean isHidden = 
-                    accountID.getAccountProperties()
-                        .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-                if(!isHidden)
+                if (!isHidden)
                 {
                     hasRegisteredAccounts = true;
                     break;
@@ -125,6 +104,26 @@ public class SimpleAccountRegistrationActivator
         }
 
         return hasRegisteredAccounts;
+    }
+
+    private static boolean hasStoredAccounts()
+    {
+        ServiceReference accountManagerReference =
+            bundleContext.getServiceReference(AccountManager.class.getName());
+        boolean hasStoredAccounts = false;
+
+        if (accountManagerReference != null)
+        {
+            AccountManager accountManager =
+                (AccountManager) bundleContext
+                    .getService(accountManagerReference);
+
+            if (accountManager != null)
+            {
+                hasStoredAccounts = accountManager.hasStoredAccounts();
+            }
+        }
+        return hasStoredAccounts;
     }
 
     /**

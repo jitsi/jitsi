@@ -33,6 +33,8 @@ public class InitialAccountRegistrationFrame
     extends JFrame
     implements ServiceListener
 {
+    private ConfigurationService configurationService;
+
     private final Logger logger
         = Logger.getLogger(InitialAccountRegistrationFrame.class);
 
@@ -115,11 +117,10 @@ public class InitialAccountRegistrationFrame
             contactList
                 .createMetaContactGroup(contactList.getRoot(), groupName);
 
-            SimpleAccountRegistrationActivator.getConfigurationService().
-                setProperty(
-                "net.java.sip.communicator.impl.gui.addcontact.lastContactParent",
-                groupName
-            );
+            getConfigurationService()
+                .setProperty(
+                    "net.java.sip.communicator.impl.gui.addcontact.lastContactParent",
+                    groupName);
         }
     }
 
@@ -517,8 +518,7 @@ public class InitialAccountRegistrationFrame
     {
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        ConfigurationService configService
-            = SimpleAccountRegistrationActivator.getConfigurationService();
+        ConfigurationService configService = getConfigurationService();
 
         List accounts = configService.getPropertyNamesByPrefix(prefix, true);
 
@@ -557,4 +557,20 @@ public class InitialAccountRegistrationFrame
         }
     }
 
+    public ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            BundleContext bundleContext =
+                SimpleAccountRegistrationActivator.bundleContext;
+            ServiceReference configReference =
+                bundleContext.getServiceReference(ConfigurationService.class
+                    .getName());
+
+            configurationService =
+                (ConfigurationService) bundleContext
+                    .getService(configReference);
+        }
+        return configurationService;
+    }
 }

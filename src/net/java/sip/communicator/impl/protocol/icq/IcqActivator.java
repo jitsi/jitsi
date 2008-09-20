@@ -49,12 +49,6 @@ public class IcqActivator
         icqProviderFactory = new ProtocolProviderFactoryIcqImpl(false);
         aimProviderFactory = new ProtocolProviderFactoryIcqImpl(true);
 
-        //load all icq providers
-        icqProviderFactory.loadStoredAccounts();
-
-        //load all aim providers
-        aimProviderFactory.loadStoredAccounts();
-        
         //reg the icq account man.
         icqPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

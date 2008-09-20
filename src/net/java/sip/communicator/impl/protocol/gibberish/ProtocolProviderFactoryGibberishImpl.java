@@ -26,60 +26,12 @@ public class ProtocolProviderFactoryGibberishImpl
         = Logger.getLogger(ProtocolProviderFactoryGibberishImpl.class);
 
     /**
-     * The table that we store our accounts in.
-     */
-    private Hashtable registeredAccounts = new Hashtable();
-
-
-    /**
      * Creates an instance of the ProtocolProviderFactoryGibberishImpl.
      */
     public ProtocolProviderFactoryGibberishImpl()
     {
-        super();
+        super(GibberishActivator.getBundleContext(), "Gibberish");
     }
-
-    /**
-     * Returns the ServiceReference for the protocol provider corresponding
-     * to the specified accountID or null if the accountID is unknown.
-     *
-     * @param accountID the accountID of the protocol provider we'd like to
-     *   get
-     * @return a ServiceReference object to the protocol provider with the
-     *   specified account id and null if the account id is unknwon to the
-     *   provider factory.
-     */
-    public ServiceReference getProviderForAccount(AccountID accountID)
-    {
-        ServiceRegistration registration
-            = (ServiceRegistration)registeredAccounts.get(accountID);
-
-        return (registration == null )
-                    ? null
-                    : registration.getReference();
-    }
-
-    /**
-     * Returns a copy of the list containing the <tt>AccoudID</tt>s of all
-     * accounts currently registered in this protocol provider.
-     *
-     * @return a copy of the list containing the <tt>AccoudID</tt>s of all
-     *   accounts currently registered in this protocol provider.
-     */
-    public ArrayList getRegisteredAccounts()
-    {
-        return new ArrayList(registeredAccounts.keySet());
-    }
-
-    /**
-     * Loads (and hence installs) all accounts previously stored in the
-     * configuration service.
-     */
-    public void loadStoredAccounts()
-    {
-        super.loadStoredAccounts( GibberishActivator.getBundleContext());
-    }
-
 
     /**
      * Initializaed and creates an account corresponding to the specified
@@ -119,9 +71,7 @@ public class ProtocolProviderFactoryGibberishImpl
         //an osgi event, the osgi event triggers (through the UI) a call to the
         //ProtocolProviderService.register() method and it needs to acces
         //the configuration service and check for a stored password.
-        this.storeAccount(
-            GibberishActivator.getBundleContext()
-            , accountID);
+        this.storeAccount(accountID);
 
         accountID = loadAccount(accountProperties);
 
@@ -185,7 +135,7 @@ public class ProtocolProviderFactoryGibberishImpl
         // an osgi event, the osgi event triggers (trhgough the UI) a call to
         // the register() method and it needs to acces the configuration service
         // and check for a password.
-        this.storeAccount(GibberishActivator.getBundleContext(), accountID);
+        this.storeAccount(accountID);
 
         Hashtable properties = new Hashtable();
         properties.put(PROTOCOL, ProtocolNames.GIBBERISH);
@@ -196,8 +146,7 @@ public class ProtocolProviderFactoryGibberishImpl
 
         // We store again the account in order to store all properties added
         // during the protocol provider initialization.
-        this.storeAccount(
-            GibberishActivator.getBundleContext(), accountID);
+        this.storeAccount(accountID);
 
         registration
             = context.registerService(
@@ -209,148 +158,18 @@ public class ProtocolProviderFactoryGibberishImpl
         registeredAccounts.put(accountID, registration);
     }
 
-    /**
-     * Initializes and creates an account corresponding to the specified
-     * accountProperties and registers the resulting ProtocolProvider in the
-     * <tt>context</tt> BundleContext parameter.
-     *
-     * @param accountProperties a set of protocol (or implementation)
-     *   specific properties defining the new account.
-     * @return the AccountID of the newly loaded account
-     */
-    public AccountID loadAccount( Map accountProperties)
+    protected AccountID createAccountID(String userID, Map accountProperties)
     {
-        BundleContext context
-            = GibberishActivator.getBundleContext();
-        if(context == null)
-            throw new NullPointerException("The specified BundleContext was null");
-
-        String userIDStr = (String)accountProperties.get(USER_ID);
-
-        AccountID accountID = new GibberishAccountID(userIDStr, accountProperties);
-
-        //get a reference to the configuration service and register whatever
-        //properties we have in it.
-
-        Hashtable properties = new Hashtable();
-        properties.put(PROTOCOL, "Gibberish");
-        properties.put(USER_ID, userIDStr);
-
-        ProtocolProviderServiceGibberishImpl gibberishProtocolProvider
-            = new ProtocolProviderServiceGibberishImpl();
-
-        gibberishProtocolProvider.initialize(userIDStr, accountID);
-
-        ServiceRegistration registration
-            = context.registerService( ProtocolProviderService.class.getName(),
-                                       gibberishProtocolProvider,
-                                       properties);
-
-        registeredAccounts.put(accountID, registration);
-        return accountID;
+        return new GibberishAccountID(userID, accountProperties);
     }
 
-
-    /**
-     * Removes the specified account from the list of accounts that this
-     * provider factory is handling.
-     *
-     * @param accountID the ID of the account to remove.
-     * @return true if an account with the specified ID existed and was
-     *   removed and false otherwise.
-     */
-    public boolean uninstallAccount(AccountID accountID)
+    protected ProtocolProviderService createService(String userID,
+        AccountID accountID)
     {
-        //unregister the protocol provider
-        ServiceReference serRef = getProviderForAccount(accountID);
+        ProtocolProviderServiceGibberishImpl service =
+            new ProtocolProviderServiceGibberishImpl();
 
-        ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) GibberishActivator.getBundleContext()
-                .getService(serRef);
-
-        try {
-            protocolProvider.unregister();
-        }
-        catch (OperationFailedException exc) {
-            logger.error("Failed to unregister protocol provider for account : "
-                    + accountID + " caused by : " + exc);
-        }
-
-        ServiceRegistration registration
-            = (ServiceRegistration)registeredAccounts.remove(accountID);
-
-        if(registration == null)
-            return false;
-
-        //kill the service
-        registration.unregister();
-
-        registeredAccounts.remove(accountID     );
-
-        return removeStoredAccount(
-            GibberishActivator.getBundleContext()
-            , accountID);
+        service.initialize(userID, accountID);
+        return service;
     }
-
-    /**
-     * Saves the password for the specified account after scrambling it a bit
-     * so that it is not visible from first sight (Method remains highly
-     * insecure).
-     *
-     * @param accountID the AccountID for the account whose password we're
-     * storing.
-     * @param passwd the password itself.
-     *
-     * @throws java.lang.IllegalArgumentException if no account corresponding
-     * to <tt>accountID</tt> has been previously stored.
-     */
-    public void storePassword(AccountID accountID, String passwd)
-        throws IllegalArgumentException
-    {
-        super.storePassword(GibberishActivator.getBundleContext()
-                            , accountID
-                            , passwd);
-    }
-
-    /**
-     * Returns the password last saved for the specified account.
-     *
-     * @param accountID the AccountID for the account whose password we're
-     * looking for..
-     *
-     * @return a String containing the password for the specified accountID.
-     *
-     * @throws java.lang.IllegalArgumentException if no account corresponding
-     * to <tt>accountID</tt> has been previously stored.
-     */
-    public String loadPassword(AccountID accountID)
-        throws IllegalArgumentException
-    {
-        return super.loadPassword(GibberishActivator.getBundleContext()
-                                  , accountID );
-    }
-
-    /**
-     * Prepares the factory for bundle shutdown.
-     */
-    public void stop()
-    {
-        Enumeration registrations = this.registeredAccounts.elements();
-
-        while(registrations.hasMoreElements())
-        {
-            ServiceRegistration reg
-                = ((ServiceRegistration)registrations.nextElement());
-
-            reg.unregister();
-        }
-
-        Enumeration idEnum = registeredAccounts.keys();
-
-        while(idEnum.hasMoreElements())
-        {
-            registeredAccounts.remove(idEnum.nextElement());
-        }
-    }
-
 }

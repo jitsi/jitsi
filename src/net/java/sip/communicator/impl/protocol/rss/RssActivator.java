@@ -84,9 +84,6 @@ public class RssActivator
 
         rssProviderFactory = new ProtocolProviderFactoryRssImpl();
 
-        //load all stored Rss accounts.
-        rssProviderFactory.loadStoredAccounts();
-
         //reg the rss provider factory.
         rssPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

@@ -54,12 +54,9 @@ public class DictActivator
         
         Hashtable hashtable = new Hashtable();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.DICT);
-        
+
         dictProviderFactory = new ProtocolProviderFactoryDictImpl();
-        
-        //load all stored Dict accounts.
-        dictProviderFactory.loadStoredAccounts();
-        
+
         //reg the dict provider factory.
         dictPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

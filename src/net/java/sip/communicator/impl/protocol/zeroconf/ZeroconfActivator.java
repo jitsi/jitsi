@@ -65,9 +65,6 @@ public class ZeroconfActivator
 
         zeroconfProviderFactory = new ProtocolProviderFactoryZeroconfImpl();
 
-        //load all stored Zeroconf accounts.
-        zeroconfProviderFactory.loadStoredAccounts();
-
         //register the zeroconf provider factory.
         zeroconfPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

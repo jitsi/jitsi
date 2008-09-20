@@ -66,9 +66,6 @@ public class IrcActivator
 
         ircProviderFactory = new ProtocolProviderFactoryIrcImpl();
 
-        //Load all stored IRC accounts.
-        ircProviderFactory.loadStoredAccounts();
-
         //Register the IRC provider factory.
         ircPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

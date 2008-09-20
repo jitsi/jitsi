@@ -29,7 +29,8 @@ public abstract class AbstractProtocolProviderService
      * A list of all listeners registered for
      * <tt>RegistrationStateChangeEvent</tt>s.
      */
-    private final List registrationListeners = new ArrayList();
+    private final List<RegistrationStateChangeListener> registrationListeners =
+        new ArrayList<RegistrationStateChangeListener>();
 
     /**
      * Registers the specified listener with this provider so that it would
@@ -73,16 +74,17 @@ public abstract class AbstractProtocolProviderService
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
 
-        Iterator listeners = null;
+        Iterator<RegistrationStateChangeListener> listeners = null;
         synchronized (registrationListeners)
         {
-            listeners = new ArrayList(registrationListeners).iterator();
+            listeners =
+                new ArrayList<RegistrationStateChangeListener>(
+                    registrationListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener) listeners.next();
+            RegistrationStateChangeListener listener = listeners.next();
 
             listener.registrationStateChanged(event);
         }

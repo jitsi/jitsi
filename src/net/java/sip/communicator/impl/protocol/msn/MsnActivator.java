@@ -48,9 +48,6 @@ public class MsnActivator
 
         msnProviderFactory = new ProtocolProviderFactoryMsnImpl();
 
-        //load all msn providers
-        msnProviderFactory.loadStoredAccounts();
-
         //reg the msn account man.
         msnPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

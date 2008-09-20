@@ -66,9 +66,6 @@ public class JabberActivator
 
         jabberProviderFactory = new ProtocolProviderFactoryJabberImpl();
 
-        //load all jabber providers
-        jabberProviderFactory.loadStoredAccounts();
-
         //reg the jabber account man.
         jabberPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),

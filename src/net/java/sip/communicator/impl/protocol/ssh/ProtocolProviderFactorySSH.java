@@ -12,6 +12,8 @@
 
 package net.java.sip.communicator.impl.protocol.ssh;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -32,5 +34,10 @@ public abstract class ProtocolProviderFactorySSH
      * for a ProtocolProviderFactory.
      */
     public static final String KNOWN_HOSTS_FILE = "KNOWN_HOSTS_FILE";
-    
+
+    protected ProtocolProviderFactorySSH(BundleContext bundleContext,
+        String protocolName)
+    {
+        super(bundleContext, protocolName);
+    }
 }
