@@ -52,6 +52,7 @@ public class CallManager
             ReceivedCallDialog receivedCallDialog
                 = new ReceivedCallDialog(sourceCall);
 
+            receivedCallDialog.pack();
             receivedCallDialog.setVisible(true);
 
             NotificationManager.fireNotification(
