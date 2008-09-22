@@ -12,6 +12,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -45,6 +46,8 @@ public class CallDialog
     public CallDialog(CallPanel callPanel)
     {
         this.callPanel = callPanel;
+
+        this.setTitle(GuiActivator.getResources().getI18NString("call"));
 
         this.setPreferredSize(new Dimension(500, 400));
 
