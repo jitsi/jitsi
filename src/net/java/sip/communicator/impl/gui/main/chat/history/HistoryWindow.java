@@ -114,6 +114,8 @@ public class HistoryWindow
 
         this.initDates();
 
+        this.pack();
+
         this.addWindowListener(new HistoryWindowAdapter());
 
         if (historyContact instanceof MetaContact)
@@ -164,6 +166,7 @@ public class HistoryWindow
         this.mainPanel.add(datesPanel, BorderLayout.WEST);
 
         this.mainPanel.setPreferredSize(new Dimension(500, 400));
+
         this.getContentPane().add(mainPanel);
     }
 
