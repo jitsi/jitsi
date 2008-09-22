@@ -1,0 +1,137 @@
+<?xml version="1.0" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<Product
+    Id="*"
+    Language="1033"
+    Manufacturer="@APP_NAME@"
+    Name="@APP_NAME@"
+    UpgradeCode="@WIX_UPGRADE_CODE@"
+    Version="0.0.0.0">
+
+<Package
+    Comments="@PKG_COMMENTS@"
+    Compressed="yes"
+    Description="@PKG_DESCRIPTION@"
+    InstallPrivileges="elevated"
+    InstallerVersion="200"
+    Languages="1033"
+    Manufacturer="@APP_NAME@"
+    SummaryCodepage="1252" />
+
+<Directory Id="TARGETDIR" Name="SourceDir">
+  <Directory Id="ProgramFilesFolder" Name="PFiles">
+    <Directory Id="INSTALLDIR" Name="@APP_NAME@">
+      <?include component-defines.wxi ?>
+    </Directory>
+  </Directory>
+
+  <Directory Id="DesktopFolder" Name="Desktop">
+    <Component Id="Component_DesktopShortcut" Guid="49BF78B5-155F-43F2-BCEC-3CABC0D9531E">
+      <Shortcut
+          Id="Shortcut_Desktop"
+          Icon="Icon.ico"
+          Name="@APP_NAME@"
+          Target="[INSTALLDIR]run.exe"
+          WorkingDirectory="INSTALLDIR" />
+      <RegistryValue
+          Key="Software\Microsoft\@APP_NAME@"
+          KeyPath="yes"
+          Name="DesktopShortcut"
+          Root="HKCU"
+          Type="integer"
+          Value="1" />
+    </Component>
+  </Directory>
+  <Directory Id="ProgramMenuFolder" Name="Programs">
+    <Component Id="Component_StartMenuShortcut" Guid="6B8CDA4E-16C9-4AF4-B338-CBA4775ADD0D">
+      <Shortcut
+          Id="Shortcut_StartMenu"
+          Icon="Icon.ico"
+          Name="@APP_NAME@"
+          Target="[INSTALLDIR]run.exe"
+          WorkingDirectory="INSTALLDIR" />
+      <RegistryValue
+          Key="Software\Microsoft\@APP_NAME@"
+          KeyPath="yes"
+          Name="StartMenuShortcut"
+          Root="HKCU"
+          Type="integer"
+          Value="1" />
+    </Component>
+  </Directory>
+
+  <Component Id="Component_SipRegistryEntries" Guid="CF88EDC2-7D07-4269-946C-B8FF917887ED">
+    <RegistryKey Action="createAndRemoveOnUninstall" Key="sip" Root="HKCR">
+      <RegistryValue Type="string" Value="URL: SIP Protocol handler" />
+      <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      <RegistryValue
+          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]run.exe" %1' />
+    </RegistryKey>
+  </Component>
+  <Component Id="Component_FeedRegistryEntries" Guid="BDB06CF9-F840-4CD6-B8B1-C24AC9CD11AB">
+    <RegistryKey Action="createAndRemoveOnUninstall" Key="feed" Root="HKCR">
+      <RegistryValue Type="string" Value="URL: RSS Protocol handler" />
+      <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      <RegistryValue
+          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]run.exe" %1' />
+    </RegistryKey>
+  </Component>
+</Directory>
+
+<Feature Id="Universe" Level="1" Title="@APP_NAME@">
+  <?include component-refs.wxi ?>
+
+  <ComponentRef Id="Component_DesktopShortcut" />
+  <ComponentRef Id="Component_StartMenuShortcut" />
+
+  <ComponentRef Id="Component_SipRegistryEntries" />
+  <ComponentRef Id="Component_FeedRegistryEntries" />
+</Feature>
+
+<Media Id="1" Cabinet="Data1.cab" EmbedCab="yes" />
+
+<UI>
+  <UIRef Id="WixUI_InstallDir" />
+  <Publish 
+      Control="Finish"
+      Dialog="ExitDialog"
+      Event="DoAction"
+      Value="LaunchApplication">
+    WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+  </Publish>
+</UI>
+
+<CustomAction
+    Id="LaunchApplication"
+    BinaryKey="WixCA"
+    DllEntry="WixShellExec"
+    Impersonate="yes" />
+
+<Property Id="ARPCONTACT" Value="@APP_EMAIL@" />
+<Property Id="ARPHELPLINK" Value="@APP_WEB@" />
+<Property Id="ARPPRODUCTICON" Value="Icon.ico" />
+<Property Id="WixShellExecTarget" Value="[#run.exe]" />
+<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch @APP_NAME@" />
+<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+
+<WixVariable Id="WixUIBannerBmp" Value="wix-banner.jpg" />
+<WixVariable Id="WixUIDialogBmp" Value="wix-dialog.jpg" />
+<WixVariable Id='WixUILicenseRtf' Value="License.rtf" />
+
+<Icon Id="Icon.ico" SourceFile="sc-logo.ico" />
+
+</Product>
+
+</Wix>

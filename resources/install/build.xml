@@ -97,6 +97,7 @@
         <echo message="'ant build-installation-generic' for building generic installator jar" />
         <echo message="'ant build-installation-linux' for building linux instalation file" />
         <echo message="'ant build-installation-windows' for building windows instalation file" />
+        <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX" />
     </target>
 
     <target name="clean-install-generic">
@@ -336,6 +337,155 @@
                 <include name="tmp-*"/>
             </fileset>
         </delete>
+    </target>
+
+    <target name="build-installation-wix"
+            depends="clean-install-windows,version">
+
+        <!--
+            Prepare for the execution of heat.exe (which is part of the
+            preparation for the execution of candle.exe)
+        -->
+        <property name="light.dir" value="${windows.app.dir}/tmp/light" />
+
+        <mkdir dir="${light.dir}" />
+        <copy todir="${light.dir}" overwrite="true">
+            <fileset dir="${inst.resrc}/windows">
+                <include name="run.bat" />
+                <include name="run.exe" />
+                <include name="sc-logo.ico" />
+            </fileset>
+        </copy>
+        <mkdir dir="${light.dir}/lib" />
+        <copy todir="${light.dir}/lib" overwrite="true">
+            <fileset dir="${sc.basedir}/lib">
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="${sc.basedir}/lib/os-specific/windows">
+                <include name="*.jar" />
+                <exclude name="jmf.jar"/>
+                <exclude name="sound.jar"/>
+            </fileset>
+            <fileset dir="${sc.basedir}/lib">
+                <include name="felix.client.run.properties" />
+            </fileset>
+            <fileset dir="${sc.basedir}/resources/install">
+                <include name="logging.properties" />
+            </fileset>
+        </copy>
+        <mkdir dir="${light.dir}/native" />
+        <copy todir="${light.dir}/native" overwrite="true">
+            <fileset dir="${sc.basedir}/lib/native/windows">
+                <include name="*" />
+            </fileset>
+        </copy>
+        <mkdir dir="${light.dir}/sc-bundles" />
+        <copy todir="${light.dir}/sc-bundles" overwrite="true">
+            <fileset dir="${sc.basedir}/sc-bundles">
+                <include name="*.jar" />
+                <exclude name="*slick.jar" />
+            </fileset>
+            <fileset dir="${sc.basedir}/sc-bundles/os-specific/windows">
+                <include name="*.jar" />
+                <exclude name="*slick.jar" />
+            </fileset>
+        </copy>
+
+        <propertyfile file="${light.dir}/versionupdate.properties">
+            <entry key="last_version" value="${sip-communicator.version}" />
+            <entry key="download_link"
+                    value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe" />
+        </propertyfile>
+
+        <!-- Execute heat.exe -->
+        <exec
+                executable="C:\Program Files\WiX\heat.exe"
+                dir="${light.dir}"
+                failonerror="true">
+            <arg value="dir" />
+            <arg value="." />
+            <arg value="-nologo" />
+            <arg value="-ag" />
+            <arg value="-ke" />
+            <arg value="-out" />
+            <arg value="${windows.app.dir}\tmp\heat.wxs" />
+            <arg value="-sfrag" />
+        </exec>
+
+        <xslt
+                in="${windows.app.dir}/tmp/heat.wxs"
+                out="${windows.app.dir}/tmp/component-defines.wxi"
+                style="${inst.resrc}/windows/heat-component-defines.xsl" />
+        <xslt
+                in="${windows.app.dir}/tmp/heat.wxs"
+                out="${windows.app.dir}/tmp/component-refs.wxi"
+                style="${inst.resrc}/windows/heat-component-refs.xsl" />
+
+        <!-- Finish the preparation for the execution of candle.exe -->
+        <filter token="APP_EMAIL" value="${application.email}" />
+        <filter token="APP_NAME" value="${application.name}" />
+        <filter token="APP_WEB" value="${application.web}" />
+        <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
+        <copy
+                file="${inst.resrc}/windows/installer-windows.wxs"
+                tofile="${windows.app.dir}/tmp/installer-windows.wxs"
+                filtering="yes" />
+
+        <!-- Execute candle.exe -->
+        <exec
+                executable="C:\Program Files\WiX\candle.exe"
+                dir="${windows.app.dir}/tmp"
+                failonerror="true">
+            <arg value="-nologo" />
+            <arg value="-ext" />
+            <arg value="WixUIExtension" />
+            <arg value="-ext" />
+            <arg value="WixUtilExtension" />
+            <arg value="installer-windows.wxs" />
+        </exec>
+
+        <!-- Finish the preparation for the execution of light.exe -->
+        <copy todir="${light.dir}" overwrite="true">
+            <fileset dir="${inst.resrc}/doc">
+                <include name="License.rtf" />
+            </fileset>
+            <fileset dir="${inst.resrc}/windows">
+                <include name="wix-*.jpg" />
+            </fileset>
+        </copy>
+
+        <!-- Execute light.exe -->
+        <exec
+                executable="C:\Program Files\WiX\light.exe"
+                dir="${light.dir}"
+                failonerror="true">
+            <arg value="-nologo" />
+            <arg value="-ext" />
+            <arg value="WixUIExtension" />
+            <arg value="-ext" />
+            <arg value="WixUtilExtension" />
+            <arg value="-out" />
+            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.msi" />
+            <arg value="${windows.app.dir}\tmp\installer-windows.wixobj" />
+        </exec>
+        <delete file="${windows.app.dir}\${package.name}-${sip-communicator.version}.wixpdb" />
+
+        <!-- Bootstrap the MSI into an EXE -->
+        <exec
+                executable="C:\Program Files\WiX\setupbld.exe"
+                dir="${light.dir}"
+                failonerror="true">
+            <arg value="-out" />
+            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.exe" />
+            <arg value="-mps" />
+            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.msi" />
+            <arg value="-setup" />
+            <arg value="C:\Program Files\WiX\setup.exe" />
+        </exec>
+
+        <delete dir="${light.dir}" />
+
+        <delete dir="${windows.app.dir}/tmp" />
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
