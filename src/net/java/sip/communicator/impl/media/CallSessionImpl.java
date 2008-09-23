@@ -150,25 +150,25 @@ public class CallSessionImpl
      * session.
      */
     private List videoFrames = new ArrayList();
-    
+
     /**
-    * SRTP TransformConnectors corresponding to each RTPManager when SRTP 
+    * SRTP TransformConnectors corresponding to each RTPManager when SRTP
     * feature is enabled.
     */
     private Hashtable transConnectors = new Hashtable();
-    
+
     /**
     * Toggles default (from the call start) activation
     * of secure communication
     */
     private boolean usingSRTP = false;
-    
+
     /**
      * Vector used to hold references of various key management solutions implemented.
      * For now only ZRTP and Dummy (hardcoded keys) are present.
      */
     private Vector keySharingAlgorithms = null;
-    
+
     /**
      * The key management solution type used for the current session
      */
@@ -266,7 +266,7 @@ public class CallSessionImpl
 
         call.addCallChangeListener(this);
         initializePortNumbers();
-        
+
         initializeSupportedKeyProviders();
     }
 
@@ -473,7 +473,7 @@ public class CallSessionImpl
 
         //remove targets
         if (selectedKeyProviderAlgorithm != null
-        	/* TODO: Video securing related code
+            /* TODO: Video securing related code
              * remove the next condition as part of enabling video securing
              * (see comments insecureStatusChanged method for more info)
              */
@@ -486,8 +486,8 @@ public class CallSessionImpl
             {
                 ZRTPTransformEngine engine = (ZRTPTransformEngine)transConnector.getEngine();
 
-                engine.sendInfo(ZrtpCodes.MessageSeverity.Info, 
-                				EnumSet.of(ZRTPCustomInfoCodes.ZRTPDisabledByCallEnd));
+                engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
+                                EnumSet.of(ZRTPCustomInfoCodes.ZRTPDisabledByCallEnd));
 
                 transConnector.removeTargets();
             }
@@ -1221,11 +1221,12 @@ public class CallSessionImpl
                 try
                 {
                     if (selectedKeyProviderAlgorithm != null
-                    	/* TODO: Video securing related code
+                        /* TODO: Video securing related code
                          * remove the next condition as part of enabling video securing
                          * (see comments insecureStatusChanged method for more info)
                          */
-                         && rtpManager.equals(audioRtpManager)		
+                         && rtpManager.equals(audioRtpManager)
+                         && usingSRTP
                         )
                     {
                         TransformConnector transConnector =
@@ -1235,7 +1236,7 @@ public class CallSessionImpl
                         {
                             throw new Exception();
                         }
-              
+
                         transConnector.addTarget(target);
                     }
                     else
@@ -1946,20 +1947,21 @@ public class CallSessionImpl
                                       SessionAddress bindAddress)
         throws MediaException
     {
-        
+
         /* Select a key management type from the present ones to use
          * for now using the zero - top priority solution (ZRTP);
          * TODO: should be extended to a selection algorithm to choose the
-         * key management type 
+         * key management type
          */
         selectedKeyProviderAlgorithm = selectKeyProviderAlgorithm(0);
-        
+
         try
-        {  
+        {
             // Selected key management type == ZRTP branch
-            if (selectedKeyProviderAlgorithm != null && 
-                selectedKeyProviderAlgorithm.getProviderType() == 
-                KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER 
+            if (selectedKeyProviderAlgorithm != null &&
+                selectedKeyProviderAlgorithm.getProviderType()
+                    == KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER
+                && usingSRTP
                 /* TODO: Video securing related code
                  * remove the next condition as part of enabling video securing
                  * (see comments insecureStatusChanged method for more info)
@@ -1968,52 +1970,54 @@ public class CallSessionImpl
             {
                 // Set a ZRTP connector to use for communication
                 TransformConnector transConnector = null;
-                
+
                 TransformManager.initializeProviders();
-                
-                // The connector is created based also on the crypto services provider type; 
+
+                // The connector is created based also on the crypto services
                 // The crypto provider solution should be queried somehow
-                // or taken from a resources file 
-                transConnector = TransformManager.createZRTPConnector(bindAddress,
-                                                                      "BouncyCastle");
+                // or taken from a resources file
+                transConnector = TransformManager.createZRTPConnector(
+                                bindAddress, "BouncyCastle");
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
 
                 // ZRTP engine initialization
                 // TODO: 1. must query/randomize/find a method for the zid file name
-                //       2. must define an exception for initialization failure 
-                
-                ZRTPTransformEngine engine = (ZRTPTransformEngine)transConnector.getEngine();
-                // Case 1: user toggled secure communication prior to the call   
+                //       2. must define an exception for initialization failure
+
+                ZRTPTransformEngine engine
+                    = (ZRTPTransformEngine)transConnector.getEngine();
+                // Case 1: user toggled secure communication prior to the call
                 if (usingSRTP)
                 {
                     if (!engine.initialize("my_zid.zid"))
                     engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
                                     EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
-                    
+
                 }
-                // Case 2: user will toggle secure communication during the call 
+                // Case 2: user will toggle secure communication during the call
                 // (it's not set on at this point)
                 else
                 {
-                    engine.sendInfo(ZrtpCodes.MessageSeverity.Info, 
+                    engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
                                     EnumSet.of(ZRTPCustomInfoCodes.ZRTPNotEnabledByUser));
                 }
-                
+
                 logger.trace("RTP"+
                             (rtpManager.equals(audioRtpManager)?" audio ":"video")+
                             "manager initialized through connector");
             }
             else
-            // Selected key management type == Dummy branch - hardcoded keys    
-            if (selectedKeyProviderAlgorithm != null && 
-                selectedKeyProviderAlgorithm.getProviderType() == 
-                KeyProviderAlgorithm.ProviderType.DUMMY_PROVIDER 
+            // Selected key management type == Dummy branch - hardcoded keys
+            if (selectedKeyProviderAlgorithm != null &&
+                selectedKeyProviderAlgorithm.getProviderType() ==
+                KeyProviderAlgorithm.ProviderType.DUMMY_PROVIDER
                 /* TODO: Video securing related code
                  * remove the next condition as part of enabling video securing
                  * (see comments insecureStatusChanged method for more info)
                  */
-                && rtpManager.equals(audioRtpManager))
+                && rtpManager.equals(audioRtpManager)
+                && usingSRTP)
             {
                 SRTPPolicy srtpPolicy =
                     new SRTPPolicy(SRTPPolicy.AESF8_ENCRYPTION, 16,
@@ -2025,40 +2029,40 @@ public class CallSessionImpl
 
                 byte[] masterSalt = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
                                      0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d};
-                
+
                 TransformConnector transConnector = null;
-                
+
                 TransformManager.initializeProviders();
 
-                // The connector is created based also on the crypto services provider type; 
+                // The connector is created based also on the crypto services provider type;
                 // The crypto provider solution should be queried somehow
-                // or taken from a resources file 
+                // or taken from a resources file
                 transConnector =
                     TransformManager.createSRTPConnector(bindAddress,
-                            							 masterKey,
-                            							 masterSalt,
-                            							 srtpPolicy,
-                            							 srtpPolicy,
-                            							 "BouncyCastle");
+                                                        masterKey,
+                                                        masterSalt,
+                                                        srtpPolicy,
+                                                        srtpPolicy,
+                                                        "BouncyCastle");
 
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
-                
+
                 logger.trace("RTP"+
-           			 (rtpManager.equals(audioRtpManager)?" audio ":"video")+
-           			 "manager initialized through connector");
-                
+                        (rtpManager.equals(audioRtpManager)?" audio ":"video")+
+                        "manager initialized through connector");
+
             }
             // No key management solution - unsecured communication branch
             else
             {
                 rtpManager.initialize(bindAddress);
-                
+
                 logger.trace("RTP"+
-           			 (rtpManager.equals(audioRtpManager)?" audio ":"video")+
-           			 "manager initialized normally");
+                        (rtpManager.equals(audioRtpManager)?" audio ":"video")+
+                        "manager initialized normally");
             }
-            
+
         }
         catch (Exception exc)
         {
@@ -2164,9 +2168,9 @@ public class CallSessionImpl
                 logger.error("Failed to start streaming.", ex);
             }
         }
-        else if( evt.getNewValue() == CallState.CALL_ENDED 
+        else if( evt.getNewValue() == CallState.CALL_ENDED
                  && evt.getNewValue() != evt.getOldValue())
-        {            
+        {
             logger.warn("Stopping streaming.");
             stopStreaming();
             mediaServCallback.getMediaControl(getCall())
@@ -2595,22 +2599,22 @@ public class CallSessionImpl
             }
         }
     }
-    
+
     /**
      * Method for getting the default secure status value for communication
-     * 
+     *
      * @return the default enabled/disabled status value for secure communication
      */
     public boolean getSecureCommunicationStatus()
     {
         return usingSRTP;
     }
-    
+
     /**
      * Method for setting the default secure status value for communication
      * Also has the role to trigger going secure from not secured or viceversa
      * Notifies any present CallSession of change in the status value for this purpose
-     * 
+     *
      * @param activator setting for default communication securing
      * @param source the source of changing the secure status (local or remote)
      */
@@ -2618,66 +2622,66 @@ public class CallSessionImpl
                                              OperationSetBasicTelephony.
                                              SecureStatusChangeSource source)
     {
-    	
-    	logger.trace("Call session secure status change event request received");
-    	
+
+        logger.trace("Call session secure status change event request received");
+
         // Make the change for default security enabled/disabled start option
         usingSRTP = activator;
-        
+
         // Fire the change event to notify any present CallSession of security change status
-        // if not the case of a reverted secure state 
+        // if not the case of a reverted secure state
         // (usually case of previous change rejected due to an error)
         if (source != OperationSetBasicTelephony.
-        			  SecureStatusChangeSource.SECURE_STATUS_REVERTED)
-        	fireSecureStatusChanged(activator, source);
-       
+                    SecureStatusChangeSource.SECURE_STATUS_REVERTED)
+            fireSecureStatusChanged(activator, source);
+
     }
-    
+
     /**
      * Fire the event of change in security status
-     * 
-     * @param activator type of change - enable/disable communication security 
+     *
+     * @param activator type of change - enable/disable communication security
      * @param source the source of changing the secure status (local or remote)
      */
     private synchronized void fireSecureStatusChanged(boolean activator,
                                                       OperationSetBasicTelephony.
                                                       SecureStatusChangeSource source)
-    {              
+    {
          if (activator)
          {
               this.secureStatusChanged(
-                        new SecureEvent(this, 
+                        new SecureEvent(this,
                                         SecureEvent.SECURE_COMMUNICATION,
                                         source));
          }
          else
          {
               this.secureStatusChanged(
-                        new SecureEvent(this, 
+                        new SecureEvent(this,
                                         SecureEvent.UNSECURE_COMMUNICATION,
                                         source));
          }
     }
-    
+
     /**
      * The method for changing security status for a specific RTPManager when
-     * the ZRTP key sharing solution is used. 
-     * Called when a new SecureEvent is received. 
-     * 
-     * @param manager The RTP manager for which the media streams 
+     * the ZRTP key sharing solution is used.
+     * Called when a new SecureEvent is received.
+     *
+     * @param manager The RTP manager for which the media streams
      * will be secured or unsecured
      * @param event The secure status changed event
      */
     public void ZRTPChangeStatus(RTPManager manager, SecureEvent event)
     {
-    	int newStatus = event.getEventID();
-    	OperationSetBasicTelephony.SecureStatusChangeSource source = event.getSource();
-    	
-    	TransformConnector transConnector =
+        int newStatus = event.getEventID();
+        OperationSetBasicTelephony.SecureStatusChangeSource source = event.getSource();
+
+        TransformConnector transConnector =
             (TransformConnector) this.transConnectors.get(manager);
-    
+
         ZRTPTransformEngine engine = (ZRTPTransformEngine)transConnector.getEngine();
-         
+
         // Perform ZRTP engine actions only if triggered by local peer - user commands;
         // If the remote peer caused the event only general call session security status
         // is changed (done before event processing)
@@ -2696,7 +2700,7 @@ public class CallSessionImpl
                                         EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
                 }
                 else
-                {   
+                {
                     logger.trace("GoSecure call event processing");
 
                     // This point isn't reached if GoClear is not enabled
@@ -2708,8 +2712,8 @@ public class CallSessionImpl
             else
             {
                 // At this moment this attempts a GoClear request but
-                // fails due to GoClear code disabled (failing doesn't result 
-                // in error, only in a warning tooltip set on the button, and 
+                // fails due to GoClear code disabled (failing doesn't result
+                // in error, only in a warning tooltip set on the button, and
                 // a change of it's internal state to prevent further attempts)
                 // to re-enable GoClear uncomment the specific code parts in ZRTP4J
                 logger.trace("GoClear call event processing");
@@ -2720,7 +2724,7 @@ public class CallSessionImpl
             }
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * @see net.java.sip.communicator.impl.media.SecureEventListener#secureStatusChanged(net.java.sip.communicator.impl.media.SecureEvent)
@@ -2733,20 +2737,20 @@ public class CallSessionImpl
             KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
         {
             ZRTPChangeStatus(this.audioRtpManager, secureEvent);
-        
+
             /* TODO: Video securing related code
-             * 
+             *
              * We disable for the moment the video securing due to (yet) unsuported
              * multistream mode in ZRTP4J; This can be re-enabled and attempted as is
-             * implemented, using a separate instance of ZRTP engine which will 
+             * implemented, using a separate instance of ZRTP engine which will
              * attempt securing through DH mode; This might result in some unexpected
-             * behavior at the GUI level, but in theory should work; However, due to 
+             * behavior at the GUI level, but in theory should work; However, due to
              * incomplete standard compliance and potential problems mentioned we leave
              * it disabled; To enable just check the other "Video securing related code"
              * sections in this source
-             *  
-             * Uncomment the next line as part of enabling video securing    
-             */    
+             *
+             * Uncomment the next line as part of enabling video securing
+             */
             //ZRTPChangeStatus(this.videoRtpManager, secureEvent);
         }
     }
@@ -2755,35 +2759,35 @@ public class CallSessionImpl
      * Initializes the supported key management types and establishes
      * default usage priorities for them.
      * This part should be further developed (by adding a more detailed
-     * priority setting mechanism in case of addition of other security 
-     * providers).   
+     * priority setting mechanism in case of addition of other security
+     * providers).
      */
     public void initializeSupportedKeyProviders()
     {
         if (keySharingAlgorithms == null)
             keySharingAlgorithms = new Vector();
-        
+
         DummyKeyProvider dummyProvider = new DummyKeyProvider(1);
         ZRTPKeyProvider zrtpKeyProvider = new ZRTPKeyProvider(0);
-        
+
         keySharingAlgorithms.add(zrtpKeyProvider.getPriority(), zrtpKeyProvider);
         keySharingAlgorithms.add(dummyProvider.getPriority(), dummyProvider);
     }
 
     /**
-     * Selects a default key management type to use in securing based 
+     * Selects a default key management type to use in securing based
      * on which the actual implementation for that solution will be started
      * This part should be further developed (by adding a more detailed
-     * priority choosing mechanism in case of addition of other security 
-     * providers).  
-     * 
+     * priority choosing mechanism in case of addition of other security
+     * providers).
+     *
      * @return the default keymanagement type used in securing
      */
     public KeyProviderAlgorithm selectDefaultKeyProviderAlgorithm()
     {
-        KeyProviderAlgorithm defaultProvider = 
+        KeyProviderAlgorithm defaultProvider =
             (KeyProviderAlgorithm)keySharingAlgorithms.get(0);
-        
+
         if (defaultProvider == null)
         {
             return new DummyKeyProvider(0);
@@ -2799,29 +2803,29 @@ public class CallSessionImpl
      * For now the priorities are equal with the position in the Vector
      * holding the keymanagement types.
      * This part should be further developed (by adding a more detailed
-     * priority choosing mechanism in case of addition of other security 
+     * priority choosing mechanism in case of addition of other security
      * providers).
-     * 
+     *
      * @param priority the priority of the selected key management type - 0 is top
      * @return the selected key management type
      */
     public KeyProviderAlgorithm selectKeyProviderAlgorithm(int priority)
     {
-        KeyProviderAlgorithm selectedProvider = 
+        KeyProviderAlgorithm selectedProvider =
             (KeyProviderAlgorithm)keySharingAlgorithms.get(priority);
 
         return selectedProvider;
     }
-    
+
     /**
-     * Additional info codes for ZRTP4J. 
+     * Additional info codes for ZRTP4J.
      * These could be added to the library. However they are specific for this
-     * implementation, needing them for various GUI changes. 
+     * implementation, needing them for various GUI changes.
      *
      */
-    public static enum  ZRTPCustomInfoCodes 
+    public static enum  ZRTPCustomInfoCodes
     {
-    	ZRTPNotEnabledByUser,
+        ZRTPNotEnabledByUser,
         ZRTPDisabledByCallEnd,
         ZRTPEngineInitFailure;
 
@@ -2829,7 +2833,7 @@ public class CallSessionImpl
 
     /**
      * Determines whether the audio of this session is (set to) mute.
-     * 
+     *
      * @return <tt>true</tt> if the audio of this session is (set to) mute;
      *         otherwise, <tt>false</tt>
      */
@@ -2840,7 +2844,7 @@ public class CallSessionImpl
 
     /**
      * Sets the mute state of the audio of this session.
-     * 
+     *
      * @param mute <tt>true</tt> to mute the audio of this session; otherwise,
      *            <tt>false</tt>
      */
