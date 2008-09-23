@@ -1212,8 +1212,8 @@ public class CallSessionImpl
 
                 /** @todo the following line assumes that we have a single rtp
                  * manager per media type which is not necessarily true (e.g. we
-                 * may two distinct video streams: 1 for a webcam video and another
-                 * one desktop capture stream) */
+                 * may two distinct video streams: 1 for a webcam video and
+                 * another one desktop capture stream) */
                 RTPManager rtpManager = type.equals("video")
                     ? getVideoRtpManager()
                     : getAudioRtpManager();
@@ -1222,15 +1222,17 @@ public class CallSessionImpl
                 {
                     if (selectedKeyProviderAlgorithm != null
                         /* TODO: Video securing related code
-                         * remove the next condition as part of enabling video securing
-                         * (see comments insecureStatusChanged method for more info)
+                         * remove the next condition as part of enabling video
+                         * securing (see comments insecureStatusChanged method
+                         * for more info)
                          */
                          && rtpManager.equals(audioRtpManager)
                          && usingSRTP
                         )
                     {
                         TransformConnector transConnector =
-                            (TransformConnector) this.transConnectors.get(rtpManager);
+                            (TransformConnector) this.transConnectors
+                                .get(rtpManager);
 
                         if (transConnector == null)
                         {
