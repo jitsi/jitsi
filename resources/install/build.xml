@@ -373,6 +373,13 @@
                 <include name="logging.properties" />
             </fileset>
         </copy>
+        <mkdir dir="${light.dir}/lib/bundle" />
+        <copy todir="${light.dir}/lib/bundle" overwrite="true">
+            <fileset dir="${sc.basedir}/lib/bundle">
+                <include name="*.jar" />
+                <exclude name="junit.jar" />
+            </fileset>
+        </copy>
         <mkdir dir="${light.dir}/native" />
         <copy todir="${light.dir}/native" overwrite="true">
             <fileset dir="${sc.basedir}/lib/native/windows">
