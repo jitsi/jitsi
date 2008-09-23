@@ -312,12 +312,11 @@ public class ProtocolProviderServiceJabberImpl
                 // check to see is there SRV records for this server domain
                 try
                 {
-                    String srvAddress = NetworkUtils
-                        .getSRVRecord("xmpp-client", "tcp", serviceName)
-                             .getHostName();
+                    InetSocketAddress srvAddress = NetworkUtils
+                        .getSRVRecord("xmpp-client", "tcp", serviceName);
 
                     if (srvAddress != null)
-                        serverAddress = srvAddress;
+                        serverAddress = srvAddress.getHostName();
 
                 }
                 catch (ParseException ex1)
