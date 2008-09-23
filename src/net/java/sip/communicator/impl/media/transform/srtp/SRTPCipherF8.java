@@ -26,6 +26,9 @@
 package net.java.sip.communicator.impl.media.transform.srtp;
 
 import java.util.*;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.*;
 
 /**
  * SRTPCipherF8 implements SRTP F8 Mode AES Encryption (AES-f8).
@@ -53,28 +56,13 @@ import java.util.*;
  * 
  * @author Bing SU (nova.su@gmail.com)
  */
-public class SRTPCipherF8 implements SRTPCipher
+public class SRTPCipherF8 
 {
-    /**
-     * The AESCipher used to perform basic AES encryption / decryption
-     */
-    private AESCipher aesCipher;
-    
-    /**
-     * Encryption key used in this session. F8 mode encryption will use this
-     * data.
-     */
-    private byte[] key;
-    
-    /**
-     * Salting key used in this session. F8 mode encryption will use this data. 
-     */
-    private byte[] salt;
 
     /**
      * AES block size, just a short name.
      */
-    private final static int BLKLEN = AESCipher.BLOCK_SIZE;
+    private final static int BLKLEN = 16;
 
     /**
      * F8 mode encryption context, see RFC3711 section 4.1.2 for detailed
@@ -88,30 +76,22 @@ public class SRTPCipherF8 implements SRTPCipher
     }
 
     /**
-     * Construct a SRTPCipherF8 object using given encryption key and salting
-     * key.
+     * Process (encrypt / decrypt) a byte stream, using the supplied 
+     * initial vector.
      * 
-     * @param key the encryption key used in this session
-     * @param salt the salting key used in this session
+     * @param aesCipher the AES cipher object used for block processing 
+     * @param data byte array containing the byte stream to be processed
+     * @param offset byte stream star offset with data byte array
+     * @param length byte stream length in bytes
+     * @param iv initial vector for this operation
+     * @param key the encryption key
+     * @param salt the salt key
+     * @param f8Cipher the F8 cipher object used for iv processing
      */
-    public SRTPCipherF8(byte[] key, byte[] salt)
+    public static void process(Cipher aesCipher, byte[] data, int off, int len, byte[] iv,
+                               byte[] key, byte[] salt, Cipher f8Cipher)
     {
-        this.aesCipher = new AESCipher(key);
-
-        this.key  = new byte[key.length];
-        System.arraycopy(key,  0, this.key,  0, key.length);
-
-        this.salt = new byte[salt.length];
-        System.arraycopy(salt, 0, this.salt, 0, salt.length);
-    }
-
-    /* (non-Javadoc)
-     * @see net.java.sip.communicator.impl.media.transform.srtp.
-     * SRTPCipher#process(byte[], int, int, byte[])
-     */
-    public void process(byte[] data, int off, int len, byte[] iv)
-    {
-        F8Context f8ctx = new F8Context();
+        F8Context f8ctx = new SRTPCipherF8().new F8Context();
 
         /*
          * Get memory for the derived IV (IV')
@@ -122,15 +102,15 @@ public class SRTPCipherF8 implements SRTPCipher
          * Get memory for the special key. This is the key to compute the
          * derived IV (IV').
          */
-        byte[] saltMask  = new byte[this.key.length];
-        byte[] maskedKey = new byte[this.key.length];
+        byte[] saltMask  = new byte[key.length];
+        byte[] maskedKey = new byte[key.length];
         
         /*
          * First copy the salt into the mask field, then fill with 0x55 to
          * get a full key.
          */
-        System.arraycopy(this.salt, 0, saltMask, 0, this.salt.length);
-        for (int i = this.salt.length; i < saltMask.length; ++i)
+        System.arraycopy(salt, 0, saltMask, 0, salt.length);
+        for (int i = salt.length; i < saltMask.length; ++i)
         {
             saltMask[i] = 0x55;
         }
@@ -139,20 +119,31 @@ public class SRTPCipherF8 implements SRTPCipher
          * XOR the original key with the above created mask to
          * get the special key.
          */
-        for (int i = 0; i < this.key.length; i++)
+        for (int i = 0; i < key.length; i++)
         {
-            maskedKey[i] = (byte) (this.key[i] ^ saltMask[i]);
+            maskedKey[i] = (byte) (key[i] ^ saltMask[i]);
         }
 
         /*
-         * Prepare the a new AES cipher with the special key to compute IV'
+         * Prepare the f8Cipher with the special key to compute IV'
          */
-        AESCipher cipher = new AESCipher(maskedKey);
+        SecretKey encryptionKey = new SecretKeySpec(maskedKey, 0,
+                                                    maskedKey.length, "AES");
 
-        /*
-         * Use the masked key to encrypt the original IV to produce IV'.
-         */
-        cipher.encryptBlock(iv, 0, f8ctx.ivAccent, 0);
+        try 
+        {
+            f8Cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+            /*
+             * Use the masked key to encrypt the original IV to produce IV'.
+             */
+            f8Cipher.doFinal(iv, 0, BLKLEN, f8ctx.ivAccent, 0);
+        } 
+        catch (GeneralSecurityException e) 
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 
         saltMask = null;
         maskedKey = null;
@@ -166,14 +157,16 @@ public class SRTPCipherF8 implements SRTPCipher
         
         while (inLen >= BLKLEN)
         {
-            processBlock(f8ctx, data, off, data, off, BLKLEN);
+            processBlock(aesCipher, f8ctx, data, off, data, off, BLKLEN);
+
             inLen -= BLKLEN;
             off += BLKLEN;
         }
         
         if (inLen > 0)
         {
-            processBlock(f8ctx, data, off, data, off, inLen);
+            processBlock(aesCipher, f8ctx, data, off, data, off, inLen);
+
         }
     }
     
@@ -181,6 +174,7 @@ public class SRTPCipherF8 implements SRTPCipher
      * Encrypt / Decrypt a block using F8 Mode AES algorithm, read len bytes 
      * data from in at inOff and write the output into out at outOff
      * 
+     * @param aesCipher the AES cipher object used for block processing 
      * @param f8ctx F8 encryption context
      * @param in byte array holding the data to be processed
      * @param inOff start offset of the data to be processed inside in array
@@ -188,8 +182,8 @@ public class SRTPCipherF8 implements SRTPCipher
      * @param outOff start offset of output data in out
      * @param len length of the input data
      */
-    private void processBlock(F8Context f8ctx, byte[] in,  int inOff,
-                              byte[] out, int outOff, int len)
+    private static void processBlock(Cipher aesCipher, F8Context f8ctx, byte[] in,  int inOff,
+                                     byte[] out, int outOff, int len)
     {
 
         /*
@@ -214,7 +208,16 @@ public class SRTPCipherF8 implements SRTPCipher
         /*
          * Now compute the new key stream using AES encrypt
          */
-        this.aesCipher.encryptBlock(f8ctx.S, 0, f8ctx.S, 0);
+        try 
+        {
+            aesCipher.doFinal(f8ctx.S, 0, BLKLEN, f8ctx.S, 0);
+        } 
+        catch (GeneralSecurityException e) 
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 
         /*
          * As the last step XOR the plain text with the key stream to produce

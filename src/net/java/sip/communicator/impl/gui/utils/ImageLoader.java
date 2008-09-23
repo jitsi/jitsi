@@ -455,13 +455,24 @@ public class ImageLoader {
      */
     public static final ImageID TRANSFER_CALL_BUTTON =
         new ImageID("TRANSFER_CALL_BUTTON");
+    
+    /**
+     * The secure button on icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID SECURE_BUTTON_ON =
+        new ImageID("SECURE_BUTTON_ON");
+    
+    /**
+     * The secure button off icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID SECURE_BUTTON_OFF =
+        new ImageID("SECURE_BUTTON_OFF");
 
     /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO
         = new ImageID("DEFAULT_USER_PHOTO");
-
 
     /**
      * The minimize button icon in the <tt>CallPanel</tt>.

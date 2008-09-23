@@ -85,39 +85,39 @@ public class RawPacket
     /**
      * Read a integer from this packet at specified offset
      *
-     * @param offset start offset of the integer to be read
+     * @param off start offset of the integer to be read
      * @return the integer to be read
      */
-    public int readInt(int offset)
+    public int readInt(int off)
     {
-        return (this.buffer[this.offset + offset + 0] << 24) |
-               (this.buffer[this.offset + offset + 1] << 16) |
-               (this.buffer[this.offset + offset + 2] << 8)  |
-               (this.buffer[this.offset + offset + 3]);
+        return (this.buffer[this.offset + off + 0] << 24) |
+               ((this.buffer[this.offset + off + 1] & 0xff) << 16) |
+               ((this.buffer[this.offset + off + 2] & 0xff) << 8)  |
+                (this.buffer[this.offset + off + 3] & 0xff);
     }
 
     /**
      * Read a short from this packet at specified offset
      *
-     * @param offset start offset of this short
+     * @param off start offset of this short
      * @return short value at offset
      */
-    public short readShort(int offset)
+    public short readShort(int off)
     {
-        return (short) ((this.buffer[this.offset + offset + 0] << 8) |
-                        (this.buffer[this.offset + offset + 1]));
+        return (short) ((this.buffer[this.offset + off + 0] << 8) |
+                        (this.buffer[this.offset + off + 1] & 0xff));
     }
     
     /**
      * Read an unsigned short at specified offset as a int
      *
-     * @param offset start offset of the unsigned short
+     * @param off start offset of the unsigned short
      * @return the int value of the unsigned short at offset
      */
-    public int readUnsignedShortAsInt(int offset)
+    public int readUnsignedShortAsInt(int off)
     {
-        int b1 = (0x000000FF & ((int)this.buffer[this.offset + offset + 0]));
-        int b2 = (0x000000FF & ((int)this.buffer[this.offset + offset + 1]));
+        int b1 = (0x000000FF & (this.buffer[this.offset + off + 0]));
+        int b2 = (0x000000FF & (this.buffer[this.offset + off + 1]));
         int val = b1 << 8 | b2;
         return val;
     }
@@ -125,49 +125,49 @@ public class RawPacket
     /**
      * Read a byte from this packet at specified offset
      *
-     * @param offset start offset of the byte
+     * @param off start offset of the byte
      * @return byte at offset
      */
-    public byte readByte(int offset)
+    public byte readByte(int off)
     {
-        return this.buffer[this.offset + offset];
+        return buffer[offset + off];
     }
 
     /**
      * Read an unsigned integer as long at specified offset
      *
-     * @param offset start offset of this unsigned integer
+     * @param off start offset of this unsigned integer
      * @return unsigned integer as long at offset
      */
-    public long readUnsignedIntAsLong(int offset)
+    public long readUnsignedIntAsLong(int off)
     {
-        int b0 = (0x000000FF & ((int)this.buffer[this.offset + offset + 0]));
-        int b1 = (0x000000FF & ((int)this.buffer[this.offset + offset + 1]));
-        int b2 = (0x000000FF & ((int)this.buffer[this.offset + offset + 2]));
-        int b3 = (0x000000FF & ((int)this.buffer[this.offset + offset + 3]));
+        int b0 = (0x000000FF & (this.buffer[this.offset + off + 0]));
+        int b1 = (0x000000FF & (this.buffer[this.offset + off + 1]));
+        int b2 = (0x000000FF & (this.buffer[this.offset + off + 2]));
+        int b3 = (0x000000FF & (this.buffer[this.offset + off + 3]));
         
-        return  ((long) (b0 << 24 | b1 << 16 | b2 << 8 | b3)) & 0xFFFFFFFFL;
+        return  ((b0 << 24 | b1 << 16 | b2 << 8 | b3)) & 0xFFFFFFFFL;
     }
     
     /**
      * Read a byte region from specified offset with specified length
      *
-     * @param offset start offset of the region to be read 
-     * @param length length of the region to be read
+     * @param off start offset of the region to be read 
+     * @param len length of the region to be read
      * @return byte array of [offset, offset + length)
      */
-    public byte[] readRegion(int offset, int length)
+    public byte[] readRegion(int off, int len)
     {
-        int startOffset = this.offset + offset;
-        if (offset < 0 || length <= 0 
-            || startOffset + length > this.buffer.length)
+        int startOffset = this.offset + off;
+        if (off < 0 || len <= 0 
+            || startOffset + len > this.buffer.length)
         {
             return null;
         }
 
-        byte[] region = new byte[length];
+        byte[] region = new byte[len];
         
-        System.arraycopy(this.buffer, startOffset, region, 0, length);
+        System.arraycopy(this.buffer, startOffset, region, 0, len);
         
         return region;
     }
@@ -177,35 +177,36 @@ public class RawPacket
      * buffer of this packet. 
      *
      * @param data byte array to append
+     * @param len the number of bytes to append
      */
-    public void append(byte[] data)
+    public void append(byte[] data, int len) 
     {
-        if (data == null || data.length == 0)
+        if (data == null || len == 0)  
         {
             return;
         }
         
-        byte[] newBuffer = new byte[this.length + data.length];
+        byte[] newBuffer = new byte[this.length + len];
         System.arraycopy(this.buffer, this.offset, newBuffer, 0, this.length);
-        System.arraycopy(data, 0, newBuffer, this.length, data.length);
+        System.arraycopy(data, 0, newBuffer, this.length, len);
         this.offset = 0;
-        this.length = this.length + data.length;
+        this.length = this.length + len;
         this.buffer = newBuffer;
+       
     }
-    
     /**
      * Shrink the buffer of this packet by specified length
      *
-     * @param length length to shrink
+     * @param len length to shrink
      */
-    public void shrink(int length)
+    public void shrink(int len)
     {
-        if (length <= 0)
+        if (len <= 0)
         {
             return;
         }
         
-        this.length -= length;
+        this.length -= len;
         if (this.length < 0)
         {
             this.length = 0;

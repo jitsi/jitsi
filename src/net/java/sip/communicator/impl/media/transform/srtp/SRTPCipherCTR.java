@@ -25,6 +25,9 @@
 */
 package net.java.sip.communicator.impl.media.transform.srtp;
 
+import javax.crypto.*;
+import java.security.*;
+
 /**
  * SRTPCipherCTR implements SRTP Counter Mode AES Encryption (AES-CM).
  * Counter Mode AES Encryption algorithm is defined in RFC3711, section 4.1.1.
@@ -51,28 +54,19 @@ package net.java.sip.communicator.impl.media.transform.srtp;
  * 
  * @author Bing SU (nova.su@gmail.com)
  */
-public class SRTPCipherCTR implements SRTPCipher
+public class SRTPCipherCTR 
 {
     /**
-     * The AESCihper object we used to do basic AES encryption / decryption
+     * Process (encrypt / decrypt) a byte stream, using the supplied 
+     * initial vector.
+     * 
+     * @param aesCipher the AESCihper object we use to do basic AES encryption / decryption
+     * @param data byte array containing the byte stream to be processed
+     * @param offset byte stream star offset with data byte array
+     * @param length byte stream length in bytes
+     * @param iv initial vector for this operation
      */
-    private AESCipher aesCipher;
- 
-    /**
-     * Construct a SRTPCipherCTR object using given encryption key
-     *
-     * @param key the encryption key for this session
-     */
-    public SRTPCipherCTR(byte[] key)
-    {
-        this.aesCipher = new AESCipher(key);
-    }
-
-    /* (non-Javadoc)
-     * @see net.java.sip.communicator.impl.media.transform.srtp.
-     * SRTPCipher#process(byte[], int, int, byte[])
-     */
-    public void process(byte[] data, int off, int len, byte[] iv)
+    public static void process(Cipher aesCipher, byte[] data, int off, int len, byte[] iv)
     {
         if (off + len > data.length)
         {
@@ -82,7 +76,7 @@ public class SRTPCipherCTR implements SRTPCipher
 
         byte[] cipherStream = new byte[len];
 
-        getCipherStream(cipherStream, len, iv);
+        getCipherStream(aesCipher, cipherStream, len, iv);
 
         for (int i = 0; i < len; i++)
         {
@@ -94,34 +88,42 @@ public class SRTPCipherCTR implements SRTPCipher
      * Computes the cipher stream for AES CM mode. 
      * See section 4.1.1 in RFC3711 for detailed description.
      * 
+     * @param aesCipher the AESCihper object we use to do basic AES encryption / decryption
      * @param out byte array holding the output cipher stream
      * @param length length of the cipher stream to produce, in bytes
      * @param iv initialization vector used to generate this cipher stream
      */
-    public void getCipherStream(byte[] out, int length, byte[] iv)
+    public static void getCipherStream(Cipher aesCipher, byte[] out, int length, byte[] iv)
     {
-        final int BLKLEN = AESCipher.BLOCK_SIZE;
+        final int BLKLEN = 16;
         
         byte[] in  = new byte[BLKLEN];
         byte[] tmp = new byte[BLKLEN];
 
         System.arraycopy(iv, 0, in, 0, 14);
 
-        int ctr;
-        for (ctr = 0; ctr < length / BLKLEN; ctr++)
+        try 
         {
-            // compute the cipher stream
+            int ctr;
+            for (ctr = 0; ctr < length / BLKLEN; ctr++)
+            {
+                // compute the cipher stream
+                in[14] = (byte) ((ctr & 0xFF00) >> 8);
+                in[15] = (byte) ((ctr & 0x00FF));
+
+                aesCipher.update(in, 0, BLKLEN, out, ctr * BLKLEN);
+            }
+
+            // Treat the last bytes:
             in[14] = (byte) ((ctr & 0xFF00) >> 8);
             in[15] = (byte) ((ctr & 0x00FF));
 
-            this.aesCipher.encryptBlock(in, 0, out, ctr * BLKLEN);
+            aesCipher.doFinal(in, 0, BLKLEN, tmp, 0);
+            System.arraycopy(tmp, 0, out, ctr * BLKLEN, length % BLKLEN);
         }
-
-        // Treat the last bytes:
-        in[14] = (byte) ((ctr & 0xFF00) >> 8);
-        in[15] = (byte) ((ctr & 0x00FF));
-
-        this.aesCipher.encryptBlock(in, 0, tmp, 0);
-        System.arraycopy(tmp, 0, out, ctr * BLKLEN, length % BLKLEN);
+        catch (GeneralSecurityException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

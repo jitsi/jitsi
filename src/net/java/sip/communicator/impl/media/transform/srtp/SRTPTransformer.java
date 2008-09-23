@@ -51,7 +51,7 @@ public class SRTPTransformer
     /**
      * All the known SSRC's corresponding SRTPCryptoContexts
      */
-    private Hashtable contexts;
+    private Hashtable<Long, SRTPCryptoContext> contexts;
 
     /**
      * Construct a SRTPTransformer
@@ -61,7 +61,7 @@ public class SRTPTransformer
     public SRTPTransformer(SRTPTransformEngine engine)
     {
         this.engine = engine;
-        this.contexts = new Hashtable();
+        this.contexts = new Hashtable<Long, SRTPCryptoContext>();
     }
 
     /* (non-Javadoc)
@@ -78,11 +78,17 @@ public class SRTPTransformer
         if (context == null)
         {
             context = this.engine.getDefaultContext().deriveContext(ssrc, 0, 0);
-            context.deriveSrtpKeys(0);
-            this.contexts.put(new Long(ssrc), context);
+            if (context != null)
+                {
+                    context.deriveSrtpKeys(0);
+                    this.contexts.put(new Long(ssrc), context);
+                }
         }
         
-        context.transformPacket(pkt);
+        if (context != null)
+        {
+            context.transformPacket(pkt);
+        }
 
         return pkt;
     }
@@ -101,16 +107,35 @@ public class SRTPTransformer
         if (context == null)
         {
             context = this.engine.getDefaultContext().deriveContext(ssrc, 0, 0);
-            context.deriveSrtpKeys(seqNum);
-            this.contexts.put(new Long(ssrc), context);
+            
+            if (context != null)
+            {
+                context.deriveSrtpKeys(seqNum);
+                this.contexts.put(new Long(ssrc), context);
+            }
         }
 
-        boolean validPacket = context.reverseTransformPacket(pkt);
-        if (!validPacket)
+        if (context != null)
         {
-            return null;
+            boolean validPacket = context.reverseTransformPacket(pkt);
+        
+            if (!validPacket)
+            {
+                return null;
+            }
         }
 
         return pkt;
+    }
+
+    /**
+     * Getter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @return the engine
+     */
+    public SRTPTransformEngine getEngine() 
+    {
+        return engine;
     }
 }

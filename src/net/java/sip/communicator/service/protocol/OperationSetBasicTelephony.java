@@ -18,6 +18,7 @@ import java.text.*;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Emanuel Onica
  */
 public interface OperationSetBasicTelephony
     extends OperationSet
@@ -135,4 +136,35 @@ public interface OperationSetBasicTelephony
      *            <tt>participant</tt>; otherwise, <tt>false</tt>
      */
     public void setMute(CallParticipant participant, boolean mute);
+    
+    /**
+     * Use this to indicate the source of setting the secure status
+     * of the communication as being the local or remote peer or reverted by local
+     */
+    public static enum SecureStatusChangeSource {
+        SECURE_STATUS_CHANGE_BY_LOCAL,
+        SECURE_STATUS_CHANGE_BY_REMOTE,
+        SECURE_STATUS_REVERTED;
+    }
+    
+    /**
+     * Sets the secured state of the call session in which a specific participant
+     * is involved
+     * 
+     * @param participant the participant who toggled (or for whom is remotely toggled) 
+     * 					  the secure status change for the call
+     * @param secured the new secure status
+     * @param source the source who generated the call change 
+     */
+    public void setSecured(CallParticipant participant, boolean secured,
+                           SecureStatusChangeSource source);
+    
+    /**
+     * Gets the secured state of the call session in which a specific participant 
+     * is involved
+     * 
+     * @param participant the participant for who the call state is required
+     * @return the call state
+     */
+    public boolean getSecured(CallParticipant participant);
 }

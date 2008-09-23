@@ -38,13 +38,13 @@ public class TransformOutputStream
     /**
      * Stream targets' ip addresses
      */
-    private Vector remoteAddrs;
+    private Vector<InetAddress> remoteAddrs;
     
     /**
      * Stream targets' ports, corresponding to their ip addresses.
      */
-    private Vector remotePorts;
-
+    private Vector<Integer> remotePorts;
+    
     /**
      * Construct a TransformOutputStream based on the given UDP socket and
      * PacketTransformer
@@ -57,8 +57,8 @@ public class TransformOutputStream
     {
         this.socket = socket;
         this.transformer = transformer;
-        this.remoteAddrs = new Vector();
-        this.remotePorts = new Vector();
+        this.remoteAddrs = new Vector<InetAddress>();
+        this.remotePorts = new Vector<Integer>();
     }
 
     /**
@@ -103,13 +103,24 @@ public class TransformOutputStream
      * @see javax.media.rtp.OutputDataStream#write(byte[], int, int)
      */
     public int write(byte[] buffer, int offset, int length)
-    {
+    {  	
         // Transformation could be non-inplace, we shall not modify the the old
         // buffer
+    		
         RawPacket pkt = this.transformer.transform(new RawPacket(buffer,
                                                                 offset,
                                                                 length));
-
+        
+        // This is for the case when the ZRTP engine stops the media stream
+        // allowing only ZRTP packets
+        /* TODO GoClear
+         * To uncomment in order to use the GoClear feature
+         */
+        /*
+        if (pkt == null)
+        	return length;
+        */	
+        
         for (int i = 0; i < this.remoteAddrs.size(); ++i)
         {
             InetAddress remoteAddr = 
@@ -118,7 +129,7 @@ public class TransformOutputStream
                     ((Integer) this.remotePorts.elementAt(i)).intValue();
 
             try
-            {
+            {            	
                 this.socket.send(new DatagramPacket(pkt.getBuffer(),
                                                     pkt.getOffset(),
                                                     pkt.getLength(),

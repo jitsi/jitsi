@@ -41,7 +41,7 @@ public class TransformConnector
      * The customized TransformEngine object, which contains the concrete
      * transform logic. 
      */
-    private TransformEngine engine;
+    protected TransformEngine engine;
 
     /**
      * Local RTP session listen address.
@@ -328,5 +328,104 @@ public class TransformConnector
         throws IOException
     {
         // Nothing should be done here :-)
+    }
+    
+    /**
+     * Getter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @return the control input stream
+     */
+    public TransformInputStream getCtrlInputStream() 
+    {
+        return ctrlInputStream;
+    }
+
+    /**
+     * Getter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @return the control output stream
+     */
+    public TransformOutputStream getCtrlOutputStream() 
+    {
+        return ctrlOutputStream;
+    }
+
+    /**
+     * Setter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @param ctrlOutputStream the control output stream to be set
+     */
+    public void setCtrlOutputStream(TransformOutputStream ctrlOutputStream) 
+    {
+        this.ctrlOutputStream = ctrlOutputStream;
+    }
+
+    /**
+     * Setter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @param dataInputStream the data input stream to be set
+     */
+    public void setDataInputStream(TransformInputStream dataInputStream) 
+    {
+        this.dataInputStream = dataInputStream;
+    }
+
+    /**
+     * Setter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @param ctrlInputStream the control input stream to be set
+     */
+    public void setCtrlInputStream(TransformInputStream ctrlInputStream) 
+    {
+        this.ctrlInputStream = ctrlInputStream;
+    }
+	
+    /**
+     * Setter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @param dataOutputStream the data output stream to be set
+     */
+    public void setDataOutputStream(TransformOutputStream dataOutputStream) 
+    {
+        this.dataOutputStream = dataOutputStream;
+    }
+
+    /**
+     * Getter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @return the data socket
+     */
+    public DatagramSocket getDataSocket() 
+    {
+        return dataSocket;
+    }
+
+    /**
+     * Getter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @return the control socket
+     */
+    public DatagramSocket getCtrlSocket() 
+    {
+        return ctrlSocket;
+    }
+
+    /**
+     * Getter to use in derived classes.
+     * (Could modify the member variable to protected instead for direct access)  
+     * 
+     * @return the engine
+     */
+    public TransformEngine getEngine() 
+    {
+        return engine;
     }
 }

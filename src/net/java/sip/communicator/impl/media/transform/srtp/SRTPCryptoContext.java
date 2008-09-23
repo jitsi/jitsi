@@ -29,6 +29,9 @@ package net.java.sip.communicator.impl.media.transform.srtp;
 import java.util.*;
 
 import net.java.sip.communicator.impl.media.transform.*;
+import java.security.*;
+import javax.crypto.spec.*;
+import javax.crypto.*;
 
 /**
  * SRTPCryptoContext class is the core class of SRTP implementation.
@@ -135,6 +138,26 @@ public class SRTPCryptoContext
      * The SRTPDigest object we used to do packet authentication
      */
     private SRTPDigest digest;
+    
+    /**
+     * The cryptographic services provider
+     */
+    private Provider cryptoProvider;
+    
+    /**
+     * Used for various HMAC computations
+     */
+    private Mac hmacSha1;
+    
+    /**
+     * The AES cipher for counter mode
+     */
+    private Cipher AEScipher = null;
+    
+    /**
+     * The AES cipher for F8 mode
+     */
+    private Cipher AEScipherF8 = null;
 
     /**
      * Construct an empty SRTPCryptoContext using ssrc.
@@ -157,6 +180,7 @@ public class SRTPCryptoContext
         this.saltKey = null;
         this.seqNumSet = false;
         this.policy = null;
+        this.cryptoProvider = null;
     }
 
     /**
@@ -177,13 +201,16 @@ public class SRTPCryptoContext
      * authentication key and the session salt.
      * @param policy SRTP policy for this SRTP cryptographic context, defined 
      * the encryption algorithm, the authentication algorithm, etc 
+     * @param cryptoProvider cryptographic services provider
      */
     public SRTPCryptoContext(long ssrc,
                              int roc,
                              long keyDerivationRate,
                              byte[] masterKey,
                              byte[] masterSalt,
-                             SRTPPolicy policy)
+                             SRTPPolicy policy,
+                             Provider cryptoProvider)
+    throws GeneralSecurityException
     {
         this.ssrc = ssrc;
         this.mki = null;
@@ -192,14 +219,16 @@ public class SRTPCryptoContext
         this.seqNum = 0;
         this.keyDerivationRate = keyDerivationRate;
         this.seqNumSet = false;
+        this.cryptoProvider = cryptoProvider;
 
         this.policy = policy;
 
-        this.masterKey = new byte[masterKey.length];
-        System.arraycopy(masterKey, 0, this.masterKey, 0, this.masterKey.length);
+        this.masterKey = new byte[this.policy.getEncKeyLength()];
+        System.arraycopy(masterKey, 0, this.masterKey, 0, this.policy.getEncKeyLength());
 
-        this.masterSalt = new byte[masterSalt.length];
-        System.arraycopy(masterSalt, 0, this.masterSalt, 0, this.masterSalt.length);
+        this.masterSalt = new byte[this.policy.getSaltKeyLength()];
+        System.arraycopy(masterSalt, 0, this.masterSalt, 0, this.policy.getSaltKeyLength());
+         
 
         switch (policy.getEncType())
         {
@@ -209,7 +238,16 @@ public class SRTPCryptoContext
                 break;
 
             case SRTPPolicy.AESCM_ENCRYPTION:
+                hmacSha1 = Mac.getInstance("HMACSHA1", cryptoProvider);
+                AEScipher = Cipher.getInstance("AES/ECB/NOPADDING", cryptoProvider);
+                this.encKey  = new byte[this.policy.getEncKeyLength()];
+                this.saltKey = new byte[this.policy.getSaltKeyLength()];
+                break;
+                
             case SRTPPolicy.AESF8_ENCRYPTION:
+                hmacSha1 = Mac.getInstance("HMACSHA1", cryptoProvider);
+                AEScipher = Cipher.getInstance("AES/ECB/NOPADDING", cryptoProvider);
+                AEScipherF8 = Cipher.getInstance("AES/ECB/NOPADDING", cryptoProvider);
                 this.encKey  = new byte[this.policy.getEncKeyLength()];
                 this.saltKey = new byte[this.policy.getSaltKeyLength()];
                 break;
@@ -319,7 +357,7 @@ public class SRTPCryptoContext
         if (this.policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION)
         {
             byte[] tag = authenticatePacketHMCSHA1(pkt);
-            pkt.append(tag);
+            pkt.append(tag, policy.getAuthTagLength());
         }
 
         /* Update the ROC if necessary */
@@ -362,9 +400,11 @@ public class SRTPCryptoContext
             
             byte[] calculatedTag = authenticatePacketHMCSHA1(pkt);
 
-            if (!Arrays.equals(originalTag, calculatedTag))
-            {
-                return false;
+            for (int i = 0; i < tagLength; i++) {
+                if ((originalTag[i]&0xff) == (calculatedTag[i]&0xff))
+                    continue;
+                else 
+                    return false;
             }
         }
 
@@ -420,13 +460,11 @@ public class SRTPCryptoContext
 
         iv[14] = iv[15] = 0;
 
-        SRTPCipher cipher = new SRTPCipherCTR(this.encKey);
-
         final int payloadOffset = PacketManipulator.GetRTPHeaderLength(pkt);
         final int payloadLength = PacketManipulator.GetRTPPayloadLength(pkt);
         
-        cipher.process(pkt.getBuffer(), pkt.getOffset() + payloadOffset,
-                       payloadLength, iv);
+        SRTPCipherCTR.process(AEScipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
+                              payloadLength, iv);
     }
     
     /**
@@ -436,42 +474,45 @@ public class SRTPCryptoContext
      */
     public void processPacketAESF8(RawPacket pkt)
     {
-        long    ssrc     = PacketManipulator.GetRTPSSRC(pkt);
-        boolean isMarked = PacketManipulator.IsPacketMarked(pkt);
-        int     seqNum   = PacketManipulator.GetRTPSequenceNumber(pkt);
-        byte    payload  = PacketManipulator.GetRTPPayloadType(pkt);
+        //long    ssrc     = PacketManipulator.GetRTPSSRC(pkt);
+        //boolean isMarked = PacketManipulator.IsPacketMarked(pkt);
+        //int     seqNum   = PacketManipulator.GetRTPSequenceNumber(pkt);
+        //byte    payload  = PacketManipulator.GetRTPPayloadType(pkt);
 
         byte[] iv = new byte[16];
         
-        iv[0] = 0;
-        iv[1] = (byte) (isMarked ? 0x80 : 0x00);
-        iv[1] |= payload & 0x7f;
-        iv[2] = (byte) (seqNum >> 8);
-        iv[3] = (byte) seqNum;
+        //iv[0] = 0;
+        //iv[1] = (byte) (isMarked ? 0x80 : 0x00);
+        //iv[1] |= payload & 0x7f;
+        //iv[2] = (byte) (seqNum >> 8);
+        //iv[3] = (byte) seqNum;
 
         // set the TimeStamp in network order into IV
-        byte[] timeStamp = PacketManipulator.ReadTimeStampIntoByteArray(pkt);
-        System.arraycopy(timeStamp, 0, iv, 4, 4);
+        //byte[] timeStamp = PacketManipulator.ReadTimeStampIntoByteArray(pkt);
+        //System.arraycopy(timeStamp, 0, iv, 4, 4);
         
         // set the SSRC in network order into IV
-        iv[8]  = (byte) (ssrc >> 24);
-        iv[9]  = (byte) (ssrc >> 16);
-        iv[10] = (byte) (ssrc >> 8);
-        iv[11] = (byte) ssrc;
+        //iv[8]  = (byte) (ssrc >> 24);
+        //iv[9]  = (byte) (ssrc >> 16);
+        //iv[10] = (byte) (ssrc >> 8);
+        //iv[11] = (byte) ssrc;
         
         // set the ROC in network order into IV
+        // 11 bytes of the RTP header are the 11 bytes of the iv
+        // the first byte of the RTP header is not used.
+        System.arraycopy(pkt.getBuffer(), pkt.getOffset(), iv, 0, 12);
+        iv[0] = 0;
+        
         iv[12] = (byte) (this.roc >> 24);
         iv[13] = (byte) (this.roc >> 16);
         iv[14] = (byte) (this.roc >>  8);
         iv[15] = (byte) this.roc;
         
-        SRTPCipher cipher = new SRTPCipherF8(this.encKey, this.saltKey);
-        
         final int payloadOffset = PacketManipulator.GetRTPHeaderLength(pkt);
         final int payloadLength = PacketManipulator.GetRTPPayloadLength(pkt);
 
-        cipher.process(pkt.getBuffer(), pkt.getOffset() + payloadOffset,
-                       payloadLength, iv);
+        SRTPCipherF8.process(AEScipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
+                             payloadLength, iv, encKey, saltKey, AEScipherF8);
     }
 
     /**
@@ -483,26 +524,15 @@ public class SRTPCryptoContext
      */
     private byte[] authenticatePacketHMCSHA1(RawPacket pkt)
     {
-        byte[][] chunks = new byte[2][];
-        int[] chunkLength = new int[2];
-
-        chunks[0] = pkt.getBuffer();
-        chunkLength[0] = pkt.getLength();
+        hmacSha1.update(pkt.getBuffer(), 0, pkt.getLength());
+        byte[] rb = new byte[4];
+        rb[0] = (byte) (this.roc >> 24);
+        rb[1] = (byte) (this.roc >> 16);
+        rb[2] = (byte) (this.roc >> 8);
+        rb[3] = (byte) this.roc;
+        hmacSha1.update(rb);
         
-        chunks[1] = new byte[4];
-        chunks[1][0] = (byte) (this.roc >> 24);
-        chunks[1][1] = (byte) (this.roc >> 16);
-        chunks[1][2] = (byte) (this.roc >>  8);
-        chunks[1][3] = (byte) this.roc;
-
-        chunkLength[1] = 4;
-
-        byte[] result = this.digest.authHMACSHA1(chunks, chunkLength);
-        byte[] tag = new byte[this.policy.getAuthTagLength()];
-
-        System.arraycopy(result, 0, tag, 0, this.policy.getAuthTagLength());
-        
-        return tag;
+        return hmacSha1.doFinal();
     }
     
     /**
@@ -613,25 +643,61 @@ public class SRTPCryptoContext
         // compute the session encryption key
         long label = 0;
         computeIv(iv, label, index, this.keyDerivationRate, this.masterSalt);
-        SRTPCipherCTR aes = new SRTPCipherCTR(this.masterKey);
-        aes.getCipherStream(this.encKey, this.policy.getEncKeyLength(), iv);
+        
+        SecretKey encryptionKey = new SecretKeySpec(masterKey, 0, policy.getEncKeyLength(), "AES");
+        
+        try 
+        {
+            AEScipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+        } 
+        catch (InvalidKeyException e1) 
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        SRTPCipherCTR.getCipherStream(AEScipher, encKey, policy.getEncKeyLength(), iv);
+
 
         // compute the session authentication key
         if (this.authKey != null)
         {
             label = 0x01;
             computeIv(iv, label, index, this.keyDerivationRate, this.masterSalt);
-            aes = new SRTPCipherCTR(this.masterKey);
-            aes.getCipherStream(this.authKey, this.policy.getAuthKeyLength(), iv);
+            
+            SRTPCipherCTR.getCipherStream(AEScipher, authKey, policy.getAuthKeyLength(), iv);
 
-            this.digest = new SRTPDigest(this.authKey);
+            SecretKey key = new SecretKeySpec(authKey, "HMAC");
+            try 
+            {
+                hmacSha1.init(key);
+            } 
+            catch (InvalidKeyException e) 
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
         }
 
         // compute the session salt
         label = 0x02;
         computeIv(iv, label, index, this.keyDerivationRate, this.masterSalt);
-        aes = new SRTPCipherCTR(this.masterKey);
-        aes.getCipherStream(this.saltKey, this.policy.getSaltKeyLength(), iv);
+        
+        SRTPCipherCTR.getCipherStream(AEScipher, saltKey, policy.getSaltKeyLength(), iv);
+        
+        // As last step: initialize AES cipher with derived encryption key.
+        encryptionKey = new SecretKeySpec(encKey, 0, policy.getEncKeyLength(), "AES");
+        try 
+        {
+            AEScipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+        } 
+        catch (InvalidKeyException e) 
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -717,9 +783,19 @@ public class SRTPCryptoContext
      */
     public SRTPCryptoContext deriveContext(long ssrc, int roc, long deriveRate)
     {
-        SRTPCryptoContext pcc =
-            new SRTPCryptoContext(ssrc, roc, deriveRate, this.masterKey,
-                                  this.masterSalt, this.policy);
+        SRTPCryptoContext pcc = null;
+        try 
+        {
+            pcc = new SRTPCryptoContext(ssrc, roc, deriveRate,
+                                        this.masterKey, this.masterSalt, this.policy,
+                                        this.cryptoProvider);
+        } 
+        catch (GeneralSecurityException e) 
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return pcc;
+
     }
 }

@@ -19,6 +19,7 @@ import net.java.sip.communicator.util.*;
  * or H323Call or AnyOtherTelephonyProtocolCall
  *
  * @author Emil Ivov
+ * @author Emanuel Onica
  */
 public abstract class Call
 {
@@ -39,6 +40,13 @@ public abstract class Call
      * A reference to the ProtocolProviderService instance that created us.
      */
     private ProtocolProviderService protocolProvider = null;
+    
+    /**
+     * A collection of various GUI components used for a call management that might
+     * be needed inside specific layers of the call securing, depending on the
+     * securing algorithm used
+     */
+    private Hashtable secureGUIComponents;
 
     /**
      * Creates a new Call instance.
@@ -240,4 +248,40 @@ public abstract class Call
      * currently in.
      */
     public abstract CallState getCallState();
+    
+    /**
+     * This method is used to add references to various GUI components related to
+     * securing the call that might be used in different way in by various securing 
+     * algorithms, and consequently might be needed for particular usage at the layers
+     * where the specified algorithms operate
+     * 
+     * @param key a key used by a securing algorithm implementation 
+     * 			  to identify the GUI item needed
+     * @param value the GUI object
+     */
+    public void addSecureGUIComponent(Object key, Object value)
+    {
+        if (secureGUIComponents == null)
+            secureGUIComponents = new Hashtable();
+    	
+        secureGUIComponents.put(key, value);
+    }
+    
+    /**
+     * This method is used to obtain the reference to various GUI components related to
+     * securing the call that might be used in different way in by various securing 
+     * algorithms, and consequently might be needed for particular usage at the layers
+     * where the specified algorithms operate
+     * 
+     * @param key a key used by a securing algorithm implementation 
+     * 			  to identify the GUI item needed
+     * @return the GUI object
+     */
+    public Object getSecureGUIComponent(Object key)
+    {
+        if (secureGUIComponents == null)
+            return null;
+        else
+            return secureGUIComponents.get(key);
+    }
 }
