@@ -151,8 +151,8 @@ public class ZrtpRawPacket extends RawPacket
 
     /**
      * Check if the CRC of this packet is ok.
-     * @param crc
-     * @return
+     *
+     * @return true if the CRC is valid, false otherwise
      */
     protected boolean checkCrc() 
     {
@@ -162,7 +162,6 @@ public class ZrtpRawPacket extends RawPacket
 
     /**
      * Set ZRTP CRC in this packet
-     * @param crc
      */
     protected void setCrc() 
     {

@@ -81,8 +81,8 @@ public class SRTPCipherF8
      * 
      * @param aesCipher the AES cipher object used for block processing 
      * @param data byte array containing the byte stream to be processed
-     * @param offset byte stream star offset with data byte array
-     * @param length byte stream length in bytes
+     * @param off byte stream star offset with data byte array
+     * @param len byte stream length in bytes
      * @param iv initial vector for this operation
      * @param key the encryption key
      * @param salt the salt key

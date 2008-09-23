@@ -62,8 +62,8 @@ public class SRTPCipherCTR
      * 
      * @param aesCipher the AESCihper object we use to do basic AES encryption / decryption
      * @param data byte array containing the byte stream to be processed
-     * @param offset byte stream star offset with data byte array
-     * @param length byte stream length in bytes
+     * @param off byte stream star offset with data byte array
+     * @param len byte stream length in bytes
      * @param iv initial vector for this operation
      */
     public static void process(Cipher aesCipher, byte[] data, int off, int len, byte[] iv)
