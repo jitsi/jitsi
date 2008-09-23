@@ -236,6 +236,7 @@ public class MockOperationSetBasicTelephony
      * (non-Javadoc)
      * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#setSecured(net.java.sip.communicator.service.protocol.CallParticipant, boolean, net.java.sip.communicator.service.media.CallSession.SecureStatusChangeSource)
      */
+    @Override
     public void setSecured(CallParticipant participant, boolean secured,
                            OperationSetBasicTelephony.SecureStatusChangeSource source)
     {
@@ -245,7 +246,8 @@ public class MockOperationSetBasicTelephony
      * (non-Javadoc)
      * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#getSecured(net.java.sip.communicator.service.protocol.CallParticipant)
      */
-    public boolean getSecured(CallParticipant participant)
+    @Override
+    public boolean isSecured(CallParticipant participant)
     {
         return false;
     }

@@ -17,60 +17,62 @@ import net.java.sip.communicator.service.media.*;
 
 /**
  * The UI button used to toggle on or off call securing
- * 
+ *
  * @author Emanuel Onica
  *
  */
-public class SecureButton 
-	extends JButton
-	implements ActionListener
+public class SecureButton
+    extends JButton
+    implements ActionListener
 {
-	private final CallParticipant callParticipant;
-	
-	public SecureButton(CallParticipant callParticipant)
+    private final CallParticipant callParticipant;
+
+    public SecureButton(CallParticipant callParticipant)
     {
         super(new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
         this.callParticipant = callParticipant;
         this.addActionListener(this);
     }
-	
-	public void actionPerformed(ActionEvent evt)
+
+    public void actionPerformed(ActionEvent evt)
     {
-    	Call call = callParticipant.getCall();
-    	
-    	if (call != null)
-    	{
-    		String command = evt.getActionCommand();
-    		if (command.equals("startSecureMode"))
-    		{
-    			OperationSetBasicTelephony telephony = 
-    				(OperationSetBasicTelephony) call.getProtocolProvider()
-    				.getOperationSet(OperationSetBasicTelephony.class);
-    		
-    			if (telephony.getSecured(callParticipant))
-    			{
-    				updateSecureButton(false);
-    				telephony.setSecured(callParticipant,
-    									false,
-    									OperationSetBasicTelephony.
-    									SecureStatusChangeSource.SECURE_STATUS_CHANGE_BY_LOCAL);
-    			}
-    			else
-    			{
-    				updateSecureButton(true);       			
-    				telephony.setSecured(callParticipant,
-    									true,
-    									OperationSetBasicTelephony.
-    									SecureStatusChangeSource.SECURE_STATUS_CHANGE_BY_LOCAL);
-    			}
-    		}
-    	}
+        Call call = callParticipant.getCall();
+
+        if (call != null)
+        {
+            String command = evt.getActionCommand();
+            if (command.equals("startSecureMode"))
+            {
+                OperationSetBasicTelephony telephony =
+                    (OperationSetBasicTelephony) call.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicTelephony.class);
+
+                if (telephony.isSecured(callParticipant))
+                {
+                    updateSecureButton(false);
+                    telephony.setSecured(callParticipant,
+                                        false,
+                                        OperationSetBasicTelephony.
+                                        SecureStatusChangeSource
+                                            .SECURE_STATUS_CHANGE_BY_LOCAL);
+                }
+                else
+                {
+                    updateSecureButton(true);
+                    telephony.setSecured(callParticipant,
+                                        true,
+                                        OperationSetBasicTelephony.
+                                        SecureStatusChangeSource
+                                            .SECURE_STATUS_CHANGE_BY_LOCAL);
+                }
+            }
+        }
     }
-	
-        
-	/**
+
+
+    /**
      * The method used to update the secure button state (pressed or not pressed)
-     * 
+     *
      * @param isSecured parameter reflecting the current button state
      */
     public void updateSecureButton(boolean isSecured)
@@ -78,14 +80,18 @@ public class SecureButton
         if(isSecured)
         {
             this.setIcon(
-                new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON)));
-            this.setToolTipText(Messages.getI18NString("toggleOffSecurity").getText());
+                new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON)));
+            this.setToolTipText(
+                    Messages.getI18NString("toggleOffSecurity").getText());
         }
         else
         {
             this.setIcon(
-                new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
-            this.setToolTipText(Messages.getI18NString("toggleOnSecurity").getText());
+                new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+            this.setToolTipText(
+                    Messages.getI18NString("toggleOnSecurity").getText());
         }
     }
 }

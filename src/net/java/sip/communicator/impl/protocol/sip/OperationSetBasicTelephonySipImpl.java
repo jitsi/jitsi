@@ -2963,7 +2963,7 @@ public class OperationSetBasicTelephonySipImpl
         ((CallSipImpl) participant.getCall()).getMediaCallSession().setMute(
             mute);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#setSecured(net.java.sip.communicator.service.protocol.CallParticipant, boolean, net.java.sip.communicator.service.media.CallSession.SecureStatusChangeSource)
@@ -2979,7 +2979,7 @@ public class OperationSetBasicTelephonySipImpl
      * (non-Javadoc)
      * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#getSecured(net.java.sip.communicator.service.protocol.CallParticipant)
      */
-    public boolean getSecured(CallParticipant participant)
+    public boolean isSecured(CallParticipant participant)
     {
         return ((CallSipImpl) participant.getCall()).getMediaCallSession().
                 getSecureCommunicationStatus();
