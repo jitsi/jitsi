@@ -601,7 +601,7 @@ public abstract class ProtocolProviderFactory
      *         <code>ProtocolProviderService</code>s with and to be placed in
      *         the properties of the accounts created by this factory
      */
-    protected String getProtocolName()
+    public String getProtocolName()
     {
         return protocolName;
     }

@@ -63,7 +63,8 @@ public class TestAccountUninstallationPersistence
         assertEquals("Couldn't re-install protocol provider bundle."
                      , Bundle.INSTALLED, providerBundle.getState());
 
-        providerBundle.start();
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(
+            YahooSlickFixture.bc, providerBundle, ProtocolNames.YAHOO);
         assertEquals("Couldn't re-start protocol provider bundle."
                      , Bundle.ACTIVE, providerBundle.getState());
 

@@ -202,7 +202,8 @@ public class TestAccountUninstallation
         assertEquals("Couldn't re-install protocol provider bundle."
                      , Bundle.INSTALLED, providerBundle.getState());
 
-        providerBundle.start();
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(fixture.bc,
+            providerBundle, ProtocolNames.SIP);
         assertEquals("Couldn't re-start protocol provider bundle."
                      , Bundle.ACTIVE, providerBundle.getState());
 

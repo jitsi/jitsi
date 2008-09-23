@@ -6,14 +6,15 @@
  */
 package net.java.sip.communicator.slick.protocol.gibberish;
 
-import org.osgi.framework.*;
 import junit.framework.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.osgi.framework.*;
 
 /**
- * Tests whether accaounts are uninstalled properly. It is important that
+ * Tests whether accounts are uninstalled properly. It is important that
  * tests from this class be called last since they will install the accounts
  * that have been used to test the implementations. Apart from uninstallation
  * tests the class also contains tests that remove and reinstall the protocol
@@ -153,7 +154,8 @@ public class TestAccountUninstallation
         assertEquals("Couldn't re-install protocol provider bundle."
                      , Bundle.INSTALLED, providerBundle.getState());
 
-        providerBundle.start();
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(
+            GibberishSlickFixture.bc, providerBundle, "Gibberish");
         assertEquals("Couldn't re-start protocol provider bundle."
                      , Bundle.ACTIVE, providerBundle.getState());
 

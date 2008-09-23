@@ -64,7 +64,8 @@ public class TestAccountUninstallationPersistence
         assertEquals("Couldn't re-install protocol provider bundle."
                      , Bundle.INSTALLED, providerBundle.getState());
 
-        providerBundle.start();
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(
+            GibberishSlickFixture.bc, providerBundle, "Gibberish");
         assertEquals("Couldn't re-start protocol provider bundle."
                      , Bundle.ACTIVE, providerBundle.getState());
 

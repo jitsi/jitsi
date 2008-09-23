@@ -132,7 +132,9 @@ public class TestAccountUninstallation
     	assertTrue("Couldn't reinstall provider bundle",
     		providerBundle.getState() == Bundle.INSTALLED);
     	
-    	providerBundle.start();
+
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(fixture.bc,
+            providerBundle, ProtocolNames.RSS);
     	assertTrue("Couldn't start provider",
     		providerBundle.getState() == Bundle.ACTIVE);
     	

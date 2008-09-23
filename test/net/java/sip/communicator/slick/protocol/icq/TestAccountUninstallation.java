@@ -217,7 +217,8 @@ public class TestAccountUninstallation
         assertEquals("Couldn't re-install protocol provider bundle."
                      , Bundle.INSTALLED, providerBundle.getState());
 
-        providerBundle.start();
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(
+            IcqSlickFixture.bc, providerBundle, ProtocolNames.ICQ);
         assertEquals("Couldn't re-start protocol provider bundle."
                      , Bundle.ACTIVE, providerBundle.getState());
 

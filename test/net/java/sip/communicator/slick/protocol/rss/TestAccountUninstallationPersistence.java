@@ -59,8 +59,9 @@ public class TestAccountUninstallationPersistence
     		providerBundle.getLocation());
     	assertEquals("Couldn't reinstall protocol provider bundle.",
     		providerBundle.getState(), Bundle.INSTALLED);
-    	
-    	providerBundle.start();
+
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(
+            RssSlickFixture.bc, providerBundle, ProtocolNames.RSS);
     	assertEquals("Couldn't restart protocol provider bundle.",
     		providerBundle.getState(), Bundle.ACTIVE);
     	
