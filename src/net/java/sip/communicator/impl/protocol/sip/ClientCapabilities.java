@@ -207,16 +207,22 @@ public class ClientCapabilities
     private void disconnect()
     {
         //don't alert the user if we're already off
-       if(provider.getRegistrarConnection().getRegistrationState().
-           equals(RegistrationState.UNREGISTERED))
+       if(provider.getRegistrationState()
+               .equals(RegistrationState.UNREGISTERED))
+       {
             return;
+       }
 
-        provider.getRegistrarConnection().setRegistrationState(
+      provider.getRegistrarConnection().setRegistrationState(
             RegistrationState.CONNECTION_FAILED
             , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
             , "A timeout occurred while trying to connect to the server.");
     }
 
+    /**
+     * The task would continuously send OPTIONs request that we use as a keep
+     * alive method.
+     */
     private class KeepAliveTask
         extends TimerTask
     {
@@ -224,20 +230,22 @@ public class ClientCapabilities
         {
             try
             {
+                logger.logEntry();
+
                 //From
                 FromHeader fromHeader = null;
                 try
                 {
                     fromHeader = provider.getHeaderFactory().createFromHeader(
-                        provider.getOurSipAddress(), ProtocolProviderServiceSipImpl
-                        .generateLocalTag());
+                        provider.getOurSipAddress(),
+                        ProtocolProviderServiceSipImpl.generateLocalTag());
                 }
                 catch (ParseException ex)
                 {
                     //this should never happen so let's just log and bail.
-                    logger.error(
-                        "Failed to generate a from header for our register request."
-                        , ex);
+                    logger.error("Failed to generate a from header for "
+                                 + "our register request."
+                                 , ex);
                     return;
                 }
 
@@ -306,8 +314,8 @@ public class ClientCapabilities
                     //create a host-only uri for the request uri header.
                     String domain
                         = ((SipURI) toHeader.getAddress().getURI()).getHost();
-                    SipURI requestURI
-                        = provider.getAddressFactory().createSipURI(null,domain);
+                    SipURI requestURI = provider.getAddressFactory()
+                        .createSipURI(null, domain);
                     request = provider.getMessageFactory().createRequest(
                           requestURI
                         , Request.OPTIONS
@@ -317,10 +325,13 @@ public class ClientCapabilities
                         , toHeader
                         , viaHeaders
                         , maxForwardsHeader);
+
+                    if (logger.isDebugEnabled())
+                        logger.debug("Created OPTIONS request " + request);
                 }
                 catch (ParseException ex)
                 {
-                    logger.error("Could not create the register request!", ex);
+                    logger.error("Could not create an OPTIONS request!", ex);
                     return;
                 }
 
@@ -362,7 +373,8 @@ public class ClientCapabilities
                 //Contact Header (should contain IP)
                 ContactHeader contactHeader
                     = provider.getContactHeader(
-                        destinationInetAddress, provider.getDefaultListeningPoint());
+                        destinationInetAddress,
+                        provider.getDefaultListeningPoint());
 
                 request.addHeader(contactHeader);
 
@@ -370,14 +382,14 @@ public class ClientCapabilities
                 ClientTransaction optionsTrans = null;
                 try
                 {
-                    optionsTrans = provider.getDefaultJainSipProvider().
-                        getNewClientTransaction(request);
+                    optionsTrans = provider.getDefaultJainSipProvider()
+                        .getNewClientTransaction(request);
                 }
                 catch (TransactionUnavailableException ex)
                 {
                     logger.error("Could not create a register transaction!\n"
-                                  + "Check that the Registrar address is correct!",
-                                  ex);
+                              + "Check that the Registrar address is correct!",
+                              ex);
                     return;
                 }
                 try
@@ -434,6 +446,7 @@ public class ClientCapabilities
                     getAccountProperties().
                         get(ProtocolProviderServiceSipImpl.KEEP_ALIVE_METHOD);
 
+                logger.trace("Keep alive method " + keepAliveMethod);
                 if(keepAliveMethod == null ||
                     !keepAliveMethod.equalsIgnoreCase("options"))
                     return;
@@ -442,12 +455,14 @@ public class ClientCapabilities
                     getAccountProperties().
                         get(ProtocolProviderServiceSipImpl.KEEP_ALIVE_INTERVAL);
 
+                logger.trace("Keep alive inerval is " + keepAliveIntStr);
                 if(keepAliveIntStr != null)
                 {
                     int keepAliveInterval = -1;
                     try
                     {
-                        keepAliveInterval = Integer.valueOf(keepAliveIntStr).intValue();
+                        keepAliveInterval = Integer.valueOf(keepAliveIntStr)
+                            .intValue();
                     }
                     catch (Exception ex)
                     {
@@ -458,6 +473,8 @@ public class ClientCapabilities
                     {
                         if(keepAliveTimer == null)
                             keepAliveTimer = new Timer();
+
+                        logger.debug("Scheduling OPTIONS keep alives");
 
                         keepAliveTimer.schedule(
                             new KeepAliveTask(), 0, keepAliveInterval * 1000);

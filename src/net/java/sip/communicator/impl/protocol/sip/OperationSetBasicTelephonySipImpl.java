@@ -2555,7 +2555,7 @@ public class OperationSetBasicTelephonySipImpl
             ArrayList viaHeaders =
                 protocolProvider.getLocalViaHeaders(destinationInetAddress,
                     protocolProvider.getRegistrarConnection()
-                        .getRegistrarListeningPoint());
+                        .getListeningPoint());
             bye.setHeader((ViaHeader) viaHeaders.get(0));
             bye.addHeader(protocolProvider.getSipCommUserAgentHeader());
         }

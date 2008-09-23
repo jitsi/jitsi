@@ -30,6 +30,7 @@ import net.java.sip.communicator.impl.protocol.sip.security.*;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Alan Kelly
  */
 public class ProtocolProviderServiceSipImpl
   extends AbstractProtocolProviderService
@@ -1531,7 +1532,7 @@ public class ProtocolProviderServiceSipImpl
             {
                 genericContactHeader = getContactHeader(
                     sipRegistrarConnection.getRegistrarAddress(),
-                    sipRegistrarConnection.getRegistrarListeningPoint());
+                    sipRegistrarConnection.getListeningPoint());
             }
             catch(OperationFailedException ex)
             {
@@ -1959,22 +1960,10 @@ public class ProtocolProviderServiceSipImpl
                 if(proxyTransport == null)
                     proxyTransport = getDefaultTransport();
 
-                if(proxyTransport.equalsIgnoreCase(ListeningPoint.UDP))
-                    lookupStr = "_sip._udp." + proxyAddressStr;
-                else if(proxyTransport.equalsIgnoreCase(ListeningPoint.TCP))
-                    lookupStr = "_sip._tcp." + proxyAddressStr;
-                else if(proxyTransport.equalsIgnoreCase(ListeningPoint.TLS))
-                    lookupStr = "_sips._tcp." + proxyAddressStr;
+                proxyAddressStr = resolveSipAddress(
+                        proxyAddressStr, proxyTransport).getHostName();
 
-                InetSocketAddress hosts[] = NetworkUtils.getSRVRecords(lookupStr);
-
-                if(hosts != null && hosts.length > 0)
-                {
-                    logger.trace("Will set server address from SRV records "
-                       + hosts[0]);
-
-                    proxyAddressStr = hosts[0].getHostName();
-                }
+                logger.trace("Setting proxy address = " + proxyAddressStr);
             }
             catch (Exception ex)
             {
@@ -2170,12 +2159,18 @@ public class ProtocolProviderServiceSipImpl
      * DEFAULT_TRANSPORT property and return it if not null. Otherwise the
      * method would return UDP;
      *
-     * @return The first non null password of the following: a) the transport
-     * of our outbound proxy, b) the transport specified by the
-     * DEFAULT_TRANSPORT property, c) UDP.
+     * @return The first non null password of the following:
+     * a) the transport we use to communicate with our registrar
+     * b) the transport of our outbound proxy,
+     * c) the transport specified by the DEFAULT_TRANSPORT property, UDP.
      */
     public String getDefaultTransport()
     {
+        SipRegistrarConnection srConnection = getRegistrarConnection();
+
+        if(srConnection != null)
+           return srConnection.getTransport();
+
         if(outboundProxySocketAddress != null
             && outboundProxyTransport != null)
         {

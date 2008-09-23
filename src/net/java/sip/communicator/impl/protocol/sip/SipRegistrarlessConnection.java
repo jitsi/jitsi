@@ -154,7 +154,7 @@ public class SipRegistrarlessConnection
      * current registrar.
      */
     @Override
-    public ListeningPoint getRegistrarListeningPoint()
+    public ListeningPoint getListeningPoint()
     {
         return sipProvider.getDefaultListeningPoint();
     }

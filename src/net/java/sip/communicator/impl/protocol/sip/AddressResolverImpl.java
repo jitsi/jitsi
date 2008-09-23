@@ -20,6 +20,7 @@ import net.java.sip.communicator.util.*;
  * is constructed another dns lookup will be made for the A record.
  *
  * @author Damian Minkov
+ * @author Alan Kelly
  */
 public class AddressResolverImpl
     implements AddressResolver
@@ -31,34 +32,41 @@ public class AddressResolverImpl
     {
         try
         {
-            String lookupStr = null;
+            InetSocketAddress host = null;
 
-            if(inputAddress.getTransport().equalsIgnoreCase(ListeningPoint.UDP))
-                lookupStr = "_sip._udp." + inputAddress.getHost();
-            else if(inputAddress.getTransport().equalsIgnoreCase(ListeningPoint.TCP))
-                lookupStr = "_sip._tcp." + inputAddress.getHost();
-            else if(inputAddress.getTransport().equalsIgnoreCase(ListeningPoint.TLS))
-                lookupStr = "_sips._tcp." + inputAddress.getHost();
+            String transport = inputAddress.getTransport();
 
-            InetSocketAddress hosts[] = NetworkUtils.getSRVRecords(lookupStr);
+            if (transport == null)
+                transport = ListeningPoint.UDP;
 
-            if(hosts != null && hosts.length > 0)
+
+            if (transport.equalsIgnoreCase(ListeningPoint.TLS))
             {
-                logger.trace("Will set server address from SRV records "
-                   + hosts[0]);
-
-                return new HopImpl(
-                    hosts[0].getHostName(),
-                    hosts[0].getPort(),
-                    inputAddress.getTransport());
+                host = NetworkUtils.getSRVRecord(
+                        "sips", ListeningPoint.TCP, inputAddress.getHost());
             }
+            else
+            {
+                host = NetworkUtils.getSRVRecord(
+                        "sip", transport, inputAddress.getHost());
+            }
+
+            if(logger.isTraceEnabled())
+                logger.trace("Returning hop as follows"
+                                + " host= " + host.getHostName()
+                                + " port= " + host.getPort()
+                                + " transport= " + transport);
+
+
+            return new HopImpl(host.getHostName(), host.getPort(), transport);
+
         }
         catch (Exception ex)
         {
             logger.error("Domain not resolved " + ex.getMessage());
         }
 
-        if  (inputAddress.getPort()  != -1)
+        if (inputAddress.getPort()  != -1)
         {
             return inputAddress;
         }

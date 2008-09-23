@@ -166,5 +166,5 @@ public interface OperationSetBasicTelephony
      * @param participant the participant for who the call state is required
      * @return the call state
      */
-    public boolean getSecured(CallParticipant participant);
+    public boolean isSecured(CallParticipant participant);
 }

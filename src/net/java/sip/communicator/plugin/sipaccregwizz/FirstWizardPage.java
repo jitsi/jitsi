@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
  * and the password of the account.
- * 
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
@@ -136,8 +136,8 @@ public class FirstWizardPage
     private JComboBox keepAliveMethodBox
         = new JComboBox(new Object []
                                     {
-                                        Resources.getString("register").toUpperCase(),
-                                        Resources.getString("options").toUpperCase()
+                                        "REGISTER",
+                                        "OPTIONS"
                                     });
 
     private JTextField keepAliveIntervalValue = new JTextField();
@@ -154,7 +154,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage(SIPAccountRegistrationWizard wizard)
@@ -392,11 +392,11 @@ public class FirstWizardPage
     public void commitPage()
     {
         String uin = uinField.getText();
-        int indexOfSeparator = uin.indexOf('@'); 
+        int indexOfSeparator = uin.indexOf('@');
         if (indexOfSeparator > -1) {
             uin = uin.substring(0, indexOfSeparator);
         }
-        
+
         String server = serverField.getText();
 
         if (!wizard.isModification() && isExistingAccount(uin, server))
@@ -496,7 +496,7 @@ public class FirstWizardPage
     /**
      * Fills the UIN and Password fields in this panel with the data coming from
      * the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
@@ -553,7 +553,7 @@ public class FirstWizardPage
 
         uinField.setEnabled(false);
         this.uinField.setText(accountID.getUserID() + "@" + serverAddress);
-        
+
         if (password != null)
         {
             this.passField.setText(password);
@@ -600,7 +600,7 @@ public class FirstWizardPage
             pollPeriodField.setEnabled(false);
             subscribeExpiresField.setEnabled(false);
         }
-        
+
         keepAliveMethodBox.setSelectedItem(keepAliveMethod);
         keepAliveIntervalValue.setText(keepAliveInterval);
     }
@@ -668,12 +668,12 @@ public class FirstWizardPage
         }
         return false;
     }
-    
+
     public Object getSimpleForm()
     {
         return uinPassPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

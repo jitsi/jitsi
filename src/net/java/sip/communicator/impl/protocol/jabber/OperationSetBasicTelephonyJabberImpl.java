@@ -16,6 +16,7 @@ import org.jivesoftware.smackx.jingle.listeners.*;
 import org.jivesoftware.smackx.jingle.nat.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.mediamgr.*;
@@ -217,7 +218,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         try
         {
-            // with discovered info, we can check if the remote clients 
+            // with discovered info, we can check if the remote clients
             // supports telephony but not if he don't, because
             // a non conforming client can supports a feature
             // without advertising it. So we don't rely on it (for the moment)
@@ -231,7 +232,7 @@ public class OperationSetBasicTelephonyJabberImpl
             else
             {
                 logger.info(calleeAddress + ": jingle not supported ??? ");
-//                
+//
 //                throw new OperationFailedException(
 //                        "Failed to create OutgoingJingleSession.\n"
 //                        + fullCalleeURI + " do not supports jingle"
@@ -442,7 +443,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         fireCallEvent(CallEvent.CALL_RECEIVED, call);
     }
-    
+
     /**
      * Implements method sessionCreated from CreatedJingleSessionListener.
      *
@@ -611,7 +612,7 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Implements <tt>sessionEstablished</tt> from <tt>JingleSessionListener</tt> 
+     * Implements <tt>sessionEstablished</tt> from <tt>JingleSessionListener</tt>
      *
      *
      * @param payloadType the <tt>payloadType</tt> used for media in thi session
@@ -628,7 +629,7 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Implements <tt>sessionDeclined</tt> from <tt>JingleSessionListener</tt> 
+     * Implements <tt>sessionDeclined</tt> from <tt>JingleSessionListener</tt>
      *
      * @param reason why the session has been declined
      * @param jingleSession the declined session
@@ -679,26 +680,35 @@ public class OperationSetBasicTelephonyJabberImpl
      * @param jingleSession the session where the media is established
      * @param participant the participant for this media session
      */
-    public void sessionMediaReceived(JingleSession jingleSession, 
+    public void sessionMediaReceived(JingleSession jingleSession,
             String participant)
     {
         logger.info("session media received ");
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#setSecured(net.java.sip.communicator.service.protocol.CallParticipant, boolean, net.java.sip.communicator.service.media.CallSession.SecureStatusChangeSource)
+
+    /**
+     * Sets the secured state of the call session in which a specific participant
+     * is involved
+     *
+     * @param participant the participant who toggled (or for whom is remotely toggled)
+     *                    the secure status change for the call
+     * @param secured the new secure status
+     * @param source the source who generated the call change
      */
     public void setSecured(CallParticipant participant, boolean secured,
-                           OperationSetBasicTelephony.SecureStatusChangeSource source)
+                           SecureStatusChangeSource source)
     {
+        //TODO - implement security for jabber
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#getSecured(net.java.sip.communicator.service.protocol.CallParticipant)
+
+    /**
+     * Gets the secured state of the call session in which a specific participant
+     * is involved
+     *
+     * @param participant the participant for who the call state is required
+     * @return the call state
      */
-    public boolean getSecured(CallParticipant participant)
+    public boolean isSecured(CallParticipant participant)
     {
         return false;
     }

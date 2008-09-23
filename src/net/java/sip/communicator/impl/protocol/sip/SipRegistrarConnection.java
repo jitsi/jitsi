@@ -149,7 +149,7 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Empty constructor that we only have in order to allow for classes like 
+     * Empty constructor that we only have in order to allow for classes like
      * SipRegistrarlessConnection to extend this class.
      */
     protected SipRegistrarConnection()
@@ -195,7 +195,7 @@ public class SipRegistrarConnection
 
         //Call ID Header
         CallIdHeader callIdHeader
-            = this.getRegistrarJainSipProvider().getNewCallId();
+            = this.getJainSipProvider().getNewCallId();
 
         //CSeq Header
         CSeqHeader cSeqHeader = null;
@@ -257,7 +257,7 @@ public class SipRegistrarConnection
 
         //Via Headers
          ArrayList viaHeaders = sipProvider.getLocalViaHeaders(
-                registrarAddress, getRegistrarListeningPoint());
+                registrarAddress, getListeningPoint());
 
         //MaxForwardsHeader
         MaxForwardsHeader maxForwardsHeader = sipProvider.
@@ -348,7 +348,7 @@ public class SipRegistrarConnection
         //Contact Header (should contain IP)
         ContactHeader contactHeader
             = sipProvider.getContactHeader(
-                registrarAddress, getRegistrarListeningPoint());
+                registrarAddress, getListeningPoint());
 
         //add expires in the contact header as well in case server likes it
         //better there.
@@ -370,7 +370,7 @@ public class SipRegistrarConnection
         //Transaction
         try
         {
-            regTrans = getRegistrarJainSipProvider().getNewClientTransaction(
+            regTrans = getJainSipProvider().getNewClientTransaction(
                 request);
 
         }
@@ -635,7 +635,7 @@ public class SipRegistrarConnection
         try
         {
             unregisterTransaction =
-                this.getRegistrarJainSipProvider().getNewClientTransaction(
+                this.getJainSipProvider().getNewClientTransaction(
                     unregisterRequest);
         }
         catch (TransactionUnavailableException ex)
@@ -861,7 +861,7 @@ public class SipRegistrarConnection
      * @return the listening point that should be used for communication with our
      * current registrar.
      */
-    ListeningPoint getRegistrarListeningPoint()
+    ListeningPoint getListeningPoint()
     {
         return sipProvider.getListeningPoint(registrarURI.getTransportParam());
     }
@@ -873,15 +873,26 @@ public class SipRegistrarConnection
      * @return the JAIN SIP provider that should be used for communication with
      * our current registrar.
      */
-    private SipProvider getRegistrarJainSipProvider()
+    public SipProvider getJainSipProvider()
     {
-        return sipProvider.getJainSipProvider(registrarURI.getTransportParam());
+        return sipProvider.getJainSipProvider(getTransport());
+    }
+
+    /**
+     * Returns the transport that this connection is currently using to
+     * communicate with the Registrar.
+     *
+     * @return the transport that this connection is using.
+     */
+    public String getTransport()
+    {
+        return registrarURI.getTransportParam();
     }
 
     /**
      * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
      * proper event handler.
-     * 
+     *
      * @param responseEvent the responseEvent that we received
      *            ProtocolProviderService.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1060,7 +1071,7 @@ public class SipRegistrarConnection
      * transitions to the Terminated state, the stack keeps no further records
      * of the dialog. This notification can be used by applications to clean up
      * any auxiliary data that is being maintained for the given dialog.
-     * 
+     *
      * @param dialogTerminatedEvent -- an event that indicates that the dialog
      *            has transitioned into the terminated state.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1078,7 +1089,7 @@ public class SipRegistrarConnection
      * Processes a Request received on a SipProvider upon which this SipListener
      * is registered.
      * <p>
-     * 
+     *
      * @param requestEvent requestEvent fired from the SipProvider to the
      *            SipListener representing a Request received from the network.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1094,7 +1105,7 @@ public class SipRegistrarConnection
     /**
      * Processes a retransmit or expiration Timeout of an underlying
      * {@link Transaction}handled by this SipListener.
-     * 
+     *
      * @param timeoutEvent the timeoutEvent received indicating either the
      *            message retransmit or transaction timed out.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1117,7 +1128,7 @@ public class SipRegistrarConnection
      * Process an asynchronously reported TransactionTerminatedEvent. When a
      * transaction transitions to the Terminated state, the stack keeps no
      * further records of the transaction.
-     * 
+     *
      * @param transactionTerminatedEvent an event that indicates that the
      *            transaction has transitioned into the terminated state.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -1133,7 +1144,7 @@ public class SipRegistrarConnection
 
     /**
      * Process an asynchronously reported IO Exception.
-     * 
+     *
      * @param exceptionEvent The Exception event that is reported to the
      *            application.
      * @return <tt>true</tt> if the specified event has been handled by this

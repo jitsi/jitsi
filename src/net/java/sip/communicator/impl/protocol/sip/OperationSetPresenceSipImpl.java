@@ -1673,7 +1673,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
      * proper event handler.
-     * 
+     *
      * @param responseEvent the responseEvent that we received
      *            ProtocolProviderService.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -2438,7 +2438,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Process a request from a distant contact
-     * 
+     *
      * @param requestEvent the <tt>RequestEvent</tt> containing the newly
      *            received request.
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -2988,7 +2988,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Called when a dialog is terminated
-     * 
+     *
      * @param dialogTerminatedEvent DialogTerminatedEvent
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -3003,7 +3003,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Called when an IO error occurs
-     * 
+     *
      * @param exceptionEvent IOExceptionEvent
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -3017,7 +3017,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Called when a transaction is terminated
-     * 
+     *
      * @param transactionTerminatedEvent TransactionTerminatedEvent
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -3032,7 +3032,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Called when a timeout occur
-     * 
+     *
      * @param timeoutEvent TimeoutEvent
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered

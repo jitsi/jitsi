@@ -80,10 +80,10 @@ public class ProtocolProviderServiceJabberImpl
      * In general, we add new feature(s) when we add new operation sets.
      * (see xep-0030 : http://www.xmpp.org/extensions/xep-0030.html#info).
      * Example : to tell the world that we support jingle, we simply have
-     * to do : 
+     * to do :
      * supportedFeatures.add("http://www.xmpp.org/extensions/xep-0166.html#ns");
-     * Beware there is no canonical mapping between op set and jabber features 
-     * (op set is a SC "concept"). This means that one op set in SC can 
+     * Beware there is no canonical mapping between op set and jabber features
+     * (op set is a SC "concept"). This means that one op set in SC can
      * correspond to many jabber features. It is also possible that there is no
      * jabber feature corresponding to a SC op set or again,
      * we can currently support some features wich do not have a specific
@@ -183,7 +183,7 @@ public class ProtocolProviderServiceJabberImpl
 
     /**
      * Connects and logins again to the server.
-     * 
+     *
      * @param authReasonCode indicates the reason of the re-authentication.
      */
     void reregister(int authReasonCode)
@@ -305,23 +305,17 @@ public class ProtocolProviderServiceJabberImpl
                     getAccountProperties().get(
                             ProtocolProviderFactory.SERVER_PORT);
 
-				String accountResource = (String)getAccountID().
+                String accountResource = (String)getAccountID().
                     getAccountProperties().get(
                             ProtocolProviderFactory.RESOURCE);
 
                 // check to see is there SRV records for this server domain
                 try
                 {
-                    InetSocketAddress hosts[] =
-                        NetworkUtils.getSRVRecords(
-                            "_xmpp-client._tcp." + serviceName);
+                    serverAddress = NetworkUtils
+                        .getSRVRecord("xmpp-client", "tcp", serviceName)
+                             .getHostName();
 
-                    if(hosts != null && hosts.length > 0)
-                    {
-                        logger.trace("Will set server address from SRV records "
-                           + hosts[0]);
-                        serverAddress = hosts[0].getHostName();
-                    }
                 }
                 catch (ParseException ex1)
                 {
@@ -366,7 +360,7 @@ public class ProtocolProviderServiceJabberImpl
 
                 if(accountResource == null || accountResource == "")
                     accountResource = "sip-comm";
-                
+
                 connection.login(userID, password, accountResource);
 
                 if(connection.isAuthenticated())
@@ -398,7 +392,7 @@ public class ProtocolProviderServiceJabberImpl
             }
         }
 
-        // we setup supported features        
+        // we setup supported features
         if (getRegistrationState() == RegistrationState.REGISTERED)
         {
             discoveryManager = ServiceDiscoveryManager.
@@ -512,7 +506,7 @@ public class ProtocolProviderServiceJabberImpl
 
             jabberIcon = new ProtocolIconJabberImpl(protocolIconPath);
 
-            jabberStatusEnum 
+            jabberStatusEnum
                 = JabberStatusEnum.getJabberStatusEnum(protocolIconPath);
 
             //this feature is mandatory to be compliant with Service Discovery
@@ -626,7 +620,7 @@ public class ProtocolProviderServiceJabberImpl
                     = new OperationSetBasicTelephonyJabberImpl(this);
 
                 supportedOperationSets.put(
-                    OperationSetBasicTelephony.class.getName(), 
+                    OperationSetBasicTelephony.class.getName(),
                     opSetBasicTelephony);
 
                 supportedFeatures.add(
@@ -722,7 +716,7 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         /**
-         * Implements <tt>connectionClosedOnError</tt> from 
+         * Implements <tt>connectionClosedOnError</tt> from
          * <tt>ConnectionListener</tt>.
          *
          * @param exception contains information on the error.
@@ -757,7 +751,7 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         /**
-         * Implements <tt>reconnectionFailed</tt> from 
+         * Implements <tt>reconnectionFailed</tt> from
          * <tt>ConnectionListener</tt>.
          *
          * @param exception description of the failure
@@ -779,7 +773,7 @@ public class ProtocolProviderServiceJabberImpl
 
     /**
      * Returns the current instance of <tt>JabberStatusEnum</tt>.
-     * 
+     *
      * @return the current instance of <tt>JabberStatusEnum</tt>.
      */
     JabberStatusEnum getJabberStatusEnum()

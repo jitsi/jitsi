@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 /**
  * The <tt>SIPAccountRegistration</tt> is used to store all user input data
  * through the <tt>SIPAccountRegistrationWizard</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPAccountRegistration
@@ -23,8 +23,7 @@ public class SIPAccountRegistration
 
     public static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
 
-    public static String DEFAULT_KEEP_ALIVE_METHOD
-        = Resources.getString("register");
+    public static String DEFAULT_KEEP_ALIVE_METHOD = "REGISTER";
 
     public static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
 
@@ -78,7 +77,7 @@ public class SIPAccountRegistration
 
     /**
      * Returns the password of the sip registration account.
-     * 
+     *
      * @return the password of the sip registration account.
      */
     public String getPassword()
@@ -88,7 +87,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the password of the sip registration account.
-     * 
+     *
      * @param password the password of the sip registration account.
      */
     public void setPassword(String password)
@@ -98,7 +97,7 @@ public class SIPAccountRegistration
 
     /**
      * Returns TRUE if password has to remembered, FALSE otherwise.
-     * 
+     *
      * @return TRUE if password has to remembered, FALSE otherwise
      */
     public boolean isRememberPassword()
@@ -108,7 +107,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the rememberPassword value of this sip account registration.
-     * 
+     *
      * @param rememberPassword TRUE if password has to remembered, FALSE
      *            otherwise
      */
@@ -119,7 +118,7 @@ public class SIPAccountRegistration
 
     /**
      * Returns the UIN of the sip registration account.
-     * 
+     *
      * @return the UIN of the sip registration account.
      */
     public String getId()
@@ -129,7 +128,7 @@ public class SIPAccountRegistration
 
     /**
      * The address of the server we will use for this account
-     * 
+     *
      * @return String
      */
     public String getServerAddress()
@@ -139,7 +138,7 @@ public class SIPAccountRegistration
 
     /**
      * The port on the specified server
-     * 
+     *
      * @return int
      */
     public String getServerPort()
@@ -149,7 +148,7 @@ public class SIPAccountRegistration
 
     /**
      * The port on the specified proxy
-     * 
+     *
      * @return int
      */
     public String getProxyPort()
@@ -159,7 +158,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the identifier of the sip registration account.
-     * 
+     *
      * @param uin the identifier of the sip registration account.
      */
     public void setId(String id)
@@ -169,7 +168,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the server
-     * 
+     *
      * @param serverAddress String
      */
     public void setServerAddress(String serverAddress)
@@ -179,7 +178,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the server port.
-     * 
+     *
      * @param port int
      */
     public void setServerPort(String port)
@@ -189,7 +188,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the proxy port.
-     * 
+     *
      * @param port int
      */
     public void setProxyPort(String port)
@@ -199,7 +198,7 @@ public class SIPAccountRegistration
 
     /**
      * If the presence is enabled
-     * 
+     *
      * @return If the presence is enabled
      */
     public boolean isEnablePresence()
@@ -209,7 +208,7 @@ public class SIPAccountRegistration
 
     /**
      * If the p2p mode is forced
-     * 
+     *
      * @return If the p2p mode is forced
      */
     public boolean isForceP2PMode()
@@ -219,7 +218,7 @@ public class SIPAccountRegistration
 
     /**
      * The offline contact polling period
-     * 
+     *
      * @return the polling period
      */
     public String getPollingPeriod()
@@ -229,7 +228,7 @@ public class SIPAccountRegistration
 
     /**
      * The default expiration of subscriptions
-     * 
+     *
      * @return the subscription expiration
      */
     public String getSubscriptionExpiration()
@@ -239,7 +238,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets if the presence is enabled
-     * 
+     *
      * @param enablePresence if the presence is enabled
      */
     public void setEnablePresence(boolean enablePresence)
@@ -249,7 +248,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets if we have to force the p2p mode
-     * 
+     *
      * @param forceP2PMode if we have to force the p2p mode
      */
     public void setForceP2PMode(boolean forceP2PMode)
@@ -259,7 +258,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the offline contacts polling period
-     * 
+     *
      * @param pollingPeriod the offline contacts polling period
      */
     public void setPollingPeriod(String pollingPeriod)
@@ -269,7 +268,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the subscription expiration value
-     * 
+     *
      * @param subscriptionExpiration the subscription expiration value
      */
     public void setSubscriptionExpiration(String subscriptionExpiration)
@@ -279,7 +278,7 @@ public class SIPAccountRegistration
 
     /**
      * Returns the keep alive method.
-     * 
+     *
      * @return the keep alive method.
      */
     public String getKeepAliveMethod()
@@ -289,7 +288,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the keep alive method.
-     * 
+     *
      * @param keepAliveMethod the keep alive method to set
      */
     public void setKeepAliveMethod(String keepAliveMethod)
@@ -299,7 +298,7 @@ public class SIPAccountRegistration
 
     /**
      * Returns the keep alive interval.
-     * 
+     *
      * @return the keep alive interval
      */
     public String getKeepAliveInterval()
@@ -309,7 +308,7 @@ public class SIPAccountRegistration
 
     /**
      * Sets the keep alive interval.
-     * 
+     *
      * @param keepAliveInterval the keep alive interval to set
      */
     public void setKeepAliveInterval(String keepAliveInterval)

@@ -14,7 +14,7 @@ import javax.sip.*;
  * with the addition of signaling whether the specified event was indeed handled
  * in the processor and needs no further processing in other processors
  * registered for the same method.
- * 
+ *
  * @author Lubomir Marinov
  */
 public interface MethodProcessor
@@ -25,7 +25,7 @@ public interface MethodProcessor
      * transitions to the Terminated state, the stack keeps no further records
      * of the dialog. This notification can be used by applications to clean up
      * any auxiliary data that is being maintained for the given dialog.
-     * 
+     *
      * @param dialogTerminatedEvent an event that indicates that the dialog has
      *            transitioned into the terminated state
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -41,7 +41,7 @@ public interface MethodProcessor
      * to the application immediately (according to RFC 3261). This method
      * enables an implementation to propagate the asynchronous handling of IO
      * Exceptions to the application.
-     * 
+     *
      * @param exceptionEvent the Exception event that is reported to the
      *            application
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -54,7 +54,7 @@ public interface MethodProcessor
      * Processes a Request received on a
      * <code>ProtocolProviderServiceSipImpl</code> upon which this processor is
      * registered.
-     * 
+     *
      * @param requestEvent requestEvent fired from the
      *            <code>ProtocolProviderServiceSipImpl</code> to the processor
      *            representing a Request received from the network
@@ -68,7 +68,7 @@ public interface MethodProcessor
      * Processes a Response received on a
      * <code>ProtocolProviderServiceSipImpl</code> upon which this processor is
      * registered.
-     * 
+     *
      * @param responseEvent the responseEvent fired from the
      *            <code>ProtocolProviderServiceSipImpl</code> to the processor
      *            representing a Response received from the network
@@ -87,7 +87,7 @@ public interface MethodProcessor
      * server upon which the timeout occurred. The type of Timeout can by
      * determined by:
      * <code>timeoutType = timeoutEvent.getTimeout().getValue();</code>
-     * 
+     *
      * @param timeoutEvent the timeoutEvent received indicating either the
      *            message retransmit or transaction timed out
      * @return <tt>true</tt> if the specified event has been handled by this
@@ -102,7 +102,7 @@ public interface MethodProcessor
      * further records of the transaction. This notification can be used by
      * applications to clean up any auxiliary data that is being maintained for
      * the given transaction.
-     * 
+     *
      * @param transactionTerminatedEvent an event that indicates that the
      *            transaction has transitioned into the terminated state
      * @return <tt>true</tt> if the specified event has been handled by this
