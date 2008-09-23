@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.media.transform.zrtp;
 
+import java.awt.Component;
 import java.awt.Color;
 import java.awt.event.*;
 import java.util.*;
@@ -81,7 +82,7 @@ public class SCCallback
      * Gets a reference to the ZRTP GUI plugin and initializes the 
      * ZRTP GUI component members.
      */
-    public SCCallback(CallSession callSession)
+    public SCCallback()
     {
         BundleContext bc = MediaActivator.getBundleContext();
         
@@ -93,17 +94,49 @@ public class SCCallback
         popupDialog = uiService.getPopupDialog();
         
         ServiceReference[] serRefs = null;
-        
-        this.callSession = callSession;
 
         String osgiFilter = "("
             + Container.CONTAINER_ID
             + "="+Container.CONTAINER_MAIN_TOOL_BAR.getID()+")";
-        
-        zrtpButton = (JButton) callSession.getCall().getSecureGUIComponent("secureButton");
-        zrtpLabel = (JLabel) callSession.getCall().getSecureGUIComponent("secureLabel");
+
+        try
+        {
+            serRefs = bc.getServiceReferences(
+                                PluginComponent.class.getName(),
+                                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            exc.printStackTrace();
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) bc.
+                                             getService(serRefs[i]);
+
+                if (component.getName().equals("ZRTP status panel"))
+                {
+                    zrtpPanel = (JPanel)component.getComponent();
+                    for (int j = 0; j < zrtpPanel.getComponentCount(); j++) 
+                    {
+                        Component subComponent = zrtpPanel.getComponent(j);
+                        if (subComponent.getName().equals("secureButton"))
+                        {
+                            zrtpButton = (JButton)subComponent;
+                        }
+                        else if (subComponent.getName().equals("secureLabel"))
+                        {
+                            zrtpLabel = (JLabel)subComponent;
+                        }
+                    }
+                }
+            }
+        }
     }
-    
+
     /*
      * (non-Javadoc)
      * @see gnu.java.zrtp.ZrtpUserCallback#init()

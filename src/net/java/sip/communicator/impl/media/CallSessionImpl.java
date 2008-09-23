@@ -473,12 +473,11 @@ public class CallSessionImpl
 
         //remove targets
         if (selectedKeyProviderAlgorithm != null
-        	/*  TODO: Video securing related code
-             *  remove the next condition as part of enabling video securing
-             *  (see comments insecureStatusChanged method for more info)
+        	/* TODO: Video securing related code
+             * remove the next condition as part of enabling video securing
+             * (see comments insecureStatusChanged method for more info)
              */
-            && rtpManager.equals(audioRtpManager)	
-        	)
+            && rtpManager.equals(audioRtpManager))
         {
             TransformConnector transConnector
                 = (TransformConnector) this.transConnectors.get(rtpManager);
@@ -1976,11 +1975,10 @@ public class CallSessionImpl
                 // The crypto provider solution should be queried somehow
                 // or taken from a resources file 
                 transConnector = TransformManager.createZRTPConnector(bindAddress,
-                                                                      "BouncyCastle",
-                                                                      this);
+                                                                      "BouncyCastle");
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
-                
+
                 // ZRTP engine initialization
                 // TODO: 1. must query/randomize/find a method for the zid file name
                 //       2. must define an exception for initialization failure 
@@ -1991,7 +1989,7 @@ public class CallSessionImpl
                 {
                     if (!engine.initialize("my_zid.zid"))
                     engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
-                    				EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
+                                    EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
                     
                 }
                 // Case 2: user will toggle secure communication during the call 
@@ -1999,12 +1997,12 @@ public class CallSessionImpl
                 else
                 {
                     engine.sendInfo(ZrtpCodes.MessageSeverity.Info, 
-                    				EnumSet.of(ZRTPCustomInfoCodes.ZRTPNotEnabledByUser));
+                                    EnumSet.of(ZRTPCustomInfoCodes.ZRTPNotEnabledByUser));
                 }
                 
                 logger.trace("RTP"+
-                			 (rtpManager.equals(audioRtpManager)?" audio ":"video")+
-                			 "manager initialized through connector");
+                            (rtpManager.equals(audioRtpManager)?" audio ":"video")+
+                            "manager initialized through connector");
             }
             else
             // Selected key management type == Dummy branch - hardcoded keys    
