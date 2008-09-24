@@ -260,6 +260,8 @@ public class NewAccountDialog
             wizardContainer.setCurrentWizard(wizard);
 
             wizardContainer.showDialog(false);
+
+            this.dispose();
         }
         else if (sourceButton.equals(addAccountButton))
         {
