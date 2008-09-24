@@ -1540,6 +1540,18 @@ public class CallSessionImpl
                     , 1
                     , "RTP/AVP"
                     , supportedAudioEncodings);
+
+            // if we support g723 it is in 6.3 bitrate
+            String g723Str = String.valueOf(SdpConstants.G723);
+            for (int i = 0; i < supportedAudioEncodings.length; i++) 
+            {
+                if(supportedAudioEncodings[i].equals(g723Str))
+                {
+                    am.setAttribute("rtpmap", "4 G723/8000");
+                    am.setAttribute("fmtp", "4 annexa=no;bitrate=6.3");
+                }
+            }
+
             byte onHold = this.onHold;
 
             if (!mediaServCallback.getDeviceConfiguration()
