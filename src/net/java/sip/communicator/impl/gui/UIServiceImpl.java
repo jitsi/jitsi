@@ -100,6 +100,8 @@ public class UIServiceImpl
 
         this.mainFrame = new MainFrame();
 
+        this.mainFrame.initBounds();
+
         GuiActivator.getUIService().registerExportedWindow(mainFrame);
 
         this.loginManager = new LoginManager(mainFrame);

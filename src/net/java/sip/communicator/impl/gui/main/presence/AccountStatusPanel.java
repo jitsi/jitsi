@@ -53,18 +53,19 @@ public class AccountStatusPanel
     {
         super(new BorderLayout(10, 0));
 
+        this.mainFrame = mainFrame;
+
+        statusComboBox = new GlobalStatusSelectorBox(mainFrame);
+
         if (ConfigurationManager.isTransparentWindowEnabled())
             this.setUI(new SIPCommOpaquePanelUI());
-
-        this.mainFrame = mainFrame;
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         this.setOpaque(false);
         this.accountNameLabel.setOpaque(false);
+        this.statusComboBox.setOpaque(false);
         this.rightPanel.setOpaque(false);
-
-        statusComboBox = new GlobalStatusSelectorBox(mainFrame);
 
         // Align status combo box with account name field.
         statusMenuBar.setLayout(new BorderLayout(0, 0));

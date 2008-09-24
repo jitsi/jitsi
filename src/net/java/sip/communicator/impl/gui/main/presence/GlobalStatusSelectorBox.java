@@ -40,6 +40,10 @@ public class GlobalStatusSelectorBox
     extends StatusSelectorMenu
     implements ActionListener
 {
+    private int IMAGE_INDENT = 10;
+
+    private Image arrowImage = ImageLoader.getImage(ImageLoader.MORE_BUTTON);
+
     private Logger logger = Logger.getLogger(
         GlobalStatusSelectorBox.class.getName());
 
@@ -751,5 +755,18 @@ public class GlobalStatusSelectorBox
         }
 
         return lastStatus;
+    }
+
+    /**
+     * Overwrites the <tt>paintComponent(Graphics g)</tt> method in order to
+     * provide a new look and the mouse moves over this component.
+     */
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+
+        g.drawImage(arrowImage,
+            this.getWidth() - arrowImage.getWidth(null) - IMAGE_INDENT,
+            (this.getHeight() - arrowImage.getHeight(null))/2, null);
     }
 }

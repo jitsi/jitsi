@@ -132,8 +132,6 @@ public class MainFrame
 
         this.addWindowListener(new MainFrameWindowAdapter());
 
-        this.initBounds();
-
         this.initTitleFont();
 
         String applicationName
@@ -195,12 +193,19 @@ public class MainFrame
     /**
      * Sets frame size and position.
      */
-    private void initBounds()
+    public void initBounds()
     {
         int width
             = GuiActivator.getResources().getSettingsInt("mainWindowWidth");
         int height
             = GuiActivator.getResources().getSettingsInt("mainWindowHeight");
+
+        int minWidth
+            = GuiActivator.getResources().getSettingsInt("minMainWindowWidth");
+        int minHeight
+            = GuiActivator.getResources().getSettingsInt("minMainWindowHeight");
+
+        this.setMinimumSize(new Dimension(minWidth, minHeight));
 
         this.setSize(width, height);
 

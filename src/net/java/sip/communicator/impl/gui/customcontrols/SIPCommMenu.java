@@ -139,13 +139,5 @@ public class SIPCommMenu
         AntialiasingManager.activateAntialiasing(g2);
 
         super.paintComponent(g2);
-
-        g2.setStroke(new BasicStroke(1.5f));
-
-        g2.setColor(new Color(0x646464));
-
-        if (isMouseOver)
-            g.drawRoundRect(0, 0, this.getWidth() - 1,
-                            this.getHeight() - 3, 5, 5);
     }
 }
