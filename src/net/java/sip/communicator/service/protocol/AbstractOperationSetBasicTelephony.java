@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.*;
  * Represents a default implementation of <tt>OperationSetBasicTelephony</tt> in
  * order to make it easier for implementers to provide complete solutions while
  * focusing on implementation-specific details.
- * 
+ *
  * @author Lubomir Marinov
  */
 public abstract class AbstractOperationSetBasicTelephony
@@ -48,7 +48,7 @@ public abstract class AbstractOperationSetBasicTelephony
      * Creates and dispatches a <tt>CallEvent</tt> notifying registered
      * listeners that an event with id <tt>eventID</tt> has occurred on
      * <tt>sourceCall</tt>.
-     * 
+     *
      * @param eventID the ID of the event to dispatch
      * @param sourceCall the call on which the event has occurred.
      */
@@ -97,7 +97,7 @@ public abstract class AbstractOperationSetBasicTelephony
      * <p>
      * The default implementation does nothing.
      * </p>
-     * 
+     *
      * @param participant the <tt>CallParticipant</tt> who receives the audio
      *            stream to have its mute state set
      * @param mute <tt>true</tt> to mute the audio stream being sent to

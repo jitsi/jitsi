@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The dialog created when an incoming call is received.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ReceivedCallDialog
@@ -49,7 +49,7 @@ public class ReceivedCallDialog
 
     /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
-     * 
+     *
      * @param call The associated with this dialog incoming call.
      */
     public ReceivedCallDialog(Call call)
@@ -114,7 +114,7 @@ public class ReceivedCallDialog
 
     /**
      * Initializes the label of the received call.
-     * 
+     *
      * @param callLabel The label to initialize.
      */
     private void initCallLabel(JLabel callLabel)
@@ -185,7 +185,7 @@ public class ReceivedCallDialog
 
     /**
      * Returns the participant image.
-     * 
+     *
      * @param participant The call participant, for which we're returning an
      * image.
      * @return the participant image.
@@ -200,7 +200,10 @@ public class ReceivedCallDialog
             MetaContact metaContact = GuiActivator.getMetaContactListService()
                 .findMetaContactByContact(participant.getContact());
 
-            icon = new ImageIcon(metaContact.getAvatar());
+            byte[] avatar = metaContact.getAvatar();
+
+            if(avatar != null && avatar.length > 0)
+                icon = new ImageIcon(avatar);
         }
 
         // If the icon is still null we try to get an image from the call
