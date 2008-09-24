@@ -97,7 +97,7 @@
         <echo message="'ant build-installation-generic' for building generic installator jar" />
         <echo message="'ant build-installation-linux' for building linux instalation file" />
         <echo message="'ant build-installation-windows' for building windows instalation file" />
-        <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX" />
+        <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX and mt.exe" />
     </target>
 
     <target name="clean-install-generic">
@@ -432,6 +432,7 @@
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_NAME" value="${application.name}" />
         <filter token="APP_WEB" value="${application.web}" />
+    	<filter token="WINDOWS_JRE_FILE" value="${windows.jre.file}" />
         <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
         <copy
                 file="${inst.resrc}/windows/installer-windows.wxs"
@@ -472,10 +473,9 @@
             <arg value="-ext" />
             <arg value="WixUtilExtension" />
             <arg value="-out" />
-            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.msi" />
+            <arg value="${windows.app.dir}\tmp\setup.msi" />
             <arg value="${windows.app.dir}\tmp\installer-windows.wixobj" />
         </exec>
-        <delete file="${windows.app.dir}\${package.name}-${sip-communicator.version}.wixpdb" />
 
         <!-- Bootstrap the MSI into an EXE -->
         <exec
@@ -485,9 +485,14 @@
             <arg value="-out" />
             <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.exe" />
             <arg value="-mps" />
-            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.msi" />
+            <arg value="${windows.app.dir}\tmp\setup.msi" />
             <arg value="-setup" />
             <arg value="C:\Program Files\WiX\setup.exe" />
+        </exec>
+        <exec executable="mt.exe" dir="${windows.app.dir}" failonerror="true">
+            <arg value="-manifest" />
+            <arg value="${inst.resrc}\windows\setup.exe.manifest" />
+            <arg value="-outputresource:${package.name}-${sip-communicator.version}.exe;#1" />
         </exec>
 
         <delete dir="${light.dir}" />

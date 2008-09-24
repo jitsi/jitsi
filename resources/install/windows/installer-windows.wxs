@@ -108,15 +108,52 @@
       Dialog="ExitDialog"
       Event="DoAction"
       Value="LaunchApplication">
-    WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+    <![CDATA[WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND JRE_VERSION >= "1.5" AND NOT Installed]]>
   </Publish>
+  <Publish
+      Control="Finish"
+      Dialog="ExitDialog"
+      Event="DoAction"
+      Value="InstallJRE">
+    <![CDATA[WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND JRE_VERSION < "1.5" AND NOT Installed]]>
+  </Publish>
+
+  <InstallUISequence>
+    <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
+      <![CDATA[JRE_VERSION < "1.5" AND NOT Installed]]>
+    </Custom>
+  </InstallUISequence>
 </UI>
 
+<CustomAction
+    Id="InstallJRE"
+    BinaryKey="JRESetup"
+    ExeCommand=""
+    Return="asyncNoWait" />
 <CustomAction
     Id="LaunchApplication"
     BinaryKey="WixCA"
     DllEntry="WixShellExec"
     Impersonate="yes" />
+<CustomAction
+    Id="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+    Property="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+    Value="Install Java(TM) SE Runtime Environment" />
+
+<InstallExecuteSequence>
+  <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
+    <![CDATA[JRE_VERSION < "1.5" AND NOT Installed]]>
+  </Custom>
+</InstallExecuteSequence>
+
+<Property Id="JRE_VERSION">
+  <RegistrySearch
+      Id="RegistrySearch_JREVersion"
+      Key="Software\JavaSoft\Java Runtime Environment"
+      Name="CurrentVersion"
+      Root="HKLM"
+      Type="raw" />
+</Property>
 
 <Property Id="ARPCONTACT" Value="@APP_EMAIL@" />
 <Property Id="ARPHELPLINK" Value="@APP_WEB@" />
@@ -131,6 +168,8 @@
 <WixVariable Id='WixUILicenseRtf' Value="License.rtf" />
 
 <Icon Id="Icon.ico" SourceFile="sc-logo.ico" />
+
+<Binary Id="JRESetup" SourceFile="@WINDOWS_JRE_FILE@" />
 
 </Product>
 
