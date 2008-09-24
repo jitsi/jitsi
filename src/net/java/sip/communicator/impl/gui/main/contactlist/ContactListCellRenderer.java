@@ -9,17 +9,19 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.*;
 import java.util.*;
 
+import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in the
@@ -33,15 +35,12 @@ public class ContactListCellRenderer
     extends JPanel 
     implements ListCellRenderer
 {
+    private Logger logger = Logger.getLogger(ContactListCellRenderer.class);
     private JLabel nameLabel = new JLabel();
 
     private JLabel photoLabel = new JLabel();
 
     private JPanel buttonsPanel;
-
-    private SIPCommButton extendPanelButton = new SIPCommButton(ImageLoader
-            .getImage(ImageLoader.MORE_INFO_ICON), ImageLoader
-            .getImage(ImageLoader.MORE_INFO_ICON));
 
     private int rowTransparency
         = GuiActivator.getResources()
@@ -54,11 +53,6 @@ public class ContactListCellRenderer
     private boolean isLeaf = true;
 
     private MainFrame mainFrame;
-
-    private int CONTACT_PROTOCOL_BUTTON_WIDTH = 20;
-
-    private Color bgColor = new Color(GuiActivator.getResources()
-        .getColor("contactListRowColor"), true);
 
     /**
      * Initialize the panel containing the node.
@@ -104,8 +98,6 @@ public class ContactListCellRenderer
         ContactList contactList = (ContactList) list;
         ContactListModel listModel = (ContactListModel) contactList.getModel();
 
-        
-
         if (value instanceof MetaContact)
         {
             this.setPreferredSize(new Dimension(20, 30));
@@ -129,15 +121,10 @@ public class ContactListCellRenderer
             this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 1));
 
             byte[] avatar = contactItem.getAvatar(true);
-            if (avatar != null)
+            if (avatar != null && avatar.length > 0)
             {
-                ImageIcon imageIcon = new ImageIcon(avatar);
-
-                Image newImage = imageIcon.getImage()
-                        .getScaledInstance(25, 30, Image.SCALE_SMOOTH);
-                imageIcon.setImage(newImage);
-
-                this.photoLabel.setIcon(imageIcon);
+                Image roundedAvatar = createRoundImage(avatar);
+                this.photoLabel.setIcon(new ImageIcon(roundedAvatar));
             }
 
             // We should set the bounds of the cell explicitely in order to
@@ -208,28 +195,41 @@ public class ContactListCellRenderer
     }
     
     /**
-     * Adds the protocol provider index to the given source image.
-     * @param sourceImage
-     * @param index
-     * @return
+     * Creates a rounded avatar image.
+     * 
+     * @param avatarBytes The bytes of the initial avatar image.
+     * 
+     * @return The rounded corner image.
      */
-    private Image createIndexedImage(Image sourceImage, int index)
-    {        
-        BufferedImage buffImage = new BufferedImage(
-                22, 16, BufferedImage.TYPE_INT_ARGB);
-        
-        Graphics2D g = (Graphics2D)buffImage.getGraphics();
-        AlphaComposite ac =
-            AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
-        
-        AntialiasingManager.activateAntialiasing(g);
-        g.setColor(Color.DARK_GRAY);
-        g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-        g.drawImage(sourceImage, 0, 0, null);
-        g.setComposite(ac);
-        g.drawString(new Integer(index+1).toString(), 14, 8);
-        
-        return buffImage;
+    private Image createRoundImage(byte[] avatarBytes)
+    {
+        BufferedImage destImage
+            = new BufferedImage(25, 30, BufferedImage.TYPE_INT_ARGB);
+
+        BufferedImage avatarImage;
+
+        try
+        {
+            InputStream in = new ByteArrayInputStream(avatarBytes);
+            avatarImage = ImageIO.read(in);
+
+            Graphics2D g = destImage.createGraphics();
+            AntialiasingManager.activateAntialiasing(g);
+            g.setColor(Color.WHITE);
+            g.fillRoundRect(0, 0, 25, 30, 10, 10);
+            g.setComposite(AlphaComposite.SrcIn);
+
+            g.drawImage(avatarImage
+                .getScaledInstance(25, 30, Image.SCALE_SMOOTH), 0, 0, null);
+
+            return destImage;
+        }
+        catch (Exception e)
+        {
+            logger.error("Could not create image.", e);
+        }
+
+        return null;
     }
 
     /**

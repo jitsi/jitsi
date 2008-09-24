@@ -7,7 +7,10 @@
 package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
 
+import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -22,10 +25,11 @@ public class AccountStatusPanel
     extends JPanel
     implements RegistrationStateChangeListener
 {
+    private Logger logger = Logger.getLogger(AccountStatusPanel.class);
 
-    static final int AVATAR_ICON_HEIGHT = 45;
+    private static final int AVATAR_ICON_HEIGHT = 45;
 
-    static final int AVATAR_ICON_WIDTH = 40;
+    private static final int AVATAR_ICON_WIDTH = 40;
 
     private JMenuBar statusMenuBar = new JMenuBar();
 
@@ -75,10 +79,6 @@ public class AccountStatusPanel
 
         this.rightPanel.add(accountNameLabel);
         this.rightPanel.add(statusMenuBar);
-
-        this.initAccountImageLabel();
-
-        this.initAccountNameLabel();
     }
 
     public void addAccount(ProtocolProviderService protocolProvider)
@@ -131,16 +131,6 @@ public class AccountStatusPanel
         return statusComboBox.hasSelectedMenus();
     }
 
-    private void initAccountImageLabel()
-    {
-
-    }
-
-    private void initAccountNameLabel()
-    {
-
-    }
-
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         final ProtocolProviderService protocolProvider = evt.getProvider();
@@ -164,11 +154,10 @@ public class AccountStatusPanel
 
                         if (accountImage != null)
                         {
-                            accountImageLabel.setIcon( ImageUtils
-                                .scaleIconWithinBounds(
-                                     new ImageIcon(accountImage),
-                                     AVATAR_ICON_WIDTH,
-                                     AVATAR_ICON_HEIGHT));
+                            Image roundedImage = createRoundImage(accountImage);
+
+                            accountImageLabel
+                                .setIcon(new ImageIcon(roundedImage));
                         }
 
                         String firstName
@@ -223,5 +212,47 @@ public class AccountStatusPanel
         g.setColor(bgColor);
 
         g.fillRoundRect(5, 5, this.getWidth() - 10, this.getHeight() - 10, 8, 8);
+    }
+
+    /**
+     * Creates a rounded avatar image.
+     * 
+     * @param avatarBytes The bytes of the initial avatar image.
+     * 
+     * @return The rounded corner image.
+     */
+    private Image createRoundImage(byte[] avatarBytes)
+    {
+        BufferedImage destImage
+            = new BufferedImage(AVATAR_ICON_WIDTH,
+                                AVATAR_ICON_HEIGHT,
+                                BufferedImage.TYPE_INT_ARGB);
+
+        BufferedImage avatarImage;
+
+        try
+        {
+            InputStream in = new ByteArrayInputStream(avatarBytes);
+            avatarImage = ImageIO.read(in);
+
+            Graphics2D g = destImage.createGraphics();
+            AntialiasingManager.activateAntialiasing(g);
+            g.setColor(Color.WHITE);
+            g.fillRoundRect(0, 0, AVATAR_ICON_WIDTH, AVATAR_ICON_HEIGHT, 10, 10);
+            g.setComposite(AlphaComposite.SrcIn);
+
+            g.drawImage(avatarImage
+                .getScaledInstance( AVATAR_ICON_WIDTH,
+                                    AVATAR_ICON_HEIGHT,
+                                    Image.SCALE_SMOOTH), 0, 0, null);
+
+            return destImage;
+        }
+        catch (Exception e)
+        {
+            logger.error("Could not create image.", e);
+        }
+
+        return null;
     }
 }
