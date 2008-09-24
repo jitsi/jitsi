@@ -1553,6 +1553,16 @@ public class MainFrame
         return accountStatusPanel;
     }
 
+    /**
+     * Returns the phone number currently entered in the phone number field.
+     * 
+     * @return the phone number currently entered in the phone number field.
+     */
+    public String getCurrentPhoneNumber()
+    {
+        return mainCallPanel.getPhoneNumberComboText();
+    }
+
     private class MainContentPane extends JPanel
     {
         public MainContentPane()

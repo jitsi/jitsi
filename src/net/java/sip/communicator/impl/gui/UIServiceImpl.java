@@ -568,6 +568,16 @@ public class UIServiceImpl
 
         return chatWindowManager.getSelectedChat();
     }
+    
+    /**
+     * Returns the phone number currently entered in the phone number field.
+     * 
+     * @return the phone number currently entered in the phone number field.
+     */
+    public String getCurrentPhoneNumber()
+    {
+        return mainFrame.getCurrentPhoneNumber();
+    }
 
     /**
      * Implements the <code>UIService.isContainerSupported</code> method.

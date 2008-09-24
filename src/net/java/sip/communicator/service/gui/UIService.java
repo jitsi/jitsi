@@ -203,6 +203,15 @@ public interface UIService
     public Chat getCurrentChat();
 
     /**
+     * Returns the phone number currently entered in the phone number field.
+     * This method is meant to be used by plugins that are interested in
+     * operations with the currently entered phone number.
+     * 
+     * @return the phone number currently entered in the phone number field.
+     */
+    public String getCurrentPhoneNumber();
+
+    /**
      * Returns an <tt>ExportableComponent</tt> that corresponds to an
      * authentication window for the given protocol provider and user
      * inromation. Initially this method is meant to be used by the
