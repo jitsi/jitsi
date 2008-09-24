@@ -57,15 +57,13 @@ public class SIPCommStatusMenuUI
             GuiActivator.getResources()
                 .getColor("accountRegistrationBackground"));
 
+        g.setColor(newBgColor);
+        g.fillRect(0, 0, menuWidth, menuHeight);
+
         if (menuItem.isSelected())
         {
             g.setColor(Color.LIGHT_GRAY);
             g.fillRoundRect(0, 0, menuWidth, menuHeight, 8, 8);
-        }
-        else
-        {
-            g.setColor(newBgColor);
-            g.fillRect(0, 0, menuWidth, menuHeight);
         }
 
         g.setColor(oldColor);
