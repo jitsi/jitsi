@@ -1991,7 +1991,7 @@ public class CallSessionImpl
                 // The crypto provider solution should be queried somehow
                 // or taken from a resources file
                 transConnector = TransformManager.createZRTPConnector(
-                                bindAddress, "BouncyCastle");
+                                            bindAddress, "BouncyCastle", this);
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
 
@@ -2002,10 +2002,12 @@ public class CallSessionImpl
                 ZRTPTransformEngine engine
                     = (ZRTPTransformEngine)transConnector.getEngine();
                 // Case 1: user toggled secure communication prior to the call
+                // Note that this is not possible now as the "secure" button is 
+                // in the call panel that appears once the call has started
                 if (usingSRTP)
                 {
                     if (!engine.initialize("my_zid.zid"))
-                    engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
+                        engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
                                     EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
 
                 }

@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.media.transform.dummy.*;
 import net.java.sip.communicator.impl.media.transform.srtp.*;
 import net.java.sip.communicator.impl.media.transform.zrtp.*;
 import net.java.sip.communicator.impl.media.keyshare.*;
+import net.java.sip.communicator.service.media.*;
 import java.util.*;
 
 import org.bouncycastle.jce.provider.*;
@@ -139,7 +140,8 @@ public class TransformManager
      * @throws InvalidSessionAddressException
      */
     public static TransformConnector createZRTPConnector(SessionAddress addr,
-                                                         String cryptoProvider)
+                                                         String cryptoProvider,
+                                                         CallSession callSession)
         throws InvalidSessionAddressException
     {
         //for adding multistream support the engine should be instantiated 
@@ -162,7 +164,7 @@ public class TransformManager
         
         //for adding multistream support also the SCCallback should be instantiates
         //only once as a static variable of this class and passed to the engine
-        engine.setUserCallback(new SCCallback());
+        engine.setUserCallback(new SCCallback(callSession));
         engine.setCryptoProvider(cp);
         
         return connector;  

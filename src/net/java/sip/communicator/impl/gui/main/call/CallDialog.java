@@ -150,7 +150,12 @@ public class CallDialog
      */
     public Call getCall()
     {
-        return callPanel.getCall();
+        if (callPanel != null)
+        {
+            return callPanel.getCall();
+        }
+        else
+            return null;
     }
 
     @Override
