@@ -166,9 +166,12 @@ public class SipRegistrarConnection
     void register()
         throws OperationFailedException
     {
-        setRegistrationState(RegistrationState.REGISTERING,
-                             RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
-                             null);
+        // skip REGISTERING event if we are already registered
+        // we are refreshing our registration
+        if (getRegistrationState() != RegistrationState.REGISTERED)
+            setRegistrationState(RegistrationState.REGISTERING,
+                                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                                 null);
 
         //From
         FromHeader fromHeader = null;
