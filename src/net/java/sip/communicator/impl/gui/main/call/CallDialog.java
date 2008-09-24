@@ -134,6 +134,7 @@ public class CallDialog
                     getLocationOnScreen().y + getHeight());
 
                 dialpadDialog.setVisible(true);
+                dialpadDialog.requestFocus();
             }
             else
             {
