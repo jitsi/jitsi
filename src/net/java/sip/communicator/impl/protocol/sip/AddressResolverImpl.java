@@ -63,18 +63,31 @@ public class AddressResolverImpl
         }
         catch (Exception ex)
         {
-            logger.error("Domain not resolved " + ex.getMessage());
+            //could mean there was no SRV record
+            if(logger.isDebugEnabled())
+            {
+                logger.debug("Domain "+ inputAddress
+                                +" could not be resolved " + ex.getMessage());
+                //show who called us
+                logger.trace("Printing SRV resolution stack trace", ex);
+            }
         }
 
+        Hop returnHop = null;
         if (inputAddress.getPort()  != -1)
         {
-            return inputAddress;
+            returnHop = inputAddress;
         }
         else
         {
-            return new HopImpl(inputAddress.getHost(),
+            returnHop = new HopImpl(inputAddress.getHost(),
                 MessageProcessor.getDefaultPort(
-                    inputAddress.getTransport()),inputAddress.getTransport());
+                    inputAddress.getTransport()),inputAddress.getTransport() );
         }
+
+        if(logger.isDebugEnabled())
+            logger.debug("Returning hop: " + returnHop);
+
+        return returnHop;
     }
 }

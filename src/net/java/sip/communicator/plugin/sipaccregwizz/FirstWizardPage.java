@@ -89,7 +89,7 @@ public class FirstWizardPage
         = new JTextField(SIPAccountRegistration.DEFAULT_PORT);
 
     private JComboBox transportCombo = new JComboBox(new Object[]
-    { "UDP", "TLS", "TCP" });
+    { "UDP", "TCP", "TLS" });
 
     private JPanel presenceOpPanel = new JPanel(new BorderLayout(10, 10));
 
