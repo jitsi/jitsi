@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class DialpadDialog
     extends JDialog
-    implements FocusListener
+    implements WindowFocusListener
 {
     private DialPanel dialPanel;
 
@@ -42,7 +42,7 @@ public class DialpadDialog
 
         this.init();
 
-        this.addFocusListener(this);
+        this.addWindowFocusListener(this);
     }
 
     /**
@@ -58,7 +58,7 @@ public class DialpadDialog
 
         this.init();
 
-        this.addFocusListener(this);
+        this.addWindowFocusListener(this);
     }
 
     private void init()
@@ -109,11 +109,11 @@ public class DialpadDialog
         }
     }
 
-    public void focusGained(FocusEvent e)
+    public void windowGainedFocus(WindowEvent e)
     {
     }
 
-    public void focusLost(FocusEvent e)
+    public void windowLostFocus(WindowEvent e)
     {
         this.setVisible(false);
     }

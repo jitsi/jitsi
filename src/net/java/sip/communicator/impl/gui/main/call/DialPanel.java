@@ -388,8 +388,6 @@ public class DialPanel
 
         if(dtmfTone != null)
             this.sendDtmfTone(dtmfTone);
-        else
-            this.parentCallPanel.requestFocusInPhoneCombo();
     }
     
     private class DialButton extends SIPCommButton
