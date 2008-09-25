@@ -484,7 +484,7 @@
                 dir="${light.dir}"
                 failonerror="true">
             <arg value="-out" />
-            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.exe" />
+            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}-msi.exe" />
             <arg value="-mps" />
             <arg value="${windows.app.dir}\tmp\setup.msi" />
             <arg value="-setup" />
@@ -493,7 +493,7 @@
         <exec executable="mt.exe" dir="${windows.app.dir}" failonerror="true">
             <arg value="-manifest" />
             <arg value="${inst.resrc}\windows\setup.exe.manifest" />
-            <arg value="-outputresource:${package.name}-${sip-communicator.version}.exe;#1" />
+            <arg value="-outputresource:${package.name}-${sip-communicator.version}-msi.exe;#1" />
         </exec>
 
         <delete dir="${light.dir}" />
