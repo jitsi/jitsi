@@ -42,7 +42,7 @@ public class GlobalStatusSelectorBox
 {
     private int IMAGE_INDENT = 10;
 
-    private Image arrowImage = ImageLoader.getImage(ImageLoader.MORE_BUTTON);
+    private Image arrowImage = ImageLoader.getImage(ImageLoader.COMBO_BOX_ARROW);
 
     private Logger logger = Logger.getLogger(
         GlobalStatusSelectorBox.class.getName());
