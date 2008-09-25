@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
 <Product
-    Id="*"
+    Id="@WIX_PRODUCT_ID@"
     Language="1033"
     Manufacturer="@APP_NAME@"
     Name="@APP_NAME@"

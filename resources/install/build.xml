@@ -433,6 +433,7 @@
         <filter token="APP_NAME" value="${application.name}" />
         <filter token="APP_WEB" value="${application.web}" />
     	<filter token="WINDOWS_JRE_FILE" value="${windows.jre.file}" />
+        <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
         <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
         <copy
                 file="${inst.resrc}/windows/installer-windows.wxs"
