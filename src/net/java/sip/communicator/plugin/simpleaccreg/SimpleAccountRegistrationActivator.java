@@ -120,7 +120,8 @@ public class SimpleAccountRegistrationActivator
 
             if (accountManager != null)
             {
-                hasStoredAccounts = accountManager.hasStoredAccounts();
+                hasStoredAccounts =
+                    accountManager.hasStoredAccounts(null, false);
             }
         }
         return hasStoredAccounts;

@@ -219,7 +219,7 @@ public class AccountManagerImpl
         return className.substring(0, className.lastIndexOf('.'));
     }
 
-    public boolean hasStoredAccounts()
+    public boolean hasStoredAccounts(String protocolName, boolean includeHidden)
     {
         ServiceReference[] factoryRefs = null;
         boolean hasStoredAccounts = false;
@@ -246,6 +246,13 @@ public class AccountManagerImpl
                 ProtocolProviderFactory factory =
                     (ProtocolProviderFactory) bundleContext
                         .getService(factoryRefs[factoryRefI]);
+
+                if ((protocolName != null)
+                    && !protocolName.equals(factory.getProtocolName()))
+                {
+                    continue;
+                }
+
                 String factoryPackage = getFactoryImplPackageName(factory);
                 List<String> storedAccounts =
                     configService
@@ -261,20 +268,23 @@ public class AccountManagerImpl
                             true);
                     boolean hidden = false;
 
-                    for (Iterator<String> storedAccountPropertyIter =
-                        storedAccountProperties.iterator(); storedAccountPropertyIter
-                        .hasNext();)
+                    if (!includeHidden)
                     {
-                        String property = storedAccountPropertyIter.next();
-                        String value = configService.getString(property);
-
-                        property = stripPackagePrefix(property);
-
-                        if (ProtocolProviderFactory.IS_PROTOCOL_HIDDEN
-                            .equals(property))
+                        for (Iterator<String> storedAccountPropertyIter =
+                            storedAccountProperties.iterator(); storedAccountPropertyIter
+                            .hasNext();)
                         {
-                            hidden = (value != null);
-                            break;
+                            String property = storedAccountPropertyIter.next();
+                            String value = configService.getString(property);
+
+                            property = stripPackagePrefix(property);
+
+                            if (ProtocolProviderFactory.IS_PROTOCOL_HIDDEN
+                                .equals(property))
+                            {
+                                hidden = (value != null);
+                                break;
+                            }
                         }
                     }
 
@@ -285,7 +295,7 @@ public class AccountManagerImpl
                     }
                 }
 
-                if (hasStoredAccounts)
+                if (hasStoredAccounts || (protocolName != null))
                 {
                     break;
                 }

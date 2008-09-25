@@ -32,10 +32,14 @@ public interface AccountManager
      * Determines whether the account store represented by this manager contains
      * stored accounts.
      * 
+     * @param protocolName the name of the protocol for which the stored
+     *            accounts are to be checked or <tt>null</tt> for all protocols
+     * @param includeHidden <tt>true</tt> to take into account both non-hidden
+     *            and hidden stored accounts; <tt>false</tt> for non-hidden only
      * @return <tt>true</tt> if the account store represented by this manager
      *         contains stored accounts; <tt>false</tt>, otherwise
      */
-    boolean hasStoredAccounts();
+    boolean hasStoredAccounts(String protocolName, boolean includeHidden);
 
     /**
      * Unregisters a specific listener from this <code>AccountManager</code> so
