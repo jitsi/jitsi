@@ -224,36 +224,39 @@ public class AccountStatusPanel
      */
     private Image createRoundImage(byte[] avatarBytes)
     {
-        BufferedImage destImage
-            = new BufferedImage(AVATAR_ICON_WIDTH,
-                                AVATAR_ICON_HEIGHT,
-                                BufferedImage.TYPE_INT_ARGB);
-
-        BufferedImage avatarImage;
+        BufferedImage destImage = null;
 
         try
         {
             InputStream in = new ByteArrayInputStream(avatarBytes);
-            avatarImage = ImageIO.read(in);
+            BufferedImage avatarImage = ImageIO.read(in);
+
+            Image scaledImage = avatarImage.getScaledInstance(
+                                                            -1,
+                                                            AVATAR_ICON_HEIGHT,
+                                                            Image.SCALE_SMOOTH);
+
+            destImage
+                = new BufferedImage(scaledImage.getWidth(null),
+                                    AVATAR_ICON_HEIGHT,
+                                    BufferedImage.TYPE_INT_ARGB);
 
             Graphics2D g = destImage.createGraphics();
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.WHITE);
-            g.fillRoundRect(0, 0, AVATAR_ICON_WIDTH, AVATAR_ICON_HEIGHT, 10, 10);
+            g.fillRoundRect(0, 0, 
+                            scaledImage.getWidth(null),
+                            AVATAR_ICON_HEIGHT,
+                            10, 10);
             g.setComposite(AlphaComposite.SrcIn);
 
-            g.drawImage(avatarImage
-                .getScaledInstance( AVATAR_ICON_WIDTH,
-                                    AVATAR_ICON_HEIGHT,
-                                    Image.SCALE_SMOOTH), 0, 0, null);
-
-            return destImage;
+            g.drawImage(scaledImage, 0, 0, null);
         }
         catch (Exception e)
         {
             logger.error("Could not create image.", e);
         }
 
-        return null;
+        return destImage;
     }
 }
