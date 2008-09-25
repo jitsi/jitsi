@@ -87,7 +87,8 @@ public class DialPanel
 
     private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, hgap, vgap));
 
-    private Iterator callParticipants;
+    private LinkedList<CallParticipant> callParticipantsList
+        = new LinkedList<CallParticipant>();
 
     private MainCallPanel parentCallPanel;
 
@@ -114,7 +115,12 @@ public class DialPanel
      */
     public DialPanel(Iterator<CallParticipant> callParticipants)
     {
-        this.callParticipants = callParticipants;
+        // We need to send DTMF tones to all participants each time the user
+        // presses a dial button, so we put the iterator into a list.
+        while (callParticipants.hasNext())
+        {
+            this.callParticipantsList.add(callParticipants.next());
+        }
 
         this.init();
     }
@@ -295,63 +301,63 @@ public class DialPanel
         DTMFTone dtmfTone = null;
         if (buttonName.equals("one"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_1;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "1");
         }
         else if (buttonName.equals("two"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_2;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "2");
         }
         else if (buttonName.equals("three"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_3;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "3");
         }
         else if (buttonName.equals("four"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_4;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "4");
         }
         else if (buttonName.equals("five"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_5;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "5");
         }
         else if (buttonName.equals("six"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_6;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "6");
         }
         else if (buttonName.equals("seven"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_7;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "7");
         }
         else if (buttonName.equals("eight"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_8;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "8");
         }
         else if (buttonName.equals("nine"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_9;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "9");
@@ -366,21 +372,21 @@ public class DialPanel
             else
                 plusZeroTimer.stop();
 
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_0;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "0");
         }
         else if (buttonName.equals("diez"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_SHARP;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "#");
         }
         else if (buttonName.equals("star"))
         {
-            if(callParticipants != null)
+            if(parentCallPanel == null)
                 dtmfTone = DTMFTone.DTMF_STAR;
             else
                 this.parentCallPanel.setPhoneNumberComboText(phoneNumber + "*");
@@ -464,7 +470,7 @@ public class DialPanel
 
             plusZeroTimer.stop();
 
-            if(callParticipants != null)
+            if(parentCallPanel == null)
             {
                 sendDtmfTone(DTMFTone.DTMF_0);
                 sendDtmfTone(DTMFTone.DTMF_0);
@@ -484,6 +490,9 @@ public class DialPanel
      */
     private void sendDtmfTone(DTMFTone dtmfTone)
     {
+        Iterator<CallParticipant> callParticipants
+            = this.callParticipantsList.iterator();
+
         try
         {
             while (callParticipants.hasNext())
