@@ -39,6 +39,8 @@ public class ContactListCellRenderer
 
     private static final int AVATAR_HEIGHT = 30;
 
+    private static final int AVATAR_WIDTH = 30;
+
     private JLabel nameLabel = new JLabel();
 
     private JLabel photoLabel = new JLabel();
@@ -213,26 +215,26 @@ public class ContactListCellRenderer
             InputStream in = new ByteArrayInputStream(avatarBytes);
             BufferedImage avatarImage = ImageIO.read(in);
 
-            Image scaledImage = avatarImage.getScaledInstance(
-                                                            -1,
-                                                            AVATAR_HEIGHT,
-                                                            Image.SCALE_SMOOTH);
+            ImageIcon scaledImage = ImageUtils.scaleIconWithinBounds(
+                new ImageIcon(avatarImage),
+                AVATAR_WIDTH,
+                AVATAR_HEIGHT);
 
             destImage
-                = new BufferedImage(scaledImage.getWidth(null),
-                                    AVATAR_HEIGHT,
+                = new BufferedImage(scaledImage.getIconWidth(),
+                                    scaledImage.getIconHeight(),
                                     BufferedImage.TYPE_INT_ARGB);
 
             Graphics2D g = destImage.createGraphics();
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.WHITE);
             g.fillRoundRect(0, 0, 
-                            scaledImage.getWidth(null),
-                            AVATAR_HEIGHT,
+                            scaledImage.getIconWidth(),
+                            scaledImage.getIconHeight(),
                             10, 10);
             g.setComposite(AlphaComposite.SrcIn);
 
-            g.drawImage(scaledImage, 0, 0, null);
+            g.drawImage(scaledImage.getImage(), 0, 0, null);
         }
         catch (Exception e)
         {
