@@ -227,6 +227,7 @@ public class ExtendedMainToolBar
         this.historyButton.addMouseListener(this);
         this.addButton.addMouseListener(this);
         this.fontButton.addMouseListener(this);
+        this.settingsButton.addMouseListener(this);
 
         // Disable all buttons that do nothing.
         this.saveButton.setEnabled(false);
