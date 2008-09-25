@@ -257,6 +257,12 @@ public class ImageLoader {
         = new ImageID("MORE_BUTTON");
 
     /**
+     * The background of the main window and chat window.
+     */
+    public static final ImageID COMBO_BOX_ARROW
+        = new ImageID("COMBO_BOX_ARROW");
+
+    /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
      */
     public static final ImageID ACCOUNT_ICON
