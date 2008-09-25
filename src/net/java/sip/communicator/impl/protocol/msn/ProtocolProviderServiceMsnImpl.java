@@ -65,7 +65,7 @@ public class ProtocolProviderServiceMsnImpl
      */
     private ProtocolIconMsnImpl msnIcon
         = new ProtocolIconMsnImpl();
-    
+
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -103,7 +103,7 @@ public class ProtocolProviderServiceMsnImpl
 
         connectAndLogin(authority, SecurityAuthority.AUTHENTICATION_REQUIRED);
     }
-    
+
     /**
      * Reconnects if fails fire connection failed.
      * @param reasonCode the appropriate <tt>SecurityAuthority</tt> reasonCode,
@@ -161,7 +161,7 @@ public class ProtocolProviderServiceMsnImpl
                         RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
                     return;
                 }
-                
+
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
 
@@ -444,8 +444,17 @@ public class ProtocolProviderServiceMsnImpl
                 // We try to reconnect and ask user to retype password.
                 reconnect(SecurityAuthority.WRONG_PASSWORD);
             }
-            else if(throwable instanceof UnknownHostException
-                    || throwable instanceof SocketException)
+            else if(throwable instanceof SocketException)
+            {
+                // in case of SocketException just fire event and not trigger
+                // unregister it will cause SocketException again and will loop
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
+                    null);
+            }
+            else if(throwable instanceof UnknownHostException)
             {
                 unregister(false);
 
@@ -514,7 +523,7 @@ public class ProtocolProviderServiceMsnImpl
             }
         }
     }
-    
+
     /**
      * Returns the msn protocol icon.
      * @return the msn protocol icon
