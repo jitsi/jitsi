@@ -286,7 +286,11 @@ public class DialPanel
     {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
-        String phoneNumber = parentCallPanel.getPhoneNumberComboText();
+        String phoneNumber = "";
+        if(parentCallPanel != null)
+        {
+            phoneNumber = parentCallPanel.getPhoneNumberComboText();
+        }
 
         DTMFTone dtmfTone = null;
         if (buttonName.equals("one"))
