@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<WixLocalization
+    xmlns="http://schemas.microsoft.com/wix/2006/localization"
+    Culture="en-us">
+  <String Id="WelcomeText3" Overridable="yes">{\GreyText}@WelcomeText3@</String>
+</WixLocalization>
