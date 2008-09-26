@@ -494,7 +494,7 @@
                 todir="${windows.app.dir}/tmp"
                 overwrite="true" />
         <exec
-                executable="${inst.resrc}\windows\msistuff.exe"
+                executable="msistuff.exe"
                 dir="${windows.app.dir}/tmp"
                 failonerror="true">
             <arg value="setup.exe" />
