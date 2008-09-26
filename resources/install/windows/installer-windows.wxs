@@ -14,6 +14,7 @@
     Compressed="yes"
     Description="@PKG_DESCRIPTION@"
     InstallPrivileges="elevated"
+    InstallScope="perMachine"
     InstallerVersion="200"
     Languages="1033"
     Manufacturer="@APP_NAME@"
@@ -114,7 +115,9 @@
                 <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="!(loc.WelcomeDlgBitmap)" />
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="!(loc.WixUIBack)" />
                 <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
-                <Control Id="WelcomeText3" Type="Text" X="135" Y="220" Width="215" Height="19" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeText3)" />
+                <Control Id="WelcomeText1" Type="Text" X="135" Y="155" Width="220" Height="40" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeText1)" />
+                <Control Id="WelcomeText2" Type="Text" X="135" Y="190" Width="220" Height="30" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeText2)" />
+                <Control Id="WelcomeText3" Type="Text" X="135" Y="220" Width="220" Height="14" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeText3)" />
                 <Control Id="Description" Type="Text" X="135" Y="80" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgDescription)" />
                 <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgTitle)" />
             </Dialog>

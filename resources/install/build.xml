@@ -432,6 +432,8 @@
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_NAME" value="${application.name}" />
         <filter token="APP_WEB" value="${application.web}" />
+        <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
+        <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
     	<filter token="WINDOWS_JRE_FILE" value="${windows.jre.file}" />
         <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />

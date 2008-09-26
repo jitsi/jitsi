@@ -2,5 +2,7 @@
 <WixLocalization
     xmlns="http://schemas.microsoft.com/wix/2006/localization"
     Culture="en-us">
+  <String Id="WelcomeText1" Overridable="yes"><![CDATA[@WelcomeText1@]]></String>
+  <String Id="WelcomeText2" Overridable="yes"><![CDATA[@WelcomeText2@]]></String>
   <String Id="WelcomeText3" Overridable="yes">{\GreyText}@WelcomeText3@</String>
 </WixLocalization>
