@@ -502,6 +502,8 @@
             <arg value="200" />
         	<arg value="/n" />
         	<arg value="${application.name}" />
+        	<arg value="/o" />
+        	<arg value="INSTALL" />
         	<arg value="/d" />
             <arg value="setup.msi" />
         	<arg value="/b" />
