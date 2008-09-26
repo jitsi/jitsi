@@ -243,6 +243,7 @@
             <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
 
             <Property Id="ARPNOMODIFY" Value="1" />
+            <Property Id="ARPNOREPAIR" Value="1" />
         </UI>
 
         <UIRef Id="WixUI_Common" />

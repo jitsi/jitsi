@@ -489,7 +489,29 @@
         </exec>
 
         <!-- Bootstrap the MSI into an EXE -->
+        <copy
+                file="${inst.resrc}/windows/setup.exe"
+                todir="${windows.app.dir}/tmp"
+                overwrite="true" />
         <exec
+                executable="${inst.resrc}\windows\msistuff.exe"
+                dir="${windows.app.dir}/tmp"
+                failonerror="true">
+            <arg value="setup.exe" />
+            <arg value="/v" />
+            <arg value="200" />
+        	<arg value="/n" />
+        	<arg value="${application.name}" />
+        	<arg value="/d" />
+            <arg value="setup.msi" />
+        	<arg value="/b" />
+            <arg value="setup.msi" />
+        </exec>
+        <copy
+                file="${windows.app.dir}/tmp/setup.exe"
+                tofile="${windows.app.dir}/${package.name}-${sip-communicator.version}-msi.exe"
+                overwrite="true" />
+        <!--exec
                 executable="C:\Program Files\WiX\setupbld.exe"
                 dir="${light.dir}"
                 failonerror="true">
@@ -499,7 +521,7 @@
             <arg value="${windows.app.dir}\tmp\setup.msi" />
             <arg value="-setup" />
             <arg value="C:\Program Files\WiX\setup.exe" />
-        </exec>
+        </exec-->
         <exec executable="mt.exe" dir="${windows.app.dir}" failonerror="true">
             <arg value="-manifest" />
             <arg value="${inst.resrc}\windows\setup.exe.manifest" />
