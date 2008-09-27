@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Fragment>
+<ComponentGroup Id="ComponentGroup_RegistryEntries">
+
+  <Component
+      Id="Component_SipRegistryEntries"
+      Directory="TARGETDIR"
+      Guid="CF88EDC2-7D07-4269-946C-B8FF917887ED">
+    <RegistryKey Action="createAndRemoveOnUninstall" Key="sip" Root="HKCR">
+      <RegistryValue Type="string" Value="URL: SIP Protocol handler" />
+      <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      <RegistryValue
+          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]run.exe" %1' />
+    </RegistryKey>
+  </Component>
+  <Component
+      Id="Component_FeedRegistryEntries"
+      Directory="TARGETDIR"
+      Guid="BDB06CF9-F840-4CD6-B8B1-C24AC9CD11AB">
+    <RegistryKey Action="createAndRemoveOnUninstall" Key="feed" Root="HKCR">
+      <RegistryValue Type="string" Value="URL: RSS Protocol handler" />
+      <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      <RegistryValue
+          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]run.exe" %1' />
+    </RegistryKey>
+  </Component>
+
+</ComponentGroup>
+</Fragment>
+</Include>

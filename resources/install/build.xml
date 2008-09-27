@@ -439,13 +439,15 @@
         <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
         <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
         <copy
-                file="${inst.resrc}/windows/installer-windows.wxs"
-                tofile="${windows.app.dir}/tmp/installer-windows.wxs"
-                filtering="yes" />
-        <copy
-                file="${inst.resrc}/windows/en-us.wxl"
-                tofile="${windows.app.dir}/tmp/en-us.wxl"
-                filtering="yes" />
+                todir="${windows.app.dir}/tmp"
+                overwrite="true"
+                filtering="yes">
+            <fileset dir="${inst.resrc}/windows">
+                <include name="en-us.wxl" />
+                <include name="installer-windows.wxs" />
+                <include name="SCRegistrySpec.wxi" />
+            </fileset>
+        </copy>
 
         <!-- Execute candle.exe -->
         <exec

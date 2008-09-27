@@ -71,33 +71,6 @@
           Value="1" />
     </Component>
   </Directory>
-
-  <Component Id="Component_SipRegistryEntries" Guid="CF88EDC2-7D07-4269-946C-B8FF917887ED">
-    <RegistryKey Action="createAndRemoveOnUninstall" Key="sip" Root="HKCR">
-      <RegistryValue Type="string" Value="URL: SIP Protocol handler" />
-      <RegistryValue Name="URL Protocol" Type="string" Value="" />
-      <RegistryValue
-          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
-      <RegistryValue
-          Key="shell\open\command"
-          KeyPath="yes"
-          Type="string"
-          Value='"[INSTALLDIR]run.exe" %1' />
-    </RegistryKey>
-  </Component>
-  <Component Id="Component_FeedRegistryEntries" Guid="BDB06CF9-F840-4CD6-B8B1-C24AC9CD11AB">
-    <RegistryKey Action="createAndRemoveOnUninstall" Key="feed" Root="HKCR">
-      <RegistryValue Type="string" Value="URL: RSS Protocol handler" />
-      <RegistryValue Name="URL Protocol" Type="string" Value="" />
-      <RegistryValue
-          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
-      <RegistryValue
-          Key="shell\open\command"
-          KeyPath="yes"
-          Type="string"
-          Value='"[INSTALLDIR]run.exe" %1' />
-    </RegistryKey>
-  </Component>
 </Directory>
 
 <Feature Id="Universe" Level="1" Title="@APP_NAME@">
@@ -106,8 +79,7 @@
   <ComponentRef Id="Component_DesktopShortcut" />
   <ComponentRef Id="Component_StartMenuShortcut" />
 
-  <ComponentRef Id="Component_SipRegistryEntries" />
-  <ComponentRef Id="Component_FeedRegistryEntries" />
+  <ComponentGroupRef Id="ComponentGroup_RegistryEntries" />
 </Feature>
 
 <Media Id="1" Cabinet="Data1.cab" EmbedCab="yes" />
@@ -286,5 +258,7 @@
 
         <UIRef Id="WixUI_Common" />
     </Fragment>
+
+<?include SCRegistrySpec.wxi ?>
 
 </Wix>
