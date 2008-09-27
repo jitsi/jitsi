@@ -1003,7 +1003,8 @@ public class OperationSetPersistentPresenceRssImpl
                 if(presenceStatus != RssStatusEnum.ONLINE)
                 {
                     presenceStatus = RssStatusEnum.ONLINE;
-                    changePresenceStatusForAllContacts(contactListRoot, presenceStatus);
+                    changePresenceStatusForAllContacts(
+                                    contactListRoot, presenceStatus);
                 }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
@@ -1013,7 +1014,8 @@ public class OperationSetPersistentPresenceRssImpl
                 if(presenceStatus != RssStatusEnum.OFFLINE)
                 {
                     presenceStatus = RssStatusEnum.OFFLINE;
-                    changePresenceStatusForAllContacts(contactListRoot, presenceStatus);
+                    changePresenceStatusForAllContacts(
+                                    contactListRoot, presenceStatus);
                 }
             }
 
