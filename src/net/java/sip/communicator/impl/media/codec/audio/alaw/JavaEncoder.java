@@ -18,9 +18,6 @@ public class JavaEncoder
     extends com.ibm.media.codec.audio.AudioCodec
 {
     private Format lastFormat = null;
-    private int numberOfInputChannels;
-    private int numberOfOutputChannels = 1;
-    private boolean downmix = false;
     private int inputSampleSize;
     private boolean bigEndian = false;
 
@@ -39,27 +36,11 @@ public class JavaEncoder
             new AudioFormat(
                 AudioFormat.LINEAR,
                 Format.NOT_SPECIFIED,
-                16,
-                2,
-                Format.NOT_SPECIFIED,
-                Format.NOT_SPECIFIED
-            ),
-            new AudioFormat(
-                AudioFormat.LINEAR,
-                Format.NOT_SPECIFIED,
                 8,
                 1,
                 Format.NOT_SPECIFIED,
                 Format.NOT_SPECIFIED
-            ),
-            new AudioFormat(
-                AudioFormat.LINEAR,
-                Format.NOT_SPECIFIED,
-                8,
-                2,
-                Format.NOT_SPECIFIED,
-                Format.NOT_SPECIFIED
-            )}; // support 1/2 channels and 8/16 bit samples
+            )}; // support 1 channel and 8/16 bit samples
 
         defaultOutputFormats = new AudioFormat[]
             {
@@ -81,42 +62,16 @@ public class JavaEncoder
         int channels = inFormat.getChannels();
         int sampleRate = (int) (inFormat.getSampleRate());
 
-        if (channels == 2)
-        {
-            supportedOutputFormats = new AudioFormat[]
-                {
-                new AudioFormat(
-                    AudioFormat.ALAW,
-                    sampleRate,
-                    8,
-                    2,
-                    Format.NOT_SPECIFIED,
-                    Format.NOT_SPECIFIED
-                ),
-                new AudioFormat(
-                    AudioFormat.ALAW,
-                    sampleRate,
-                    8,
-                    1,
-                    Format.NOT_SPECIFIED,
-                    Format.NOT_SPECIFIED
-                )};
-
-        }
-        else
-        {
-            supportedOutputFormats = new AudioFormat[]
-                {
-                new AudioFormat(
-                    AudioFormat.ALAW,
-                    sampleRate,
-                    8,
-                    1,
-                    Format.NOT_SPECIFIED,
-                    Format.NOT_SPECIFIED
-                )};
-
-        }
+        supportedOutputFormats = new AudioFormat[]
+            {
+            new AudioFormat(
+                AudioFormat.ALAW,
+                sampleRate,
+                8,
+                1,
+                Format.NOT_SPECIFIED,
+                Format.NOT_SPECIFIED
+            )};
 
         return supportedOutputFormats;
     }
@@ -134,11 +89,6 @@ public class JavaEncoder
             inputLength /= 2;
         }
 
-        if (downmix)
-        {
-            inputLength /= 2;
-        }
-
         return inputLength;
     }
 
@@ -148,26 +98,10 @@ public class JavaEncoder
      */
     private void initConverter(AudioFormat inFormat)
     {
-
         lastFormat = inFormat;
-        numberOfInputChannels = inFormat.getChannels();
-        if (outputFormat != null)
-        {
-            numberOfOutputChannels = outputFormat.getChannels();
-        }
         inputSampleSize = inFormat.getSampleSizeInBits();
 
         bigEndian = inFormat.getEndian()==AudioFormat.BIG_ENDIAN;
-
-        if ( (numberOfInputChannels == 2) && (numberOfOutputChannels == 1))
-        {
-            downmix = true;
-        }
-        else
-        {
-            downmix = false;
-        }
-
     }
 
     /**
@@ -207,7 +141,6 @@ public class JavaEncoder
 
         updateOutput(outputBuffer, outputFormat, outLength, 0);
         return BUFFER_PROCESSED_OK;
-
     }
 
     /*
@@ -219,16 +152,16 @@ public class JavaEncoder
      *
      * linear2alaw() accepts an 16-bit integer and encodes it as A-law data.
      *
-     *		Linear Input Code	Compressed Code
-     *	------------------------	---------------
-     *	0000000wxyza			000wxyz
-     *	0000001wxyza			001wxyz
-     *	000001wxyzab			010wxyz
-     *	00001wxyzabc			011wxyz
-     *	0001wxyzabcd			100wxyz
-     *	001wxyzabcde			101wxyz
-     *	01wxyzabcdef			110wxyz
-     *	1wxyzabcdefg			111wxyz
+     *      Linear Input Code   Compressed Code
+     *  ------------------------    ---------------
+     *  0000000wxyza            000wxyz
+     *  0000001wxyza            001wxyz
+     *  000001wxyzab            010wxyz
+     *  00001wxyzabc            011wxyz
+     *  0001wxyzabcd            100wxyz
+     *  001wxyzabcde            101wxyz
+     *  01wxyzabcdef            110wxyz
+     *  1wxyzabcdefg            111wxyz
      *
      * For further information see John C. Bellamy's Digital Telephony, 1982,
      * John Wiley & Sons, pps 98-111 and 472-476.
@@ -289,7 +222,7 @@ public class JavaEncoder
     }
 
     /**
-     * Converts the input buffer to the otput one using the alaw codec
+     * Converts the input buffer to the output one using the alaw codec
      * @param inBuffer byte[]
      * @param inByteOffset int
      * @param outBuffer byte[]
