@@ -343,6 +343,16 @@
             depends="clean-install-windows,version">
 
         <!--
+            This versionupdate.properties isn't of interest to be MSI but is
+            necessary for the site
+        -->
+        <propertyfile file="${windows.app.dir}/versionupdate.properties">
+            <entry key="last_version" value="${sip-communicator.version}" />
+            <entry key="download_link"
+                    value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe" />
+        </propertyfile>
+
+        <!--
             Prepare for the execution of heat.exe (which is part of the
             preparation for the execution of candle.exe)
         -->
@@ -398,11 +408,14 @@
             </fileset>
         </copy>
 
-        <propertyfile file="${light.dir}/versionupdate.properties">
-            <entry key="last_version" value="${sip-communicator.version}" />
-            <entry key="download_link"
-                    value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe" />
-        </propertyfile>
+        <!--
+            This versionupdate.properties is the only of interest to the MSI
+            i.e. it gets installed on the user machine.
+        -->
+        <copy
+                file="${inst.resrc}/windows/versionupdate.properties"
+                todir="${light.dir}"
+                overwrite="true" />
 
         <!-- Execute heat.exe -->
         <exec
