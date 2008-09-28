@@ -18,6 +18,10 @@ import org.osgi.framework.ServiceReference;
 public class AboutWindow extends JDialog implements HyperlinkListener,
         ActionListener, ExportedWindow
 {
+    private static final int DEFAULT_TEXT_INDENT
+        = BrandingActivator.getResources()
+            .getSettingsInt("aboutWindowTextIndent");
+
     public AboutWindow(Frame owner)
     {
         super(owner);
@@ -67,7 +71,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         logoArea.setEditable(false);
         logoArea.setPreferredSize(new Dimension(100, 20));
         logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        logoArea.setBorder(BorderFactory.createEmptyBorder(30, 180, 0, 0));
+        logoArea.setBorder(BorderFactory
+            .createEmptyBorder(30, DEFAULT_TEXT_INDENT, 0, 0));
 
         StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
         rightsArea.setContentType("text/html");
@@ -78,7 +83,8 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         rightsArea.setPreferredSize(new Dimension(50, 20));
         rightsArea
-                .setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
+                .setBorder(BorderFactory
+                    .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
         rightsArea.setOpaque(false);
         rightsArea.setEditable(false);
         rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -92,7 +98,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         licenseArea.setPreferredSize(new Dimension(50, 20));
         licenseArea.setBorder(
-            BorderFactory.createEmptyBorder(10, 180, 0, 0));
+            BorderFactory.createEmptyBorder(10, DEFAULT_TEXT_INDENT, 0, 0));
         licenseArea.setOpaque(false);
         licenseArea.setEditable(false);
         licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);

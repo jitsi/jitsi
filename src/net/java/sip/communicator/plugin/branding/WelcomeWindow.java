@@ -16,6 +16,10 @@ import javax.swing.*;
 
 public class WelcomeWindow extends JDialog
 {
+    private static final int DEFAULT_TEXT_INDENT
+        = BrandingActivator.getResources()
+            .getSettingsInt("splashScreenTextIndent");
+
     private WindowBackground mainPanel = new WindowBackground();
 
     private JLabel titleLabel
@@ -44,7 +48,8 @@ public class WelcomeWindow extends JDialog
     public WelcomeWindow()
     {
         this.setTitle(
-            BrandingActivator.getResources().getSettingsString("applicationName"));
+            BrandingActivator.getResources()
+                .getSettingsString("applicationName"));
 
         this.setModal(false);
         this.setUndecorated(true);
@@ -77,7 +82,8 @@ public class WelcomeWindow extends JDialog
         this.logoArea.setEditable(false);
         this.logoArea.setPreferredSize(new Dimension(100, 20));
         this.logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 190, 0, 0));
+        this.logoArea.setBorder(BorderFactory
+            .createEmptyBorder(20, DEFAULT_TEXT_INDENT, 0, 0));
 
         this.rightsArea.setContentType("text/html");
         this.rightsArea.appendToEnd(BrandingActivator.getResources().getI18NString(
@@ -90,7 +96,8 @@ public class WelcomeWindow extends JDialog
 
         this.rightsArea.setPreferredSize(new Dimension(50, 50));
         this.rightsArea
-                .setBorder(BorderFactory.createEmptyBorder(0, 190, 0, 0));
+                .setBorder(BorderFactory
+                    .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
         this.rightsArea.setOpaque(false);
         this.rightsArea.setEditable(false);
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -105,7 +112,7 @@ public class WelcomeWindow extends JDialog
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
         this.licenseArea.setBorder(BorderFactory
-                .createEmptyBorder(0, 190, 0, 0));
+                .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
         this.licenseArea.setOpaque(false);
         this.licenseArea.setEditable(false);
         this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
