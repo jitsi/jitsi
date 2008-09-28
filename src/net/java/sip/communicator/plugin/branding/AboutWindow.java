@@ -98,7 +98,10 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         licenseArea.setPreferredSize(new Dimension(50, 20));
         licenseArea.setBorder(
-            BorderFactory.createEmptyBorder(10, DEFAULT_TEXT_INDENT, 0, 0));
+            BorderFactory.createEmptyBorder(
+                resources.getSettingsInt("paragraphGap"),
+                DEFAULT_TEXT_INDENT,
+                0, 0));
         licenseArea.setOpaque(false);
         licenseArea.setEditable(false);
         licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
