@@ -70,7 +70,7 @@ public class MediaControl
     private String[] supportedAudioEncodings = new String[]
         {
             // ILBC
-            Integer.toString(97), 
+            Integer.toString(97),
             // javax.media.format.AudioFormat.G723_RTP
             Integer.toString(SdpConstants.G723),
             // javax.media.format.AudioFormat.GSM_RTP;
@@ -140,17 +140,17 @@ public class MediaControl
      */
     private static String[] customCodecs = new String[]
     {
-    	FMJConditionals.FMJ_CODECS
-    	   ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
+        FMJConditionals.FMJ_CODECS
+           ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
            : "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
-       	FMJConditionals.FMJ_CODECS
+        FMJConditionals.FMJ_CODECS
            ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
            : "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
-        FMJConditionals.FMJ_CODECS 
-           ? "net.sf.fmj.media.codec.audio.alaw.Packetizer" 
+        FMJConditionals.FMJ_CODECS
+           ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
            : "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
-        FMJConditionals.FMJ_CODECS 
-           ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer" 
+        FMJConditionals.FMJ_CODECS
+           ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
            : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
@@ -177,8 +177,8 @@ public class MediaControl
     {
     }
 
-    /** 
-     * Returns the duration of the output data source. Usually this will be 
+    /**
+     * Returns the duration of the output data source. Usually this will be
      * DURATION_UNKNOWN, but if the current data source is set to an audio
      * file, then this value will be of some use.
      * @return the output duration
@@ -344,7 +344,7 @@ public class MediaControl
      * preferences are equal since we rarely need to compare prefs of video
      * encodings to those of audio encodings.
      *
-     * @param encoding a string containing the SDP int of the encoding whose 
+     * @param encoding a string containing the SDP int of the encoding whose
      * pref we're setting.
      * @param pref a positive int indicating the preference for that encoding.
      */
@@ -360,7 +360,7 @@ public class MediaControl
      * {@link #deviceConfiguration} which is (publicly) set only through
      * {@link #initialize(DeviceConfiguration)}.
      * </p>
-     * 
+     *
      * @throws MediaException if opening the devices fails.
      */
     private void initCaptureDevices()
@@ -454,7 +454,7 @@ public class MediaControl
         {
             logger.fatal("Failed to Create the Debug Media Data Source!",e);
         }
-        
+
     }
 
     /**
@@ -520,10 +520,10 @@ public class MediaControl
             // is 125 milliseconds - 1/8 sec. On MacOS this leads to exception and
             // no audio capture. 30 value of buffer fix the problem and is ok
             // when using some pstn gateways
-            // 2. Changing to 60. When it is 30 there are some issues 
+            // 2. Changing to 60. When it is 30 there are some issues
             // with asterisk and nat(we don't start to send stream and so
             // asterisk rtp part doesn't notice that we are behind nat)
-            // 3. Do not set buffer length on linux as it completely breaks 
+            // 3. Do not set buffer length on linux as it completely breaks
             // audio capture.
             Control ctl = (Control)
                 dataSource.getControl("javax.media.control.BufferControl");
@@ -539,12 +539,12 @@ public class MediaControl
 
             sourceProcessor = Manager.createProcessor(dataSource);
 
-            if (!processorUtility.waitForState(sourceProcessor, 
+            if (!processorUtility.waitForState(sourceProcessor,
                                                Processor.Configured))
             {
                 throw new MediaException(
                     "Media manager could not configure processor\n"
-                    + "for the specified data source", 
+                    + "for the specified data source",
                     MediaException.INTERNAL_ERROR);
             }
 
@@ -817,7 +817,6 @@ public class MediaControl
         // Program the tracks.
         for (int i = 0; i < tracks.length; i++)
         {
-            Format format = tracks[i].getFormat();
             if (tracks[i].isEnabled())
             {
                 supported = tracks[i].getSupportedFormats();
@@ -831,7 +830,7 @@ public class MediaControl
                                      + supported[j].getEncoding());
                     }
                 }
-                
+
                 // We've set the output content to the RAW_RTP.
                 // So all the supported formats should work with RTP.
                 // We'll pick one that matches those specified by the
@@ -1035,7 +1034,7 @@ public class MediaControl
 
 
     /**
-     * Looks for the first encoding (amont the requested encodings elements)
+     * Looks for the first encoding (among the requested encodings elements)
      * that is also present in the <tt>availableFormats</tt> array and returns
      * the index of the corresponding <tt>Format</tt>.
      *
@@ -1154,23 +1153,23 @@ public class MediaControl
      */
     private void registerCustomCodecs()
     {
-        // use a set to check if the codecs are already 
+        // use a set to check if the codecs are already
         // registered in jmf.properties
         Set registeredPlugins = new HashSet();
-        
+
         for ( Iterator plugins = PlugInManager
-                .getPlugInList( null, 
-                                null, 
+                .getPlugInList( null,
+                                null,
                                 PlugInManager.CODEC).iterator();
               plugins.hasNext(); )
         {
             registeredPlugins.add(plugins.next());
         }
-        
+
         for (int i = 0; i < customCodecs.length; i++)
         {
             String className = customCodecs[i];
-            
+
             if (registeredPlugins.contains(className))
             {
                 logger.debug("Codec : " + className + " is already registered");
@@ -1208,16 +1207,16 @@ public class MediaControl
         {
             logger.error("Cannot commit to PlugInManager", ex);
         }
-        
-         
-        // Register the custom codec formats with the RTP manager once at 
-        // initialization. This is needed for the Sun JMF implementation. It 
-        // causes the registration of the formats with the static FormatInfo 
+
+
+        // Register the custom codec formats with the RTP manager once at
+        // initialization. This is needed for the Sun JMF implementation. It
+        // causes the registration of the formats with the static FormatInfo
         // instance of com.sun.media.rtp.RTPSessionMgr, which in turn makes the
-        // formats available when the supported encodings arrays are generated 
-        // in initProcessor(). In other JMF implementations this might not be 
+        // formats available when the supported encodings arrays are generated
+        // in initProcessor(). In other JMF implementations this might not be
         // needed, but should do no harm.
-        
+
         //Commented as it fails to load alaw codec
 //        RTPManager rtpManager = RTPManager.newInstance();
 //        CallSessionImpl.registerCustomCodecFormats(rtpManager);
@@ -1235,25 +1234,25 @@ public class MediaControl
         for (int i = 0; i < customPackages.length; i++)
         {
             String className = customPackages[i];
-            
-            // linear search in a loop, but it doesn't have to scale since the 
+
+            // linear search in a loop, but it doesn't have to scale since the
             // list is always short
-            if (!currentPackagePrefix.contains(className)) 
+            if (!currentPackagePrefix.contains(className))
             {
                 currentPackagePrefix.addElement(className);
                 logger.debug("Adding package  : " + className);
-            }            
+            }
         }
 
         PackageManager.setProtocolPrefixList(currentPackagePrefix);
         PackageManager.commitProtocolPrefixList();
-        logger.debug("Registering new protocol prefix list : " 
+        logger.debug("Registering new protocol prefix list : "
                      + currentPackagePrefix);
     }
 
     /**
      * Determines whether the audio of this instance is mute.
-     * 
+     *
      * @return <tt>true</tt> if the audio of this instance is mute; otherwise,
      *         <tt>false</tt>
      */
@@ -1264,7 +1263,7 @@ public class MediaControl
 
     /**
      * Sets the mute state of the audio of this instance.
-     * 
+     *
      * @param mute <tt>true</tt> to mute the audio of this instance;
      *            <tt>false</tt>, otherwise
      */
