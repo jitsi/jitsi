@@ -161,7 +161,11 @@ public class MoreButton
                     {
                         MouseListener l = listeners[i];
                         l.mousePressed(mouseEvent);
+                        l.mouseReleased(mouseEvent);
+                        l.mouseClicked(mouseEvent);
                     }
+                    
+                    menu.setVisible(false);
                 }
             });
 
