@@ -445,7 +445,9 @@ public class ResourceManagementServiceImpl
 
         int mnemonicIndex = resourceString.indexOf('&');
 
-        if (mnemonicIndex > -1)
+        if (mnemonicIndex == 0
+            || (mnemonicIndex > 0
+                && resourceString.charAt(mnemonicIndex - 1) != '\\'))
         {
             String firstPart = resourceString.substring(0, mnemonicIndex);
             String secondPart = resourceString.substring(mnemonicIndex + 1);
