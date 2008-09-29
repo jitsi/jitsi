@@ -455,6 +455,11 @@ public class ResourceManagementServiceImpl
             resourceString = firstPart.concat(secondPart);
         }
 
+        if (resourceString.indexOf('\\') > -1)
+        {
+            resourceString = resourceString.replaceAll("\\\\", "");
+        }
+
         if(params != null)
              resourceString
                 = MessageFormat.format(resourceString, (Object[])params);
