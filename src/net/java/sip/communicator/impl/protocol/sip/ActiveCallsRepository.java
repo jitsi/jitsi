@@ -35,7 +35,8 @@ public class ActiveCallsRepository
     /**
      * A table mapping call ids against call instances.
      */
-    private Hashtable activeCalls = new Hashtable();
+    private Hashtable<String, CallSipImpl> activeCalls
+                                    = new Hashtable<String, CallSipImpl>();
 
     public ActiveCallsRepository(OperationSetBasicTelephonySipImpl opSet)
     {
@@ -79,9 +80,9 @@ public class ActiveCallsRepository
      *
      * @return an iterator over all currently active (non-ended) calls.
      */
-    public Iterator getActiveCalls()
+    public Iterator<CallSipImpl> getActiveCalls()
     {
-        return new LinkedList(activeCalls.values()).iterator();
+        return new LinkedList<CallSipImpl>(activeCalls.values()).iterator();
     }
 
     /**
@@ -95,7 +96,7 @@ public class ActiveCallsRepository
      */
     public CallSipImpl findCall(Dialog dialog)
     {
-        Iterator activeCalls = getActiveCalls();
+        Iterator<CallSipImpl> activeCalls = getActiveCalls();
 
         if(dialog == null)
         {
@@ -113,7 +114,7 @@ public class ActiveCallsRepository
 
         while(activeCalls.hasNext())
         {
-            CallSipImpl call = (CallSipImpl)activeCalls.next();
+            CallSipImpl call = activeCalls.next();
             if(call.contains(dialog))
                 return call;
         }
@@ -132,7 +133,7 @@ public class ActiveCallsRepository
      */
     public CallParticipantSipImpl findCallParticipant(Dialog dialog)
     {
-        Iterator activeCalls = getActiveCalls();
+        Iterator<CallSipImpl> activeCalls = getActiveCalls();
 
         if(dialog == null)
         {
@@ -149,7 +150,7 @@ public class ActiveCallsRepository
 
         while(activeCalls.hasNext())
         {
-            CallSipImpl call = (CallSipImpl)activeCalls.next();
+            CallSipImpl call = activeCalls.next();
             CallParticipantSipImpl callParticipant
                 = call.findCallParticipant(dialog);
             if(callParticipant != null)

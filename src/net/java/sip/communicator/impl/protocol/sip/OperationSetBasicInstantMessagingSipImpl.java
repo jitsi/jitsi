@@ -35,7 +35,8 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * A list of processors registered for incoming sip messages.
      */
-    private Vector messageProcessors = new Vector();
+    private Vector<SipMessageProcessor> messageProcessors
+                                        = new Vector<SipMessageProcessor>();
 
     /**
      * The provider that created us.
@@ -312,12 +313,10 @@ public class OperationSetBasicInstantMessagingSipImpl
     Request createMessage(Contact to, Message message)
         throws OperationFailedException
     {
-        // Address
-        InetAddress destinationInetAddress = null;
         Address toAddress = null;
         try
         {
-            toAddress = sipProvider.parseAddressStr(to.getAddress());
+            toAddress = sipProvider.parseAddressString(to.getAddress());
         }
         catch (ParseException exc)
         {
@@ -330,33 +329,6 @@ public class OperationSetBasicInstantMessagingSipImpl
                 + "constructing the address"
                 , OperationFailedException.INTERNAL_ERROR
                 , exc);
-        }
-
-        try
-        {
-            destinationInetAddress = InetAddress.getByName(
-                ( (SipURI) toAddress.getURI()).getHost());
-        }
-        catch (UnknownHostException ex)
-        {
-            //getByName() verifies host existance with an AAAA/A check and the
-            //destination could only have an SRV record so let's not let this
-            //bother us and only log it (report by Dan Bogos)
-            logger.warn( ( (SipURI) toAddress.getURI()).getHost()
-                + " is not a valid internet address " + ex.getMessage());
-
-            //replace the destination address with that of the proxy if we
-            //have it or that of the registrar otherwise.
-            if(sipProvider.getOutboundProxy() != null)
-            {
-                destinationInetAddress
-                    = sipProvider.getOutboundProxy().getAddress();
-            }
-            else
-            {
-                destinationInetAddress
-                    = sipProvider.getRegistrarConnection().getRegistrarAddress();
-            }
         }
 
         // Call ID
@@ -405,8 +377,8 @@ public class OperationSetBasicInstantMessagingSipImpl
         {
             //FromHeader
             fromHeader = this.sipProvider.getHeaderFactory()
-                .createFromHeader(this.sipProvider.getOurSipAddress()
-                                  , localTag);
+                .createFromHeader(
+                    sipProvider.getOurSipAddress(toAddress), localTag);
 
             //ToHeader
             toHeader = this.sipProvider.getHeaderFactory()
@@ -426,9 +398,8 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
 
         //ViaHeaders
-        ArrayList viaHeaders = this.sipProvider.getLocalViaHeaders(
-            destinationInetAddress
-            , this.sipProvider.getDefaultListeningPoint());
+        ArrayList<ViaHeader> viaHeaders = this.sipProvider.getLocalViaHeaders(
+            toAddress);
 
         //MaxForwards
         MaxForwardsHeader maxForwards = this.sipProvider
@@ -707,7 +678,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         /**
          * Process a request from a distant contact
-         * 
+         *
          * @param requestEvent the <tt>RequestEvent</tt> containing the newly
          *            received request.
          * @return <tt>true</tt> if the specified event has been handled by this
@@ -824,7 +795,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         /**
          * Process a response from a distant contact.
-         * 
+         *
          * @param responseEvent the <tt>ResponseEvent</tt> containing the newly
          *            received SIP response.
          * @return <tt>true</tt> if the specified event has been handled by this

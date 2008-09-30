@@ -10,6 +10,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import javax.sip.*;
+import javax.sip.address.*;
+
 import java.util.*;
 
 /**
@@ -32,8 +34,8 @@ public class ContactSipImpl
     /**
      * The id of the contact.
      */
-    private String contactID = null;
-    
+    private Address sipAddress = null;
+
     /**
      * The display name of the contact.
      */
@@ -65,48 +67,55 @@ public class ContactSipImpl
      * confirmation that it is still on the server contact list).
      */
     private boolean isResolved = false;
-    
+
     /**
      * Determines whether this contact can be resolved or if he will be
      * never resolved (for example if he doesn't support SIMPLE)
      */
     private boolean isResolvable = true;
-    
+
     /**
      * Stores the dialog used for receiving the contact status
      */
     private Dialog clientDialog = null;
-    
+
     /**
      * Stores the dialog used for communicate our status to this contact
      */
     private Dialog serverDialog = null;
-    
+
     /**
      * The task which will send a final NOTIFY when a timeout occur in the
      * subscription of this contact. If the contact isn't subscribed at us,
      * this will remain null.
      */
     private TimerTask timeoutTask = null;
-    
+
     /**
      * The task which will refresh the subscription we've made with this
      * contact. If we didn't subscribe to this contact, it will remain null.
      */
     private TimerTask resfreshTask = null;
-    
+
     /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
      *
-     * @param id the identifier of this contact (also used as a name).
+     * @param contactAddress the identifier of this contact
+     *  (also used as a name).
      * @param parentProvider the provider that created us.
      */
     public ContactSipImpl(
-                String id,
+                Address contactAddress,
                 ProtocolProviderServiceSipImpl parentProvider)
     {
-        this.contactID = id;
+        this.sipAddress = contactAddress;
+
+        displayName = contactAddress.getDisplayName();
+
+        if(displayName == null || displayName.trim().length() == 0)
+            displayName = getAddress();
+
         this.parentProvider = parentProvider;
 
         this.presenceStatus = parentProvider.getSipStatusEnum()
@@ -133,8 +142,21 @@ public class ContactSipImpl
      */
     public String getAddress()
     {
-        return contactID;
+        SipURI sipURI = (SipURI)sipAddress.getURI();
+
+        return sipURI.getUser() + "@" + sipURI.getHost();
     }
+
+    /**
+     * Returns the jain-sip Address instance that this contact is wrapping.
+     *
+     * @return the jain-sip Address instance that this contact is wrapping.
+     */
+    public Address getSipAddress()
+    {
+        return sipAddress;
+    }
+
 
     /**
      * Returns a String that could be used by any user interacting modules
@@ -147,7 +169,7 @@ public class ContactSipImpl
     {
         return (displayName == null) ? getAddress() : displayName;
     }
-    
+
     /**
      * Sets a String that could be used by any user interacting modules
      * for referring to this contact.
@@ -286,16 +308,16 @@ public class ContactSipImpl
 
     /**
      * Returns the current timeout task associated with this contact.
-     * 
+     *
      * @return the current timeout task of this contact
      */
     public TimerTask getTimeoutTask() {
         return this.timeoutTask;
     }
-    
+
     /**
      * Sets the timeout task associated with this contact
-     * 
+     *
      * @param timeoutTask The timeout task to set
      */
     public void setTimeoutTask(TimerTask timeoutTask) {
@@ -304,16 +326,16 @@ public class ContactSipImpl
 
     /**
      * Returns the current refresh task associated with this contact.
-     * 
+     *
      * @return The resfresh task
      */
     public TimerTask getResfreshTask() {
         return this.resfreshTask;
     }
-    
+
     /**
      * Changes the current refresh task of this contact.
-     * 
+     *
      * @param resfreshTask The resfresh task to set
      */
     public void setResfreshTask(TimerTask resfreshTask) {
@@ -324,40 +346,40 @@ public class ContactSipImpl
      * Sets the client dialog associated with this contact.
      * The client dialog is the dialog we use to retrieve the presence
      * state of this contact.
-     * 
+     *
      * @param clientDialog the new clientDialog to use
      */
     public void setClientDialog(Dialog clientDialog) {
         this.clientDialog = clientDialog;
     }
-    
+
     /**
      * Returns the client dialog associated with this contact.
      * The client dialog is the dialog we use to retrieve the presence
      * state of this contact.
-     * 
+     *
      * @return the clientDialog associated with the contact
      */
     public Dialog getClientDialog() {
         return this.clientDialog;
     }
-    
+
     /**
      * Sets the server dialog associated with this contact.
      * The server dialog is the dialog we use to send our presence status
      * to this contact.
-     * 
+     *
      * @param serverDialog the new clientDialog to use
      */
     public void setServerDialog(Dialog serverDialog) {
         this.serverDialog = serverDialog;
     }
-    
+
     /**
      * Returns the server dialog associated with this contact.
      * The server dialog is the dialog we use to send our presence status
      * to this contact.
-     * 
+     *
      * @return the clientDialog associated with the contact
      */
     public Dialog getServerDialog() {
@@ -389,7 +411,7 @@ public class ContactSipImpl
     {
         this.isResolved = resolved;
     }
-    
+
     /**
      * Determines whether or not this contact can be resolved against the
      * server.
@@ -450,7 +472,7 @@ public class ContactSipImpl
 
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return null as the protocol has currently no support of status messages
      */
     public String getStatusMessage()

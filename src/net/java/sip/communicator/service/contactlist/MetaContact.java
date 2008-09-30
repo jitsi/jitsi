@@ -51,7 +51,7 @@ public interface MetaContact extends Comparable
      * <tt>Contact</tt>s that were registered as subcontacts for this
      * <tt>MetaContact</tt>
      */
-    public Iterator getContacts();
+    public Iterator<Contact> getContacts();
 
     /**
      * Returns a contact encapsulated by this meta contact, having the specified
@@ -89,7 +89,8 @@ public interface MetaContact extends Comparable
      * @return an <tt>Iterator</tt> over all contacts encapsulated in this
      * <tt>MetaContact</tt> and originating from the specified provider.
      */
-    public Iterator getContactsForProvider(ProtocolProviderService provider);
+    public Iterator<Contact> getContactsForProvider(
+                                              ProtocolProviderService provider);
 
     /**
      * Returns the MetaContactGroup currently containin this meta contact
@@ -116,7 +117,7 @@ public interface MetaContact extends Comparable
     /**
      * Returns the avatar of this contact, that can be used when including this
      * <tt>MetaContact</tt> in user interface.
-     * 
+     *
      * @return an avatar (e.g. user photo) of this contact.
      */
     public byte[] getAvatar();
@@ -126,7 +127,7 @@ public interface MetaContact extends Comparable
      * <tt>MetaContact</tt> in user interface. The isLazy
      * parameter would tell the implementation if it could return the locally
      * stored avatar or it should obtain the avatar right from the server.
-     * 
+     *
      * @param isLazy Indicates if this method should return the locally stored
      * avatar or it should obtain the avatar right from the server.
      * @return an avatar (e.g. user photo) of this contact.
@@ -138,27 +139,27 @@ public interface MetaContact extends Comparable
      * @return a String representation of this <tt>MetaContact</tt>.
      */
     public String toString();
-    
+
     /**
-     * Adds a custom detail to this contact. 
+     * Adds a custom detail to this contact.
      * @param name name of the detail.
      * @param value the value of the detail.
      */
     public void addDetail(String name, String value);
-    
+
     /**
      * Remove the given detail.
      * @param name of the detail to be removed.
      * @param value value of the detail to be removed.
      */
     public void removeDetail(String name, String value);
-    
+
     /**
      * Remove all details with given name.
      * @param name of the details to be removed.
      */
     public void removeDetails(String name);
-    
+
     /**
      * Change the detail.
      * @param name of the detail to be changed.
@@ -166,11 +167,11 @@ public interface MetaContact extends Comparable
      * @param newValue the new value of the detail.
      */
     public void changeDetail(String name, String oldValue, String newValue);
-    
+
     /**
      * Get all details with given name.
      * @param name the name of the details we are searching.
      * @return list of string values for the details with the given name.
      */
-    public List getDetails(String name);
+    public List<String> getDetails(String name);
 }

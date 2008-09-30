@@ -347,6 +347,30 @@ public class NetworkUtils
     public static InetAddress getInetAddress(String hostAddress)
         throws UnknownHostException
     {
+        //is null
+        if (hostAddress == null || hostAddress.length() == 0)
+        {
+            throw new UnknownHostException(
+                            hostAddress + " is not a valid host address");
+        }
+
+        //transform IPv6 literals into normal addresses
+        if (hostAddress.charAt(0) == '[')
+        {
+            // This is supposed to be an IPv6 literal
+            if (hostAddress.length() > 2
+                && hostAddress.charAt(hostAddress.length()-1) == ']')
+            {
+                hostAddress = hostAddress.substring(1, hostAddress.length() -1);
+            }
+            else
+            {
+                // This was supposed to be a IPv6 address, but it's not!
+                throw new UnknownHostException(hostAddress);
+            }
+        }
+
+
         if (NetworkUtils.isValidIPAddress(hostAddress))
         {
             byte[] addr = null;
@@ -354,7 +378,7 @@ public class NetworkUtils
             // attempt parse as IPv4 address
             addr = IPAddressUtil.textToNumericFormatV4(hostAddress);
 
-            // if not IPv4, parse as Pv6 address
+            // if not IPv4, parse as IPv6 address
             if (addr == null)
             {
                 addr = IPAddressUtil.textToNumericFormatV6(hostAddress);

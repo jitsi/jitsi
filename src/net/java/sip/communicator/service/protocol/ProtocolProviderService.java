@@ -49,7 +49,7 @@ public interface ProtocolProviderService
      * (each retry would be on a new random port).
      */
     public static final int BIND_RETRIES_DEFAULT_VALUE = 50;
-    
+
     /**
      * Starts the registration process. Connection details such as
      * registration server, user name/number are provided through the
@@ -94,7 +94,7 @@ public interface ProtocolProviderService
      * example). If the name of the protocol has been enumerated in
      * ProtocolNames then the value returned by this method must be the same as
      * the one in ProtocolNames.
-     * 
+     *
      * @return a String containing the short name of the protocol this service
      * is implementing (most often that would be a name in ProtocolNames).
      */
@@ -103,7 +103,7 @@ public interface ProtocolProviderService
     /**
      * Returns the protocol display name. This is the name that would be used
      * by the GUI to display the protocol name.
-     * 
+     *
      * @return a String containing the display name of the protocol this service
      * is implementing
      */
@@ -114,7 +114,7 @@ public interface ProtocolProviderService
      * @return the protocol logo icon
      */
     public ProtocolIcon getProtocolIcon();
-    
+
     /**
      * Registers the specified listener with this provider so that it would
      * receive notifications on changes of its state or other properties such

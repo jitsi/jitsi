@@ -12,7 +12,6 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import java.text.*;
 import java.util.*;
-import java.net.*;
 import java.io.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -67,7 +66,7 @@ public class ClientCapabilities
                 Response.OK,
                 requestEvent.getRequest());
 
-            Iterator supportedMethods
+            Iterator<String> supportedMethods
                 = provider.getSupportedMethods().iterator();
 
             //add to the allows header all methods that we support
@@ -83,11 +82,12 @@ public class ClientCapabilities
                     provider.getHeaderFactory().createAllowHeader(method));
             }
 
-            Iterator events = provider.getKnownEventsList().iterator();
+            Iterator<String> events = provider.getKnownEventsList().iterator();
 
-            synchronized (provider.getKnownEventsList()) {
+            synchronized (provider.getKnownEventsList())
+            {
                 while (events.hasNext()) {
-                    String event = (String) events.next();
+                    String event = events.next();
 
                     optionsOK.addHeader(provider.getHeaderFactory()
                             .createAllowEventsHeader(event));
@@ -236,8 +236,11 @@ public class ClientCapabilities
                 FromHeader fromHeader = null;
                 try
                 {
+                    //this keep alive task only makes sense in case we have
+                    //a registrar so we deliberately use our AOR and do not
+                    //use the getOurSipAddress() method.
                     fromHeader = provider.getHeaderFactory().createFromHeader(
-                        provider.getOurSipAddress(),
+                        provider.getRegistrarConnection().getAddressOfRecord(),
                         ProtocolProviderServiceSipImpl.generateLocalTag());
                 }
                 catch (ParseException ex)
@@ -277,8 +280,10 @@ public class ClientCapabilities
                 ToHeader toHeader = null;
                 try
                 {
+                    //this request isn't really going anywhere so we put our
+                    //own address in the To Header.
                     toHeader = provider.getHeaderFactory().createToHeader(
-                        provider.getOurSipAddress(), null);
+                        fromHeader.getAddress(), null);
                 }
                 catch (ParseException ex)
                 {
@@ -287,22 +292,6 @@ public class ClientCapabilities
                                   ex);
                     return;
                 }
-
-                InetAddress destinationInetAddress = null;
-                try
-                {
-                    destinationInetAddress = InetAddress.getByName(
-                        ((SipURI) provider.getOurSipAddress().getURI()).getHost());
-                }
-                catch (UnknownHostException ex)
-                {
-                    logger.error(ex);
-                    return;
-                }
-
-                //Via Headers
-                ArrayList viaHeaders = provider.getLocalViaHeaders(
-                    destinationInetAddress, provider.getDefaultListeningPoint());
 
                 //MaxForwardsHeader
                 MaxForwardsHeader maxForwardsHeader = provider.
@@ -314,8 +303,15 @@ public class ClientCapabilities
                     //create a host-only uri for the request uri header.
                     String domain
                         = ((SipURI) toHeader.getAddress().getURI()).getHost();
+
+                    //request URI
                     SipURI requestURI = provider.getAddressFactory()
                         .createSipURI(null, domain);
+
+                    //Via Headers
+                    ArrayList<ViaHeader> viaHeaders = provider
+                        .getLocalViaHeaders(requestURI);
+
                     request = provider.getMessageFactory().createRequest(
                           requestURI
                         , Request.OPTIONS
@@ -335,7 +331,7 @@ public class ClientCapabilities
                     return;
                 }
 
-                Iterator supportedMethods
+                Iterator<String> supportedMethods
                     = provider.getSupportedMethods().iterator();
 
                 //add to the allows header all methods that we support
@@ -351,7 +347,8 @@ public class ClientCapabilities
                         provider.getHeaderFactory().createAllowHeader(method));
                 }
 
-                Iterator events = provider.getKnownEventsList().iterator();
+                Iterator<String> events
+                                    = provider.getKnownEventsList().iterator();
 
                 synchronized (provider.getKnownEventsList())
                 {
@@ -371,10 +368,8 @@ public class ClientCapabilities
                     request.addHeader(userAgentHeader);
 
                 //Contact Header (should contain IP)
-                ContactHeader contactHeader
-                    = provider.getContactHeader(
-                        destinationInetAddress,
-                        provider.getDefaultListeningPoint());
+                ContactHeader contactHeader = provider
+                    .getContactHeader((SipURI)request.getRequestURI());
 
                 request.addHeader(contactHeader);
 
@@ -469,7 +464,8 @@ public class ClientCapabilities
                         logger.error("Wrong value for keep-alive interval");
                     }
 
-                    if(keepAliveInterval > 0)
+                    if(keepAliveInterval > 0
+                       && !provider.getRegistrarConnection().isRegistrarless())
                     {
                         if(keepAliveTimer == null)
                             keepAliveTimer = new Timer();

@@ -29,7 +29,8 @@ public abstract class AbstractCallParticipant
     /**
      * All the CallParticipant listeners registered with this CallParticipant.
      */
-    protected ArrayList callParticipantListeners = new ArrayList();
+    protected ArrayList<CallParticipantListener> callParticipantListeners
+                            = new ArrayList<CallParticipantListener>();
 
     /**
      * Registers the <tt>listener</tt> to the list of listeners that would be
@@ -101,10 +102,11 @@ public abstract class AbstractCallParticipant
                      + callParticipantListeners.size()
                      +" listeners. event is: " + evt.toString());
 
-        Iterator listeners = null;
+        Iterator<CallParticipantListener> listeners = null;
         synchronized (callParticipantListeners)
         {
-            listeners = new ArrayList(callParticipantListeners).iterator();
+            listeners = new ArrayList<CallParticipantListener>(
+                                callParticipantListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -143,19 +145,19 @@ public abstract class AbstractCallParticipant
         return getDisplayName() + " <" + getAddress()
             + ">;status=" + getState().getStateString();
     }
-    
+
     /**
-     * Returns a URL pointing ta a location with call control information for 
-     * this participant or <tt>null</tt> if no such URL is available for this 
+     * Returns a URL pointing ta a location with call control information for
+     * this participant or <tt>null</tt> if no such URL is available for this
      * call participant.
-     * 
+     *
      * @return a URL link to a location with call information or a call control
      * web interface related to this participant or <tt>null</tt> if no such URL
      * is available.
      */
     public URL getCallInfoURL()
     {
-        //if signaling protocols (such as SIP) know where to get this URL from 
+        //if signaling protocols (such as SIP) know where to get this URL from
         //they should override this method
         return null;
     }
@@ -166,7 +168,7 @@ public abstract class AbstractCallParticipant
      * <p>
      * The default implementation returns <tt>false</tt>.
      * </p>
-     * 
+     *
      * @return <tt>true</tt> if an audio stream is being sent to this
      *         participant and it is currently mute; <tt>false</tt>, otherwise
      */

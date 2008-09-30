@@ -101,7 +101,7 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException,
         ParseException
     {
-        Address toAddress = protocolProvider.parseAddressStr(callee);
+        Address toAddress = protocolProvider.parseAddressString(callee);
 
         return createOutgoingCall(toAddress);
     }
@@ -126,7 +126,7 @@ public class OperationSetBasicTelephonySipImpl
 
         try
         {
-            toAddress = protocolProvider.parseAddressStr(callee.getAddress());
+            toAddress = protocolProvider.parseAddressString(callee.getAddress());
         }
         catch (ParseException ex)
         {
@@ -297,7 +297,7 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @return an iterator over all currently active calls.
      */
-    public Iterator getActiveCalls()
+    public Iterator<CallSipImpl> getActiveCalls()
     {
         return activeCallsRepository.getActiveCalls();
     }
@@ -929,11 +929,12 @@ public class OperationSetBasicTelephonySipImpl
             CallIdHeader call = (CallIdHeader) ok.getHeader(CallIdHeader.NAME);
             String callid = call.getCallId();
 
-            Iterator activeCallsIter = activeCallsRepository.getActiveCalls();
+            Iterator<CallSipImpl> activeCallsIter
+                                    = activeCallsRepository.getActiveCalls();
             while (activeCallsIter.hasNext())
             {
-                CallSipImpl activeCall = (CallSipImpl) activeCallsIter.next();
-                Iterator callParticipantsIter =
+                CallSipImpl activeCall = activeCallsIter.next();
+                Iterator<CallParticipant> callParticipantsIter =
                     activeCall.getCallParticipants();
                 while (callParticipantsIter.hasNext())
                 {
@@ -1301,21 +1302,6 @@ public class OperationSetBasicTelephonySipImpl
     private Request createInviteRequest(Address toAddress)
         throws OperationFailedException
     {
-        InetAddress destinationInetAddress = null;
-
-        try
-        {
-            String destinationURI = ((SipURI) toAddress.getURI()).getHost();
-
-            destinationInetAddress = protocolProvider
-                .resolveSipAddress(destinationURI).getAddress();
-        }
-        catch (UnknownHostException ex)
-        {
-            throw new IllegalArgumentException(((SipURI) toAddress.getURI())
-                .getHost()
-                + " is not a valid internet address " + ex.getMessage());
-        }
         // Call ID
         CallIdHeader callIdHeader =
             protocolProvider.getDefaultJainSipProvider().getNewCallId();
@@ -1358,7 +1344,7 @@ public class OperationSetBasicTelephonySipImpl
             // FromHeader
             fromHeader =
                 protocolProvider.getHeaderFactory().createFromHeader(
-                    protocolProvider.getOurSipAddress(), localTag);
+                    protocolProvider.getOurSipAddress(toAddress), localTag);
 
             // ToHeader
             toHeader =
@@ -1377,15 +1363,15 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // ViaHeaders
-        ArrayList viaHeaders =
-            protocolProvider.getLocalViaHeaders(destinationInetAddress,
-                protocolProvider.getDefaultListeningPoint());
+        ArrayList<ViaHeader> viaHeaders =
+            protocolProvider.getLocalViaHeaders(toAddress);
 
         // MaxForwards
         MaxForwardsHeader maxForwards = protocolProvider.getMaxForwardsHeader();
 
         // Contact
-        ContactHeader contactHeader = protocolProvider.getContactHeader();
+        ContactHeader contactHeader
+            = protocolProvider.getContactHeader(toHeader.getAddress());
 
         Request invite = null;
         try
@@ -1426,7 +1412,8 @@ public class OperationSetBasicTelephonySipImpl
      * @param invite the Request that we've just received.
      */
     private void processInvite(SipProvider sourceProvider,
-        ServerTransaction serverTransaction, Request invite)
+                               ServerTransaction serverTransaction,
+                               Request invite)
     {
         Dialog dialog = serverTransaction.getDialog();
         CallParticipantSipImpl callParticipant =
@@ -1467,9 +1454,7 @@ public class OperationSetBasicTelephonySipImpl
             {
                 // user info is case sensitive according to rfc3261
                 String calleeUser = ((SipURI) calleeURI).getUser();
-                String localUser =
-                    ((SipURI) protocolProvider.getOurSipAddress().getURI())
-                        .getUser();
+                String localUser = protocolProvider.getAccountID().getUserID();
 
                 if (calleeUser != null && !calleeUser.equals(localUser))
                 {
@@ -1477,7 +1462,7 @@ public class OperationSetBasicTelephonySipImpl
                         .setState(
                             CallParticipantState.FAILED,
                             "A call was received here while it appeared "
-                                + "destined to someone else. The call was rejected.");
+                          + "destined to someone else. The call was rejected.");
 
                     Response notFound = null;
                     try
@@ -1534,7 +1519,11 @@ public class OperationSetBasicTelephonySipImpl
             ((ToHeader) response.getHeader(ToHeader.NAME)).getAddress()
                 .setDisplayName(protocolProvider.getOurDisplayName());
 
-            response.addHeader(protocolProvider.getContactHeader());
+            // extract our intended destination which should be in the from
+            Address callerAddress
+                = ((FromHeader) response.getHeader(FromHeader.NAME))
+                    .getAddress();
+            response.addHeader(protocolProvider.getContactHeader(callerAddress));
 
             if (statusCode != Response.RINGING)
             {
@@ -2499,7 +2488,9 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to construct an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
-        ContactHeader contactHeader = protocolProvider.getContactHeader();
+        ContactHeader contactHeader = protocolProvider
+            .getContactHeader(dialog.getRemoteTarget());
+
         internalError.addHeader(contactHeader);
         try
         {
@@ -2532,7 +2523,6 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = callParticipant.getDialog();
 
-        Request request = callParticipant.getFirstTransaction().getRequest();
         Request bye = null;
         try
         {
@@ -2540,22 +2530,10 @@ public class OperationSetBasicTelephonySipImpl
 
             // we have to set the via headers our selves because otherwise
             // jain sip would send them with a 0.0.0.0 address
-            InetAddress destinationInetAddress = null;
-            String host = ((SipURI) bye.getRequestURI()).getHost();
-            try
-            {
-                destinationInetAddress = InetAddress.getByName(host);
-            }
-            catch (UnknownHostException ex)
-            {
-                throw new IllegalArgumentException(host
-                    + " is not a valid internet address " + ex.getMessage());
-            }
+            SipURI destination = (SipURI) bye.getRequestURI();
 
-            ArrayList viaHeaders =
-                protocolProvider.getLocalViaHeaders(destinationInetAddress,
-                    protocolProvider.getRegistrarConnection()
-                        .getListeningPoint());
+            ArrayList<ViaHeader> viaHeaders =
+                protocolProvider.getLocalViaHeaders(destination);
             bye.setHeader((ViaHeader) viaHeaders.get(0));
             bye.addHeader(protocolProvider.getSipCommUserAgentHeader());
         }
@@ -2596,7 +2574,6 @@ public class OperationSetBasicTelephonySipImpl
     private void sayCancel(CallParticipantSipImpl callParticipant)
         throws OperationFailedException
     {
-        Request request = callParticipant.getFirstTransaction().getRequest();
         if (callParticipant.getDialog().isServer())
         {
             logger.error("Cannot cancel a server transaction");
@@ -2809,7 +2786,8 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        ContactHeader contactHeader = protocolProvider.getContactHeader();
+        ContactHeader contactHeader = protocolProvider.getContactHeader(
+                        dialog.getRemoteTarget());
         ok.addHeader(contactHeader);
         try
         {
@@ -2910,7 +2888,9 @@ public class OperationSetBasicTelephonySipImpl
             // something with indexes, so just ignore.
         }
         return className + "-[dn=" + protocolProvider.getOurDisplayName()
-            + " addr=" + protocolProvider.getOurSipAddress() + "]";
+            + " addr=["
+            + protocolProvider.getRegistrarConnection().getAddressOfRecord()
+            + "]";
     }
 
     /**
@@ -2919,20 +2899,21 @@ public class OperationSetBasicTelephonySipImpl
     public synchronized void shutdown()
     {
         logger.trace("Ending all active calls.");
-        Iterator activeCalls = this.activeCallsRepository.getActiveCalls();
+        Iterator<CallSipImpl> activeCalls
+            = this.activeCallsRepository.getActiveCalls();
 
         // go through all active calls.
         while (activeCalls.hasNext())
         {
-            CallSipImpl call = (CallSipImpl) activeCalls.next();
+            CallSipImpl call = activeCalls.next();
 
-            Iterator callParticipants = call.getCallParticipants();
+            Iterator<CallParticipant> callParticipants
+                                            = call.getCallParticipants();
 
             // go through all call participants and say bye to every one.
             while (callParticipants.hasNext())
             {
-                CallParticipant participant =
-                    (CallParticipant) callParticipants.next();
+                CallParticipant participant = callParticipants.next();
                 try
                 {
                     this.hangupCallParticipant(participant);
@@ -3001,7 +2982,7 @@ public class OperationSetBasicTelephonySipImpl
         Address targetAddress = null;
         try
         {
-            targetAddress = protocolProvider.parseAddressStr(target);
+            targetAddress = protocolProvider.parseAddressString(target);
         }
         catch (ParseException ex)
         {

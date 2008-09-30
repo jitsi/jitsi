@@ -148,19 +148,6 @@ public interface OperationSetPresence
     public Contact findContactByID(String contactID);
 
     /**
-     * Returns the protocol specific contact instance representing the local
-     * user. In the case of SIP this would be your local sip address or in the
-     * case of an IM protocol such as ICQ - your own uin. No set method should
-     * be provided in implementations of this class. The getLocalContact()
-     * method is only used for giving information to the user on their currently
-     * used addressed a different service (ConfigurationService) should be used
-     * for changing that kind of settings.
-     * @return the Contact (address, phone number, or uin) that the Provider
-     * implementation is communicating on behalf of.
-     */
-    public Contact getLocalContact();
-
-    /**
      * Handler for incoming authorization requests. An authorization request
      * notifies the user that someone is trying to add her to their contact list
      * and requires her to approve or reject authorization for that action.

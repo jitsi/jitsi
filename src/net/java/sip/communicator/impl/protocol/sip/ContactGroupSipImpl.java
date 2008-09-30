@@ -35,12 +35,13 @@ public class ContactGroupSipImpl
     /**
      * The list of this group's members.
      */
-    private Vector contacts = new Vector();
+    private Vector<Contact> contacts = new Vector<Contact>();
 
     /**
      * The list of sub groups belonging to this group.
      */
-    private Vector subGroups = new Vector();
+    private Vector<ContactGroup> subGroups
+                                        = new Vector<ContactGroup>();
 
     /**
      * The group that this group belongs to (or null if this is the root group).
@@ -118,7 +119,7 @@ public class ContactGroupSipImpl
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.iterator();
     }
@@ -221,7 +222,7 @@ public class ContactGroupSipImpl
         if ( subGroups.contains(sipGroup) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupSipImpl subgroup
@@ -248,9 +249,11 @@ public class ContactGroupSipImpl
                                         ContactSipImpl sipContact)
     {
         if ( contacts.contains(sipContact) )
+        {
             return this;
+        }
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupSipImpl subgroup
@@ -276,12 +279,14 @@ public class ContactGroupSipImpl
      */
     public Contact getContact(String id)
     {
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
             ContactSipImpl contact = (ContactSipImpl) contactsIter.next();
             if (contact.getAddress().equals(id))
+            {
                 return contact;
+            }
 
         }
         return null;
@@ -306,13 +311,15 @@ public class ContactGroupSipImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
             ContactGroupSipImpl contactGroup
                 = (ContactGroupSipImpl) groupsIter.next();
             if (contactGroup.getGroupName().equals(groupName))
+            {
                 return contactGroup;
+            }
 
         }
         return null;
@@ -345,7 +352,7 @@ public class ContactGroupSipImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -368,7 +375,7 @@ public class ContactGroupSipImpl
     public ContactSipImpl findContactByID(String id)
     {
         //first go through the contacts that are direct children.
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
 
         while(contactsIter.hasNext())
         {
@@ -379,7 +386,7 @@ public class ContactGroupSipImpl
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
@@ -406,7 +413,7 @@ public class ContactGroupSipImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroupSipImpl group = (ContactGroupSipImpl)subGroups.next();
@@ -417,7 +424,7 @@ public class ContactGroupSipImpl
 
         buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactSipImpl contact = (ContactSipImpl) contacts.next();
@@ -552,7 +559,7 @@ public class ContactGroupSipImpl
             return false;
 
         //traverse child contacts
-        Iterator theirContacts = sipGroup.contacts();
+        Iterator<Contact> theirContacts = sipGroup.contacts();
 
         while(theirContacts.hasNext())
         {
@@ -568,7 +575,7 @@ public class ContactGroupSipImpl
         }
 
         //traverse subgroups
-        Iterator theirSubgroups = sipGroup.subgroups();
+        Iterator<ContactGroup> theirSubgroups = sipGroup.subgroups();
 
         while(theirSubgroups.hasNext())
         {

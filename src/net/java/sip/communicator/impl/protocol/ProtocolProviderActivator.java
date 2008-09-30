@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol;
 
 import org.osgi.framework.*;
 
+import net.java.sip.communicator.impl.protocol.*;
 import net.java.sip.communicator.service.protocol.*;
 
 public class ProtocolProviderActivator

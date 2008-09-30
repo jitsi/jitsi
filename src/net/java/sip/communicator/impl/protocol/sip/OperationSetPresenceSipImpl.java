@@ -48,19 +48,23 @@ public class OperationSetPresenceSipImpl
      * A list of listeners registered for
      *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
      */
-    private Vector providerPresenceStatusListeners = new Vector();
+    private Vector<ProviderPresenceStatusListener>
+        providerPresenceStatusListeners
+            = new Vector<ProviderPresenceStatusListener>();
 
     /**
      * A list of listeners registered for
      * <tt>ServerStoredGroupChangeEvent</tt>s.
      */
-    private Vector serverStoredGroupListeners = new Vector();
+    private Vector<ServerStoredGroupListener> serverStoredGroupListeners
+                                    = new Vector<ServerStoredGroupListener>();
 
     /**
      * A list of listeners registered for
      * <tt>ContactPresenceStatusChangeEvent</tt>s.
      */
-    private Vector contactPresenceStatusListeners = new Vector();
+    private Vector<ContactPresenceStatusListener> contactPresenceStatusListeners
+        = new Vector<ContactPresenceStatusListener>();
 
     /**
      * The root of the SIP contact list.
@@ -82,19 +86,20 @@ public class OperationSetPresenceSipImpl
      * or with which we successfully subscribed
      * Index : String, Content : ContactSipImpl
      */
-    private Hashtable subscribedContacts = new Hashtable();
+    private Hashtable<String, ContactSipImpl> subscribedContacts
+                    = new Hashtable<String, ContactSipImpl>();
 
     /**
      * List of all the contact interested by our presence status
      * Content : ContactSipImpl
      */
-    private Vector ourWatchers = new Vector();
+    private Vector<ContactSipImpl> ourWatchers = new Vector<ContactSipImpl>();
 
     /**
      * List of all the CallIds to wait before unregister
      * Content : String
      */
-    private Vector waitedCallIds = new Vector();
+    private Vector<String> waitedCallIds = new Vector<String>();
 
     /**
      * Do we have to use a distant presence agent (default initial value)
@@ -271,14 +276,16 @@ public class OperationSetPresenceSipImpl
                 + provider.getOurDisplayName());
 
         // retrieve the options for this account
-        if (pollingPeriod > 0) {
+        if (pollingPeriod > 0)
+        {
             this.pollingTaskPeriod = pollingPeriod * 1000;
         }
 
         // if we force the p2p mode, we start by not using a distant PA
         this.useDistantPA = !forceP2PMode;
 
-        if (subscriptionDuration > 0) {
+        if (subscriptionDuration > 0)
+        {
             this.subscriptionDuration = subscriptionExpiration;
         }
         this.presenceEnabled = isPresenceEnabled;
@@ -297,7 +304,8 @@ public class OperationSetPresenceSipImpl
      *
      * @return the PresenceStatus last published by this provider.
      */
-    public PresenceStatus getPresenceStatus() {
+    public PresenceStatus getPresenceStatus()
+    {
         return this.presenceStatus;
     }
 
@@ -306,7 +314,8 @@ public class OperationSetPresenceSipImpl
      *
      * @return true if we use a distant presence agent
      */
-    public boolean usesDistantPA() {
+    public boolean usesDistantPA()
+    {
         return this.useDistantPA;
     }
 
@@ -315,7 +324,8 @@ public class OperationSetPresenceSipImpl
      *
      * @param useDistPA true if we should use a distant presence agent
      */
-    public void setDistantPA(boolean useDistPA) {
+    public void setDistantPA(boolean useDistPA)
+    {
         this.useDistantPA = useDistPA;
     }
 
@@ -416,7 +426,8 @@ public class OperationSetPresenceSipImpl
         newGroup.setResolved(false);
 
         //if parent is null then we're adding under root.
-        if(parentGroup == null) {
+        if(parentGroup == null)
+        {
             parentGroup = getServerStoredContactListRoot();
         }
 
@@ -455,7 +466,8 @@ public class OperationSetPresenceSipImpl
     public void moveContactToGroup(Contact contactToMove,
                                    ContactGroup newParent)
     {
-        if (!(contactToMove instanceof ContactSipImpl)) {
+        if (!(contactToMove instanceof ContactSipImpl))
+        {
             return;
         }
 
@@ -550,7 +562,8 @@ public class OperationSetPresenceSipImpl
 
                 // remember the callid to be sure that the publish arrived
                 // before unregister
-                synchronized (this.waitedCallIds) {
+                synchronized (this.waitedCallIds)
+                {
                     this.waitedCallIds.add(((CallIdHeader)
                         req.getHeader(CallIdHeader.NAME)).getCallId());
                 }
@@ -561,10 +574,13 @@ public class OperationSetPresenceSipImpl
             }
 
             ClientTransaction transac = null;
-            try {
+            try
+            {
                 transac = this.parentProvider
                     .getDefaultJainSipProvider().getNewClientTransaction(req);
-            } catch (TransactionUnavailableException e) {
+            }
+            catch (TransactionUnavailableException e)
+            {
                 logger.error("can't create the client transaction", e);
                 throw new OperationFailedException(
                         "can't create the client transaction",
@@ -582,23 +598,23 @@ public class OperationSetPresenceSipImpl
                         "can't send the PUBLISH request",
                         OperationFailedException.NETWORK_FAILURE);
             }
-
-        // no distant presence agent, send notify to every one
         }
+        // no distant presence agent, send notify to every one
         else
         {
             synchronized (this.ourWatchers)
             {   // avoid any modification during
                 // the parsing of ourWatchers
-                Iterator iter = this.ourWatchers.iterator();
-                ContactSipImpl me = (ContactSipImpl) getLocalContact();
+                Iterator<ContactSipImpl> iter = this.ourWatchers.iterator();
 
                 while (iter.hasNext())
                 {
                     ContactSipImpl contact = (ContactSipImpl) iter.next();
+                    ContactSipImpl me = getLocalContactForDst(contact);
 
                     // let the subscription end before sending him a new status
-                    if (!contact.isResolved()) {
+                    if (!contact.isResolved())
+                    {
                         continue;
                     }
 
@@ -614,7 +630,8 @@ public class OperationSetPresenceSipImpl
                                     SubscriptionStateHeader.PROBATION);
 
                             // register the callid to wait it before unregister
-                            synchronized (this.waitedCallIds) {
+                            synchronized (this.waitedCallIds)
+                            {
                                 this.waitedCallIds.add(transac.getDialog()
                                     .getCallId().getCallId());
                             }
@@ -625,7 +642,9 @@ public class OperationSetPresenceSipImpl
                                         getPidfPresenceStatus(me),
                                         SubscriptionStateHeader.ACTIVE, null);
                         }
-                    } catch (OperationFailedException e) {
+                    }
+                    catch (OperationFailedException e)
+                    {
                         logger.error("failed to create the new notify", e);
                         return;
                     }
@@ -655,7 +674,7 @@ public class OperationSetPresenceSipImpl
             unsubscribeToAllContact();
         }
 
-     // inform the listeners of these changes
+        // inform the listeners of these changes
         this.fireProviderStatusChangeEvent(oldStatus);
         this.fireProviderMsgStatusChangeEvent(oldMessage);
     }
@@ -709,11 +728,11 @@ public class OperationSetPresenceSipImpl
                      + this.providerPresenceStatusListeners.size()
                      + " evt=" + evt);
 
-        Iterator listeners = null;
+        Iterator<ProviderPresenceStatusListener> listeners = null;
         synchronized (this.providerPresenceStatusListeners)
         {
-            listeners = new ArrayList(this.providerPresenceStatusListeners)
-                .iterator();
+            listeners = new ArrayList<ProviderPresenceStatusListener>(
+                 this.providerPresenceStatusListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -742,23 +761,6 @@ public class OperationSetPresenceSipImpl
     private Request createPublish(int expires, boolean insertPresDoc)
         throws OperationFailedException
     {
-        // Address
-        InetAddress destinationInetAddress = null;
-        try
-        {
-            destinationInetAddress = InetAddress.getByName(
-                ((SipURI) this.parentProvider.getOurSipAddress().getURI())
-                .getHost());
-        }
-        catch (UnknownHostException ex)
-        {
-            throw new OperationFailedException(
-                ((SipURI) this.parentProvider.getOurSipAddress().getURI())
-                        .getHost()
-                + " is not a valid internet address " + ex.getMessage(),
-                OperationFailedException.INTERNAL_ERROR);
-        }
-
         // Call ID
         CallIdHeader callIdHeader = this.parentProvider
             .getDefaultJainSipProvider().getNewCallId();
@@ -769,14 +771,19 @@ public class OperationSetPresenceSipImpl
         ToHeader toHeader = null;
         try
         {
+            //the publish method can only be used if we have a presence agent
+            //so we deliberately use our AOR and do not use the
+            //getOurSipAddress() method.
+            Address ourAOR = parentProvider.getRegistrarConnection()
+                                                    .getAddressOfRecord();
             //FromHeader
             fromHeader = this.parentProvider.getHeaderFactory()
-                .createFromHeader(this.parentProvider.getOurSipAddress(),
+                .createFromHeader(ourAOR,
                                   localTag);
 
             //ToHeader (it's ourselves)
             toHeader = this.parentProvider.getHeaderFactory()
-                .createToHeader(this.parentProvider.getOurSipAddress(), null);
+                .createToHeader(ourAOR, null);
         }
         catch (ParseException ex)
         {
@@ -792,9 +799,8 @@ public class OperationSetPresenceSipImpl
         }
 
         //ViaHeaders
-        ArrayList viaHeaders = this.parentProvider.getLocalViaHeaders(
-            destinationInetAddress,
-            this.parentProvider.getDefaultListeningPoint());
+        ArrayList<ViaHeader> viaHeaders = parentProvider.getLocalViaHeaders(
+            toHeader.getAddress());
 
         //MaxForwards
         MaxForwardsHeader maxForwards = this.parentProvider
@@ -803,10 +809,16 @@ public class OperationSetPresenceSipImpl
         // Content params
         byte[] doc = null;
 
-        if (insertPresDoc) {
+        if (insertPresDoc)
+        {
+            //this is a publish request so we would use the default
+            //getLocalContact that would return a method based on the registrar
+            //address
             doc = getPidfPresenceStatus((ContactSipImpl)
-                    this.getLocalContact());
-        } else {
+                            this.getLocalContactForDst(toHeader.getAddress()));
+        }
+        else
+        {
             doc = new byte[0];
         }
 
@@ -832,12 +844,16 @@ public class OperationSetPresenceSipImpl
 
         // eventually add the entity tag
         SIPIfMatchHeader ifmHeader = null;
-        try {
-            if (this.distantPAET != null) {
+        try
+        {
+            if (this.distantPAET != null)
+            {
                 ifmHeader = this.parentProvider.getHeaderFactory()
                     .createSIPIfMatchHeader(this.distantPAET);
             }
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             logger.error(
                 "An unexpected error occurred while"
                 + "constructing the SIPIfMatch header", e);
@@ -882,10 +898,13 @@ public class OperationSetPresenceSipImpl
 
         // expires
         ExpiresHeader expHeader = null;
-        try {
+        try
+        {
             expHeader = this.parentProvider.getHeaderFactory()
                 .createExpiresHeader(expires);
-        } catch (InvalidArgumentException e) {
+        }
+        catch (InvalidArgumentException e)
+        {
             // will never happen
             logger.error(
                     "An unexpected error occurred while"
@@ -899,10 +918,13 @@ public class OperationSetPresenceSipImpl
 
         // event
         EventHeader evtHeader = null;
-        try {
+        try
+        {
             evtHeader = this.parentProvider.getHeaderFactory()
                 .createEventHeader("presence");
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             // will never happen
             logger.error(
                     "An unexpected error occurred while"
@@ -943,7 +965,8 @@ public class OperationSetPresenceSipImpl
         req.setHeader(expHeader);
         req.setHeader(evtHeader);
 
-        if (ifmHeader != null) {
+        if (ifmHeader != null)
+        {
             req.setHeader(ifmHeader);
         }
 
@@ -1008,7 +1031,8 @@ public class OperationSetPresenceSipImpl
     {
         Contact contact = resolveContactID(contactIdentifier);
 
-        if (contact == null) {
+        if (contact == null)
+        {
             throw new IllegalArgumentException("contact " + contactIdentifier
                     + " unknown");
         }
@@ -1068,17 +1092,29 @@ public class OperationSetPresenceSipImpl
         ContactSipImpl contact = (ContactSipImpl)
             resolveContactID(contactIdentifier);
 
-        if (contact != null) {
-            logger.debug("Contact " + contactIdentifier
-                    + " already exists.");
+        if (contact != null)
+        {
             throw new OperationFailedException(
                 "Contact " + contactIdentifier + " already exists.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
         }
 
-        if (this.presenceEnabled == false) {
+        Address contactAddress;
+        try
+        {
+            contactAddress = parentProvider
+                                    .parseAddressString(contactIdentifier);
+        }
+        catch (ParseException exc)
+        {
+            throw new IllegalArgumentException(
+                contactIdentifier + " is not a valid string.", exc);
+        }
+
+        if (this.presenceEnabled == false)
+        {
             // create the contact
-            contact = new ContactSipImpl(contactIdentifier,
+            contact = new ContactSipImpl(contactAddress,
                     this.parentProvider);
 
             ((ContactGroupSipImpl) parentGroup).addContact(contact);
@@ -1099,7 +1135,7 @@ public class OperationSetPresenceSipImpl
         assertConnected();
 
         // create the contact
-        contact = new ContactSipImpl(contactIdentifier, this.parentProvider);
+        contact = new ContactSipImpl(contactAddress, this.parentProvider);
         contact.setParentGroup((ContactGroupSipImpl)parentGroup);
         //create the subscription
         Request subscription;
@@ -1178,21 +1214,11 @@ public class OperationSetPresenceSipImpl
     private Request createSubscription(ContactSipImpl contact, int expires)
         throws OperationFailedException
     {
-        // Address
-        InetAddress destinationInetAddress = null;
         Address toAddress = null;
         try
         {
-            toAddress = parseAddressStr(contact.getAddress());
-
-            destinationInetAddress = InetAddress.getByName(
-                ((SipURI) toAddress.getURI()).getHost());
-        }
-        catch (UnknownHostException ex)
-        {
-            throw new IllegalArgumentException(
-                ((SipURI) toAddress.getURI()).getHost()
-                + " is not a valid internet address " + ex.getMessage());
+            toAddress = parentProvider
+                .parseAddressString(contact.getAddress());
         }
         catch (ParseException ex)
         {
@@ -1252,8 +1278,8 @@ public class OperationSetPresenceSipImpl
         {
             //FromHeader
             fromHeader = this.parentProvider.getHeaderFactory()
-                .createFromHeader(this.parentProvider.getOurSipAddress()
-                                  , localTag);
+                .createFromHeader(
+                    this.parentProvider.getOurSipAddress(toAddress), localTag);
 
             //ToHeader
             toHeader = this.parentProvider.getHeaderFactory()
@@ -1273,9 +1299,8 @@ public class OperationSetPresenceSipImpl
         }
 
         //ViaHeaders
-        ArrayList viaHeaders = this.parentProvider.getLocalViaHeaders(
-            destinationInetAddress,
-            this.parentProvider.getDefaultListeningPoint());
+        ArrayList<ViaHeader> viaHeaders = this.parentProvider
+            .getLocalViaHeaders(toAddress);
 
         //MaxForwards
         MaxForwardsHeader maxForwards = this.parentProvider
@@ -1306,10 +1331,13 @@ public class OperationSetPresenceSipImpl
 
         // Event
         EventHeader evHeader = null;
-        try {
+        try
+        {
             evHeader = this.parentProvider.getHeaderFactory()
                 .createEventHeader("presence");
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             //these two should never happen.
             logger.error(
                 "An unexpected error occurred while"
@@ -1322,17 +1350,21 @@ public class OperationSetPresenceSipImpl
         }
 
         // Contact
-        ContactHeader contactHeader = this.parentProvider.getContactHeader();
+        ContactHeader contactHeader = this.parentProvider.getContactHeader(
+                        toAddress);
 
         req.setHeader(evHeader);
         req.setHeader(contactHeader);
 
         // Accept
         AcceptHeader accept = null;
-        try {
+        try
+        {
             accept = this.parentProvider.getHeaderFactory()
                 .createAcceptHeader("application", PIDF_XML);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             logger.error("wrong accept header", e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
@@ -1344,10 +1376,13 @@ public class OperationSetPresenceSipImpl
 
         // Expires
         ExpiresHeader expHeader = null;
-        try {
+        try
+        {
             expHeader = this.parentProvider.getHeaderFactory()
                 .createExpiresHeader(expires);
-        } catch (InvalidArgumentException e) {
+        }
+        catch (InvalidArgumentException e)
+        {
             logger.error("Invalid expires value: "  + expires, e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
@@ -1396,9 +1431,12 @@ public class OperationSetPresenceSipImpl
         throws OperationFailedException
     {
         Request req = null;
-        try {
+        try
+        {
             req = dialog.createRequest(Request.SUBSCRIBE);
-        } catch (SipException e) {
+        }
+        catch (SipException e)
+        {
             logger.error("Can't create the SUBSCRIBE message", e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
@@ -1408,24 +1446,12 @@ public class OperationSetPresenceSipImpl
         }
 
         // Address
-        InetAddress destinationInetAddress = null;
         Address toAddress = dialog.getRemoteTarget();
 
         // no Contact field
-        if (toAddress == null) {
+        if (toAddress == null)
+        {
             toAddress = dialog.getRemoteParty();
-        }
-
-        try
-        {
-           destinationInetAddress = InetAddress.getByName(
-                ((SipURI) toAddress.getURI()).getHost());
-        }
-        catch (UnknownHostException ex)
-        {
-            throw new IllegalArgumentException(
-                ((SipURI) toAddress.getURI()).getHost()
-                + " is not a valid internet address " + ex.getMessage());
         }
 
         //MaxForwards
@@ -1434,10 +1460,13 @@ public class OperationSetPresenceSipImpl
 
         // EventHeader
         EventHeader evHeader = null;
-        try {
+        try
+        {
             evHeader = this.parentProvider.getHeaderFactory()
                 .createEventHeader("presence");
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             //these two should never happen.
             logger.error(
                 "An unexpected error occurred while"
@@ -1451,14 +1480,17 @@ public class OperationSetPresenceSipImpl
 
         // Contact
         ContactHeader contactHeader = this.parentProvider
-            .getContactHeader();
+            .getContactHeader(toAddress);
 
         // Accept
         AcceptHeader accept = null;
-        try {
+        try
+        {
             accept = this.parentProvider.getHeaderFactory()
                 .createAcceptHeader("application", PIDF_XML);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             logger.error("wrong accept header");
             throw new OperationFailedException(
                     "An unexpected error occurred while"
@@ -1469,10 +1501,13 @@ public class OperationSetPresenceSipImpl
 
         // Expires
         ExpiresHeader expHeader = null;
-        try {
+        try
+        {
             expHeader = this.parentProvider.getHeaderFactory()
                 .createExpiresHeader(expires);
-        } catch (InvalidArgumentException e) {
+        }
+        catch (InvalidArgumentException e)
+        {
             logger.error("Invalid expires value: "  + expires, e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
@@ -1523,9 +1558,9 @@ public class OperationSetPresenceSipImpl
         }
 
         //ViaHeaders
-        ArrayList viaHeaders = this.parentProvider.getLocalViaHeaders(
-            destinationInetAddress,
-            this.parentProvider.getDefaultListeningPoint());
+        ArrayList<ViaHeader> viaHeaders = this.parentProvider
+            .getLocalViaHeaders(toAddress);
+
         req.setHeader((Header) viaHeaders.get(0));
 
         //User Agent
@@ -1535,43 +1570,6 @@ public class OperationSetPresenceSipImpl
             req.addHeader(userAgentHeader);
 
         return transac;
-    }
-
-    /**
-     * Parses the the <tt>uriStr</tt> string and returns a JAIN SIP URI.
-     *
-     * @param uriStr a <tt>String</tt> containing the uri to parse.
-     *
-     * @return a URI object corresponding to the <tt>uriStr</tt> string.
-     * @throws ParseException if uriStr is not properly formatted.
-     */
-    private Address parseAddressStr(String uriStr)
-        throws ParseException
-    {
-        String res = uriStr.trim();
-
-        //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
-        //assuming that if no domain name is specified then it should be the
-        //same as ours.
-        if (res.indexOf('@') == -1)
-        {
-            res = res + '@'
-                + ((SipURI) this.parentProvider.getOurSipAddress().getURI())
-                .getHost();
-        }
-
-        //Let's be uri fault tolerant and add the sip: scheme if there is none.
-        if (!res.toLowerCase().startsWith("sip:") //no sip scheme
-            && !res.toLowerCase().startsWith("pres:"))
-        {
-            res = "sip:" + res;    //most probably a sip uri
-        }
-
-        //Request URI
-        Address uri
-            = this.parentProvider.getAddressFactory().createAddress(res);
-
-        return uri;
     }
 
     /**
@@ -1611,7 +1609,8 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
    {
-        if (!(contact instanceof ContactSipImpl)) {
+        if (!(contact instanceof ContactSipImpl))
+        {
             throw new IllegalArgumentException("the contact is not a SIP" +
                     " contact");
         }
@@ -1622,7 +1621,8 @@ public class OperationSetPresenceSipImpl
 
         // handle the case of a distant presence agent is used
         // and test if we are subscribed to this contact
-        if (dialog != null && this.presenceEnabled) {
+        if (dialog != null && this.presenceEnabled)
+        {
             // check if we heard about this contact
             if (this.subscribedContacts.get(dialog.getCallId().getCallId())
                     == null)
@@ -1632,13 +1632,17 @@ public class OperationSetPresenceSipImpl
             }
 
             // we stop the subscribtion if we're subscribed to this contact
-            if (sipcontact.isResolvable()) {
+            if (sipcontact.isResolvable())
+            {
                 assertConnected();
 
                 ClientTransaction transac = null;
-                try {
+                try
+                {
                     transac = createSubscription(0, dialog);
-                } catch (OperationFailedException e) {
+                }
+                catch (OperationFailedException e)
+                {
                     logger.debug("failed to create the unsubscription", e);
                     throw e;
                 }
@@ -1648,9 +1652,12 @@ public class OperationSetPresenceSipImpl
                 // handled as an unsubscription response
                 this.subscribedContacts.remove(dialog.getCallId().getCallId());
 
-                try {
+                try
+                {
                     dialog.sendRequest(transac);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.debug("Can't send the request");
                     throw new OperationFailedException(
                             "Failed to send the subscription message",
@@ -1682,7 +1689,8 @@ public class OperationSetPresenceSipImpl
      */
     public boolean processResponse(ResponseEvent responseEvent)
     {
-        if (this.presenceEnabled == false) {
+        if (this.presenceEnabled == false)
+        {
             return false;
         }
 
@@ -1702,7 +1710,8 @@ public class OperationSetPresenceSipImpl
         boolean processed = false;
 
         // SUBSCRIBE
-        if (method.equals(Request.SUBSCRIBE)) {
+        if (method.equals(Request.SUBSCRIBE))
+        {
             // find the contact
             CallIdHeader idheader = (CallIdHeader)
                 response.getHeader(CallIdHeader.NAME);
@@ -1722,18 +1731,23 @@ public class OperationSetPresenceSipImpl
                         || response.getStatusCode() ==
                             Response.PROXY_AUTHENTICATION_REQUIRED)
                 {
-                    try {
+                    try
+                    {
                         processAuthenticationChallenge(clientTransaction,
                                 response, sourceProvider);
                         processed = true;
-                    } catch (OperationFailedException e) {
+                    }
+                    catch (OperationFailedException e)
+                    {
                         logger.error("can't handle the challenge", e);
                     }
-                } else  if (response.getStatusCode() != Response.OK
+                }
+                else  if (response.getStatusCode() != Response.OK
                         && response.getStatusCode() != Response.ACCEPTED)
                 {
                     // this definitivly ends the subscription
-                    synchronized (this.waitedCallIds) {
+                    synchronized (this.waitedCallIds)
+                    {
                         this.waitedCallIds.remove(idheader.getCallId());
                     }
                     processed = true;
@@ -1752,13 +1766,15 @@ public class OperationSetPresenceSipImpl
                 if (response.getStatusCode() == Response.OK
                 || response.getStatusCode() == Response.ACCEPTED)
                 {
-                    if (expHeader == null) {
+                    if (expHeader == null)
+                    {
                         // not conform to rfc3265
                         logger.error("no Expires header in this response");
                         return false;
                     }
 
-                    if (contact.getResfreshTask() != null) {
+                    if (contact.getResfreshTask() != null)
+                    {
                         contact.getResfreshTask().cancel();
                     }
 
@@ -1798,7 +1814,8 @@ public class OperationSetPresenceSipImpl
                             finalizeSubscription(contact,
                                     clientTransaction.getDialog());
                         }
-                    } catch (NullPointerException e)
+                    }
+                    catch (NullPointerException e)
                     {
                         // should not happen
                         logger.debug("failed to finalize the subscription of the" +
@@ -1818,11 +1835,13 @@ public class OperationSetPresenceSipImpl
             {
                 // if the response is a 423 response, just re-send the request
                 // with a valid expires value
-                if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF) {
+                if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF)
+                {
                     MinExpiresHeader min = (MinExpiresHeader)
                         response.getHeader(MinExpiresHeader.NAME);
 
-                    if (min == null) {
+                    if (min == null)
+                    {
                         logger.error("no minimal expires value in this 423 " +
                                 "response");
                         return false;
@@ -1833,39 +1852,52 @@ public class OperationSetPresenceSipImpl
 
                     ExpiresHeader exp = request.getExpires();
 
-                    try {
+                    try
+                    {
                         exp.setExpires(min.getExpires());
-                    } catch (InvalidArgumentException e) {
+                    }
+                    catch (InvalidArgumentException e)
+                    {
                         logger.error("can't set the new expires value", e);
                         return false;
                     }
 
                     ClientTransaction transac = null;
-                    try {
+                    try
+                    {
                         transac = this.parentProvider.getDefaultJainSipProvider()
                             .getNewClientTransaction(request);
-                    } catch (TransactionUnavailableException e) {
+                    }
+                    catch (TransactionUnavailableException e)
+                    {
                         logger.error("can't create the client transaction", e);
                         return false;
                     }
 
-                    try {
+                    try
+                    {
                         transac.sendRequest();
-                    } catch (SipException e) {
+                    }
+                    catch (SipException e)
+                    {
                         logger.error("can't send the new request", e);
                         return false;
                     }
 
                     return true;
                 // UNAUTHORIZED (401/407)
-                } else if (response.getStatusCode() == Response.UNAUTHORIZED
+                }
+                else if (response.getStatusCode() == Response.UNAUTHORIZED
                     || response.getStatusCode() == Response
                         .PROXY_AUTHENTICATION_REQUIRED)
                 {
-                    try {
+                    try
+                    {
                         processAuthenticationChallenge(clientTransaction,
                                 response, sourceProvider);
-                    } catch (OperationFailedException e) {
+                    }
+                    catch (OperationFailedException e)
+                    {
                         logger.error("can't handle the challenge", e);
 
                         // we probably won't be able to communicate with the contact
@@ -1875,7 +1907,8 @@ public class OperationSetPresenceSipImpl
                         contact.setClientDialog(null);
                     }
                 // 408 480 486 600 603 : non definitive reject
-                } else if (response.getStatusCode() == Response.REQUEST_TIMEOUT
+                }
+                else if (response.getStatusCode() == Response.REQUEST_TIMEOUT
                     || response.getStatusCode() == Response
                         .TEMPORARILY_UNAVAILABLE
                     || response.getStatusCode() == Response.BUSY_HERE
@@ -1889,7 +1922,9 @@ public class OperationSetPresenceSipImpl
                     {
                         changePresenceStatusForContact(contact,
                             sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
-                    } else {
+                    }
+                    else
+                    {
                         changePresenceStatusForContact(contact,
                             sipStatusEnum.getStatus(SipStatusEnum.UNKNOWN));
                     }
@@ -1902,7 +1937,9 @@ public class OperationSetPresenceSipImpl
                         response.getStatusCode(),
                         response.getReasonPhrase());
                 // definitive reject (or not implemented)
-                } else {
+                }
+                else
+                {
                     logger.debug("error received from the network" + response);
 
                     // we'll never be able to resolve this contact
@@ -1948,25 +1985,31 @@ public class OperationSetPresenceSipImpl
                 && response.getStatusCode() != Response
                     .PROXY_AUTHENTICATION_REQUIRED)
             {
-                synchronized (this.waitedCallIds) {
+                synchronized (this.waitedCallIds)
+                {
                     this.waitedCallIds.remove(((CallIdHeader) response
                         .getHeader(CallIdHeader.NAME)).getCallId());
                 }
             }
 
             // OK (200)
-            if (response.getStatusCode() == Response.OK) {
+            if (response.getStatusCode() == Response.OK)
+            {
                 // simply nothing to do here, the contact received our NOTIFY,
                 // everything is ok
             // UNAUTHORIZED (401/407)
-            } else if (response.getStatusCode() == Response.UNAUTHORIZED
+            }
+            else if (response.getStatusCode() == Response.UNAUTHORIZED
                     || response.getStatusCode() == Response
                         .PROXY_AUTHENTICATION_REQUIRED)
             {
-                try {
+                try
+                {
                     processAuthenticationChallenge(clientTransaction,
                             response, sourceProvider);
-                } catch (OperationFailedException e) {
+                }
+                catch (OperationFailedException e)
+                {
                     logger.error("can't handle the challenge", e);
 
                     // don't try to tell him anything more
@@ -1975,15 +2018,18 @@ public class OperationSetPresenceSipImpl
                             .getURI().toString();
                     Contact watcher = getWatcher(contactAddress);
 
-                    if (watcher != null) {
+                    if (watcher != null)
+                    {
                         // avoid the case where we receive an error after having
                         // close an old subscription before accepting a new one
                         // from the same contact
-                        synchronized (watcher) {
+                        synchronized (watcher)
+                        {
                             if (((ContactSipImpl) watcher).getServerDialog()
                                 .equals(clientTransaction.getDialog()))
                             {
-                                synchronized (this.ourWatchers) {
+                                synchronized (this.ourWatchers)
+                                {
                                     this.ourWatchers.remove(watcher);
                                 }
                             }
@@ -1992,7 +2038,9 @@ public class OperationSetPresenceSipImpl
                 }
             // every error cause the subscription to be removed
             // as recommended in rfc3265
-            } else {
+            }
+            else
+            {
                 logger.debug("error received from the network" + response);
 
                 String contactAddress = ((FromHeader)
@@ -2000,15 +2048,18 @@ public class OperationSetPresenceSipImpl
                         .getURI().toString();
                 Contact watcher = getWatcher(contactAddress);
 
-                if (watcher != null) {
+                if (watcher != null)
+                {
                     // avoid the case where we receive an error after having
                     // close an old subscription before accepting a new one
                     // from the same contact
-                    synchronized (watcher) {
+                    synchronized (watcher)
+                    {
                         if (((ContactSipImpl) watcher).getServerDialog()
                             .equals(clientTransaction.getDialog()))
                         {
-                            synchronized (this.ourWatchers) {
+                            synchronized (this.ourWatchers)
+                            {
                                 this.ourWatchers.remove(watcher);
                             }
                         }
@@ -2019,7 +2070,9 @@ public class OperationSetPresenceSipImpl
             processed = true;
 
         // PUBLISH
-        } else if (method.equals(Request.PUBLISH)) {
+        }
+        else if (method.equals(Request.PUBLISH))
+        {
             // if it's a final response to a PUBLISH, we try to remove it from
             // the list of waited PUBLISH end
             if (response.getStatusCode() != Response.UNAUTHORIZED
@@ -2027,20 +2080,23 @@ public class OperationSetPresenceSipImpl
                     .PROXY_AUTHENTICATION_REQUIRED
                 && response.getStatusCode() != Response.INTERVAL_TOO_BRIEF)
             {
-                synchronized (this.waitedCallIds) {
+                synchronized (this.waitedCallIds)
+                {
                     this.waitedCallIds.remove(((CallIdHeader) response
                         .getHeader(CallIdHeader.NAME)).getCallId());
                 }
             }
 
             // OK (200)
-            if (response.getStatusCode() == Response.OK) {
+            if (response.getStatusCode() == Response.OK)
+            {
                 // remember the entity tag
                 SIPETagHeader etHeader = (SIPETagHeader)
                     response.getHeader(SIPETagHeader.NAME);
 
                 // must be one (rfc3903)
-                if (etHeader == null) {
+                if (etHeader == null)
+                {
                     logger.debug("can't find the ETag header");
                     return false;
                 }
@@ -2051,7 +2107,8 @@ public class OperationSetPresenceSipImpl
                 ExpiresHeader expires = (ExpiresHeader)
                     response.getHeader(ExpiresHeader.NAME);
 
-                if (expires == null) {
+                if (expires == null)
+                {
                     logger.error("no Expires header in the response");
                     return false;
                 }
@@ -2065,7 +2122,8 @@ public class OperationSetPresenceSipImpl
                 }
 
                 // just to be sure to not have two refreshing task
-                if (this.republishTask != null) {
+                if (this.republishTask != null)
+                {
                     this.republishTask.cancel();
                 }
 
@@ -2078,25 +2136,31 @@ public class OperationSetPresenceSipImpl
                 getTimer().schedule(this.republishTask, republishDelay * 1000);
 
             // UNAUTHORIZED (401/407)
-            } else if (response.getStatusCode() == Response.UNAUTHORIZED
+            }
+            else if (response.getStatusCode() == Response.UNAUTHORIZED
                     || response.getStatusCode() == Response
                         .PROXY_AUTHENTICATION_REQUIRED)
             {
-                try {
+                try
+                {
                     processAuthenticationChallenge(clientTransaction,
                             response, sourceProvider);
-                } catch (OperationFailedException e) {
+                }
+                catch (OperationFailedException e)
+                {
                     logger.error("can't handle the challenge", e);
                     return false;
                 }
             // INTERVAL TOO BRIEF (423)
-            } else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF)
+            }
+            else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF)
             {
                 // we get the Min expires and we use it as the interval
                 MinExpiresHeader min = (MinExpiresHeader)
                     response.getHeader(MinExpiresHeader.NAME);
 
-                if (min == null) {
+                if (min == null)
+                {
                     logger.error("can't find a min expires header in the 423" +
                             " error message");
                     return false;
@@ -2104,58 +2168,77 @@ public class OperationSetPresenceSipImpl
 
                 // send a new publish with the new expires value
                 Request req = null;
-                try {
+                try
+                {
                     req = createPublish(min.getExpires(), true);
-                } catch (OperationFailedException e) {
+                }
+                catch (OperationFailedException e)
+                {
                     logger.error("can't create the new publish request", e);
                     return false;
                 }
 
                 ClientTransaction transac = null;
-                try {
+                try
+                {
                     transac = this.parentProvider
                         .getDefaultJainSipProvider()
                         .getNewClientTransaction(req);
-                } catch (TransactionUnavailableException e) {
+                }
+                catch (TransactionUnavailableException e)
+                {
                     logger.error("can't create the client transaction", e);
                     return false;
                 }
 
-                try {
+                try
+                {
                     transac.sendRequest();
-                } catch (SipException e) {
+                }
+                catch (SipException e)
+                {
                     logger.error("can't send the PUBLISH request", e);
                     return false;
                 }
 
             // CONDITIONAL REQUEST FAILED (412)
-            } else if (response.getStatusCode() == Response
+            }
+            else if (response.getStatusCode() == Response
                                                 .CONDITIONAL_REQUEST_FAILED)
             {
                 // as recommanded in rfc3903#5, we start a totally new
                 // publication
                 this.distantPAET = null;
                 Request req = null;
-                try {
+                try
+                {
                     req = createPublish(this.subscriptionDuration, true);
-                } catch (OperationFailedException e) {
+                }
+                catch (OperationFailedException e)
+                {
                     logger.error("can't create the new publish request", e);
                     return false;
                 }
 
                 ClientTransaction transac = null;
-                try {
+                try
+                {
                     transac = this.parentProvider
                         .getDefaultJainSipProvider()
                         .getNewClientTransaction(req);
-                } catch (TransactionUnavailableException e) {
+                }
+                catch (TransactionUnavailableException e)
+                {
                     logger.error("can't create the client transaction", e);
                     return false;
                 }
 
-                try {
+                try
+                {
                     transac.sendRequest();
-                } catch (SipException e) {
+                }
+                catch (SipException e)
+                {
                     logger.error("can't send the PUBLISH request", e);
                     return false;
                 }
@@ -2163,11 +2246,14 @@ public class OperationSetPresenceSipImpl
             // with every other error, we consider that we have to start a new
             // communication.
             // Enter p2p mode if the distant PA mode fails
-            } else {
+            }
+            else
+            {
                 logger.debug("error received from the network" + response);
                 this.distantPAET = null;
 
-                if (this.useDistantPA == false) {
+                if (this.useDistantPA == false)
+                {
                     return true;
                 }
 
@@ -2175,7 +2261,8 @@ public class OperationSetPresenceSipImpl
                         + "distant PA mode fails");
                 this.useDistantPA = false;
 
-                if (this.republishTask != null) {
+                if (this.republishTask != null)
+                {
                     this.republishTask.cancel();
                     this.republishTask = null;
                 }
@@ -2206,11 +2293,13 @@ public class OperationSetPresenceSipImpl
     {
         // remember the dialog created to be able to send SUBSCRIBE
         // refresh and to unsibscribe
-        if (dialog == null) {
+        if (dialog == null)
+        {
             throw new NullPointerException("null dialog associated with a " +
                     "contact: " + contact);
         }
-        if (contact == null) {
+        if (contact == null)
+        {
             throw new NullPointerException("null contact");
         }
 
@@ -2232,8 +2321,10 @@ public class OperationSetPresenceSipImpl
      *
      * @param contact the contact concerned
      */
-    private void terminateSubscription(ContactSipImpl contact) {
-        if (contact == null) {
+    private void terminateSubscription(ContactSipImpl contact)
+    {
+        if (contact == null)
+        {
             logger.error("null contact provided, can't terminate" +
                     " subscription");
             return;
@@ -2241,7 +2332,8 @@ public class OperationSetPresenceSipImpl
 
         contact.setClientDialog(null);
 
-        if (contact.getResfreshTask() != null) {
+        if (contact.getResfreshTask() != null)
+        {
             contact.getResfreshTask().cancel();
         }
 
@@ -2271,55 +2363,47 @@ public class OperationSetPresenceSipImpl
     {
         Dialog dialog = contact.getServerDialog();
 
-        if (dialog == null) {
+        if (dialog == null)
+        {
             throw new OperationFailedException("the server dialog of the " +
                     "contact is null", OperationFailedException.INTERNAL_ERROR);
         }
 
         Request req = null;
-        try {
+        try
+        {
             req = dialog.createRequest(Request.NOTIFY);
-        } catch (SipException e) {
+        }
+        catch (SipException e)
+        {
             logger.error("Can't create the NOTIFY message", e);
             throw new OperationFailedException("Can't create the NOTIFY" +
                     " message", OperationFailedException.INTERNAL_ERROR, e);
         }
 
         // Address
-        InetAddress destinationInetAddress = null;
         Address toAddress = dialog.getRemoteTarget();
 
         // no Contact field
-        if (toAddress == null) {
+        if (toAddress == null)
+        {
             toAddress = dialog.getRemoteParty();
         }
 
-        try
-        {
-           destinationInetAddress = InetAddress.getByName(
-                ((SipURI) toAddress.getURI()).getHost());
-        }
-        catch (UnknownHostException ex)
-        {
-            throw new OperationFailedException(
-                ((SipURI) toAddress.getURI()).getHost()
-                + " is not a valid internet address ",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        ArrayList viaHeaders = null;
+        ArrayList<ViaHeader> viaHeaders = null;
         MaxForwardsHeader maxForwards = null;
 
-        try {
+        try
+        {
             //ViaHeaders
-            viaHeaders = this.parentProvider.getLocalViaHeaders(
-                destinationInetAddress
-                , this.parentProvider.getDefaultListeningPoint());
+            viaHeaders = this.parentProvider.getLocalViaHeaders(toAddress);
 
             //MaxForwards
             maxForwards = this.parentProvider
                 .getMaxForwardsHeader();
-        } catch (OperationFailedException e) {
+        }
+        catch (OperationFailedException e)
+        {
             logger.error("cant retrive the via headers or the max forward",
                     e);
             throw new OperationFailedException("Can't create the NOTIFY" +
@@ -2327,10 +2411,13 @@ public class OperationSetPresenceSipImpl
         }
 
         EventHeader evHeader = null;
-        try {
+        try
+        {
             evHeader = this.parentProvider.getHeaderFactory()
                 .createEventHeader("presence");
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             //these two should never happen.
             logger.error(
                 "An unexpected error occurred while"
@@ -2341,19 +2428,23 @@ public class OperationSetPresenceSipImpl
 
         // Contact
         ContactHeader contactHeader = this.parentProvider
-            .getContactHeader();
+            .getContactHeader(toAddress);
 
         // Subscription-State
         SubscriptionStateHeader sStateHeader = null;
-        try {
+        try
+        {
             sStateHeader = this.parentProvider
                 .getHeaderFactory().createSubscriptionStateHeader(
                         subscriptionState);
 
-            if (reason != null && reason.trim().length() != 0) {
+            if (reason != null && reason.trim().length() != 0)
+            {
                 sStateHeader.setReasonCode(reason);
             }
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             // should never happen
             logger.error("can't create the Subscription-State header", e);
             throw new OperationFailedException("Can't create the " +
@@ -2363,11 +2454,14 @@ public class OperationSetPresenceSipImpl
 
         // Content-type
         ContentTypeHeader cTypeHeader = null;
-        try {
+        try
+        {
             cTypeHeader = this.parentProvider
                 .getHeaderFactory().createContentTypeHeader("application",
                     PIDF_XML);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             // should never happen
             logger.error("can't create the Content-Type header", e);
             throw new OperationFailedException("Can't create the " +
@@ -2418,9 +2512,12 @@ public class OperationSetPresenceSipImpl
         req.setHeader((Header) viaHeaders.get(0));
 
         // add the content
-        try {
+        try
+        {
             req.setContent(doc, cTypeHeader);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             logger.error("Failed to add the presence document", e);
             throw new OperationFailedException("Can't add the presence " +
                     "document to the request",
@@ -2447,7 +2544,8 @@ public class OperationSetPresenceSipImpl
      */
     public boolean processRequest(RequestEvent requestEvent)
     {
-        if (this.presenceEnabled == false) {
+        if (this.presenceEnabled == false)
+        {
             return false;
         }
 
@@ -2499,7 +2597,8 @@ public class OperationSetPresenceSipImpl
         boolean processed = false;
 
         // NOTIFY
-        if (request.getMethod().equals(Request.NOTIFY)) {
+        if (request.getMethod().equals(Request.NOTIFY))
+        {
             Response response = null;
 
             logger.debug("notify received");
@@ -2508,7 +2607,8 @@ public class OperationSetPresenceSipImpl
                 request.getHeader(SubscriptionStateHeader.NAME);
 
             // notify must contain one (rfc3265)
-            if (sstateHeader == null) {
+            if (sstateHeader == null)
+            {
                 logger.error("no subscription state in this request");
                 return false;
             }
@@ -2533,33 +2633,43 @@ public class OperationSetPresenceSipImpl
 
             // see if the notify correspond to an existing subscription
             if (contact == null && !sstateHeader.getState().equalsIgnoreCase(
-                    SubscriptionStateHeader.TERMINATED)) {
+                    SubscriptionStateHeader.TERMINATED))
+            {
                 logger.debug("contact not found for callid : " +
                         idheader.getCallId());
 
                 // try to remove the callid from the list if we were excpeting
                 // this end (if it's the last notify of a subscription we just
                 // stopped
-                synchronized (this.waitedCallIds) {
+                synchronized (this.waitedCallIds)
+                {
                     this.waitedCallIds.remove(idheader.getCallId());
                 }
 
                 // send a 481 response (rfc3625)
-                try {
+                try
+                {
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(
                             Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
                             request);
-                } catch (ParseException e) {
+                }
+                catch (ParseException e)
+                {
                     logger.error("failed to create the 481 response", e);
                     return false;
                 }
 
-                try {
+                try
+                {
                     serverTransaction.sendResponse(response);
-                } catch (SipException e) {
+                }
+                catch (SipException e)
+                {
                     logger.error("failed to send the response", e);
-                } catch (InvalidArgumentException e) {
+                }
+                catch (InvalidArgumentException e)
+                {
                     // should not happen
                     logger.error("invalid argument provided while trying" +
                             " to send the response", e);
@@ -2576,33 +2686,44 @@ public class OperationSetPresenceSipImpl
                     .equalsIgnoreCase(PIDF_XML))
             {
                 // send a 415 response (rfc3261)
-                try {
+                try
+                {
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(Response.UNSUPPORTED_MEDIA_TYPE,
                                 request);
-                } catch (ParseException e) {
+                }
+                catch (ParseException e)
+                {
                     logger.error("failed to create the OK response", e);
                     return false;
                 }
 
                 // we want PIDF
                 AcceptHeader acceptHeader = null;
-                try {
+                try
+                {
                     acceptHeader = this.parentProvider
                         .getHeaderFactory().createAcceptHeader(
                             "application", PIDF_XML);
-                } catch (ParseException e) {
+                }
+                catch (ParseException e)
+                {
                     // should not happen
                     logger.error("failed to create the accept header", e);
                     return false;
                 }
                 response.setHeader(acceptHeader);
 
-                try {
+                try
+                {
                     serverTransaction.sendResponse(response);
-                } catch (SipException e) {
+                }
+                catch (SipException e)
+                {
                     logger.error("failed to send the response", e);
-                } catch (InvalidArgumentException e) {
+                }
+                catch (InvalidArgumentException e)
+                {
                     // should not happen
                     logger.error("invalid argument provided while trying" +
                             " to send the response", e);
@@ -2614,7 +2735,8 @@ public class OperationSetPresenceSipImpl
                     SubscriptionStateHeader.TERMINATED))
             {
                 // if we requested this end of subscription, contact == null
-                if (contact != null) {
+                if (contact != null)
+                {
                     terminateSubscription(contact);
                     this.subscribedContacts.remove(serverTransaction.getDialog()
                         .getCallId().getCallId());
@@ -2631,25 +2753,34 @@ public class OperationSetPresenceSipImpl
                 // try to remove the callid from the list if we were excpeting
                 // this end (if it's the last notify of a subscription we just
                 // stopped
-                synchronized (this.waitedCallIds) {
+                synchronized (this.waitedCallIds)
+                {
                     this.waitedCallIds.remove(idheader.getCallId());
                 }
             }
 
             // send an OK response
-            try {
+            try
+            {
                 response = this.parentProvider.getMessageFactory()
                     .createResponse(Response.OK, request);
-            } catch (ParseException e) {
+            }
+            catch (ParseException e)
+            {
                 logger.error("failed to create the OK response", e);
                 return false;
             }
 
-            try {
+            try
+            {
                 serverTransaction.sendResponse(response);
-            } catch (SipException e) {
+            }
+            catch (SipException e)
+            {
                 logger.error("failed to send the response", e);
-            } catch (InvalidArgumentException e) {
+            }
+            catch (InvalidArgumentException e)
+            {
                 // should not happen
                 logger.error("invalid argument provided while trying" +
                         " to send the response", e);
@@ -2666,15 +2797,19 @@ public class OperationSetPresenceSipImpl
             processed = true;
 
         // SUBSCRIBE
-        } else if (request.getMethod().equals(Request.SUBSCRIBE)) {
+        }
+        else if (request.getMethod().equals(Request.SUBSCRIBE))
+        {
             FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
 
             // if we received a subscribe, our network probably doesn't have
             // a distant PA
-            if (this.useDistantPA) {
+            if (this.useDistantPA)
+            {
                 this.useDistantPA = false;
 
-                if (this.republishTask != null) {
+                if (this.republishTask != null)
+                {
                     this.republishTask.cancel();
                     this.republishTask = null;
                 }
@@ -2685,9 +2820,10 @@ public class OperationSetPresenceSipImpl
                     .getAddress().getURI().toString());
 
             // if we don't know him, create him
-            if (contact == null) {
-                contact = new ContactSipImpl(from.getAddress().getURI()
-                        .toString(), this.parentProvider);
+            if (contact == null)
+            {
+                contact = new ContactSipImpl(
+                                from.getAddress(), this.parentProvider);
 
                 // <tricky time>
                 // this ensure that we will publish our status to this contact
@@ -2703,9 +2839,12 @@ public class OperationSetPresenceSipImpl
             ExpiresHeader expHeader = request.getExpires();
             int expires;
 
-            if (expHeader == null) {
+            if (expHeader == null)
+            {
                 expires = PRESENCE_DEFAULT_EXPIRE;
-            } else {
+            }
+            else
+            {
                 expires = expHeader.getExpires();
             }
 
@@ -2714,28 +2853,37 @@ public class OperationSetPresenceSipImpl
             {
                 // send him a 423
                 Response response = null;
-                try {
+                try
+                {
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(Response.INTERVAL_TOO_BRIEF, request);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Error while creating the response 423", e);
                     return false;
                 }
                 MinExpiresHeader min = null;
 
-                try {
+                try
+                {
                     min = this.parentProvider.getHeaderFactory()
                         .createMinExpiresHeader(SUBSCRIBE_MIN_EXPIRE);
-                } catch (InvalidArgumentException e) {
+                }
+                catch (InvalidArgumentException e)
+                {
                     // should not happen
                     logger.error("can't create the min expires header", e);
                     return false;
                 }
                 response.setHeader(min);
 
-                try {
+                try
+                {
                     serverTransaction.sendResponse(response);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Error while sending the response 423", e);
                     return false;
                 }
@@ -2752,33 +2900,42 @@ public class OperationSetPresenceSipImpl
                 contact.getTimeoutTask().cancel();
 
                 // add the new timeout task
-                watcherTimeoutTask timeout = new watcherTimeoutTask(contact);
+                WatcherTimeoutTask timeout = new WatcherTimeoutTask(contact);
                 contact.setTimeoutTask(timeout);
                 getTimer().schedule(timeout, expires * 1000);
 
                 // send a OK
                 Response response = null;
-                try {
+                try
+                {
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(Response.OK, request);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Error while creating the response 200", e);
                     return false;
                 }
 
                 // add the expire header
-                try {
+                try
+                {
                     expHeader = this.parentProvider.getHeaderFactory()
                         .createExpiresHeader(expires);
-                } catch (InvalidArgumentException e) {
+                }
+                catch (InvalidArgumentException e)
+                {
                     logger.error("Can't create the expires header");
                     return false;
                 }
                 response.setHeader(expHeader);
 
-                try {
+                try
+                {
                     serverTransaction.sendResponse(response);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Error while sending the response 200", e);
                     return false;
                 }
@@ -2789,11 +2946,13 @@ public class OperationSetPresenceSipImpl
             Dialog dialog = contact.getServerDialog();
 
             // is it a subscription end ?
-            if (expires == 0) {
+            if (expires == 0)
+            {
                 logger.debug("contact " + contact + " isn't a watcher anymore");
 
                 // remove the contact from our watcher
-                synchronized (this.ourWatchers) {
+                synchronized (this.ourWatchers)
+                {
                     this.ourWatchers.remove(contact);
                 }
 
@@ -2802,47 +2961,63 @@ public class OperationSetPresenceSipImpl
 
                 // send him a OK
                 Response response = null;
-                try {
+                try
+                {
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(Response.OK, request);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Error while creating the response 200", e);
                     return false;
                 }
 
                 // add the expire header
-                try {
+                try
+                {
                     expHeader = this.parentProvider.getHeaderFactory()
                         .createExpiresHeader(0);
-                } catch (InvalidArgumentException e) {
+                }
+                catch (InvalidArgumentException e)
+                {
                     logger.error("Can't create the expires header", e);
                     return false;
                 }
                 response.setHeader(expHeader);
 
-                try {
+                try
+                {
                     serverTransaction.sendResponse(response);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Error while sending the response 200", e);
                     return false;
                 }
 
                 // then terminate the subscription with an ultimate NOTIFY
                 ClientTransaction transac = null;
-                try {
-                    transac = createNotify(contact,
-                            getPidfPresenceStatus((ContactSipImpl)
-                                    getLocalContact()),
-                            SubscriptionStateHeader.TERMINATED,
-                            SubscriptionStateHeader.TIMEOUT);
-                } catch (OperationFailedException e) {
+                try
+                {
+                    transac = createNotify(
+                        contact,
+                        getPidfPresenceStatus(
+                               (ContactSipImpl)getLocalContactForDst(contact)),
+                        SubscriptionStateHeader.TERMINATED,
+                        SubscriptionStateHeader.TIMEOUT);
+                }
+                catch (OperationFailedException e)
+                {
                     logger.error("failed to create the new notify", e);
                     return false;
                 }
 
-                try {
+                try
+                {
                     dialog.sendRequest(transac);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Can't send the request", e);
                     return false;
                 }
@@ -2861,13 +3036,16 @@ public class OperationSetPresenceSipImpl
 
                 // terminate the subscription with a closing NOTIFY
                 ClientTransaction transac = null;
-                try {
+                try
+                {
                     transac = createNotify(contact,
                             getPidfPresenceStatus((ContactSipImpl)
-                                    getLocalContact()),
+                                    getLocalContactForDst(contact)),
                             SubscriptionStateHeader.TERMINATED,
                             SubscriptionStateHeader.REJECTED);
-                } catch (OperationFailedException e) {
+                }
+                catch (OperationFailedException e)
+                {
                     logger.error("failed to create the new notify", e);
                     return false;
                 }
@@ -2875,17 +3053,22 @@ public class OperationSetPresenceSipImpl
                 contact.setServerDialog(null);
 
                 // remove the contact from our watcher
-                synchronized (this.ourWatchers) {
+                synchronized (this.ourWatchers)
+                {
                     this.ourWatchers.remove(contact);
                 }
 
-                if (contact.getTimeoutTask() != null) {
+                if (contact.getTimeoutTask() != null)
+                {
                     contact.getTimeoutTask().cancel();
                 }
 
-                try {
+                try
+                {
                     dialog.sendRequest(transac);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     logger.error("Can't send the request", e);
                     return false;
                 }
@@ -2894,88 +3077,113 @@ public class OperationSetPresenceSipImpl
             // remember the dialog we will use to send the NOTIFYs
             // the synchronization avoids changing the dialog while receiving
             // an error for the previous subscription closed
-            synchronized (contact) {
+            synchronized (contact)
+            {
                 contact.setServerDialog(serverTransaction.getDialog());
             }
             dialog = contact.getServerDialog();
 
             // immediately send a 200 / OK
             Response response = null;
-            try {
+            try
+            {
                 response = this.parentProvider.getMessageFactory()
                     .createResponse(Response.OK, request);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 logger.error("Error while creating the response 200", e);
                 return false;
             }
 
             // add the expire header
-            try {
+            try
+            {
                 expHeader = this.parentProvider.getHeaderFactory()
                     .createExpiresHeader(expires);
-            } catch (InvalidArgumentException e) {
+            }
+            catch (InvalidArgumentException e)
+            {
                 logger.error("Can't create the expires header", e);
                 return false;
             }
             response.setHeader(expHeader);
 
-            try {
+            try
+            {
                 serverTransaction.sendResponse(response);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 logger.error("Error while sending the response 200", e);
                 return false;
             }
 
             // send a NOTIFY
             ClientTransaction transac = null;
-            try {
+            try
+            {
                 transac = createNotify(contact,
                         getPidfPresenceStatus((ContactSipImpl)
-                                getLocalContact()),
+                                getLocalContactForDst(contact)),
                         SubscriptionStateHeader.ACTIVE,
                         null);
-            } catch (OperationFailedException e) {
+            }
+            catch (OperationFailedException e)
+            {
                 logger.error("failed to create the new notify", e);
                 return false;
             }
 
-            try {
+            try
+            {
                 dialog.sendRequest(transac);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 logger.error("Can't send the request", e);
                 return false;
             }
 
             // add him to our watcher list
-            synchronized (this.ourWatchers) {
+            synchronized (this.ourWatchers)
+            {
                 this.ourWatchers.add(contact);
             }
 
             // add the timeout task
-            watcherTimeoutTask timeout = new watcherTimeoutTask(contact);
+            WatcherTimeoutTask timeout = new WatcherTimeoutTask(contact);
             contact.setTimeoutTask(timeout);
             getTimer().schedule(timeout, expires * 1000);
 
             processed = true;
 
         // PUBLISH
-        } else if (request.getMethod().equals(Request.PUBLISH)) {
+        }
+        else if (request.getMethod().equals(Request.PUBLISH))
+        {
             // we aren't supposed to receive a publish so just say "not
             // implemented". This behavior is usefull for SC to SC communication
             // with the PA auto detection feature and a server which proxy the
             // PUBLISH requests
             Response response = null;
-            try {
+            try
+            {
                 response = this.parentProvider.getMessageFactory()
                     .createResponse(Response.NOT_IMPLEMENTED, request);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 logger.error("Error while creating the response 501", e);
                 return false;
             }
 
-            try {
+            try
+            {
                 serverTransaction.sendResponse(response);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 logger.error("Error while sending the response 501", e);
                 return false;
             }
@@ -3168,14 +3376,32 @@ public class OperationSetPresenceSipImpl
      * Returns the protocol specific contact instance representing the local
      * user.
      *
-     * @return the Contact (address, phone number, or uin) that the Provider
-     *   implementation is communicating on behalf of.
+     * @param destination the destination that we would be sending our contact
+     * information to.
+     *
+     * @return a ContactSipImpl instance that represents us.
      */
-    public Contact getLocalContact() {
-        ContactSipImpl res;
-        res = new ContactSipImpl(this.parentProvider.getOurSipAddress()
-                .getURI().toString(), this.parentProvider);
+    public ContactSipImpl getLocalContactForDst(ContactSipImpl destination)
+    {
+        return getLocalContactForDst(destination.getSipAddress());
+    }
 
+    /**
+     * Returns the protocol specific contact instance representing the local
+     * user.
+     *
+     * @param destination the destination that we would be sending our contact
+     * information to.
+     *
+     * @return a ContactSipImpl instance that represents us.
+     */
+    public ContactSipImpl getLocalContactForDst(Address destination)
+    {
+        ContactSipImpl res;
+
+        Address sipAddress = parentProvider.getOurSipAddress(destination);
+
+        res = new ContactSipImpl(sipAddress, this.parentProvider);
         res.setPresenceStatus(this.presenceStatus);
 
         return res;
@@ -3188,7 +3414,8 @@ public class OperationSetPresenceSipImpl
      *   authorization requests coming from other users requesting
      *   permission add us to their contact list.
      */
-    public void setAuthorizationHandler(AuthorizationHandler handler) {
+    public void setAuthorizationHandler(AuthorizationHandler handler)
+    {
         // authorizations aren't supported by this implementation
     }
 
@@ -3293,7 +3520,8 @@ public class OperationSetPresenceSipImpl
      * @return the last status message that we have requested and the server
      * has confirmed.
      */
-    public String getCurrentStatusMessage() {
+    public String getCurrentStatusMessage()
+    {
         return this.statusMessage;
     }
 
@@ -3329,7 +3557,7 @@ public class OperationSetPresenceSipImpl
     * the contact. When this happens the corresponding event would notify
     * interested subscription listeners.
     *
-    * @param address an identifier of the contact that we'll be creating.
+    * @param addressStr an identifier of the contact that we'll be creating.
     * @param persistentData a String returned Contact's getPersistentData()
     * method during a previous run and that has been persistently stored
     * locally.
@@ -3339,13 +3567,23 @@ public class OperationSetPresenceSipImpl
     * @return the unresolved <tt>Contact</tt> created from the specified
     * <tt>address</tt> and <tt>persistentData</tt>
     */
-    public Contact createUnresolvedContact(String address,
+    public Contact createUnresolvedContact(String addressStr,
                          String persistentData,
                          ContactGroup parent)
     {
-        ContactSipImpl contact = new ContactSipImpl(
-            address,
-            this.parentProvider);
+        Address contactAddress;
+        try
+        {
+            contactAddress = parentProvider.parseAddressString(addressStr);
+        }
+        catch (ParseException exc)
+        {
+            throw new IllegalArgumentException(
+                addressStr + " is not a valid string.", exc);
+        }
+
+        ContactSipImpl contact = new ContactSipImpl(contactAddress,
+                                                    this.parentProvider);
 
         contact.setResolved(false);
 
@@ -3370,14 +3608,9 @@ public class OperationSetPresenceSipImpl
      */
     public ContactSipImpl createVolatileContact(Address contactAddress)
     {
-        String uri = contactAddress.getURI().toString();
-
-        //strip the scheme
-        uri = uri.substring(contactAddress.getURI().getScheme().length() + 1);
-
         // First create the new volatile contact;
         ContactSipImpl newVolatileContact
-            = new ContactSipImpl(uri, this.parentProvider);
+            = new ContactSipImpl(contactAddress, this.parentProvider);
         newVolatileContact.setDisplayName(contactAddress.getDisplayName());
         newVolatileContact.setPersistent(false);
 
@@ -3424,7 +3657,8 @@ public class OperationSetPresenceSipImpl
             ContactGroupSipImpl gr = (ContactGroupSipImpl)
                 getServerStoredContactListRoot().getGroup(i);
 
-            if(!gr.isPersistent()) {
+            if(!gr.isPersistent())
+            {
                 return gr;
             }
         }
@@ -3440,24 +3674,31 @@ public class OperationSetPresenceSipImpl
      *  been registered
      * @return A valid contact if it has been found, null otherwise
      */
-    Contact resolveContactID(String contactID) {
+    Contact resolveContactID(String contactID)
+    {
         Contact res = this.findContactByID(contactID);
 
-        if (res == null) {
+        if (res == null)
+        {
             // we try to resolve the conflict by removing "sip:" from the id
-            if (contactID.startsWith("sip:")) {
+            if (contactID.startsWith("sip:"))
+            {
                 res = this.findContactByID(contactID.substring(4));
             }
 
-            if (res == null) {
+            if (res == null)
+            {
                 // we try to remove the part after the '@'
-                if (contactID.indexOf('@') > -1) {
+                if (contactID.indexOf('@') > -1)
+                {
                     res = this.findContactByID(
                             contactID.substring(0, contactID.indexOf('@')));
 
-                    if (res == null) {
+                    if (res == null)
+                    {
                         // try the same thing without sip:
-                        if (contactID.startsWith("sip:")) {
+                        if (contactID.startsWith("sip:"))
+                        {
                             res = this.findContactByID(
                                     contactID.substring(4,
                                             contactID.indexOf('@')));
@@ -3477,7 +3718,8 @@ public class OperationSetPresenceSipImpl
      *
      * @return the watcher or null if the contact isn't a watcher
      */
-    private ContactSipImpl getWatcher(String contactAddress) {
+    private ContactSipImpl getWatcher(String contactAddress)
+    {
         String id1 = contactAddress;
         // without sip:
         String id2 = contactAddress.substring(4);
@@ -3487,7 +3729,8 @@ public class OperationSetPresenceSipImpl
         String id4 = contactAddress.substring(4, contactAddress.indexOf('@'));
 
         Iterator iter = this.ourWatchers.iterator();
-        while (iter.hasNext()) {
+        while (iter.hasNext())
+        {
             ContactSipImpl contact = (ContactSipImpl) iter.next();
 
             // test by order of probability to be true
@@ -3509,16 +3752,22 @@ public class OperationSetPresenceSipImpl
      *
      * @return a correct xml document or null if an error occurs
      */
-    Document createDocument() {
-        try {
-            if (this.docBuilderFactory == null) {
+    Document createDocument()
+    {
+        try
+        {
+            if (this.docBuilderFactory == null)
+            {
                 this.docBuilderFactory = DocumentBuilderFactory.newInstance();
             }
 
-            if (this.docBuilder == null) {
+            if (this.docBuilder == null)
+            {
                 this.docBuilder = this.docBuilderFactory.newDocumentBuilder();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.error("can't create the new xml document", e);
             return null;
         }
@@ -3534,22 +3783,28 @@ public class OperationSetPresenceSipImpl
      * @return a string representing <tt>document</tt> or null if an error
      * occur
      */
-    String convertDocument(Document document) {
+    String convertDocument(Document document)
+    {
         DOMSource source = new DOMSource(document);
         StringWriter stringWriter = new StringWriter();
         StreamResult result = new StreamResult(stringWriter);
 
-        try {
-            if (this.transFactory == null) {
+        try
+        {
+            if (this.transFactory == null)
+            {
                 this.transFactory = TransformerFactory.newInstance();
             }
 
-            if (this.transformer == null) {
+            if (this.transformer == null)
+            {
                 this.transformer = this.transFactory.newTransformer();
             }
 
             this.transformer.transform(source, result);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.error("can't convert the xml document into a string", e);
             return null;
         }
@@ -3565,28 +3820,35 @@ public class OperationSetPresenceSipImpl
      * @return a <tt>Document</tt> representing the document or null if an
      * error occur
      */
-    Document convertDocument(String document) {
+    Document convertDocument(String document)
+    {
         StringReader reader = new StringReader(document);
         StreamSource source = new StreamSource(reader);
         Document doc = createDocument();
 
-        if (doc == null) {
+        if (doc == null)
+        {
             return null;
         }
 
         DOMResult result = new DOMResult(doc);
 
-        try {
-            if (this.transFactory == null) {
+        try
+        {
+            if (this.transFactory == null)
+            {
                 this.transFactory = TransformerFactory.newInstance();
             }
 
-            if (this.transformer == null) {
+            if (this.transformer == null)
+            {
                 this.transformer = this.transFactory.newTransformer();
             }
 
             this.transformer.transform(source, result);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.error("can't convert the string into a xml document", e);
             return null;
         }
@@ -3607,19 +3869,12 @@ public class OperationSetPresenceSipImpl
      {
          Document doc = this.createDocument();
 
-         if (doc == null) {
+         if (doc == null)
+         {
              return null;
          }
 
-         String contactUri = null;
-         try {
-             contactUri = this.parseAddressStr(contact.getAddress())
-                 .getURI().toString();
-         } catch (ParseException e) {
-             // should not happen
-             logger.error("failed to parse the contact id", e);
-             return null;
-         }
+         String contactUri = contact.getSipAddress().getURI().toString();
 
          // <presence>
          Element presence = doc.createElement(PRESENCE_ELEMENT);
@@ -3639,13 +3894,19 @@ public class OperationSetPresenceSipImpl
          person.appendChild(activities);
 
          // the correct activity
-         if (contact.getPresenceStatus().equals(sipStatusEnum.getStatus(SipStatusEnum.AWAY))) {
+         if (contact.getPresenceStatus()
+                         .equals(sipStatusEnum.getStatus(SipStatusEnum.AWAY)))
+         {
              Element away = doc.createElement(NS_AWAY_ELT);
              activities.appendChild(away);
-         } else if (contact.getPresenceStatus().equals(sipStatusEnum.getStatus(SipStatusEnum.BUSY))) {
+         }
+         else if (contact.getPresenceStatus()
+                         .equals(sipStatusEnum.getStatus(SipStatusEnum.BUSY)))
+         {
              Element busy = doc.createElement(NS_BUSY_ELT);
              activities.appendChild(busy);
-         } else if (contact.getPresenceStatus()
+         }
+         else if (contact.getPresenceStatus()
                  .equals(sipStatusEnum.getStatus(SipStatusEnum.ON_THE_PHONE)))
          {
              Element otp = doc.createElement(NS_OTP_ELT);
@@ -3663,9 +3924,13 @@ public class OperationSetPresenceSipImpl
 
          // <basic>
          Element basic = doc.createElement(BASIC_ELEMENT);
-         if (contact.getPresenceStatus().equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))) {
+         if (contact.getPresenceStatus()
+                     .equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
+         {
              basic.appendChild(doc.createTextNode(OFFLINE_STATUS));
-         } else {
+         }
+         else
+         {
              basic.appendChild(doc.createTextNode(ONLINE_STATUS));
          }
          status.appendChild(basic);
@@ -3685,7 +3950,8 @@ public class OperationSetPresenceSipImpl
          tuple.appendChild(noteNodeEl);
 
          String res = convertDocument(doc);
-         if (res == null) {
+         if (res == null)
+         {
              return null;
          }
 
@@ -3707,7 +3973,8 @@ public class OperationSetPresenceSipImpl
      {
          Document doc = convertDocument(presenceDoc);
 
-         if (doc == null) {
+         if (doc == null)
+         {
              return;
          }
 
@@ -3717,19 +3984,23 @@ public class OperationSetPresenceSipImpl
          NodeList presList = doc.getElementsByTagNameNS(NS_VALUE,
                  PRESENCE_ELEMENT);
 
-         if (presList.getLength() == 0) {
+         if (presList.getLength() == 0)
+         {
              presList = doc.getElementsByTagNameNS(ANY_NS, PRESENCE_ELEMENT);
 
-             if (presList.getLength() == 0) {
+             if (presList.getLength() == 0)
+             {
                  logger.error("no presence element in this document");
                  return;
              }
          }
-         if (presList.getLength() > 1) {
+         if (presList.getLength() > 1)
+         {
              logger.warn("more than one presence element in this document");
          }
          Node presNode = presList.item(0);
-         if (presNode.getNodeType() != Node.ELEMENT_NODE) {
+         if (presNode.getNodeType() != Node.ELEMENT_NODE)
+         {
              logger.error("the presence node is not an element");
              return;
          }
@@ -3750,9 +4021,11 @@ public class OperationSetPresenceSipImpl
          //    return;
          //}
 
-         if (personList.getLength() > 0) {
+         if (personList.getLength() > 0)
+         {
              Node personNode = personList.item(0);
-             if (personNode.getNodeType() != Node.ELEMENT_NODE) {
+             if (personNode.getNodeType() != Node.ELEMENT_NODE)
+             {
                  logger.error("the person node is not an element");
                  return;
              }
@@ -3760,13 +4033,16 @@ public class OperationSetPresenceSipImpl
 
              NodeList activityList =
                  person.getElementsByTagNameNS(ANY_NS, ACTIVITY_ELEMENT);
-             if (activityList.getLength() > 0) {
+             if (activityList.getLength() > 0)
+             {
                  Element activity = null;
                  // find the first correct activity
-                 for (int i = 0; i < activityList.getLength(); i++) {
+                 for (int i = 0; i < activityList.getLength(); i++)
+                 {
                      Node activityNode = activityList.item(i);
 
-                     if (activityNode.getNodeType() != Node.ELEMENT_NODE) {
+                     if (activityNode.getNodeType() != Node.ELEMENT_NODE)
+                     {
                          continue;
                      }
 
@@ -3779,17 +4055,20 @@ public class OperationSetPresenceSipImpl
                          if (statusNode.getNodeType() == Node.ELEMENT_NODE)
                          {
                              String statusname = statusNode.getLocalName();
-                             if (statusname.equals(AWAY_ELEMENT)) {
+                             if (statusname.equals(AWAY_ELEMENT))
+                             {
                                  personStatus = sipStatusEnum
                                      .getStatus(SipStatusEnum.AWAY);
                                  break;
                              }
-                             else if (statusname.equals(BUSY_ELEMENT)) {
+                             else if (statusname.equals(BUSY_ELEMENT))
+                             {
                                  personStatus = sipStatusEnum
                                      .getStatus(SipStatusEnum.BUSY);
                                  break;
                              }
-                             else if (statusname.equals(OTP_ELEMENT)) {
+                             else if (statusname.equals(OTP_ELEMENT))
+                             {
                                  personStatus = sipStatusEnum
                                      .getStatus(SipStatusEnum.ON_THE_PHONE);
                                  break;
@@ -3809,10 +4088,12 @@ public class OperationSetPresenceSipImpl
 
          // <tuple>
          NodeList tupleList = getPidfChilds(presence, TUPLE_ELEMENT);
-         for (int i = 0; i < tupleList.getLength(); i++) {
+         for (int i = 0; i < tupleList.getLength(); i++)
+         {
              Node tupleNode = tupleList.item(i);
 
-             if (tupleNode.getNodeType() != Node.ELEMENT_NODE) {
+             if (tupleNode.getNodeType() != Node.ELEMENT_NODE)
+             {
                  continue;
              }
 
@@ -3832,12 +4113,14 @@ public class OperationSetPresenceSipImpl
                  contactID = XMLUtils.getAttribute(
                          presNode, ENTITY_ATTRIBUTE);
                  // also accept entity URIs starting with pres: instead of sip:
-                 if (contactID.startsWith("pres:")) {
+                 if (contactID.startsWith("pres:"))
+                 {
                      contactID = contactID.substring("pres:".length());
                  }
                  Contact tmpContact = resolveContactID(contactID);
 
-                 if (tmpContact != null) {
+                 if (tmpContact != null)
+                 {
                      Object tab[] = {tmpContact, new Float(0f)};
                      sipcontact.add(tab);
                  }
@@ -3845,10 +4128,12 @@ public class OperationSetPresenceSipImpl
              else
              {
                  // this is normally not permitted by RFC3863
-                 for (int j = 0; j < contactList.getLength(); j++) {
+                 for (int j = 0; j < contactList.getLength(); j++)
+                 {
                      Node contactNode = contactList.item(j);
 
-                     if (contactNode.getNodeType() != Node.ELEMENT_NODE) {
+                     if (contactNode.getNodeType() != Node.ELEMENT_NODE)
+                     {
                          continue;
                      }
 
@@ -3857,11 +4142,13 @@ public class OperationSetPresenceSipImpl
                      contactID = getTextContent(contact);
                      // also accept entity URIs starting with pres: instead
                      // of sip:
-                     if (contactID.startsWith("pres:")) {
+                     if (contactID.startsWith("pres:"))
+                     {
                          contactID = contactID.substring("pres:".length());
                      }
                      Contact tmpContact = resolveContactID(contactID);
-                     if (tmpContact == null) {
+                     if (tmpContact == null)
+                     {
                          continue;
                      }
 
@@ -3872,24 +4159,32 @@ public class OperationSetPresenceSipImpl
                      // search if the contact has a priority
                      String prioStr = contact.getAttribute(PRIORITY_ATTRIBUTE);
                      Float prio = null;
-                     try {
-                         if (prioStr == null || prioStr.length() == 0) {
+                     try
+                     {
+                         if (prioStr == null || prioStr.length() == 0)
+                         {
                              prio = new Float(0f);
-                         } else {
+                         }
+                         else
+                         {
                              prio = Float.valueOf(prioStr);
                          }
-                     } catch (NumberFormatException e) {
+                     }
+                     catch (NumberFormatException e)
+                     {
                          logger.debug("contact priority is not a valid float",
                                  e);
                          prio = new Float(0f);
                      }
 
                      // 0 <= priority <= 1 according to rfc
-                     if (prio.floatValue() < 0) {
+                     if (prio.floatValue() < 0)
+                     {
                          prio = new Float(0f);
                      }
 
-                     if (prio.floatValue() > 1) {
+                     if (prio.floatValue() > 1)
+                     {
                          prio = new Float(1f);
                      }
 
@@ -3898,11 +4193,13 @@ public class OperationSetPresenceSipImpl
 
                      // search if the contact hasn't already been added
                      boolean contactAlreadyListed = false;
-                     for (int k = 0; k < sipcontact.size(); k++) {
+                     for (int k = 0; k < sipcontact.size(); k++)
+                     {
                          Object tmp[];
                          tmp = ((Object[]) sipcontact.get(k));
 
-                         if (((Contact) tmp[0]).equals(tmpContact)) {
+                         if (((Contact) tmp[0]).equals(tmpContact))
+                         {
                              contactAlreadyListed = true;
 
                              // take the highest priority
@@ -3917,13 +4214,15 @@ public class OperationSetPresenceSipImpl
                      }
 
                      // add the contact and its priority to the list
-                     if (!contactAlreadyListed) {
+                     if (!contactAlreadyListed)
+                     {
                          sipcontact.add(tab);
                      }
                  }
              }
 
-             if (sipcontact.isEmpty()) {
+             if (sipcontact.isEmpty())
+             {
                  logger.debug("no contact found for id: " + contactID);
                  continue;
              }
@@ -3945,20 +4244,26 @@ public class OperationSetPresenceSipImpl
              // this is normally not permitted by RFC3863
              int index = statusList.getLength() - 1;
              Node statusNode = null;
-             do {
+             do
+             {
                  Node temp = statusList.item(index);
-                 if (temp.getNodeType() == Node.ELEMENT_NODE) {
+                 if (temp.getNodeType() == Node.ELEMENT_NODE)
+                 {
                      statusNode = temp;
                      break;
                  }
                  index--;
-             } while (index >= 0);
+             }
+             while (index >= 0);
 
              Element basic = null;
 
-             if (statusNode == null) {
+             if (statusNode == null)
+             {
                  logger.debug("no valid status in this tuple");
-             } else {
+             }
+             else
+             {
                  Element status = (Element) statusNode;
 
                  // <basic>
@@ -3968,18 +4273,24 @@ public class OperationSetPresenceSipImpl
                  // this is normally not permitted by RFC3863
                  index = basicList.getLength() - 1;
                  Node basicNode = null;
-                 do {
+                 do
+                 {
                      Node temp = basicList.item(index);
-                     if (temp.getNodeType() == Node.ELEMENT_NODE) {
+                     if (temp.getNodeType() == Node.ELEMENT_NODE)
+                     {
                          basicNode = temp;
                          break;
                      }
                      index--;
-                 } while (index >= 0);
+                 }
+                 while (index >= 0);
 
-                 if (basicNode == null) {
+                 if (basicNode == null)
+                 {
                      logger.debug("no valid <basic> in this status");
-                 } else {
+                 }
+                 else
+                 {
                      basic = (Element) basicNode;
                  }
              }
@@ -3994,7 +4305,8 @@ public class OperationSetPresenceSipImpl
              {
                  Node noteNode = noteList.item(k);
 
-                 if (noteNode.getNodeType() != Node.ELEMENT_NODE) {
+                 if (noteNode.getNodeType() != Node.ELEMENT_NODE)
+                 {
                      continue;
                  }
 
@@ -4003,10 +4315,12 @@ public class OperationSetPresenceSipImpl
                  String state = getTextContent(note);
 
                  Iterator states = sipStatusEnum.getSupportedStatusSet();
-                 while (states.hasNext()) {
+                 while (states.hasNext())
+                 {
                      PresenceStatus current = (PresenceStatus) states.next();
 
-                     if (current.getStatusName().equalsIgnoreCase(state)) {
+                     if (current.getStatusName().equalsIgnoreCase(state))
+                     {
                          changed = true;
                          newPresenceStates = setStatusForContacts(current,
                                  sipcontact,
@@ -4016,14 +4330,16 @@ public class OperationSetPresenceSipImpl
                  }
              }
 
-             if (changed == false && basic != null) {
+             if (changed == false && basic != null)
+             {
                  if (getTextContent(basic).equalsIgnoreCase(ONLINE_STATUS))
                  {
                      newPresenceStates = setStatusForContacts(
                              sipStatusEnum.getStatus(SipStatusEnum.ONLINE),
                              sipcontact,
                              newPresenceStates);
-                 } else if (getTextContent(basic).equalsIgnoreCase(
+                 }
+                 else if (getTextContent(basic).equalsIgnoreCase(
                          OFFLINE_STATUS))
                  {
                      newPresenceStates = setStatusForContacts(
@@ -4031,8 +4347,11 @@ public class OperationSetPresenceSipImpl
                              sipcontact,
                              newPresenceStates);
                  }
-             } else {
-                 if (changed == false) {
+             }
+             else
+             {
+                 if (changed == false)
+                 {
                      logger.debug("no suitable presence state found in this "
                             + "tuple");
                  }
@@ -4042,7 +4361,8 @@ public class OperationSetPresenceSipImpl
          // Now really set the new presence status for the listed contacts
          // newPresenceStates is ordered so priority order is respected
          Iterator iter = newPresenceStates.iterator();
-         while (iter.hasNext()) {
+         while (iter.hasNext())
+         {
              Object tab[] = (Object[]) iter.next();
              ContactSipImpl contact = (ContactSipImpl) tab[0];
              PresenceStatus status = (PresenceStatus) tab[2];
@@ -4059,10 +4379,12 @@ public class OperationSetPresenceSipImpl
       * @return the string contained in the node or an empty string if there is
       * no text information in the node.
       */
-     private String getTextContent(Element node) {
+     private String getTextContent(Element node)
+     {
          String res = XMLUtils.getText(node);
 
-         if (res == null) {
+         if (res == null)
+         {
              logger.warn("no text for element '" + node.getNodeName() + "'");
              return "";
          }
@@ -4081,12 +4403,14 @@ public class OperationSetPresenceSipImpl
       *
       * @return The list of all the descendant node.
       */
-     private NodeList getPidfChilds(Element element, String childName) {
+     private NodeList getPidfChilds(Element element, String childName)
+     {
          NodeList res;
 
          res = element.getElementsByTagNameNS(NS_VALUE, childName);
 
-         if (res.getLength() == 0) {
+         if (res.getLength() == 0)
+         {
              res = element.getElementsByTagNameNS(ANY_NS, childName);
          }
 
@@ -4110,13 +4434,15 @@ public class OperationSetPresenceSipImpl
              Vector contacts, Vector curStatus)
      {
          // test parameters
-         if (presenceState == null || contacts == null || curStatus == null) {
+         if (presenceState == null || contacts == null || curStatus == null)
+         {
              return null;
          }
 
          // for each contact in the list
          Iterator iter = contacts.iterator();
-         while (iter.hasNext()) {
+         while (iter.hasNext())
+         {
              Object tab[] = (Object[]) iter.next();
              Contact contact = (Contact) tab[0];
              float priority = ((Float) tab[1]).floatValue();
@@ -4124,29 +4450,37 @@ public class OperationSetPresenceSipImpl
              // for each existing contact
              int pos = 0;
              boolean skip = false;
-             for (int i = 0; i < curStatus.size(); i++) {
+             for (int i = 0; i < curStatus.size(); i++)
+             {
                  Object tab2[] = (Object[]) curStatus.get(i);
                  Contact curContact = (Contact) tab2[0];
                  float curPriority = ((Float) tab2[1]).floatValue();
 
                  // save the place where to add this contact in the list
-                 if (pos == 0 && curPriority <= priority) {
+                 if (pos == 0 && curPriority <= priority)
+                 {
                      pos = i;
                  }
 
-                 if (curContact.equals(contact)) {
+                 if (curContact.equals(contact))
+                 {
                      // same contact but with an higher priority
                      // simply ignore this new status affectation
-                     if (curPriority > priority) {
+                     if (curPriority > priority)
+                     {
                          skip = true;
                          break;
                      // same contact but with a lower priority
                      // replace the old status with this one
-                     } else if (curPriority < priority) {
+                     }
+                     else if (curPriority < priority)
+                     {
                          curStatus.remove(i);
                      // same contact and same priority
                      // consider the reachability of the status
-                     } else {
+                     }
+                     else
+                     {
                          PresenceStatus curPresence = (PresenceStatus) tab2[2];
                          if (curPresence.getStatus() >=
                              presenceState.getStatus())
@@ -4163,7 +4497,8 @@ public class OperationSetPresenceSipImpl
                  }
              }
 
-             if (skip) {
+             if (skip)
+             {
                  continue;
              }
 
@@ -4180,8 +4515,10 @@ public class OperationSetPresenceSipImpl
       *
       * @param contact the contact to poll
       */
-     public void forcePollContact(ContactSipImpl contact) {
-         if (this.presenceEnabled == false) {
+     public void forcePollContact(ContactSipImpl contact)
+     {
+         if (this.presenceEnabled == false)
+         {
              return;
          }
 
@@ -4306,19 +4643,25 @@ public class OperationSetPresenceSipImpl
 
                      // remember the callId to be sure to end the subscription
                      // before unregistering
-                     synchronized (this.waitedCallIds) {
+                     synchronized (this.waitedCallIds)
+                     {
                          this.waitedCallIds.add(dialog.getCallId().getCallId());
                      }
 
-                     try {
+                     try
+                     {
                          dialog.sendRequest(transac);
-                     } catch (Exception e) {
+                     }
+                     catch (Exception e)
+                     {
                          logger.error("Can't send the request", e);
                          return;
                      }
 
                      logger.debug("unsubscribed to " + contact);
-                 } else {
+                 }
+                 else
+                 {
                      logger.debug("contact " + contact
                              + " doesn't insteress us");
                  }
@@ -4382,17 +4725,20 @@ public class OperationSetPresenceSipImpl
           *
           * @param contact The contact associated with this task
           */
-         public RefreshSubscriptionTask(ContactSipImpl contact) {
+         public RefreshSubscriptionTask(ContactSipImpl contact)
+         {
              this.contact = contact;
          }
 
          /**
           * Send a subscription refresh message to the contact
           */
-         public void run() {
+         public void run()
+         {
              Dialog dialog = this.contact.getClientDialog();
 
-             if (dialog == null) {
+             if (dialog == null)
+             {
                  logger.warn("null clientDialog associated with " +
                          this.contact + ", can't refresh the subscription");
                  return;
@@ -4411,20 +4757,24 @@ public class OperationSetPresenceSipImpl
 
              // this avoid to have a refresh response during the unregistration
              // process (which could make it fail)
-             synchronized (waitedCallIds) {
+             synchronized (waitedCallIds)
+             {
                  waitedCallIds.add(dialog.getCallId().getCallId());
              }
 
-             try {
+             try
+             {
                  dialog.sendRequest(transac);
-             } catch (Exception e) {
+             }
+             catch (Exception e)
+             {
                  logger.error("Can't send the request", e);
                  return;
              }
          }
      }
 
-     protected class watcherTimeoutTask extends TimerTask
+     protected class WatcherTimeoutTask extends TimerTask
      {
          /**
           * The watcher associated with this task
@@ -4436,40 +4786,50 @@ public class OperationSetPresenceSipImpl
           *
           * @param contact The watcher concerned by this timeout
           */
-         public watcherTimeoutTask(ContactSipImpl contact) {
+         public WatcherTimeoutTask(ContactSipImpl contact)
+         {
              this.contact = contact;
          }
 
          /**
           * Send a closing NOTIFY to the watcher
           */
-         public void run() {
-             if (contact.getServerDialog() == null) {
+         public void run()
+         {
+             if (contact.getServerDialog() == null)
+             {
                  logger.warn("serverdialog null, we won't send the closing"
                          + " NOTIFY");
                  return;
              }
 
              ClientTransaction transac;
-             try {
+             try
+             {
                  transac = createNotify(this.contact,
                          getPidfPresenceStatus((ContactSipImpl)
-                                 getLocalContact()),
+                                 getLocalContactForDst(contact)),
                          SubscriptionStateHeader.TERMINATED,
                          SubscriptionStateHeader.TIMEOUT);
-             } catch (OperationFailedException e) {
+             }
+             catch (OperationFailedException e)
+             {
                  logger.error("failed to create the new notify", e);
                  return;
              }
 
-             try {
+             try
+             {
                  contact.getServerDialog().sendRequest(transac);
-             } catch (Exception e) {
+             }
+             catch (Exception e)
+             {
                  logger.error("Can't send the request", e);
                  return;
              }
 
-             synchronized (ourWatchers) {
+             synchronized (ourWatchers)
+             {
                  ourWatchers.remove(this.contact);
              }
              this.contact.setServerDialog(null);
@@ -4481,33 +4841,46 @@ public class OperationSetPresenceSipImpl
          /**
           * Send a new PUBLISH request to refresh the publication
           */
-         public void run() {
+         public void run()
+         {
              Request req = null;
-             try {
-                 if (distantPAET != null) {
+             try
+             {
+                 if (distantPAET != null)
+                 {
                      req = createPublish(subscriptionDuration, false);
-                 } else {
+                 }
+                 else
+                 {
                      // if the last publication failed for any reason, send a
                      // new publication, not a refresh
                      req = createPublish(subscriptionDuration, true);
                  }
-             } catch (OperationFailedException e) {
+             }
+             catch (OperationFailedException e)
+             {
                  logger.error("can't create a new PUBLISH message", e);
                  return;
              }
 
              ClientTransaction transac = null;
-             try {
+             try
+             {
                  transac = parentProvider
                      .getDefaultJainSipProvider().getNewClientTransaction(req);
-             } catch (TransactionUnavailableException e) {
+             }
+             catch (TransactionUnavailableException e)
+             {
                  logger.error("can't create the client transaction", e);
                  return;
              }
 
-             try {
+             try
+             {
                  transac.sendRequest();
-             } catch (SipException e) {
+             }
+             catch (SipException e)
+             {
                  logger.error("can't send the PUBLISH request", e);
                  return;
              }
@@ -4519,17 +4892,20 @@ public class OperationSetPresenceSipImpl
          /**
           * Check if we can't subscribe to this contact now
           */
-         public void run() {
+         public void run()
+         {
              // send a subscription for every contact
              Iterator groupsIter = getServerStoredContactListRoot()
                  .subgroups();
-             while (groupsIter.hasNext()) {
+             while (groupsIter.hasNext())
+             {
                  ContactGroupSipImpl group = (ContactGroupSipImpl)
                      groupsIter.next();
 
                  Iterator contactsIter = group.contacts();
 
-                 while (contactsIter.hasNext()) {
+                 while (contactsIter.hasNext())
+                 {
                      ContactSipImpl contact = (ContactSipImpl)
                          contactsIter.next();
 
@@ -4541,7 +4917,7 @@ public class OperationSetPresenceSipImpl
      }
 
      protected class RegistrationListener
-     implements RegistrationStateChangeListener
+         implements RegistrationStateChangeListener
      {
          /**
           * The method is called by a ProtocolProvider implementation whenever
@@ -4562,32 +4938,43 @@ public class OperationSetPresenceSipImpl
 
                   // this will not be called by anyone else, so call it
                   // the method will terminate every active subscription
-                  try {
+                  try
+                  {
                       publishPresenceStatus(
                           sipStatusEnum.getStatus(SipStatusEnum.OFFLINE), "");
-                  } catch (OperationFailedException e) {
+                  }
+                  catch (OperationFailedException e)
+                  {
                       logger.error("can't set the offline mode", e);
                   }
 
                   // we wait for every SUBSCRIBE, NOTIFY and PUBLISH transaction
                   // to finish before continuing the unsubscription
-                  for (byte i = 0; i < 10; i++) {   // wait 5 s. max
-                      synchronized (waitedCallIds) {
-                          if (waitedCallIds.size() == 0) {
+                  for (byte i = 0; i < 10; i++)
+                  {   // wait 5 s. max
+                      synchronized (waitedCallIds)
+                      {
+                          if (waitedCallIds.size() == 0)
+                          {
                               break;
                           }
                       }
 
-                      synchronized (this) {
-                          try {
+                      synchronized (this)
+                      {
+                          try
+                          {
                               wait(500);
-                          } catch (InterruptedException e) {
+                          }
+                          catch (InterruptedException e)
+                          {
                               logger.debug("abnormal behavior, may cause " +
                                     "unnecessary CPU use", e);
                           }
                       }
                   }
-              } else if (evt.getNewState().equals(
+              }
+              else if (evt.getNewState().equals(
                       RegistrationState.REGISTERED))
               {
                    logger.debug("enter registered state");
@@ -4600,24 +4987,28 @@ public class OperationSetPresenceSipImpl
                     * anything because we've already set it up in response to
                     * the first REGISTERED.
                     */
-                   if ((presenceEnabled == false) || (pollingTask != null)) {
+                   if ((presenceEnabled == false) || (pollingTask != null))
+                   {
                        return;
                    }
 
                    // send a subscription for every contact
-                   Iterator groupsIter = getServerStoredContactListRoot()
-                       .subgroups();
-                   while (groupsIter.hasNext()) {
+                   Iterator<ContactGroup> groupsIter
+                       = getServerStoredContactListRoot().subgroups();
+                   while (groupsIter.hasNext())
+                   {
                        ContactGroupSipImpl group = (ContactGroupSipImpl)
                            groupsIter.next();
 
                         Iterator contactsIter = group.contacts();
 
-                        while (contactsIter.hasNext()) {
+                        while (contactsIter.hasNext())
+                        {
                             ContactSipImpl contact = (ContactSipImpl)
                                 contactsIter.next();
 
-                            if (contact.isResolved()) {
+                            if (contact.isResolved())
+                            {
                                 logger.debug("contact " + contact
                                         + " already resolved");
                                 continue;
@@ -4634,8 +5025,9 @@ public class OperationSetPresenceSipImpl
                     // start polling the offline contacts
                     getTimer().schedule(pollingTask, pollingTaskPeriod,
                         pollingTaskPeriod);
-               } else if(evt.getNewState() ==
-                       RegistrationState.CONNECTION_FAILED)
+               }
+               else if(evt.getNewState()
+                         == RegistrationState.CONNECTION_FAILED)
                {
                     // if connection failed we have lost network connectivity
                     // we must fire that all contacts has gone offline
@@ -4646,7 +5038,7 @@ public class OperationSetPresenceSipImpl
                         ContactGroupSipImpl group
                             = (ContactGroupSipImpl)groupsIter.next();
 
-                        Iterator contactsIter = group.contacts();
+                        Iterator<Contact> contactsIter = group.contacts();
 
                         while(contactsIter.hasNext())
                         {

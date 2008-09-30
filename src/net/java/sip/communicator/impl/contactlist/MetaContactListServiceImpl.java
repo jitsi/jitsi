@@ -73,7 +73,8 @@ public class MetaContactListServiceImpl
      * Listeners interested in events dispatched upon modification of the meta
      * contact list.
      */
-    private Vector metaContactListListeners = new Vector();
+    private Vector<MetaContactListListener> metaContactListListeners
+                        = new Vector<MetaContactListListener>();
 
     /**
      * Contains (as keys) <tt>MetaContactGroup</tt> names that are currently
@@ -85,7 +86,9 @@ public class MetaContactListServiceImpl
      * carries a name present in this table and is issued by one of the
      * providers mapped against this groupName.
      */
-    private Hashtable groupEventIgnoreList = new Hashtable();
+    private Hashtable<String, List<ProtocolProviderService>>
+        groupEventIgnoreList = new Hashtable<String,
+                                             List<ProtocolProviderService>>();
 
     /**
      * Contains (as keys) <tt>Contact</tt> addresses that are currently
@@ -97,7 +100,9 @@ public class MetaContactListServiceImpl
      * carries a name present in this table and is issued by one of the
      * providers mapped against this groupName.
      */
-    private Hashtable contactEventIgnoreList = new Hashtable();
+    private Hashtable<String, List<ProtocolProviderService>>
+        contactEventIgnoreList = new Hashtable<String,
+                                               List<ProtocolProviderService>>();
 
     /**
      * The instance of the storage manager which is handling the local copy of
@@ -199,13 +204,12 @@ public class MetaContactListServiceImpl
         bc.removeServiceListener(this);
 
         //stop listening to all currently installed providers
-        Iterator providers
+        Iterator<ProtocolProviderService> providers
             = this.currentlyInstalledProviders.values().iterator();
 
         while (providers.hasNext())
         {
-            ProtocolProviderService pp
-                = (ProtocolProviderService)providers.next();
+            ProtocolProviderService pp = providers.next();
 
             OperationSetPersistentPresence opSetPersPresence
                 = (OperationSetPersistentPresence)pp
@@ -272,8 +276,8 @@ public class MetaContactListServiceImpl
      */
     public void addNewContactToMetaContact(
         ProtocolProviderService provider,
-        MetaContact metaContact, String contactID) throws
-        MetaContactListException
+        MetaContact metaContact, String contactID)
+            throws MetaContactListException
     {
         addNewContactToMetaContact(provider, metaContact, contactID, true);
     }
@@ -485,13 +489,13 @@ public class MetaContactListServiceImpl
     private ContactGroup resolveProtoPath(ProtocolProviderService protoProvider,
                                           MetaContactGroupImpl metaGroup)
     {
-        Iterator contactGroupsForProv = metaGroup
+        Iterator<ContactGroup> contactGroupsForProv = metaGroup
             .getContactGroupsForProvider(protoProvider);
 
         if (contactGroupsForProv.hasNext())
         {
             //we already have at least one group corresponding to the meta group
-            return (ContactGroup) contactGroupsForProv.next();
+            return contactGroupsForProv.next();
         }
         //we don't have a proto group here. obtain a ref to the parent
         //proto group (which may be created along the way) and create it.
@@ -499,6 +503,7 @@ public class MetaContactListServiceImpl
             findParentMetaContactGroup(metaGroup);
         if (parentMetaGroup == null)
         {
+            logger.debug("Resolve failed at group" + metaGroup);
             throw new NullPointerException("Internal Error. Orphan group.");
         }
 
@@ -641,13 +646,12 @@ public class MetaContactListServiceImpl
             return root;
         }
 
-        Iterator subgroups = root.getSubgroups();
+        Iterator<MetaContactGroupImpl> subgroups = root.getSubgroups();
 
         while (subgroups.hasNext())
         {
             MetaContactGroup contactGroup
-                = findParentMetaContactGroup( (MetaContactGroupImpl) subgroups
-                                             .next(), child);
+                = findParentMetaContactGroup( subgroups.next(), child);
             if (contactGroup != null)
             {
                 return contactGroup;
@@ -730,11 +734,11 @@ public class MetaContactListServiceImpl
 
         //make sure that "parent" does not already contain a subgroup called
         //"groupName"
-        Iterator subgroups = parent.getSubgroups();
+        Iterator<MetaContactGroupImpl> subgroups = parent.getSubgroups();
 
         while(subgroups.hasNext())
         {
-            MetaContactGroup group = (MetaContactGroup)subgroups.next();
+            MetaContactGroupImpl group = subgroups.next();
 
             if(group.getGroupName().equals(groupName))
             {
@@ -911,7 +915,6 @@ public class MetaContactListServiceImpl
 
         currentParentMetaContact.removeProtoContact(contact);
 
-        //fire an event telling everyone that contact has left its current
         //parent
         MetaContactGroup currentParentMetaGroup
             = this.findParentMetaContactGroup(currentParentMetaContact);
@@ -1009,11 +1012,11 @@ public class MetaContactListServiceImpl
             //first make sure that the new meta contact group path is resolved
             //against all protocols that the MetaContact requires. then move
             //the meta contact in there and move all prot contacts inside it.
-            Iterator contacts = metaContact.getContacts();
+            Iterator<Contact> contacts = metaContact.getContacts();
 
             while (contacts.hasNext())
             {
-                Contact protoContact = (Contact) contacts.next();
+                Contact protoContact =  contacts.next();
 
                 ContactGroup protoGroup = resolveProtoPath(protoContact
                     .getProtocolProvider(), (MetaContactGroupImpl) newMetaGroup);
@@ -1129,11 +1132,11 @@ public class MetaContactListServiceImpl
     public void removeMetaContact(MetaContact metaContact) throws
         MetaContactListException
     {
-        Iterator protoContactsIter = metaContact.getContacts();
+        Iterator<Contact> protoContactsIter = metaContact.getContacts();
 
         while (protoContactsIter.hasNext())
         {
-            removeContact( (Contact) protoContactsIter.next());
+            removeContact( protoContactsIter.next());
         }
 
         //do not fire events. that will be done by the contact listener as soon
@@ -1166,12 +1169,12 @@ public class MetaContactListServiceImpl
         try
         {
             //remove all proto groups and then remove the meta group as well.
-            Iterator protoGroups
+            Iterator<ContactGroup> protoGroups
                 = ( (MetaContactGroupImpl) groupToRemove).getContactGroups();
 
             while (protoGroups.hasNext())
             {
-                ContactGroup protoGroup = (ContactGroup) protoGroups.next();
+                ContactGroup protoGroup = protoGroups.next();
 
                 OperationSetPersistentPresence opSetPersPresence
                     = (OperationSetPersistentPresence) protoGroup
@@ -1258,17 +1261,17 @@ public class MetaContactListServiceImpl
                         MetaContactGroupImpl parentMetaGroup,
                         ContactGroup         groupToRemove)
     {
-        Iterator childrenContactsIter = parentMetaGroup.getChildContacts();
+        Iterator<MetaContactImpl> childrenContactsIter
+                                        = parentMetaGroup.getChildContacts();
 
         //first go through all direct children.
         while (childrenContactsIter.hasNext())
         {
-            MetaContactImpl child
-                = (MetaContactImpl) childrenContactsIter.next();
+            MetaContactImpl child = (MetaContactImpl) childrenContactsIter.next();
 
             //Get references to all contacts that will be removed in case we
             //need to fire an event.
-            Iterator contactsToRemove
+            Iterator<Contact> contactsToRemove
                 = child.getContactsForContactGroup(groupToRemove);
 
             child.removeContactsForGroup(groupToRemove);
@@ -1291,7 +1294,7 @@ public class MetaContactListServiceImpl
                 while (contactsToRemove.hasNext())
                 {
                     fireProtoContactEvent(
-                          (Contact)contactsToRemove.next()
+                          contactsToRemove.next()
                         , ProtoContactEvent.PROTO_CONTACT_REMOVED
                         , child
                         , null);
@@ -1299,20 +1302,21 @@ public class MetaContactListServiceImpl
             }
         }
 
-        Iterator subgroupsIter = parentMetaGroup.getSubgroups();
+        Iterator<MetaContactGroupImpl> subgroupsIter
+            = parentMetaGroup.getSubgroups();
 
         //then go through all subgroups.
         while (subgroupsIter.hasNext())
         {
-            MetaContactGroupImpl subMetaGroup
-                = (MetaContactGroupImpl)subgroupsIter.next();
+            MetaContactGroupImpl subMetaGroup = subgroupsIter.next();
 
-            Iterator contactGroups = subMetaGroup.getContactGroups();
+            Iterator<ContactGroup> contactGroups
+                = subMetaGroup.getContactGroups();
 
             ContactGroup protoGroup = null;
             while(contactGroups.hasNext())
             {
-                protoGroup = (ContactGroup)contactGroups.next();
+                protoGroup = contactGroups.next();
                 if(groupToRemove == protoGroup.getParentContactGroup())
                     this.locallyRemoveAllContactsForProvider(
                             subMetaGroup, protoGroup);
@@ -1474,12 +1478,11 @@ public class MetaContactListServiceImpl
         metaGroup.addProtoGroup(protoGroup);
 
         // register subgroups and contacts
-        Iterator subgroupsIter = protoGroup.subgroups();
+        Iterator<ContactGroup> subgroupsIter = protoGroup.subgroups();
 
         while (subgroupsIter.hasNext())
         {
-            ContactGroup group = (ContactGroup) subgroupsIter
-                .next();
+            ContactGroup group = subgroupsIter.next();
 
             //continue if we have already loaded this group from the locally
             //stored contact list.
@@ -1508,10 +1511,10 @@ public class MetaContactListServiceImpl
         }
 
         // now add all contacts, located in this group
-        Iterator contactsIter = protoGroup.contacts();
+        Iterator<Contact> contactsIter = protoGroup.contacts();
         while (contactsIter.hasNext())
         {
-            Contact contact = (Contact) contactsIter.next();
+            Contact contact = contactsIter.next();
 
             //continue if we have already loaded this contact from the locally
             //stored contact list.
@@ -1628,11 +1631,11 @@ public class MetaContactListServiceImpl
         //(we dont simply remove the root group because the mcl storage manager
         //is stupid (i wrote it) and doesn't know root groups exist. that's why
         //it needs to hear an event for every single group.)
-        Iterator subgroups = rootGroup.subgroups();
+        Iterator<ContactGroup> subgroups = rootGroup.subgroups();
 
         while(subgroups.hasNext())
         {
-            ContactGroup group = (ContactGroup)subgroups.next();
+            ContactGroup group = subgroups.next();
             //remove the group
             this.removeContactGroupFromMetaContactGroup(
                 (MetaContactGroupImpl)findMetaContactGroupByContactGroup(group),
@@ -1668,11 +1671,12 @@ public class MetaContactListServiceImpl
             return;
         }
 
-        List existingProvList = (List)this.groupEventIgnoreList.get(group);
+        List<ProtocolProviderService> existingProvList
+                                        = this.groupEventIgnoreList.get(group);
 
         if (existingProvList == null)
         {
-            existingProvList = new LinkedList();
+            existingProvList = new LinkedList<ProtocolProviderService>();
         }
 
         existingProvList.add(ownerProvider);
@@ -1690,7 +1694,8 @@ public class MetaContactListServiceImpl
     private boolean isGroupInEventIgnoreList(
         String group, ProtocolProviderService ownerProvider)
     {
-        List existingProvList = (List)this.groupEventIgnoreList.get(group);
+        List<ProtocolProviderService> existingProvList
+            = this.groupEventIgnoreList.get(group);
 
         return existingProvList != null
             && existingProvList.contains(ownerProvider);
@@ -1712,7 +1717,8 @@ public class MetaContactListServiceImpl
             return;
         }
 
-        List existingProvList = (List)this.groupEventIgnoreList.get(group);
+        List<ProtocolProviderService> existingProvList
+                                    = this.groupEventIgnoreList.get(group);
 
         if (existingProvList.size() < 1)
         {
@@ -1746,11 +1752,13 @@ public class MetaContactListServiceImpl
             return;
         }
 
-        List existingProvList = (List)this.contactEventIgnoreList.get(contact);
+        List<ProtocolProviderService> existingProvList
+            = (List<ProtocolProviderService>)this.contactEventIgnoreList
+                    .get(contact);
 
         if (existingProvList == null)
         {
-            existingProvList = new LinkedList();
+            existingProvList = new LinkedList<ProtocolProviderService>();
         }
 
         existingProvList.add(ownerProvider);
@@ -1791,7 +1799,8 @@ public class MetaContactListServiceImpl
             return;
         }
 
-        List existingProvList = (List)this.contactEventIgnoreList.get(contact);
+        List<ProtocolProviderService> existingProvList
+                                = this.contactEventIgnoreList.get(contact);
 
         if (existingProvList.size() < 1)
         {
@@ -2217,19 +2226,19 @@ public class MetaContactListServiceImpl
             }
 
             //check if there were any subgroups
-            Iterator subgroups = group.subgroups();
+            Iterator<ContactGroup> subgroups = group.subgroups();
 
             while(subgroups.hasNext())
             {
-                ContactGroup subgroup = (ContactGroup)subgroups.next();
+                ContactGroup subgroup = subgroups.next();
                 handleGroupCreatedEvent(newMetaGroup, subgroup);
             }
 
-            Iterator contactsIter = group.contacts();
+            Iterator<Contact> contactsIter = group.contacts();
 
             while (contactsIter.hasNext())
             {
-                Contact contact = (Contact) contactsIter.next();
+                Contact contact = contactsIter.next();
 
                 MetaContactImpl newMetaContact = new MetaContactImpl(
                         MetaContactListServiceImpl.this);
@@ -2379,16 +2388,16 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl event: "
                      + evt);
 
-        Iterator listeners = null;
+        Iterator<MetaContactListListener> listeners = null;
         synchronized (metaContactListListeners)
         {
-            listeners = new ArrayList(metaContactListListeners).iterator();
+            listeners = new ArrayList<MetaContactListListener>(
+                            metaContactListListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            MetaContactListListener listener
-                = (MetaContactListListener) listeners.next();
+            MetaContactListListener listener = listeners.next();
 
             switch (evt.getEventID())
             {
@@ -2416,16 +2425,16 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
-        Iterator listeners = null;
+        Iterator<MetaContactListListener> listeners = null;
         synchronized (metaContactListListeners)
         {
-            listeners = new ArrayList(metaContactListListeners).iterator();
+            listeners = new ArrayList<MetaContactListListener>(
+                                    metaContactListListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            MetaContactListListener listener
-                = (MetaContactListListener) listeners.next();
+            MetaContactListListener listener = listeners.next();
 
             if (event instanceof MetaContactMovedEvent)
             {
@@ -2455,16 +2464,16 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
-        Iterator listeners = null;
+        Iterator<MetaContactListListener> listeners = null;
         synchronized (metaContactListListeners)
         {
-            listeners = new ArrayList(metaContactListListeners).iterator();
+            listeners = new ArrayList<MetaContactListListener>(
+                            metaContactListListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            MetaContactListListener listener
-                = (MetaContactListListener) listeners.next();
+            MetaContactListListener listener = listeners.next();
 
             if (event instanceof MetaContactMovedEvent)
             {
@@ -2503,16 +2512,16 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
-        Iterator listeners = null;
+        Iterator<MetaContactListListener> listeners = null;
         synchronized (metaContactListListeners)
         {
-            listeners = new ArrayList(metaContactListListeners).iterator();
+            listeners = new ArrayList<MetaContactListListener>(
+                                        metaContactListListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            MetaContactListListener listener
-                = (MetaContactListListener) listeners.next();
+            MetaContactListListener listener = listeners.next();
 
             if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_ADDED))
             {
@@ -2657,12 +2666,13 @@ public class MetaContactListServiceImpl
      * @param accountID the identifier of the account that the contacts
      * originate from.
      */
-    void loadStoredMetaContact(MetaContactGroupImpl parentGroup,
-                               String metaUID,
-                               String displayName,
-                               Hashtable    details,
-                               List    protoContacts,
-                               String accountID)
+    void loadStoredMetaContact(
+            MetaContactGroupImpl parentGroup,
+            String metaUID,
+            String displayName,
+            Hashtable<String, List<String>>    details,
+            List<MclStorageManager.StoredProtoContactDescriptor> protoContacts,
+            String accountID)
     {
         //first check if the meta contact exists already.
         MetaContactImpl newMetaContact
@@ -2683,12 +2693,12 @@ public class MetaContactListServiceImpl
                 .getSupportedOperationSets().get(OperationSetPersistentPresence
                                                     .class.getName());
 
-        Iterator contactsIter = protoContacts.iterator();
+        Iterator<MclStorageManager.StoredProtoContactDescriptor> contactsIter
+            = protoContacts.iterator();
         while (contactsIter.hasNext())
         {
             MclStorageManager.StoredProtoContactDescriptor contactDescriptor
-                = (MclStorageManager.StoredProtoContactDescriptor)contactsIter
-                    .next();
+                = contactsIter.next();
 
             if(contactDescriptor.contactAddress.indexOf("238431632") > -1)
                 logger.debug("asdfasdfasdfasdfasdfasdfasdf");
@@ -2765,16 +2775,16 @@ public class MetaContactListServiceImpl
 
 
 
-        Iterator listeners = null;
+        Iterator<MetaContactListListener> listeners = null;
         synchronized (metaContactListListeners)
         {
-            listeners = new ArrayList(metaContactListListeners).iterator();
+            listeners = new ArrayList<MetaContactListListener>(
+                                metaContactListListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            MetaContactListListener listener
-                = (MetaContactListListener) listeners.next();
+            MetaContactListListener listener = listeners.next();
 
             switch (eventID)
             {

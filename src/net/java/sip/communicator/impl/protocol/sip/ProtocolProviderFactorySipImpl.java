@@ -197,16 +197,36 @@ public class ProtocolProviderFactorySipImpl
         }
     }
 
+    /**
+     * Creates a new <code>SipAccountID</code> instance with a specific user
+     * ID to represent a given set of account properties.
+     *
+     * @param userID the user ID of the new instance
+     * @param accountProperties the set of properties to be represented by the
+     *            new instance
+     * @return a new <code>AccountID</code> instance with the specified user ID
+     *         representing the given set of account properties
+     */
+    @Override
     protected AccountID createAccountID(String userID, Map accountProperties)
     {
         String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
 
-        if (serverAddress == null)
-            throw new NullPointerException(serverAddress
-                + " is not a valid ServerAddress");
         return new SipAccountID(userID, accountProperties, serverAddress);
     }
 
+    /**
+     * Initializes a new <code>ProtocolProviderServiceSipImpl</code> instance
+     * with a specific user ID to represent a specific <code>AccountID</code>.
+     *
+     * @param userID the user ID to initialize the new instance with
+     * @param accountID the <code>AccountID</code> to be represented by the new
+     *            instance
+     * @return a new <code>ProtocolProviderService</code> instance with the
+     *         specific user ID representing the specified
+     *         <code>AccountID</code>
+     */
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {

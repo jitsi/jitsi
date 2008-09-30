@@ -64,7 +64,7 @@ public class AccountManagerImpl
      * Initializes a new <code>AccountManagerImpl</code> instance loaded in a
      * specific <code>BundleContext</code> (in which the caller will usually
      * later register it).
-     * 
+     *
      * @param bundleContext the <code>BundleContext</code> in which the new
      *            instance is loaded (and in which the caller will usually later
      *            register it as a service)
@@ -96,7 +96,7 @@ public class AccountManagerImpl
     /**
      * Loads the accounts stored for a specific
      * <code>ProtocolProviderFactory</code>.
-     * 
+     *
      * @param factory the <code>ProtocolProviderFactory</code> to load the
      *            stored accounts of
      */
@@ -174,7 +174,7 @@ public class AccountManagerImpl
     /**
      * Notifies the registered {@link #listeners} that the stored accounts of a
      * specific <code>ProtocolProviderFactory</code> have just been loaded.
-     * 
+     *
      * @param factory the <code>ProtocolProviderFactory</code> which had its
      *            stored accounts just loaded
      */
@@ -309,7 +309,7 @@ public class AccountManagerImpl
      * <code>ProtocolProviderFactory</code> and notifies the registered
      * {@link #listeners} that the stored accounts of the specified
      * <code>factory</code> have just been loaded
-     * 
+     *
      * @param factory the <code>ProtocolProviderFactory</code> to load the
      *            stored accounts of
      */
@@ -325,7 +325,7 @@ public class AccountManagerImpl
      * <code>ProtocolProviderFactory</code> has been registered as a service.
      * The current implementation queues the specified <code>factory</code> to
      * have its stored accounts as soon as possible.
-     * 
+     *
      * @param factory the <code>ProtocolProviderFactory</code> which has been
      *            registered as a service.
      */
@@ -338,7 +338,7 @@ public class AccountManagerImpl
     /**
      * Queues a specific <code>ProtocolProviderFactory</code> to have its stored
      * accounts loaded as soon as possible.
-     * 
+     *
      * @param factory the <code>ProtocolProviderFactory</code> to be queued for
      *            loading its stored accounts as soon as possible
      */
@@ -461,7 +461,7 @@ public class AccountManagerImpl
      * implementation tracks the registrations of
      * <code>ProtocolProviderFactory</code> services in order to queue them for
      * loading their stored accounts.
-     * 
+     *
      * @param serviceEvent the <code>ServiceEvent</code> containing the event
      *            data
      */
@@ -485,6 +485,15 @@ public class AccountManagerImpl
         }
     }
 
+    /**
+     * Stores an account represented in the form of an <code>AccountID</code>
+     * created by a specific <code>ProtocolProviderFactory</code>.
+     *
+     * @param factory the <code>ProtocolProviderFactory</code> which created the
+     *            account to be stored
+     * @param accountID the account in the form of <code>AccountID</code> to be
+     *            stored
+     */
     public void storeAccount(ProtocolProviderFactory factory,
         AccountID accountID)
     {
@@ -497,8 +506,8 @@ public class AccountManagerImpl
         String accountUID = accountID.getAccountUniqueID();
         String accountNodeName = null;
 
-        for (Iterator<String> storedAccountIter = storedAccounts.iterator(); storedAccountIter
-            .hasNext();)
+        for (Iterator<String> storedAccountIter = storedAccounts.iterator();
+             storedAccountIter.hasNext();)
         {
             String storedAccount = storedAccountIter.next();
             String storedAccountUID =
@@ -533,8 +542,8 @@ public class AccountManagerImpl
         // store the rest of the properties
         Map accountProperties = accountID.getAccountProperties();
 
-        for (Iterator entryIter = accountProperties.entrySet().iterator(); entryIter
-            .hasNext();)
+        for (Iterator entryIter = accountProperties.entrySet().iterator();
+             entryIter.hasNext();)
         {
             Map.Entry entry = (Map.Entry) entryIter.next();
             String property = (String) entry.getKey();

@@ -79,7 +79,8 @@ public class MetaContactImpl
      * Hashtable containing the contact details.
      * Name -> Value or Name -> (List of values).
      */
-    private Hashtable details = new Hashtable();
+    private Hashtable<String, List<String>> details
+                                        = new Hashtable<String, List<String>>();
 
     /**
      * The service that is creating the contact.
@@ -157,14 +158,15 @@ public class MetaContactImpl
      * @return a <tt>Contact</tt> encapsulated in this <tt>MetaContact</tt>
      *   and originating from the specified provider.
      */
-    public Iterator getContactsForProvider(ProtocolProviderService provider)
+    public Iterator<Contact> getContactsForProvider(
+                                    ProtocolProviderService provider)
     {
-        Iterator contactsIter = protoContacts.iterator();
-        LinkedList providerContacts = new LinkedList();
+        Iterator<Contact> contactsIter = protoContacts.iterator();
+        LinkedList<Contact> providerContacts = new LinkedList<Contact>();
 
         while (contactsIter.hasNext())
         {
-            Contact contact = (Contact)contactsIter.next();
+            Contact contact = contactsIter.next();
 
             if(contact.getProtocolProvider() == provider)
                 providerContacts.add( contact );
@@ -186,14 +188,15 @@ public class MetaContactImpl
      * @return an Iterator over all <tt>Contact</tt>s encapsulated in this
      * <tt>MetaContact</tt> and belonging to the specified proto ContactGroup.
      */
-    public Iterator getContactsForContactGroup(ContactGroup parentProtoGroup)
+    public Iterator<Contact> getContactsForContactGroup(
+                                            ContactGroup parentProtoGroup)
     {
-        Iterator contactsIter = protoContacts.iterator();
-        LinkedList providerContacts = new LinkedList();
+        Iterator<Contact> contactsIter = protoContacts.iterator();
+        LinkedList<Contact> providerContacts = new LinkedList<Contact>();
 
         while (contactsIter.hasNext())
         {
-            Contact contact = (Contact)contactsIter.next();
+            Contact contact = contactsIter.next();
 
             if(contact.getParentContactGroup() == parentProtoGroup)
                 providerContacts.add( contact );
@@ -217,11 +220,11 @@ public class MetaContactImpl
     public Contact getContact(String contactAddress,
                               ProtocolProviderService ownerProvider)
     {
-        Iterator contactsIter = protoContacts.iterator();
+        Iterator<Contact> contactsIter = protoContacts.iterator();
 
         while (contactsIter.hasNext())
         {
-            Contact contact = (Contact)contactsIter.next();
+            Contact contact = contactsIter.next();
 
             if(   contact.getProtocolProvider() == ownerProvider
                && contact.getAddress().equals(contactAddress))
@@ -247,11 +250,11 @@ public class MetaContactImpl
     public Contact getContact(String contactAddress,
                               String accountID)
     {
-        Iterator contactsIter = protoContacts.iterator();
+        Iterator<Contact> contactsIter = protoContacts.iterator();
 
         while (contactsIter.hasNext())
         {
-            Contact contact = (Contact)contactsIter.next();
+            Contact contact = contactsIter.next();
 
             if(  contact.getProtocolProvider().getAccountID()
                     .getAccountUniqueID().equals(accountID)
@@ -614,11 +617,11 @@ public class MetaContactImpl
             this.contactsOnline = 0;
             int maxContactStatus = 0;
 
-            Iterator protoContacts = this.protoContacts.iterator();
+            Iterator<Contact> protoContacts = this.protoContacts.iterator();
 
             while (protoContacts.hasNext())
             {
-                Contact contact = ( (Contact) protoContacts.next());
+                Contact contact = protoContacts.next();
                 int contactStatus = contact.getPresenceStatus()
                         .getStatus();
 
@@ -692,11 +695,11 @@ public class MetaContactImpl
     boolean removeContactsForProvider(ProtocolProviderService provider)
     {
         boolean modified = false;
-        Iterator contactsIter = protoContacts.iterator();
+        Iterator<Contact> contactsIter = protoContacts.iterator();
 
         while(contactsIter.hasNext())
         {
-            Contact contact = (Contact)contactsIter.next();
+            Contact contact = contactsIter.next();
 
             if (contact.getProtocolProvider() == provider)
             {
@@ -725,11 +728,11 @@ public class MetaContactImpl
     boolean removeContactsForGroup(ContactGroup protoGroup)
     {
         boolean modified = false;
-        Iterator contactsIter = protoContacts.iterator();
+        Iterator<Contact> contactsIter = protoContacts.iterator();
 
         while(contactsIter.hasNext())
         {
-            Contact contact = (Contact)contactsIter.next();
+            Contact contact = contactsIter.next();
 
             if (contact.getParentContactGroup() == protoGroup)
             {
@@ -819,10 +822,10 @@ public class MetaContactImpl
      */
     public void addDetail(String name, String value)
     {
-        ArrayList values = (ArrayList)details.get(name);
+        List<String> values = details.get(name);
 
         if(values == null)
-            values = new ArrayList();
+            values = new ArrayList<String>();
 
         values.add(value);
 

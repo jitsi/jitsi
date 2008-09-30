@@ -29,6 +29,7 @@ import net.java.sip.communicator.util.*;
 public class SipRegistrarlessConnection
         extends SipRegistrarConnection
 {
+
     private static final Logger logger =
         Logger.getLogger(SipRegistrarlessConnection.class);
 
@@ -36,6 +37,13 @@ public class SipRegistrarlessConnection
      * A reference to the sip provider that created us.
      */
     private ProtocolProviderServiceSipImpl sipProvider = null;
+
+    /**
+     * The transport that we should claim to be using in case some of the other
+     * components of the sip package would try to use it as the default transort
+     * to connect with.
+     */
+    private String defaultTransport = null;
 
     /**
      * Keeps our current registration state.
@@ -48,12 +56,16 @@ public class SipRegistrarlessConnection
      *
      * @param sipProviderCallback a reference to the
      * ProtocolProviderServiceSipImpl instance that created us.
-     *
+     * @param defaultTransport the transport that we should fake to be using
+     * in case some of the other components in the sip package wants to use it
+     * as a default.
      */
     public SipRegistrarlessConnection(
-                    ProtocolProviderServiceSipImpl sipProviderCallback)
+                    ProtocolProviderServiceSipImpl sipProviderCallback,
+                    String defaultTransport)
     {
         this.sipProvider = sipProviderCallback;
+        this.defaultTransport = defaultTransport;
     }
 
     /**
@@ -125,28 +137,6 @@ public class SipRegistrarlessConnection
     }
 
     /**
-     * Returns the address of this connection's registrar.
-     *
-     * @return the InetAddress of our registrar server.
-     */
-    @Override
-    public InetAddress getRegistrarAddress()
-    {
-        try
-        {
-            return InetAddress.getByAddress("2001:1890:1112:1::20",
-                new byte[]{(byte) 20, (byte) 01, (byte) 18, (byte) 90,
-                           (byte) 11, (byte) 11, (byte) 12, (byte) 00,
-                           (byte) 01, (byte) 00, (byte) 00, (byte) 00,
-                           (byte) 00, (byte) 00, (byte) 00, (byte) 20});
-        } catch (UnknownHostException ex)
-        {
-            logger.error("Failed to generate a dummy registrar addr", ex);
-            return null;
-        }
-    }
-
-    /**
      * Returns the listening point that should be used for communication with our
      * current registrar.
      *
@@ -156,8 +146,31 @@ public class SipRegistrarlessConnection
     @Override
     public ListeningPoint getListeningPoint()
     {
-        return sipProvider.getDefaultListeningPoint();
+        return sipProvider.getListeningPoint(getTransport());
     }
+
+    /**
+     * Returns the default jain-sip provider for our parent provider.
+     *
+     * @return the default jain-sip provider for our parent provider.
+     */
+    @Override
+    public SipProvider getJainSipProvider()
+    {
+        return sipProvider.getJainSipProvider(getTransport());
+    }
+
+    /**
+     * Returns the default transport for our parent provider.
+     *
+     * @return the default transport for our parent provider.
+     */
+    @Override
+    public String getTransport()
+    {
+        return defaultTransport;
+    }
+
 
     /**
      * Returns a string representation of this connection instance
@@ -180,6 +193,20 @@ public class SipRegistrarlessConnection
             //something with indexes, so just ignore.
         }
         return className + "-[dn=" + sipProvider.getOurDisplayName()
-               +" addr="+sipProvider.getOurSipAddress() + "]";
+               +" addr="+sipProvider.getAccountID().getUserID() + "]";
+    }
+
+    /**
+     * Returns true if this is a fake connection that is not actually using
+     * a registrar. This method should be overridden in
+     * <tt>SipRegistrarlessConnection</tt> and return <tt>true</tt> in there.
+     *
+     * @return true if this connection is really using a registrar and
+     * false if it is a fake connection that doesn't really use a registrar.
+     */
+    @Override
+    public boolean isRegistrarless()
+    {
+        return true;
     }
 }

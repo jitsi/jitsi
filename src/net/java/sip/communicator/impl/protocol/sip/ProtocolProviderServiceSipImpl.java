@@ -42,7 +42,8 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The hashtable with the operation sets that we support locally.
      */
-    private Hashtable supportedOperationSets = new Hashtable();
+    private Hashtable<String, OperationSet> supportedOperationSets
+        = new Hashtable<String, OperationSet>();
 
     /**
      * The identifier of the account that this provider represents.
@@ -62,7 +63,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * A list of all events registered for this provider.
      */
-    private List registeredEvents = new ArrayList();
+    private List<String> registeredEvents = new ArrayList<String>();
 
     /**
      * The SipFactory instance used to create the SipStack and the Address
@@ -275,12 +276,6 @@ public class ProtocolProviderServiceSipImpl
     private UserAgentHeader userAgentHeader = null;
 
     /**
-     * The sip address that we're currently behind (the one that corresponds to
-     * our account id).
-     */
-    private Address ourSipAddress = null;
-
-    /**
      * The name that we want to send others when calling or chatting with them.
      */
     private String ourDisplayName = null;
@@ -377,7 +372,7 @@ public class ProtocolProviderServiceSipImpl
      *
      * @return The list of all the registered events
      */
-    public List getKnownEventsList()
+    public List<String> getKnownEventsList()
     {
         return this.registeredEvents;
     }
@@ -394,7 +389,7 @@ public class ProtocolProviderServiceSipImpl
      * sets mapped against their class names (e.g.
      * OperationSetPresence.class.getName()) .
      */
-    public Map getSupportedOperationSets()
+    public Map<String, OperationSet> getSupportedOperationSets()
     {
         return supportedOperationSets;
     }
@@ -455,7 +450,7 @@ public class ProtocolProviderServiceSipImpl
 
         // We check here if the sipRegistrarConnection is initialized. This is
         // needed in case that in the initialization process we had no internet
-        // connection.
+        // connection and resolving the registrar failed.
         if (sipRegistrarConnection == null)
             initRegistrarConnection((SipAccountID) accountID);
 
@@ -719,53 +714,17 @@ public class ProtocolProviderServiceSipImpl
             this.supportedOperationSets.put(
                 OperationSetDTMF.class.getName(), opSetDTMF);
 
+            //initialize our OPTIONS handler
+            ClientCapabilities capabilities = new ClientCapabilities(this);
 
-            //create our own address.
-            String ourUserID = (String)accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.USER_ID);
-
-            String sipUriHost = null;
-            if( ourUserID.indexOf("@") != -1
-                && ourUserID.indexOf("@") < ourUserID.length() -1 )
-            {
-                //use the domain in the SIP uri as a default registrar address.
-                sipUriHost = ourUserID.substring( ourUserID.indexOf("@") + 1 );
-                ourUserID = ourUserID.substring( 0, ourUserID.indexOf("@") );
-            }
-
+            //initialize our display name
             ourDisplayName = (String)accountID.getAccountProperties()
                 .get(ProtocolProviderFactory.DISPLAY_NAME);
 
-            if(sipUriHost == null)
-                sipUriHost = sipRegistrarConnection
-                    .getRegistrarAddress().getHostName();
-
-            SipURI ourSipURI = null;
-            try
+            if(ourDisplayName == null
+               || ourDisplayName.trim().length() == 0)
             {
-                ourSipURI = addressFactory.createSipURI(
-                    ourUserID, sipUriHost);
-
-                if(ourDisplayName == null
-                   || ourDisplayName.trim().length() == 0)
-                {
-                    ourDisplayName = ourUserID;
-                }
-                ourSipAddress = addressFactory.createAddress(
-                    ourDisplayName, ourSipURI);
-            }
-            catch (ParseException ex)
-            {
-                logger.error("Could not create a SIP URI for user "
-                             + ourUserID + "@" + sipUriHost
-                             + " and registrar " + sipRegistrarConnection
-                             .getRegistrarAddress().getHostName()
-                             , ex);
-                throw new IllegalArgumentException(
-                    "Could not create a SIP URI for user "
-                    + ourUserID + "@" + sipUriHost
-                    + " and registrar " + sipRegistrarConnection
-                                        .getRegistrarAddress().getHostName());
+                ourDisplayName = accountID.getUserID();
             }
 
             //init the security manager
@@ -1432,25 +1391,46 @@ public class ProtocolProviderServiceSipImpl
      * s<tt>destination</tt>. This ArrayList may be used when sending
      * requests to that destination.
      * <p>
-     * @param destination The address of the destination that the request using
-     * the via headers will be sent to.
-     * @param srcListeningPoint the listening point that we will be using when
-     * accessing destination.
+     * @param intendedDestination The address of the destination that the
+     * request using the via headers will be sent to.
      *
      * @return ViaHeader-s list to be used when sending requests.
      * @throws OperationFailedException code INTERNAL_ERROR if a ParseException
      * occurs while initializing the array list.
      *
      */
-    public ArrayList getLocalViaHeaders(InetAddress destination,
-                                        ListeningPoint srcListeningPoint)
+    public ArrayList<ViaHeader> getLocalViaHeaders(Address intendedDestination)
         throws OperationFailedException
     {
-        ArrayList viaHeaders = new ArrayList();
+        return getLocalViaHeaders((SipURI)intendedDestination.getURI());
+    }
+
+    /**
+     * Initializes and returns an ArrayList with a single ViaHeader
+     * containing a localhost address usable with the specified
+     * s<tt>destination</tt>. This ArrayList may be used when sending
+     * requests to that destination.
+     * <p>
+     * @param intendedDestination The address of the destination that the
+     * request using the via headers will be sent to.
+     *
+     * @return ViaHeader-s list to be used when sending requests.
+     * @throws OperationFailedException code INTERNAL_ERROR if a ParseException
+     * occurs while initializing the array list.
+     *
+     */
+    public ArrayList<ViaHeader> getLocalViaHeaders(SipURI intendedDestination)
+        throws OperationFailedException
+    {
+        ArrayList<ViaHeader> viaHeaders = new ArrayList<ViaHeader>();
+
+        ListeningPoint srcListeningPoint
+                = getListeningPoint(intendedDestination.getTransportParam());
         try
         {
             InetAddress localAddress = SipActivator
-                .getNetworkAddressManagerService().getLocalHost(destination);
+                .getNetworkAddressManagerService().getLocalHost(
+                                getIntendedDestination(intendedDestination));
             ViaHeader viaHeader = headerFactory.createViaHeader(
                 localAddress.getHostAddress()
                 , srcListeningPoint.getPort()
@@ -1519,49 +1499,39 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Retrns a Contact header containing our sip uri and therefore usable in all
-     * but REGISTER requests. Same as calling getContactHeader(false)
+     * Returns a Contact header containing a sip URI based on a localhost
+     * address and therefore usable in REGISTER requests only.
      *
-     * @return a Contact header containing our sip uri
-     */
-    public ContactHeader getContactHeader()
-    {
-        if(this.genericContactHeader == null)
-        {
-            try
-            {
-                genericContactHeader = getContactHeader(
-                    sipRegistrarConnection.getRegistrarAddress(),
-                    sipRegistrarConnection.getListeningPoint());
-            }
-            catch(OperationFailedException ex)
-            {
-                logger.error("Failed to create Contact header.", ex);
-            }
-            logger.debug("generated contactHeader:"
-                         + genericContactHeader);
-        }
-        return genericContactHeader;
-    }
-
-    /**
-     * Retrns a Contact header containing a sip URI base on a localhost address
-     * and thereforeusable in REGISTER requests only.
-     *
-     * @param targetAddress the address of the registrar that this contact
-     * header is meant for.
-     * @param srcListeningPoint the listening point that will be used when
-     * accessing the registrar.
+     * @param intendedDestination the destination that we plan to be sending
+     * this contact header to.
      *
      * @return a Contact header based upon a local inet address.
      * @throws OperationFailedException if we fail constructing the contact
      * header.
      */
-    ContactHeader getContactHeader(InetAddress targetAddress,
-                                   ListeningPoint srcListeningPoint)
-        throws OperationFailedException
+    public ContactHeader getContactHeader(Address intendedDestination)
+    {
+        return getContactHeader((SipURI)intendedDestination.getURI());
+    }
+
+    /**
+     * Returns a Contact header containing a sip URI based on a localhost
+     * address and therefore usable in REGISTER requests only.
+     *
+     * @param intendedDestination the destination that we plan to be sending
+     * this contact header to.
+     *
+     * @return a Contact header based upon a local inet address.
+     * @throws OperationFailedException if we fail constructing the contact
+     * header.
+     */
+    public ContactHeader getContactHeader(SipURI intendedDestination)
     {
         ContactHeader registrationContactHeader = null;
+
+        ListeningPoint srcListeningPoint
+                                  = getListeningPoint(intendedDestination);
+        InetAddress targetAddress = getIntendedDestination(intendedDestination);
         try
         {
             //find the address to use with the target
@@ -1569,7 +1539,7 @@ public class ProtocolProviderServiceSipImpl
                 .getNetworkAddressManagerService().getLocalHost(targetAddress);
 
             SipURI contactURI = addressFactory.createSipURI(
-                ((SipURI)ourSipAddress.getURI()).getUser()
+                getAccountID().getUserID()
                 , localAddress.getHostAddress() );
 
             contactURI.setTransportParam(srcListeningPoint.getTransport());
@@ -1589,9 +1559,8 @@ public class ProtocolProviderServiceSipImpl
         {
             logger.error(
                 "A ParseException occurred while creating From Header!", ex);
-            throw new OperationFailedException(
+            throw new IllegalArgumentException(
                 "A ParseException occurred while creating From Header!"
-                , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
         return registrationContactHeader;
@@ -1649,19 +1618,71 @@ public class ProtocolProviderServiceSipImpl
      */
     public ListeningPoint getListeningPoint(String transport)
     {
+        if(logger.isTraceEnabled())
+            logger.trace("Query for a " + transport + " listening point");
+
+        if(   transport == null
+           || transport.trim().length() == 0
+           || (   ! transport.trim().equalsIgnoreCase(ListeningPoint.TCP)
+               && ! transport.trim().equalsIgnoreCase(ListeningPoint.UDP)
+               && ! transport.trim().equalsIgnoreCase(ListeningPoint.TLS)))
+        {
+            transport = getDefaultTransport();
+        }
+
+        ListeningPoint lp = null;
+
         if(transport.equalsIgnoreCase(ListeningPoint.UDP))
         {
-            return udpListeningPoint;
+            lp = udpListeningPoint;
         }
         else if(transport.equalsIgnoreCase(ListeningPoint.TCP))
         {
-            return tcpListeningPoint;
+            lp = tcpListeningPoint;
         }
         else if(transport.equalsIgnoreCase(ListeningPoint.TLS))
         {
-            return tlsListeningPoint;
+            lp = tlsListeningPoint;
         }
-        return null;
+
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Returning LP " + lp + " for transport ["
+                            + transport + "]" + " and ");
+        }
+        return lp;
+    }
+
+    /**
+     * Returns the default listening point that we should use to contact the
+     * intended destination.
+     *
+     * @param intendedDestination the address that we will be trying to contact
+     * through the listening point we are trying to obtain.
+     *
+     * @return the listening point that we should use to contact the
+     * intended destination.
+     */
+    public ListeningPoint getListeningPoint(Address intendedDestination)
+    {
+        return getListeningPoint((SipURI)intendedDestination.getURI());
+    }
+
+    /**
+     * Returns the default listening point that we should use to contact the
+     * intended destination.
+     *
+     * @param intendedDestination the address that we will be trying to contact
+     * through the listening point we are trying to obtain.
+     *
+     * @return the listening point that we should use to contact the
+     * intended destination.
+     */
+    public ListeningPoint getListeningPoint(SipURI intendedDestination)
+    {
+        String transport = intendedDestination.getTransportParam();
+
+        return getListeningPoint(transport);
     }
 
     /**
@@ -1723,14 +1744,40 @@ public class ProtocolProviderServiceSipImpl
         {
             String userID = (String) accountID.getAccountProperties()
                 .get(ProtocolProviderFactory.USER_ID);
-            registrarAddressStr = userID.substring( userID.indexOf("@")+1);
+            if ( userID.indexOf("@") > -1 )
+                registrarAddressStr = userID.substring( userID.indexOf("@")+1);
         }
 
+        //if we still have no registrar address or if the registrar address
+        //string is one of our local host addresses this means the users does
+        //not want to use a registrar connection
+        if(registrarAddressStr == null
+           || registrarAddressStr.trim().length() == 0)
+        {
+            initRegistrarlessConnection(accountID);
+            return;
+        }
+
+        //from this point on we are certain to have a registrar.
         InetAddress registrarAddress = null;
+
+        //init registrar port
+        int registrarPort = ListeningPoint.PORT_5060;
 
         try
         {
-            registrarAddress = NetworkUtils.getInetAddress(registrarAddressStr);
+            // first check for srv records exists
+            String registrarTransport = (String)accountID.getAccountProperties()
+                        .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+
+            if(registrarTransport == null)
+                registrarTransport = getDefaultTransport();
+
+            InetSocketAddress registrarSocketAddress = resolveSipAddress(
+                registrarAddressStr, registrarTransport);
+
+            registrarAddress = registrarSocketAddress.getAddress();
+            registrarPort = registrarSocketAddress.getPort();
 
             // We should set here the property to indicate that the server
             // address is validated. When we load stored accounts we check
@@ -1745,7 +1792,7 @@ public class ProtocolProviderServiceSipImpl
         }
         catch (UnknownHostException ex)
         {
-            logger.error(registrarAddressStr
+            logger.debug(registrarAddressStr
                 + " appears to be an either invalid or inaccessible address: "
                 , ex);
 
@@ -1788,9 +1835,7 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        //init registrar port
-        int registrarPort = ListeningPoint.PORT_5060;
-
+        //check if user has overridden the registrar port.
         String registrarPortStr = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.SERVER_PORT);
 
@@ -1889,19 +1934,112 @@ public class ProtocolProviderServiceSipImpl
                 + registrarAddress.getHostAddress() + ": "
                 + ex.getMessage());
         }
-
-        //initialize our OPTIONS handler
-        ClientCapabilities capabilities = new ClientCapabilities(this);
     }
 
     /**
-     * Returns the SIP Address (Display Name <user@server.net>) that this
-     * account is created for.
-     * @return Address
+     * Initializes the SipRegistrarConnection that this class will be using.
+     *
+     * @param accountID the ID of the account that this registrar is associated
+     * with.
+     * @throws java.lang.IllegalArgumentException if one or more account
+     * properties have invalid values.
      */
-    public Address getOurSipAddress()
+    private void initRegistrarlessConnection(SipAccountID accountID)
+        throws IllegalArgumentException
     {
-        return ourSipAddress;
+        String userID = (String) accountID.getAccountProperties()
+                .get(ProtocolProviderFactory.USER_ID);
+
+        //registrar transport
+        String registrarTransport = (String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+
+        if(registrarTransport != null && registrarTransport.length() > 0)
+        {
+            if( ! registrarTransport.equals(ListeningPoint.UDP)
+                && !registrarTransport.equals(ListeningPoint.TCP)
+                && !registrarTransport.equals(ListeningPoint.TLS))
+            {
+                throw new IllegalArgumentException(registrarTransport
+                    + " is not a valid transport protocol. Transport must be "
+                    +"left blanc or set to TCP, UDP or TLS.");
+            }
+        }
+        else
+        {
+            registrarTransport = ListeningPoint.UDP;
+        }
+
+        //Initialize our connection with the registrar
+        this.sipRegistrarConnection
+               = new SipRegistrarlessConnection(this, registrarTransport);
+    }
+
+    /**
+     * Returns the SIP address of record (Display Name <user@server.net>) that
+     * this account is created for. The method takes into account whether or
+     * not we are running in Registar or "No Registar" mode and either returns
+     * the AOR we are using to register or an address constructed using the
+     * local address
+     * .
+     * @return our Address Of Record that we should use in From headers.
+     */
+    public Address getOurSipAddress(Address intendedDestination)
+    {
+        return getOurSipAddress((SipURI)intendedDestination.getURI());
+    }
+
+    /**
+     * Returns the SIP address of record (Display Name <user@server.net>) that
+     * this account is created for. The method takes into account whether or
+     * not we are running in Registar or "No Registar" mode and either returns
+     * the AOR we are using to register or an address constructed using the
+     * local address
+     * .
+     * @return our Address Of Record that we should use in From headers.
+     */
+    public Address getOurSipAddress(SipURI intendedDestination)
+    {
+        SipRegistrarConnection src = getRegistrarConnection();
+
+        if( src != null & !src.isRegistrarless() )
+            return src.getAddressOfRecord();
+
+        //we are apparently running in "No Registrar" mode so let's create an
+        //address by ourselves.
+        InetAddress destinationAddr
+                    = getIntendedDestination(intendedDestination);
+
+        InetAddress localHost = SipActivator.getNetworkAddressManagerService()
+            .getLocalHost(destinationAddr);
+
+        String userID = getAccountID().getUserID();
+
+        try
+        {
+            SipURI ourSipURI = getAddressFactory()
+                .createSipURI(userID, localHost.getHostAddress());
+
+            ListeningPoint lp = getListeningPoint(intendedDestination);
+
+            ourSipURI.setTransportParam(lp.getTransport());
+            ourSipURI.setPort(lp.getPort());
+
+            Address ourSipAddress = getAddressFactory()
+                .createAddress(getOurDisplayName(), ourSipURI);
+
+            ourSipAddress.setDisplayName(getOurDisplayName());
+
+            return ourSipAddress;
+        }
+        catch (ParseException exc)
+        {
+            // this should never happen since we are using InetAddresses
+            // everywhere so parsing could hardly go wrong.
+            throw new IllegalArgumentException(
+                            "Failed to create our SIP AOR address"
+                            , exc);
+        }
     }
 
     /**
@@ -1939,38 +2077,38 @@ public class ProtocolProviderServiceSipImpl
      * properties).
      */
     private void initOutboundProxy(SipAccountID accountID,
-                                   Hashtable jainSipProperties)
+                                   Properties jainSipProperties)
     {
         //First init the proxy address
         String proxyAddressStr = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PROXY_ADDRESS);
 
+        if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
+            return;
+
         InetAddress proxyAddress = null;
+
+        //init proxy port
+        int proxyPort = ListeningPoint.PORT_5060;
 
         try
         {
             // first check for srv records exists
-            try
-            {
-                String lookupStr = null;
-
-                String proxyTransport = (String) accountID.getAccountProperties()
+            String proxyTransport = (String) accountID.getAccountProperties()
                             .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
-                if(proxyTransport == null)
+            if(proxyTransport == null)
                     proxyTransport = getDefaultTransport();
 
-                proxyAddressStr = resolveSipAddress(
-                        proxyAddressStr, proxyTransport).getHostName();
+            InetSocketAddress proxySocketAddress = resolveSipAddress(
+                            proxyAddressStr, proxyTransport);
 
-                logger.trace("Setting proxy address = " + proxyAddressStr);
-            }
-            catch (Exception ex)
-            {
-                // no SRV record or error looking for it
-            }
+            proxyAddress = proxySocketAddress.getAddress();
+            proxyPort = proxySocketAddress.getPort();
 
-            proxyAddress = InetAddress.getByName(proxyAddressStr);
+            proxyAddressStr = proxyAddress.getHostName();
+
+            logger.trace("Setting proxy address = " + proxyAddressStr);
 
             // We should set here the property to indicate that the proxy
             // address is validated. When we load stored accounts we check
@@ -1989,8 +2127,8 @@ public class ProtocolProviderServiceSipImpl
                 , ex);
 
             String proxyValidatedString = (String) accountID
-            .getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED);
+                .getAccountProperties().get(
+                            ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED);
 
             boolean isProxyValidated = false;
             if (proxyValidatedString != null)
@@ -2013,15 +2151,13 @@ public class ProtocolProviderServiceSipImpl
 
         // Return if no proxy is specified or if the proxyAddress is null.
         if(proxyAddressStr == null
-                || proxyAddressStr.length() == 0
-                || proxyAddress == null)
+           || proxyAddressStr.length() == 0
+           || proxyAddress == null)
         {
             return;
         }
 
-        //init proxy port
-        int proxyPort = ListeningPoint.PORT_5060;
-
+        //check if user has overridden proxy port.
         String proxyPortStr = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PROXY_PORT);
 
@@ -2168,8 +2304,15 @@ public class ProtocolProviderServiceSipImpl
     {
         SipRegistrarConnection srConnection = getRegistrarConnection();
 
-        if(srConnection != null)
-           return srConnection.getTransport();
+        if( srConnection != null)
+        {
+            String registrarTransport = srConnection.getTransport();
+            if(   registrarTransport != null
+               && registrarTransport.length() > 0)
+           {
+               return registrarTransport;
+           }
+        }
 
         if(outboundProxySocketAddress != null
             && outboundProxyTransport != null)
@@ -2310,15 +2453,16 @@ public class ProtocolProviderServiceSipImpl
      * processor for.
      * @return a List of methods that we support.
      */
-    public List getSupportedMethods()
+    public List<String> getSupportedMethods()
     {
-        return new ArrayList(methodProcessors.keySet());
+        return new ArrayList<String>(methodProcessors.keySet());
     }
 
     private class ShutdownUnregistrationBlockListener
         implements RegistrationStateChangeListener
     {
-            public List collectedNewStates = new LinkedList();
+            public List<RegistrationState> collectedNewStates =
+                                        new LinkedList<RegistrationState>();
 
             /**
              * The method would simply register all received events so that they
@@ -2326,8 +2470,8 @@ public class ProtocolProviderServiceSipImpl
              * case where a registraiton event notifying us of a completed
              * registration is seen, the method would call notifyAll().
              *
-             * @param evt ProviderStatusChangeEvent the event describing the status
-             * change.
+             * @param evt ProviderStatusChangeEvent the event describing the
+             * status change.
              */
             public void registrationStateChanged(RegistrationStateChangeEvent evt)
             {
@@ -2427,32 +2571,42 @@ public class ProtocolProviderServiceSipImpl
      * @return a URI object corresponding to the <tt>uriStr</tt> string.
      * @throws ParseException if uriStr is not properly formatted.
      */
-    public Address parseAddressStr(String uriStr)
+    public Address parseAddressString(String uriStr)
         throws ParseException
     {
         uriStr = uriStr.trim();
 
+        //we don't know how to handle the "tel:" scheme ... or rather we handle
+        //it same as sip so replace:
+        if(uriStr.toLowerCase().startsWith("tel:"))
+            uriStr = "sip:" + uriStr.substring("tel:".length());
+
         //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
         //assuming that if no domain name is specified then it should be the
         //same as ours.
-        if (uriStr.indexOf('@') == -1
-            && !uriStr.trim().startsWith("tel:"))
+        if (uriStr.indexOf('@') == -1)
         {
-            uriStr = uriStr + "@"
-                + ((SipURI)getOurSipAddress().getURI()).getHost();
+            //if we have a registrar, then we could append its domain name as
+            //default
+            SipRegistrarConnection src = getRegistrarConnection();
+            if(src != null && !src.isRegistrarless() )
+            {
+                uriStr = uriStr + "@"
+                    + ((SipURI)src.getAddressOfRecord().getURI()).getHost();
+            }
+
+            //else this could only be a host ... but this should work as is.
         }
 
         //Let's be uri fault tolerant and add the sip: scheme if there is none.
-        if (uriStr.toLowerCase().indexOf("sip:") == -1 //no sip scheme
-            && uriStr.indexOf('@') != -1) //most probably a sip uri
+        if (!uriStr.toLowerCase().startsWith("sip:")) //no sip scheme
         {
             uriStr = "sip:" + uriStr;
         }
 
-        //Request URI
-        Address uri = getAddressFactory().createAddress(uriStr);
+        Address toAddress = getAddressFactory().createAddress(uriStr);
 
-        return uri;
+        return toAddress;
     }
 
     /**
@@ -2496,6 +2650,7 @@ public class ProtocolProviderServiceSipImpl
             {
                 sockAddr = NetworkUtils.getSRVRecord("sip", transport, address);
             }
+            logger.trace("Returned SRV " + sockAddr);
         }
         catch (ParseException e)
         {
@@ -2511,8 +2666,13 @@ public class ProtocolProviderServiceSipImpl
         //to know if something goes wrong.
         InetAddress addressObj = InetAddress.getByName(address);
 
-        return new InetSocketAddress(addressObj,
-                        getListeningPoint(transport).getPort());
+        //no SRV means default ports
+        int defaultPort = ListeningPoint.PORT_5060;
+        if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+            defaultPort = ListeningPoint.PORT_5061;
+
+
+        return new InetSocketAddress(addressObj, defaultPort);
     }
 
     /**
@@ -2534,5 +2694,70 @@ public class ProtocolProviderServiceSipImpl
         throws UnknownHostException
     {
         return resolveSipAddress(address, getDefaultTransport());
+    }
+
+    /**
+     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting the specified <tt>destination</tt>. This is
+     * an utility method that is used whenever we have to choose one of our
+     * local addresses to put in the Via, Contact or (in the case of no
+     * registrar accounts) From headers.
+     *
+     * @param destination the destination that we would contact.
+     *
+     * @return the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting the specified <tt>destination</tt>.
+     */
+    private InetAddress getIntendedDestination(SipURI destination)
+    {
+        return getIntendedDestination(destination.getHost());
+    }
+
+    /**
+     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting the specified <tt>destination</tt>. This is
+     * an utility method that is used whenever we have to choose one of our
+     * local addresses to put in the Via, Contact or (in the case of no
+     * registrar accounts) From headers.
+     *
+     * @param host the destination that we would contact.
+     *
+     * @return the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting the specified <tt>destination</tt>.
+     */
+    private InetAddress getIntendedDestination(String host)
+    {
+        // Address
+        InetAddress destinationInetAddress = null;
+
+        //resolveSipAddress() verifies whether our destination is valid
+        //but the destination could only be known to our outbound proxy
+        //if we have one. If this is the case replace the destination
+        //address with that of the proxy.(report by Dan Bogos)
+        if(getOutboundProxy() != null)
+        {
+            logger.trace("Will use proxy address");
+            destinationInetAddress = getOutboundProxy().getAddress();
+        }
+        else
+        {
+            try
+            {
+                destinationInetAddress = resolveSipAddress(host).getAddress();
+            }
+            catch (UnknownHostException ex)
+            {
+                throw new IllegalArgumentException(
+                    host
+                    + " is not a valid internet address " + ex.getMessage(),
+                    ex);
+            }
+        }
+
+        if(logger.isDebugEnabled())
+            logger.debug("Returning address " + destinationInetAddress
+                 + " for destination " + host);
+
+        return destinationInetAddress;
     }
 }

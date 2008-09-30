@@ -27,7 +27,8 @@ public class CallSipImpl
     /**
      * A list containing all <tt>CallParticipant</tt>s of this call.
      */
-    private Vector callParticipants = new Vector();
+    private Vector<CallParticipantSipImpl> callParticipants
+                                        = new Vector<CallParticipantSipImpl>();
 
     /**
      * The state that this call is currently in.
@@ -129,9 +130,9 @@ public class CallSipImpl
      * Returns an iterator over all call participants.
      * @return an Iterator over all participants currently involved in the call.
      */
-    public Iterator getCallParticipants()
+    public Iterator<CallParticipant> getCallParticipants()
     {
-        return new LinkedList(callParticipants).iterator();
+        return new LinkedList<CallParticipant>(callParticipants).iterator();
     }
 
     /**
@@ -207,7 +208,7 @@ public class CallSipImpl
     /**
      * Returns <tt>true</tt> if <tt>dialog</tt> matches the jain sip dialog
      * established with one of the participants in this call.
-     * 
+     *
      * @param dialog the dialog whose corresponding participant we're looking
      * for.
      * @return true if this call contains a call participant whose jain sip

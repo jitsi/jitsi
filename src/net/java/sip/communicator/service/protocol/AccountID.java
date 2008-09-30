@@ -42,9 +42,9 @@ public abstract class AccountID
      * protocol name if an override hasn't been defined. Since the desire is to
      * enable all account registration wizards to override the protocol name,
      * the current implementation places the specified
-     * <tt>defaultProtocolName</tt> in a similar fashion. 
+     * <tt>defaultProtocolName</tt> in a similar fashion.
      * </p>
-     * 
+     *
      * @param accountProperties a Map containing any other protocol and
      * implementation specific account initialization properties
      * @param defaultProtocolName the protocol name to be used in case
@@ -63,7 +63,7 @@ public abstract class AccountID
         }
         return protocolName;
     }
-    
+
     /**
      * Contains all implementation specific properties that define the account.
      * The exact names of the keys are protocol (and sometimes implementation)
@@ -107,12 +107,12 @@ public abstract class AccountID
                          String serviceName)
     {
         super();
-        
+
         /*
          * Allow account registration wizards to override the default protocol
          * name through accountProperties for the purposes of presenting a
          * well-known protocol name associated with the account that is
-         * different from the name of the effective protocol.  
+         * different from the name of the effective protocol.
          */
         protocolName = getOverriddenProtocolName(accountProperties, protocolName);
 
@@ -121,7 +121,8 @@ public abstract class AccountID
         this.serviceName = serviceName;
 
         //create a unique identifier string
-        this.accountUID = protocolName + ":" + userID + "@" + serviceName;
+        this.accountUID = protocolName + ":" + userID + "@"
+                          + ((serviceName == null)? "":serviceName);
     }
 
     /**
@@ -179,6 +180,7 @@ public abstract class AccountID
      * @see     #hashCode()
      * @see     java.util.Hashtable
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
@@ -238,7 +240,7 @@ public abstract class AccountID
 
     /**
      * Set the account properties.
-     * 
+     *
      * @param accountProperties the properties of the account
      */
     public void setAccountProperties(Map accountProperties)
