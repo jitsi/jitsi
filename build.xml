@@ -139,6 +139,10 @@
     <!-- end jmf.home-->
 
     <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
+	
+	<property name="profiler.args" value="" />
+    <property name="profiler.bootdelegation" value="" />
+	<property name="profiler.autostart" value="" />
 
     <tstamp>
         <format property="build.date" pattern="dd-MM-yyyy"/>
@@ -569,12 +573,78 @@
             <arg line="--debug"/>
             <!-- pass to SC args that have been specified by the user -->
             <arg line="${args}"/>
-
-            <jvmarg line="${jvmarg.line}"/>
+        	
+        	<sysproperty key="org.osgi.framework.bootdelegation" value="${profiler.bootdelegation}" />
+        	<sysproperty key="felix.auto.start.68" value="${profiler.autostart}" />
+        	
+        	<!-- add some eventual profiler args -->
+            <jvmarg line="${profiler.args} ${jvmarg.line}"/>
         </java>
 
     </target>
 
+   <!--RUN-SIP-COMMUNICATOR-WITH-INTEGRATED-PROFILER -->
+    <target name="run-with-profiler" description="Starts felix and runs sip-comunicator gui (use latest build) with the hooked classloader."
+    	depends="bundle-plugin-profiler4j">
+    	
+    	<antcall target="run">
+    	      <param name="profiler.args" value="-Xmx128m -javaagent:${lib.noinst}\profiler4j-1.0-beta3-SC.jar" />
+    	      <param name="profiler.bootdelegation" value="net.sf.profiler4j.agent.*" />
+    	      <param name="profiler.autostart" value="reference:file:sc-bundles/profiler4j.jar" />
+    	</antcall>
+    </target>
+	    
+    <!--PROFILE-SIP-COMMUNICATOR-IN-NETBEANS-IDE -->
+    <target name="profile" depends="bundle-plugin-profiler4j,-deploy-os-specific-bundles" 
+    	description="Profile Project">
+        <fail unless="netbeans.home">
+        	This target can only run inside the NetBeans IDE.
+        </fail>
+
+        <nbprofiledirect>
+            <classpath> <pathelement location="${dest}"/> </classpath>
+        </nbprofiledirect>
+
+        <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
+            fork="true"
+            failonerror="true"
+            classpathref="project.class.path">
+                    
+            <jvmarg value="${profiler.info.jvmargs.agent}"/>
+
+            <!-- Tell felix to run sip-communicator-->
+            <sysproperty key="felix.config.properties"
+                value="file:${lib}/felix.client.run.properties"/>
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="${lib}/logging.properties"/>
+
+            <sysproperty key="java.net.preferIPv6Addresses"
+                value="false"/>
+
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome"/>
+
+            <!-- Setting properties necessary for dependencies on native libs-->
+            <sysproperty key="java.library.path"
+                path="${ld.library.path}:${path}:${dyld.library.path}"/>
+
+            <!-- pass l10n properties from ant call for
+                     easy translation debugging -->
+            <sysproperty key="user.language" value="${user.language}" />
+            <sysproperty key="user.country" value="${user.country}" />
+            <sysproperty key="user.variant" value="${user.variant}" />
+
+            <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
+            <env key="PATH" path="${path}"/>
+            <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
+            
+        </java>
+        
+        <delete file="${bundles.dest}/profiler4j.jar"/>    	
+    </target>
+	
     <!-- we run this target before we run SC in order to copy os-specific
              bundles from sc-bundles/osname to its parent sc-bundles-->
     <target name="-deploy-os-specific-bundles" if="bundles.dest.os">
@@ -1629,6 +1699,22 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/autoaway/autoaway.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/autoaway"
                 prefix="net/java/sip/communicator/plugin/autoaway" />
+        </jar>
+    </target>
+	
+   <!--BUNDLE-PLUGIN-PROFILER-->
+   <target name="bundle-plugin-profiler4j">
+        <jar compress="false" destfile="${bundles.dest}/profiler4j.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/profiler4j/profiler4j.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/profiler4j"
+                prefix="net/java/sip/communicator/plugin/profiler4j" />
+            <zipfileset src="${lib.noinst}/profiler4j-1.0-beta3-SC.jar" 
+            	prefix=""/>
+            <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jcommon-1.0.0.jar" prefix=""/>
+        	<zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jfreechart-1.0.1.jar" prefix=""/>
+        	<fileset file="${lib.noinst}/p4j-exclusions.txt"/>
         </jar>
     </target>
 

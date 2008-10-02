@@ -1,0 +1,25 @@
+#
+# This file lists those classes that should be ignored by 
+# the agent during instrumentation. In most cases these 
+# classes trigger JVM internal errors and should be simply 
+# ignored. Notice that some classes are ignored even if
+# not listed here (they may cause your JVM to crash 
+# seriously so I hard-coded exclusions for those within 
+# the agent)
+#
+# The agent will ignore all classes STARTING WITH the string
+# indicated. So, you can exclude a whole package by ending 
+# with '.'
+#
+
+org.apache.tomcat.jni.OS
+org.jboss.util.xml.DOMWriter
+org.jboss.mq.il.uil2.ServerSocketManagerHandler
+org.hsqldb.jdbc.jdbcConnection
+org.hsqldb.Index
+bsh.ParserTokenManager
+org.eclipse.jdt.internal.compiler.lookup.TypeBinding
+org.eclipse.jdt.internal.compiler.ast.Expression
+org.eclipse.jdt.internal.compiler.problem.ProblemReporter
+org.eclipse.jdt.internal.compiler.impl.Constant
+com.arjuna.ats.internal.arjuna.objectstore.ShadowingStore

@@ -1,0 +1,21 @@
+Bundle-Activator: net.java.sip.communicator.plugin.profiler4j.ProfilerActivator
+Bundle-Name: Integrated profiler plugin
+Bundle-Description: A bundle that provides profile cpu and memory of the running app.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.osgi.framework,
+  net.java.sip.communicator.util,
+  net.java.sip.communicator.service.contactlist,
+  net.java.sip.communicator.service.gui,
+  net.java.sip.communicator.service.resources,
+  javax.swing,
+  javax.swing.filechooser,
+  javax.swing.tree,
+  javax.swing.event,
+  javax.swing.border,
+  javax.swing.table,
+  javax.swing.text,
+  javax.xml.parsers,
+  org.xml.sax,
+  org.xml.sax.ext,
+  org.xml.sax.helpers
