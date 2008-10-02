@@ -629,40 +629,6 @@ public class MetaContactListServiceImpl
     }
 
     /**
-     * Returns the meta contact group that is a direct parent of the specified
-     * <tt>child</tt>, beginning the search at the specified root. If
-     * no parent is found <tt>null</tt> is returned.
-     * @param child the <tt>MetaContact</tt> whose parent group we're
-     * looking for.
-     * @param root the parent where the search should start.
-     * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
-     * null if no parent was found.
-     */
-    private MetaContactGroup findParentMetaContactGroup(
-        MetaContactGroupImpl root, MetaContact child)
-    {
-        if (root.contains(child))
-        {
-            return root;
-        }
-
-        Iterator<MetaContactGroupImpl> subgroups = root.getSubgroups();
-
-        while (subgroups.hasNext())
-        {
-            MetaContactGroup contactGroup
-                = findParentMetaContactGroup( subgroups.next(), child);
-            if (contactGroup != null)
-            {
-                return contactGroup;
-            }
-
-        }
-
-        return null;
-    }
-
-    /**
      * First makes the specified protocol provider create a contact
      * corresponding to the specified <tt>contactID</tt>, then creates a new
      * MetaContact which will encapsulate the newly created protocol specific
@@ -914,10 +880,6 @@ public class MetaContactListServiceImpl
             = (MetaContactImpl)this.findMetaContactByContact(contact);
 
         currentParentMetaContact.removeProtoContact(contact);
-
-        //parent
-        MetaContactGroup currentParentMetaGroup
-            = this.findParentMetaContactGroup(currentParentMetaContact);
 
         //get a persistent  presence operation set
         OperationSetPersistentPresence opSetPresence
@@ -1777,10 +1739,53 @@ public class MetaContactListServiceImpl
     private boolean isContactInEventIgnoreList(
         String contact, ProtocolProviderService ownerProvider)
     {
-        List existingProvList = (List)this.contactEventIgnoreList.get(contact);
+        List<ProtocolProviderService> existingProvList =
+            (List<ProtocolProviderService>)
+                this.contactEventIgnoreList.get(contact);
 
         return existingProvList != null
             && existingProvList.contains(ownerProvider);
+    }
+
+    /**
+     * Verifies whether the specified contact is in the contact event ignore
+     * list. The reason we need this method in addition to the one that takes a
+     * string contact address is necessary for the following reason: In some
+     * cases the ID that we create a contact with (e.g. mybuddy) could be
+     * different from the one returned by its getAddress() method (e.g.
+     * mybuddy@hisnet.com). If this is the case we hope that the difference
+     * would be handled gracefully in the equals method of the contact so
+     * we also compare with it.
+     *
+     * @return true if the contact is in the contact event ignore list and false
+     * otherwise.
+     * @param contact the contact whose presence in the ignore list we'd like to
+     * verify.
+     * @param ownerProvider the provider that <tt>contact</tt> belongs to.
+     */
+    private boolean isContactInEventIgnoreList(
+                                        Contact contact,
+                                        ProtocolProviderService ownerProvider)
+    {
+        Enumeration<String> ignoredAddressList = contactEventIgnoreList.keys();
+
+        while(ignoredAddressList.hasMoreElements())
+        {
+            String contactAddress = ignoredAddressList.nextElement();
+
+            if(contact.getAddress().equals(contactAddress)
+               || contact.equals(contactAddress))
+            {
+                List<ProtocolProviderService> existingProvList =
+                    (List<ProtocolProviderService>)
+                        this.contactEventIgnoreList.get(contactAddress);
+
+                return existingProvList != null
+                    && existingProvList.contains(ownerProvider);
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1937,7 +1942,7 @@ public class MetaContactListServiceImpl
 
             //ignore the event if the source contact is in the ignore list
             if (isContactInEventIgnoreList(
-                      evt.getSourceContact().getAddress()
+                      evt.getSourceContact()
                     , evt.getSourceProvider()))
             {
                 return;
@@ -2003,7 +2008,7 @@ public class MetaContactListServiceImpl
 
             //ignore the event if the source contact is in the ignore list
             if (isContactInEventIgnoreList(
-                     evt.getSourceContact().getAddress()
+                     evt.getSourceContact()
                    , evt.getSourceProvider()))
             {
                 return;
@@ -2979,7 +2984,7 @@ public class MetaContactListServiceImpl
             synchronized (this)
             {
                 if (evt.getSourceContact().getAddress()
-                    .equals(subscriptionAddress) 
+                    .equals(subscriptionAddress)
                     || evt.getSourceContact().equals(subscriptionAddress))
                 {
                     this.evt = evt;
