@@ -18,6 +18,16 @@ public class DefaultLanguagePackImpl
 {
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.languages.resources";
+    
+    /**
+     * The locale used for the last resources request
+     */
+    private Locale localeInBuffer = null;
+    
+    /**
+     * The result of the last resources request
+     */
+    private Map<String, String> lastResourcesAsked = null;
 
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for this
@@ -41,6 +51,11 @@ public class DefaultLanguagePackImpl
      */
     public Map<String, String> getResources(Locale locale)
     {
+    	// check if we didn't computed it at the previous call
+    	if (locale.equals(localeInBuffer) && lastResourcesAsked != null) {
+    		return lastResourcesAsked;
+    	}
+    	
         ResourceBundle resourceBundle
             = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale);
 
@@ -49,6 +64,10 @@ public class DefaultLanguagePackImpl
         this.initResources(resourceBundle, resources);
 
         this.initPluginResources(resources, locale);
+        
+        // keep it just in case of...
+        localeInBuffer = locale;
+        lastResourcesAsked = resources;
 
         return resources;
     }

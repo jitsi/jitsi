@@ -25,6 +25,10 @@ public class DefaultResourcePackActivator
         Logger.getLogger(DefaultResourcePackActivator.class);
 
     private static BundleContext bundleContext;
+    
+    // buffer for ressource files found
+    private static Hashtable<String, Iterator<String>> ressourcesFiles =
+    	new Hashtable<String, Iterator<String>>();
 
     public void start(BundleContext bc) throws Exception
     {
@@ -101,8 +105,14 @@ public class DefaultResourcePackActivator
     protected static Iterator<String> findResourcePaths(  String path,
                                                             String pattern)
     {
+        Iterator<String> bufferedResult = ressourcesFiles.get(path + pattern);
+        if (bufferedResult != null) {
+        	return bufferedResult;
+        }    	
+    	
         ArrayList<String> propertiesList = new ArrayList<String>();
 
+        @SuppressWarnings ("unchecked")
         Enumeration<URL> propertiesUrls = bundleContext.getBundle()
             .findEntries(path,
                         pattern, 
@@ -124,7 +134,10 @@ public class DefaultResourcePackActivator
                 propertiesList.add(propertyFilePath);
             }
         }
+        
+        Iterator<String> result = propertiesList.iterator();
+        ressourcesFiles.put(path + pattern, result);
 
-        return propertiesList.iterator();
+        return result;
     }
 }
