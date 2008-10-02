@@ -2979,7 +2979,8 @@ public class MetaContactListServiceImpl
             synchronized (this)
             {
                 if (evt.getSourceContact().getAddress()
-                    .equals(subscriptionAddress))
+                    .equals(subscriptionAddress) 
+                    || evt.getSourceContact().equals(subscriptionAddress))
                 {
                     this.evt = evt;
                     this.sourceContact = evt.getSourceContact();

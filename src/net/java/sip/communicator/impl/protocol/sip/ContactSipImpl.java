@@ -448,8 +448,22 @@ public class ContactSipImpl
     public boolean equals(Object obj)
     {
         if (obj == null
-            || ! (obj instanceof ContactSipImpl))
+            || ! (obj instanceof ContactSipImpl || obj instanceof String))
             return false;
+
+        if(obj instanceof String)
+        {
+            String sobj = (String)obj;
+            if(getAddress().equalsIgnoreCase(sobj))
+                return true;
+
+            SipURI sipURI = (SipURI)sipAddress.getURI();
+
+            if(sipURI.getUser().equalsIgnoreCase(sobj))
+                return true;
+
+            return false;
+        }
 
         ContactSipImpl sipContact = (ContactSipImpl) obj;
 
