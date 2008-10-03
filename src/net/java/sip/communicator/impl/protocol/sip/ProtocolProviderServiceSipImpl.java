@@ -2634,8 +2634,13 @@ public class ProtocolProviderServiceSipImpl
         {
             InetAddress addressObj = NetworkUtils.getInetAddress(address);
 
-            return new InetSocketAddress(addressObj,
-                            getListeningPoint(transport).getPort());
+            //this is an ip address so we need to return default ports since
+            //we can't get them from a DNS.
+            int port = ListeningPoint.PORT_5060;
+            if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+                port = ListeningPoint.PORT_5061;
+
+            return new InetSocketAddress(addressObj, port);
         }
 
         //try to obtain SRV mappings from the DNS
