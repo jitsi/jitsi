@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.account;
@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>AccountRegSummaryPage</tt> is the last page of the account
  * registration wizard.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AccountRegSummaryPage
@@ -42,7 +42,7 @@ public class AccountRegSummaryPage
 
     /**
      * Creates an <tt>AccountRegSummaryPage</tt>.
-     * 
+     *
      * @param wizardContainer The account registration wizard container where
      *            this summary page is registered.
      */
@@ -66,7 +66,7 @@ public class AccountRegSummaryPage
 
     /**
      * Initializes the summary with the data.
-     * 
+     *
      * @param summaryData The data to insert in the summary page.
      */
     private void init(Iterator summaryData)
@@ -85,7 +85,7 @@ public class AccountRegSummaryPage
 
     /**
      * Implements the <code>WizardPage.getIdentifier</code> method.
-     * 
+     *
      * @return the page identifier, which in this case is the
      *         SUMMARY_PAGE_IDENTIFIER
      */
@@ -96,7 +96,7 @@ public class AccountRegSummaryPage
 
     /**
      * Implements the <code>WizardPage.getNextPageIdentifier</code> method.
-     * 
+     *
      * @return the FINISH_PAGE_IDENTIFIER to indicate that this is the last
      *         wizard page
      */
@@ -107,7 +107,7 @@ public class AccountRegSummaryPage
 
     /**
      * Implements the <code>WizardPage.getBackPageIdentifier</code> method.
-     * 
+     *
      * @return the previous page
      */
     public Object getBackPageIdentifier()
@@ -117,7 +117,7 @@ public class AccountRegSummaryPage
 
     /**
      * Implements the <code>WizardPage.getWizardForm</code> method.
-     * 
+     *
      * @return this panel
      */
     public Object getWizardForm()

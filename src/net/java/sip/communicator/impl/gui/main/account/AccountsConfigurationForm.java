@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
@@ -29,7 +29,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>AccountsConfigurationForm</tt> is the form where the user could
  * create, modify or delete an account.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AccountsConfigurationForm
@@ -63,7 +63,7 @@ public class AccountsConfigurationForm
 
     /**
      * Creates an instance of <tt>AccountsConfigurationForm</tt>.
-     * 
+     *
      * @param mainFrame the main application window
      */
     public AccountsConfigurationForm(MainFrame mainFrame)
@@ -87,6 +87,7 @@ public class AccountsConfigurationForm
         this.buttonsPanel.add(saveButton);
 
         this.scrollPane.getViewport().add(wrapAccountsPanel);
+        this.scrollPane.getVerticalScrollBar().setUnitIncrement(30);
 
         this.wrapAccountsPanel.add(accountsPanel, BorderLayout.NORTH);
 
@@ -146,7 +147,7 @@ public class AccountsConfigurationForm
     }
 
     /**
-     * 
+     *
      */
     private class AccountPanel
         extends JPanel
@@ -341,7 +342,7 @@ public class AccountsConfigurationForm
 
     /**
      * Returns the title of this configuration form.
-     * 
+     *
      * @return the title of this configuration form.
      */
     public String getTitle()
@@ -351,7 +352,7 @@ public class AccountsConfigurationForm
 
     /**
      * Returns the icon of this configuration form.
-     * 
+     *
      * @return the icon of this configuration form.
      */
     public byte[] getIcon()
@@ -361,7 +362,7 @@ public class AccountsConfigurationForm
 
     /**
      * Returns the form of this configuration form.
-     * 
+     *
      * @return the form of this configuration form.
      */
     public Object getForm()
@@ -372,7 +373,7 @@ public class AccountsConfigurationForm
     /**
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on on the
      * buttons. Shows the account registration wizard when user clicks on "New".
-     * 
+     *
      * @param evt the action event that has just occurred.
      */
     public void actionPerformed(ActionEvent evt)
@@ -404,7 +405,7 @@ public class AccountsConfigurationForm
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
      * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
      * corresponding UI controls.
-     * 
+     *
      * @param event The <tt>ServiceEvent</tt> object.
      */
     public void serviceChanged(ServiceEvent event)
