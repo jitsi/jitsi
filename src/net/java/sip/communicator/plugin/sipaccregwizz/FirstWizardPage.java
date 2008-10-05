@@ -28,7 +28,7 @@ public class FirstWizardPage
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    public static final String USER_NAME_EXAMPLE = "Ex: john@voiphone.net or simply \"john' for no server";
+    public static final String USER_NAME_EXAMPLE = "Ex: john@voiphone.net or simply \"john\" for no server";
 
     private JPanel firstTabPanel = new JPanel(new BorderLayout());
 
