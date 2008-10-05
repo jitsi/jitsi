@@ -200,7 +200,7 @@ public interface CallSession
      * @param source the initiator of the secure status change (can be local or remote)
      */
     public void setSecureCommunicationStatus(boolean activator, 
-                                             OperationSetBasicTelephony.
+                                             OperationSetSecuredTelephony.
                                              SecureStatusChangeSource source);
 
     /**

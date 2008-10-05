@@ -231,22 +231,4 @@ public class MockOperationSetBasicTelephony
             fireCallEvent(CallEvent.CALL_ENDED, sourceCall);
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#setSecured(net.java.sip.communicator.service.protocol.CallParticipant, boolean, net.java.sip.communicator.service.media.CallSession.SecureStatusChangeSource)
-     */
-    public void setSecured(CallParticipant participant, boolean secured,
-                           OperationSetBasicTelephony.SecureStatusChangeSource source)
-    {
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see net.java.sip.communicator.service.protocol.OperationSetBasicTelephony#getSecured(net.java.sip.communicator.service.protocol.CallParticipant)
-     */
-    public boolean isSecured(CallParticipant participant)
-    {
-        return false;
-    }
 }

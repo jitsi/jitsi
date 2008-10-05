@@ -15,6 +15,7 @@ import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
 
 /**
  * The <tt>CallParticipantPanel</tt> is the panel containing data for a call
@@ -39,7 +40,9 @@ public class CallParticipantPanel
     
     private JLabel photoLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
-    
+
+    private JLabel secureLabel = new JLabel("Not in call", JLabel.CENTER);
+
     private JPanel northPanel = new JPanel();
     
     private Date callStartTime;
@@ -55,7 +58,7 @@ public class CallParticipantPanel
     private String participantName;
     
     private CallParticipant callParticipant;
-    
+
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      * 
@@ -67,22 +70,66 @@ public class CallParticipantPanel
         this(callParticipant.getAddress());
 
         this.callParticipant = callParticipant;
-
+        
         this.stateLabel.setText(callParticipant.getState().getStateString());
 
         Component holdButton = new HoldButton(this.callParticipant);
-        holdButton.setBounds(9, 74, 36, 36);
-        contactPanel.add(holdButton, new Integer(1));
-
         Component muteButton = new MuteButton(this.callParticipant);
-        muteButton.setBounds(45, 74, 36, 36);
-        contactPanel.add(muteButton, new Integer(1));
-
         Component transferCallButton = createTransferCallButton();
-        if (transferCallButton != null)
+        Component secureButton = createSecureCallButton();
+
+        if (secureButton != null)
         {
-            transferCallButton.setBounds(81, 74, 36, 36);
-            contactPanel.add(transferCallButton, new Integer(1));
+            holdButton.setBounds(3, 74, 36, 36);
+            muteButton.setBounds(39, 74, 36, 36);
+
+            contactPanel.add(holdButton, new Integer(1));
+            contactPanel.add(muteButton, new Integer(1));
+
+            if (transferCallButton != null)
+            {
+                transferCallButton.setBounds(75, 74, 36, 36);
+                contactPanel.add(transferCallButton, new Integer(1));
+            }
+
+            secureButton.setName("secureButton");
+            secureButton.setBounds(111, 74, 36, 36);
+            ((JButton)secureButton).setActionCommand("startSecureMode");
+            ((JButton)secureButton).setToolTipText(Messages.
+                                getI18NString("toggleOnSecurity").getText());
+            contactPanel.add(secureButton, new Integer(1)); 
+            
+            this.secureLabel.setName("secureLabel");
+    
+            callParticipant.getCall().addSecureGUIComponent(secureButton.getName(), 
+                                secureButton);
+            callParticipant.getCall().addSecureGUIComponent(secureLabel.getName(), 
+                                secureLabel);
+                                
+            secureLabel.setPreferredSize(new Dimension(110, 50));
+            secureLabel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+            secureLabel.setToolTipText(Messages.
+                        getI18NString("defaultSASMessage").getText());
+            namePanel.add(secureLabel);
+            
+            // Resizing some items
+            contactPanel.setPreferredSize(new Dimension(150, 170));
+            photoLabel.setBounds(30, 0, 90, 100);
+            namePanel.setBounds(0, 110, 150, 50);
+        }
+        else
+        {
+            holdButton.setBounds(9, 74, 36, 36);
+            muteButton.setBounds(45, 74, 36, 36);
+
+            contactPanel.add(holdButton, new Integer(1));
+            contactPanel.add(muteButton, new Integer(1));
+
+            if (transferCallButton != null)
+            {
+                transferCallButton.setBounds(81, 74, 36, 36);
+                contactPanel.add(transferCallButton, new Integer(1));
+            }
         }
     }
 
@@ -160,7 +207,34 @@ public class CallParticipantPanel
         }
         return null;
     }
-    
+
+    /**
+     * Creates a new <code>Component</code> representing a UI means to secure
+     * the <code>Call</code> of the associated <code>callParticipant</code> or
+     * <tt>null</tt> if secured call is unsupported.
+     * 
+     * @return a new <code>Component</code> representing the UI means to
+     *         secure the <code>Call</code> of <code>callParticipant</code> or
+     *         <tt>null</tt> if secured call is unsupported
+     */
+    private Component createSecureCallButton()
+    {
+        Call call = callParticipant.getCall();
+
+        if (call != null)
+        {
+            OperationSetSecuredTelephony secured =
+                (OperationSetSecuredTelephony) call.getProtocolProvider()
+                    .getOperationSet(OperationSetSecuredTelephony.class);
+
+            if (secured != null)
+            {
+                return new SecureButton(callParticipant);
+            }
+        }
+        return null;
+    }
+
     /**
      * Sets the state of the contained call participant.
      * @param state the state of the contained call participant

@@ -395,7 +395,7 @@ public class SCCallback
             		
             	callSession.
             	setSecureCommunicationStatus(false,
-            								 OperationSetBasicTelephony.
+            								 OperationSetSecuredTelephony.
             								 SecureStatusChangeSource.
             								 SECURE_STATUS_CHANGE_BY_LOCAL);
             }
@@ -405,7 +405,7 @@ public class SCCallback
             		
             	callSession.
             	setSecureCommunicationStatus(true,
-            								 OperationSetBasicTelephony.
+            								 OperationSetSecuredTelephony.
             								 SecureStatusChangeSource.
             							     SECURE_STATUS_CHANGE_BY_LOCAL);
             }
@@ -425,7 +425,7 @@ public class SCCallback
         	
         	callSession.
 			setSecureCommunicationStatus(true,
-										 OperationSetBasicTelephony.
+										 OperationSetSecuredTelephony.
 										 SecureStatusChangeSource.
 										 SECURE_STATUS_REVERTED);
         	
@@ -438,7 +438,7 @@ public class SCCallback
         	
         	callSession.
         	setSecureCommunicationStatus(false,
-        								 OperationSetBasicTelephony.
+        								 OperationSetSecuredTelephony.
         								 SecureStatusChangeSource.
         								 SECURE_STATUS_REVERTED);
         	
@@ -451,7 +451,7 @@ public class SCCallback
         	
         	callSession.
 			setSecureCommunicationStatus(true,
-										 OperationSetBasicTelephony.
+										 OperationSetSecuredTelephony.
 										 SecureStatusChangeSource.
 										 SECURE_STATUS_REVERTED);
         	
@@ -463,7 +463,7 @@ public class SCCallback
         	
         	callSession.
 			setSecureCommunicationStatus(false,
-										 OperationSetBasicTelephony.
+										 OperationSetSecuredTelephony.
 										 SecureStatusChangeSource.
 										 SECURE_STATUS_REVERTED);
         	
@@ -475,7 +475,7 @@ public class SCCallback
         	
         	callSession.
         	setSecureCommunicationStatus(false,
-        							     OperationSetBasicTelephony.
+        							     OperationSetSecuredTelephony.
         							     SecureStatusChangeSource.
         							     SECURE_STATUS_CHANGE_BY_REMOTE);
         	
@@ -487,7 +487,7 @@ public class SCCallback
         	
         	callSession.
     		setSecureCommunicationStatus(true,
-    									 OperationSetBasicTelephony.
+    									 OperationSetSecuredTelephony.
     									 SecureStatusChangeSource.
     									 SECURE_STATUS_CHANGE_BY_REMOTE);
         	

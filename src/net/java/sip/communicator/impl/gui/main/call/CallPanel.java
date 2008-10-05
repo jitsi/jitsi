@@ -137,7 +137,7 @@ public class CallPanel
     }
 
     /**
-     * Cteates and adds a panel for a call participant.
+     * Creates and adds a panel for a call participant.
      * 
      * @param participantName the call participant name
      * @param callType the type of call: INCOMING or OUTGOING
@@ -164,7 +164,7 @@ public class CallPanel
     }
 
     /**
-     * Cteates and adds a panel for a call participant.
+     * Creates and adds a panel for a call participant.
      * 
      * @param participant the call participant
      * @param callType the type of call - INCOMING of OUTGOING

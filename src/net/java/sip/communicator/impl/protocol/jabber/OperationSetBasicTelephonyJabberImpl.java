@@ -685,32 +685,5 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         logger.info("session media received ");
     }
-
-    /**
-     * Sets the secured state of the call session in which a specific participant
-     * is involved
-     *
-     * @param participant the participant who toggled (or for whom is remotely toggled)
-     *                    the secure status change for the call
-     * @param secured the new secure status
-     * @param source the source who generated the call change
-     */
-    public void setSecured(CallParticipant participant, boolean secured,
-                           SecureStatusChangeSource source)
-    {
-        //TODO - implement security for jabber
-    }
-
-    /**
-     * Gets the secured state of the call session in which a specific participant
-     * is involved
-     *
-     * @param participant the participant for who the call state is required
-     * @return the call state
-     */
-    public boolean isSecured(CallParticipant participant)
-    {
-        return false;
-    }
 }
 

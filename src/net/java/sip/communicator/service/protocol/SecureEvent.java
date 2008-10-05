@@ -41,7 +41,7 @@ public class SecureEvent
     /**
      * The source that triggered the event - local or remote peer
      */
-    private OperationSetBasicTelephony.SecureStatusChangeSource source;
+    private OperationSetSecuredTelephony.SecureStatusChangeSource source;
     
     /**
      * The event constructor
@@ -51,7 +51,7 @@ public class SecureEvent
      */
     public SecureEvent(CallSessionImpl callSession, 
     				   int eventID, 
-    				   OperationSetBasicTelephony.SecureStatusChangeSource source)
+    				   OperationSetSecuredTelephony.SecureStatusChangeSource source)
     {
         super(callSession);
         this.eventID = eventID;
@@ -72,7 +72,7 @@ public class SecureEvent
      * Retrieves the source that triggered the event
      * (change by local peer or remote peer or reverting a previous change)
      */
-    public OperationSetBasicTelephony.SecureStatusChangeSource getSource()
+    public OperationSetSecuredTelephony.SecureStatusChangeSource getSource()
     {
     	return source;
     }

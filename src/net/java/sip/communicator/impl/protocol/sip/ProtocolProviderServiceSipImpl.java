@@ -683,6 +683,12 @@ public class ProtocolProviderServiceSipImpl
                 OperationSetAdvancedTelephony.class.getName()
                 , opSetAdvancedTelephony);
 
+            // init ZRTP (OperationSetBasicTelephonySipImpl implements 
+            // OperationSetSecureTelephony)
+            this.supportedOperationSets.put(
+                OperationSetSecuredTelephony.class.getName()
+                , opSetAdvancedTelephony);
+
             //init presence op set.
             OperationSetPersistentPresence opSetPersPresence
                 = new OperationSetPresenceSipImpl(this, enablePresence,
@@ -713,7 +719,7 @@ public class ProtocolProviderServiceSipImpl
             OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);
             this.supportedOperationSets.put(
                 OperationSetDTMF.class.getName(), opSetDTMF);
-
+            
             //initialize our OPTIONS handler
             ClientCapabilities capabilities = new ClientCapabilities(this);
 

@@ -475,7 +475,7 @@ public class CallSessionImpl
         if (selectedKeyProviderAlgorithm != null
             /* TODO: Video securing related code
              * remove the next condition as part of enabling video securing
-             * (see comments insecureStatusChanged method for more info)
+             * (see comments in secureStatusChanged method for more info)
              */
             && rtpManager.equals(audioRtpManager))
         {
@@ -1223,12 +1223,10 @@ public class CallSessionImpl
                     if (selectedKeyProviderAlgorithm != null
                         /* TODO: Video securing related code
                          * remove the next condition as part of enabling video
-                         * securing (see comments insecureStatusChanged method
+                         * securing (see comments in secureStatusChanged method
                          * for more info)
                          */
-                         && rtpManager.equals(audioRtpManager)
-                         && usingSRTP
-                        )
+                         && rtpManager.equals(audioRtpManager))
                     {
                         TransformConnector transConnector =
                             (TransformConnector) this.transConnectors
@@ -1975,10 +1973,9 @@ public class CallSessionImpl
             if (selectedKeyProviderAlgorithm != null &&
                 selectedKeyProviderAlgorithm.getProviderType()
                     == KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER
-                && usingSRTP
                 /* TODO: Video securing related code
                  * remove the next condition as part of enabling video securing
-                 * (see comments insecureStatusChanged method for more info)
+                 * (see comments in secureStatusChanged method for more info)
                  */
                 && rtpManager.equals(audioRtpManager))
             {
@@ -2030,10 +2027,9 @@ public class CallSessionImpl
                 KeyProviderAlgorithm.ProviderType.DUMMY_PROVIDER
                 /* TODO: Video securing related code
                  * remove the next condition as part of enabling video securing
-                 * (see comments insecureStatusChanged method for more info)
+                 * (see comments in secureStatusChanged method for more info)
                  */
-                && rtpManager.equals(audioRtpManager)
-                && usingSRTP)
+                && rtpManager.equals(audioRtpManager))
             {
                 SRTPPolicy srtpPolicy =
                     new SRTPPolicy(SRTPPolicy.AESF8_ENCRYPTION, 16,
@@ -2635,7 +2631,7 @@ public class CallSessionImpl
      * @param source the source of changing the secure status (local or remote)
      */
     public void setSecureCommunicationStatus(boolean activator,
-                                             OperationSetBasicTelephony.
+                                             OperationSetSecuredTelephony.
                                              SecureStatusChangeSource source)
     {
 
@@ -2647,7 +2643,7 @@ public class CallSessionImpl
         // Fire the change event to notify any present CallSession of security change status
         // if not the case of a reverted secure state
         // (usually case of previous change rejected due to an error)
-        if (source != OperationSetBasicTelephony.
+        if (source != OperationSetSecuredTelephony.
                     SecureStatusChangeSource.SECURE_STATUS_REVERTED)
             fireSecureStatusChanged(activator, source);
 
@@ -2660,7 +2656,7 @@ public class CallSessionImpl
      * @param source the source of changing the secure status (local or remote)
      */
     private synchronized void fireSecureStatusChanged(boolean activator,
-                                                      OperationSetBasicTelephony.
+                                                      OperationSetSecuredTelephony.
                                                       SecureStatusChangeSource source)
     {
          if (activator)
@@ -2691,7 +2687,7 @@ public class CallSessionImpl
     public void ZRTPChangeStatus(RTPManager manager, SecureEvent event)
     {
         int newStatus = event.getEventID();
-        OperationSetBasicTelephony.SecureStatusChangeSource source = event.getSource();
+        OperationSetSecuredTelephony.SecureStatusChangeSource source = event.getSource();
 
         TransformConnector transConnector =
             (TransformConnector) this.transConnectors.get(manager);
@@ -2701,7 +2697,7 @@ public class CallSessionImpl
         // Perform ZRTP engine actions only if triggered by local peer - user commands;
         // If the remote peer caused the event only general call session security status
         // is changed (done before event processing)
-        if (source == OperationSetBasicTelephony.
+        if (source == OperationSetSecuredTelephony.
                         SecureStatusChangeSource.SECURE_STATUS_CHANGE_BY_LOCAL)
         {
             if (newStatus == SecureEvent.SECURE_COMMUNICATION)

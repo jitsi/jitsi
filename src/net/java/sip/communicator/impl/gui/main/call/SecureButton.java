@@ -43,25 +43,25 @@ public class SecureButton
             String command = evt.getActionCommand();
             if (command.equals("startSecureMode"))
             {
-                OperationSetBasicTelephony telephony =
-                    (OperationSetBasicTelephony) call.getProtocolProvider()
-                    .getOperationSet(OperationSetBasicTelephony.class);
+                OperationSetSecuredTelephony telephony =
+                    (OperationSetSecuredTelephony) call.getProtocolProvider()
+                    .getOperationSet(OperationSetSecuredTelephony.class);
 
-                if (telephony.isSecured(callParticipant))
+                if (telephony != null && telephony.isSecured(callParticipant))
                 {
                     updateSecureButton(false);
                     telephony.setSecured(callParticipant,
                                         false,
-                                        OperationSetBasicTelephony.
+                                        OperationSetSecuredTelephony.
                                         SecureStatusChangeSource
                                             .SECURE_STATUS_CHANGE_BY_LOCAL);
                 }
-                else
+                else if (telephony != null)
                 {
                     updateSecureButton(true);
                     telephony.setSecured(callParticipant,
                                         true,
-                                        OperationSetBasicTelephony.
+                                        OperationSetSecuredTelephony.
                                         SecureStatusChangeSource
                                             .SECURE_STATUS_CHANGE_BY_LOCAL);
                 }
