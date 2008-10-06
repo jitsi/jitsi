@@ -240,26 +240,33 @@ public class RssItemKey
         return this.toString();
     }
 
-    public int compareTo(Object o)
+    public int compareTo(RssItemKey obj)
     {
-        RssItemKey obj = (RssItemKey)o;
-   
-        if (obj == null)
-            throw new ClassCastException("Can only compare item keys.");
-   
+        if(obj == null)
+        {
+            return 1;
+        }
         if (this.usesDate())
         {
             if (obj.usesDate())
+            {
                 return this.itemDate.compareTo(obj.itemDate);
+            }
             else
+            {
                 return 0;
+            }
         }
         else
         {
             if(obj.usesDate())
+            {
                 return 0;
+            }
             else
+            {
                 return this.itemUri.compareToIgnoreCase(obj.itemUri);
+            }
         }
     }
 }
