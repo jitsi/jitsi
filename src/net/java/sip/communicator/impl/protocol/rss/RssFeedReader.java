@@ -143,12 +143,12 @@ public class RssFeedReader
         this.items = (SyndEntry[]) this.feed.getEntries().toArray(new SyndEntry[0]);
         Arrays.sort(items, new SyndEntryComparator());
 
-        for(int i=0; i < items.length; ++i)
+        /*for(int i=0; i < items.length; ++i)
         {
             System.out.println("CHENZO item_list[" + i + "] URI: " + items[i].getUri()
                     + ", Date: " + items[i].getUpdatedDate() + ", Title: " +
                     items[i].getTitle());
-        }
+        }*/
         
         /*if (items.length == 0)
         {
