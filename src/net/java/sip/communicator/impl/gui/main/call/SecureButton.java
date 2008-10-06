@@ -82,8 +82,12 @@ public class SecureButton
             this.setIcon(
                 new ImageIcon(
                     ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON)));
-            this.setToolTipText(
-                    Messages.getI18NString("toggleOffSecurity").getText());
+            // TODO GoClear
+            // We deactivate the tooltip at the moment, because the 
+            // secure mode cannot be toggled off
+            //this.setToolTipText(
+            //        Messages.getI18NString("toggleOffSecurity").getText());
+            this.setToolTipText(null);
         }
         else
         {
