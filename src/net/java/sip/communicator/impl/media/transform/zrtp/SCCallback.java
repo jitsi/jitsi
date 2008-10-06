@@ -389,130 +389,119 @@ public class SCCallback
 		
 		if (command.equals("defaultZRTPAction"))
         {        	
-			if(callSession.getSecureCommunicationStatus())
+            if(callSession.getSecureCommunicationStatus())
             {
-            	updateSecureButton(false);
-            		
-            	callSession.
-            	setSecureCommunicationStatus(false,
-            								 OperationSetSecuredTelephony.
-            								 SecureStatusChangeSource.
-            								 SECURE_STATUS_CHANGE_BY_LOCAL);
+                updateSecureButton(false);
+
+                callSession.
+                    setSecureCommunicationStatus(false,
+                        OperationSetSecureTelephony.
+                        SecureStatusChangeSource.
+                        SECURE_STATUS_CHANGE_BY_LOCAL);
             }
             else
             {
-            	updateSecureButton(true);
-            		
-            	callSession.
-            	setSecureCommunicationStatus(true,
-            								 OperationSetSecuredTelephony.
-            								 SecureStatusChangeSource.
-            							     SECURE_STATUS_CHANGE_BY_LOCAL);
+                updateSecureButton(true);
+
+                callSession.
+                    setSecureCommunicationStatus(true,
+                        OperationSetSecureTelephony.
+                        SecureStatusChangeSource.
+                        SECURE_STATUS_CHANGE_BY_LOCAL);
             }
         }
-		else
-		if (command.equals("firstZRTPTrigger"))
+        else if (command.equals("firstZRTPTrigger"))
         {
-        	ToolTipManager.sharedInstance().mouseMoved(
+            ToolTipManager.sharedInstance().mouseMoved(
         	        new MouseEvent(zrtpButton, 0, 0, 0,
         	                	   0, 0, 
         	                	   0, false));
         }
-        else 
-        if (command.equals("revertFromAllowClearFailure"))
+        else if (command.equals("revertFromAllowClearFailure"))
         {
-        	updateSecureButton(true);
-        	
-        	callSession.
-			setSecureCommunicationStatus(true,
-										 OperationSetSecuredTelephony.
-										 SecureStatusChangeSource.
-										 SECURE_STATUS_REVERTED);
-        	
-        	zrtpButton.setToolTipText(SCCallbackResources.GOCLEAR_REQUEST_AC_FLAG_FAILURE);
+            updateSecureButton(true);
+
+            callSession.
+                setSecureCommunicationStatus(true,
+                    OperationSetSecureTelephony.
+                    SecureStatusChangeSource.
+                    SECURE_STATUS_REVERTED);
+
+            zrtpButton.setToolTipText(SCCallbackResources.GOCLEAR_REQUEST_AC_FLAG_FAILURE);
         }
-        else
-        if (command.equals("zrtpInitFail"))
+        else if (command.equals("zrtpInitFail"))
         {
-        	updateSecureButton(false);
-        	
-        	callSession.
-        	setSecureCommunicationStatus(false,
-        								 OperationSetSecuredTelephony.
-        								 SecureStatusChangeSource.
-        								 SECURE_STATUS_REVERTED);
-        	
-        	zrtpButton.setToolTipText(SCCallbackResources.ZRTP_ENGINE_INIT_FAILURE);
+            updateSecureButton(false);
+
+            callSession.
+                setSecureCommunicationStatus(false,
+                    OperationSetSecureTelephony.
+                    SecureStatusChangeSource.
+                    SECURE_STATUS_REVERTED);
+
+            zrtpButton.setToolTipText(SCCallbackResources.ZRTP_ENGINE_INIT_FAILURE);
         }
-        else
-        if (command.equals("revertToSecured"))
+        else if (command.equals("revertToSecured"))
         {
-        	updateSecureButton(true);
+            updateSecureButton(true);
         	
-        	callSession.
-			setSecureCommunicationStatus(true,
-										 OperationSetSecuredTelephony.
-										 SecureStatusChangeSource.
-										 SECURE_STATUS_REVERTED);
-        	
+            callSession.
+                setSecureCommunicationStatus(true,
+                    OperationSetSecureTelephony.
+                    SecureStatusChangeSource.
+                    SECURE_STATUS_REVERTED);
         }
-        else
-        if (command.equals("revertToUnsecured"))
+        else if (command.equals("revertToUnsecured"))
         {
-        	updateSecureButton(false);
-        	
-        	callSession.
-			setSecureCommunicationStatus(false,
-										 OperationSetSecuredTelephony.
-										 SecureStatusChangeSource.
-										 SECURE_STATUS_REVERTED);
-        	
+            updateSecureButton(false);
+
+            callSession.
+                setSecureCommunicationStatus(false,
+                    OperationSetSecureTelephony.
+                        SecureStatusChangeSource.
+                        SECURE_STATUS_REVERTED);
         }
-        else
-        if (command.equals("goClearRemoteToggle"))
+        else if (command.equals("goClearRemoteToggle"))
         {
-        	updateSecureButton(false);
+            updateSecureButton(false);
         	
-        	callSession.
-        	setSecureCommunicationStatus(false,
-        							     OperationSetSecuredTelephony.
-        							     SecureStatusChangeSource.
-        							     SECURE_STATUS_CHANGE_BY_REMOTE);
-        	
+            callSession.
+                setSecureCommunicationStatus(false,
+                    OperationSetSecureTelephony.
+                    SecureStatusChangeSource.
+                    SECURE_STATUS_CHANGE_BY_REMOTE);
         }
-        else
-        if (command.equals("goSecureRemoteToggle"))
+        else if (command.equals("goSecureRemoteToggle"))
         {
-        	updateSecureButton(true);
-        	
-        	callSession.
-    		setSecureCommunicationStatus(true,
-    									 OperationSetSecuredTelephony.
-    									 SecureStatusChangeSource.
-    									 SECURE_STATUS_CHANGE_BY_REMOTE);
-        	
+            updateSecureButton(true);
+
+            callSession.
+                setSecureCommunicationStatus(true,
+                    OperationSetSecureTelephony.
+                    SecureStatusChangeSource.
+                    SECURE_STATUS_CHANGE_BY_REMOTE);
         }
     }
 
 	/**
      * The method used to update the secure button state (pressed or not pressed)
      * 
-     * @param isSecured parameter reflecting the current button state
+     * @param isSecure parameter reflecting the current button state
      */
-    public void updateSecureButton(boolean isSecured)
+    public void updateSecureButton(boolean isSecure)
     {
-        if(isSecured)
+        if(isSecure)
         {
             zrtpButton.setIcon(
                 new ImageIcon(SCCallbackResources.getImage
-                				(SCCallbackResources.SECURE_ON_ICON)));
+                            (SCCallbackResources.SECURE_ON_ICON)));
             zrtpButton.setToolTipText(SCCallbackResources.TOGGLE_OFF_SECURITY);
         }
         else
         {
             zrtpButton.setIcon(
                 new ImageIcon(SCCallbackResources.getImage
-                				(SCCallbackResources.SECURE_OFF_ICON)));
+                            (SCCallbackResources.SECURE_OFF_ICON)));
             zrtpButton.setToolTipText(SCCallbackResources.TOGGLE_ON_SECURITY);
         }
     }

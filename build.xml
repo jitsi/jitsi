@@ -751,7 +751,7 @@
         bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
-        bundle-argdelegation"/>
+        bundle-argdelegation,bundle-zrtp4j"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1836,6 +1836,20 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/argdelegation/argdelegation.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/argdelegation/"
                 prefix="net/java/sip/communicator/impl/argdelegation/"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-ZRTP4J -->
+    <target name="bundle-zrtp4j">
+        <jar compress="true" destfile="lib/bundle/zrtp4j.jar"
+            filesetmanifest="merge">
+
+            <zipfileset src="${lib.noinst}/zrtp4j-0.9.0.jar" prefix=""/>
+            <manifest>
+                <attribute name="Export-Package" value="gnu.java.zrtp"/>
+                <attribute name="Bundle-Name" value="ZRTP4J"/>
+                <attribute name="Bundle-Description" value="ZRTP for Java library."/>
+            </manifest>
         </jar>
     </target>
 </project>

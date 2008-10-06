@@ -43,25 +43,25 @@ public class SecureButton
             String command = evt.getActionCommand();
             if (command.equals("startSecureMode"))
             {
-                OperationSetSecuredTelephony telephony =
-                    (OperationSetSecuredTelephony) call.getProtocolProvider()
-                    .getOperationSet(OperationSetSecuredTelephony.class);
+                OperationSetSecureTelephony telephony =
+                    (OperationSetSecureTelephony) call.getProtocolProvider()
+                    .getOperationSet(OperationSetSecureTelephony.class);
 
-                if (telephony != null && telephony.isSecured(callParticipant))
+                if (telephony != null && telephony.isSecure(callParticipant))
                 {
                     updateSecureButton(false);
-                    telephony.setSecured(callParticipant,
+                    telephony.setSecure(callParticipant,
                                         false,
-                                        OperationSetSecuredTelephony.
+                                        OperationSetSecureTelephony.
                                         SecureStatusChangeSource
                                             .SECURE_STATUS_CHANGE_BY_LOCAL);
                 }
                 else if (telephony != null)
                 {
                     updateSecureButton(true);
-                    telephony.setSecured(callParticipant,
+                    telephony.setSecure(callParticipant,
                                         true,
-                                        OperationSetSecuredTelephony.
+                                        OperationSetSecureTelephony.
                                         SecureStatusChangeSource
                                             .SECURE_STATUS_CHANGE_BY_LOCAL);
                 }
@@ -73,11 +73,11 @@ public class SecureButton
     /**
      * The method used to update the secure button state (pressed or not pressed)
      *
-     * @param isSecured parameter reflecting the current button state
+     * @param isSecure parameter reflecting the current button state
      */
-    public void updateSecureButton(boolean isSecured)
+    public void updateSecureButton(boolean isSecure)
     {
-        if(isSecured)
+        if(isSecure)
         {
             this.setIcon(
                 new ImageIcon(

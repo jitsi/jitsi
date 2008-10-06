@@ -2065,7 +2065,7 @@ public class CallSessionImpl
                         "manager initialized through connector");
 
             }
-            // No key management solution - unsecured communication branch
+            // No key management solution - unsecure communication branch
             else
             {
                 rtpManager.initialize(bindAddress);
@@ -2624,14 +2624,14 @@ public class CallSessionImpl
 
     /**
      * Method for setting the default secure status value for communication
-     * Also has the role to trigger going secure from not secured or viceversa
+     * Also has the role to trigger going secure from not secure or viceversa
      * Notifies any present CallSession of change in the status value for this purpose
      *
      * @param activator setting for default communication securing
      * @param source the source of changing the secure status (local or remote)
      */
     public void setSecureCommunicationStatus(boolean activator,
-                                             OperationSetSecuredTelephony.
+                                             OperationSetSecureTelephony.
                                              SecureStatusChangeSource source)
     {
 
@@ -2643,7 +2643,7 @@ public class CallSessionImpl
         // Fire the change event to notify any present CallSession of security change status
         // if not the case of a reverted secure state
         // (usually case of previous change rejected due to an error)
-        if (source != OperationSetSecuredTelephony.
+        if (source != OperationSetSecureTelephony.
                     SecureStatusChangeSource.SECURE_STATUS_REVERTED)
             fireSecureStatusChanged(activator, source);
 
@@ -2656,7 +2656,7 @@ public class CallSessionImpl
      * @param source the source of changing the secure status (local or remote)
      */
     private synchronized void fireSecureStatusChanged(boolean activator,
-                                                      OperationSetSecuredTelephony.
+                                                      OperationSetSecureTelephony.
                                                       SecureStatusChangeSource source)
     {
          if (activator)
@@ -2681,13 +2681,13 @@ public class CallSessionImpl
      * Called when a new SecureEvent is received.
      *
      * @param manager The RTP manager for which the media streams
-     * will be secured or unsecured
+     * will be secure or unsecure
      * @param event The secure status changed event
      */
     public void ZRTPChangeStatus(RTPManager manager, SecureEvent event)
     {
         int newStatus = event.getEventID();
-        OperationSetSecuredTelephony.SecureStatusChangeSource source = event.getSource();
+        OperationSetSecureTelephony.SecureStatusChangeSource source = event.getSource();
 
         TransformConnector transConnector =
             (TransformConnector) this.transConnectors.get(manager);
@@ -2697,7 +2697,7 @@ public class CallSessionImpl
         // Perform ZRTP engine actions only if triggered by local peer - user commands;
         // If the remote peer caused the event only general call session security status
         // is changed (done before event processing)
-        if (source == OperationSetSecuredTelephony.
+        if (source == OperationSetSecureTelephony.
                         SecureStatusChangeSource.SECURE_STATUS_CHANGE_BY_LOCAL)
         {
             if (newStatus == SecureEvent.SECURE_COMMUNICATION)

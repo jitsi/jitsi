@@ -686,7 +686,7 @@ public class ProtocolProviderServiceSipImpl
             // init ZRTP (OperationSetBasicTelephonySipImpl implements 
             // OperationSetSecureTelephony)
             this.supportedOperationSets.put(
-                OperationSetSecuredTelephony.class.getName()
+                OperationSetSecureTelephony.class.getName()
                 , opSetAdvancedTelephony);
 
             //init presence op set.

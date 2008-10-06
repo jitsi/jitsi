@@ -211,11 +211,11 @@ public class CallParticipantPanel
     /**
      * Creates a new <code>Component</code> representing a UI means to secure
      * the <code>Call</code> of the associated <code>callParticipant</code> or
-     * <tt>null</tt> if secured call is unsupported.
+     * <tt>null</tt> if secure call is unsupported.
      * 
      * @return a new <code>Component</code> representing the UI means to
      *         secure the <code>Call</code> of <code>callParticipant</code> or
-     *         <tt>null</tt> if secured call is unsupported
+     *         <tt>null</tt> if secure call is unsupported
      */
     private Component createSecureCallButton()
     {
@@ -223,11 +223,11 @@ public class CallParticipantPanel
 
         if (call != null)
         {
-            OperationSetSecuredTelephony secured =
-                (OperationSetSecuredTelephony) call.getProtocolProvider()
-                    .getOperationSet(OperationSetSecuredTelephony.class);
+            OperationSetSecureTelephony secure =
+                (OperationSetSecureTelephony) call.getProtocolProvider()
+                    .getOperationSet(OperationSetSecureTelephony.class);
 
-            if (secured != null)
+            if (secure != null)
             {
                 return new SecureButton(callParticipant);
             }
