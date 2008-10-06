@@ -28,20 +28,20 @@ import com.ctreber.aclib.image.ico.*;
 public class ContactRssImpl
     implements Contact
 {
-    /***
+    private static final Logger logger
+        = Logger.getLogger(ContactRssImpl.class);
+
+    /**
      * Item key identifying the last item retrieved and displayed.
      */
-    private RssItemKey lastItem = new RssItemKey(new Date(0));
+    //private RssItemKey lastItem = new RssItemKey(new Date(0));
 
     /**
      * Contact's nickname.
      */
     private String nickName = null;
 
-    private static final Logger logger
-        = Logger.getLogger(ContactRssImpl.class);
-
-    /***
+    /**
      * Stores the contact's display image to avoid downloading it multiple times.
      */
     private byte[] icon;
@@ -49,7 +49,7 @@ public class ContactRssImpl
     /**
      * This contact's URL (URL of the RSS feed).
      */
-    private URL rssURL = null;
+    //private URL rssURL = null;
 
     /**
      * This contact id (http://... or feed://...)
@@ -100,13 +100,16 @@ public class ContactRssImpl
      */
     public ContactRssImpl(String contactID,
                           URL rssURL,
-                          RssFeedReader rssFeedReader,
+                          //RssFeedReader rssFeedReader,
+                          String persistentData,
                           ProtocolProviderServiceRssImpl parentProvider)
+        throws OperationFailedException, FileNotFoundException
     {
         this.contactID = contactID;
-        this.rssURL = rssURL;
+        //this.rssURL = rssURL;
         this.parentProvider = parentProvider;
-        this.rssFeedReader = rssFeedReader;
+        this.rssFeedReader = new RssFeedReader(rssURL, persistentData);
+        //this.rssFeedReader = rssFeedReader;
     }
 
     /**
@@ -137,10 +140,10 @@ public class ContactRssImpl
      *
      * @return the URL of the RSS flow that this contact represents.
      */
-    public URL getRssURL()
+    /*public URL getRssURL()
     {
         return rssURL;
-    }
+    }*/
 
     /**
      * Returns a String that could be used by any user interacting modules
@@ -175,10 +178,10 @@ public class ContactRssImpl
      * item in the feed.
      * @return key identifying the last item in the feed.
      */
-    public RssItemKey getLastItemKey()
+    /*public RssItemKey getLastItemKey()
     {
         return this.lastItem;
-    }
+    }*/
 
     /***
      * Sets the key identifying the last item in the feed. It's usually used in
@@ -190,10 +193,10 @@ public class ContactRssImpl
      *
      * @see RssItemKey
      */
-    public void setLastItemKey(RssItemKey key)
+    /*public void setLastItemKey(RssItemKey key)
     {
         this.lastItem= key;
-    }
+    }*/
 
     /**
      * Returns an avatar if one is already present or <tt>null</tt> in case it
@@ -355,6 +358,7 @@ public class ContactRssImpl
      */
     public String getPersistentData()
     {
+        RssItemKey lastItem = rssFeedReader.getLastItemKey();
         if (lastItem != null)
             return lastItem.serialize();
         else
@@ -367,10 +371,10 @@ public class ContactRssImpl
      *
      * #setPersistentData()
      */
-    public void setPersistentData(String persistentData)
+    /*public void setPersistentData(String persistentData)
     {
         lastItem = RssItemKey.deserialize(persistentData);
-    }
+    }*/
 
     /**
      * Determines whether or not this contact has been resolved against the

@@ -739,13 +739,31 @@ public class OperationSetPersistentPresenceRssImpl
         //we instantiate a new RssFeedReader which will contain the feed
         //associated with the contact. It is important to try and connect here
         //in order to report failure if there is a problem with the feed.
-        RssFeedReader rssFeedReader = new RssFeedReader(rssURL);
+        //RssFeedReader rssFeedReader = new RssFeedReader(rssURL);
 
         //we parse the feed/contact here so that we could be notified of any
         //failures
         try
         {
-            rssFeedReader.retrieveFlow();
+            ContactRssImpl contact = new ContactRssImpl(
+                    contactIdentifier,
+                    rssURL,
+                    null,
+                    parentProvider);
+            ((ContactGroupRssImpl)parent).addContact(contact);
+
+
+            fireSubscriptionEvent(contact,
+                    parent,
+                    SubscriptionEvent.SUBSCRIPTION_CREATED);
+
+            //since we are not a real protocol, we set the contact
+            //presence status ourselves
+            changePresenceStatusForContact(contact, getPresenceStatus());
+
+            //now update the flow for the first time.
+            parentProvider.getBasicInstantMessaging()
+                .threadedContactFeedUpdate(contact);
         }
         catch(FileNotFoundException ex)
         {
@@ -759,27 +777,6 @@ public class OperationSetPersistentPresenceRssImpl
                 + ex.getMessage()
                 , ex);
         }
-
-        ContactRssImpl contact = new ContactRssImpl(
-            contactIdentifier,
-            rssURL
-            , rssFeedReader
-            , parentProvider);
-
-        ((ContactGroupRssImpl)parent).addContact(contact);
-
-
-        fireSubscriptionEvent(contact,
-                              parent,
-                              SubscriptionEvent.SUBSCRIPTION_CREATED);
-
-        //since we are not a real protocol, we set the contact
-        //presence status ourselves
-        changePresenceStatusForContact(contact, getPresenceStatus());
-
-        //now update the flow for the first time.
-        parentProvider.getBasicInstantMessaging()
-            .threadedContactFeedUpdate(contact);
     }
 
 
@@ -909,39 +906,63 @@ public class OperationSetPersistentPresenceRssImpl
                 + ex.getMessage());
         }
 
-        ContactRssImpl contact = new ContactRssImpl(
-            address,
-            rssURL
-            , new RssFeedReader(rssURL)
-            , parentProvider);
-        contact.setResolved(false);
+        try
+        {
+            ContactRssImpl contact = new ContactRssImpl(
+                    address,
+                    rssURL,
+                    persistentData,
+                    parentProvider);
+            contact.setResolved(false);
 
-        ( (ContactGroupRssImpl) parent).addContact(contact);
+            ( (ContactGroupRssImpl) parent).addContact(contact);
 
-        fireSubscriptionEvent(contact,
-                              parent,
-                              SubscriptionEvent.SUBSCRIPTION_CREATED);
+            fireSubscriptionEvent(contact,
+                    parent,
+                    SubscriptionEvent.SUBSCRIPTION_CREATED);
 
-        //since we don't have any server, we'll simply resolve the contact
-        //ourselves as if we've just received an event from the server telling
-        //us that it has been resolved.
-        contact.setResolved(true);
-        fireSubscriptionEvent(
-            contact, parent, SubscriptionEvent.SUBSCRIPTION_RESOLVED);
+            //since we don't have any server, we'll simply resolve the contact
+            //ourselves as if we've just received an event from the server telling
+            //us that it has been resolved.
+            contact.setResolved(true);
+            fireSubscriptionEvent(
+                    contact, parent, SubscriptionEvent.SUBSCRIPTION_RESOLVED);
 
-        //since we are not a real protocol, we set the contact presence status
-        //ourselves
-        changePresenceStatusForContact( contact, getPresenceStatus());
+            //since we are not a real protocol, we set the contact presence status
+            //ourselves
+            changePresenceStatusForContact( contact, getPresenceStatus());
 
-        //we retrieve if exists the persistent data for this contact
-        //which represents the date of the last item seen by the user
-        contact.setPersistentData(persistentData);
+            //we retrieve if exists the persistent data for this contact
+            //which represents the date of the last item seen by the user
+            //contact.setPersistentData(persistentData);
 
-        //hack: make sure we launch the image cache thread here because
-        //the meta cl service isn't listening for contact_resolved events yet.
-        contact.getImage();
+            //hack: make sure we launch the image cache thread here because
+            //the meta cl service isn't listening for contact_resolved events yet.
+            contact.getImage();
 
-        return contact;
+            return contact;
+        }
+        catch(FileNotFoundException ex)
+        {
+            //means the feed is no longer there.
+            //ignore and subscribe the contact so that the exception would
+            //occur while we try to refresh it. This way we would ask the
+            //user whether they want it removed.
+            logger.debug("failed to create a URL for address "
+                    + rssURL
+                    + ". Error was: "
+                    + ex.getMessage()
+                    , ex);
+        }
+        catch(OperationFailedException ex)
+        {
+            logger.debug("failed to create a URL for address "
+                    + rssURL
+                    + ". Error was: "
+                    + ex.getMessage()
+                    , ex);
+        }
+        return null;
     }
 
     /**

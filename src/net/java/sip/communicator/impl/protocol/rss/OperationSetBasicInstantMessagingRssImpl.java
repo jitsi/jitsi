@@ -123,18 +123,16 @@ public class OperationSetBasicInstantMessagingRssImpl
     private void submitRssQuery(ContactRssImpl rssContact,
                                 boolean userRequestedUpdate)
     {
-        Message msg;
-        boolean newName = false;
-        boolean newItem = false;
-        boolean update = false;
-        String newDisplayName = new String();
-        String oldDisplayName = new String();
+        String newDisplayName;
+        String oldDisplayName;
+        String news;
 
         RssFeedReader rssFeed = rssContact.getRssFeedReader();
 
-        try
-        {
-            rssFeed.retrieveFlow();
+        //try
+        //{
+            //we create the message containing the new items retrieved
+            news = rssFeed.getNewFeeds();
 
             //if the contact was offline then switch it to online since
             //apparently we succeeded to retrieve its flow
@@ -145,8 +143,8 @@ public class OperationSetBasicInstantMessagingRssImpl
                         rssContact, RssStatusEnum.ONLINE);
 
             }
-        }
-        catch (FileNotFoundException ex)
+        //}
+        /*catch (FileNotFoundException ex)
         {
             //RSS flow no longer exists - ask user to remove;
             handleFileNotFoundException(rssContact, ex);
@@ -155,70 +153,40 @@ public class OperationSetBasicInstantMessagingRssImpl
                          + ex.getMessage());
             logger.debug(ex);
             return;
-        }
-        catch (OperationFailedException ex)
+        }*/
+        /*catch (OperationFailedException ex)
         {
             logger.error("Failed to retrieve RSS flow. Error was: "
                          + ex.getMessage()
                          , ex);
             return;
-        }
+        }*/
 
-
-        //we recover the feed's old name
-        oldDisplayName = rssContact.getDisplayName();
-
-        //we change the contact's displayName according to the feed's title
-        newDisplayName = rssFeed.getTitle();
-        if (! (newDisplayName.equals(oldDisplayName)))
+        if(news != null)
         {
-            newName = true;
-        }
-        rssContact.setDisplayName(newDisplayName);
+            //we recover the feed's old name
+            oldDisplayName = rssContact.getDisplayName();
+            newDisplayName = rssFeed.getTitle();
+            rssContact.setDisplayName(newDisplayName);
 
-        //we create the message containing the new items retrieved
-        msg = createMessage(rssFeed.feedToString(rssContact.getLastItemKey()));
-
-        //if a newer date is available for the current feed/contact looking
-        //the date of each item of the feed retrieved, we update this date
-        if (rssFeed.getLastItemKey().usesDate())
-        {
-            if(rssFeed.getLastItemKey().getItemDate()
-                .compareTo(rssContact.getLastItemKey().getItemDate()) > 0)
-            {
-                rssContact.setLastItemKey(
-                    new RssItemKey(rssFeed.getLastItemKey().getItemDate()));
-                newItem = true;
-                update = true;
-            }
-        }
-        else
-        {
-            if (!rssFeed.getLastItemKey().getItemUri().equalsIgnoreCase(
-                rssContact.getLastItemKey().getItemUri()))
-            {
-                rssContact.setLastItemKey(
-                    new RssItemKey(rssFeed.getLastItemKey().getItemUri()));
-
-                newItem = true;
-                update = true;
-            }
-        }
-
-        //if we have a new date or a new name on this feed/contact, we fire
-        //that the contact has his properties modified in order to save it
-        if (newName || newItem)
+            //We have a new date or a new name on this feed/contact, we fire
+            //that the contact has his properties modified in order to save it
             this.opSetPersPresence.fireContactPropertyChangeEvent(
-                ContactPropertyChangeEvent.
-                PROPERTY_DISPLAY_NAME, rssContact,
-                oldDisplayName, newDisplayName);
+                    ContactPropertyChangeEvent.
+                    PROPERTY_DISPLAY_NAME,
+                    rssContact,
+                    oldDisplayName,
+                    newDisplayName);
 
-        //if the feed has been updated or if the user made a request on a
-        //specific feed/contact, we fire a new message containing the new items
-        //to the user
-        if(update || userRequestedUpdate)
+            //The feed has been updated or if the user made a request on a
+            //specific feed/contact, we fire a new message containing the new items
+            //to the user
+            fireMessageEvent(new MessageReceivedEvent(createMessage(news), rssContact, new Date()));
+        }
+        else if(userRequestedUpdate)
         {
-            fireMessageEvent(new MessageReceivedEvent(msg, rssContact, new Date()));
+            news = rssFeed.getNoNewFeedString();
+            fireMessageEvent(new MessageReceivedEvent(createMessage(news), rssContact, new Date()));
         }
     }
 

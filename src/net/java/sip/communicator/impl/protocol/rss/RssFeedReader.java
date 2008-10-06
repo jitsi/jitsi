@@ -14,6 +14,7 @@ import java.io.*;
 import com.sun.syndication.feed.synd.*;
 import com.sun.syndication.io.*;
 
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -27,6 +28,8 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class RssFeedReader
 {
+    private static final Logger logger
+        = Logger.getLogger(ContactRssImpl.class);
     /**
      * The URL of the contact/feed, used to make a TCP query for the XML file
      * containing the actual RSS feed.
@@ -37,7 +40,7 @@ public class RssFeedReader
      * The title of the feed, which will be used as the display name
      * of the contact/feed.
      */
-    private String title = null;
+    private String title  = "No feed avalaible !";
 
     /**
      * The object charged to retrieve the feed incoming from the relevant
@@ -48,7 +51,7 @@ public class RssFeedReader
     /**
      * Key identifying the retrieved item in this feed.
      */
-    private RssItemKey lastItemKey = null;
+    private RssItemKey lastItemKey;
 
     /**
      * An array of <tt>SyndEntry</tt> objects which will contain all the items 
@@ -57,9 +60,10 @@ public class RssFeedReader
     private SyndEntry[] items = null;
 
     /**
-     * A comparator that we use when sorting the items array.
+     * Tells us if the feeds is available or not. In other words, if the feed is
+     * ONLINE or OFFLINE.
      */
-    private SyndEntryComparator syndEntryComparator = new SyndEntryComparator();
+    private boolean isFeedJoinable = false;
 
      /**
      * Creates an instance of a RSS reader with the specified string used
@@ -67,25 +71,39 @@ public class RssFeedReader
      *
      * @param contactRssURL the URL of this feed.
      */
-    public RssFeedReader(URL contactRssURL)
+    public RssFeedReader(URL contactRssURL, String persistentData)
+        throws OperationFailedException, FileNotFoundException
+    //public RssFeedReader(URL contactRssURL, RssItemKey lastItemKey)
     {
         this.rssURL = contactRssURL;
-
-        /* TODO should retrieve this from a resource file.*/
-        this.title = "No feed avalaible !";
+        // If this is the first time we instanciate this feed.
+        if(persistentData != null)
+        {
+            this.lastItemKey = RssItemKey.deserialize(persistentData);
+            // An error has occured, printing it and starting from a clean
+            // instance (no more memory of what have been done).
+            if(this.lastItemKey == null)
+            {
+                logger.error("Failed to deserialize RSS settings: " +
+                         persistentData);
+                        //new Exception("Parse itemDate error: " + settings));
+            }
+        }
+        // Try to retrieve the feed and to complete this instanciation.
+        this.retrieveFlow();
     }
 
     /**
-     * Refreshes the RSS feed associated with this reader, stores the feed items
-     * and updates item identification information so that items that were 
-     * displayed once aren't displayed again.
+     * Refreshes the RSS feed associated with this reader, and does not store
+     * the feed items (see getNewFeeds for this).
      *
      * @throws OperationFailedException with code ILLEGAL_ARGUMENT
      * @throws FileNotFoundException if the feed does not exist any more.
      */
-    public void retrieveFlow()
+    private void retrieveFlow()
         throws OperationFailedException, FileNotFoundException
     {
+
         SyndFeedInput input = new SyndFeedInput();
         
         try
@@ -94,12 +112,14 @@ public class RssFeedReader
         } 
         catch (FileNotFoundException ex)
         {
+            this.isFeedJoinable = false;
             //We are handling that in OpSetBasicInstantMessaging as it indicates
             //a feed that has most likely been removed
             throw ex;
         }
         catch (IOException ex)
         {
+            this.isFeedJoinable = false;
             throw new OperationFailedException(
                 "Failed to create and XmlReader for url: " + rssURL
                 , OperationFailedException.GENERAL_ERROR
@@ -107,36 +127,44 @@ public class RssFeedReader
         }
         catch(FeedException fex)
         {
+            this.isFeedJoinable = false;
             throw new OperationFailedException(
                 "Failed to create and XmlReader for url: " + rssURL
                 , OperationFailedException.GENERAL_ERROR
                 , fex);
         }
+        this.isFeedJoinable = true;
 
-
-        feed.getEntries();
+        this.feed.getEntries();
 
         this.title = this.feed.getTitle();
 
         // retrieve items
-        items = (SyndEntry[]) this.feed.getEntries().toArray(new SyndEntry[0]);
+        this.items = (SyndEntry[]) this.feed.getEntries().toArray(new SyndEntry[0]);
+        Arrays.sort(items, new SyndEntryComparator());
+
+        for(int i=0; i < items.length; ++i)
+        {
+            System.out.println("CHENZO item_list[" + i + "] URI: " + items[i].getUri()
+                    + ", Date: " + items[i].getUpdatedDate() + ", Title: " +
+                    items[i].getTitle());
+        }
         
-        if (items.length == 0)
+        /*if (items.length == 0)
         {
             lastItemKey = new RssItemKey(new Date(0));
             return;
-        }
-
-        if (items[items.length - 1].getPublishedDate() != null)
+        }*/
+        /*if (items[items.length - 1].getPublishedDate() != null)
         {
-            Arrays.sort(items, syndEntryComparator);
+            Arrays.sort(items, new SyndEntryComparator());
             lastItemKey =
                 new RssItemKey(items[items.length - 1].getPublishedDate()); 
         }
         else
         {
             lastItemKey = new RssItemKey(items[0].getLink());
-        }
+        }*/
     }
 
     /**
@@ -146,102 +174,51 @@ public class RssFeedReader
      * @param itemKey key identifying the last item retrieved.
      * @return textual representation of the feed items.
      */
-    public synchronized String feedToString(RssItemKey itemKey)
+    public synchronized String getNewFeeds()
     {
         String newsAbstract = null;
         StringBuffer printedFeed = new StringBuffer();
-
-        // used for performance reasons
-        Date itemDate = itemKey.getItemDate();
-        String itemUri = itemKey.getItemUri();
         
-        int i, markerPosition = -1;
+        int i;
+        boolean hasSomeNews = false;
         
         // TODO move this message in a resources file.
         if (items.length == 0)
-            return "<b>No items currently available for this feed !</b><br>";
-
-        if (lastItemKey.usesDate())
         {
-            for (i = items.length - 1; i >= 0; i--)
-            {
-                if (items[i].getPublishedDate()
-                    .compareTo(itemDate) > 0)
-                {
-                    // Get the abstract of the news.
-                    newsAbstract = getNewsAbstract(items[i]);
-                    // Forge the news text to be displayed.
-                    printedFeed.insert(0,
-                        "<a href=\""+items[i].getLink()+"\">"
-                        + "<strong>"+ items[i].getTitle() + "</strong>"
-                        + "</a>"
-                        + "<br>"
-                        + newsAbstract
-                        + "<hr>");
-                }
-                else
-                {
-                    if (i == items.length - 1)
-                    {
-                        printedFeed
-                            .append("<strong>No new articles in your feed since"
-                                + " last update.</strong><br>");
-                    }
-                    break;
-                }
-            }
-            
-            printedFeed
-                .append ("<em>Send anything to refresh this feed...</em><br>\n");
-            
-            return printedFeed.toString();
-            }
-            else
-            {
-                for(i = 0; i < items.length; i++)
-                {
-                    if(itemUri != null && 
-                        itemUri.equalsIgnoreCase(items[i].getLink()))
-                    {
-                        markerPosition = i;
-                        break;
-                    }
-                }
-                
-                if (markerPosition == -1)
-                    markerPosition = items.length;                    
-                
-                // the main assumption here is that even in case the items don't present
-                // a date, they are usually sorted by the publishing date, the most
-                // recent first. This way, if the last displayed item is the first in
-                // the feed, we infer that all the feed has been previously displayed.
-                if (markerPosition != 0)
-                {
-                    for(i = 0; i < markerPosition; i++)
-                    {
-                        // Get the abstract of the news.
-                        newsAbstract = getNewsAbstract(items[i]);
-                        // Forge the news text to be displayed.
-                        printedFeed.insert(0,
-                            "<a href=\""+items[i].getLink()+"\">"
-                            + "<strong>"+ items[i].getTitle() + "</strong>"
-                            + "</a>"
-                            + "<br>"
-                            + newsAbstract
-                            + "<hr>");
-                    }
-                }
-                else
-                {
-                    printedFeed
-                        .append("<strong>No new articles in your feed since"
-                            + " last update.</strong><br>");
-                }
-                printedFeed
-                    .append ("<em>Send anything to refresh this feed...</em><br>\n");
-                
-                return printedFeed.toString();
+            return "<b>No items currently available for this feed !</b><br>";
         }
+
+        for (i = items.length - 1;
+                i >= 0 &&  (new RssItemKey(items[i])).compareTo(lastItemKey) != 0;
+                --i)
+        {
+            hasSomeNews = true;
+            // Get the abstract of the news.
+            newsAbstract = getNewsAbstract(items[i]);
+            // Forge the news text to be displayed.
+            printedFeed.insert(0,
+                    "<a href=\""+items[i].getLink()+"\">"
+                    + "<strong>"+ items[i].getTitle() + "</strong>"
+                    + "</a>"
+                    + "<br>"
+                    + newsAbstract
+                    + "<hr>");
+        }
+        if (!hasSomeNews)
+        {
+            return null;
+        }
+        lastItemKey = new RssItemKey(items[items.length - 1]);
+        printedFeed
+            .append ("<em>Send anything to refresh this feed...</em><br>\n");
+        return printedFeed.toString();
+    }
+
+    public String getNoNewFeedString()
+    {
+        return "<strong>No new articles in your feed since"
+            + " last update.</strong><br>"
+            + "<em>Send anything to refresh this feed...</em><br>\n";
     }
     
     /**
@@ -294,16 +271,6 @@ public class RssFeedReader
     }
 
     /**
-     * Assigns a new key as the key of the last retrieved item.
-     * 
-     * @param key new key for the last retrieved item.
-     */
-    public void setLastItemKey(RssItemKey key)
-    {
-        this.lastItemKey = key;
-    }
-
-    /**
      * Returns a ChannelIF that can be used to know if a feed exists indeed.
      *
      * @return a ChannelIF containing the result of a query on a RSS server.
@@ -344,7 +311,7 @@ public class RssFeedReader
      *
      * @return a String id representing and uniquely identifying the contact.
      */
-    public String getAddress()
+    public String getURL()
     {
         return rssURL.toString();
     }
@@ -367,13 +334,12 @@ public class RssFeedReader
         public int compare(Object o1, Object o2)
         {
             Date date1 = ( (SyndEntry) o1).getPublishedDate();
-            if (date1 == null)
-                date1 = new Date();
-
             Date date2 = ( (SyndEntry) o2).getPublishedDate();
-            if (date2 == null)
-                date2 = new Date();
 
+            if (date1 == null || date2 == null)
+            {
+                return 0;
+            }
             return date1.compareTo(date2);
         }
     }    

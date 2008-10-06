@@ -174,7 +174,7 @@ public class ImageRetriever extends Thread
     {
         try
         {
-            URL feedLocation = contact.getRssURL();
+            URL feedLocation = new URL(contact.getRssFeedReader().getURL());
 
             URL siteIndex = new URL(feedLocation.getProtocol() + "://"
                             + feedLocation.getHost());
@@ -261,10 +261,10 @@ public class ImageRetriever extends Thread
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] result = null;
 
-        URL feedLocation = contact.getRssURL();
-
         try
         {
+            URL feedLocation = new URL(contact.getRssFeedReader().getURL());
+
             URL location = new URL(feedLocation.getProtocol() + "://"
                             + feedLocation.getHost() + "/favicon.ico");
 

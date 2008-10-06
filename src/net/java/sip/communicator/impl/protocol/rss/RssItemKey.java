@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
+import com.sun.syndication.feed.synd.*;
+
+import net.java.sip.communicator.util.*;
+
 import java.text.*;
 import java.util.*;
 
@@ -15,39 +19,32 @@ import java.util.*;
  * provide and that don't provide a date for their contents.
  * 
  * @author Mihai Balan
+ * @author Vincent Lucas
  */
 public class RssItemKey
-   implements Comparable
+   //implements Comparable
 {
+    private static final Logger logger =
+                Logger.getLogger(OperationSetPersistentPresenceRssImpl.class);
+
     /***
      * Date of the last show post. If it cannot be used, it's null. 
      */
-    private Date itemDate = null;
+    private Date itemDate;
     
     /***
      * URI (link) of the last shown post. If it's not used, it's null.
      */
-    private String itemUri = null;
+    private String itemUri;
     
     /***
      * Flag to mark whether date is used to mark items (<code>true</code>) or
      * URI (<code>false</code>)
      */
-    private boolean usesDate = true;
+    private boolean usesDate;
 
     private static SimpleDateFormat formatter = 
        new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
-
-    /***
-     * Creates a RssContactSettings object that by default uses date to 
-     * identify feed items, with the last item date the current date/time.
-     */
-    public RssItemKey()
-    {
-        itemDate = new Date();
-        itemUri = null;
-        usesDate = true;
-    }
     
     /***
      * Creates a RssContactSettings object that uses date to identify feed
@@ -55,21 +52,23 @@ public class RssItemKey
      * parameter.
      * @param itemDate date/time of the item
      */
-    public RssItemKey(Date itemDate)
+    public RssItemKey(SyndEntry entry)
     {
-        this.itemDate = itemDate;
+        this.itemUri = entry.getUri();
+        this.itemDate = entry.getPublishedDate();
+        this.usesDate = (this.itemDate != null);
+    }
+
+    public RssItemKey(Date date)
+    {
         this.itemUri = null;
+        this.itemDate = date;
         this.usesDate = true;
     }
-    
-    /***
-     * Creates a RssContactSettings object that uses URI to identify feed
-     * items, with the last item URI specified by the <tt>lastPostUri</tt>
-     * @param itemUri URI/link of the item
-     */
-    public RssItemKey(String itemUri)
+
+    public RssItemKey(String uri)
     {
-        this.itemUri = itemUri;
+        this.itemUri = uri;
         this.itemDate = null;
         this.usesDate = false;
     }
@@ -124,50 +123,82 @@ public class RssItemKey
     public static RssItemKey deserialize(String settings)
     {
         StringTokenizer reader = new StringTokenizer(settings, ";");
-        RssItemKey result = new RssItemKey();
+        Date date = null;
+        String uri = null;
+        boolean useInitialized = false;
+        boolean isDateUsed = false;
 
         while (reader.hasMoreTokens())
         {
             String data[] = reader.nextToken().split("=", 2);
+
             if (data[0].equals("itemDate"))
             {
                 if (data.length == 2)
                 {
                     try
                     {
-                        result.itemDate = formatter.parse(data[1]);
+                        date = formatter.parse(data[1]);
                     }
                     catch (ParseException e)
                     {
-                        result.itemDate = null;
-                        //XXX: logger.error("Could not parse date: " + data[1]);
+                        logger.error("Failed to deserialize RSS settings. Parse date error: " +
+                                settings,
+                                e);
+                        return null;
                     }
                 }
                 else
-                    result.itemDate = null;
+                {
+                    logger.error("Failed to deserialize RSS settings. Parse itemDate error: " +
+                            settings,
+                            new Exception("Parse itemDate error: " + settings));
+                    return null;
+                }
             }
-            
-            if (data[0].equals("itemUri"))
+            else if (data[0].equals("itemUri"))
             {
                 if (data.length == 2)
-                    result.itemUri = data[1];
+                {
+                    uri = data[1];
+                }
                 else
-                    result.itemUri = null;
+                {
+                    logger.error("Failed to deserialize RSS settings. Parse itemUri error: " +
+                            settings,
+                            new Exception("Parse itemUri error: " + settings));
+                    return null;
+                }
             }
-       
-            if (data[0].equals("usesDate"))
+            else if (data[0].equals("usesDate"))
             {
                 if (data.length == 2)
-                    result.usesDate = Boolean.valueOf(data[1]).booleanValue();
+                {
+                    isDateUsed = Boolean.valueOf(data[1]).booleanValue();
+                    useInitialized = true;
+                }
                 else
-                    result.usesDate = result.itemDate == null;
+                {
+                    logger.error("Failed to deserialize RSS settings. Parse usesDate error: " +
+                            settings,
+                            new Exception("Parse usesDate error: " + settings));
+                    return null;
+                }
             }
         }
         
-        if (result.itemDate == null && result.itemUri == null)
-            return null;
-        else
-            return result;
+        if(useInitialized)
+        {
+            if(isDateUsed && date != null)
+            {
+                return new RssItemKey(date);
+            }
+            else if(!isDateUsed && uri != null)
+            {
+                return new RssItemKey(uri);
+            }
+        }
+        return null;
     }
 
     /***
@@ -181,12 +212,15 @@ public class RssItemKey
         StringBuffer result = new StringBuffer();
         
         result.append("itemDate=");
-        result.append(itemDate == null ? 
-            "" : formatter.format(itemDate));
+        result.append(
+                itemDate == null ?
+                "" : formatter.format(itemDate));
         result.append(";");
 
         result.append("itemUri=");
-        result.append(itemUri == null ? "" : itemUri);
+        result.append(
+                itemUri == null ?
+                "" : itemUri);
         result.append(";");
 
         result.append("usesDate=");
