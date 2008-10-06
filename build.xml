@@ -1846,7 +1846,8 @@ javax.swing.event, javax.swing.border"/>
 
             <zipfileset src="${lib.noinst}/zrtp4j-0.9.0.jar" prefix=""/>
             <manifest>
-		<attribute name="Export-Package" value="gnu.java.zrtp,gnu.java.zrtp.packets,gnu.java.zrtp.utils,gnu.java.zrtp.zidfile"/>
+                <attribute name="Export-Package" value="gnu.java.zrtp,gnu.java.zrtp.packets,gnu.java.zrtp.utils,gnu.java.zrtp.zidfile"/>
+                <attribute name="Import-Package" value="javax.crypto,javax.crypto.spec,javax.crypto.interfaces"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
             </manifest>
