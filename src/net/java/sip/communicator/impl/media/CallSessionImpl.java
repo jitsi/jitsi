@@ -2003,7 +2003,7 @@ public class CallSessionImpl
                 // in the call panel that appears once the call has started
                 if (usingSRTP)
                 {
-                    if (!engine.initialize("my_zid.zid"))
+                    if (!engine.initialize("GNUZRTP4J.zid"))
                         engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
                                     EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
 
@@ -2707,7 +2707,7 @@ public class CallSessionImpl
                 {
                     logger.trace("Normal call securing event processing");
 
-                    if (!engine.initialize("my_zid.zid"))
+                    if (!engine.initialize("GNUZRTP4J.zid"))
                         engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
                                         EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
                 }

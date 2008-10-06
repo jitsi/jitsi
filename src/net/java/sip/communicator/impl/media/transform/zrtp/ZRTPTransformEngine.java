@@ -9,10 +9,14 @@ package net.java.sip.communicator.impl.media.transform.zrtp;
 import gnu.java.zrtp.*;
 import gnu.java.zrtp.zidfile.*;
 
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.media.*;
 import net.java.sip.communicator.impl.media.transform.*;
 import net.java.sip.communicator.impl.media.transform.srtp.*;
+import net.java.sip.communicator.service.fileaccess.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.Provider;
 import java.util.EnumSet;
@@ -150,7 +154,7 @@ public class ZRTPTransformEngine
      * Very simple Timout provider class.
      * 
      * This very simple timeout provider can handle one timeout request at
-     * one time only. A secod request would overwrite the first one and would
+     * one time only. A second request would overwrite the first one and would
      * lead to unexpected results.
      * 
      * @author Werner Dittmann <Werner.Dittmann@t-online.de>
@@ -376,6 +380,37 @@ public class ZRTPTransformEngine
      */
     public synchronized boolean initialize(String zidFilename, boolean autoEnable) 
     {
+        // Get a reference to the FileAccessService
+        BundleContext bc = MediaActivator.getBundleContext();
+        ServiceReference faServiceReference = bc.getServiceReference(
+                FileAccessService.class.getName());
+        FileAccessService faService = (FileAccessService) 
+                bc.getService(faServiceReference);
+    
+        File file = null;        
+        try 
+        {
+            // Create the zid file
+            file = faService.getPrivatePersistentFile(zidFilename);
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        String zidFilePath = null;
+        try 
+        {
+            // Get the absolute path of the created zid file
+            zidFilePath = file.getAbsolutePath();
+        }
+        catch (SecurityException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         if (cryptoProvider == null) 
         {
             return false;
@@ -391,13 +426,18 @@ public class ZRTPTransformEngine
         if (!zf.isOpen()) 
         {
             String fname;
-            if (zidFilename == null) 
+            if (zidFilePath == null) 
             {
                 String home = System.getenv("HOME");
                 String baseDir = (home != null) ? ((home) + ("/.")) : ".";
                 fname = baseDir + "GNUZRTP4J.zid";
                 zidFilename = fname;
             }
+            else
+            {
+                zidFilename = zidFilePath;
+            }
+            
             if (zf.open(zidFilename) < 0) 
             {
                 enableZrtp = false;
