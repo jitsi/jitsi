@@ -27,7 +27,7 @@ javabin=`which java`
 
 SCDIR=/usr/lib/sip-communicator
 LIBPATH=$SCDIR/lib
-CLASSPATH=$LIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar:$LIBPATH/felix.jar:$SCDIR/sc-bundles/sc-launcher.jar:$SCDIR/sc-bundles/util.jar
+CLASSPATH=$LIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar:$LIBPATH/felix.jar:$LIBPATH/bcprovider.jar:$SCDIR/sc-bundles/sc-launcher.jar:$SCDIR/sc-bundles/util.jar
 FELIX_CONFIG=$LIBPATH/felix.client.run.properties
 LOG_CONFIG=$LIBPATH/logging.properties
 COMMAND="$javabin -classpath $CLASSPATH -Dfelix.config.properties=file:$FELIX_CONFIG -Djava.util.logging.config.file=$LOG_CONFIG net.java.sip.communicator.launcher.SIPCommunicator"
