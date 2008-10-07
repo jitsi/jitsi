@@ -710,23 +710,12 @@ public class UIServiceImpl
              * Attempt to use the OS-native LookAndFeel instead of
              * SIPCommLookAndFeel.
              */
-            String laf;
+            String laf = UIManager.getSystemLookAndFeelClassName();
             boolean lafIsSet = false;
 
-            if (osName.contains("Windows"))
-            {
-                laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-            }
-            else if (osName.contains("Linux"))
-            {
-                laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-            }
-            else
-            {
-                laf = null;
-            }
-
-            if (laf != null)
+            if ((laf != null)
+                && !laf
+                    .equals(UIManager.getCrossPlatformLookAndFeelClassName()))
             {
                 try
                 {
