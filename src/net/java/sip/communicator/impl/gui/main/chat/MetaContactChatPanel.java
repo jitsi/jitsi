@@ -51,12 +51,12 @@ public class MetaContactChatPanel
     /*
      * There is some problem when adding the icon to the check box, the check
      * box disappears.
-     * 
+     *
      * new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_SMS_ICON))
      */
 
     private ProtocolContactSelectorBox contactSelectorBox;
-    
+
     private Message sentSmsMessage = null;
 
     /**
@@ -80,7 +80,7 @@ public class MetaContactChatPanel
 
         //Add the contact to the list of contacts contained in this panel
         getChatContactListPanel().addContact(chatContact);
-        
+
         setupListeners(true);
 
         // Initialize the "send via" selector box and adds it to the send panel.
@@ -105,7 +105,7 @@ public class MetaContactChatPanel
         amap.put("ChangeProtocol", new ChangeProtocolAction());
 
         InputMap imap = this.getInputMap(
-            JComponent.WHEN_IN_FOCUSED_WINDOW); 
+            JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
             KeyEvent.CTRL_DOWN_MASK), "ChangeProtocol");
@@ -113,7 +113,7 @@ public class MetaContactChatPanel
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.impl.gui.main.chat.ChatPanel#dispose()
      */
     public void dispose()
@@ -131,7 +131,7 @@ public class MetaContactChatPanel
     /**
      * Adds or removes the listeners which observe the model displayed by this
      * view.
-     * 
+     *
      * @param add <tt>true</tt> to add the listeners to the model displayed by
      *            this view; <tt>false</tt> to remove the previously-installed
      *            listeners from the model
@@ -196,7 +196,7 @@ public class MetaContactChatPanel
                 // Used to disable/enable history flash buttons in the chat
                 // window tool bar.
                 loadHistoryPeriod();
-                
+
                 // Load the last N=CHAT_HISTORY_SIZE messages from history.
                 Collection historyList = msgHistory.findLast(
                         metaContact, ConfigurationManager.getChatHistorySize());
@@ -205,12 +205,12 @@ public class MetaContactChatPanel
                     class ProcessHistory implements Runnable
                     {
                         Collection historyList;
-                        
+
                         ProcessHistory(Collection historyList)
                         {
                             this.historyList = historyList;
                         }
-                        
+
                         public void run()
                         {
                             processHistory(historyList, null);
@@ -226,7 +226,7 @@ public class MetaContactChatPanel
      * Loads history messages ignoring the message given by the
      * escapedMessageID. Implements the
      * <tt>ChatPanel.loadHistory(String)</tt> method.
-     * 
+     *
      * @param escapedMessageID The id of the message that should be ignored.
      */
     public void loadHistory(final String escapedMessageID)
@@ -245,13 +245,13 @@ public class MetaContactChatPanel
         // Used to disable/enable history flash buttons in the chat
         // window tool bar.
         loadHistoryPeriod();
-        
+
         Collection historyList = msgHistory.findLast(
                 metaContact, ConfigurationManager.getChatHistorySize());
 
         processHistory(historyList, escapedMessageID);
     }
-    
+
     /**
      * Loads history period dates for the current chat.
      */
@@ -268,7 +268,7 @@ public class MetaContactChatPanel
 
         Collection firstMessage = msgHistory
             .findFirstMessagesAfter(metaContact, new Date(0), 1);
-        
+
         if(firstMessage.size() > 0)
         {
             Iterator i = firstMessage.iterator();
@@ -279,37 +279,37 @@ public class MetaContactChatPanel
             {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o;
-                
+
                 this.firstHistoryMsgTimestamp = evt.getTimestamp();
             }
             else if(o instanceof MessageReceivedEvent)
             {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                
+
                 this.firstHistoryMsgTimestamp = evt.getTimestamp();
-            }            
+            }
         }
-        
+
         Collection lastMessage = msgHistory
             .findLastMessagesBefore(metaContact, new Date(Long.MAX_VALUE), 1);
-    
+
         if(lastMessage.size() > 0)
         {
             Iterator i1 = lastMessage.iterator();
-            
+
             Object o1 = i1.next();
-        
+
             if(o1 instanceof MessageDeliveredEvent)
             {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o1;
-        
+
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
             else if(o1 instanceof MessageReceivedEvent)
             {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o1;
-        
+
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
         }
@@ -317,7 +317,7 @@ public class MetaContactChatPanel
 
     /**
      * Returns the date of the first message in history for this chat.
-     * 
+     *
      * @return the date of the first message in history for this chat.
      */
     public Date getFirstHistoryMsgTimestamp()
@@ -327,17 +327,17 @@ public class MetaContactChatPanel
 
     /**
      * Returns the date of the last message in history for this chat.
-     * 
+     *
      * @return the date of the last message in history for this chat.
      */
     public Date getLastHistoryMsgTimestamp()
     {
         return lastHistoryMsgTimestamp;
     }
-    
+
     /**
      * Returns the name of this chat.
-     * 
+     *
      * @return the name of this chat
      */
     public String getChatName()
@@ -349,10 +349,10 @@ public class MetaContactChatPanel
 
         return Messages.getI18NString("unknown").getText();
     }
-    
+
     /**
      * Returns the identifier of this chat.
-     * 
+     *
      * @return the identifier of this chat
      */
     public Object getChatIdentifier()
@@ -375,7 +375,7 @@ public class MetaContactChatPanel
 
     /**
      * Updates the status of the given contact in this chat panel.
-     * 
+     *
      * @param contact the contact, which changed the status
      * @param newStatus the new status of the contact
      */
@@ -384,7 +384,7 @@ public class MetaContactChatPanel
         // Update the status of the given contact in the "send via" selector
         // box.
         contactSelectorBox.updateContactStatus(contact);
-        
+
         // Update the status of the source meta contact in the contact details
         // panel on the right.
         if(metaContact.getDefaultContact().equals(contact))
@@ -418,7 +418,7 @@ public class MetaContactChatPanel
             }
         }
     }
-    
+
     /**
      * Implements the <tt>ChatPanel.sendMessage</tt> method. Obtains the
      * appropriate operation set and sends the message, contained in the write
@@ -447,12 +447,12 @@ public class MetaContactChatPanel
     public void metaContactRenamed(MetaContactRenamedEvent evt)
     {
         String newName = evt.getNewDisplayName();
-        
+
         if(evt.getSourceMetaContact().equals(metaContact))
         {
             ChatContact chatContact
                 = findChatContactByMetaContact(evt.getSourceMetaContact());
-            
+
             getChatContactListPanel().renameContact(chatContact);
 
             getChatWindow().setTabTitle(this, newName);
@@ -463,7 +463,7 @@ public class MetaContactChatPanel
             }
         }
     }
-    
+
     /**
      * Implements <tt>MetaContactListListener.metaContactModified</tt> method.
      * Indicates that a MetaContact has been modified.
@@ -477,9 +477,9 @@ public class MetaContactChatPanel
      * When a proto contact is added, updates the "send via" selector box.
      */
     public void protoContactAdded(ProtoContactEvent evt)
-    {   
+    {
         if (evt.getNewParent().equals(metaContact))
-        {   
+        {
             this.contactSelectorBox.addProtoContact(evt.getProtoContact());
         }
     }
@@ -497,6 +497,16 @@ public class MetaContactChatPanel
     }
 
     /**
+     * Implements the <tt>MetaContactListListener.protoContactModified</tt>
+     * method with an empty body since we are not interested in proto contact
+     * specific changes (such as the persistent data) in the user interface.
+     */
+    public void protoContactModified(ProtoContactEvent evt)
+    {
+        //currently ignored
+    }
+
+    /**
      * Implements <tt>MetaContactListListener.protoContactMoved</tt> method.
      * When a proto contact is moved, updates the "send via" selector box.
      */
@@ -506,7 +516,7 @@ public class MetaContactChatPanel
         {
             contactSelectorBox.removeProtoContact(evt.getProtoContact());
         }
-        
+
         if (evt.getNewParent().equals(metaContact))
         {
             contactSelectorBox.addProtoContact(evt.getProtoContact());
@@ -543,12 +553,12 @@ public class MetaContactChatPanel
     {
         Contact protocolContact
             = contactSelectorBox.getSelectedProtocolContact();
-        
+
         OperationSetTypingNotifications tnOperationSet
             = (OperationSetTypingNotifications)
                protocolContact.getProtocolProvider()
                     .getOperationSet(OperationSetTypingNotifications.class);
-        
+
         if(protocolContact.getProtocolProvider().isRegistered()
             && tnOperationSet != null)
         {
@@ -556,17 +566,17 @@ public class MetaContactChatPanel
             {
                 tnOperationSet.sendTypingNotification(
                     protocolContact, typingState);
-                
+
                 return ChatPanel.TYPING_NOTIFICATION_SUCCESSFULLY_SENT;
             }
             catch (Exception ex)
             {
                 logger.error("Failed to send typing notifications.", ex);
-                
+
                 return ChatPanel.TYPING_NOTIFICATION_SEND_FAILED;
             }
         }
-        
+
         return ChatPanel.TYPING_NOTIFICATION_SEND_FAILED;
     }
 
@@ -582,7 +592,7 @@ public class MetaContactChatPanel
             contactSelectorBox.setSelected(sourceContact);
         }
     }
-    
+
     /**
      * The <tt>ChangeProtocolAction</tt> is an <tt>AbstractAction</tt> that
      * opens the menu, containing all available protocol contacts.
@@ -622,12 +632,12 @@ public class MetaContactChatPanel
             {
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
-                
+
                 Date firstMsgDate
                     = conversationPanel.getPageFirstMsgTimestamp();
-                
+
                 Collection c = null;
-                
+
                 if(firstMsgDate != null)
                 {
                     c = msgHistory.findLastMessagesBefore(
@@ -635,13 +645,13 @@ public class MetaContactChatPanel
                         firstMsgDate,
                         MESSAGES_PER_PAGE);
                 }
-                 
+
                 if(c !=null && c.size() > 0)
-                {   
+                {
                     SwingUtilities.invokeLater(
                             new HistoryMessagesLoader(c));
                 }
-            }   
+            }
         }.start();
     }
 
@@ -669,52 +679,52 @@ public class MetaContactChatPanel
 
                 Collection c = null;
                 if(lastMsgDate != null)
-                {  
+                {
                     c = msgHistory.findFirstMessagesAfter(
                         metaContact,
                         lastMsgDate,
                         MESSAGES_PER_PAGE);
                 }
-                
+
                 if(c != null && c.size() > 0)
                     SwingUtilities.invokeLater(
                             new HistoryMessagesLoader(c));
-            }   
+            }
         }.start();
     }
-    
+
     /**
      * From a given collection of messages shows the history in the chat window.
      */
     private class HistoryMessagesLoader implements Runnable
-    {        
+    {
         private Collection msgHistory;
-        
+
         public HistoryMessagesLoader(Collection msgHistory)
         {
             this.msgHistory = msgHistory;
         }
-        
+
         public void run()
         {
             getChatConversationPanel().clear();
-                        
+
             processHistory(msgHistory, "");
-            
+
             getChatConversationPanel().setDefaultContent();
         }
     }
 
     /**
      * Returns the <tt>MetaContact</tt> corresponding to the chat.
-     * 
+     *
      * @return the <tt>MetaContact</tt> corresponding to the chat.
      */
     public MetaContact getMetaContact()
     {
         return metaContact;
     }
-    
+
     public void subscriptionCreated(SubscriptionEvent evt)
     {}
 
@@ -747,11 +757,11 @@ public class MetaContactChatPanel
             chatContactPanel.setContactPhoto(chatContact.getImage());
         }
     }
-    
+
     /**
      * Returns the <tt>ChatContact</tt> corresponding to the given
      * <tt>MetaContact</tt>.
-     * 
+     *
      * @param metaContact the <tt>MetaContact</tt> to search for
      * @return the <tt>ChatContact</tt> corresponding to the given
      * <tt>MetaContact</tt>.
@@ -760,33 +770,33 @@ public class MetaContactChatPanel
     {
         Iterator chatContacts
             = getChatContactListPanel().getChatContacts();
-            
+
         while(chatContacts.hasNext())
         {
             ChatContact chatContact
                 = (ChatContact) chatContacts.next();
-            
+
             Object chatSourceContact = chatContact.getSourceContact();
-            
+
             if(chatSourceContact instanceof Contact)
             {
                 MetaContact parentMetaContact
                     = GuiActivator.getMetaContactListService()
                         .findMetaContactByContact((Contact)chatSourceContact);
-                
+
                 if(parentMetaContact != null
                         && parentMetaContact.equals(metaContact))
                     return chatContact;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Returns the <tt>ChatContact</tt> corresponding to the given
      * <tt>Contact</tt>.
-     * 
+     *
      * @param metaContact the <tt>MetaContact</tt> to search for
      * @return the <tt>ChatContact</tt> corresponding to the given
      * <tt>Contact</tt>.
@@ -795,21 +805,21 @@ public class MetaContactChatPanel
     {
         Iterator chatContacts
             = getChatContactListPanel().getChatContacts();
-            
+
         while(chatContacts.hasNext())
         {
             ChatContact chatContact
                 = (ChatContact) chatContacts.next();
-            
+
             Object chatSourceContact = chatContact.getSourceContact();
-            
+
             if(chatSourceContact instanceof Contact
                     && chatSourceContact.equals(contact))
             {
                 return chatContact;
             }
         }
-        
+
         return null;
     }
 
@@ -888,7 +898,7 @@ public class MetaContactChatPanel
                         Messages.getI18NString("msgDeliveryInternalError")
                             .getText(), "text");
             }
-            
+
             return;
         }
     */
@@ -1032,15 +1042,15 @@ public class MetaContactChatPanel
 
     /**
      * Changes the "Send as SMS" check box state.
-     * 
+     *
      * @param isSmsSelected <code>true</code> to set the "Send as SMS" check box
-     * selected, <code>false</code> - otherwise. 
+     * selected, <code>false</code> - otherwise.
      */
     public void setSmsSelected(boolean isSmsSelected)
     {
         sendSmsCheckBox.setSelected(isSmsSelected);
     }
-    
+
     private class SmsMessageListener implements MessageListener
     {
         private OperationSetSmsMessaging smsOpSet;
@@ -1053,13 +1063,13 @@ public class MetaContactChatPanel
         public void messageDelivered(MessageDeliveredEvent evt)
         {
             Message msg = evt.getSourceMessage();
-            
+
             // if there is no sms sent or this event is not for our sms ignore it
             if(sentSmsMessage == null || !sentSmsMessage.equals(msg))
                 return;
-            
+
             sentSmsMessage = null;
-            
+
             Contact contact = evt.getDestinationContact();
 
             processMessage(
@@ -1079,15 +1089,15 @@ public class MetaContactChatPanel
         public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
         {
             logger.error(evt.getReason());
-            
+
             String errorMsg = null;
 
             Message sourceMessage = (Message) evt.getSource();
-            
+
             // if there is no sms sent or this event is not for our sms ignore it
             if(sentSmsMessage == null || !sentSmsMessage.equals(sourceMessage))
                 return;
-            
+
             sentSmsMessage = null;
 
             Contact sourceContact = evt.getDestinationContact();
@@ -1095,7 +1105,7 @@ public class MetaContactChatPanel
             MetaContact metaContact = chatWindow.getMainFrame().getContactList()
                 .findMetaContactByContact(sourceContact);
 
-            if (evt.getErrorCode() 
+            if (evt.getErrorCode()
                     == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
             {
                 errorMsg = Messages.getI18NString(
@@ -1141,17 +1151,17 @@ public class MetaContactChatPanel
         public void messageReceived(MessageReceivedEvent evt)
         {}
     }
-    
+
     /**
      * Returns the selected protocol contact.
-     * 
+     *
      * @return the selected protocol contact
      */
     public Contact getSelectedProtocolContact()
     {
         return contactSelectorBox.getSelectedProtocolContact();
     }
-    
+
     public ProtocolContactSelectorBox getProtocolContactSelectorBox()
     {
         return contactSelectorBox;

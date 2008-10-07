@@ -34,7 +34,7 @@ public interface MetaContactGroup
      * @return an Iterator over the protocol specific groups that this group
      * represents.
      */
-    public Iterator getContactGroups();
+    public Iterator<ContactGroup> getContactGroups();
 
     /**
      * Returns all protocol specific ContactGroups, encapsulated by this
@@ -51,7 +51,8 @@ public interface MetaContactGroup
      * @return an <tt>Iterator</tt> over all contacts encapsulated in this
      * <tt>MetaContact</tt> and originating from the specified provider.
      */
-    public Iterator getContactGroupsForProvider(ProtocolProviderService provider);
+    public Iterator<ContactGroup> getContactGroupsForProvider(
+                                            ProtocolProviderService provider);
 
     /**
      * Returns all protocol specific ContactGroups, encapsulated by this
@@ -70,7 +71,7 @@ public interface MetaContactGroup
      * <tt>MetaContact</tt> and originating from the provider with the specified
      * account id.
      */
-    public Iterator getContactGroupsForAccountID(String accountID);
+    public Iterator<ContactGroup> getContactGroupsForAccountID(String accountID);
 
 
     /**

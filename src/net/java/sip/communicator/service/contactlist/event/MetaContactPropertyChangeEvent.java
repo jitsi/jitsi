@@ -61,7 +61,15 @@ public abstract class MetaContactPropertyChangeEvent
      * Indicates that the meta contact has been modified. The old and new value
      * arguments contain the old and new values of the modification.
      */
-    public static final String META_CONTACT_MODIFIED = "MetaContactModifiedEvent";
+    public static final String PROTO_CONTACT_MODIFIED
+                                            = "ProtoContactModifiedEvent";
+
+    /**
+     * Indicates that the meta contact has been modified. The old and new value
+     * arguments contain the old and new values of the modification.
+     */
+    public static final String META_CONTACT_MODIFIED
+                                            = "MetaContactModifiedEvent";
 
     /**
      * Creates an instnace of this event.

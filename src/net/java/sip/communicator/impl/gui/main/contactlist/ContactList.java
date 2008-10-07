@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.*;
  * custom data model and a custom list cell renderer is used. This class manages
  * all meta contact list events, like <code>metaContactAdded</code>,
  * <code>metaContactMoved</code>, <code>metaContactGroupAdded</code>, etc.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ContactList
@@ -69,10 +69,10 @@ public class ContactList
     private ContactRightButtonMenu contactRightButtonMenu;
 
     private ContactListDraggable draggedElement;
-    
+
     /**
      * Creates an instance of the <tt>ContactList</tt>.
-     * 
+     *
      * @param mainFrame The main application window.
      */
     public ContactList(MainFrame mainFrame)
@@ -111,9 +111,9 @@ public class ContactList
                 }
             }
         });
-        
+
         this.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) 
+            public void keyPressed(KeyEvent e)
             {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
                 {
@@ -125,7 +125,7 @@ public class ContactList
                 }
             }
         });
-            
+
         this.addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent e)
@@ -138,10 +138,10 @@ public class ContactList
         });
 
         this.setShowOffline(ConfigurationManager.isShowOffline());
-       
+
         new ContactListRefresh().start();
     }
-    
+
     /**
      * Handles the <tt>MetaContactEvent</tt>. Refreshes the list model.
      */
@@ -158,7 +158,7 @@ public class ContactList
     {
         this.refreshContact(evt.getSourceMetaContact());
     }
-    
+
     /**
      * Handles the <tt>MetaContactModifiedEvent</tt>.
      * Indicates that a MetaContact has been modified.
@@ -174,7 +174,7 @@ public class ContactList
     public void protoContactAdded(ProtoContactEvent evt)
     {
         MetaContact parentMetaContact = evt.getNewParent();
-        
+
         this.refreshContact(parentMetaContact);
     }
 
@@ -195,9 +195,19 @@ public class ContactList
     {
         MetaContact oldParentMetaContact = evt.getOldParent();
         MetaContact newParentMetaContact = evt.getNewParent();
-        
+
         this.refreshContact(oldParentMetaContact);
         this.refreshContact(newParentMetaContact);
+    }
+
+    /**
+     * Implements the <tt>MetaContactListListener.protoContactModified</tt>
+     * method with an empty body since we are not interested in proto contact
+     * specific changes (such as the persistent data) in the user interface.
+     */
+    public void protoContactModified(ProtoContactEvent evt)
+    {
+        //currently ignored
     }
 
     /**
@@ -271,7 +281,7 @@ public class ContactList
 
     /**
      * Returns the next list element that starts with a prefix.
-     * 
+     *
      * @param prefix the string to test for a match
      * @param startIndex the index for starting the search
      * @param bias the search direction, either Position.Bias.Forward or
@@ -326,7 +336,7 @@ public class ContactList
 
     /**
      * Returns the list of all groups.
-     * 
+     *
      * @return The list of all groups.
      */
     public Iterator getAllGroups()
@@ -336,7 +346,7 @@ public class ContactList
 
     /**
      * Returns the Meta Contact Group corresponding to the given MetaUID.
-     * 
+     *
      * @param metaUID An identifier of a group.
      * @return The Meta Contact Group corresponding to the given MetaUID.
      */
@@ -357,7 +367,7 @@ public class ContactList
 
     /**
      * Adds a listener for <tt>ContactListEvent</tt>s.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addContactListListener(ContactListListener listener)
@@ -371,7 +381,7 @@ public class ContactList
 
     /**
      * Removes a listener previously added with <tt>addContactListListener</tt>.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeContactListListener(ContactListListener listener)
@@ -384,7 +394,7 @@ public class ContactList
 
     /**
      * Adds a listener for <tt>ContactListEvent</tt>s.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addExcContactListListener(ContactListListener listener)
@@ -398,7 +408,7 @@ public class ContactList
 
     /**
      * Removes a listener previously added with <tt>addContactListListener</tt>.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeExcContactListListener(ContactListListener listener)
@@ -412,7 +422,7 @@ public class ContactList
     /**
      * Creates the corresponding ContactListEvent and notifies all
      * <tt>ContactListListener</tt>s that a contact is selected.
-     * 
+     *
      * @param source the contact that this event is about.
      * @param eventID the id indicating the exact type of the event to fire.
      * @param clickCount the number of clicks accompanying the event.
@@ -432,7 +442,7 @@ public class ContactList
                 {
                     ContactListListener listener
                         = (ContactListListener) listeners.next();
-                    
+
                     switch (evt.getEventID())
                     {
                         case ContactListEvent.CONTACT_SELECTED:
@@ -483,7 +493,7 @@ public class ContactList
     /**
      * Creates the corresponding ContactListEvent and notifies all
      * <tt>ContactListListener</tt>s that a contact is selected.
-     * 
+     *
      * @param sourceContact the contact that this event is about
      * @param protocolContact the protocol contact the this event is about
      * @param eventID the id indicating the exact type of the event to fire.
@@ -517,10 +527,10 @@ public class ContactList
         }
     }
 
-    
+
     /**
      * Manages a mouse click over the contact list.
-     * 
+     *
      * When the left mouse button is clicked on a contact cell different things
      * may happen depending on the contained component under the mouse. If the
      * mouse is double clicked on the "contact name" the chat window is opened,
@@ -528,17 +538,17 @@ public class ContactList
      * MetaContact. If the mouse is clicked on one of the protocol icons, the
      * chat window is opened, configured to use the protocol contact
      * corresponding to the given icon.
-     * 
+     *
      * When the right mouse button is clicked on a contact cell, the cell is
      * selected and the <tt>ContactRightButtonMenu</tt> is opened.
-     * 
+     *
      * When the right mouse button is clicked on a group cell, the cell is
      * selected and the <tt>GroupRightButtonMenu</tt> is opened.
-     * 
+     *
      * When the middle mouse button is clicked on a cell, the cell is selected.
      */
     public void mouseClicked(MouseEvent e)
-    {        
+    {
         int selectedIndex = this.getSelectedIndex();
         Object selectedValue = this.getSelectedValue();
 
@@ -553,10 +563,10 @@ public class ContactList
         if (selectedValue instanceof MetaContactGroup)
         {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
-            
+
             // Closes or opens a group on a double click.
             if (e.getClickCount() > 1)
-            {   
+            {
                 if (listModel.isGroupClosed(group))
                 {
                     listModel.openGroup(group);
@@ -693,11 +703,11 @@ public class ContactList
     public void mouseEntered(MouseEvent e)
     {
     }
-    
+
     public void mouseExited(MouseEvent e)
     {
     }
-    
+
     /**
      * Handle a mouse pressed event over the contact list.
      *
@@ -749,12 +759,12 @@ public class ContactList
                 Image image = new BufferedImage(component.getWidth(),
                     component.getHeight(),
                     BufferedImage.TYPE_INT_ARGB);
-                
+
                 Graphics g = image.getGraphics();
-                
+
                 g.setColor(getBackground());
                 g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
-                
+
                 component.paint(image.getGraphics());
                 draggedElement = new ContactListDraggable(  this,
                                                             mContact,
@@ -787,7 +797,7 @@ public class ContactList
                 }
             }
         }
-        
+
         if (draggedElement != null)
         {
             mainFrame.setGlassPane(draggedElement);
@@ -798,7 +808,7 @@ public class ContactList
             draggedElement.setLocation(p);
         }
     }
-    
+
     /**
      * If we are moving a <tt>Contact</tt> or <tt>MetaContact</tt> we
      * update the coordinates of the dragged element and paint it at its new
@@ -816,7 +826,7 @@ public class ContactList
             draggedElement.repaint();
         }
     }
-    
+
     /**
      * If we were performing a drag'n drop operation when the mouse is released,
      * complete it by moving the <tt>Contact</tt> and/or <tt>MetaContact</tt> enclosed
@@ -858,7 +868,7 @@ public class ContactList
                                 contact,
                                 contactDest).start();
                         }
- 
+
                     }
                 }
             }
@@ -918,7 +928,7 @@ public class ContactList
     /**
      * Returns the component positioned at the given x in the given container.
      * It's used like getComponentAt.
-     * 
+     *
      * @param c the container where to search
      * @param x the x coordinate of the searched component
      * @return the component positioned at the given x in the given container
@@ -1047,7 +1057,7 @@ public class ContactList
 
         /**
          * Refreshes the given group content.
-         * 
+         *
          * @param group the group to update
          */
         private class RefreshGroup
@@ -1109,7 +1119,7 @@ public class ContactList
 
         /**
          * Refreshes the given contact content.
-         * 
+         *
          * @param group the contact to refresh
          */
         private class RefreshContact
@@ -1164,7 +1174,7 @@ public class ContactList
 
     /**
      * Refreshes the given group content.
-     * 
+     *
      * @param group the group to refresh
      */
     public void modifyGroup(MetaContactGroup group)
@@ -1220,7 +1230,7 @@ public class ContactList
 
     /**
      * Refreshes the given meta contact content.
-     * 
+     *
      * @param contact the meta contact to refresh
      */
     public void refreshContact(MetaContact contact)
@@ -1238,7 +1248,7 @@ public class ContactList
             }
         }
     }
-    
+
     /**
      * Refreshes the whole contact list.
      */
@@ -1282,10 +1292,10 @@ public class ContactList
             }
         }
     }
-        
+
     /**
      * Selects the given object in the list.
-     * 
+     *
      * @param o the object to select
      */
     public void setSelectedValue(Object o)
@@ -1303,7 +1313,7 @@ public class ContactList
 
     /**
      * Returns the right button menu for a contact.
-     * 
+     *
      * @return the right button menu for a contact
      */
     public ContactRightButtonMenu getContactRightButtonMenu()
@@ -1313,7 +1323,7 @@ public class ContactList
 
     /**
      * Returns the right button menu for a group.
-     * 
+     *
      * @return the right button menu for a group
      */
     public GroupRightButtonMenu getGroupRightButtonMenu()
@@ -1323,20 +1333,20 @@ public class ContactList
 
     /**
      * Sets the showOffline property.
-     * 
+     *
      * @param isShowOffline TRUE to show all offline users, FALSE to hide
      *            offline users.
      */
     public void setShowOffline(boolean isShowOffline)
     {
         int listSize = listModel.getSize();
-        
+
         listModel.setShowOffline(isShowOffline);
-        
+
         ConfigurationManager.setShowOffline(isShowOffline);
-        
+
         int newListSize = listModel.getSize();
-        
+
         //hide offline users
         if(!isShowOffline && listSize > 0)
         {
@@ -1358,12 +1368,12 @@ public class ContactList
             }
             else
                 listModel.contentAdded(0, newListSize - 1);
-        }   
+        }
     }
 
     /**
      * Returns the main frame.
-     * 
+     *
      * @return the main frame
      */
     public MainFrame getMainFrame()
@@ -1500,7 +1510,7 @@ public class ContactList
             this.srcContact = srcContact;
             this.destGroup = destGroup;
         }
-    
+
         public void run()
         {
             if (!ConfigurationManager.isMoveContactConfirmationRequested())

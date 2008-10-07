@@ -700,7 +700,8 @@ public class MetaContactListServiceImpl
 
         //make sure that "parent" does not already contain a subgroup called
         //"groupName"
-        Iterator<MetaContactGroupImpl> subgroups = parent.getSubgroups();
+        Iterator<MetaContactGroupImpl> subgroups
+                            = ((MetaContactGroupImpl)parent).getSubgroups();
 
         while(subgroups.hasNext())
         {
@@ -2128,11 +2129,25 @@ public class MetaContactListServiceImpl
                     evt.getSourceContact());
 
             if( ContactPropertyChangeEvent.PROPERTY_DISPLAY_NAME
-                            .equals(evt.getPropertyName())
-                && evt.getOldValue() != null
-                && ((String)evt.getOldValue()).equals(mc.getDisplayName()))
+                            .equals(evt.getPropertyName()))
             {
-                renameMetaContact(mc, (String)evt.getNewValue());
+                if( evt.getOldValue() != null
+                    && ((String)evt.getOldValue()).equals(mc.getDisplayName()))
+                {
+                    renameMetaContact(mc, (String)evt.getNewValue());
+                }
+                else
+                {
+                    //we get here if the name of a contact has changed but the
+                    //meta contact list is not going to reflect any change
+                    //because it is not displaying that name. in this case we
+                    //simply make sure everyone (e.g. the storage manager)
+                    //knows about the change.
+                    fireProtoContactEvent(evt.getSourceContact(),
+                                    ProtoContactEvent.PROTO_CONTACT_MODIFIED,
+                                    mc,
+                                    mc);
+                }
             }
             else if( ContactPropertyChangeEvent.PROPERTY_IMAGE
                             .equals(evt.getPropertyName())
@@ -2532,15 +2547,17 @@ public class MetaContactListServiceImpl
             {
                 listener.protoContactAdded(event);
             }
-            else if (eventName.equals(ProtoContactEvent
-                                      .PROTO_CONTACT_MOVED))
+            else if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_MOVED))
             {
                 listener.protoContactMoved(event);
             }
-            else if (eventName.equals(ProtoContactEvent
-                                      .PROTO_CONTACT_REMOVED))
+            else if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_REMOVED))
             {
                 listener.protoContactRemoved(event);
+            }
+            else if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_MODIFIED))
+            {
+                listener.protoContactModified(event);
             }
         }
     }

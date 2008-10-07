@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user
  * ID and the password of the account.
- * 
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
@@ -113,7 +113,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage(JabberAccountRegistrationWizard wizard)
@@ -265,11 +265,11 @@ public class FirstWizardPage
             public void actionPerformed(ActionEvent evt)
             {
                 logger.debug("Reg OK");
-                
+
                 // Open the new account dialog.
-                
-                jabberNewAccountDialog = new JabberNewAccountDialog(); 
-                
+
+                jabberNewAccountDialog = new JabberNewAccountDialog();
+
                 if (jabberNewAccountDialog.isOK == true)
                 {
                     serverField.setText(jabberNewAccountDialog.server);
@@ -306,7 +306,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getIdentifier</code> to return this
      * page identifier.
-     * 
+     *
      * @return the id of the first wizard page.
      */
     public Object getIdentifier()
@@ -317,7 +317,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getNextPageIdentifier</code> to return
      * the next page identifier - the summary page.
-     * 
+     *
      * @return the id of the next wizard page.
      */
     public Object getNextPageIdentifier()
@@ -328,7 +328,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getBackPageIdentifier</code> to return
      * the next back identifier - the default page.
-     * 
+     *
      * @return the id of the default wizard page.
      */
     public Object getBackPageIdentifier()
@@ -339,7 +339,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getWizardForm</code> to return this
      * panel.
-     * 
+     *
      * @return this wizard page.
      */
     public Object getWizardForm()
@@ -362,6 +362,8 @@ public class FirstWizardPage
     public void commitPage()
     {
         String userID = userIDField.getText();
+
+System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!userID" + userID);
 
         if (!wizard.isModification() && isExistingAccount(userID))
         {
@@ -418,7 +420,7 @@ public class FirstWizardPage
      * Handles the <tt>DocumentEvent</tt> triggered when user types in the
      * UserID field. Enables or disables the "Next" wizard button according to
      * whether the UserID field is empty.
-     * 
+     *
      * @param evt the document event that has triggered this method call.
      */
     public void insertUpdate(DocumentEvent evt)
@@ -432,7 +434,7 @@ public class FirstWizardPage
      * Handles the <tt>DocumentEvent</tt> triggered when user deletes letters
      * from the User ID field. Enables or disables the "Next" wizard button
      * according to whether the User ID field is empty.
-     * 
+     *
      * @param evt the document event that has triggered this method call.
      */
     public void removeUpdate(DocumentEvent evt)
@@ -461,7 +463,7 @@ public class FirstWizardPage
     /**
      * Fills the User ID and Password fields in this panel with the data coming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
@@ -558,10 +560,10 @@ public class FirstWizardPage
 
     /**
      * Checks if the accountName corresponds to an already existing account.
-     * 
+     *
      * @param accountName the name of the account to check
      * @return TRUE if an account with the specified name already exists, FALSE -
-     * otherwise. 
+     * otherwise.
      */
     private boolean isExistingAccount(String accountName)
     {
@@ -581,12 +583,12 @@ public class FirstWizardPage
         }
         return false;
     }
-    
+
     public Object getSimpleForm()
     {
         return userIDPassPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

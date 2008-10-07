@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.resources.*;
  * The Messages class manages the access to the internationalization properties
  * files.
  * 
- * @author Vladimir Škarupelov;
+ * @author Vladimir Skarupelov;
  */
 public class Resources
 {

@@ -39,6 +39,12 @@ public class ProtoContactEvent
     public static final String PROTO_CONTACT_MOVED = "ProtoContactMoved";
 
     /**
+     * Indicates that this event instance was triggered by changing a protocol
+     * specific contact in some way.
+     */
+    public static final String PROTO_CONTACT_MODIFIED = "ProtoContactModified";
+
+    /**
      * Creates an instance of this <tt>ProtoContactEvent</tt>.
      * @param source the proto <tt>Contact</tt> that this event is about.
      * @param eventName the name of the event, one of the PROTO_CONTACT_XXX

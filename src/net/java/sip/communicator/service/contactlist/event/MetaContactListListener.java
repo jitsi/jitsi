@@ -42,6 +42,17 @@ public interface MetaContactListListener
     public void protoContactAdded(ProtoContactEvent evt);
 
     /**
+     * Indicates that one of the protocol specific <tt>Contact</tt> instances
+     * encapsulated by this <tt>MetaContact</tt> has been modified in some way.
+     * The event
+     * added to the list of protocol specific buddies in this
+     * <tt>MetaContact</tt>
+     * @param evt a reference to the corresponding
+     * <tt>ProtoContactEvent</tt>
+     */
+    public void protoContactModified(ProtoContactEvent evt);
+
+    /**
      * Indicates that a protocol specific <tt>Contact</tt> instance has been
      * removed from the list of protocol specific buddies in this
      * <tt>MetaContact</tt>
@@ -101,7 +112,7 @@ public interface MetaContactListListener
      * event.
      */
     public void childContactsReordered(MetaContactGroupEvent evt);
-    
+
     /**
      * Indicates that a MetaContact has been modified.
      * @param evt the MetaContactModifiedEvent containing the corresponding contact

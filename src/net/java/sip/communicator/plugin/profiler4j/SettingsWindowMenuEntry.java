@@ -9,7 +9,7 @@ package net.java.sip.communicator.plugin.profiler4j;
 /**
  * Menu entry for the profiler plug-in
  * 
- * @author Vladimir Å karupelov
+ * @author Vladimir Skarupelov
  */
 import java.awt.event.*;
 import javax.swing.*;

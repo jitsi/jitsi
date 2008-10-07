@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.msnaccregwizz;
@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
  * and the password of the account.
- * 
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
@@ -64,7 +64,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage( MsnAccountRegistrationWizard wizard)
@@ -254,7 +254,7 @@ public class FirstWizardPage
     /**
      * Fills the UIN and Password fields in this panel with the data comming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
@@ -290,12 +290,12 @@ public class FirstWizardPage
         }
         return false;
     }
-    
+
     public Object getSimpleForm()
     {
         return mainPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

@@ -1165,6 +1165,15 @@ public class TestMetaContactList
             collectedMetaContactEvents.add(evt);
         }
 
+        /**
+         * Implements the <tt>MetaContactListListener.protoContactModified</tt>
+         * method with an empty body since we are not interested in proto contact
+         * specific changes (such as the persistent data).
+         */
+        public void protoContactModified(ProtoContactEvent evt)
+        {
+            //currently ignored
+        }
 
         /**
          * Indicates that a protocol specific <tt>Contact</tt> instance has been

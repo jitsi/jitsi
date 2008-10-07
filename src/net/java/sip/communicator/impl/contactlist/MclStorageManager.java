@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.contactlist;
 
 import java.io.*;
 import java.util.*;
+
 import javax.xml.parsers.*;
 
 import org.osgi.framework.*;
@@ -242,7 +243,7 @@ public class MclStorageManager
         this.started = false;
         synchronized(contactListRWLock)
         {
-            this.contactListRWLock.notifyAll();
+            MclStorageManager.contactListRWLock.notifyAll();
         }
     }
 
@@ -372,13 +373,13 @@ public class MclStorageManager
      */
     private void scheduleContactListStorage() throws IOException
     {
-        synchronized(this.contactListRWLock)
+        synchronized(MclStorageManager.contactListRWLock)
         {
             if (!isStarted())
                 return;
 
             this.isModified = true;
-            this.contactListRWLock.notifyAll();
+            MclStorageManager.contactListRWLock.notifyAll();
         }
     }
 
@@ -505,10 +506,10 @@ public class MclStorageManager
         Element metaContactNode =
                     findMetaContactNode(metaContact.getMetaUID());
 
-        Iterator iter = metaContact.getContacts();
+        Iterator<Contact> iter = metaContact.getContacts();
         while (iter.hasNext())
         {
-            Contact item = (Contact)iter.next();
+            Contact item = iter.next();
 
             if(item.getPersistentData() != null)
             {
@@ -651,7 +652,7 @@ public class MclStorageManager
         String accountID,
         Element groupNode,
         MetaContactGroup parentGroup,
-        Map parentProtoGroups)
+        Map<String, ContactGroup> parentProtoGroups)
     {
         //first resolve the group itself.(unless this is the meta contact list
         //root which is already resolved)
@@ -660,7 +661,8 @@ public class MclStorageManager
         //in this map we store all proto groups that we find in this meta group
         //(unless this is the MCL root)in order to pass them as parent
         //references to any subgroups.
-        Map protoGroupsMap = new Hashtable();
+        Map<String, ContactGroup> protoGroupsMap
+                                    = new Hashtable<String, ContactGroup>();
 
         if(parentGroup == null)
         {
@@ -770,8 +772,9 @@ public class MclStorageManager
                 String displayName = XMLUtils.getText(displayNameNode);
 
                 //extract a map of all encapsulated proto contacts
-                List protoContacts
-                    = extractProtoContacts( (Element) currentMetaContactNode
+                List<MclStorageManager.StoredProtoContactDescriptor>
+                    protoContacts = extractProtoContacts(
+                                             (Element) currentMetaContactNode
                                            , accountID
                                            , protoGroupsMap);
 
@@ -781,7 +784,8 @@ public class MclStorageManager
                     continue;
 
                 // Extract contact details.
-                Hashtable details = new Hashtable();
+                Hashtable<String, List<String>> details
+                                    = new Hashtable<String, List<String>>();
                 try
                 {
                     List detailsNodes = XMLUtils.findChildren(
@@ -796,7 +800,7 @@ public class MclStorageManager
                         Object detailsObj = details.get(name);
                         if(detailsObj == null)
                         {
-                            ArrayList ds = new ArrayList();
+                            ArrayList<String> ds = new ArrayList<String>();
                             ds.add(value);
                             details.put(name, ds);
                         }
@@ -923,7 +927,8 @@ public class MclStorageManager
      * contact descriptors.
      * @return a java.util.List containing contact descriptors.
      */
-    private List extractProtoContacts(Element metaContactNode,
+    private List<MclStorageManager.StoredProtoContactDescriptor>
+                 extractProtoContacts(Element metaContactNode,
                                       String accountID,
                                       Map protoGroups)
     {
@@ -1447,6 +1452,43 @@ public class MclStorageManager
             so ... log and @todo one day we'll have a global error  dispatcher */
             logger.error("Writing CL failed after rename of "
                          + evt.getSourceMetaContact(), ex);
+        }
+    }
+
+    /**
+     * Updates the data stored for the contact that caused this event.
+     *
+     * @param evt the MetaContactListEvent containing the corresponding contact
+     */
+    public void protoContactModified(ProtoContactEvent evt)
+    {
+        Element metaContactNode = findMetaContactNode(
+                            evt.getParent().getMetaUID());
+
+        //not sure what to do in case of null. we'll be logging an internal err
+        //for now and that's all.
+        if(metaContactNode == null)
+        {
+            logger.error("Save after proto contact modification failed. "
+                            +"Contact not found: "
+                            + evt.getParent());
+            return;
+        }
+
+        updatePersistentDataForMetaContact(evt.getParent());
+
+        // i don't think we could do anything else in addition to updating the
+        // persistent data.
+
+        try{
+            scheduleContactListStorage();
+        }
+        catch (IOException ex){
+            /**given we're being invoked from an event dispatch thread that was
+            probably triggered by a net operation - we could not do much.
+            so ... log and @todo one day we'll have a global error  dispatcher */
+            logger.error("Writing CL failed after rename of "
+                         + evt.getParent(), ex);
         }
     }
 

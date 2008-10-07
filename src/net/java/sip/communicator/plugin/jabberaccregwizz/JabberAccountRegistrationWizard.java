@@ -11,8 +11,11 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.*;
+
+import com.jcraft.jsch.*;
 
 /**
  * The <tt>JabberAccountRegistrationWizard</tt> is an implementation of the
@@ -24,6 +27,9 @@ import org.osgi.framework.*;
 public class JabberAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private static final Logger logger =
+        Logger.getLogger(JabberAccountRegistrationWizard.class);
+
     private static final String GOOGLE_USER_SUFFIX = "gmail.com";
 
     private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
@@ -63,11 +69,11 @@ public class JabberAccountRegistrationWizard
     {
         return Resources.getImage(Resources.PROTOCOL_ICON);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
      * Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
     public byte[] getPageImage()
@@ -143,7 +149,7 @@ public class JabberAccountRegistrationWizard
 
     /**
      * Installs the account created through this wizard.
-     * 
+     *
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
@@ -168,7 +174,7 @@ public class JabberAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
-     * 
+     *
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
      * @param user the user identifier
@@ -180,6 +186,10 @@ public class JabberAccountRegistrationWizard
         String userName,
         String passwd)
     {
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Preparing to install account for user " + userName);
+        }
         Hashtable accountProperties = new Hashtable();
 
         if (registration.isRememberPassword())
@@ -223,6 +233,13 @@ public class JabberAccountRegistrationWizard
 
         try
         {
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Will install account for user " + userName
+                             + " with the following properties."
+                             + accountProperties);
+            }
+
             AccountID accountID = providerFactory.installAccount(
                 userName, accountProperties);
 
@@ -235,6 +252,7 @@ public class JabberAccountRegistrationWizard
         }
         catch (IllegalArgumentException exc)
         {
+            logger.warn("Failed to create a jabber account.", exc);
             JabberAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
                     Resources.getString("error"),
@@ -242,6 +260,7 @@ public class JabberAccountRegistrationWizard
         }
         catch (IllegalStateException exc)
         {
+            logger.warn("Failed to create a jabber account.", exc);
             JabberAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
                     Resources.getString("error"),
@@ -271,7 +290,7 @@ public class JabberAccountRegistrationWizard
     /**
      * Indicates if this wizard is opened for modification or for creating a
      * new account.
-     * 
+     *
      * @return <code>true</code> if this wizard is opened for modification and
      * <code>false</code> otherwise.
      */
@@ -282,7 +301,7 @@ public class JabberAccountRegistrationWizard
 
     /**
      * Returns the wizard container, where all pages are added.
-     * 
+     *
      * @return the wizard container, where all pages are added
      */
     public WizardContainer getWizardContainer()
@@ -293,7 +312,7 @@ public class JabberAccountRegistrationWizard
     /**
      * Returns the registration object, which will store all the data through
      * the wizard.
-     * 
+     *
      * @return the registration object, which will store all the data through
      * the wizard
      */
@@ -310,7 +329,7 @@ public class JabberAccountRegistrationWizard
     {
         return new Dimension(300, 480);
     }
-    
+
     /**
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
@@ -332,9 +351,9 @@ public class JabberAccountRegistrationWizard
     /**
      * Sets the modification property to indicate if this wizard is opened for
      * a modification.
-     * 
+     *
      * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
+     * or for creating a new account.
      */
     public void setModification(boolean isModification)
     {

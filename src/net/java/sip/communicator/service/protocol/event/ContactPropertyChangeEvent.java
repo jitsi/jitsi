@@ -17,12 +17,18 @@ public class ContactPropertyChangeEvent
      * contact.
      */
     public static final String PROPERTY_DISPLAY_NAME = "DisplayName";
-    
+
      /**
      * Indicates that a change has occurred in the image of the source
      * contact.
      */
     public static final String PROPERTY_IMAGE = "Image";
+
+    /**
+     * Indicates that a change has occurred in the data that the contact is
+     * storing in external sources.
+     */
+    public static final String PROPERTY_PERSISTENT_DATA = "PersistentData";
 
     /**
      * Creates a ContactPropertyChangeEvent indicating that a change has

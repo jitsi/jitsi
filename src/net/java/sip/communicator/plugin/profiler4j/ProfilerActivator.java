@@ -14,7 +14,7 @@ import org.osgi.framework.*;
 /**
  * Activates the profiler plug-in.
  * 
- * @author Vladimir Škarupelov
+ * @author Vladimir Skarupelov
  */
 public class ProfilerActivator implements BundleActivator {
 
