@@ -212,7 +212,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
-                    + "user " + calleeAddress + " is unknwon to us."
+                    + "User " + calleeAddress + " is unknown to us."
                     , OperationFailedException.INTERNAL_ERROR);
         }
 
@@ -241,7 +241,7 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         catch (XMPPException ex)
         {
-            logger.warn("could not retrieves info for " + fullCalleeURI, ex);
+            logger.warn("could not retrieve info for " + fullCalleeURI, ex);
         }
 
         try
@@ -419,7 +419,7 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         catch (XMPPException ex)
         {
-            logger.error("Failed to accept inoming jingle request : " + ex);
+            logger.error("Failed to accept incoming jingle request : " + ex);
             return;
         }
 
