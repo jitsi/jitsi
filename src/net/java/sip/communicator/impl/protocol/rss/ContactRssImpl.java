@@ -108,7 +108,15 @@ public class ContactRssImpl
         this.contactID = contactID;
         //this.rssURL = rssURL;
         this.parentProvider = parentProvider;
-        this.rssFeedReader = new RssFeedReader(rssURL, persistentData);
+        if(persistentData == null)
+        {
+            this.rssFeedReader = new RssFeedReader(rssURL);
+        }
+        else
+        {
+            this.rssFeedReader = RssFeedReader.deserialize(rssURL, persistentData);
+            this.nickName = this.rssFeedReader.getTitle();
+        }
         //this.rssFeedReader = rssFeedReader;
     }
 
@@ -358,11 +366,12 @@ public class ContactRssImpl
      */
     public String getPersistentData()
     {
-        RssItemKey lastItem = rssFeedReader.getLastItemKey();
+        /*RssItemKey lastItem = rssFeedReader.getLastItemKey();
         if (lastItem != null)
             return lastItem.serialize();
         else
-            return null;
+            return null;*/
+        return  rssFeedReader.serialize();
     }
 
     /***

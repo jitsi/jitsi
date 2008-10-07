@@ -40,7 +40,7 @@ public class RssFeedReader
      * The title of the feed, which will be used as the display name
      * of the contact/feed.
      */
-    private String title  = "No feed avalaible !";
+    private String title = "No feed avalaible !";
 
     /**
      * The object charged to retrieve the feed incoming from the relevant
@@ -71,24 +71,12 @@ public class RssFeedReader
      *
      * @param contactRssURL the URL of this feed.
      */
-    public RssFeedReader(URL contactRssURL, String persistentData)
+    public RssFeedReader(URL contactRssURL)
         throws OperationFailedException, FileNotFoundException
     //public RssFeedReader(URL contactRssURL, RssItemKey lastItemKey)
     {
         this.rssURL = contactRssURL;
-        // If this is the first time we instanciate this feed.
-        if(persistentData != null)
-        {
-            this.lastItemKey = RssItemKey.deserialize(persistentData);
-            // An error has occured, printing it and starting from a clean
-            // instance (no more memory of what have been done).
-            if(this.lastItemKey == null)
-            {
-                logger.error("Failed to deserialize RSS settings: " +
-                         persistentData);
-                        //new Exception("Parse itemDate error: " + settings));
-            }
-        }
+        this.lastItemKey  = null;
         // Try to retrieve the feed and to complete this instanciation.
         this.retrieveFlow();
     }
@@ -351,4 +339,52 @@ public class RssFeedReader
             return date1.compareTo(date2);
         }
     }    
+
+    public String serialize()
+    {
+        StringBuffer result = new StringBuffer();
+
+        if(this.lastItemKey != null)
+        {
+            result.append(lastItemKey.serialize());
+        }
+        result.append("displayName=");
+        result.append(this.title);
+        result.append(";");
+
+        return result.toString();
+    }
+
+    public static RssFeedReader deserialize(URL contactRssURL, String settings)
+        throws OperationFailedException, FileNotFoundException
+    {
+        StringTokenizer reader = new StringTokenizer(settings, ";");
+        String tmpTitle = null;
+
+        while (reader.hasMoreTokens())
+        {
+            String data[] = reader.nextToken().split("=", 2);
+
+            if (data[0].equals("displayName"))
+            {
+                if (data.length == 2)
+                {
+                    tmpTitle = data[1];
+                }
+                else
+                {
+                    logger.error("Failed to deserialize RSS settings. Parse displayName error: " +
+                            settings,
+                            new Exception("Parse itemUri error: " + settings));
+                    return null;
+                }
+            }
+        }
+        RssItemKey tmpKey = RssItemKey.deserialize(settings);
+        RssFeedReader rssFeedReader = new RssFeedReader(contactRssURL);
+        rssFeedReader.lastItemKey  = tmpKey;
+        rssFeedReader.title = tmpTitle;
+
+        return rssFeedReader;
+    }
 }

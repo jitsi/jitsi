@@ -201,13 +201,12 @@ public class RssItemKey
         return null;
     }
 
-    /***
-     * Returns the textual representation of the settings object. This can
-     * be easily de-serialized with a call to <code>deserialize()</code>.
+    /**
+     * Serializes current key to a textual representation.
      * 
-     * @see #deserialize(String)
+     * @return String containing the textual representation of the current key.
      */
-    public String toString()
+    public String serialize()
     {
         StringBuffer result = new StringBuffer();
         
@@ -229,16 +228,18 @@ public class RssItemKey
 
         return result.toString();
     }
-    
-    /***
-     * Serializes current key to a textual representation.
+
+    /**
+     * Returns the textual representation of the settings object. This can
+     * be easily de-serialized with a call to <code>deserialize()</code>.
      * 
-     * @return String containing the textual representation of the current key.
+     * @see #deserialize(String)
      */
-    public String serialize()
+    public String toString()
     {
-        return this.toString();
+        return this.serialize();
     }
+    
 
     public int compareTo(RssItemKey obj)
     {
