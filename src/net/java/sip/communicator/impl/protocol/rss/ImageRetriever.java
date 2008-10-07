@@ -249,6 +249,7 @@ public class ImageRetriever extends Thread
     private byte[] getFavIconFromSiteRoot(ContactRssImpl contact)
     {
         Image selectedIcon;
+        URL location = null;
 
         // we use these to get the best possible icon in case our favicon is a
         // multi-page icon.
@@ -265,7 +266,7 @@ public class ImageRetriever extends Thread
         {
             URL feedLocation = new URL(contact.getRssFeedReader().getURL());
 
-            URL location = new URL(feedLocation.getProtocol() + "://"
+            location = new URL(feedLocation.getProtocol() + "://"
                             + feedLocation.getHost() + "/favicon.ico");
 
             ICOFile favicon = new ICOFile(location);
@@ -323,7 +324,8 @@ public class ImageRetriever extends Thread
         }
         catch (Exception ex)
         {
-            logger.warn("Unknown error on favicon retrieval. " + ex, ex);
+            logger.warn("Unknown error on favicon retrieval. " + ex +
+                    ". Error for location: " + location, ex);
             logger.debug("", ex);
         }
 

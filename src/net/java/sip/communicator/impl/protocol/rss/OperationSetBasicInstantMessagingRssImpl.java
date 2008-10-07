@@ -129,8 +129,8 @@ public class OperationSetBasicInstantMessagingRssImpl
 
         RssFeedReader rssFeed = rssContact.getRssFeedReader();
 
-        //try
-        //{
+        try
+        {
             //we create the message containing the new items retrieved
             news = rssFeed.getNewFeeds();
 
@@ -143,8 +143,8 @@ public class OperationSetBasicInstantMessagingRssImpl
                         rssContact, RssStatusEnum.ONLINE);
 
             }
-        //}
-        /*catch (FileNotFoundException ex)
+        }
+        catch (FileNotFoundException ex)
         {
             //RSS flow no longer exists - ask user to remove;
             handleFileNotFoundException(rssContact, ex);
@@ -153,14 +153,14 @@ public class OperationSetBasicInstantMessagingRssImpl
                          + ex.getMessage());
             logger.debug(ex);
             return;
-        }*/
-        /*catch (OperationFailedException ex)
+        }
+        catch (OperationFailedException ex)
         {
             logger.error("Failed to retrieve RSS flow. Error was: "
                          + ex.getMessage()
                          , ex);
             return;
-        }*/
+        }
 
         if(news != null)
         {

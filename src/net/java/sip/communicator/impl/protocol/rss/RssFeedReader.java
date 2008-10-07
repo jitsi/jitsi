@@ -146,7 +146,7 @@ public class RssFeedReader
         /*for(int i=0; i < items.length; ++i)
         {
             System.out.println("CHENZO item_list[" + i + "] URI: " + items[i].getUri()
-                    + ", Date: " + items[i].getUpdatedDate() + ", Title: " +
+                    + ", Date: " + items[i].getPublishedDate() + ", Title: " +
                     items[i].getTitle());
         }*/
         
@@ -175,12 +175,16 @@ public class RssFeedReader
      * @return textual representation of the feed items.
      */
     public synchronized String getNewFeeds()
+        throws OperationFailedException, FileNotFoundException
     {
         String newsAbstract = null;
         StringBuffer printedFeed = new StringBuffer();
         
         int i;
         boolean hasSomeNews = false;
+
+        // Try to retrieve the feed and to complete this instanciation.
+        this.retrieveFlow();
         
         // TODO move this message in a resources file.
         if (items.length == 0)
@@ -209,6 +213,10 @@ public class RssFeedReader
             return null;
         }
         lastItemKey = new RssItemKey(items[items.length - 1]);
+        /*System.out.println("CHENZO LAST_ITEM_KEY link: " +
+                items[items.length - 1].getLink() +
+                " Date: " +
+                items[items.length - 1].getPublishedDate());*/
         printedFeed
             .append ("<em>Send anything to refresh this feed...</em><br>\n");
         return printedFeed.toString();
