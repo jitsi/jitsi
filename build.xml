@@ -1841,7 +1841,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-ZRTP4J -->
     <target name="bundle-zrtp4j">
-        <jar compress="true" destfile="lib/bundle/zrtp4j.jar"
+        <jar compress="true" destfile="${bundles.dest}/zrtp4j.jar"
             filesetmanifest="merge">
 
             <zipfileset src="${lib.noinst}/zrtp4j-0.9.0.jar" prefix=""/>
