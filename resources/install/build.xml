@@ -665,7 +665,6 @@
         <javafilelist dir="${macosx.resrc.dir}"
                       files="versionupdate.properties"/>
       </jarbundler>
-      <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/log"/>
       
       <!-- Add the url types in the Info.plist file -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
