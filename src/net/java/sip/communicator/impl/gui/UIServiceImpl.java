@@ -705,27 +705,82 @@ public class UIServiceImpl
 
         if (!osName.startsWith("Mac"))
         {
-            try
+
+            /*
+             * Attempt to use the OS-native LookAndFeel instead of
+             * SIPCommLookAndFeel.
+             */
+            String laf;
+            boolean lafIsSet = false;
+
+            if (osName.contains("Windows"))
             {
-                SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
-                SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
-
-                // Check the isLookAndFeelDecorated property and set the appropriate
-                // default decoration.
-                boolean isDecorated
-                    = new Boolean(GuiActivator.getResources().
-                        getSettingsString("isLookAndFeelDecorated")).booleanValue();
-
-                if (isDecorated)
-                {
-                    JFrame.setDefaultLookAndFeelDecorated(true);
-                    JDialog.setDefaultLookAndFeelDecorated(true);
-                }
-
-                UIManager.setLookAndFeel(lf);
+                laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
             }
-            catch (UnsupportedLookAndFeelException e) {
-                logger.error("The provided Look & Feel is not supported.", e);
+            else if (osName.contains("Linux"))
+            {
+                laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+            }
+            else
+            {
+                laf = null;
+            }
+
+            if (laf != null)
+            {
+                try
+                {
+                    UIManager.setLookAndFeel(laf);
+                    lafIsSet = true;
+                }
+                catch (ClassNotFoundException ex)
+                {
+                    /*
+                     * Ignore the exceptions because we're only trying to set
+                     * the native LookAndFeel and, if it fails, we'll use
+                     * SIPCommLookAndFeel.
+                     */
+                }
+                catch (InstantiationException ex)
+                {
+                }
+                catch (IllegalAccessException ex)
+                {
+                }
+                catch (UnsupportedLookAndFeelException ex)
+                {
+                }
+            }
+
+            if (!lafIsSet)
+            {
+                try
+                {
+                    SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
+                    SIPCommLookAndFeel
+                        .setCurrentTheme(new SIPCommDefaultTheme());
+
+                    // Check the isLookAndFeelDecorated property and set the
+                    // appropriate
+                    // default decoration.
+                    boolean isDecorated =
+                        new Boolean(GuiActivator.getResources()
+                            .getSettingsString("isLookAndFeelDecorated"))
+                            .booleanValue();
+
+                    if (isDecorated)
+                    {
+                        JFrame.setDefaultLookAndFeelDecorated(true);
+                        JDialog.setDefaultLookAndFeelDecorated(true);
+                    }
+
+                    UIManager.setLookAndFeel(lf);
+                }
+                catch (UnsupportedLookAndFeelException e)
+                {
+                    logger.error("The provided Look & Feel is not supported.",
+                        e);
+                }
             }
         }
     }
