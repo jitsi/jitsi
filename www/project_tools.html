@@ -59,17 +59,12 @@
 If your project uses a site traffic tracker like Google Analytics, this is a good place
 to inject it.
 -->
-<!--
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+
+<script type="text/javascript">
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 </script>
 <script type="text/javascript">
-	_uacct = "UA-319188-2";
-	urchinTracker();
-</script>
--->
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-</script>
-<script type="text/javascript">
-	_uacct = "UA-319188-2";
-	urchinTracker();
+	var pageTracker = _gat._getTracker("UA-319188-1");
+	pageTracker._trackPageview();
 </script>
