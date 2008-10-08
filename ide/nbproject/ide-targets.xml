@@ -14,7 +14,7 @@
         <nbjpdastart addressproperty="jpda.address"
                      name="SIP Communicator"
                      transport="dt_socket">
-            <classpath  refid="project.class.path"/>
+            <classpath  refid="debug.class.path"/>
             <sourcepath refid="project.source.path"/>
         </nbjpdastart>
 
@@ -22,7 +22,7 @@
         <java fork="false"
               classname="net.java.sip.communicator.launcher.SIPCommunicator"
               failonerror="true">
-            <classpath  refid="project.class.path"/>
+            <classpath  refid="debug.class.path"/>
             <!-- Sets the charset for the messages -->
             <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
             <!-- Tell felix to run sip-communicator-->
