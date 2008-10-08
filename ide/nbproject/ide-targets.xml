@@ -5,10 +5,12 @@
      to make it active on your own system.
     -->
 <project basedir=".." name="SIP Communicator-IDE">
+
     <import file="../build.xml"/>
-    <target depends="-deploy-os-specific-bundles"
-            description="Starts felix and runs sip-comunicator gui (use latest build)."
-            name="debug-nb-wholeApp">
+
+    <target name="debug-nb-wholeApp"
+            depends="-deploy-os-specific-bundles"
+            description="Starts felix and runs sip-comunicator gui (use latest build).">
         <nbjpdastart addressproperty="jpda.address"
                      name="SIP Communicator"
                      transport="dt_socket">
@@ -50,4 +52,5 @@
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
         </java>
     </target>
+
 </project>

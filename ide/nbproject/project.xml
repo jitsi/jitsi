@@ -47,6 +47,19 @@
                 <action name="rebuild">
                     <target>rebuild</target>
                 </action>
+                <action name="debug.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>debug-selected-file-in-test</target>
+                    <context>
+                        <property>test.name</property>
+                        <folder>test</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
             </ide-actions>
             <export>
                 <type>folder</type>
