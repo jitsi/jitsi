@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created by Brian Burch on October 8, 2008
+     Netbeans debug targets are now held in this file. You should copy it to 
+     ./nbproject/ide-file-targets.xml (when NetBeans is not running!)
+     to make it active on your own system.
+    -->
+<project basedir=".." name="SIP Communicator-IDE">
+
+    <import file="../build.xml"/>
+
+    <target name="debug-selected-file-in-test"
+            depends="init,version,prepare-single-test,prepare-all-tests"
+            description="Starts felix and debugs the selected Service Impl Compatibility Kit" >
+        <!-- This target runs felix under the debugger, but it can only work with
+             unit test classes that extend TestSuite and implements BundleActivator
+             e.g. GibberishProtocolProviderServiceLick -->
+        <fail unless="test.name"
+              message="debug impossible when 'test.name' property not defined!" />
+
+        <ant antfile="build.xml" inheritall="false" target="-deploy-os-specific-bundles"/>
+
+        <nbjpdastart name="${test.name}"
+                     addressproperty="jpda.address"
+                     transport="dt_socket" >
+            <classpath refid="debug.class.path" />
+            <sourcepath refid="project.source.path" />
+        </nbjpdastart>
+
+        <!-- warning! fork=true prevents debug break points latching... -->
+        <java fork="true"
+              classname="org.apache.felix.main.Main"
+              failonerror="true" >
+            <classpath refid="debug.class.path"/>
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+            <arg value="${test.name}"/>
+
+            <!-- The following two configure felix telling it that it's running
+                 as a test environment-->
+            <sysproperty key="felix.config.properties"
+                value="file:${lib}/felix.unit.test.properties"/>
+
+            <!-- Tell the slick runner where to store test results. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
+                value="${test.reports.dir}"/>
+
+            <!-- Tell the slick runner which Test class to run. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
+                value="${simple.test.names}"/>
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="${lib}/logging.properties"/>
+
+            <!-- Tell all protocol testers their account details. -->
+            <syspropertyset id="accounts">
+              <propertyref prefix="accounts"/>
+              <propertyref prefix="net"/>
+            </syspropertyset>
+        </java>
+
+    </target>
+
+</project>
+
