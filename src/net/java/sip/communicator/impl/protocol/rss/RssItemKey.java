@@ -27,46 +27,65 @@ public class RssItemKey
     private static final Logger logger =
                 Logger.getLogger(OperationSetPersistentPresenceRssImpl.class);
 
-    /***
+    /**
      * Date of the last show post. If it cannot be used, it's null. 
      */
     private Date itemDate;
     
-    /***
+    /**
      * URI (link) of the last shown post. If it's not used, it's null.
      */
     private String itemUri;
     
-    /***
+    /**
      * Flag to mark whether date is used to mark items (<code>true</code>) or
      * URI (<code>false</code>)
      */
     private boolean usesDate;
 
+    /**
+     * Sets the date format for serializing and deserialiazing.
+     */
     private static SimpleDateFormat formatter = 
        new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
     
-    /***
-     * Creates a RssContactSettings object that uses date to identify feed
-     * items, with the last item date specified by the <tt>lastPostDate</tt>
-     * parameter.
-     * @param itemDate date/time of the item
+    /**
+     * Creates a RssContactSettings object that uses date if possible or at
+     * least URI to identify feed items.
+     * @param entry The last Syndentry of the RSS feed.
      */
     public RssItemKey(SyndEntry entry)
     {
         this.itemUri = entry.getUri();
         this.itemDate = entry.getPublishedDate();
         this.usesDate = (this.itemDate != null);
+        // Some feeds are storing the URI of the entry in the link tag. Do not
+        // ask me why, but it is llike this.
+        if(!usesDate && itemUri == null)
+        {
+            this.itemUri = entry.getLink();
+        }
     }
 
-    public RssItemKey(Date date)
+    /**
+     * Creates a RssContactSettings object that uses date to identify feed
+     * items, with the last item date specified by the <tt>Date</tt>
+     * parameter.
+     * @param date date/time of the last item of the RSS feed.
+     */
+    private RssItemKey(Date date)
     {
         this.itemUri = null;
         this.itemDate = date;
         this.usesDate = true;
     }
 
-    public RssItemKey(String uri)
+    /**
+     * Creates a RssContactSettings object that uses URI to identify feed
+     * items.
+     * @param uri The URI of the last RSS entry.
+     */
+    private RssItemKey(String uri)
     {
         this.itemUri = uri;
         this.itemDate = null;
@@ -132,13 +151,17 @@ public class RssItemKey
         {
             String data[] = reader.nextToken().split("=", 2);
 
+            // Parse the date item.
             if (data[0].equals("itemDate"))
             {
                 if (data.length == 2)
                 {
                     try
                     {
-                        date = formatter.parse(data[1]);
+                        if(!data[1].equals("null"))
+                        {
+                            date = formatter.parse(data[1]);
+                        }
                     }
                     catch (ParseException e)
                     {
@@ -156,11 +179,15 @@ public class RssItemKey
                     return null;
                 }
             }
+            // Parse the uri item.
             else if (data[0].equals("itemUri"))
             {
                 if (data.length == 2)
                 {
-                    uri = data[1];
+                    if(!data[1].equals("null"))
+                    {
+                        uri = data[1];
+                    }
                 }
                 else
                 {
@@ -170,6 +197,7 @@ public class RssItemKey
                     return null;
                 }
             }
+            // Parse the usesDate item.
             else if (data[0].equals("usesDate"))
             {
                 if (data.length == 2)
@@ -187,6 +215,7 @@ public class RssItemKey
             }
         }
         
+        // If the initialization was good, we create a new RssItemKey.
         if(useInitialized)
         {
             if(isDateUsed && date != null)
@@ -198,6 +227,7 @@ public class RssItemKey
                 return new RssItemKey(uri);
             }
         }
+        // Else we must return null, has the persistentData is buggy.
         return null;
     }
 
@@ -210,18 +240,21 @@ public class RssItemKey
     {
         StringBuffer result = new StringBuffer();
         
+        // Create the date item for the persistentData.
         result.append("itemDate=");
         result.append(
                 itemDate == null ?
-                "" : formatter.format(itemDate));
+                "null" : formatter.format(itemDate));
         result.append(";");
 
+        // Create the uri item for the persistentData.
         result.append("itemUri=");
         result.append(
                 itemUri == null ?
-                "" : itemUri);
+                "null" : itemUri);
         result.append(";");
 
+        // Create the usesDate item for the persistentData.
         result.append("usesDate=");
         result.append(usesDate);
         result.append(";");
@@ -240,7 +273,11 @@ public class RssItemKey
         return this.serialize();
     }
     
-
+    /**
+     * Compare 2 RssItemKey. Compare items with date or with uri, but return
+     * always 1 when we can't say anything about order (one is date, the other
+     * is uri or the obj is null).
+     */
     public int compareTo(RssItemKey obj)
     {
         if(obj == null)
