@@ -186,6 +186,16 @@
         </fileset>
     </path>
 
+    <path id="debug.class.path">
+        <!-- used by netbeans but might be useful elsewhere. -->
+        <path refid="project.class.path"/>
+
+        <!-- Include all test JAR files . -->
+        <fileset dir="${bundles.dest}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
     <!-- Import installation build xml -->
     <import file="${inst.resrc}/build.xml"/>
 
@@ -659,59 +669,6 @@
     <!--CRUISE CONTROL BUILD LOOP target-->
     <target name="cc-buildloop" depends="rebuild,test"
             description="Comprehensive (paranoid) rebuild and test (used by Cruise Control)."/>
-
-
-    <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
-
-    <!--netbeans only - debug a single test file under felix and jUnit-->
-    <target name="debug-selected-file"
-            depends="init,version,prepare-single-test,prepare-all-tests">
-        <!--internal-target- starts felix and debugs the selected
-                             Service Impl Compatibility Kit -->
-
-      <fail unless="test.name"
-            message="debug impossible when 'test.name' property not defined!" />
-
-        <nbjpdastart name="${test.name}"
-                     addressproperty="jpda.address"
-                     transport="dt_socket" >
-            <classpath refid="project.class.path" />
-            <sourcepath refid="project.source.path" />
-        </nbjpdastart>
-
-        <java fork="true"
-              classname="org.apache.felix.main.Main"
-              classpathref="project.class.path"
-              failonerror="true" >
-           <jvmarg value="-Xdebug"/>
-           <jvmarg value="-Xnoagent"/>
-           <jvmarg value="-Djava.compiler=none"/>
-           <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
-           <arg value="${test.name}"/>
-
-            <!-- The following two configure felix telling it that it's running
-                 as a test environment-->
-            <sysproperty key="felix.config.properties"
-                value="file:${lib}/felix.unit.test.properties"/>
-
-            <!-- Tell the slick runner where to store test results. -->
-            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
-                value="${test.reports.dir}"/>
-
-            <!-- Tell the slick runner which Test class to run. -->
-            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
-                value="${simple.test.names}"/>
-
-            <!-- Tell the slick runner which Test class to run.
-            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
-                value="SlicklessTests"/> -->
-
-            <!-- Tell java.util.logging about our logging preferences -->
-            <sysproperty key="java.util.logging.config.file"
-                value="${lib}/logging.properties"/>
-
-        </java>
-    </target>
 
 
     <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -       -->
