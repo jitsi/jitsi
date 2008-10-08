@@ -24,6 +24,10 @@ public class SIPCommToggleButtonUI
     private final static BufferedImage buttonPressedBG
         = ImageLoader.getImage(ImageLoader.TOGGLE_BUTTON_PRESSED);
     
+    private boolean bufferIsPressed = false;
+    private BufferedImage paintBuffer = null;
+    private Component bufferedComponent = null;
+    
     // ********************************
     //          Create PLAF
     // ********************************
@@ -52,43 +56,70 @@ public class SIPCommToggleButtonUI
     
     public void paint(Graphics g, JComponent c)
     {   
-        AntialiasingManager.activateAntialiasing(g);
-        
         AbstractButton button = (AbstractButton)c;
         ButtonModel model = button.getModel();
         
-        BufferedImage leftImg;
-        BufferedImage middleImg;
-        BufferedImage rightImg;
+        boolean isShownPressed = model.isArmed() && model.isPressed()
+        	|| model.isSelected();
         
-        int imgWidth;
-        int imgHeight;
-        int indentWidth  = 10;
+    	// check if the context of the buffer is consistent or else recreate it
+        if (paintBuffer == null || c != bufferedComponent
+        		|| bufferIsPressed != isShownPressed)
+        {
+        	// create a buffer in the best available format
+        	paintBuffer = ((Graphics2D) g).getDeviceConfiguration().
+        		createCompatibleImage(c.getWidth(), c.getHeight(),
+        				Transparency.TRANSLUCENT);
+        	
+        	// save the context
+        	bufferedComponent = c;
+        	bufferIsPressed = isShownPressed;
         
-        if (model.isArmed() && model.isPressed() || model.isSelected())
-        {
-            imgWidth = buttonPressedBG.getWidth();
-            imgHeight = buttonPressedBG.getHeight();
-           
-            leftImg = buttonPressedBG.getSubimage(0, 0, 10, imgHeight);
-            middleImg = buttonPressedBG.getSubimage(10, 0, imgWidth-20, imgHeight);
-            rightImg = buttonPressedBG.getSubimage(imgWidth-10, 0, 10, imgHeight);
-        }
-        else
-        {
-            imgWidth = buttonBG.getWidth();
-            imgHeight = buttonBG.getHeight();
-           
-            leftImg = buttonBG.getSubimage(0, 0, 10, imgHeight);
-            middleImg = buttonBG.getSubimage(10, 0, imgWidth-20, imgHeight);
-            rightImg = buttonBG.getSubimage(imgWidth-10, 0, 10, imgHeight);
-        }
+	        BufferedImage leftImg;
+	        BufferedImage middleImg;
+	        BufferedImage rightImg;
+	        
+	        int imgWidth;
+	        int imgHeight;
+	        int indentWidth  = 10;
+	        
+	        if (isShownPressed)
+	        {
+	            imgWidth = buttonPressedBG.getWidth();
+	            imgHeight = buttonPressedBG.getHeight();
+	           
+	            leftImg = buttonPressedBG.getSubimage(0, 0, 10, imgHeight);
+	            middleImg = buttonPressedBG.getSubimage(10, 0, imgWidth-20,
+	            					imgHeight);
+	            rightImg = buttonPressedBG.getSubimage(imgWidth-10, 0, 10,
+	            					imgHeight);
+	        }
+	        else
+	        {
+	            imgWidth = buttonBG.getWidth();
+	            imgHeight = buttonBG.getHeight();
+	           
+	            leftImg = buttonBG.getSubimage(0, 0, 10, imgHeight);
+	            middleImg = buttonBG.getSubimage(10, 0, imgWidth-20, imgHeight);
+	            rightImg = buttonBG.getSubimage(imgWidth-10, 0, 10, imgHeight);
+	        }
+	        
+            Graphics2D g2 = paintBuffer.createGraphics();
             
-        g.drawImage(leftImg, 0, 0, indentWidth, c.getHeight(), null);
-        g.drawImage(middleImg, indentWidth, 0, 
-                c.getWidth()-2*indentWidth, c.getHeight(), null);
-        g.drawImage(rightImg, c.getWidth()-indentWidth, 0, 
-                indentWidth, c.getHeight(), null);
+            AntialiasingManager.activateAntialiasing(g2);
+	            
+	        g2.drawImage(leftImg, 0, 0, indentWidth, c.getHeight(), null);
+	        g2.drawImage(middleImg, indentWidth, 0, 
+	                c.getWidth()-2*indentWidth, c.getHeight(), null);
+	        g2.drawImage(rightImg, c.getWidth()-indentWidth, 0, 
+	                indentWidth, c.getHeight(), null);
+        }
+        
+        AntialiasingManager.activateAntialiasing(g);
+        
+        // draw the buffer in the graphics object
+        g.drawImage(paintBuffer, 0, 0, c.getWidth(), c.getHeight(),
+        		0, 0, c.getWidth(), c.getHeight(), null);
         
         super.paint(g, c);    
     }    

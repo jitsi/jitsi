@@ -26,6 +26,10 @@ public class SIPCommButtonUI extends MetalButtonUI {
         
     private final static BufferedImage buttonRolloverBG
         = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER);
+    
+    private boolean bufferIsRollover = false;
+    private BufferedImage paintBuffer = null;
+    private Component bufferedComponent = null;
         
     // ********************************
     //          Create PLAF
@@ -56,46 +60,69 @@ public class SIPCommButtonUI extends MetalButtonUI {
     }
     
     public void paint(Graphics g, JComponent c) {
-    
-        AntialiasingManager.activateAntialiasing(g);
-        
+
         AbstractButton button = (AbstractButton)c;
         ButtonModel model = button.getModel();
-        
-        BufferedImage leftImg;
-        BufferedImage middleImg;
-        BufferedImage rightImg;
-        
-        int imgWidth;
-        int imgHeight;
-        int indentWidth  = 10;
-        if(model.isRollover()){
-            imgWidth = buttonRolloverBG.getWidth();
-            imgHeight = buttonRolloverBG.getHeight();
-           
-            leftImg = buttonRolloverBG.getSubimage(0, 0, indentWidth, imgHeight);
-            middleImg = buttonRolloverBG.getSubimage(indentWidth, 0, 
-                                                     imgWidth-2*indentWidth, 
-                                                     imgHeight);
-            rightImg = buttonRolloverBG.getSubimage(imgWidth-indentWidth, 0, 
-                                                    indentWidth, imgHeight);
+    	
+    	// check if the context of the buffer is consistent or else recreate it
+        if (paintBuffer == null || c != bufferedComponent
+        		|| bufferIsRollover != model.isRollover())
+        {
+        	// create a buffer in the best available format
+        	paintBuffer = ((Graphics2D) g).getDeviceConfiguration().
+        		createCompatibleImage(c.getWidth(), c.getHeight(),
+        				Transparency.TRANSLUCENT);
+        	
+        	// save the context
+        	bufferedComponent = c;
+        	bufferIsRollover = model.isRollover();
+        	
+        	// draw in the buffer
+            BufferedImage leftImg;
+            BufferedImage middleImg;
+            BufferedImage rightImg;
+            
+            int imgWidth;
+            int imgHeight;
+            int indentWidth  = 10;
+            if(bufferIsRollover){
+                imgWidth = buttonRolloverBG.getWidth();
+                imgHeight = buttonRolloverBG.getHeight();
+               
+                leftImg = buttonRolloverBG.getSubimage(0, 0, indentWidth,
+                										imgHeight);
+                middleImg = buttonRolloverBG.getSubimage(indentWidth, 0, 
+                                                        imgWidth-2*indentWidth, 
+                                                        imgHeight);
+                rightImg = buttonRolloverBG.getSubimage(imgWidth-indentWidth, 0, 
+                                                        indentWidth, imgHeight);
+            }
+            else{
+                imgWidth = buttonBG.getWidth();
+                imgHeight = buttonBG.getHeight();
+               
+                leftImg = buttonBG.getSubimage(0, 0, 10, imgHeight);
+                middleImg = buttonBG.getSubimage(10, 0, imgWidth-20, imgHeight);
+                rightImg = buttonBG.getSubimage(imgWidth-10, 0, 10, imgHeight);
+            }
+            
+            Graphics2D g2 = paintBuffer.createGraphics();
+            
+            AntialiasingManager.activateAntialiasing(g2);
+            
+            g2.drawImage(leftImg, 0, 0, indentWidth, c.getHeight(), null);
+            g2.drawImage(middleImg, indentWidth, 0, 
+                    c.getWidth() - 2 * indentWidth, c.getHeight(), null);
+            g2.drawImage(rightImg, c.getWidth() - indentWidth, 0, 
+                    indentWidth, c.getHeight(), null);
         }
-        else{
-            imgWidth = buttonBG.getWidth();
-            imgHeight = buttonBG.getHeight();
-           
-            leftImg = buttonBG.getSubimage(0, 0, 10, imgHeight);
-            middleImg = buttonBG.getSubimage(10, 0, imgWidth-20, imgHeight);
-            rightImg = buttonBG.getSubimage(imgWidth-10, 0, 10, imgHeight);
-        }
-        
-        
-        g.drawImage(leftImg, 0, 0, indentWidth, c.getHeight(), null);
-        g.drawImage(middleImg, indentWidth, 0, 
-                c.getWidth()-2*indentWidth, c.getHeight(), null);
-        g.drawImage(rightImg, c.getWidth()-indentWidth, 0, 
-                indentWidth, c.getHeight(), null);
-        
+
+        AntialiasingManager.activateAntialiasing(g);
+
+        // draw the buffer in the graphics object
+        g.drawImage(paintBuffer, 0, 0, c.getWidth(), c.getHeight(),
+        		0, 0, c.getWidth(), c.getHeight(), null);
+
         super.paint(g, c);    
     }
        
