@@ -8,9 +8,13 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -133,7 +137,18 @@ public class TransferCallButton
                 {
                     try
                     {
-                        telephony.transfer(callParticipant, target);
+                        CallParticipant targetParticipant =
+                            findCallParticipant(target);
+
+                        if (targetParticipant == null)
+                        {
+                            telephony.transfer(callParticipant, target);
+                        }
+                        else
+                        {
+                            telephony.transfer(callParticipant,
+                                targetParticipant);
+                        }
                     }
                     catch (OperationFailedException ex)
                     {
@@ -143,6 +158,89 @@ public class TransferCallButton
                 }
             }
         }
+    }
+
+    /**
+     * Returns the first <code>CallParticipant</code> known to a specific
+     * <code>OperationSetBasicTelephony</code> to have a specific address.
+     *
+     * @param telephony the <code>OperationSetBasicTelephony</code> to have its
+     *            <code>CallParticipant</code>s examed in search for one which
+     *            has a specific address
+     * @param address the address to locate the associated
+     *            <code>CallParticipant</code> of
+     */
+    private CallParticipant findCallParticipant(
+        OperationSetBasicTelephony telephony, String address)
+    {
+        for (Iterator callIter = telephony.getActiveCalls(); callIter.hasNext();)
+        {
+            Call call = (Call) callIter.next();
+
+            for (Iterator<CallParticipant> participantIter =
+                call.getCallParticipants(); participantIter.hasNext();)
+            {
+                CallParticipant participant = participantIter.next();
+
+                if (address.equals(participant.getAddress()))
+                {
+                    return participant;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the first <code>CallParticipant</code> among all existing ones 
+     * who has a specific address.
+     *
+     * @param address the address of the <code>CallParticipant</code> to be
+     *            located
+     * @return the first <code>CallParticipant</code> among all existing ones
+     *         who has the specified <code>address</code>
+     */
+    private CallParticipant findCallParticipant(String address)
+        throws OperationFailedException
+    {
+        BundleContext bundleContext = GuiActivator.bundleContext;
+        ServiceReference[] serviceReferences;
+
+        try
+        {
+            serviceReferences =
+                bundleContext.getServiceReferences(
+                    ProtocolProviderService.class.getName(), null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            throw new OperationFailedException(
+                "Failed to retrieve ProtocolProviderService references.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        Class telephonyClass = OperationSetBasicTelephony.class;
+        CallParticipant participant = null;
+
+        for (int i = 0; i < serviceReferences.length; i++)
+        {
+            ProtocolProviderService service =
+                (ProtocolProviderService) bundleContext
+                    .getService(serviceReferences[i]);
+            OperationSetBasicTelephony telephony =
+                (OperationSetBasicTelephony) service
+                    .getOperationSet(telephonyClass);
+
+            if (telephony != null)
+            {
+                participant = findCallParticipant(telephony, address);
+                if (participant != null)
+                {
+                    break;
+                }
+            }
+        }
+        return participant;
     }
 
     /**

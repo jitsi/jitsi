@@ -27,7 +27,7 @@ public abstract class AbstractOperationSetBasicTelephony
     /**
      * A list of listeners registered for call events.
      */
-    private final List callListeners = new Vector();
+    private final List<CallListener> callListeners = new Vector<CallListener>();
 
     /**
      * Registers <tt>listener</tt> with this provider so that it
@@ -55,26 +55,32 @@ public abstract class AbstractOperationSetBasicTelephony
     public void fireCallEvent(int eventID, Call sourceCall)
     {
         CallEvent cEvent = new CallEvent(sourceCall, eventID);
+        List<CallListener> listeners;
 
-        logger.debug("Dispatching a CallEvent to " + callListeners.size()
-            + " listeners. event is: " + cEvent.toString());
-
-        Iterator listeners = null;
         synchronized (callListeners)
         {
-            listeners = new ArrayList(callListeners).iterator();
+            listeners = new ArrayList<CallListener>(callListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            CallListener listener = (CallListener) listeners.next();
+        logger.debug("Dispatching a CallEvent to " + listeners.size()
+            + " listeners. event is: " + cEvent);
 
-            if (eventID == CallEvent.CALL_INITIATED)
+        for (Iterator<CallListener> listenerIter = listeners.iterator(); listenerIter.hasNext();)
+        {
+            CallListener listener = listenerIter.next();
+
+            switch (eventID)
+            {
+            case CallEvent.CALL_INITIATED:
                 listener.outgoingCallCreated(cEvent);
-            else if (eventID == CallEvent.CALL_RECEIVED)
+                break;
+            case CallEvent.CALL_RECEIVED:
                 listener.incomingCallReceived(cEvent);
-            else if (eventID == CallEvent.CALL_ENDED)
+                break;
+            case CallEvent.CALL_ENDED:
                 listener.callEnded(cEvent);
+                break;
+            }
         }
     }
 

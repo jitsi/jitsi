@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.header.HeaderFactoryImpl;
+import gov.nist.javax.sip.header.extensions.*;
+
 import java.net.*;
 import java.text.*;
 import java.util.*;
@@ -104,7 +107,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         Address toAddress = protocolProvider.parseAddressString(callee);
 
-        return createOutgoingCall(toAddress);
+        return createOutgoingCall(toAddress, null);
     }
 
     /**
@@ -136,7 +139,7 @@ public class OperationSetBasicTelephonySipImpl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        return createOutgoingCall(toAddress);
+        return createOutgoingCall(toAddress, null);
     }
 
     /**
@@ -144,7 +147,10 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param calleeAddress the address of the callee that we'd like to connect
      *            with.
-     *
+     * @param cause the <code>Message</code>, if any, which is the cause for the
+     *            outgoing call to be placed and which carries additional
+     *            information to be included in the call initiation (e.g. a
+     *            Referred-To header and token)
      * @return CallParticipant the CallParticipant that will represented by the
      *         specified uri. All following state change events will be
      *         delivered through that call participant. The Call that this
@@ -155,8 +161,8 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException with the corresponding code if we fail
      *             to create the call.
      */
-    private synchronized CallSipImpl createOutgoingCall(Address calleeAddress)
-        throws OperationFailedException
+    private synchronized CallSipImpl createOutgoingCall(Address calleeAddress,
+        javax.sip.message.Message cause) throws OperationFailedException
     {
         if(!protocolProvider.isRegistered())
         {
@@ -202,6 +208,16 @@ public class OperationSetBasicTelephonySipImpl
 
         if (authorization != null)
             invite.addHeader(authorization);
+
+        /*
+         * Whatever the cause of the outgoing call is, reflect the appropriate
+         * information from it into the INVITE request (and do it elsewhere
+         * because this method is already long enough and difficult to grasp).
+         */
+        if (cause != null)
+        {
+            reflectCauseOnEffect(cause, invite);
+        }
 
         // Transaction
         ClientTransaction inviteTransaction;
@@ -291,6 +307,43 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         return (CallSipImpl) callParticipant.getCall();
+    }
+
+    /**
+     * Copies and possibly modifies information from a given SIP
+     * <code>Message</code> into another SIP <code>Message</code> (the first of
+     * which is being thought of as the cause for the existence of the second
+     * and the second is considered the effect of the first for the sake of
+     * clarity in the most common of use cases).
+     * <p>
+     * The Referred-By header and its optional token are common examples of such
+     * information which is to be copied without modification by the referee
+     * from the REFER <code>Request</code> into the resulting <code>Request</code>
+     * to the refer target.
+     * </p>
+     *
+     * @param cause the SIP <code>Message</code> from which the information is
+     *            to be copied
+     * @param effect the SIP <code>Message</code> into which the information is
+     *            to be copied
+     */
+    private void reflectCauseOnEffect(javax.sip.message.Message cause,
+        javax.sip.message.Message effect)
+    {
+
+        /*
+         * Referred-By (which comes from a referrer) should be copied to the
+         * refer target without tampering.
+         *
+         * TODO Apart from Referred-By, its token should also be copied if
+         * present.
+         */
+        Header referredBy = cause.getHeader(ReferredByHeader.NAME);
+
+        if (referredBy != null)
+        {
+            effect.setHeader(referredBy);
+        }
     }
 
     /**
@@ -1308,12 +1361,11 @@ public class OperationSetBasicTelephonySipImpl
             protocolProvider.getDefaultJainSipProvider().getNewCallId();
 
         // CSeq
+        HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
         CSeqHeader cSeqHeader = null;
         try
         {
-            cSeqHeader =
-                protocolProvider.getHeaderFactory().createCSeqHeader(1l,
-                    Request.INVITE);
+            cSeqHeader = headerFactory.createCSeqHeader(1l, Request.INVITE);
         }
         catch (InvalidArgumentException ex)
         {
@@ -1336,6 +1388,9 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, exc);
         }
 
+        // ReplacesHeader
+        Header replacesHeader = stripReplacesHeader(toAddress);
+
         // FromHeader
         String localTag = ProtocolProviderServiceSipImpl.generateLocalTag();
         FromHeader fromHeader = null;
@@ -1344,13 +1399,11 @@ public class OperationSetBasicTelephonySipImpl
         {
             // FromHeader
             fromHeader =
-                protocolProvider.getHeaderFactory().createFromHeader(
+                headerFactory.createFromHeader(
                     protocolProvider.getOurSipAddress(toAddress), localTag);
 
             // ToHeader
-            toHeader =
-                protocolProvider.getHeaderFactory().createToHeader(toAddress,
-                    null);
+            toHeader = headerFactory.createToHeader(toAddress, null);
         }
         catch (ParseException ex)
         {
@@ -1402,7 +1455,66 @@ public class OperationSetBasicTelephonySipImpl
         // add the contact header.
         invite.addHeader(contactHeader);
 
+        // Add the ReplacesHeader if any.
+        if (replacesHeader != null)
+        {
+            invite.setHeader(replacesHeader);
+        }
+
         return invite;
+    }
+
+    /**
+     * Returns the <code>ReplacesHeader</code> contained, if any, in the
+     * <code>URI</code> of a specific <code>Address</code> after removing it
+     * from there.
+     *
+     * @param address the <code>Address</code> which is to have its
+     *            <code>URI</code> examined and modified
+     * @return a <code>Header</code> which represents the Replaces header
+     *         contained in the <code>URI</code> of the specified
+     *         <code>address</code>; <code>null</code> if no such header is
+     *         present
+     */
+    private Header stripReplacesHeader(Address address)
+        throws OperationFailedException
+    {
+        javax.sip.address.URI uri = address.getURI();
+        Header replacesHeader = null;
+
+        if (uri.isSipURI())
+        {
+            SipURI sipURI = (SipURI) uri;
+            String replacesHeaderValue = sipURI.getHeader(ReplacesHeader.NAME);
+
+            if (replacesHeaderValue != null)
+            {
+                for (Iterator<String> headerNameIter = sipURI.getHeaderNames();
+                        headerNameIter.hasNext();)
+                {
+                    if (ReplacesHeader.NAME.equals(headerNameIter.next()))
+                    {
+                        headerNameIter.remove();
+                        break;
+                    }
+                }
+
+                try
+                {
+                    replacesHeader =
+                        protocolProvider.getHeaderFactory().createHeader(
+                            ReplacesHeader.NAME, replacesHeaderValue);
+                }
+                catch (ParseException ex)
+                {
+                    throw new OperationFailedException(
+                        "Failed to create ReplacesHeader from "
+                            + replacesHeaderValue,
+                        OperationFailedException.INTERNAL_ERROR, ex);
+                }
+            }
+        }
+        return replacesHeader;
     }
 
     /**
@@ -1420,9 +1532,34 @@ public class OperationSetBasicTelephonySipImpl
         CallParticipantSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
         int statusCode;
+        CallParticipantSipImpl callParticipantToReplace = null;
+
         if (callParticipant == null)
         {
-            statusCode = Response.RINGING;
+            ReplacesHeader replacesHeader =
+                (ReplacesHeader) invite.getHeader(ReplacesHeader.NAME);
+
+            if (replacesHeader == null)
+            {
+                statusCode = Response.RINGING;
+            }
+            else
+            {
+                List<CallParticipantSipImpl> callParticipantsToReplace =
+                    activeCallsRepository.findCallParticipants(
+                        replacesHeader.getCallId(), replacesHeader.getToTag(),
+                        replacesHeader.getFromTag());
+
+                if (callParticipantsToReplace.size() == 1)
+                {
+                    statusCode = Response.OK;
+                    callParticipantToReplace = callParticipantsToReplace.get(0);
+                }
+                else
+                {
+                    statusCode = Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST;
+                }
+            }
 
             logger.trace("Creating call participant.");
             callParticipant =
@@ -1430,7 +1567,9 @@ public class OperationSetBasicTelephonySipImpl
             logger.trace("call participant created = " + callParticipant);
         }
         else
+        {
             statusCode = Response.OK;
+        }
 
         // sdp description may be in acks - bug report Laurent Michel
         ContentLengthHeader cl = invite.getContentLength();
@@ -1440,74 +1579,73 @@ public class OperationSetBasicTelephonySipImpl
                 .setSdpDescription(new String(invite.getRawContent()));
         }
 
-        logger.trace("Will verify whether INVITE is properly addressed.");
-        // Are we the one they are looking for?
-        javax.sip.address.URI calleeURI = dialog.getLocalParty().getURI();
-
-        if (calleeURI.isSipURI())
+        if (!isInviteProperlyAddressed(dialog))
         {
-            boolean assertUserMatch =
-                Boolean.valueOf(
-                    SipActivator.getConfigurationService().getString(
-                        FAIL_CALLS_ON_DEST_USER_MISMATCH)).booleanValue();
+            callParticipant.setState(CallParticipantState.FAILED,
+                "A call was received here while it appeared "
+                    + "destined to someone else. The call was rejected.");
 
-            if (assertUserMatch)
+            statusCode = Response.NOT_FOUND;
+        }
+
+        // INVITE w/ Replaces
+        if ((statusCode == Response.OK) && (callParticipantToReplace != null))
+        {
+            boolean sayBye = false;
+
+            try
             {
-                // user info is case sensitive according to rfc3261
-                String calleeUser = ((SipURI) calleeURI).getUser();
-                String localUser = protocolProvider.getAccountID().getUserID();
-
-                if (calleeUser != null && !calleeUser.equals(localUser))
+                answerCallParticipant(callParticipant);
+                sayBye = true;
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error(
+                    "Failed to auto-answer the referred call participant "
+                        + callParticipant, ex);
+                /*
+                 * RFC 3891 says an appropriate error response MUST be returned
+                 * and callParticipantToReplace must be left unchanged.
+                 */
+            }
+            if (sayBye)
+            {
+                try
                 {
-                    callParticipant
-                        .setState(
-                            CallParticipantState.FAILED,
-                            "A call was received here while it appeared "
-                          + "destined to someone else. The call was rejected.");
-
-                    Response notFound = null;
-                    try
-                    {
-                        notFound =
-                            protocolProvider.getMessageFactory()
-                                .createResponse(Response.NOT_FOUND, invite);
-
-                        // attach a to tag
-                        protocolProvider.attachToTag(notFound, dialog);
-                        notFound.setHeader(protocolProvider
-                            .getSipCommUserAgentHeader());
-                    }
-                    catch (ParseException ex)
-                    {
-                        logger.error("Error while trying to create a response",
-                            ex);
-                        callParticipant.setState(CallParticipantState.FAILED,
-                            "InernalError: " + ex.getMessage());
-                        return;
-                    }
-                    try
-                    {
-                        serverTransaction.sendResponse(notFound);
-                        logger.debug("sent a not found response: " + notFound);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.error("Error while trying to send a response",
-                            ex);
-                        callParticipant.setState(CallParticipantState.FAILED,
-                            "Internal Error: " + ex.getMessage());
-                        return;
-                    }
-                    return;
+                    hangupCallParticipant(callParticipantToReplace);
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Failed to hangup the referer "
+                        + callParticipantToReplace, ex);
+                    callParticipantToReplace.setState(
+                        CallParticipantState.FAILED, "Internal Error: " + ex);
                 }
             }
+            // Even if there was a failure, we cannot just send Response.OK.
+            return;
         }
 
         // Send statusCode
-        String statusCodeString =
-            (statusCode == Response.RINGING) ? "RINGING" : "OK";
-        logger.debug("Invite seems ok, we'll say " + statusCodeString + ".");
+        String statusCodeString;
+        switch (statusCode)
+        {
+        case Response.RINGING:
+            statusCodeString = "RINGING";
+            break;
+        case Response.NOT_FOUND:
+            statusCodeString = "NOT_FOUND";
+            break;
+        case Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST:
+            statusCodeString = "CALL_OR_TRANSACTION_DOES_NOT_EXIST";
+            break;
+        default:
+            statusCodeString = "OK";
+            break;
+        }
         Response response = null;
+
+        logger.debug("Invite seems ok, we'll say " + statusCodeString + ".");
         try
         {
             response =
@@ -1516,34 +1654,39 @@ public class OperationSetBasicTelephonySipImpl
             protocolProvider.attachToTag(response, dialog);
             response.setHeader(protocolProvider.getSipCommUserAgentHeader());
 
-            // set our display name
-            ((ToHeader) response.getHeader(ToHeader.NAME)).getAddress()
-                .setDisplayName(protocolProvider.getOurDisplayName());
-
-            // extract our intended destination which should be in the from
-            Address callerAddress
-                = ((FromHeader) response.getHeader(FromHeader.NAME))
-                    .getAddress();
-            response.addHeader(protocolProvider.getContactHeader(callerAddress));
-
-            if (statusCode != Response.RINGING)
+            if (statusCode != Response.NOT_FOUND)
             {
-                try
+                // set our display name
+                ((ToHeader) response.getHeader(ToHeader.NAME)).getAddress()
+                    .setDisplayName(protocolProvider.getOurDisplayName());
+
+                // extract our intended destination which should be in the from
+                Address callerAddress =
+                    ((FromHeader) response.getHeader(FromHeader.NAME))
+                        .getAddress();
+                response.addHeader(protocolProvider
+                    .getContactHeader(callerAddress));
+
+                if (statusCode == Response.OK)
                 {
-                    processInviteSendingResponse(callParticipant, response);
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error("Error while trying to send a request", ex);
-                    callParticipant.setState(CallParticipantState.FAILED,
-                        "Internal Error: " + ex.getMessage());
-                    return;
+                    try
+                    {
+                        processInviteSendingResponse(callParticipant, response);
+                    }
+                    catch (OperationFailedException ex)
+                    {
+                        logger.error("Error while trying to send response "
+                            + response, ex);
+                        callParticipant.setState(CallParticipantState.FAILED,
+                            "Internal Error: " + ex.getMessage());
+                        return;
+                    }
                 }
             }
         }
         catch (ParseException ex)
         {
-            logger.error("Error while trying to send a request", ex);
+            logger.error("Error while trying to send a response", ex);
             callParticipant.setState(CallParticipantState.FAILED,
                 "Internal Error: " + ex.getMessage());
             return;
@@ -1563,7 +1706,7 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        if (statusCode != Response.RINGING)
+        if (statusCode == Response.OK)
         {
             try
             {
@@ -1571,9 +1714,44 @@ public class OperationSetBasicTelephonySipImpl
             }
             catch (OperationFailedException ex)
             {
-                logger.error("Error after sending a request", ex);
+                logger.error("Error after sending response " + response, ex);
             }
         }
+    }
+
+    /**
+     * Determines whether an INVITE request which has initiated a specific
+     * <code>Dialog</code> is properly addressed.
+     *
+     * @param dialog the <code>Dialog</code> which has been initiated by the
+     *            INVITE request to be checked
+     * @return <tt>true</tt> if the INVITE request represented by the specified
+     *         <code>Dialog</code> is properly addressed; <tt>false</tt>,
+     *         otherwise
+     */
+    private boolean isInviteProperlyAddressed(Dialog dialog)
+    {
+        logger.trace("Will verify whether INVITE is properly addressed.");
+        // Are we the one they are looking for?
+        javax.sip.address.URI calleeURI = dialog.getLocalParty().getURI();
+
+        if (calleeURI.isSipURI())
+        {
+            boolean assertUserMatch =
+                Boolean.parseBoolean(
+                    SipActivator.getConfigurationService().getString(
+                        FAIL_CALLS_ON_DEST_USER_MISMATCH));
+
+            if (assertUserMatch)
+            {
+                // user info is case sensitive according to rfc3261
+                String calleeUser = ((SipURI) calleeURI).getUser();
+                String localUser = protocolProvider.getAccountID().getUserID();
+
+                return (calleeUser == null) || calleeUser.equals(localUser);
+            }
+        }
+        return true;
     }
 
     /**
@@ -2000,7 +2178,7 @@ public class OperationSetBasicTelephonySipImpl
         Call referToCall;
         try
         {
-            referToCall = createOutgoingCall(referToAddress);
+            referToCall = createOutgoingCall(referToAddress, referRequest);
         }
         catch (OperationFailedException ex)
         {
@@ -2124,14 +2302,14 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         if (SubscriptionStateHeader.TERMINATED.equals(ssHeader.getState())
-            && (DialogUtils
-                .removeSubscriptionThenIsDialogAlive(dialog, "refer") == false))
+            && !DialogUtils
+                .removeSubscriptionThenIsDialogAlive(dialog, "refer"))
         {
             participant.setState(CallParticipantState.DISCONNECTED);
         }
 
-        if ((CallParticipantState.DISCONNECTED.equals(participant.getState()) == false)
-            && (DialogUtils.isByeProcessed(dialog) == false))
+        if (!CallParticipantState.DISCONNECTED.equals(participant.getState())
+            && !DialogUtils.isByeProcessed(dialog))
         {
             boolean dialogIsAlive;
             try
@@ -2145,7 +2323,7 @@ public class OperationSetBasicTelephonySipImpl
                     ex);
                 dialogIsAlive = false;
             }
-            if (dialogIsAlive == false)
+            if (!dialogIsAlive)
             {
                 participant.setState(CallParticipantState.DISCONNECTED);
             }
@@ -2218,8 +2396,8 @@ public class OperationSetBasicTelephonySipImpl
          * Whatever the status of the REFER is, the subscription created by it
          * is terminated with the final NOTIFY.
          */
-        if (DialogUtils.removeSubscriptionThenIsDialogAlive(dialog,
-            subscription) == false)
+        if (!DialogUtils.removeSubscriptionThenIsDialogAlive(dialog,
+            subscription))
         {
             CallParticipantSipImpl callParticipant =
                 activeCallsRepository.findCallParticipant(dialog);
@@ -2234,7 +2412,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Sends a <code>Request.NOTIFY</code> request in a specific
      * <code>Dialog</code> as part of the communication associated with an
-     * earlier-received <code>Request.REFER<code> request. The sent NOTIFY has
+     * earlier-received <code>Request.REFER</code> request. The sent NOTIFY has
      * a specific <code>Subscription-State</code> header and reason, carries a
      * specific body content and is sent through a specific
      * <code>SipProvider</code>.
@@ -2657,7 +2835,7 @@ public class OperationSetBasicTelephonySipImpl
     } // busy here
 
     /**
-     * * Indicates a user request to answer an incoming call from the specified
+     * Indicates a user request to answer an incoming call from the specified
      * CallParticipant.
      *
      * Sends an OK response to <tt>callParticipant</tt>. Make sure that the call
@@ -2810,12 +2988,12 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Creates a new {@link Response#OK} response to a specific {@link Request}
      * which is to be sent as part of a specific {@link Dialog}.
-     *
+     * 
      * @param request the <code>Request</code> to create the OK response for
      * @param containingDialog the <code>Dialog</code> to send the response in
-     * @return a new
-     *         <code>Response.OK<code> response to the specified <code>request</code>
-     *         to be sent as part of the specified <code>containingDialog</code>
+     * @return a new <code>Response.OK</code> response to the specified
+     *         <code>request</code> to be sent as part of the specified
+     *         <code>containingDialog</code>
      * @throws ParseException
      */
     private Response createOKResponse(Request request, Dialog containingDialog)
@@ -2845,13 +3023,16 @@ public class OperationSetBasicTelephonySipImpl
     {
         CallSipImpl call = new CallSipImpl(protocolProvider);
         CallParticipantSipImpl callParticipant =
-            new CallParticipantSipImpl(containingTransaction.getDialog()
-                .getRemoteParty(), call);
+            new CallParticipantSipImpl(
+                containingTransaction.getDialog().getRemoteParty(),
+                call);
+        boolean incomingCall =
+            (containingTransaction instanceof ServerTransaction);
 
-        if (containingTransaction instanceof ServerTransaction)
-            callParticipant.setState(CallParticipantState.INCOMING_CALL);
-        else
-            callParticipant.setState(CallParticipantState.INITIATING_CALL);
+        callParticipant.setState(
+             incomingCall ?
+                 CallParticipantState.INCOMING_CALL :
+                 CallParticipantState.INITIATING_CALL);
 
         callParticipant.setDialog(containingTransaction.getDialog());
         callParticipant.setFirstTransaction(containingTransaction);
@@ -2860,10 +3041,9 @@ public class OperationSetBasicTelephonySipImpl
         activeCallsRepository.addCall(call);
 
         // notify everyone
-        if (containingTransaction instanceof ServerTransaction)
-            fireCallEvent(CallEvent.CALL_RECEIVED, call);
-        else
-            fireCallEvent(CallEvent.CALL_INITIATED, call);
+        fireCallEvent(
+            incomingCall ? CallEvent.CALL_RECEIVED : CallEvent.CALL_INITIATED,
+            call);
 
         return callParticipant;
     }
@@ -2973,33 +3153,122 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param participant the <code>CallParticipant</code> to be transfered to
      *            the specified callee address
-     * @param target the address of the callee to transfer
+     * @param target the <code>Address</code> the callee to transfer
      *            <code>participant</code> to
      * @throws OperationFailedException
      */
-    public void transfer(CallParticipant participant, String target)
+    private void transfer(CallParticipant participant, Address target)
         throws OperationFailedException
     {
-        Address targetAddress = null;
-        try
-        {
-            targetAddress = protocolProvider.parseAddressString(target);
-        }
-        catch (ParseException ex)
-        {
-            throwOperationFailedException(
-                "Failed to parse target address string.",
-                OperationFailedException.ILLEGAL_ARGUMENT, ex);
-        }
-
         CallParticipantSipImpl sipParticipant =
             (CallParticipantSipImpl) participant;
         Dialog dialog = sipParticipant.getDialog();
         Request refer = createRequest(dialog, Request.REFER);
+        HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
 
-        refer.addHeader(protocolProvider.getHeaderFactory()
-            .createReferToHeader(targetAddress));
+        // Refer-To is required.
+        refer.setHeader(headerFactory.createReferToHeader(target));
+
+        /*
+         * Referred-By is optional but only to the extent that the refer target
+         * may choose to require a valid Referred-By token.
+         */
+        refer.addHeader(
+            ((HeaderFactoryImpl) headerFactory)
+                .createReferredByHeader(sipParticipant.getJainSipAddress()));
 
         sendRequest(sipParticipant.getJainSipProvider(), refer, dialog);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.service.protocol.OperationSetAdvancedTelephony
+     * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,
+     * net.java.sip.communicator.service.protocol.CallParticipant)
+     */
+    public void transfer(CallParticipant participant, CallParticipant target)
+        throws OperationFailedException
+    {
+        Address targetAddress = parseAddressString(target.getAddress());
+
+        Dialog targetDialog = ((CallParticipantSipImpl) target).getDialog();
+        String remoteTag = targetDialog.getRemoteTag();
+        String localTag = targetDialog.getLocalTag();
+        Replaces replacesHeader = null;
+        SipURI sipURI = (SipURI) targetAddress.getURI();
+
+        try
+        {
+            replacesHeader = (Replaces)
+                ((HeaderFactoryImpl) protocolProvider.getHeaderFactory())
+                    .createReplacesHeader(
+                        targetDialog.getCallId().getCallId(),
+                        (remoteTag == null) ? "0" : remoteTag,
+                        (localTag == null) ? "0" : localTag);
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException(
+                "Failed to create Replaces header for target dialog "
+                    + targetDialog,
+                OperationFailedException.ILLEGAL_ARGUMENT, ex);
+        }
+        try
+        {
+            sipURI.setHeader(ReplacesHeader.NAME, replacesHeader.encodeBody());
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException("Failed to set Replaces header "
+                + replacesHeader + " to SipURI " + sipURI,
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        putOnHold(participant);
+        putOnHold(target);
+
+        transfer(participant, targetAddress);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.service.protocol.OperationSetAdvancedTelephony
+     * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,
+     * String)
+     */
+    public void transfer(CallParticipant participant, String target)
+        throws OperationFailedException
+    {
+        transfer(participant, parseAddressString(target));
+    }
+
+    /**
+     * Parses a specific string into a JAIN SIP <code>Address</code>.
+     *
+     * @param addressString the <code>String</code> to be parsed into an
+     *            <code>Address</code>
+     * @return the <code>Address</code> representation of
+     *         <code>addressString</code>
+     * @throws OperationFailedException if <code>addressString</code> is not
+     *             properly formatted
+     */
+    private Address parseAddressString(String addressString)
+        throws OperationFailedException
+    {
+        Address address = null;
+        try
+        {
+            address = protocolProvider.parseAddressString(addressString);
+        }
+        catch (ParseException ex)
+        {
+            throwOperationFailedException("Failed to parse address string "
+                + addressString, OperationFailedException.ILLEGAL_ARGUMENT, ex);
+        }
+        return address;
     }
 }

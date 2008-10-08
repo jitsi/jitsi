@@ -60,10 +60,10 @@ public interface CallParticipant
 
     /**
      * Returns an object representing the current state of that participant.
-     * CallParticipantState may vary among CONNECTING, RINGING, CALLING, BISY,
+     * CallParticipantState may vary among CONNECTING, RINGING, CALLING, BUSY,
      * CONNECTED, and others, and it reflects the state of the connection between
      * us and that participant.
-     * @return a CallParticipantState instance representin the participant's
+     * @return a CallParticipantState instance representing the participant's
      * state.
      */
     public CallParticipantState getState();
@@ -124,7 +124,7 @@ public interface CallParticipant
     public Contact getContact();
     
     /**
-     * Returns a URL pointing ta a location with call control information or 
+     * Returns a URL pointing to a location with call control information or 
      * null if such an URL is not available for the current call participant.
      * 
      * @return a URL link to a location with call information or a call control

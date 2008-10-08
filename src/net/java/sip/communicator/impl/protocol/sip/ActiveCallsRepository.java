@@ -30,7 +30,7 @@ public class ActiveCallsRepository
      * The operation set that created us. Instance is mainly used for firing
      * events when necessary.
      */
-    private OperationSetBasicTelephonySipImpl parentOperationSet = null;
+    private final OperationSetBasicTelephonySipImpl parentOperationSet;
 
     /**
      * A table mapping call ids against call instances.
@@ -62,12 +62,12 @@ public class ActiveCallsRepository
     public void callStateChanged(CallChangeEvent evt)
     {
         if(evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE)
-           && ((CallState)evt.getNewValue()).equals(CallState.CALL_ENDED))
+           && evt.getNewValue().equals(CallState.CALL_ENDED))
         {
-            CallSipImpl sourceCall = (CallSipImpl)this.activeCalls
-                .remove(evt.getSourceCall().getCallID());
+            CallSipImpl sourceCall =
+                this.activeCalls.remove(evt.getSourceCall().getCallID());
 
-            logger.trace(  "Removing call " + sourceCall + " from the list of "
+            logger.trace("Removing call " + sourceCall + " from the list of "
                          + "active calls because it entered an ENDED state");
 
             this.parentOperationSet.fireCallEvent(
@@ -133,8 +133,6 @@ public class ActiveCallsRepository
      */
     public CallParticipantSipImpl findCallParticipant(Dialog dialog)
     {
-        Iterator<CallSipImpl> activeCalls = getActiveCalls();
-
         if(dialog == null)
         {
             logger.debug("Cannot find a participant with a null dialog. "
@@ -148,7 +146,8 @@ public class ActiveCallsRepository
                          + " among " + this.activeCalls.size() + " calls");
         }
 
-        while(activeCalls.hasNext())
+        for (Iterator<CallSipImpl> activeCalls = getActiveCalls();
+                 activeCalls.hasNext();)
         {
             CallSipImpl call = activeCalls.next();
             CallParticipantSipImpl callParticipant
@@ -161,5 +160,67 @@ public class ActiveCallsRepository
         }
 
         return null;
+    }
+
+    /**
+     * Returns the <code>CallParticipantSipImpl</code> instances with
+     * <code>Dialog</code>s matching CallID, local and remote tags.
+     *
+     * @param callID
+     * @param localTag
+     * @param remoteTag
+     * @return the <code>List</code> of <code>CallParticipantSipImpl</code>
+     *         instances with <code>Dialog</code>s matching the specified
+     *         CallID, local and remote tags
+     */
+    public List<CallParticipantSipImpl> findCallParticipants(String callID,
+            String localTag, String remoteTag)
+    {
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Looking for call participant with callID " + callID
+                + ", localTag " + localTag + ", and remoteTag " + remoteTag
+                + " among " + this.activeCalls.size() + " calls.");
+        }
+
+        List<CallParticipantSipImpl> callParticipants =
+            new ArrayList<CallParticipantSipImpl>();
+
+        for (Iterator<CallSipImpl> activeCalls = getActiveCalls();
+                activeCalls.hasNext();)
+        {
+            CallSipImpl call = activeCalls.next();
+
+            if (!callID.equals(call.getCallID()))
+                continue;
+
+            for (Iterator<CallParticipant> callParticipantIter = call.getCallParticipants();
+                    callParticipantIter.hasNext();)
+            {
+                CallParticipantSipImpl callParticipant =
+                    (CallParticipantSipImpl) callParticipantIter.next();
+                Dialog dialog = callParticipant.getDialog();
+
+                if (dialog != null)
+                {
+                    String dialogLocalTag = dialog.getLocalTag();
+
+                    if (((localTag == null) || "0".equals(localTag)) ?
+                            ((dialogLocalTag == null) || "0".equals(dialogLocalTag)) :
+                            localTag.equals(dialogLocalTag))
+                    {
+                        String dialogRemoteTag = dialog.getRemoteTag();
+
+                        if (((remoteTag == null) || "0".equals(remoteTag)) ?
+                                ((dialogRemoteTag == null) || "0".equals(dialogRemoteTag)) :
+                                remoteTag.equals(dialogRemoteTag))
+                        {
+                            callParticipants.add(callParticipant);
+                        }
+                    }
+                }
+            }
+        }
+        return callParticipants;
     }
 }
