@@ -129,7 +129,9 @@ public class ContactListCellRenderer
             if (avatar != null && avatar.length > 0)
             {
                 Image roundedAvatar = createRoundImage(avatar);
-                this.photoLabel.setIcon(new ImageIcon(roundedAvatar));
+
+                if (roundedAvatar != null)
+                    this.photoLabel.setIcon(new ImageIcon(roundedAvatar));
             }
 
             // We should set the bounds of the cell explicitely in order to
