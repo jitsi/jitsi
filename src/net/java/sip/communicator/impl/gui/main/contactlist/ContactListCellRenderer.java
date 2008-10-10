@@ -41,6 +41,10 @@ public class ContactListCellRenderer
 
     private static final int AVATAR_WIDTH = 30;
 
+    private Color groupForegroundColor;
+
+    private Color contactForegroundColor;
+
     private JLabel nameLabel = new JLabel();
 
     private JLabel photoLabel = new JLabel();
@@ -62,9 +66,21 @@ public class ContactListCellRenderer
     /**
      * Initialize the panel containing the node.
      */
-    public ContactListCellRenderer(MainFrame mainFrame) {
-
+    public ContactListCellRenderer(MainFrame mainFrame)
+    {
         super(new BorderLayout());
+
+        int groupForegroundProperty = GuiActivator.getResources()
+            .getColor("contactListGroupForeground");
+
+        if (groupForegroundProperty > -1)
+            groupForegroundColor = new Color (groupForegroundProperty);
+
+        int contactForegroundProperty = GuiActivator.getResources()
+                .getColor("contactListContactForeground");
+
+        if (contactForegroundProperty > -1)
+            contactForegroundColor = new Color(contactForegroundProperty);
 
         this.mainFrame = mainFrame;
 
@@ -123,6 +139,9 @@ public class ContactListCellRenderer
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
 
+            if (contactForegroundColor != null)
+                this.nameLabel.setForeground(contactForegroundColor);
+
             this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 1));
 
             byte[] avatar = contactItem.getAvatar(true);
@@ -162,6 +181,9 @@ public class ContactListCellRenderer
                     .getImage(ImageLoader.GROUPS_16x16_ICON)));
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
+
+            if (groupForegroundColor != null)
+                this.nameLabel.setForeground(groupForegroundColor);
 
             this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 2));
 
