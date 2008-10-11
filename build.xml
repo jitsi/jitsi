@@ -598,7 +598,7 @@
     	depends="bundle-plugin-profiler4j">
     	
     	<antcall target="run">
-    	      <param name="profiler.args" value="-Xmx128m -javaagent:${lib.noinst}\profiler4j-1.0-beta3-SC.jar" />
+    	      <param name="profiler.args" value="-Xmx128m -javaagent:${lib.noinst}/profiler4j-1.0-beta3-SC.jar" />
     	      <param name="profiler.bootdelegation" value="net.sf.profiler4j.agent.*" />
     	      <param name="profiler.autostart" value="reference:file:sc-bundles/profiler4j.jar" />
     	</antcall>
