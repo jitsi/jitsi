@@ -23,3 +23,4 @@ org.eclipse.jdt.internal.compiler.ast.Expression
 org.eclipse.jdt.internal.compiler.problem.ProblemReporter
 org.eclipse.jdt.internal.compiler.impl.Constant
 com.arjuna.ats.internal.arjuna.objectstore.ShadowingStore
+sun.reflect.
