@@ -100,6 +100,11 @@ public abstract class ChatPanel
         this.writeMessagePanel = new ChatWritePanel(this);
 
         this.topSplitPane.setResizeWeight(1.0D);
+
+        // Remove default borders from split panes.
+        this.topSplitPane.setBorder(null);
+        this.messagePane.setBorder(null);
+
         this.messagePane.setResizeWeight(1.0D);
         this.chatContactListPanel.setPreferredSize(new Dimension(150, 100));
         this.chatContactListPanel.setMinimumSize(new Dimension(150, 100));
