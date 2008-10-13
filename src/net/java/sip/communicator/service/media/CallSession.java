@@ -189,8 +189,12 @@ public interface CallSession
     /**
      * Stops and closes the audio and video streams flowing through this
      * session.
+     * 
+     * @return <tt>true</tt> if there was an actual change in the streaming i.e.
+     *         the streaming wasn't already stopped before this request;
+     *         <tt>false</tt>, otherwise
      */
-    public void stopStreaming();
+    public boolean stopStreaming();
 
     /** 
      * Sets the default secure/unsecure communication status for the supported

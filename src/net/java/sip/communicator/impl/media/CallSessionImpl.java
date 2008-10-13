@@ -36,7 +36,8 @@ import gnu.java.zrtp.*;
  * Contains parameters associated with a particular Call such as media (audio
  * video), a reference to the call itself, RTPManagers and others.
  * <p>
- * Currently the class works the following way:<p>
+ * Currently the class works in the following way:
+ * <p>
  * We create 2 rtp managers (one for video and one for audio) upon
  * initialization of this call session and initialize/bind them on local
  * addresses.
@@ -84,7 +85,7 @@ public class CallSessionImpl
     /**
      * The call associated with this session.
      */
-    private Call call = null;
+    private final Call call;
 
     /**
      * The session address that is used for audio communication in this call.
@@ -121,7 +122,7 @@ public class CallSessionImpl
     /**
      * The media service instance that created us.
      */
-    private MediaServiceImpl mediaServCallback = null;
+    private final MediaServiceImpl mediaServCallback;
 
     /**
      * The minimum port number that we'd like our rtp managers to bind upon.
@@ -143,19 +144,21 @@ public class CallSessionImpl
      * The list of currently active players that we have created during this
      * session.
      */
-    private List players = new ArrayList();
+    private final List<Player> players = new ArrayList<Player>();
 
     /**
      * The list of currently open Video frames that we have created during this
      * session.
      */
-    private List videoFrames = new ArrayList();
+    private final List<javax.swing.JFrame> videoFrames =
+        new ArrayList<javax.swing.JFrame>();
 
     /**
-    * SRTP TransformConnectors corresponding to each RTPManager when SRTP
-    * feature is enabled.
-    */
-    private Hashtable transConnectors = new Hashtable();
+     * SRTP TransformConnectors corresponding to each RTPManager when SRTP
+     * feature is enabled.
+     */
+    private final Hashtable<RTPManager, TransformConnector> transConnectors =
+        new Hashtable<RTPManager, TransformConnector>();
 
     /**
     * Toggles default (from the call start) activation
@@ -167,7 +170,7 @@ public class CallSessionImpl
      * Vector used to hold references of various key management solutions implemented.
      * For now only ZRTP and Dummy (hardcoded keys) are present.
      */
-    private Vector keySharingAlgorithms = null;
+    private Vector<KeyProviderAlgorithm> keySharingAlgorithms = null;
 
     /**
      * The key management solution type used for the current session
@@ -177,7 +180,7 @@ public class CallSessionImpl
     /**
      * The Custom Data Destination used for this call session.
      */
-    private URL dataSink = null;
+    private final URL dataSink;
 
     /**
      * RFC 4566 specifies that an SDP description may contain a URI with
@@ -239,9 +242,16 @@ public class CallSessionImpl
     /**
      * JMF stores CUSTOM_CODEC_FORMATS statically, so they only need to be
      * registered once. FMJ does this dynamically (per instance), so it needs
-     * to be done for every time we instantiate an RTP manager. This varia
+     * to be done for every time we instantiate an RTP manager.
      */
     private static boolean formatsRegisteredOnce = false;
+
+    /**
+     * The last <code>intendedDestination</code> to which
+     * {@link #allocateMediaPorts(InetAddress)} was applied (and which is
+     * supposedly currently in effect).
+     */
+    private InetAddress lastIntendedDestination;
 
     /**
      * Creates a new session for the specified <tt>call</tt> with a custom
@@ -414,30 +424,39 @@ public class CallSessionImpl
      * Stops and closes all streams that have been initialized for local
      * RTP managers.
      */
-    public void stopStreaming()
+    public boolean stopStreaming()
     {
+        boolean stoppedStreaming = false;
+
         RTPManager audioRtpManager = getAudioRtpManager();
         if (audioRtpManager != null)
         {
-            stopStreaming(audioRtpManager, "audio");
+            stoppedStreaming = stopStreaming(audioRtpManager);
+            this.audioRtpManager = null;
         }
-        this.audioRtpManager = null;
         RTPManager videoRtpManager = getVideoRtpManager();
         if (videoRtpManager != null)
         {
-            stopStreaming(videoRtpManager, "video");
+            stoppedStreaming =
+                stopStreaming(videoRtpManager) || stoppedStreaming;
+            this.videoRtpManager = null;
         }
-        this.videoRtpManager = null;
+
+        lastIntendedDestination = null;
+        return stoppedStreaming;
     }
 
     /**
      * Stops and closes all streams currently handled by <tt>rtpManager</tt>.
-     *
+     * 
      * @param rtpManager the rtpManager whose streams we'll be stopping.
+     * @return <tt>true</tt> if there was an actual change in the streaming i.e.
+     *         the streaming wasn't already stopped before this request;
+     *         <tt>false</tt>, otherwise
      */
-    private void stopStreaming(RTPManager rtpManager,
-                               String rtpManagerDescription)
+    private boolean stopStreaming(RTPManager rtpManager)
     {
+        boolean stoppedAtLeastOneStream = false;
         Vector sendStreams = rtpManager.getSendStreams();
         Iterator ssIter = sendStreams.iterator();
 
@@ -454,6 +473,7 @@ public class CallSessionImpl
             {
                 logger.warn("Failed to stop stream.", ex);
             }
+            stoppedAtLeastOneStream = true;
         }
 
         Vector receiveStreams = rtpManager.getReceiveStreams();
@@ -469,6 +489,7 @@ public class CallSessionImpl
             {
                 logger.warn("Failed to stop stream.", ex);
             }
+            stoppedAtLeastOneStream = true;
         }
 
         //remove targets
@@ -479,8 +500,8 @@ public class CallSessionImpl
              */
             && rtpManager.equals(audioRtpManager))
         {
-            TransformConnector transConnector
-                = (TransformConnector) this.transConnectors.get(rtpManager);
+            TransformConnector transConnector =
+                this.transConnectors.get(rtpManager);
 
             if (transConnector != null)
             {
@@ -504,6 +525,8 @@ public class CallSessionImpl
         rtpManager.removeSendStreamListener(this);
         rtpManager.removeSessionListener(this);
         rtpManager.dispose();
+
+        return stoppedAtLeastOneStream;
     }
 
     /**
@@ -845,18 +868,27 @@ public class CallSessionImpl
         {
             onHold &= ~ (here ? ON_HOLD_LOCALLY : ON_HOLD_REMOTELY);
         }
+        
+        applyOnHold();
+    }
 
-        /* Put the send on/off hold. */
+    /**
+     * Applies the current <code>onHold</code> state to the current streaming.
+     */
+    private void applyOnHold()
+    {
+        // Put the send on/off hold.
         boolean sendOnHold =
             (0 != (onHold & (ON_HOLD_LOCALLY | ON_HOLD_REMOTELY)));
         putOnHold(getAudioRtpManager(), sendOnHold);
         putOnHold(getVideoRtpManager(), sendOnHold);
 
-        /* Put the receive on/off hold. */
+        // Put the receive on/off hold.
         boolean receiveOnHold = (0 != (onHold & ON_HOLD_LOCALLY));
-        for (Iterator playerIter = players.iterator(); playerIter.hasNext();)
+        for (Iterator<Player> playerIter = players.iterator(); playerIter
+            .hasNext();)
         {
-            Player player = (Player) playerIter.next();
+            Player player = playerIter.next();
 
             if (receiveOnHold)
                 player.stop();
@@ -975,12 +1007,12 @@ public class CallSessionImpl
      * @param sdpOfferStr the SDP offer that we'd like to create an answer for.
      * @param offerer the participant that has sent the offer.
      *
-     * @return a String containing an SDP answer descibing parameters of the
+     * @return a String containing an SDP answer describing parameters of the
      * <tt>Call</tt> associated with this session and matching those advertised
      * by the caller in their <tt>sdpOffer</tt>.
      *
      * @throws MediaException code INTERNAL_ERROR if processing the offer and/or
-     * generating the anser fail for some reason.
+     * generating the answer fail for some reason.
      * @throws ParseException if <tt>sdpOfferStr</tt> does not contain a valid
      * sdp string.
      */
@@ -1229,8 +1261,7 @@ public class CallSessionImpl
                          && rtpManager.equals(audioRtpManager))
                     {
                         TransformConnector transConnector =
-                            (TransformConnector) this.transConnectors
-                                .get(rtpManager);
+                            this.transConnectors.get(rtpManager);
 
                         if (transConnector == null)
                         {
@@ -1286,13 +1317,15 @@ public class CallSessionImpl
                                             InetAddress intendedDestination)
         throws MediaException
     {
+        SdpFactory sdpFactory = mediaServCallback.getSdpFactory();
+
         try
         {
-            SessionDescription sessDescr
-                = mediaServCallback.getSdpFactory().createSessionDescription();
+            SessionDescription sessDescr =
+                sdpFactory.createSessionDescription();
 
             //"v=0"
-            Version v = mediaServCallback.getSdpFactory().createVersion(0);
+            Version v = sdpFactory.createVersion(0);
 
             sessDescr.setVersion(v);
 
@@ -1329,43 +1362,71 @@ public class CallSessionImpl
                 }
 
                 //in case the offer contains a media level connection param, it
-                //needs to override the connection one.
-                Iterator<MediaDescription> mediaDescriptions
-                    = (Iterator<MediaDescription>)offer
-                        .getMediaDescriptions(true).iterator();
+                // needs to override the connection one.
+                Iterator<MediaDescription> mediaDescriptions =
+                    offer.getMediaDescriptions(true).iterator();
 
                 while(mediaDescriptions.hasNext())
                 {
                     Connection conn = mediaDescriptions.next().getConnection();
 
-                    if(conn == null)
-                        continue;
-
-                    try
+                    if (conn != null)
                     {
-                        intendedDestination
-                            = NetworkUtils.getInetAddress(conn.getAddress());
-
-                        break;
+                        try
+                        {
+                            intendedDestination =
+                                NetworkUtils.getInetAddress(conn.getAddress());
+                            break;
+                        }
+                        catch (UnknownHostException e)
+                        {
+                            logger.debug("Couldn't determine indtended "
+                                + "destination from address"
+                                + conn.getAddress(), e);
+                        }
                     }
-                    catch (UnknownHostException e)
-                    {
-                        logger.debug("Couldn't determine indtended "
-                                        +"destination from address"
-                                        + conn.getAddress(), e);
-                    }
-
                 }
             }
 
             /*
-             * Only allocate ports if this is a call establishing event.
-             * The opposite could happen for example, when issuing a
-             * Request.INVITE that would put a CallParticipant on hold.
+             * Only allocate ports if this is a call establishing event. The
+             * opposite could happen for example, when issuing a Request.INVITE
+             * that would put a CallParticipant on hold.
              */
+            boolean allocateMediaPorts = false;
+
+            /*
+             * TODO Should the reinitializing for the purposes of re-INVITE
+             * start the streaming before ACK?
+             */
+            boolean startStreaming = false;
             if ((audioSessionAddress == null) || (videoSessionAddress == null))
             {
+                allocateMediaPorts = true;
+            }
+            else
+            {
+                if (((lastIntendedDestination == null) && (intendedDestination != null))
+                    || ((lastIntendedDestination != null) && !lastIntendedDestination
+                        .equals(intendedDestination)))
+                {
+                    startStreaming = stopStreaming();
+                    audioRtpManager = RTPManager.newInstance();
+                    videoRtpManager = RTPManager.newInstance();
+
+                    allocateMediaPorts = true;
+                }
+            }
+            if (allocateMediaPorts)
+            {
                 allocateMediaPorts(intendedDestination);
+                lastIntendedDestination = intendedDestination;
+
+                if (startStreaming)
+                {
+                    startStreaming();
+                    applyOnHold();
+                }
             }
 
             InetAddress publicIpAddress = audioPublicAddress.getAddress();
@@ -1377,7 +1438,7 @@ public class CallSessionImpl
 
             //spaces in the user name mess everything up.
             //bug report - Alessandro Melzi
-            Origin o = mediaServCallback.getSdpFactory().createOrigin(
+            Origin o = sdpFactory.createOrigin(
                 call.getProtocolProvider().getAccountID().getUserID()
                 , 0
                 , 0
@@ -1387,7 +1448,7 @@ public class CallSessionImpl
 
             sessDescr.setOrigin(o);
             //c=
-            Connection c = mediaServCallback.getSdpFactory().createConnection(
+            Connection c = sdpFactory.createConnection(
                 "IN"
                 , addrType
                 , publicIpAddress.getHostAddress());
@@ -1395,13 +1456,10 @@ public class CallSessionImpl
             sessDescr.setConnection(c);
 
             //"s=-"
-            SessionName s
-                = mediaServCallback.getSdpFactory().createSessionName("-");
-            sessDescr.setSessionName(s);
+            sessDescr.setSessionName(sdpFactory.createSessionName("-"));
 
             //"t=0 0"
-            TimeDescription t
-                = mediaServCallback.getSdpFactory().createTimeDescription();
+            TimeDescription t = sdpFactory.createTimeDescription();
             Vector<TimeDescription> timeDescs = new Vector<TimeDescription>();
             timeDescs.add(t);
 
@@ -1439,7 +1497,6 @@ public class CallSessionImpl
                 , MediaException.INTERNAL_ERROR
                 , exc);
         }
-
     }
 
     /**
@@ -1895,7 +1952,7 @@ public class CallSessionImpl
                                      , ex);
         }
 
-        //check the number of times that we'd have to rety binding to local
+        //check the number of times that we'd have to retry binding to local
         //ports before giving up.
         String bindRetriesStr
             = MediaActivator.getConfigurationService().getString(
@@ -2189,23 +2246,23 @@ public class CallSessionImpl
                 .stopProcessingMedia(this);
 
             //close all players that we have created in this session
-            Iterator playersIter = players.iterator();
+            Iterator<Player> playersIter = players.iterator();
 
             while(playersIter.hasNext())
             {
-                Player player = ( Player )playersIter.next();
+                Player player = playersIter.next();
                 player.stop();
                 player.deallocate();
                 player.close();
                 playersIter.remove();
             }
 
-            //close all video frames that we have created in this session
-            Iterator videoFramesIter = videoFrames.iterator();
+            // close all video frames that we have created in this session
+            Iterator<javax.swing.JFrame> videoFramesIter =
+                videoFrames.iterator();
             while(videoFramesIter.hasNext())
             {
-                javax.swing.JFrame frame
-                    = ( javax.swing.JFrame )videoFramesIter.next();
+                javax.swing.JFrame frame = videoFramesIter.next();
                 frame.setVisible(false);
                 frame.dispose();
                 videoFramesIter.remove();
@@ -2389,7 +2446,7 @@ public class CallSessionImpl
                 {
                     player = Manager.createPlayer(ds);
                 }
-                 player.addControllerListener(this);
+                player.addControllerListener(this);
 
                 //a processor needs to be configured then realized.
                 if (dataSink !=  null)
@@ -2494,7 +2551,6 @@ public class CallSessionImpl
                 {
                     logger.info("starting recording to file: "+dataSink);
                     MediaLocator dest = new MediaLocator(dataSink);
-                    DataSource ds = ((Processor)player).getDataOutput();
                     DataSink sink = Manager.createDataSink(
                         ((Processor)player).getDataOutput(), dest);
                     player.start();
@@ -2689,8 +2745,7 @@ public class CallSessionImpl
         int newStatus = event.getEventID();
         OperationSetSecureTelephony.SecureStatusChangeSource source = event.getSource();
 
-        TransformConnector transConnector =
-            (TransformConnector) this.transConnectors.get(manager);
+        TransformConnector transConnector = this.transConnectors.get(manager);
 
         ZRTPTransformEngine engine = (ZRTPTransformEngine)transConnector.getEngine();
 
@@ -2777,7 +2832,7 @@ public class CallSessionImpl
     public void initializeSupportedKeyProviders()
     {
         if (keySharingAlgorithms == null)
-            keySharingAlgorithms = new Vector();
+            keySharingAlgorithms = new Vector<KeyProviderAlgorithm>();
 
         DummyKeyProvider dummyProvider = new DummyKeyProvider(1);
         ZRTPKeyProvider zrtpKeyProvider = new ZRTPKeyProvider(0);
@@ -2797,17 +2852,10 @@ public class CallSessionImpl
      */
     public KeyProviderAlgorithm selectDefaultKeyProviderAlgorithm()
     {
-        KeyProviderAlgorithm defaultProvider =
-            (KeyProviderAlgorithm)keySharingAlgorithms.get(0);
+        KeyProviderAlgorithm defaultProvider = keySharingAlgorithms.get(0);
 
-        if (defaultProvider == null)
-        {
-            return new DummyKeyProvider(0);
-        }
-        else
-        {
-            return defaultProvider;
-        }
+        return (defaultProvider == null) ? new DummyKeyProvider(0)
+            : defaultProvider;
     }
 
     /**
@@ -2823,24 +2871,19 @@ public class CallSessionImpl
      */
     public KeyProviderAlgorithm selectKeyProviderAlgorithm(int priority)
     {
-        KeyProviderAlgorithm selectedProvider =
-            (KeyProviderAlgorithm)keySharingAlgorithms.get(priority);
-
-        return selectedProvider;
+        return keySharingAlgorithms.get(priority);
     }
 
     /**
      * Additional info codes for ZRTP4J.
      * These could be added to the library. However they are specific for this
      * implementation, needing them for various GUI changes.
-     *
      */
-    public static enum  ZRTPCustomInfoCodes
+    public static enum ZRTPCustomInfoCodes
     {
         ZRTPNotEnabledByUser,
         ZRTPDisabledByCallEnd,
         ZRTPEngineInitFailure;
-
     }
 
     /**

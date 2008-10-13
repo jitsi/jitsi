@@ -257,18 +257,18 @@ public class NetworkAddressManagerServiceImpl
                 {
                     //return the first globally routable ipv6 address we find
                     //on the machine (and hope it's a good one)
-                    Enumeration interfaces
+                    Enumeration<NetworkInterface> interfaces
                         = NetworkInterface.getNetworkInterfaces();
 
                     while (interfaces.hasMoreElements())
                     {
-                        NetworkInterface iface
-                            = (NetworkInterface)interfaces.nextElement();
-                        Enumeration addresses = iface.getInetAddresses();
+                        NetworkInterface iface = interfaces.nextElement();
+                        Enumeration<InetAddress> addresses =
+                            iface.getInetAddresses();
                         while(addresses.hasMoreElements())
                         {
                             InetAddress address
-                                = (InetAddress)addresses.nextElement();
+                                = addresses.nextElement();
                             if(address instanceof Inet6Address)
                             {
                                 if(!address.isAnyLocalAddress()
@@ -394,9 +394,9 @@ public class NetworkAddressManagerServiceImpl
             result = mappedAddress.getSocketAddress();
         else
         {
-            //Apparently STUN failed. Let's try to temporarily disble it
+            //Apparently STUN failed. Let's try to temporarily disable it
             //and use algorithms in getLocalHost(). ... We should probably
-            //eveng think about completely disabling stun, and not only
+            //even think about completely disabling stun, and not only
             //temporarily.
             //Bug report - John J. Barton - IBM
             InetAddress localHost = getLocalHost(dst);
