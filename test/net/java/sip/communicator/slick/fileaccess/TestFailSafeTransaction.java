@@ -116,8 +116,10 @@ public class TestFailSafeTransaction
             // setup a temp file
             File temp = File.createTempFile(tempName + "b", null);
             FileOutputStream out = new FileOutputStream(temp);
+            byte[] origDataBytes = origData.getBytes();
             
-            out.write(origData.getBytes());
+            out.write(origDataBytes);
+            out.flush();
             
             // write a modification during a transaction
             FailSafeTransaction trans = this.fileAccessService
@@ -125,6 +127,7 @@ public class TestFailSafeTransaction
             trans.beginTransaction();
             
             out.write(wrongData.getBytes());
+            out.flush();
             
             trans.rollback();
             
@@ -134,7 +137,7 @@ public class TestFailSafeTransaction
             // file length
             assertEquals("the file hasn't the right size after a commit",
                     temp.length(),
-                    origData.length());
+                    origDataBytes.length);
             
             FileInputStream in = new FileInputStream(temp);
             byte[] buffer = new byte[in.available()];
@@ -211,8 +214,10 @@ public class TestFailSafeTransaction
             // setup a temp file
             File temp = File.createTempFile(tempName + "d", null);
             FileOutputStream out = new FileOutputStream(temp);
+            byte[] origDataBytes = origData.getBytes();
             
-            out.write(origData.getBytes());
+            out.write(origDataBytes);
+            out.flush();
             
             // write a modification during a transaction
             FailSafeTransaction trans = this.fileAccessService
@@ -222,6 +227,7 @@ public class TestFailSafeTransaction
             trans.beginTransaction();
             
             out.write(wrongData.getBytes());
+            out.flush();
             
             // we suppose here that SC crashed without closing properly the 
             // transaction. When it restarts, the modification must have been
@@ -235,7 +241,7 @@ public class TestFailSafeTransaction
             // file length
             assertEquals("the file hasn't the right size after a commit",
                     temp.length(),
-                    origData.length());
+                    origDataBytes.length);
             
             FileInputStream in = new FileInputStream(temp);
             byte[] buffer = new byte[in.available()];
