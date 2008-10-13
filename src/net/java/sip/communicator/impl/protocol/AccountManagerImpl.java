@@ -461,27 +461,25 @@ public class AccountManagerImpl
      * implementation tracks the registrations of
      * <code>ProtocolProviderFactory</code> services in order to queue them for
      * loading their stored accounts.
-     *
+     * 
      * @param serviceEvent the <code>ServiceEvent</code> containing the event
      *            data
      */
     private void serviceChanged(ServiceEvent serviceEvent)
     {
-        Object service =
-            bundleContext.getService(serviceEvent.getServiceReference());
-
-        if (service instanceof ProtocolProviderFactory)
+        switch (serviceEvent.getType())
         {
-            ProtocolProviderFactory factory = (ProtocolProviderFactory) service;
+        case ServiceEvent.REGISTERED:
+            Object service =
+                bundleContext.getService(serviceEvent.getServiceReference());
 
-            switch (serviceEvent.getType())
+            if (service instanceof ProtocolProviderFactory)
             {
-            case ServiceEvent.REGISTERED:
-                protocolProviderFactoryRegistered(factory);
-                break;
-            default:
-                break;
+                protocolProviderFactoryRegistered((ProtocolProviderFactory) service);
             }
+            break;
+        default:
+            break;
         }
     }
 

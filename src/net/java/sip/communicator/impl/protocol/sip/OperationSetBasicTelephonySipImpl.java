@@ -49,7 +49,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Contains references for all currently active (non ended) calls.
      */
-    private ActiveCallsRepository activeCallsRepository =
+    private final ActiveCallsRepository activeCallsRepository =
         new ActiveCallsRepository(this);
 
     /**
@@ -188,12 +188,9 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             // Shouldn't happen
-            logger.error(
-                "Failed to create a content type header for the INVITE "
-                    + "request", ex);
-            throw new OperationFailedException(
-                "Failed to create a content type header for the INVITE "
-                    + "request", OperationFailedException.INTERNAL_ERROR, ex);
+            throwOperationFailedException(
+                "Failed to create a content type header for the INVITE request",
+                OperationFailedException.INTERNAL_ERROR, ex);
         }
 
         // check whether there's a cached authorization header for this
@@ -220,7 +217,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // Transaction
-        ClientTransaction inviteTransaction;
+        ClientTransaction inviteTransaction = null;
         SipProvider jainSipProvider =
             protocolProvider.getDefaultJainSipProvider();
         try
@@ -229,9 +226,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (TransactionUnavailableException ex)
         {
-            logger.error("Failed to create inviteTransaction.\n"
-                + "This is most probably a network connection error.", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to create inviteTransaction.\n"
                     + "This is most probably a network connection error.",
                 OperationFailedException.INTERNAL_ERROR, ex);
@@ -278,17 +273,13 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            logger.error(
-                "Failed to parse sdp data while creating invite request!", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to parse sdp data while creating invite request!",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
         catch (MediaException ex)
         {
-            logger.error("Could not access media devices!", ex);
-            throw new OperationFailedException(
-                "Could not access media devices!",
+            throwOperationFailedException("Could not access media devices!",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
@@ -300,8 +291,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            logger.error("An error occurred while sending invite request", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "An error occurred while sending invite request",
                 OperationFailedException.NETWORK_FAILURE, ex);
         }
@@ -895,7 +885,7 @@ public class OperationSetBasicTelephonySipImpl
         if (!contentTypeHeader.getContentType().equalsIgnoreCase("application")
             || !contentTypeHeader.getContentSubType().equalsIgnoreCase("sdp"))
         {
-            // This can happen if we are receigin early media for a second time.
+            // This can happen if we are receiving early media for a second time.
             logger.warn("Ignoring invite 183 since call participant is "
                 + "already exchanging early media.");
             return;
@@ -925,25 +915,18 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException exc)
         {
-            logger.error("There was an error parsing the SDP description of "
-                + callParticipant.getDisplayName() + "("
-                + callParticipant.getAddress() + ")", exc);
-            callParticipant.setState(CallParticipantState.FAILED,
+            logErrorAndFailCallParticipant(
                 "There was an error parsing the SDP description of "
                     + callParticipant.getDisplayName() + "("
-                    + callParticipant.getAddress() + ")");
+                    + callParticipant.getAddress() + ")", exc, callParticipant);
         }
         catch (MediaException exc)
         {
-            logger.error("We failed to process the SDP description of "
-                + callParticipant.getDisplayName() + "("
-                + callParticipant.getAddress() + ")" + ". Error was: "
-                + exc.getMessage(), exc);
-            callParticipant.setState(CallParticipantState.FAILED,
+            logErrorAndFailCallParticipant(
                 "We failed to process the SDP description of "
                     + callParticipant.getDisplayName() + "("
                     + callParticipant.getAddress() + ")" + ". Error was: "
-                    + exc.getMessage());
+                    + exc.getMessage(), exc, callParticipant);
         }
 
         // set the call url in case there was one
@@ -975,11 +958,12 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callParticipant == null)
         {
-            // In case of forwarding a call, the dialog maybe forked.
-            // If the dialog is forked
-            // we must check whether we have early state dialogs
-            // established and we must end them, do this by replacing the dialog
-            // with new one
+
+            /*
+             * In case of forwarding a call, the dialog may have forked. If the
+             * dialog is forked, we must end early state dialogs by replacing
+             * the dialog with the new one.
+             */
             CallIdHeader call = (CallIdHeader) ok.getHeader(CallIdHeader.NAME);
             String callid = call.getCallId();
 
@@ -1045,24 +1029,21 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             // Shouldn't happen
-            callParticipant.setState(CallParticipantState.FAILED,
-                "Failed to create a content type header for the ACK request");
-            logger.error(
+            logErrorAndFailCallParticipant(
                 "Failed to create a content type header for the ACK request",
-                ex);
+                ex, callParticipant);
         }
         catch (InvalidArgumentException ex)
         {
             // Shouldn't happen
-            callParticipant.setState(CallParticipantState.FAILED,
-                "Failed ACK request, problem with the supplied cseq");
-            logger.error("Failed ACK request, problem with the supplied cseq",
-                ex);
+            logErrorAndFailCallParticipant(
+                "Failed ACK request, problem with the supplied cseq", ex,
+                callParticipant);
         }
         catch (SipException ex)
         {
-            logger.error("Failed to create ACK request!", ex);
-            callParticipant.setState(CallParticipantState.FAILED);
+            logErrorAndFailCallParticipant("Failed to create ACK request!", ex,
+                callParticipant);
             return;
         }
 
@@ -1084,7 +1065,7 @@ public class OperationSetBasicTelephonySipImpl
                 if (callSession == null)
                 {
                     // non existent call session - that means we didn't send sdp
-                    // in the invide and this is the offer so we need to create
+                    // in the invite and this is the offer so we need to create
                     // the answer.
                     callSession =
                         SipActivator.getMediaService().createCallSession(
@@ -1102,7 +1083,6 @@ public class OperationSetBasicTelephonySipImpl
                     callParticipant
                         .setCallInfoURL(callSession.getCallInfoURL());
                 }
-
             }
             finally
             {
@@ -1115,8 +1095,8 @@ public class OperationSetBasicTelephonySipImpl
                 }
                 catch (SipException ex)
                 {
-                    logger.error("Failed to acknowledge call!", ex);
-                    callParticipant.setState(CallParticipantState.FAILED);
+                    logErrorAndFailCallParticipant(
+                        "Failed to acknowledge call!", ex, callParticipant);
                     return;
                 }
             }
@@ -1140,30 +1120,30 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException exc)
         {
-            logger.error("There was an error parsing the SDP description of "
-                + callParticipant.getDisplayName() + "("
-                + callParticipant.getAddress() + ")", exc);
-            callParticipant.setState(CallParticipantState.FAILED,
+            logErrorAndFailCallParticipant(
                 "There was an error parsing the SDP description of "
                     + callParticipant.getDisplayName() + "("
-                    + callParticipant.getAddress() + ")");
+                    + callParticipant.getAddress() + ")", exc, callParticipant);
         }
         catch (MediaException exc)
         {
-            logger.error("We failed to process the SDP description of "
-                + callParticipant.getDisplayName() + "("
-                + callParticipant.getAddress() + ")" + ". Error was: "
-                + exc.getMessage(), exc);
-            callParticipant.setState(CallParticipantState.FAILED,
+            logErrorAndFailCallParticipant(
                 "We failed to process the SDP description of "
                     + callParticipant.getDisplayName() + "("
                     + callParticipant.getAddress() + ")" + ". Error was: "
-                    + exc.getMessage());
+                    + exc.getMessage(), exc, callParticipant);
         }
 
         // change status
         if (!CallParticipantState.isOnHold(callParticipant.getState()))
             callParticipant.setState(CallParticipantState.CONNECTED);
+    }
+
+    private void logErrorAndFailCallParticipant(String message,
+        Throwable throwable, CallParticipantSipImpl participant)
+    {
+        logger.error(message, throwable);
+        participant.setState(CallParticipantState.FAILED, message);
     }
 
     /**
@@ -1244,10 +1224,10 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception exc)
         {
-            logger.error("We failed to authenticate an INVITE request.", exc);
-
             // tell the others we couldn't register
-            callParticipant.setState(CallParticipantState.FAILED);
+            logErrorAndFailCallParticipant(
+                "We failed to authenticate an INVITE request.", exc,
+                callParticipant);
         }
     }
 
@@ -1370,21 +1350,15 @@ public class OperationSetBasicTelephonySipImpl
         catch (InvalidArgumentException ex)
         {
             // Shouldn't happen
-            logger.error("An unexpected erro occurred while"
-                + "constructing the CSeqHeadder", ex);
-            throw new OperationFailedException(
-                "An unexpected erro occurred while"
-                    + "constructing the CSeqHeadder",
+            throwOperationFailedException("An unexpected erro occurred while"
+                + "constructing the CSeqHeadder",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
         catch (ParseException exc)
         {
             // shouldn't happen
-            logger.error("An unexpected erro occurred while"
-                + "constructing the CSeqHeadder", exc);
-            throw new OperationFailedException(
-                "An unexpected erro occurred while"
-                    + "constructing the CSeqHeadder",
+            throwOperationFailedException("An unexpected erro occurred while"
+                + "constructing the CSeqHeadder",
                 OperationFailedException.INTERNAL_ERROR, exc);
         }
 
@@ -1408,11 +1382,8 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             // these two should never happen.
-            logger.error("An unexpected erro occurred while"
-                + "constructing the ToHeader", ex);
-            throw new OperationFailedException(
-                "An unexpected erro occurred while"
-                    + "constructing the ToHeader",
+            throwOperationFailedException("An unexpected erro occurred while"
+                + "constructing the ToHeader",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
@@ -1440,9 +1411,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             // shouldn't happen
-            logger.error("Failed to create invite Request!", ex);
-            throw new OperationFailedException(
-                "Failed to create invite Request!",
+            throwOperationFailedException("Failed to create invite Request!",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
@@ -1945,7 +1914,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param serverTransaction the transaction that the Ack was received in.
      * @param ackRequest Request
      */
-    void processAck(ServerTransaction serverTransaction, Request ackRequest)
+    private void processAck(ServerTransaction serverTransaction, Request ackRequest)
     {
         // find the call
         CallParticipantSipImpl callParticipant =
@@ -2002,17 +1971,15 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            logger.error(
-                "Failed to create an OK Response to an CANCEL request.", ex);
-            callParticipant.setState(CallParticipantState.FAILED,
-                "Failed to create an OK Response to an CANCEL request.");
+            logErrorAndFailCallParticipant(
+                "Failed to create an OK Response to an CANCEL request.", ex,
+                callParticipant);
         }
         catch (Exception ex)
         {
-            logger.error("Failed to send an OK Response to an CANCEL request.",
-                ex);
-            callParticipant.setState(CallParticipantState.FAILED,
-                "Failed to send an OK Response to an CANCEL request.");
+            logErrorAndFailCallParticipant(
+                "Failed to send an OK Response to an CANCEL request.", ex,
+                callParticipant);
         }
         try
         {
@@ -2661,9 +2628,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            logger.error(
-                "Failed to construct an OK response to an INVITE request", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to construct an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
@@ -2679,9 +2644,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception ex)
         {
-            logger.error("Failed to send an OK response to an INVITE request",
-                ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to send an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
@@ -2774,9 +2737,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            logger.error("Failed to send the CANCEL request", ex);
-            throw new OperationFailedException(
-                "Failed to send the CANCEL request",
+            throwOperationFailedException("Failed to send the CANCEL request",
                 OperationFailedException.NETWORK_FAILURE, ex);
         }
     } // cancel
@@ -2804,8 +2765,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            logger.error("Failed to create the BUSY_HERE response!", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to create the BUSY_HERE response!",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
@@ -2827,8 +2787,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception ex)
         {
-            logger.error("Failed to send the BUSY_HERE response", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to send the BUSY_HERE response",
                 OperationFailedException.NETWORK_FAILURE, ex);
         }
@@ -2883,9 +2842,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
-            logger.error(
-                "Failed to construct an OK response to an INVITE request", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to construct an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
@@ -2904,10 +2861,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             // Shouldn't happen
             callParticipant.setState(CallParticipantState.DISCONNECTED);
-            logger.error(
-                "Failed to create a content type header for the OK response",
-                ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to create a content type header for the OK response",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
@@ -2920,15 +2874,12 @@ public class OperationSetBasicTelephonySipImpl
             ((CallSipImpl) callParticipant.getCall())
                 .setMediaCallSession(callSession);
 
+            String sdpOffer = callParticipant.getSdpDescription();
             String sdp = null;
             // if the offer was in the invite create an sdp answer
-            if (callParticipant.getSdpDescription() != null
-                && callParticipant.getSdpDescription().length() > 0)
+            if ((sdpOffer != null) && (sdpOffer.length() > 0))
             {
-
-                sdp =
-                    callSession.processSdpOffer(callParticipant,
-                        callParticipant.getSdpDescription());
+                sdp = callSession.processSdpOffer(callParticipant, sdpOffer);
 
                 // set the call url in case there was one
                 /**
@@ -2948,9 +2899,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             this.sayError((CallParticipantSipImpl) participant,
                 Response.NOT_ACCEPTABLE_HERE);
-            logger.error("No sdp data was provided for the ok response to "
-                + "an INVITE request!", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to created an SDP description for an ok response "
                     + "to an INVITE request!",
                 OperationFailedException.INTERNAL_ERROR, ex);
@@ -2958,9 +2907,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
-            logger.error(
-                "Failed to parse sdp data while creating invite request!", ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to parse sdp data while creating invite request!",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
@@ -2977,9 +2924,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (Exception ex)
         {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
-            logger.error("Failed to send an OK response to an INVITE request",
-                ex);
-            throw new OperationFailedException(
+            throwOperationFailedException(
                 "Failed to send an OK response to an INVITE request",
                 OperationFailedException.NETWORK_FAILURE, ex);
         }
@@ -3052,24 +2997,13 @@ public class OperationSetBasicTelephonySipImpl
      * Returns a string representation of this OperationSetBasicTelephony
      * instance including information that would permit to distinguish it among
      * other instances when reading a log file.
-     * <p>
-     *
+     * 
      * @return a string representation of this operation set.
      */
     public String toString()
     {
-        String className = getClass().getName();
-        try
-        {
-            className = className.substring(className.lastIndexOf('.') + 1);
-        }
-        catch (Exception ex)
-        {
-            // we don't want to fail in this method because we've messed up
-            // something with indexes, so just ignore.
-        }
-        return className + "-[dn=" + protocolProvider.getOurDisplayName()
-            + " addr=["
+        return getClass().getSimpleName() + "-[dn="
+            + protocolProvider.getOurDisplayName() + " addr=["
             + protocolProvider.getRegistrarConnection().getAddressOfRecord()
             + "]";
     }
