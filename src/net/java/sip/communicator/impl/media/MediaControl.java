@@ -22,7 +22,7 @@ import net.java.sip.communicator.service.media.MediaException;
 import net.java.sip.communicator.util.*;
 
 /**
- * This class is intended to provide a generic way to control media package.
+ * Provides a generic way to control media package.
  *
  * @author Martin Andre
  * @author Emil Ivov
@@ -121,7 +121,7 @@ public class MediaControl
     /**
      * The list of readers currently using our processor.
      */
-    private Vector processorReaders = new Vector();
+    private List<Object> processorReaders = new Vector<Object>();
 
     /**
      * An object that we use for.
@@ -249,12 +249,12 @@ public class MediaControl
         ConfigurationService confService
             = MediaActivator.getConfigurationService();
 
-        List sdpPreferences = confService.getPropertyNamesByPrefix(
+        List<String> sdpPreferences = confService.getPropertyNamesByPrefix(
                         PROP_SDP_PREFERENCE, false);
-        Iterator sdpPreferencesIter = sdpPreferences.iterator();
+        Iterator<String> sdpPreferencesIter = sdpPreferences.iterator();
         while(sdpPreferencesIter.hasNext())
         {
-            String pName = (String)sdpPreferencesIter.next();
+            String pName = sdpPreferencesIter.next();
             String prefStr = confService.getString(pName);
             String fmtName = pName.substring(pName.lastIndexOf('.'));
             int    preference = -1;
@@ -315,13 +315,13 @@ public class MediaControl
      */
     private void sortEncodingsArray(String[] encodingsArray)
     {
-        Arrays.sort( encodingsArray, new Comparator()
+        Arrays.sort(encodingsArray, new Comparator<String>()
         {
-            public int compare(Object o1, Object o2)
+            public int compare(String s1, String s2)
             {
-                return compareEncodingPreferences((String)o1, (String)o2);
+                return compareEncodingPreferences(s1, s2);
             }
-        } );
+        });
     }
 
     /**
@@ -760,19 +760,20 @@ public class MediaControl
     }
 
     /**
-     * Creates a processing data source using the <tt>encodingSets</tt> map
-     * to determine the formats/encodings allowed for the various media types.
-     *
+     * Creates a processing data source using the <tt>encodingSets</tt> map to
+     * determine the formats/encodings allowed for the various media types.
+     * 
      * @param encodingSets a hashtable mapping media types such as "audio" or
-     * "video" to <tt>List</tt>a of encodings (ordered by preference) accepted
-     * for the corresponding type.
-     *
+     *            "video" to <tt>List</tt>a of encodings (ordered by preference)
+     *            accepted for the corresponding type.
+     * 
      * @return a processing data source set to generate flows in the encodings
-     * specified by the encodingSets map.
-     *
+     *         specified by the encodingSets map.
+     * 
      * @throws MediaException if creating the data source fails for some reason.
      */
-    public DataSource createDataSourceForEncodings(Hashtable encodingSets)
+    public DataSource createDataSourceForEncodings(
+        Hashtable<String, List<String>> encodingSets)
         throws MediaException
     {
         if (sourceProcessor == null)
@@ -1032,39 +1033,40 @@ public class MediaControl
         return (VideoFormat) result.intersects(sourceFormat);
     }
 
-
     /**
      * Looks for the first encoding (among the requested encodings elements)
      * that is also present in the <tt>availableFormats</tt> array and returns
      * the index of the corresponding <tt>Format</tt>.
-     *
+     * 
      * @param availableFormats an array of JMF <tt>Format</tt>s that we're
-     * currently able to transmit.
+     *            currently able to transmit.
      * @param requestedEncodings a table mapping media types (e.g. audio or
-     * video) to a list of encodings that our interlocutor has sent in order of
-     * preference.
-     *
+     *            video) to a list of encodings that our interlocutor has sent
+     *            in order of preference.
+     * 
      * @return the index of the format corresponding to the first encoding that
-     * had a marching format in the <tt>availableFormats</tt> array.
+     *         had a marching format in the <tt>availableFormats</tt> array.
      */
     protected int findFirstMatchingFormat(Format[] availableFormats,
-                                          Hashtable requestedEncodings)
+        Hashtable<String, List<String>> requestedEncodings)
     {
         if (availableFormats == null || requestedEncodings == null)
         {
             return -1;
         }
 
-        Enumeration formatSets = requestedEncodings.elements();
-        while(formatSets.hasMoreElements())
+        Enumeration<List<String>> formatSets = requestedEncodings.elements();
+        while (formatSets.hasMoreElements())
         {
-            ArrayList currentSet = (ArrayList) formatSets.nextElement();
-            for (int k = 0; k < currentSet.size(); k++)
+            for (Iterator<String> currentSetIter =
+                formatSets.nextElement().iterator(); currentSetIter.hasNext();)
             {
+                String currentSetElement = currentSetIter.next();
+
                 for (int i = 0; i < availableFormats.length; i++)
                 {
-                    if (availableFormats[i].getEncoding()
-                        .equals( (String)currentSet.get(k)))
+                    if (availableFormats[i].getEncoding().equals(
+                        currentSetElement))
                     {
                         return i;
                     }
@@ -1155,16 +1157,10 @@ public class MediaControl
     {
         // use a set to check if the codecs are already
         // registered in jmf.properties
-        Set registeredPlugins = new HashSet();
+        Set<String> registeredPlugins = new HashSet<String>();
 
-        for ( Iterator plugins = PlugInManager
-                .getPlugInList( null,
-                                null,
-                                PlugInManager.CODEC).iterator();
-              plugins.hasNext(); )
-        {
-            registeredPlugins.add(plugins.next());
-        }
+        registeredPlugins.addAll(PlugInManager.getPlugInList(null, null,
+            PlugInManager.CODEC));
 
         for (int i = 0; i < customCodecs.length; i++)
         {
@@ -1178,9 +1174,7 @@ public class MediaControl
             {
                 try
                 {
-
-                    Class pic = Class.forName(className);
-                    Object instance = pic.newInstance();
+                    Object instance = Class.forName(className).newInstance();
 
                     boolean result =
                         PlugInManager.addPlugIn(
@@ -1229,7 +1223,8 @@ public class MediaControl
      */
     private void registerCustomPackages()
     {
-        Vector currentPackagePrefix = PackageManager.getProtocolPrefixList();
+        Vector<String> currentPackagePrefix =
+            PackageManager.getProtocolPrefixList();
 
         for (int i = 0; i < customPackages.length; i++)
         {

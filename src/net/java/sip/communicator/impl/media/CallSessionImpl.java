@@ -1116,7 +1116,7 @@ public class CallSessionImpl
         throws MediaException
     {
         //extract the encodings these media descriptions specify
-        Hashtable mediaEncodings
+        Hashtable<String, List<String>> mediaEncodings
             = extractMediaEncodings(mediaDescriptions);
 
         //make our processor output in these encodings.
@@ -1712,28 +1712,30 @@ public class CallSessionImpl
             mediaControl.getSupportedVideoEncodings();
 
         //audio encodings offered by the remote party
-        List offeredAudioEncodings = (List)offeredEncodings.get("audio");
+        List<String> offeredAudioEncodings = offeredEncodings.get("audio");
 
         //video encodings offered by the remote party
-        List offeredVideoEncodings = (List)offeredEncodings.get("video");
+        List<String> offeredVideoEncodings = offeredEncodings.get("video");
 
         //recreate the formats we create according to what the other party
-        //offered.
-        List supportedAudioEncsList = Arrays.asList(supportedAudioEncodings);
-        List intersectedAudioEncsList = new LinkedList();
-        List supportedVideoEncsList = Arrays.asList(supportedVideoEncodings);
-        List intersectedVideoEncsList = new LinkedList();
+        // offered.
+        List<String> supportedAudioEncsList =
+            Arrays.asList(supportedAudioEncodings);
+        List<String> intersectedAudioEncsList = new LinkedList<String>();
+        List<String> supportedVideoEncsList =
+            Arrays.asList(supportedVideoEncodings);
+        List<String> intersectedVideoEncsList = new LinkedList<String>();
 
         //intersect supported audio formats with offered audio formats
         if (offeredAudioEncodings != null
             && offeredAudioEncodings.size() > 0)
         {
-            Iterator offeredAudioEncsIter
+            Iterator<String> offeredAudioEncsIter
                 = offeredAudioEncodings.iterator();
 
             while (offeredAudioEncsIter.hasNext())
             {
-                String format = (String) offeredAudioEncsIter.next();
+                String format = offeredAudioEncsIter.next();
                 if (supportedAudioEncsList.contains(format))
                     intersectedAudioEncsList.add(format);
             }
@@ -1742,12 +1744,13 @@ public class CallSessionImpl
         if (offeredVideoEncodings != null
             && offeredVideoEncodings.size() > 0)
         {
-            //intersect supported video formats with offered video formats
-            Iterator offeredVideoEncsIter = offeredVideoEncodings.iterator();
+            // intersect supported video formats with offered video formats
+            Iterator<String> offeredVideoEncsIter =
+                offeredVideoEncodings.iterator();
 
             while (offeredVideoEncsIter.hasNext())
             {
-                String format = (String) offeredVideoEncsIter.next();
+                String format = offeredVideoEncsIter.next();
                 if (supportedVideoEncsList.contains(format))
                     intersectedVideoEncsList.add(format);
             }
@@ -1765,27 +1768,31 @@ public class CallSessionImpl
 
         }
 
-        Hashtable intersection = new Hashtable(2);
+        Hashtable<String, List<String>> intersection =
+            new Hashtable<String, List<String>>(2);
         intersection.put("audio", intersectedAudioEncsList);
         intersection.put("video", intersectedVideoEncsList);
 
         return intersection;
     }
-    /**
-     * Returns a <tt>Hashtable</tt> mapping media types (e.g. audio or video)
-     * to lists of JMF encoding strings corresponding to the SDP formats
-     * specified in the <tt>mediaDescriptions</tt> vector.
-     * @param mediaDescriptions a <tt>Vector</tt> containing
-     * <tt>MediaDescription</tt> instances extracted from an SDP offer or
-     * answer.
-     * @return a <tt>Hashtable</tt> mapping media types (e.g. audio or video)
-     * to lists of JMF encoding strings corresponding to the SDP formats
-     * specified in the <tt>mediaDescriptions</tt> vector.
 
+    /**
+     * Returns a <tt>Hashtable</tt> mapping media types (e.g. audio or video) to
+     * lists of JMF encoding strings corresponding to the SDP formats specified
+     * in the <tt>mediaDescriptions</tt> vector.
+     * 
+     * @param mediaDescriptions a <tt>Vector</tt> containing
+     *            <tt>MediaDescription</tt> instances extracted from an SDP
+     *            offer or answer.
+     * @return a <tt>Hashtable</tt> mapping media types (e.g. audio or video) to
+     *         lists of JMF encoding strings corresponding to the SDP formats
+     *         specified in the <tt>mediaDescriptions</tt> vector.
      */
-    private Hashtable extractMediaEncodings(Vector mediaDescriptions)
+    private Hashtable<String, List<String>> extractMediaEncodings(
+        Vector mediaDescriptions)
     {
-        Hashtable mediaEncodings = new Hashtable(2);
+        Hashtable<String, List<String>> mediaEncodings =
+            new Hashtable<String, List<String>>(2);
 
         Iterator descriptionsIter = mediaDescriptions.iterator();
 
@@ -1812,7 +1819,8 @@ public class CallSessionImpl
 
             if(mediaFormats.size() > 0)
             {
-                List jmfEncodings = MediaUtils.sdpToJmfEncodings(mediaFormats);
+                List<String> jmfEncodings =
+                    MediaUtils.sdpToJmfEncodings(mediaFormats);
                 if(jmfEncodings.size() > 0)
                     mediaEncodings.put(mediaType, jmfEncodings);
             }

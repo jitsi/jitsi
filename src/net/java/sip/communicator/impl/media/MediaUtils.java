@@ -159,8 +159,8 @@ public class MediaUtils {
      * codes.
      * @return a list of strings representing JMF compatible encoding names.
      */
-    public static List sdpToJmfEncodings(List sdpEncodings) {
-        ArrayList jmfEncodings = new ArrayList();
+    public static List<String> sdpToJmfEncodings(List sdpEncodings) {
+        ArrayList<String> jmfEncodings = new ArrayList<String>();
 
         if (sdpEncodings == null) {
             return jmfEncodings;
