@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH sip-communicator 1 "September 25, 2006"
+.TH sip-communicator 1 "October 10, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -19,29 +19,41 @@
 sip-communicator \- the Java VoIP and Instant Messaging client
 .SH SYNOPSIS
 .B sip-communicator
-.RI [ options ]
+.RI [ options ] " " [ uri-to-call ]
 .SH DESCRIPTION
-This manual page documents briefly the
-.B sip-communicator
-command.
-.PP
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
 .\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
 .\" respectively.
-\fBSIP Communicator\fP is an application that allows you to do audio/video
-conversations over the Internet through the SIP protocol, as well as chat with
-your friends using some of the most popular instant messaging protocols such as
-SIP/SIMPLE, Jabber, AIM/ICQ, MSN, Yahoo, IRC and others.
+\fBSIP Communicator\fP is an audio/video Internet phone and instant messenger
+that supports some of the most popular instant messaging and telephony
+protocols such as SIP, Jabber, AIM/ICQ, MSN, Yahoo! Messenger, Bonjour, IRC,
+RSS and soon others like IAX.
+.PP
+.RI "An optional " uri-to-call " expression can be specified to start a call from the command-line. If SIP Communicator is already running then the call is handled by the running application, except when it is explicitly told to allow multiple instance launch."
 .SH OPTIONS
 .TP
+.BI "\-c, \-\-config=" DIR
+Use
+.I DIR
+for configuration files.
+.TP
+.B \-d, \-\-debug
+Print debugging messages to stdout.
+.TP
 .B \-h, \-\-help
-Show summary of options.
+Print a help message containing usage instructions and descriptions of all options currently supported.
 .TP
-.B \-v, \-\-verbose
-SIP communicator logs are displayed in the console.
+.B \-m, \-\-multiple
+Allow multiple instance launch.
 .TP
-.B \-V, \-\-version
-Show version of program.
+.B \-6, \-\-ipv6
+Force use of IPv6 addresses where possible.
+.TP
+.B \-4, \-\-ipv4
+Force non-support for IPv6 and use of IPv4 only.
+.TP
+.B \-v, \-\-version
+Display the current version and exit.
 .TP
 .SH FILES
 .TP
@@ -54,7 +66,7 @@ The IM contact-list.
 .RS
 The main configuration file.
 .SH AUTHOR
-SIP Communicator was written by Emil Ivov <emcho@clarinet.u-strasbg.fr>.
+SIP Communicator was written by Emil Ivov <emcho@sip-communicator.org>.
 .PP
 This manual page was written by Martin Andre <mandre@dev.java.net>, for the
 Debian project (but may be used by others).
