@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -61,6 +60,13 @@ public class ContactListPanel
     private Logger logger = Logger.getLogger(ContactListPanel.class);
 
     private ChatWindowManager chatWindowManager;
+    
+    /**
+     * Pseudo timer used to delay multiples typings notifications before recieving
+     * the message
+     * Time to live : 1 minute
+     */
+    private Map<String,Long> proactiveTimer = new HashMap<String, Long>();
 
     /**
      * Creates the contactlist scroll panel defining the parent frame.
@@ -535,11 +541,7 @@ public class ContactListPanel
             // Proactive typing notification
             if (!chatWindowManager.isChatOpenedForContact(metaContact))
             {
-                notificationMsg = Messages.getI18NString("proactiveNotification")
-                    .getText();
-                NotificationManager.fireNotification(
-                        NotificationManager.PROACTIVE_NOTIFICATION,
-                        contactName.trim(), notificationMsg);
+                this.sendProactiveNotification(contactName.trim());
                 return;
             }
         }
@@ -564,6 +566,54 @@ public class ContactListPanel
             // TODO: Implement state unknown
         }
         this.setChatNotificationMsg(metaContact, notificationMsg);
+    }
+    
+    /**
+     * Send a proactive notification according to the proactive timer.
+     * The notification is fired only if another notification hasn't been
+     * recieved for more than 1 minute 
+     * 
+     * @param contactName The contact name
+     */
+    private void sendProactiveNotification(String contactName)
+    {
+    	boolean sendNotification = true;
+
+    	if (this.proactiveTimer.size() > 0)
+        {
+    		// First, clean the table
+    		Long currentTime = new Long(System.currentTimeMillis()
+    				+ 60000);
+    		
+    		Iterator<String> keys = this.proactiveTimer.keySet().iterator();
+    		while (keys.hasNext())
+    		{
+    			String k = keys.next();
+    			if (this.proactiveTimer.get(k).compareTo(currentTime) <= 0)
+    			{
+    				// The data is outdated
+    				this.proactiveTimer.remove(k);
+    			}
+    		}
+    		
+    		// Now, check if the contact is in the map
+    		if (this.proactiveTimer.containsKey(contactName))
+    		{
+    			// Update the timer
+    			this.proactiveTimer.put(contactName, currentTime);
+    			
+    			// Disable the notification
+    			sendNotification = false;
+    		}
+        }
+    	
+    	if (sendNotification)
+    	{
+            NotificationManager.fireNotification(
+                    NotificationManager.PROACTIVE_NOTIFICATION,
+                    contactName,
+                    Messages.getI18NString("proactiveNotification").getText());
+    	}
     }
 
     /**
