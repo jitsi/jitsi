@@ -237,11 +237,17 @@ public class NetworkAddressManagerServiceImpl
      */
     public synchronized InetAddress getLocalHost(InetAddress intendedDestination)
     {
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Querying a localhost addr for dst="
+                            + intendedDestination);
+
+        }
         //no point in making sure that the localHostFinderSocket is initialized.
         //better let it through a NullPointerException.
         InetAddress localHost = null;
         localHostFinderSocket.connect(intendedDestination
-                                      , this.RANDOM_ADDR_DISC_PORT);
+                                      , RANDOM_ADDR_DISC_PORT);
         localHost = localHostFinderSocket.getLocalAddress();
         localHostFinderSocket.disconnect();
         //windows socket implementations return the any address so we need to
@@ -249,6 +255,8 @@ public class NetworkAddressManagerServiceImpl
         //better on windows so lets hope it'll do the trick.
         if( localHost.isAnyLocalAddress())
         {
+            logger.trace("Socket returned the AnyLocalAddress. "+
+                            "Trying a workaround.");
             try
             {
                 //all that's inside the if is an ugly IPv6 hack
@@ -276,6 +284,11 @@ public class NetworkAddressManagerServiceImpl
                                     && !address.isSiteLocalAddress()
                                     && !address.isLoopbackAddress())
                                 {
+                                    if(logger.isTraceEnabled())
+                                    {
+                                        logger.trace("will return ipv6 addr "
+                                                    + address);
+                                    }
                                     return address;
                                 }
                             }
@@ -293,6 +306,11 @@ public class NetworkAddressManagerServiceImpl
             }
         }
 
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Will return the following localhost address"
+                        + localHost);
+        }
         return localHost;
     }
 
