@@ -308,7 +308,7 @@ public class NetworkAddressManagerServiceImpl
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Will return the following localhost address"
+            logger.trace("Will return the following localhost address: "
                         + localHost);
         }
         return localHost;
