@@ -579,12 +579,11 @@ public class ContactListPanel
     {
     	boolean sendNotification = true;
 
+    	Long currentTime = new Long(System.currentTimeMillis()
+				+ 60000);
+    	
     	if (this.proactiveTimer.size() > 0)
         {
-    		// First, clean the table
-    		Long currentTime = new Long(System.currentTimeMillis()
-    				+ 60000);
-    		
     		Iterator<String> keys = this.proactiveTimer.keySet().iterator();
     		while (keys.hasNext())
     		{
@@ -599,13 +598,12 @@ public class ContactListPanel
     		// Now, check if the contact is in the map
     		if (this.proactiveTimer.containsKey(contactName))
     		{
-    			// Update the timer
-    			this.proactiveTimer.put(contactName, currentTime);
-    			
     			// Disable the notification
     			sendNotification = false;
     		}
         }
+    	
+    	this.proactiveTimer.put(contactName, currentTime);
     	
     	if (sendNotification)
     	{
