@@ -29,8 +29,9 @@ public class SingleCallInProgressPolicy
     private class SingleCallInProgressPolicyListener
         implements CallChangeListener, CallListener, ServiceListener
     {
-        /*
-         * (non-Javadoc)
+        /**
+         * Stops tracking the state of a specific <code>Call</code> and no
+         * longer tries to put it on hold when it ends.
          * 
          * @see net.java.sip.communicator.service.protocol.event.CallListener
          * #callEnded(net.java.sip.communicator.service.protocol.event
@@ -42,8 +43,11 @@ public class SingleCallInProgressPolicy
                 CallEvent.CALL_ENDED, callEvent);
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * Does nothing because adding <code>CallParticipant<code>s to
+         * <code>Call</code>s isn't related to the policy to put existing calls
+         * on hold when a new call becomes in-progress and just implements
+         * <code>CallChangeListener</code>.
          * 
          * @see net.java.sip.communicator.service.protocol.event
          * .CallChangeListener#callParticipantAdded(net.java.sip.communicator
@@ -59,8 +63,11 @@ public class SingleCallInProgressPolicy
              */
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * Does nothing because removing <code>CallParticipant<code>s to
+         * <code>Call</code>s isn't related to the policy to put existing calls
+         * on hold when a new call becomes in-progress and just implements
+         * <code>CallChangeListener</code>.
          * 
          * @see net.java.sip.communicator.service.protocol.event
          * .CallChangeListener#callParticipantRemoved(net.java.sip.communicator
@@ -76,8 +83,10 @@ public class SingleCallInProgressPolicy
              */
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * Upon a <code>Call</code> changing its state to
+         * <code>CallState.CALL_IN_PROGRESS</code>, puts the other existing
+         * <code>Call</code>s on hold.
          * 
          * @see net.java.sip.communicator.service.protocol.event
          * .CallChangeListener#callStateChanged(net.java.sip.communicator
@@ -88,8 +97,10 @@ public class SingleCallInProgressPolicy
             SingleCallInProgressPolicy.this.callStateChanged(callChangeEvent);
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * Remembers an incoming <code>Call</code> so that it can put the other
+         * existing <code>Call</code>s on hold when it changes its state to
+         * <code>CallState.CALL_IN_PROGRESS</code>.
          * 
          * @see net.java.sip.communicator.service.protocol.event.CallListener
          * #incomingCallReceived(net.java.sip.communicator.service.protocol
@@ -101,8 +112,10 @@ public class SingleCallInProgressPolicy
                 CallEvent.CALL_RECEIVED, callEvent);
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * Remembers an outgoing <code>Call</code> so that it can put the other
+         * existing <code>Call</code>s on hold when it changes its state to
+         * <code>CallState.CALL_IN_PROGRESS</code>.
          * 
          * @see net.java.sip.communicator.service.protocol.event.CallListener
          * #outgoingCallCreated(net.java.sip.communicator.service.protocol
@@ -114,6 +127,18 @@ public class SingleCallInProgressPolicy
                 CallEvent.CALL_INITIATED, callEvent);
         }
 
+        /**
+         * Starts/stops tracking the new <code>Call</code>s originating from a
+         * specific <code>ProtocolProviderService</code> when it
+         * registers/unregisters in order to take them into account when putting
+         * existing calls on hold upon a new call entering its in-progress state.
+         *
+         * @param serviceEvent the <code>ServiceEvent</code> event describing a
+         *            change in the state of a service registration which may be
+         *            a <code>ProtocolProviderService</code> supporting
+         *            <code>OperationSetBasicTelephony</code> and thus being
+         *            able to create new <code>Call</code>s
+         */
         public void serviceChanged(ServiceEvent serviceEvent)
         {
             SingleCallInProgressPolicy.this.serviceChanged(serviceEvent);
@@ -145,6 +170,9 @@ public class SingleCallInProgressPolicy
      * Initializes a new <code>SingleCallInProgressPolicy</code> instance which
      * will apply to the <code>Call</code>s of a specific
      * <code>BundleContext</code>.
+     *
+     * @param bundleContext the <code>BundleContext</code> to the
+     *            <code>Call<code>s of which the new policy should apply
      */
     public SingleCallInProgressPolicy(BundleContext bundleContext)
     {
@@ -196,7 +224,8 @@ public class SingleCallInProgressPolicy
 
     /**
      * Handles changes in the state of a <code>Call</code> this policy applies
-     * to.
+     * to in order to detect when new calls become in-progress and when the
+     * other calls should be put on hold.
      *
      * @param callChangeEvent a <code>CallChangeEvent</code> value which
      *            describes the <code>Call</code> and the change in its state
@@ -238,7 +267,9 @@ public class SingleCallInProgressPolicy
 
     /**
      * Handles the start and end of the <code>Call</code>s this policy applies
-     * to.
+     * to in order to have them or stop having them put the other existing calls
+     * on hold when the former change their states to
+     * <code>CallState.CALL_IN_PROGRESS</code>.
      *
      * @param type one of {@link CallEvent#CALL_ENDED},
      *            {@link CallEvent#CALL_INITIATED} and
@@ -338,7 +369,8 @@ public class SingleCallInProgressPolicy
     /**
      * Handles the registering and unregistering of
      * <code>OperationSetBasicTelephony</code> instances in order to apply or
-     * unapply the rules of this policy to them.
+     * unapply the rules of this policy to the <code>Call</code>s originating
+     * from them.
      *
      * @param serviceEvent a <code>ServiceEvent</code> value which described
      *            a change in a OSGi service and which is to be examined for the
