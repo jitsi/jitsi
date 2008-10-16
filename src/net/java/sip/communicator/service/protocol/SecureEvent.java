@@ -7,7 +7,8 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
-import net.java.sip.communicator.impl.media.*;
+
+import net.java.sip.communicator.service.media.*;
 
 /**
  * SecureEvent class extends EventObject
@@ -18,7 +19,6 @@ import net.java.sip.communicator.impl.media.*;
  * static secure communication status in the CallSessionImpl class.
  *     
  * @author Emanuel Onica (eonica@info.uaic.ro)
- *
  */
 public class SecureEvent 
     extends EventObject 
@@ -36,12 +36,12 @@ public class SecureEvent
     /**
      * The actual event value - secure or unsecure, set at one of the above constants
      */
-    private int eventID;
+    private final int eventID;
     
     /**
      * The source that triggered the event - local or remote peer
      */
-    private OperationSetSecureTelephony.SecureStatusChangeSource source;
+    private final OperationSetSecureTelephony.SecureStatusChangeSource source;
     
     /**
      * The event constructor
@@ -49,7 +49,7 @@ public class SecureEvent
      * @param callSession the event source - the call session for which this event applies
      * @param eventID the change value - going secure or stopping secure communication
      */
-    public SecureEvent(CallSessionImpl callSession, 
+    public SecureEvent(CallSession callSession, 
     				   int eventID, 
     				   OperationSetSecureTelephony.SecureStatusChangeSource source)
     {
