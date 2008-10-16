@@ -140,9 +140,9 @@
 
     <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
 	
-	<property name="profiler.args" value="" />
+    <property name="profiler.args" value="" />
     <property name="profiler.bootdelegation" value="" />
-	<property name="profiler.autostart" value="" />
+    <property name="profiler.autostart" value="" />
 
     <tstamp>
         <format property="build.date" pattern="dd-MM-yyyy"/>
@@ -202,7 +202,7 @@
   <!-- default Ant target does nothing except print helpful options -->
   <!-- Ant-external target will appear in -projecthelp output       -->
     <target name="ant-usage"
-        description="simply execute 'ant' to discover the most useful targets.">
+       description="simply execute 'ant' to discover the most useful targets.">
        <echo message="Useful ant commands for the SIP Communicator Project..." />
        <echo message="'ant rebuild' for a safe clean/build sequence" />
        <echo message="'ant rebuild run' for a safe clean/build/run" />
@@ -319,7 +319,7 @@
 
     <!-- JAVADOC -->
     <target name="javadoc"
-      description="Generates project javadoc.">
+        description="Generates project javadoc.">
         <javadoc author="true" destdir="${java.doc}" package="true"
             version="true" use="true" windowtitle="SIP Communicator API"
             classpathref="compile.class.path" source="1.5+" maxmemory="128m">
@@ -359,7 +359,7 @@
     <target name="rebuild" depends="clean,make"
         description="Clean and make the project (including bundles).">
         <echo message="ver=${sip-communicator.version}"/>
-        </target>
+    </target>
 
     <!-- Determines SIP Communicator version if any-->
     <target name="-pre-version" if="build.label" >
@@ -493,7 +493,7 @@
               classpath="${java.class.path}:${lib.noinst}/xalan-2.6.0.jar.ant"
               failonerror="true"
               output="${test.html.reports.dir}/output.txt">
-           <arg value="htmlreport"/>
+            <arg value="htmlreport"/>
         </java>
         <echo message="Done."/>
         <echo/><echo/>
@@ -583,24 +583,30 @@
             <arg line="--debug"/>
             <!-- pass to SC args that have been specified by the user -->
             <arg line="${args}"/>
-        	
-        	<sysproperty key="org.osgi.framework.bootdelegation" value="${profiler.bootdelegation}" />
-        	<sysproperty key="felix.auto.start.68" value="${profiler.autostart}" />
-        	
-        	<!-- add some eventual profiler args -->
+
+            <sysproperty key="org.osgi.framework.bootdelegation"
+                value="${profiler.bootdelegation}" />
+            <sysproperty key="felix.auto.start.68"
+                value="${profiler.autostart}" />
+
+            <!-- add some eventual profiler args -->
             <jvmarg line="${profiler.args} ${jvmarg.line}"/>
         </java>
 
     </target>
 
-   <!--RUN-SIP-COMMUNICATOR-WITH-INTEGRATED-PROFILER -->
-    <target name="run-with-profiler" description="Starts felix and runs sip-comunicator gui (use latest build) with the hooked classloader."
+    <!--RUN-SIP-COMMUNICATOR-WITH-INTEGRATED-PROFILER -->
+    <target name="run-with-profiler"
+        description="Starts felix and runs sip-comunicator gui (use latest build) with the hooked classloader."
     	depends="bundle-plugin-profiler4j">
-    	
+
     	<antcall target="run">
-    	      <param name="profiler.args" value="-Xmx128m -javaagent:${lib.noinst}/profiler4j-1.0-beta3-SC.jar" />
-    	      <param name="profiler.bootdelegation" value="net.sf.profiler4j.agent.*" />
-    	      <param name="profiler.autostart" value="reference:file:sc-bundles/profiler4j.jar" />
+            <param name="profiler.args"
+                value="-Xmx128m -javaagent:${lib.noinst}/profiler4j-1.0-beta3-SC.jar" />
+            <param name="profiler.bootdelegation"
+                value="net.sf.profiler4j.agent.*" />
+            <param name="profiler.autostart"
+                value="reference:file:sc-bundles/profiler4j.jar" />
     	</antcall>
     </target>
 	    
