@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.protocol;
+package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
@@ -39,7 +39,6 @@ import java.util.*;
  *            management system.  
  *     
  * @author Emanuel Onica (eonica@info.uaic.ro)
- *
  */
 public interface SecureEventListener 
     extends EventListener

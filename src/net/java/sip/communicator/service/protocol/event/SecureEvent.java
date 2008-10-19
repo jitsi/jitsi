@@ -4,11 +4,12 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.protocol;
+package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
 import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * SecureEvent class extends EventObject
