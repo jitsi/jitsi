@@ -27,21 +27,21 @@ public class MessageDigestAlgorithm
      * @param algorithm a string indicating a pair of algorithms (MD5 (default),
      * or MD5-sess) used to produce the digest and a checksum.
      * @param username_value username_value (see rfc2617)
-     * @param realm_value A string that has been displayed to the user in order 
+     * @param realm_value A string that has been displayed to the user in order
      * to determine the context of the username and password to use.
      * @param passwd the password to encode in the challenge response.
-     * @param nonce_value A server-specified data string provided in the 
+     * @param nonce_value A server-specified data string provided in the
      * challenge.
      * @param cnonce_value an optional  client-chosen value whose purpose is
      * to foil chosen plaintext attacks.
      * @param method the SIP method of the request being challenged.
-     * @param digest_uri_value the value of the "uri" directive on the 
+     * @param digest_uri_value the value of the "uri" directive on the
      * Authorization header in the request.
      * @param entity_body the entity-body
-     * @param qop_value Indicates what "quality of protection" the client has 
+     * @param qop_value Indicates what "quality of protection" the client has
      * applied to the message.
-     * @param nc_value  the hexadecimal count of the number of requests 
-     * (including the current request) that the client has sent with the nonce 
+     * @param nc_value  the hexadecimal count of the number of requests
+     * (including the current request) that the client has sent with the nonce
      * value in this request.
      * @return a digest response as defined in rfc2617
      * @throws NullPointerException in case of incorrectly null parameters.
@@ -58,12 +58,12 @@ public class MessageDigestAlgorithm
                                     String entity_body,
                                     String qop_value)
     {
-    	logger.debug("trying to authenticate using : " + algorithm + ", "
-    			+ username_value + ", " + realm_value + ", " + (passwd != null
-				&& passwd.trim().length() > 0) + ", " + nonce_value + ", "
-				+ nc_value + ", " + cnonce_value + ", " + method + ", "
-				+ digest_uri_value + ", " + entity_body + ", " + qop_value); 
-    	
+        logger.debug("trying to authenticate using : " + algorithm + ", "
+                + username_value + ", " + realm_value + ", " + (passwd != null
+                && passwd.trim().length() > 0) + ", " + nonce_value + ", "
+                + nc_value + ", " + cnonce_value + ", " + method + ", "
+                + digest_uri_value + ", " + entity_body + ", " + qop_value);
+
         if (username_value == null || realm_value == null || passwd == null
             || method == null || digest_uri_value == null || nonce_value == null)
             throw new NullPointerException(
@@ -104,10 +104,10 @@ public class MessageDigestAlgorithm
 
         String request_digest = null;
 
-        if( cnonce_value != null 
-            && qop_value != null 
+        if( cnonce_value != null
+            && qop_value != null
             && nc_value!=null
-            && (qop_value.equalsIgnoreCase("auth") 
+            && (qop_value.equalsIgnoreCase("auth")
                 || qop_value.equalsIgnoreCase("auth-int")))
 
         {

@@ -83,7 +83,18 @@
 
     <condition property="ld.library.path"
               value="${lib}/native/linux:${system.LD_LIBRARY_PATH}">
-        <isset property="is.running.linux"/>
+        <and>
+            <isset property="is.running.linux"/>
+            <os arch="x86" />
+        </and>
+    </condition>
+
+    <condition property="ld.library.path"
+              value="${lib}/native/linux-64:${system.LD_LIBRARY_PATH}">
+        <and>
+            <isset property="is.running.linux"/>
+            <os arch="amd64" />
+        </and>
     </condition>
 
     <condition property="bundles.dest.os" value="${bundles.dest.lin}">
@@ -139,7 +150,7 @@
     <!-- end jmf.home-->
 
     <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
-	
+
     <property name="profiler.args" value="" />
     <property name="profiler.bootdelegation" value="" />
     <property name="profiler.autostart" value="" />
@@ -598,23 +609,23 @@
     <!--RUN-SIP-COMMUNICATOR-WITH-INTEGRATED-PROFILER -->
     <target name="run-with-profiler"
         description="Starts felix and runs sip-comunicator gui (use latest build) with the hooked classloader."
-    	depends="bundle-plugin-profiler4j">
+        depends="bundle-plugin-profiler4j">
 
-    	<antcall target="run">
+        <antcall target="run">
             <param name="profiler.args"
                 value="-Xmx128m -javaagent:${lib.noinst}/profiler4j-1.0-beta3-SC.jar" />
             <param name="profiler.bootdelegation"
                 value="net.sf.profiler4j.agent.*" />
             <param name="profiler.autostart"
                 value="reference:file:sc-bundles/profiler4j.jar" />
-    	</antcall>
+        </antcall>
     </target>
-	    
+
     <!--PROFILE-SIP-COMMUNICATOR-IN-NETBEANS-IDE -->
-    <target name="profile" depends="bundle-plugin-profiler4j,-deploy-os-specific-bundles" 
-    	description="Profile Project">
+    <target name="profile" depends="bundle-plugin-profiler4j,-deploy-os-specific-bundles"
+        description="Profile Project">
         <fail unless="netbeans.home">
-        	This target can only run inside the NetBeans IDE.
+            This target can only run inside the NetBeans IDE.
         </fail>
 
         <nbprofiledirect>
@@ -625,7 +636,7 @@
             fork="true"
             failonerror="true"
             classpathref="project.class.path">
-                    
+
             <jvmarg value="${profiler.info.jvmargs.agent}"/>
 
             <!-- Tell felix to run sip-communicator-->
@@ -655,12 +666,12 @@
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
             <env key="PATH" path="${path}"/>
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
-            
+
         </java>
-        
-        <delete file="${bundles.dest}/profiler4j.jar"/>    	
+
+        <delete file="${bundles.dest}/profiler4j.jar"/>
     </target>
-	
+
     <!-- we run this target before we run SC in order to copy os-specific
              bundles from sc-bundles/osname to its parent sc-bundles-->
     <target name="-deploy-os-specific-bundles" if="bundles.dest.os">
@@ -1664,20 +1675,20 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/autoaway" />
         </jar>
     </target>
-	
+
    <!--BUNDLE-PLUGIN-PROFILER-->
    <target name="bundle-plugin-profiler4j">
         <jar compress="false" destfile="${bundles.dest}/profiler4j.jar"
             manifest="${src}/net/java/sip/communicator/plugin/profiler4j/profiler4j.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/profiler4j"
                 prefix="net/java/sip/communicator/plugin/profiler4j" />
-            <zipfileset src="${lib.noinst}/profiler4j-1.0-beta3-SC.jar" 
-            	prefix=""/>
+            <zipfileset src="${lib.noinst}/profiler4j-1.0-beta3-SC.jar"
+                prefix=""/>
             <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jcommon-1.0.0.jar" prefix=""/>
-        	<zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jfreechart-1.0.1.jar" prefix=""/>
-        	<fileset file="${lib.noinst}/p4j-exclusions.txt"/>
+            <fileset file="${lib.noinst}/p4j-exclusions.txt"/>
         </jar>
     </target>
 
