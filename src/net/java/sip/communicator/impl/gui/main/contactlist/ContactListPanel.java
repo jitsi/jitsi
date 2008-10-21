@@ -35,7 +35,7 @@ import org.osgi.framework.*;
  * The contactlist panel not only contains the contact list but it has the role
  * of a message dispatcher. It process all sent and received messages as well as
  * all typing notifications. Here are managed all contact list mouse events.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ContactListPanel
@@ -60,7 +60,7 @@ public class ContactListPanel
     private Logger logger = Logger.getLogger(ContactListPanel.class);
 
     private ChatWindowManager chatWindowManager;
-    
+
     /**
      * Pseudo timer used to delay multiples typings notifications before recieving
      * the message
@@ -70,7 +70,7 @@ public class ContactListPanel
 
     /**
      * Creates the contactlist scroll panel defining the parent frame.
-     * 
+     *
      * @param mainFrame The parent frame.
      */
     public ContactListPanel(MainFrame mainFrame)
@@ -101,7 +101,7 @@ public class ContactListPanel
 
     /**
      * Initializes the contact list.
-     * 
+     *
      * @param contactListService The MetaContactListService which will be used
      *            for a contact list data model.
      */
@@ -142,7 +142,7 @@ public class ContactListPanel
 
     /**
      * Returns the contact list.
-     * 
+     *
      * @return the contact list
      */
     public ContactList getContactList()
@@ -228,16 +228,16 @@ public class ContactListPanel
     /**
      * Runs the chat window for the specified contact. We examine different
      * cases here, depending on the chat window mode.
-     * 
+     *
      * In mode "Open messages in new window" a new window is opened for the
      * given <tt>MetaContact</tt> if there's no opened window for it,
      * otherwise the existing chat window is made visible and focused.
-     * 
+     *
      * In mode "Group messages in one chat window" a JTabbedPane is used to show
      * chats for different contacts in ona window. A new tab is opened for the
      * given <tt>MetaContact</tt> if there's no opened tab for it, otherwise
      * the existing chat tab is selected and focused.
-     * 
+     *
      * @author Yana Stamcheva
      */
     public class RunMessageWindow implements Runnable
@@ -249,8 +249,8 @@ public class ContactListPanel
         private boolean isSmsSelected = false;
 
         /**
-         * Creates an instance of <tt>RunMessageWindow</tt> by specifying the 
-         * 
+         * Creates an instance of <tt>RunMessageWindow</tt> by specifying the
+         *
          * @param metaContact the meta contact to which we will talk.
          */
         public RunMessageWindow(MetaContact metaContact)
@@ -259,12 +259,12 @@ public class ContactListPanel
         }
 
         /**
-         * Creates a chat window 
-         * 
+         * Creates a chat window
+         *
          * @param metaContact
          * @param protocolContact
          */
-        public RunMessageWindow(MetaContact metaContact, 
+        public RunMessageWindow(MetaContact metaContact,
             Contact protocolContact)
         {
             this.metaContact = metaContact;
@@ -272,13 +272,13 @@ public class ContactListPanel
         }
 
         /**
-         * Creates a chat window 
-         * 
+         * Creates a chat window
+         *
          * @param metaContact
          * @param protocolContact
          * @param isSmsSelected
          */
-        public RunMessageWindow(MetaContact metaContact, 
+        public RunMessageWindow(MetaContact metaContact,
             Contact protocolContact, boolean isSmsSelected)
         {
             this.metaContact = metaContact;
@@ -287,7 +287,7 @@ public class ContactListPanel
         }
 
         /**
-         * Opens a chat window 
+         * Opens a chat window
          */
         public void run()
         {
@@ -311,7 +311,7 @@ public class ContactListPanel
      * contact which already has an open chat. When the chat is found checks if
      * in mode "Auto popup enabled" and if this is the case shows the message in
      * the appropriate chat panel.
-     * 
+     *
      * @param evt the event containing details on the received message
      */
     public void messageReceived(MessageReceivedEvent evt)
@@ -363,9 +363,9 @@ public class ContactListPanel
             chatPanel.processMessage(protocolContact.getDisplayName(), date,
                 messageType, message.getContent(),
                 message.getContentType());
-            
+
             // A bug Fix for Previous/Next buttons .
-            // Must update buttons state after message is processed 
+            // Must update buttons state after message is processed
             // otherwise states are not proper
             chatPanel.getChatWindow().getMainToolBar().
                 changeHistoryButtonsState(chatPanel);
@@ -400,7 +400,7 @@ public class ContactListPanel
 
     /**
      * When a sent message is delivered shows it in the chat conversation panel.
-     * 
+     *
      * @param evt the event containing details on the message delivery
      */
     public void messageDelivered(MessageDeliveredEvent evt)
@@ -409,7 +409,7 @@ public class ContactListPanel
 
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
-                
+
         logger.trace("MESSAGE DELIVERED to contact: "
             + evt.getDestinationContact().getAddress());
 
@@ -438,7 +438,7 @@ public class ContactListPanel
 
     /**
      * Shows a warning message to the user when message delivery has failed.
-     * 
+     *
      * @param evt the event containing details on the message delivery failure
      */
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
@@ -454,7 +454,7 @@ public class ContactListPanel
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(sourceContact);
 
-        if (evt.getErrorCode() 
+        if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
             errorMsg = Messages.getI18NString(
@@ -509,7 +509,7 @@ public class ContactListPanel
 
     /**
      * Informs the user what is the typing state of his chat contacts.
-     * 
+     *
      * @param evt the event containing details on the typing notification
      */
     public void typingNotificationReceived(TypingNotificationEvent evt)
@@ -528,20 +528,20 @@ public class ContactListPanel
         }
 
         int typingState = evt.getTypingState();
-        
+
         if (typingState == OperationSetTypingNotifications.STATE_TYPING)
         {
             notificationMsg
                 = Messages.getI18NString("contactTyping",
                     new String[]{contactName}).getText();
-            
+
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
-            
+
             // Proactive typing notification
             if (!chatWindowManager.isChatOpenedForContact(metaContact))
             {
-                this.sendProactiveNotification(contactName.trim());
+                this.fireProactiveNotification(contactName.trim());
                 return;
             }
         }
@@ -567,67 +567,65 @@ public class ContactListPanel
         }
         this.setChatNotificationMsg(metaContact, notificationMsg);
     }
-    
+
     /**
      * Send a proactive notification according to the proactive timer.
      * The notification is fired only if another notification hasn't been
-     * recieved for more than 1 minute 
-     * 
+     * recieved for more than 1 minute
+     *
      * @param contactName The contact name
      */
-    private void sendProactiveNotification(String contactName)
+    private void fireProactiveNotification(String contactName)
     {
-    	boolean sendNotification = true;
+        long currentTime = System.currentTimeMillis();
 
-    	Long currentTime = new Long(System.currentTimeMillis()
-				+ 60000);
-    	
-    	if (this.proactiveTimer.size() > 0)
+        if (this.proactiveTimer.size() > 0)
         {
-    		Iterator<String> keys = this.proactiveTimer.keySet().iterator();
-    		while (keys.hasNext())
-    		{
-    			String k = keys.next();
-    			if (this.proactiveTimer.get(k).compareTo(currentTime) <= 0)
-    			{
-    				// The data is outdated
-    				this.proactiveTimer.remove(k);
-    			}
-    		}
-    		
-    		// Now, check if the contact is in the map
-    		if (this.proactiveTimer.containsKey(contactName))
-    		{
-    			// Disable the notification
-    			sendNotification = false;
-    		}
+            //first remove contacts that have been here longer than the timeout
+            //to avoid memory leaks
+            Iterator<Map.Entry<String, Long>> entries
+                                    = this.proactiveTimer.entrySet().iterator();
+            while (entries.hasNext())
+            {
+                Map.Entry<String, Long> entry = entries.next();
+                Long lastNotificationDate = entry.getValue();
+                if (lastNotificationDate.longValue() + 30000 <  currentTime)
+                {
+                    // The entry is outdated
+                    entries.remove();
+                }
+            }
+
+            // Now, check if the contact is still in the map
+            if (this.proactiveTimer.containsKey(contactName))
+            {
+                // We already notified the others about this
+                return;
+            }
         }
-    	
-    	this.proactiveTimer.put(contactName, currentTime);
-    	
-    	if (sendNotification)
-    	{
-            NotificationManager.fireNotification(
-                    NotificationManager.PROACTIVE_NOTIFICATION,
-                    contactName,
-                    Messages.getI18NString("proactiveNotification").getText());
-    	}
+
+        this.proactiveTimer.put(contactName, currentTime);
+
+        NotificationManager.fireNotification(
+                NotificationManager.PROACTIVE_NOTIFICATION,
+                contactName,
+                Messages.getI18NString("proactiveNotification").getText());
     }
 
     /**
      * Sets the typing notification message at the appropriate chat.
-     * 
+     *
      * @param metaContact The meta contact.
      * @param notificationMsg The typing notification message.
      */
     public void setChatNotificationMsg(MetaContact metaContact,
             String notificationMsg)
-    { 
+    {
         if(chatWindowManager.isChatOpenedForContact(metaContact))
             chatWindowManager.getContactChat(metaContact)
                 .setStatusMessage(notificationMsg);
     }
-    
+
     /**
      * Returns the right button menu of the contact list.
      * @return the right button menu of the contact list
@@ -636,7 +634,7 @@ public class ContactListPanel
     {
         return commonRightButtonMenu;
     }
-    
+
     /**
      * The TypingTimer is started after a PAUSED typing notification is
      * received. It waits 5 seconds and if no other typing event occurs removes
@@ -677,7 +675,7 @@ public class ContactListPanel
         public void actionPerformed(ActionEvent e)
         {
             Object selectedValue = contactList.getSelectedValue();
-            
+
             if (selectedValue instanceof MetaContact) {
                 MetaContact contact = (MetaContact) selectedValue;
 
@@ -776,7 +774,7 @@ public class ContactListPanel
 
         Object selectedValue = mainFrame.getContactListPanel()
                 .getContactList().getSelectedValue();
-        
+
         if(selectedValue instanceof MetaContact)
         {
             pluginComponent
@@ -795,7 +793,7 @@ public class ContactListPanel
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
-        
+
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
         if(!c.getContainer()
