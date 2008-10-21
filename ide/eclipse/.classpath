@@ -8,7 +8,7 @@
     <classpathentry kind="lib" path="lib/jdic-all.jar"/>
     <classpathentry kind="lib" path="lib/bundle/junit.jar"/>
     <classpathentry kind="lib" path="lib/bundle/org.apache.felix.servicebinder-0.9.0-SNAPSHOT.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-0.9.0.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-1.3.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/commons-logging.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/concurrent.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/dnsjava-2.0.3.jar"/>

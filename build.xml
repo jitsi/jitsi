@@ -1816,7 +1816,7 @@ javax.swing.event, javax.swing.border"/>
         <jar compress="true" destfile="${bundles.dest}/zrtp4j.jar"
             filesetmanifest="merge">
 
-            <zipfileset src="${lib.noinst}/zrtp4j-0.9.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/zrtp4j-1.3.1.jar" prefix=""/>
             <manifest>
                 <attribute name="Export-Package" value="gnu.java.zrtp,gnu.java.zrtp.packets,gnu.java.zrtp.utils,gnu.java.zrtp.zidfile"/>
                 <attribute name="Import-Package" value="javax.crypto,javax.crypto.spec,javax.crypto.interfaces"/>

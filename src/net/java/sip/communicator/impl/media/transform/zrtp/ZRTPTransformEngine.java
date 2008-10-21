@@ -151,7 +151,7 @@ public class ZRTPTransformEngine
 {
     
     /**
-     * Very simple Timout provider class.
+     * Very simple Timeout provider class.
      * 
      * This very simple timeout provider can handle one timeout request at
      * one time only. A second request would overwrite the first one and would
@@ -273,7 +273,7 @@ public class ZRTPTransformEngine
      * User callback class.
      */
     private ZrtpUserCallback userCallback = null;
-    
+
     /**
      * The ZRTP engine.
      */
@@ -454,7 +454,10 @@ public class ZRTPTransformEngine
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        userCallback.init();
+        if (userCallback instanceof SCCallback) 
+        {
+            ((SCCallback)userCallback).init();
+        }
         return true;
     }
 
@@ -567,6 +570,14 @@ public class ZRTPTransformEngine
                 return pkt;
             }
             pkt = srtpInTransformer.reverseTransform(pkt);
+            // if packet was valid (i.e. not null) and ZRTP engine started and
+            // not yet in secure state - emulate a Conf2Ack packet. See ZRTP 
+            // specification chap. 5.6
+            if (pkt != null && zrtpEngine != null 
+                && !zrtpEngine.inState(ZrtpStateClass.ZrtpStates.SecureState)) 
+            {
+                zrtpEngine.conf2AckSecure();
+            }
             return pkt;
         }
 
@@ -757,15 +768,14 @@ public class ZRTPTransformEngine
      */
     public void srtpSecretsOn(String c, String s, boolean verified) 
     {
-
-      if (userCallback != null) 
-      {
-        userCallback.secureOn(c);
-      }
-      if (userCallback != null) 
-      {
-        userCallback.showSAS(s, verified);
-      }
+        if (userCallback != null) 
+        {
+            userCallback.secureOn(c);
+        }
+        if (userCallback != null && s != null)
+        {
+            userCallback.showSAS(s, verified);
+        }
     }
 
     /*
@@ -854,13 +864,13 @@ public class ZRTPTransformEngine
      * @see gnu.java.zrtp.ZrtpCallback#goClearProcedureFailed(gnu.java.zrtp.ZrtpCodes.MessageSeverity, java.util.EnumSet, boolean)
      */
     public void goClearProcedureFailed(ZrtpCodes.MessageSeverity severity, 
-    									  EnumSet<?> subCode,
-    									  boolean maintainSecurity) 
+                                        EnumSet<?> subCode,
+                                        boolean maintainSecurity) 
     {
-    	if (userCallback != null) 
-    	{
-            userCallback.goClearProcedureFailed(severity, subCode, maintainSecurity);
-        }
+//        if (userCallback != null) 
+//        {
+//            userCallback.goClearProcedureFailed(severity, subCode, maintainSecurity);
+//        }
     }
 
     /*
@@ -964,8 +974,8 @@ public class ZRTPTransformEngine
      */
     public void requestGoClear()  
     {
-    	if (zrtpEngine != null)
-    		zrtpEngine.requestGoClear();
+//        if (zrtpEngine != null)
+//            zrtpEngine.requestGoClear();
     }
     
     /**
@@ -974,8 +984,8 @@ public class ZRTPTransformEngine
      */
     public void requestGoSecure() 
     {
-    	if (zrtpEngine != null)
-    		zrtpEngine.requestGoSecure();
+//        if (zrtpEngine != null)
+//            zrtpEngine.requestGoSecure();
     }
 
     /**

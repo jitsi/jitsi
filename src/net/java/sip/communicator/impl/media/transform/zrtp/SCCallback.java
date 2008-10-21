@@ -243,42 +243,42 @@ public class SCCallback
         showTooltip();
     }
     
-    public void goClearProcedureFailed(ZrtpCodes.MessageSeverity severity,
-            EnumSet<?> subCode, boolean maintainSecurity) 
-    {
-    	Iterator ii = subCode.iterator();
-    	Object msgCode = ii.next();
-    	logger.warn("ZRTP negotiation failed sub code: " + msgCode);
-    	System.err.println("ZRTP negotiation failed sub code: " + msgCode);
-    	
-    	String prevCommand = zrtpButton.getActionCommand();
-    	
-    	if (msgCode.equals(ZrtpCodes.WarningCodes.WarningGoClearRequestInvalid))
-        {
-        	zrtpButton.setActionCommand("revertFromAllowClearFailure");
-        	zrtpButton.doClick();
-        }
-    	else
-    	if (maintainSecurity == false)
-    	{
-    		zrtpLabel.setBorder(BorderFactory.createLineBorder(Color.RED));
-    		zrtpLabel.setText(SCCallbackResources.SAS_NOT_SECURED_MESSAGE);
-    		zrtpLabel.setToolTipText(SCCallbackResources.SAS_SECURING_FAIL_TOOLTIP);
-        	
-    		zrtpButton.setActionCommand("revertToUnsecured");
-    		zrtpButton.doClick();
-    		zrtpButton.setActionCommand(prevCommand);
-    	}
-    	else
-    	if (maintainSecurity == true)
-    	{
-    		zrtpButton.setActionCommand("revertToSecured");
-    		zrtpButton.doClick();
-    		zrtpButton.setActionCommand(prevCommand);
-    	}
-    	
-    	showTooltip();
-    }
+//    public void goClearProcedureFailed(ZrtpCodes.MessageSeverity severity,
+//            EnumSet<?> subCode, boolean maintainSecurity) 
+//    {
+//        Iterator ii = subCode.iterator();
+//        Object msgCode = ii.next();
+//        logger.warn("ZRTP negotiation failed sub code: " + msgCode);
+//        System.err.println("ZRTP negotiation failed sub code: " + msgCode);
+//
+//        String prevCommand = zrtpButton.getActionCommand();
+//
+//        if (msgCode.equals(ZrtpCodes.WarningCodes.WarningGoClearRequestInvalid))
+//        {
+//            zrtpButton.setActionCommand("revertFromAllowClearFailure");
+//            zrtpButton.doClick();
+//        }
+//        else
+//        if (maintainSecurity == false)
+//        {
+//            zrtpLabel.setBorder(BorderFactory.createLineBorder(Color.RED));
+//            zrtpLabel.setText(SCCallbackResources.SAS_NOT_SECURED_MESSAGE);
+//            zrtpLabel.setToolTipText(SCCallbackResources.SAS_SECURING_FAIL_TOOLTIP);
+//
+//            zrtpButton.setActionCommand("revertToUnsecured");
+//            zrtpButton.doClick();
+//            zrtpButton.setActionCommand(prevCommand);
+//        }
+//        else
+//        if (maintainSecurity == true)
+//        {
+//            zrtpButton.setActionCommand("revertToSecured");
+//            zrtpButton.doClick();
+//            zrtpButton.setActionCommand(prevCommand);
+//        }
+//    	
+//        showTooltip();
+//    }
 
     /*
      * (non-Javadoc)
