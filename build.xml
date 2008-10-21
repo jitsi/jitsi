@@ -81,20 +81,18 @@
         <isset property="is.running.linux"/>
     </condition>
 
-    <condition property="ld.library.path"
-              value="${lib}/native/linux:${system.LD_LIBRARY_PATH}">
-        <and>
-            <isset property="is.running.linux"/>
-            <os arch="x86" />
-        </and>
-    </condition>
-
+    <!-- make sure we use the linux-64 natives if this is a 64 bit system-->
     <condition property="ld.library.path"
               value="${lib}/native/linux-64:${system.LD_LIBRARY_PATH}">
         <and>
             <isset property="is.running.linux"/>
             <os arch="amd64" />
         </and>
+    </condition>
+    <!-- otherwise we go for the normal linuxnatives (i.e. os.arch==i386)-->
+    <condition property="ld.library.path"
+                  value="${lib}/native/linux:${system.LD_LIBRARY_PATH}">
+                <isset property="is.running.linux"/>
     </condition>
 
     <condition property="bundles.dest.os" value="${bundles.dest.lin}">
