@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<Property Id="CREATE_DESKTOP_SHORTCUT" Value="1" />
+<Property Id="CREATE_START_MENU_SHORTCUT" Value="1" />
+
+</Include>

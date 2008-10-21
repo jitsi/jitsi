@@ -39,7 +39,7 @@
 
   <Directory Id="DesktopFolder" Name="Desktop">
     <Component Id="Component_DesktopShortcut" Guid="49BF78B5-155F-43F2-BCEC-3CABC0D9531E">
-      <Condition><![CDATA[CREATE_DESKTOP_SHORTCUT]]></Condition>
+      <Condition><![CDATA[CREATE_DESKTOP_SHORTCUT = 1]]></Condition>
       <Shortcut
           Id="Shortcut_Desktop"
           Icon="Icon.ico"
@@ -57,7 +57,7 @@
   </Directory>
   <Directory Id="ProgramMenuFolder" Name="Programs">
     <Component Id="Component_StartMenuShortcut" Guid="6B8CDA4E-16C9-4AF4-B338-CBA4775ADD0D">
-      <Condition><![CDATA[CREATE_START_MENU_SHORTCUT]]></Condition>
+      <Condition><![CDATA[CREATE_START_MENU_SHORTCUT = 1]]></Condition>
       <Shortcut
           Id="Shortcut_StartMenu"
           Icon="Icon.ico"
@@ -73,6 +73,24 @@
           Value="1" />
     </Component>
   </Directory>
+  <Directory Id="StartupFolder" Name="Startup">
+    <Component Id="Component_StartupShortcut" Guid="5059067F-16B1-435A-84B4-FC16CB5CEDA2">
+      <Condition><![CDATA[CREATE_STARTUP_SHORTCUT = 1]]></Condition>
+      <Shortcut
+          Id="Shortcut_Startup"
+          Icon="Icon.ico"
+          Name="@APP_NAME@"
+          Target="[INSTALLDIR]run.exe"
+          WorkingDirectory="INSTALLDIR" />
+      <RegistryValue
+          Key="Software\Microsoft\@APP_NAME@"
+          KeyPath="yes"
+          Name="StartupShortcut"
+          Root="HKCU"
+          Type="integer"
+          Value="1" />
+    </Component>
+  </Directory>
 </Directory>
 
 <Feature Id="Universe" Level="1" Title="@APP_NAME@">
@@ -80,6 +98,7 @@
 
   <ComponentRef Id="Component_DesktopShortcut" />
   <ComponentRef Id="Component_StartMenuShortcut" />
+  <ComponentRef Id="Component_StartupShortcut" />
 
   <ComponentGroupRef Id="ComponentGroup_RegistryEntries" />
 </Feature>
@@ -140,13 +159,14 @@
                 <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
                 <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
 
-                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="50" Text="&amp;Create Shortcuts" />
+                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="65" Text="&amp;Create Shortcuts" />
                 <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="S&amp;tart Menu" />
                 <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="&amp;Desktop" />
+                <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="CREATE_STARTUP_SHORTCUT" CheckBoxValue="1" Text="&amp;Auto-start when computer restarts or reboots" />
 
-                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="115" Width="330" Height="50" Text="&amp;Associate Protocols" />
-                <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="130" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
-                <Control Id="FeedRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_FEED_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;FEED" />
+                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="&amp;Associate Protocols" />
+                <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
+                <Control Id="FeedRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_FEED_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;FEED" />
             </Dialog>
 
   <Publish 
@@ -213,14 +233,14 @@
 <Property Id="ARPCONTACT" Value="@APP_EMAIL@" />
 <Property Id="ARPHELPLINK" Value="@APP_WEB@" />
 <Property Id="ARPPRODUCTICON" Value="Icon.ico" />
-<Property Id="CREATE_DESKTOP_SHORTCUT" Value="1" />
 <Property Id="CREATE_FEED_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1" />
-<Property Id="CREATE_START_MENU_SHORTCUT" Value="1" />
 <Property Id="WixShellExecTarget" Value="[#run.exe]" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch @APP_NAME@" />
 <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+
+<?include windows_shortcut_specification.wxi ?>
 
 <WixVariable Id="WixUIBannerBmp" Value="wix-banner.jpg" />
 <WixVariable Id="WixUIDialogBmp" Value="wix-dialog.jpg" />

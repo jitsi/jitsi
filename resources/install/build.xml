@@ -459,6 +459,7 @@
                 <include name="en-us.wxl" />
                 <include name="installer-windows.wxs" />
                 <include name="SCRegistrySpec.wxi" />
+                <include name="windows_shortcut_specification.wxi" />
             </fileset>
         </copy>
 
