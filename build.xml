@@ -421,8 +421,6 @@
         <mkdir dir="${test.reports.dir}/html"/>
         <mkdir dir="${release}"/>
         <mkdir dir="${log}"/>
-
-	<delete file="${lib}/bundle/zrtp4j.jar"/>
     </target>
 
 
