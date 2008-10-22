@@ -87,8 +87,8 @@ public class InitialAccountRegistrationFrame
         signinButton.addActionListener(actionListener);
         cancelButton.addActionListener(actionListener);
 
-        buttonPanel.add(cancelButton);
         buttonPanel.add(signinButton);
+        buttonPanel.add(cancelButton);
 
         messageArea.setLineWrap(true);
         messageArea.setWrapStyleWord(true);
