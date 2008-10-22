@@ -703,73 +703,79 @@ public class UIServiceImpl
 
         String osName = System.getProperty("os.name");
 
-        if (!osName.startsWith("Mac"))
+        /*
+         * Attempt to use the OS-native LookAndFeel instead of
+         * SIPCommLookAndFeel.
+         */
+        String laf = UIManager.getSystemLookAndFeelClassName();
+        boolean lafIsSet = false;
+
+        if ((laf != null)
+            && !laf
+                .equals(UIManager.getCrossPlatformLookAndFeelClassName()))
         {
-
-            /*
-             * Attempt to use the OS-native LookAndFeel instead of
-             * SIPCommLookAndFeel.
-             */
-            String laf = UIManager.getSystemLookAndFeelClassName();
-            boolean lafIsSet = false;
-
-            if ((laf != null)
-                && !laf
-                    .equals(UIManager.getCrossPlatformLookAndFeelClassName()))
+            try
             {
-                try
+                UIManager.setLookAndFeel(laf);
+
+                lafIsSet = true;
+
+                UIDefaults uiDefaults = UIManager.getDefaults();
+                // Workaround for bug 6396936 (http://bugs.sun.com): WinL&F :
+                // font for text area is incorrect.
+                if (osName.startsWith("Windows"))
                 {
-                    UIManager.setLookAndFeel(laf);
-                    lafIsSet = true;
-                }
-                catch (ClassNotFoundException ex)
-                {
-                    /*
-                     * Ignore the exceptions because we're only trying to set
-                     * the native LookAndFeel and, if it fails, we'll use
-                     * SIPCommLookAndFeel.
-                     */
-                }
-                catch (InstantiationException ex)
-                {
-                }
-                catch (IllegalAccessException ex)
-                {
-                }
-                catch (UnsupportedLookAndFeelException ex)
-                {
+                    uiDefaults.put( "TextArea.font",
+                                    uiDefaults.get("TextField.font"));
                 }
             }
-
-            if (!lafIsSet)
+            catch (ClassNotFoundException ex)
             {
-                try
+                /*
+                 * Ignore the exceptions because we're only trying to set
+                 * the native LookAndFeel and, if it fails, we'll use
+                 * SIPCommLookAndFeel.
+                 */
+            }
+            catch (InstantiationException ex)
+            {
+            }
+            catch (IllegalAccessException ex)
+            {
+            }
+            catch (UnsupportedLookAndFeelException ex)
+            {
+            }
+        }
+
+        if (!lafIsSet)
+        {
+            try
+            {
+                SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
+                SIPCommLookAndFeel
+                    .setCurrentTheme(new SIPCommDefaultTheme());
+
+                // Check the isLookAndFeelDecorated property and set the
+                // appropriate
+                // default decoration.
+                boolean isDecorated =
+                    new Boolean(GuiActivator.getResources()
+                        .getSettingsString("isLookAndFeelDecorated"))
+                        .booleanValue();
+
+                if (isDecorated)
                 {
-                    SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
-                    SIPCommLookAndFeel
-                        .setCurrentTheme(new SIPCommDefaultTheme());
-
-                    // Check the isLookAndFeelDecorated property and set the
-                    // appropriate
-                    // default decoration.
-                    boolean isDecorated =
-                        new Boolean(GuiActivator.getResources()
-                            .getSettingsString("isLookAndFeelDecorated"))
-                            .booleanValue();
-
-                    if (isDecorated)
-                    {
-                        JFrame.setDefaultLookAndFeelDecorated(true);
-                        JDialog.setDefaultLookAndFeelDecorated(true);
-                    }
-
-                    UIManager.setLookAndFeel(lf);
+                    JFrame.setDefaultLookAndFeelDecorated(true);
+                    JDialog.setDefaultLookAndFeelDecorated(true);
                 }
-                catch (UnsupportedLookAndFeelException e)
-                {
-                    logger.error("The provided Look & Feel is not supported.",
-                        e);
-                }
+
+                UIManager.setLookAndFeel(lf);
+            }
+            catch (UnsupportedLookAndFeelException e)
+            {
+                logger.error("The provided Look & Feel is not supported.",
+                    e);
             }
         }
     }
