@@ -70,7 +70,9 @@ public class GeneralConfigurationForm
                 mainPanel.add(autoStartCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
                 autoStartCheckBox.setText(
-                    Resources.getString("autoStartOption"));
+                    Resources.getString("autoStartOption",
+                        new String[]{
+                            Resources.getSettingsString("applicationName")}));
                 initAutoStartCheckBox();
                 autoStartCheckBox.addActionListener(this);
             }

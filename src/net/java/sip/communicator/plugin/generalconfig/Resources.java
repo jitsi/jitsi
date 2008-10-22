@@ -38,6 +38,16 @@ public class Resources
     }
     
     /**
+     * Returns an internationalized string corresponding to the given key.
+     * @param key The key of the string.
+     * @return An internationalized string corresponding to the given key.
+     */
+    public static String getString(String key, String[] params)
+    {
+        return getResources().getI18NString(key, params);
+    }
+
+    /**
      * Returns an application property string corresponding to the given key.
      * @param key The key of the string.
      * @return A string corresponding to the given key.
