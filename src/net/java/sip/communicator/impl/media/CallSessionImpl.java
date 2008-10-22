@@ -2766,7 +2766,7 @@ public class CallSessionImpl
                     logger.trace("GoSecure call event processing");
 
                     // This point isn't reached if GoClear is not enabled
-                    SCCallback cb = (SCCallback)engine.getUserCallback();
+                    SCCallback cb = engine.getUserCallback();
                     cb.setGCGSByPeerFlag(false);
                     engine.requestGoSecure();
                 }
@@ -2780,7 +2780,7 @@ public class CallSessionImpl
                 // to re-enable GoClear uncomment the specific code parts in ZRTP4J
                 logger.trace("GoClear call event processing");
 
-                SCCallback cb = (SCCallback)engine.getUserCallback();
+                SCCallback cb = engine.getUserCallback();
                 cb.setGCGSByPeerFlag(false);
                 engine.requestGoClear();
             }
