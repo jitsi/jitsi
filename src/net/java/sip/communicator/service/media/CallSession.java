@@ -62,7 +62,7 @@ public interface CallSession
      * The method is meant for use by protocol service implementations when
      * willing to send an in-dialog invitation to a remote callee to put her
      * on/off hold or to send an answer to an offer to be put on/off hold.
-     * 
+     *
      * @param participantSdpDescription the last SDP description of the remote
      *            callee
      * @param on <tt>true</tt> if the SDP description should offer the remote
@@ -75,12 +75,12 @@ public interface CallSession
      * @throws MediaException
      */
     public String createSdpDescriptionForHold(String participantSdpDescription,
-        boolean on) throws MediaException;
+        boolean onHold) throws MediaException;
 
     /**
      * Determines whether a specific SDP description <tt>String</tt> offers
      * this party to be put on hold.
-     * 
+     *
      * @param sdpOffer the SDP description <tt>String</tt> to be examined for
      *            an offer to this party to be put on hold
      * @return <tt>true</tt> if the specified SDP description <tt>String</tt>
@@ -96,7 +96,7 @@ public interface CallSession
      * For example, a remote request to have this party put off hold cannot
      * override an earlier local request to put the remote party on hold.
      * </p>
-     * 
+     *
      * @param on <tt>true</tt> to request the media of this
      *            <tt>CallSession</tt> be put on hold; <tt>false</tt>,
      *            otherwise
@@ -159,20 +159,20 @@ public interface CallSession
      * <tt>CallSession</tt>.
      */
     public int getAudioPort();
-    
+
     /**
-     * Returns a URL pointing to a location with call control information for 
+     * Returns a URL pointing to a location with call control information for
      * this call or <tt>null</tt> if no such URL is available.
-     * 
+     *
      * @return a URL link to a location with call information or a call control
-     * web interface for the specified participant or <tt>null</tt> if no such 
+     * web interface for the specified participant or <tt>null</tt> if no such
      * URL is available.
      */
     public URL getCallInfoURL();
 
     /**
      * Determines whether the audio of this session is (set to) mute.
-     * 
+     *
      * @return <tt>true</tt> if the audio of this session is (set to) mute;
      *         otherwise, <tt>false</tt>
      */
@@ -180,7 +180,7 @@ public interface CallSession
 
     /**
      * Sets the mute state of the audio of this session.
-     * 
+     *
      * @param mute <tt>true</tt> to mute the audio of this session; otherwise,
      *            <tt>false</tt>
      */
@@ -189,35 +189,35 @@ public interface CallSession
     /**
      * Stops and closes the audio and video streams flowing through this
      * session.
-     * 
+     *
      * @return <tt>true</tt> if there was an actual change in the streaming i.e.
      *         the streaming wasn't already stopped before this request;
      *         <tt>false</tt>, otherwise
      */
     public boolean stopStreaming();
 
-    /** 
+    /**
      * Sets the default secure/unsecure communication status for the supported
      * call sessions.
-     * 
-     * @param activator value of default secure communication status 
+     *
+     * @param activator value of default secure communication status
      * @param source the initiator of the secure status change (can be local or remote)
      */
-    public void setSecureCommunicationStatus(boolean activator, 
+    public void setSecureCommunicationStatus(boolean activator,
                                              OperationSetSecureTelephony.
                                              SecureStatusChangeSource source);
 
     /**
      * Gets the default secure/unsecure communication status for the supported
      * call sessions.
-     *  
+     *
      * @return default secure communication status for the supported call sessions
      */
     public boolean getSecureCommunicationStatus();
 
     /**
-     * Gets the call associated with this session 
-     * 
+     * Gets the call associated with this session
+     *
      * @return the call associated with this session
      */
     public Call getCall();

@@ -92,7 +92,7 @@ public class ImageLoader {
         = new ImageID("BUTTON_ROLLOVER_BG_MIDDLE");
 
     /**
-     * The pressed toggle button background image. 
+     * The pressed toggle button background image.
      */
     public static final ImageID TOGGLE_BUTTON_PRESSED
         = new ImageID("TOGGLE_BUTTON_PRESSED");
@@ -102,7 +102,7 @@ public class ImageLoader {
      */
     public static final ImageID TOGGLE_BUTTON
         = new ImageID("TOGGLE_BUTTON");
-    
+
     /**
      * The image used for a horizontal split.
      */
@@ -439,7 +439,7 @@ public class ImageLoader {
         = new ImageID("DIEZ_DIAL_BUTTON");
 
     /**
-     * A dial button icon. The icon shown in the CallParticipant panel. 
+     * A dial button icon. The icon shown in the CallParticipant panel.
      */
     public static final ImageID DIAL_BUTTON
         = new ImageID("DIAL_BUTTON");
@@ -461,13 +461,13 @@ public class ImageLoader {
      */
     public static final ImageID TRANSFER_CALL_BUTTON =
         new ImageID("TRANSFER_CALL_BUTTON");
-    
+
     /**
      * The secure button on icon. The icon shown in the CallParticipant panel.
      */
     public static final ImageID SECURE_BUTTON_ON =
         new ImageID("SECURE_BUTTON_ON");
-    
+
     /**
      * The secure button off icon. The icon shown in the CallParticipant panel.
      */
@@ -542,7 +542,7 @@ public class ImageLoader {
      */
     public static final ImageID RENAME_DIALOG_ICON
         = new ImageID("RENAME_DIALOG_ICON");
-    
+
     /**
      * The image used for decoration of the "reason" dialog. The "reason" dialog
      * is used wherever user should specify a reason for the operation he's
@@ -606,26 +606,26 @@ public class ImageLoader {
      */
     public static final ImageID CLOSED_GROUP
         = new ImageID("CLOSED_GROUP");
-    
+
     /**
      * The image used for chat rooms.
      */
     public static final ImageID CHAT_ROOM_16x16_ICON
         = new ImageID("CHAT_ROOM_16x16_ICON");
-    
+
     /**
      * The image used for multi user chat servers.
      */
     public static final ImageID CHAT_SERVER_16x16_ICON
         = new ImageID("CHAT_SERVER_16x16_ICON");
-    
+
     /**
      * The image used to indicate in the contact list that a message is received
      * from a certain contact.
      */
     public static final ImageID MESSAGE_RECEIVED_ICON
         = new ImageID("MESSAGE_RECEIVED_ICON");
-    
+
     /**
      * The image used to set to the chat room "join" right button menu.
      */
@@ -792,7 +792,7 @@ public class ImageLoader {
 
     /**
      * The icon shown between the global status button and other protocol status
-     * buttons. 
+     * buttons.
      */
     public static final ImageID STATUS_SEPARATOR_ICON
         = new ImageID("STATUS_SEPARATOR_ICON");
@@ -988,13 +988,13 @@ public class ImageLoader {
      * The icon used to indicate a search.
      */
     public static final ImageID SEARCH_ICON = new ImageID("SEARCH_ICON");
-        
+
     /**
      * The icon used to indicate a search.
      */
     public static final ImageID SEARCH_ICON_16x16
         = new ImageID("SEARCH_ICON_16x16");
-    
+
     /*
      * =======================================================================
      * ------------------------ USERS' ICONS ---------------------------------
@@ -1080,7 +1080,7 @@ public class ImageLoader {
         ArrayList defaultPackList = new ArrayList();
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY1, new String[] {
-                "$-)", "$)" }));
+                ";-(", ";(" }));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY2, new String[] {
                 "B-)", "B)" }));
@@ -1095,7 +1095,7 @@ public class ImageLoader {
                 ":-((", ":((" }));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY6, new String[] {
-                ":-~", ":~" }));
+                "(L)" , "(l)"}));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY7, new String[] {
                 ":-|", ":|" }));
@@ -1180,7 +1180,7 @@ public class ImageLoader {
 
         return image;
     }
-    
+
     /**
      * Loads an image from a given path.
      *
@@ -1190,11 +1190,11 @@ public class ImageLoader {
     public static BufferedImage getImageFromUrl(String path)
     {
         BufferedImage image = null;
-        
+
         try
         {
             URL imgUrl = new URL(path);
-            
+
             image = ImageIO.read(imgUrl.openStream());
         }
         catch (Exception exc)
@@ -1210,7 +1210,7 @@ public class ImageLoader {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static byte[] getImageInBytes(ImageID imageID) 
+    public static byte[] getImageInBytes(ImageID imageID)
     {
         InputStream in = GuiActivator.getResources().
             getImageInputStream(imageID.getId());
@@ -1218,12 +1218,12 @@ public class ImageLoader {
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
-        } catch (IOException e) 
+        } catch (IOException e)
         {
             log.error("Failed to load image:" + imageID.getId(), e);
         }
@@ -1243,8 +1243,8 @@ public class ImageLoader {
         {
             image = ImageIO.read(
                     new ByteArrayInputStream(imageBytes));
-            
-        }        
+
+        }
         catch (Exception e)
         {
             log.error("Failed to convert bytes to image.", e);
@@ -1277,7 +1277,7 @@ public class ImageLoader {
 
             if(numImages == 0)
                 return null;
-            
+
             images = new BufferedImage[numImages];
 
             for (int i = 0; i < numImages; ++i) {
@@ -1314,14 +1314,14 @@ public class ImageLoader {
      *            The image wich path to return.
      * @return The path string of an already loaded image, otherwise null.
      */
-    public static String getImagePath(Image image) 
+    public static String getImagePath(Image image)
     {
         Iterator i = ImageLoader.loadedImages.entrySet().iterator();
 
         while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
 
-            if (entry.getValue().equals(image)) 
+            if (entry.getValue().equals(image))
             {
                 String imageID = ((ImageID) entry.getKey()).getId();
 

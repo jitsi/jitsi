@@ -62,6 +62,7 @@ import gnu.java.zrtp.*;
  * <tt>RTPManager</tt>s.
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  * @author Ryan Ricard
  * @author Ken Larson
  * @author Dudek Przemyslaw
@@ -167,8 +168,9 @@ public class CallSessionImpl
     private boolean usingSRTP = false;
 
     /**
-     * Vector used to hold references of various key management solutions implemented.
-     * For now only ZRTP and Dummy (hardcoded keys) are present.
+     * Vector used to hold references of the various key management solutions
+     * that are implemented. For now only ZRTP and dummy (hardcoded keys) are
+     * present.
      */
     private Vector<KeyProviderAlgorithm> keySharingAlgorithms = null;
 
@@ -355,16 +357,16 @@ public class CallSessionImpl
         boolean startedAtLeastOneStream = false;
         RTPManager rtpManager = getAudioRtpManager();
 
-        Vector sendStreams = rtpManager.getSendStreams();
+        Vector<SendStream> sendStreams = rtpManager.getSendStreams();
         if(sendStreams != null && sendStreams.size() > 0)
         {
             logger.trace("Will be starting " + sendStreams.size()
                          + " audio send streams.");
-            Iterator ssIter = sendStreams.iterator();
+            Iterator<SendStream> ssIter = sendStreams.iterator();
 
             while (ssIter.hasNext())
             {
-                SendStream stream = (SendStream) ssIter.next();
+                SendStream stream = ssIter.next();
                 try
                 {
                     /** @todo are we sure we want to connect here? */
@@ -390,7 +392,7 @@ public class CallSessionImpl
         {
             logger.trace("Will be starting " + sendStreams.size()
                          + " video send streams.");
-            Iterator ssIter = sendStreams.iterator();
+            Iterator<SendStream> ssIter = sendStreams.iterator();
 
             while (ssIter.hasNext())
             {
@@ -448,7 +450,7 @@ public class CallSessionImpl
 
     /**
      * Stops and closes all streams currently handled by <tt>rtpManager</tt>.
-     * 
+     *
      * @param rtpManager the rtpManager whose streams we'll be stopping.
      * @return <tt>true</tt> if there was an actual change in the streaming i.e.
      *         the streaming wasn't already stopped before this request;
@@ -457,8 +459,8 @@ public class CallSessionImpl
     private boolean stopStreaming(RTPManager rtpManager)
     {
         boolean stoppedAtLeastOneStream = false;
-        Vector sendStreams = rtpManager.getSendStreams();
-        Iterator ssIter = sendStreams.iterator();
+        Vector<SendStream> sendStreams = rtpManager.getSendStreams();
+        Iterator<SendStream> ssIter = sendStreams.iterator();
 
         while(ssIter.hasNext())
         {
@@ -476,11 +478,11 @@ public class CallSessionImpl
             stoppedAtLeastOneStream = true;
         }
 
-        Vector receiveStreams = rtpManager.getReceiveStreams();
-        Iterator rsIter = receiveStreams.iterator();
+        Vector<ReceiveStream> receiveStreams = rtpManager.getReceiveStreams();
+        Iterator<ReceiveStream> rsIter = receiveStreams.iterator();
         while(rsIter.hasNext())
         {
-            ReceiveStream stream = (ReceiveStream) rsIter.next();
+            ReceiveStream stream = rsIter.next();
             try
             {
                 stream.getDataSource().stop();
@@ -505,10 +507,12 @@ public class CallSessionImpl
 
             if (transConnector != null)
             {
-                ZRTPTransformEngine engine = (ZRTPTransformEngine)transConnector.getEngine();
+                ZRTPTransformEngine engine
+                        = (ZRTPTransformEngine)transConnector.getEngine();
 
-                engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
-                                EnumSet.of(ZRTPCustomInfoCodes.ZRTPDisabledByCallEnd));
+                engine.sendInfo(
+                    ZrtpCodes.MessageSeverity.Info,
+                    EnumSet.of(ZRTPCustomInfoCodes.ZRTPDisabledByCallEnd));
 
                 transConnector.removeTargets();
             }
@@ -537,6 +541,9 @@ public class CallSessionImpl
      */
     private void printFlowStatistics(RTPManager rtpManager)
     {
+        if(! logger.isDebugEnabled())
+            return;
+
         String rtpManagerDescription = (rtpManager == getAudioRtpManager())
             ? "(for audio flows)"
             : "(for video flows)";
@@ -649,7 +656,7 @@ public class CallSessionImpl
         }
         catch (SdpParseException ex)
         {
-            throwMediaException(
+            throw new MediaException(
                 "Failed to parse the SDP description of the participant.",
                 MediaException.INTERNAL_ERROR, ex);
         }
@@ -657,24 +664,25 @@ public class CallSessionImpl
         SessionDescription sdpOffer =
             createSessionDescription(participantDescription, null);
 
-        Vector mediaDescriptions = null;
+        Vector<MediaDescription> mediaDescriptions = null;
         try
         {
             mediaDescriptions = sdpOffer.getMediaDescriptions(true);
         }
         catch (SdpException ex)
         {
-            throwMediaException(
+            throw new MediaException(
                 "Failed to get media descriptions from SDP offer.",
                 MediaException.INTERNAL_ERROR, ex);
         }
 
-        for (Iterator mediaDescriptionIter = mediaDescriptions.iterator(); mediaDescriptionIter
-            .hasNext();)
+        for (Iterator<MediaDescription> mediaDescriptionIter
+                                                = mediaDescriptions.iterator();
+             mediaDescriptionIter.hasNext();)
         {
-            MediaDescription mediaDescription =
-                (MediaDescription) mediaDescriptionIter.next();
-            Vector attributes = mediaDescription.getAttributes(false);
+            MediaDescription mediaDescription = mediaDescriptionIter.next();
+            Vector<Attribute> attributes
+                                    = mediaDescription.getAttributes(false);
 
             try
             {
@@ -683,7 +691,7 @@ public class CallSessionImpl
             catch (SdpException ex)
 
             {
-                throwMediaException(
+                throw new MediaException(
                     "Failed to modify media description for hold.",
                     MediaException.INTERNAL_ERROR, ex);
             }
@@ -695,7 +703,7 @@ public class CallSessionImpl
         }
         catch (SdpException ex)
         {
-            throwMediaException(
+            throw new MediaException(
                 "Failed to set media descriptions to SDP offer.",
                 MediaException.INTERNAL_ERROR, ex);
         }
@@ -707,7 +715,7 @@ public class CallSessionImpl
      * Modifies the attributes of a specific <tt>MediaDescription</tt> in
      * order to make them reflect the state of being on/off hold.
      *
-     * @param on <tt>true</tt> if the state described by the modified
+     * @param onHold <tt>true</tt> if the state described by the modified
      *            <tt>MediaDescription</tt> should reflect being put on hold;
      *            <tt>false</tt> for being put off hold
      * @param mediaDescription the <tt>MediaDescription</tt> to modify the
@@ -715,8 +723,10 @@ public class CallSessionImpl
      * @param attributes the attributes of <tt>mediaDescription</tt>
      * @throws SdpException
      */
-    private void modifyMediaDescriptionForHold(boolean on,
-        MediaDescription mediaDescription, Vector attributes)
+    private void modifyMediaDescriptionForHold(
+                            boolean onHold,
+                            MediaDescription mediaDescription,
+                            Vector<Attribute> attributes)
         throws SdpException
     {
 
@@ -725,46 +735,25 @@ public class CallSessionImpl
          * sendrecv and sendonly or between recvonly and inactive depending on
          * the current state.
          */
-        String oldAttribute = on ? "recvonly" : "inactive";
+        String oldAttribute = onHold ? "recvonly" : "inactive";
         String newAttribute = null;
         if (attributes != null)
-            for (Iterator attributeIter = attributes.iterator(); attributeIter
-                .hasNext();)
+            for (Iterator<Attribute> attributeIter = attributes.iterator();
+                 attributeIter.hasNext();)
             {
-                String attribute = ((Attribute) attributeIter.next()).getName();
+                String attribute = attributeIter.next().getName();
 
                 if (oldAttribute.equalsIgnoreCase(attribute))
-                    newAttribute = on ? "inactive" : "recvonly";
+                    newAttribute = onHold ? "inactive" : "recvonly";
             }
         if (newAttribute == null)
-            newAttribute = on ? "sendonly" : "sendrecv";
+            newAttribute = onHold ? "sendonly" : "sendrecv";
 
         mediaDescription.removeAttribute("inactive");
         mediaDescription.removeAttribute("recvonly");
         mediaDescription.removeAttribute("sendonly");
         mediaDescription.removeAttribute("sendrecv");
         mediaDescription.setAttribute(newAttribute, null);
-    }
-
-    /**
-     * Logs a specific message and associated <tt>Throwable</tt> cause as an
-     * error using the current <tt>Logger</tt> and then throws a new
-     * <tt>MediaException</tt> with the message, a specific error code and the
-     * cause.
-     *
-     * @param message the message to be logged and then wrapped in a new
-     *            <tt>MediaException</tt>
-     * @param errorCode the error code to be assigned to the new
-     *            <tt>MediaException</tt>
-     * @param cause the <tt>Throwable</tt> that has caused the necessity to
-     *            log an error and have a new <tt>MediaException</tt> thrown
-     * @throws MediaException
-     */
-    private void throwMediaException(String message, int errorCode,
-        Throwable cause) throws MediaException
-    {
-        logger.error(message, cause);
-        throw new MediaException(message, errorCode, cause);
     }
 
     /**
@@ -788,42 +777,43 @@ public class CallSessionImpl
         }
         catch (SdpParseException ex)
         {
-            throwMediaException("Failed to parse SDP offer.",
+            throw new MediaException("Failed to parse SDP offer.",
                 MediaException.INTERNAL_ERROR, ex);
         }
 
-        Vector mediaDescriptions = null;
+        Vector<MediaDescription> mediaDescriptions = null;
         try
         {
             mediaDescriptions = description.getMediaDescriptions(true);
         }
         catch (SdpException ex)
         {
-            throwMediaException(
+            throw new MediaException(
                 "Failed to get media descriptions from SDP offer.",
                 MediaException.INTERNAL_ERROR, ex);
         }
 
         boolean isOfferToHold = true;
-        for (Iterator mediaDescriptionIter = mediaDescriptions.iterator(); mediaDescriptionIter
-            .hasNext()
-            && isOfferToHold;)
+        for (Iterator<MediaDescription> mediaDescriptionIter
+                        = mediaDescriptions.iterator();
+             mediaDescriptionIter.hasNext()
+             && isOfferToHold;)
         {
             MediaDescription mediaDescription =
                 (MediaDescription) mediaDescriptionIter.next();
-            Vector attributes = mediaDescription.getAttributes(false);
+            Vector<Attribute> attributes
+                                = mediaDescription.getAttributes(false);
 
             isOfferToHold = false;
             if (attributes != null)
             {
-                for (Iterator attributeIter = attributes.iterator(); attributeIter
-                    .hasNext()
-                    && !isOfferToHold;)
+                for (Iterator<Attribute> attributeIter = attributes.iterator();
+                     attributeIter.hasNext()
+                     && !isOfferToHold;)
                 {
                     try
                     {
-                        String attribute =
-                            ((Attribute) attributeIter.next()).getName();
+                        String attribute = attributeIter.next().getName();
 
                         if ("sendonly".equalsIgnoreCase(attribute)
                             || "inactive".equalsIgnoreCase(attribute))
@@ -833,9 +823,10 @@ public class CallSessionImpl
                     }
                     catch (SdpParseException ex)
                     {
-                        throwMediaException(
-                            "Failed to get SDP media description attribute name",
-                            MediaException.INTERNAL_ERROR, ex);
+                        throw new MediaException(
+                           "Failed to get SDP media description attribute name",
+                           MediaException.INTERNAL_ERROR,
+                           ex);
                     }
                 }
             }
@@ -868,7 +859,7 @@ public class CallSessionImpl
         {
             onHold &= ~ (here ? ON_HOLD_LOCALLY : ON_HOLD_REMOTELY);
         }
-        
+
         applyOnHold();
     }
 
@@ -1143,9 +1134,9 @@ public class CallSessionImpl
             else
             {
                 logger.warn("We are apparently capable of sending a format "
-                            +" that is neither videro nor audio. Is "
-                            +"this really possible?:"
-                            +streams[i].getFormat());
+                            + " that is neither videro nor audio. Is "
+                            + "this really possible?:"
+                            + streams[i].getFormat());
                 continue;
             }
 
@@ -1182,7 +1173,7 @@ public class CallSessionImpl
      * addresses or set them as targets on our RTPManagers.
      */
     private void initStreamTargets(Connection globalConnParam,
-                                   Vector mediaDescriptions)
+                                   Vector<MediaDescription> mediaDescriptions)
         throws MediaException, ParseException
     {
         try
@@ -1192,12 +1183,12 @@ public class CallSessionImpl
             if (globalConnParam != null)
                   globalConnectionAddress = globalConnParam.getAddress();
 
-            Iterator mediaDescsIter = mediaDescriptions.iterator();
+            Iterator<MediaDescription> mediaDescsIter
+                                            = mediaDescriptions.iterator();
             while (mediaDescsIter.hasNext())
             {
                 SessionAddress target = null;
-                MediaDescription mediaDescription
-                    = (MediaDescription) mediaDescsIter.next();
+                MediaDescription mediaDescription = mediaDescsIter.next();
 
                 int port = mediaDescription.getMedia().getMediaPort();
                 String type = mediaDescription.getMedia().getMediaType();
@@ -1228,7 +1219,7 @@ public class CallSessionImpl
                 InetAddress inetAddress = null;
                 try
                 {
-                    inetAddress = InetAddress.getByName(address);
+                    inetAddress = NetworkUtils.getInetAddress(address);
                 }
                 catch (UnknownHostException exc)
                 {
@@ -1244,7 +1235,7 @@ public class CallSessionImpl
 
                 /** @todo the following line assumes that we have a single rtp
                  * manager per media type which is not necessarily true (e.g. we
-                 * may two distinct video streams: 1 for a webcam video and
+                 * may have two distinct video streams: 1 for a webcam video and
                  * another one desktop capture stream) */
                 RTPManager rtpManager = type.equals("video")
                     ? getVideoRtpManager()
@@ -1263,11 +1254,6 @@ public class CallSessionImpl
                         TransformConnector transConnector =
                             this.transConnectors.get(rtpManager);
 
-                        if (transConnector == null)
-                        {
-                            throw new Exception();
-                        }
-
                         transConnector.addTarget(target);
                     }
                     else
@@ -1278,7 +1264,7 @@ public class CallSessionImpl
                     logger.trace("added target " + target
                                  + " for type " + type);
                 }
-                catch (Exception exc)
+                catch (Throwable exc)
                 {
                     throw new MediaException("Failed to add RTPManager target."
                         , MediaException.INTERNAL_ERROR
@@ -1342,8 +1328,8 @@ public class CallSessionImpl
                 {
                     try
                     {
-                        intendedDestination = InetAddress.getByName(c.
-                            getAddress());
+                        intendedDestination = NetworkUtils.getInetAddress(
+                                        c.getAddress());
                     }
                     catch (SdpParseException ex)
                     {
@@ -1519,9 +1505,9 @@ public class CallSessionImpl
      * support any of the offered media formats.
      */
     private Vector createMediaDescriptions(
-                                          Vector            offerMediaDescs,
-                                          InetSocketAddress publicAudioAddress,
-                                          InetSocketAddress publicVideoAddress)
+                                      Vector<MediaDescription> offerMediaDescs,
+                                      InetSocketAddress publicAudioAddress,
+                                      InetSocketAddress publicVideoAddress)
         throws SdpException
               ,MediaException
     {
@@ -1543,12 +1529,12 @@ public class CallSessionImpl
         {
             Vector<String> offeredVideoEncodings = new Vector<String>();
             Vector<String> offeredAudioEncodings = new Vector<String>();
-            Iterator offerDescsIter = offerMediaDescs.iterator();
+            Iterator<MediaDescription> offerDescsIter
+                                                = offerMediaDescs.iterator();
 
             while (offerDescsIter.hasNext())
             {
-                MediaDescription desc
-                    = (MediaDescription) offerDescsIter.next();
+                MediaDescription desc = offerDescsIter.next();
                 Media media = desc.getMedia();
                 String mediaType = media.getMediaType();
 
@@ -1598,7 +1584,7 @@ public class CallSessionImpl
 
             // if we support g723 it is in 6.3 bitrate
             String g723Str = String.valueOf(SdpConstants.G723);
-            for (int i = 0; i < supportedAudioEncodings.length; i++) 
+            for (int i = 0; i < supportedAudioEncodings.length; i++)
             {
                 if(supportedAudioEncodings[i].equals(g723Str))
                 {
@@ -1780,7 +1766,7 @@ public class CallSessionImpl
      * Returns a <tt>Hashtable</tt> mapping media types (e.g. audio or video) to
      * lists of JMF encoding strings corresponding to the SDP formats specified
      * in the <tt>mediaDescriptions</tt> vector.
-     * 
+     *
      * @param mediaDescriptions a <tt>Vector</tt> containing
      *            <tt>MediaDescription</tt> instances extracted from an SDP
      *            offer or answer.
@@ -2064,7 +2050,7 @@ public class CallSessionImpl
                 ZRTPTransformEngine engine
                     = (ZRTPTransformEngine)transConnector.getEngine();
                 // Case 1: user toggled secure communication prior to the call
-                // Note that this is not possible now as the "secure" button is 
+                // Note that this is not possible now as the "secure" button is
                 // in the call panel that appears once the call has started
                 if (usingSRTP)
                 {
@@ -2719,9 +2705,9 @@ public class CallSessionImpl
      * @param activator type of change - enable/disable communication security
      * @param source the source of changing the secure status (local or remote)
      */
-    private synchronized void fireSecureStatusChanged(boolean activator,
-                                                      OperationSetSecureTelephony.
-                                                      SecureStatusChangeSource source)
+    private synchronized void fireSecureStatusChanged(
+                boolean activator,
+                OperationSetSecureTelephony.SecureStatusChangeSource source)
     {
          if (activator)
          {
@@ -2748,10 +2734,11 @@ public class CallSessionImpl
      * will be secure or unsecure
      * @param event The secure status changed event
      */
-    public void ZRTPChangeStatus(RTPManager manager, SecureEvent event)
+    private void zrtpChangeStatus(RTPManager manager, SecureEvent event)
     {
         int newStatus = event.getEventID();
-        OperationSetSecureTelephony.SecureStatusChangeSource source = event.getSource();
+        OperationSetSecureTelephony.SecureStatusChangeSource source
+                                                            = event.getSource();
 
         TransformConnector transConnector = this.transConnectors.get(manager);
 
@@ -2811,7 +2798,7 @@ public class CallSessionImpl
         if (selectedKeyProviderAlgorithm.getProviderType() ==
             KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
         {
-            ZRTPChangeStatus(this.audioRtpManager, secureEvent);
+            zrtpChangeStatus(this.audioRtpManager, secureEvent);
 
             /* TODO: Video securing related code
              *
