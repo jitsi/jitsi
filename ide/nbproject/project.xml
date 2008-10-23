@@ -8,11 +8,11 @@
                  ./ide/nbproject/project.xml. You should copy it to 
                  ./nbproject/project.xml (when NetBeans is not running!)
                  to make it active on your own system.
-              ** Updated by Brian Burch on August 25, 2005
+              ** Updated by Brian Burch on October 22, 2008
                  Netbeans debug targets are now held in 
-                 ./ide/nbproject/ide-targets.xml. You should copy it to 
-                 ./nbproject/ide-targets.xml (when NetBeans is not running!)
-                 to make it active on your own system.
+                 ./ide/nbproject/ide-targets.xml and ./ide/nbproject/ide-file-targets.xml.
+                 You should copy these two files to ./nbproject/ (when NetBeans is not    
+                 running!) to make them active on your own system.
                  -->
             <name>SIP Communicator</name>
             <properties/>
@@ -47,6 +47,18 @@
                 <action name="rebuild">
                     <target>rebuild</target>
                 </action>
+                <action name="run.single">
+                    <target>test</target>
+                    <context>
+                        <property>test.name</property>
+                        <folder>test</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path-noext</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
                 <action name="debug.single">
                     <script>nbproject/ide-file-targets.xml</script>
                     <target>debug-selected-file-in-test</target>
@@ -54,7 +66,7 @@
                         <property>test.name</property>
                         <folder>test</folder>
                         <pattern>\.java$</pattern>
-                        <format>java-name</format>
+                        <format>relative-path-noext</format>
                         <arity>
                             <one-file-only/>
                         </arity>
