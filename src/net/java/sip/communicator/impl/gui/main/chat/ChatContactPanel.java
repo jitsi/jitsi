@@ -60,11 +60,10 @@ public class ChatContactPanel
     private JPanel personPhotoPanel = new JPanel(new BorderLayout());
 
     private JLabel personPhotoLabel = new JLabel(ImageUtils
-            .scaleIconWithinBounds(
-                new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
-                    ChatContact.AVATAR_ICON_WIDTH,
-                    ChatContact.AVATAR_ICON_HEIGHT));
+        .getScaledRoundedImage(
+            ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO),
+            ChatContact.AVATAR_ICON_WIDTH,
+            ChatContact.AVATAR_ICON_HEIGHT));
 
     private JLabel personNameLabel = new JLabel();
 

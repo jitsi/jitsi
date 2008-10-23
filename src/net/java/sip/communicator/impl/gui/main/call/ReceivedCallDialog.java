@@ -125,9 +125,8 @@ public class ReceivedCallDialog
         boolean hasMoreParticipants = false;
         String text = "";
 
-        ImageIcon imageIcon = ImageUtils.scaleIconWithinBounds(
-            new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
+        ImageIcon imageIcon = ImageUtils.getScaledRoundedImage(
+            ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO),
             40, 45);
 
         while (participantsIter.hasNext())

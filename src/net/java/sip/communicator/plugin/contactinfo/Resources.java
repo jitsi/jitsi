@@ -7,12 +7,11 @@
 
 package net.java.sip.communicator.plugin.contactinfo;
 
+import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
-import java.util.*;
 
 import javax.imageio.*;
-import javax.swing.*;
 
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -46,7 +45,7 @@ public class Resources {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static ImageIcon getImage(String imageID)
+    public static Image getImage(String imageID)
     {
         BufferedImage image = null;
 
@@ -65,7 +64,7 @@ public class Resources {
             log.error("Failed to load image:" + imageID, e);
         }
 
-        return new ImageIcon(image);
+        return image;
     }
     
     public static ResourceManagementService getResources()

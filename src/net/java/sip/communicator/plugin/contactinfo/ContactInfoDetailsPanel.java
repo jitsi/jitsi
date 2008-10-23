@@ -174,16 +174,20 @@ public class ContactInfoDetailsPanel
 
         byte[] bytes = this.contact.getImage();
 
-        ImageIcon avatarImage = null;
+        ImageIcon scaledImage = null;
         // If the user has a contact image, let's use it. If not, add the
         // default
         if (bytes != null)
-            avatarImage = new ImageIcon(bytes);
+        {
+            scaledImage = ImageUtils.getScaledRoundedImage(
+                bytes,
+                AVATAR_AREA_WIDTH,
+                AVATAR_AREA_HEIGHT
+                );
+        }
         else
-            avatarImage = Resources.getImage("contactInfoDefaultPersonIcon");
-
-        ImageIcon scaledImage = ImageUtils.scaleIconWithinBounds(
-                avatarImage,
+            scaledImage = ImageUtils.getScaledRoundedImage(
+                Resources.getImage("contactInfoDefaultPersonIcon"),
                 AVATAR_AREA_WIDTH,
                 AVATAR_AREA_HEIGHT
                 );

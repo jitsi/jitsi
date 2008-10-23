@@ -7,10 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
 
-import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -38,8 +35,7 @@ public class AccountStatusPanel
     private JPanel rightPanel = new JPanel(new GridLayout(0, 1, 0, 0));
 
     private ImageIcon imageIcon = ImageUtils.scaleIconWithinBounds(
-        new ImageIcon(ImageLoader
-                .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
+        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO),
                 AVATAR_ICON_WIDTH, AVATAR_ICON_HEIGHT);
 
     private JLabel accountImageLabel = new JLabel(imageIcon);
@@ -153,12 +149,15 @@ public class AccountStatusPanel
                         byte[] accountImage
                             = AccountInfoUtils.getImage(accountInfoOpSet);
 
-                        if (accountImage != null)
-                        {
-                            Image roundedImage = createRoundImage(accountImage);
+                        ImageIcon roundedImage
+                            = ImageUtils.getScaledRoundedImage(
+                                    accountImage,
+                                    AVATAR_ICON_WIDTH,
+                                    AVATAR_ICON_HEIGHT);
 
-                            accountImageLabel
-                                .setIcon(new ImageIcon(roundedImage));
+                        if (roundedImage != null)
+                        {
+                            accountImageLabel.setIcon(roundedImage);
                         }
 
                         String firstName
@@ -213,50 +212,5 @@ public class AccountStatusPanel
         g.setColor(bgColor);
 
         g.fillRoundRect(5, 5, this.getWidth() - 10, this.getHeight() - 10, 8, 8);
-    }
-
-    /**
-     * Creates a rounded avatar image.
-     * 
-     * @param avatarBytes The bytes of the initial avatar image.
-     * 
-     * @return The rounded corner image.
-     */
-    private Image createRoundImage(byte[] avatarBytes)
-    {
-        BufferedImage destImage = null;
-
-        try
-        {
-            InputStream in = new ByteArrayInputStream(avatarBytes);
-            BufferedImage avatarImage = ImageIO.read(in);
-
-            ImageIcon scaledImage = ImageUtils.scaleIconWithinBounds(
-                new ImageIcon(avatarImage),
-                AVATAR_ICON_WIDTH,
-                AVATAR_ICON_HEIGHT);
-
-            destImage
-                = new BufferedImage(scaledImage.getIconWidth(),
-                                    scaledImage.getIconHeight(),
-                                    BufferedImage.TYPE_INT_ARGB);
-
-            Graphics2D g = destImage.createGraphics();
-            AntialiasingManager.activateAntialiasing(g);
-            g.setColor(Color.WHITE);
-            g.fillRoundRect(0, 0, 
-                            scaledImage.getIconWidth(),
-                            scaledImage.getIconHeight(),
-                            10, 10);
-            g.setComposite(AlphaComposite.SrcIn);
-
-            g.drawImage(scaledImage.getImage(), 0, 0, null);
-        }
-        catch (Exception e)
-        {
-            logger.error("Could not create image.", e);
-        }
-
-        return destImage;
     }
 }

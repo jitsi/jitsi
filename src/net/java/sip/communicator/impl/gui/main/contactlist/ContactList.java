@@ -527,7 +527,6 @@ public class ContactList
         }
     }
 
-
     /**
      * Manages a mouse click over the contact list.
      *
@@ -1551,5 +1550,93 @@ public class ContactList
                     srcContact, destGroup);
             }
         }
+    }
+
+    /**
+     * Creates a customized tooltip for this contact list.
+     * 
+     * @return The customized tooltip.
+     */
+    public JToolTip createToolTip()
+    {
+        Point currentMouseLocation = MouseInfo.getPointerInfo().getLocation();
+
+        SwingUtilities.convertPointFromScreen(currentMouseLocation, this);
+
+        int index = this.locationToIndex(currentMouseLocation);
+
+        Object element = this.getModel().getElementAt(index);
+
+        MetaContactTooltip tip = new MetaContactTooltip();
+        if (element instanceof MetaContact)
+        {
+            MetaContact metaContact = (MetaContact) element;
+
+            byte[] avatarImage = metaContact.getAvatar();
+
+            if (avatarImage != null && avatarImage.length > 0)
+                tip.setImage(new ImageIcon(metaContact.getAvatar()));
+
+            tip.setTitle(metaContact.getDisplayName());
+
+            Iterator<Contact> i = metaContact.getContacts();
+
+            while (i.hasNext())
+            {
+                Contact protocolContact = (Contact) i.next();
+
+                Image protocolStatusIcon
+                    = ImageLoader.getBytesInImage(
+                            protocolContact.getPresenceStatus().getStatusIcon());
+
+                String contactAddress = protocolContact.getAddress();
+                String statusMessage = protocolContact.getStatusMessage();
+
+                tip.addProtocolContact(new ImageIcon(protocolStatusIcon),
+                                        contactAddress);
+            }
+        }
+        else if (element instanceof MetaContactGroup)
+        {
+            MetaContactGroup metaGroup = (MetaContactGroup) element;
+
+            tip.setTitle(metaGroup.getGroupName());
+        }
+
+        tip.setComponent(this);
+
+        return tip;
+    }
+    
+    /**
+     * Returns the string to be used as the tooltip for <i>event</i>. We don't
+     * really use this string, but we need to return different string each time
+     * in order to make the TooltipManager change the tooltip over the different
+     * cells in the JList.
+     * 
+     * @return the string to be used as the tooltip for <i>event</i>.
+     */
+    public String getToolTipText(MouseEvent event)
+    {
+        Point currentMouseLocation = event.getPoint();
+
+        int index = this.locationToIndex(currentMouseLocation);
+
+        Object element = this.getModel().getElementAt(index);
+
+        if (element instanceof MetaContact)
+        {
+            MetaContact metaContact = (MetaContact) element;
+
+            return metaContact.getDisplayName();
+        }
+        else if (element instanceof MetaContactGroup)
+        {
+            MetaContactGroup metaGroup = (MetaContactGroup) element;
+
+            return metaGroup.getGroupName();
+        }
+
+        return null;
     }
 }

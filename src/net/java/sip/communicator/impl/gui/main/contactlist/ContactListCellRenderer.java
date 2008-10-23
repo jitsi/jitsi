@@ -8,11 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
 
-import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -20,7 +16,6 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -32,7 +27,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ContactListCellRenderer
-    extends JPanel 
+    extends JPanel
     implements ListCellRenderer
 {
     private Logger logger = Logger.getLogger(ContactListCellRenderer.class);
@@ -101,6 +96,8 @@ public class ContactListCellRenderer
 
         this.add(nameLabel, BorderLayout.CENTER);
         this.add(photoLabel, BorderLayout.EAST);
+
+        this.setToolTipText("");
     }
 
     /**
@@ -147,10 +144,13 @@ public class ContactListCellRenderer
             byte[] avatar = contactItem.getAvatar(true);
             if (avatar != null && avatar.length > 0)
             {
-                Image roundedAvatar = createRoundImage(avatar);
+                ImageIcon roundedAvatar
+                    = ImageUtils.getScaledRoundedImage( avatar,
+                                                        AVATAR_WIDTH,
+                                                        AVATAR_HEIGHT);
 
                 if (roundedAvatar != null)
-                    this.photoLabel.setIcon(new ImageIcon(roundedAvatar));
+                    this.photoLabel.setIcon(roundedAvatar);
             }
 
             // We should set the bounds of the cell explicitely in order to
@@ -165,8 +165,6 @@ public class ContactListCellRenderer
                 list.getWidth() - 28, 0, 25, 30);
 
             this.isLeaf = true;
-
-            this.setToolTipText(getContactToolTip(contactItem));
         }
         else if (value instanceof MetaContactGroup)
         {
@@ -212,8 +210,6 @@ public class ContactListCellRenderer
             this.buttonsPanel.add(groupContentIndicator);
 
             this.isLeaf = false;
-
-            this.setToolTipText(getGroupToolTip(groupItem));
         }
 
 //        this.add(buttonsPanel, BorderLayout.EAST);
@@ -221,51 +217,6 @@ public class ContactListCellRenderer
         this.isSelected = isSelected;
 
         return this;
-    }
-    
-    /**
-     * Creates a rounded avatar image.
-     * 
-     * @param avatarBytes The bytes of the initial avatar image.
-     * 
-     * @return The rounded corner image.
-     */
-    private Image createRoundImage(byte[] avatarBytes)
-    {
-        BufferedImage destImage = null;
-
-        try
-        {
-            InputStream in = new ByteArrayInputStream(avatarBytes);
-            BufferedImage avatarImage = ImageIO.read(in);
-
-            ImageIcon scaledImage = ImageUtils.scaleIconWithinBounds(
-                new ImageIcon(avatarImage),
-                AVATAR_WIDTH,
-                AVATAR_HEIGHT);
-
-            destImage
-                = new BufferedImage(scaledImage.getIconWidth(),
-                                    scaledImage.getIconHeight(),
-                                    BufferedImage.TYPE_INT_ARGB);
-
-            Graphics2D g = destImage.createGraphics();
-            AntialiasingManager.activateAntialiasing(g);
-            g.setColor(Color.WHITE);
-            g.fillRoundRect(0, 0, 
-                            scaledImage.getIconWidth(),
-                            scaledImage.getIconHeight(),
-                            10, 10);
-            g.setComposite(AlphaComposite.SrcIn);
-
-            g.drawImage(scaledImage.getImage(), 0, 0, null);
-        }
-        catch (Exception e)
-        {
-            logger.error("Could not create image.", e);
-        }
-
-        return destImage;
     }
 
     /**
@@ -314,53 +265,5 @@ public class ContactListCellRenderer
             g2.drawRoundRect(1, 0, this.getWidth() - 1, this.getHeight() - 1,
                     7, 7);
         }
-    }
-
-    /**
-     * 
-     * @param contactItem
-     */
-    private String getContactToolTip(MetaContact contactItem)
-    {
-        String toolTipText = "<html>";
-
-        toolTipText += "<b>"+contactItem.getDisplayName()+"</b>";
-
-        Iterator<Contact> i = contactItem.getContacts();
-
-        while (i.hasNext())
-        {
-            Contact protocolContact = (Contact) i.next();
-
-            Image protocolStatusIcon
-                = ImageLoader.getBytesInImage(
-                        protocolContact.getPresenceStatus().getStatusIcon());
-
-            String contactDisplayName = protocolContact.getDisplayName();
-            String contactAddress = protocolContact.getAddress();
-            String statusMessage = protocolContact.getStatusMessage();
-
-            toolTipText
-                += "<br>"
-                    + ((!contactDisplayName
-                            .equals(contactAddress))
-                        ? contactDisplayName + " ("+contactAddress + ")"
-                                : contactDisplayName)
-                    + ((statusMessage != null && statusMessage.length() > 0) 
-                        ? " - " + statusMessage : "");
-        }
-
-        toolTipText += "</html>";
-
-        return toolTipText;
-    }
-    
-    private String getGroupToolTip(MetaContactGroup groupItem)
-    {
-        String toolTipText = "<html>";
-        toolTipText += groupItem.getGroupName();
-        toolTipText += "</html>";
-
-        return toolTipText;
     }
 }

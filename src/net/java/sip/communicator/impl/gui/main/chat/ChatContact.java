@@ -199,20 +199,11 @@ public class ChatContact
             }
         }
 
-        if(contactImage != null)
-        {
-            Image image = ImageLoader.getBytesInImage(contactImage);
-            if(image == null)
-                return null;
-
-            return ImageUtils.scaleIconWithinBounds(
-                        new ImageIcon(image),
-                        AVATAR_ICON_WIDTH,
-                        AVATAR_ICON_HEIGHT
-                        );
-        }
-        else
-            return null;
+        return ImageUtils.getScaledRoundedImage(
+                    contactImage,
+                    AVATAR_ICON_WIDTH,
+                    AVATAR_ICON_HEIGHT
+                    );
     }
 
     /**

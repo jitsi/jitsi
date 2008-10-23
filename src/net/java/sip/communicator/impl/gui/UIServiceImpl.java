@@ -697,6 +697,14 @@ public class UIServiceImpl
      */
     private void setDefaultThemePack()
     {
+        // Show tooltips immediately and specify a custom background.
+        ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
+        UIManager.put("ToolTip.background",
+            new Color(GuiActivator.getResources()
+                    .getColor("tooltipBackground")));
+        toolTipManager.setInitialDelay(0);
+        toolTipManager.setEnabled(true);
+
         // we need to set the UIDefaults class loader so that it may access
         // resources packed inside OSGI bundles
         UIManager.put("ClassLoader", getClass().getClassLoader());
