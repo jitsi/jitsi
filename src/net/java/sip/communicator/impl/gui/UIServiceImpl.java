@@ -702,7 +702,7 @@ public class UIServiceImpl
         UIManager.put("ToolTip.background",
             new Color(GuiActivator.getResources()
                     .getColor("tooltipBackground")));
-        toolTipManager.setInitialDelay(0);
+        toolTipManager.setInitialDelay(500);
         toolTipManager.setEnabled(true);
 
         // we need to set the UIDefaults class loader so that it may access
