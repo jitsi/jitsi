@@ -33,6 +33,7 @@
     <property name="utest.bin" value="sip-communicator.utest.bin"/>
     <property name="test.reports.dir" value="test-reports"/>
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
+    <property name="test.local.properties.file" value="${lib}/testing.properties"/>
     <property name="release" value="release"/>
     <property name="log" value="log"/>
     <property name="release.src" value="${release}/install"/>
@@ -458,7 +459,11 @@
              n.b. the local file will select what is meant on this system by
              "all tests" UNLESS a single test has already been selected. (This
              is because ant will not replace a property value once set.) -->
-        <property file="${lib}/testing.properties"/>
+        <available property="test.properties.present"
+                   file="${test.local.properties.file}"/>
+        <fail unless="test.properties.present"
+              message="${test.local.properties.file} not found - did you copy the template?"/>
+        <property file="${test.local.properties.file}"/>
         <echo message="tests prepared: ${net.java.sip.communicator.slick.runner.TEST_LIST}" />
     </target>
 
