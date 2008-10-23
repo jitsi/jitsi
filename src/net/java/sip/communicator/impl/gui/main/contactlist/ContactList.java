@@ -746,7 +746,8 @@ public class ContactList
 
         int translatedX = e.getX() - selectedCellPoint.x;
 
-        if (selectedValue instanceof MetaContact)
+        if (selectedValue instanceof MetaContact
+            && (e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
         {
             MetaContact mContact = (MetaContact) selectedValue;
 
