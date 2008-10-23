@@ -14,16 +14,18 @@ import javax.swing.text.html.ParagraphView;
 
 /**
  * The <tt>SIPCommHTMLEditorKit</tt> is an <tt>HTMLEditorKit</tt> which uses
- * the <tt>SIPCommImageView</tt> and an extended <tt>ParagraphView</tt>.
+ * an extended <tt>ParagraphView</tt>.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommHTMLEditorKit extends HTMLEditorKit {
+public class SIPCommHTMLEditorKit extends HTMLEditorKit
+{
 
     /**
      * Returns the extended <tt>HTMLFactory</tt> defined here.
      */
-    public ViewFactory getViewFactory() {
+    public ViewFactory getViewFactory()
+    {
         return new HTMLFactoryX();
     }
 
@@ -33,19 +35,18 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
      * paragraphs.
      */
     static class HTMLFactoryX extends HTMLFactory
-        implements ViewFactory {
+        implements ViewFactory
+    {
+        public View create(Element elem)
+        {
+            View view = super.create(elem);
 
-        public View create(Element elem) {
-
-            View v=super.create(elem);
-
-            if(v instanceof ImageView){
-                return new SIPCommImageView(elem);
-            }
-            else if (v instanceof ParagraphView) {
+            if (view instanceof ParagraphView)
+            {
                 return new ParagraphViewX(elem);
-            }            
-            return v;
+            }
+
+            return view;
         }
     }
     
@@ -57,11 +58,13 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
      * processing needed to layout the entire paragraph increases as the
      * paragraph grows.
      */
-    static class ParagraphViewX extends ParagraphView {
-        public ParagraphViewX(Element elem) {
+    static class ParagraphViewX extends ParagraphView
+    {
+        public ParagraphViewX(Element elem)
+        {
             super(elem);
         }
-        
+
         /**
          * Calculate equirements along the minor axis.  This
          * is implemented to forward the request to the logical
@@ -69,18 +72,23 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
          * getMaximumSpan on it.
          */
         protected SizeRequirements calculateMinorAxisRequirements (
-                int axis, SizeRequirements r) {
-            if (r == null) {
-                r = new SizeRequirements();
+                int axis, SizeRequirements sizeRequirements)
+        {
+            if (sizeRequirements == null)
+            {
+                sizeRequirements = new SizeRequirements();
             }
+
             float pref = layoutPool.getPreferredSpan(axis);
             float min = layoutPool.getMinimumSpan(axis);
+
             // Don't include insets, Box.getXXXSpan will include them.
-            r.minimum = (int)min;
-            r.preferred = Math.max(r.minimum, (int) pref);
-            r.maximum = Short.MAX_VALUE;
-            r.alignment = 0.5f;
-            return r;
+            sizeRequirements.minimum = (int)min;
+            sizeRequirements.preferred
+                = Math.max(sizeRequirements.minimum, (int) pref);
+            sizeRequirements.maximum = Short.MAX_VALUE;
+            sizeRequirements.alignment = 0.5f;
+            return sizeRequirements;
         }
     }
 
@@ -91,7 +99,8 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
      *
      * @return the model.
      */
-    public Document createDefaultDocument() {
+    public Document createDefaultDocument()
+    {
         StyleSheet styles = getStyleSheet();
         StyleSheet ss = new StyleSheet();
 
@@ -101,6 +110,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
         doc.setParser(getParser());
         doc.setAsynchronousLoadPriority(4);
         doc.setTokenThreshold(100);
+
         return doc;
     }
 }

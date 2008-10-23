@@ -18,24 +18,21 @@ public class StyledHTMLEditorPane
     extends JEditorPane
 {
     private Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
-    
-    private HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
-    
+
     private HTMLDocument document;
     
     public StyledHTMLEditorPane()
     {
-        this.document = (HTMLDocument) editorKit.createDefaultDocument();
-        
         this.setContentType("text/html");
-        this.setEditorKitForContentType("text/html", editorKit);
-        this.setEditorKit(editorKit);
+
+        this.document
+            = (HTMLDocument) this.getDocument();
+
         this.setDocument(document);
-        
+
         Constants.loadSimpleStyle(document.getStyleSheet());
     }
-    
-    
+
     public void appendToEnd(String text)
     {
         Element root = document.getDefaultRootElement();
@@ -60,7 +57,7 @@ public class StyledHTMLEditorPane
         
         try {
             this.document.insertBeforeStart(root
-                    .getElement(0), text);            
+                    .getElement(0), text);
         } catch (BadLocationException e) {
             logger.error("Insert in the HTMLDocument failed.", e);
         } catch (IOException e) {

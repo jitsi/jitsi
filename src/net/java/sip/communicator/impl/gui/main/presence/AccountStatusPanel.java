@@ -22,8 +22,6 @@ public class AccountStatusPanel
     extends JPanel
     implements RegistrationStateChangeListener
 {
-    private Logger logger = Logger.getLogger(AccountStatusPanel.class);
-
     private static final int AVATAR_ICON_HEIGHT = 45;
 
     private static final int AVATAR_ICON_WIDTH = 45;

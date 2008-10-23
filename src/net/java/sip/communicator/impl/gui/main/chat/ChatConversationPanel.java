@@ -751,9 +751,9 @@ public class ChatConversationPanel
         {
             String matchGroup = m.group().trim();
 
-            String replacement = endPlainTextTag + "<IMG SRC='"
-                + ImageLoader.getSmiley(matchGroup).getImagePath() + "' ALT='"
-                + matchGroup + "'></IMG>" + startPlainTextTag;
+            String replacement = endPlainTextTag + "<IMG SRC=\""
+                + ImageLoader.getSmiley(matchGroup).getImagePath() + "\" ALT=\""
+                + matchGroup + "\"></IMG>" + startPlainTextTag;
 
             m.appendReplacement(msgBuffer, GuiUtils
                 .replaceSpecialRegExpChars(replacement));
