@@ -24,8 +24,24 @@ net.java.sip.communicator.slick.runner.TEST_LIST=ConfigurationServiceLick \
  GibberishProtocolProviderServiceLick \
  RssProtocolProviderServiceLick
 
-# MediaServiceLick \
-# SipProtocolProviderServiceLick \
+
+# Note that NetworkAddressManagerServiceLick currently runs
+# successfully because it sets up ZERO tests - the
+# addSuite calls are commented-out in start().
+
+
+# The following tests should be ommitted:-
+#
+# NetworkAddressManagerServiceLick currently sets up ZERO tests
+# because the addSuite calls are commented-out in start().
+#
+# MediaServiceLick because one of the 2 tests fails.
+#
+# SipProtocolProviderServiceLick because fourteen of 25 tests fail.
+#
+# GenericProtocolProviderServiceLick because it does not add any tests.
+#
+# IcqProtocolProviderSlick because it does not add any tests.
 
 
 # Set a different name for the meta contact list file that will be used
