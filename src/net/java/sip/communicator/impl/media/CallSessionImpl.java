@@ -242,6 +242,18 @@ public class CallSessionImpl
     };
 
     /**
+     * Additional info codes for ZRTP4J.
+     * These could be added to the library. However they are specific for this
+     * implementation, needing them for various GUI changes.
+     */
+    public static enum ZRTPCustomInfoCodes
+    {
+        ZRTPNotEnabledByUser,
+        ZRTPDisabledByCallEnd,
+        ZRTPEngineInitFailure;
+    }
+
+    /**
      * JMF stores CUSTOM_CODEC_FORMATS statically, so they only need to be
      * registered once. FMJ does this dynamically (per instance), so it needs
      * to be done for every time we instantiate an RTP manager.
@@ -900,8 +912,8 @@ public class CallSessionImpl
      */
     private void putOnHold(RTPManager rtpManager, boolean on)
     {
-        for (Iterator sendStreamIter = rtpManager.getSendStreams().iterator(); sendStreamIter
-            .hasNext();)
+        for (Iterator sendStreamIter = rtpManager.getSendStreams().iterator();
+             sendStreamIter.hasNext();)
         {
             SendStream sendStream = (SendStream) sendStreamIter.next();
 
@@ -1028,7 +1040,7 @@ public class CallSessionImpl
         SessionDescription sdpAnswer = createSessionDescription(sdpOffer, null);
 
         //extract the remote addresses.
-        Vector mediaDescriptions = null;
+        Vector<MediaDescription> mediaDescriptions = null;
         try
         {
             mediaDescriptions = sdpOffer.getMediaDescriptions(true);
@@ -2001,8 +2013,8 @@ public class CallSessionImpl
      * manager buffer control.
      *
      * @param rtpManager the <tt>RTPManager</tt> to initialize.
-     * @param bindAddress the <tt>SessionAddress</tt> to use when initializing the
-     * RTPManager.
+     * @param bindAddress the <tt>SessionAddress</tt> to use when initializing
+     * the RTPManager.
      *
      * @throws MediaException if we fail to initialize the RTP manager.
      */
@@ -2044,7 +2056,8 @@ public class CallSessionImpl
                 this.transConnectors.put(rtpManager, transConnector);
 
                 // ZRTP engine initialization
-                // TODO: 1. must query/randomize/find a method for the zid file name
+                // TODO: 1. must query/randomize/find a method for the zid file
+                //          name
                 //       2. must define an exception for initialization failure
 
                 ZRTPTransformEngine engine
@@ -2055,21 +2068,25 @@ public class CallSessionImpl
                 if (usingSRTP)
                 {
                     if (!engine.initialize("GNUZRTP4J.zid"))
-                        engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
-                                    EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
+                        engine.sendInfo(
+                            ZrtpCodes.MessageSeverity.Info,
+                            EnumSet.of(
+                                ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
 
                 }
                 // Case 2: user will toggle secure communication during the call
                 // (it's not set on at this point)
                 else
                 {
-                    engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
-                                    EnumSet.of(ZRTPCustomInfoCodes.ZRTPNotEnabledByUser));
+                    engine.sendInfo(
+                        ZrtpCodes.MessageSeverity.Info,
+                        EnumSet.of(ZRTPCustomInfoCodes.ZRTPNotEnabledByUser));
                 }
 
-                logger.trace("RTP"+
-                            (rtpManager.equals(audioRtpManager)?" audio ":"video")+
-                            "manager initialized through connector");
+                logger.trace(
+                    "RTP"
+                    + (rtpManager.equals(audioRtpManager)?" audio ":"video")
+                    + "manager initialized through connector");
             }
             else
             // Selected key management type == Dummy branch - hardcoded keys
@@ -2082,22 +2099,25 @@ public class CallSessionImpl
                  */
                 && rtpManager.equals(audioRtpManager))
             {
-                SRTPPolicy srtpPolicy =
-                    new SRTPPolicy(SRTPPolicy.AESF8_ENCRYPTION, 16,
-                                   SRTPPolicy.HMACSHA1_AUTHENTICATION, 20, 10, 14);
+                SRTPPolicy srtpPolicy = new SRTPPolicy(
+                            SRTPPolicy.AESF8_ENCRYPTION, 16,
+                            SRTPPolicy.HMACSHA1_AUTHENTICATION, 20, 10, 14);
 
                 // Master key and master salt are hardcoded
-                byte[] masterKey  = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                                     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+                byte[] masterKey  =
+                    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 
-                byte[] masterSalt = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-                                     0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d};
+                byte[] masterSalt =
+                    {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+                    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d};
 
                 TransformConnector transConnector = null;
 
                 TransformManager.initializeProviders();
 
-                // The connector is created based also on the crypto services provider type;
+                // The connector is created based also on the crypto services
+                // provider type;
                 // The crypto provider solution should be queried somehow
                 // or taken from a resources file
                 transConnector =
@@ -2665,7 +2685,8 @@ public class CallSessionImpl
     /**
      * Method for getting the default secure status value for communication
      *
-     * @return the default enabled/disabled status value for secure communication
+     * @return the default enabled/disabled status value for secure
+     * communication
      */
     public boolean getSecureCommunicationStatus()
     {
@@ -2675,7 +2696,8 @@ public class CallSessionImpl
     /**
      * Method for setting the default secure status value for communication
      * Also has the role to trigger going secure from not secure or viceversa
-     * Notifies any present CallSession of change in the status value for this purpose
+     * Notifies any present CallSession of change in the status value for this
+     * purpose
      *
      * @param activator setting for default communication securing
      * @param source the source of changing the secure status (local or remote)
@@ -2685,17 +2707,20 @@ public class CallSessionImpl
                                              SecureStatusChangeSource source)
     {
 
-        logger.trace("Call session secure status change event request received");
+        logger.trace("Call session secure status change event received");
 
         // Make the change for default security enabled/disabled start option
         usingSRTP = activator;
 
-        // Fire the change event to notify any present CallSession of security change status
+        // Fire the change event to notify any present CallSession of security
+        // change status
         // if not the case of a reverted secure state
         // (usually case of previous change rejected due to an error)
         if (source != OperationSetSecureTelephony.
                     SecureStatusChangeSource.SECURE_STATUS_REVERTED)
+        {
             fireSecureStatusChanged(activator, source);
+        }
 
     }
 
@@ -2742,11 +2767,12 @@ public class CallSessionImpl
 
         TransformConnector transConnector = this.transConnectors.get(manager);
 
-        ZRTPTransformEngine engine = (ZRTPTransformEngine)transConnector.getEngine();
+        ZRTPTransformEngine engine
+            = (ZRTPTransformEngine)transConnector.getEngine();
 
-        // Perform ZRTP engine actions only if triggered by local peer - user commands;
-        // If the remote peer caused the event only general call session security status
-        // is changed (done before event processing)
+        // Perform ZRTP engine actions only if triggered by user commands;
+        // If the remote peer caused the event only general call session
+        //security status is changed (done before event processing)
         if (source == OperationSetSecureTelephony.
                         SecureStatusChangeSource.SECURE_STATUS_CHANGE_BY_LOCAL)
         {
@@ -2758,8 +2784,12 @@ public class CallSessionImpl
                     logger.trace("Normal call securing event processing");
 
                     if (!engine.initialize("GNUZRTP4J.zid"))
-                        engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
-                                        EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
+                    {
+                        engine.sendInfo(
+                            ZrtpCodes.MessageSeverity.Info,
+                            EnumSet.of(
+                                ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
+                    }
                 }
                 else
                 {
@@ -2777,7 +2807,8 @@ public class CallSessionImpl
                 // fails due to GoClear code disabled (failing doesn't result
                 // in error, only in a warning tooltip set on the button, and
                 // a change of it's internal state to prevent further attempts)
-                // to re-enable GoClear uncomment the specific code parts in ZRTP4J
+                // to re-enable GoClear uncomment the specific code parts in
+                // ZRTP4J
                 logger.trace("GoClear call event processing");
 
                 SCCallback cb = engine.getUserCallback();
@@ -2789,7 +2820,8 @@ public class CallSessionImpl
 
     /*
      * (non-Javadoc)
-     * @see net.java.sip.communicator.impl.media.SecureEventListener#secureStatusChanged(net.java.sip.communicator.impl.media.SecureEvent)
+     * @see net.java.sip.communicator.impl.media.SecureEventListener
+     * #secureStatusChanged(net.java.sip.communicator.impl.media.SecureEvent)
      */
     public void secureStatusChanged(SecureEvent secureEvent)
     {
@@ -2802,18 +2834,19 @@ public class CallSessionImpl
 
             /* TODO: Video securing related code
              *
-             * We disable for the moment the video securing due to (yet) unsuported
-             * multistream mode in ZRTP4J; This can be re-enabled and attempted as is
-             * implemented, using a separate instance of ZRTP engine which will
-             * attempt securing through DH mode; This might result in some unexpected
-             * behavior at the GUI level, but in theory should work; However, due to
-             * incomplete standard compliance and potential problems mentioned we leave
-             * it disabled; To enable just check the other "Video securing related code"
+             * We disable for the moment the video securing due to (yet)
+             * unsuported multistream mode in ZRTP4J; This can be re-enabled and
+             * attempted as is implemented, using a separate instance of ZRTP
+             * engine which will attempt securing through DH mode; This might
+             * result in some unexpected behavior at the GUI level, but in
+             * theory should work; However, due to incomplete standard
+             * compliance and potential problems mentioned we leave it disabled;
+             * To enable just check the other "Video securing related code"
              * sections in this source
              *
              * Uncomment the next line as part of enabling video securing
              */
-            //ZRTPChangeStatus(this.videoRtpManager, secureEvent);
+            //zrtpChangeStatus(this.videoRtpManager, secureEvent);
         }
     }
 
@@ -2832,7 +2865,8 @@ public class CallSessionImpl
         DummyKeyProvider dummyProvider = new DummyKeyProvider(1);
         ZRTPKeyProvider zrtpKeyProvider = new ZRTPKeyProvider(0);
 
-        keySharingAlgorithms.add(zrtpKeyProvider.getPriority(), zrtpKeyProvider);
+        keySharingAlgorithms.add(
+                        zrtpKeyProvider.getPriority(), zrtpKeyProvider);
         keySharingAlgorithms.add(dummyProvider.getPriority(), dummyProvider);
     }
 
@@ -2861,24 +2895,13 @@ public class CallSessionImpl
      * priority choosing mechanism in case of addition of other security
      * providers).
      *
-     * @param priority the priority of the selected key management type - 0 is top
+     * @param priority the priority of the selected key management type with
+     * 0 indicating top priority
      * @return the selected key management type
      */
     public KeyProviderAlgorithm selectKeyProviderAlgorithm(int priority)
     {
         return keySharingAlgorithms.get(priority);
-    }
-
-    /**
-     * Additional info codes for ZRTP4J.
-     * These could be added to the library. However they are specific for this
-     * implementation, needing them for various GUI changes.
-     */
-    public static enum ZRTPCustomInfoCodes
-    {
-        ZRTPNotEnabledByUser,
-        ZRTPDisabledByCallEnd,
-        ZRTPEngineInitFailure;
     }
 
     /**

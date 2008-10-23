@@ -1080,7 +1080,7 @@ public class ImageLoader {
         ArrayList defaultPackList = new ArrayList();
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY1, new String[] {
-                ";-(", ";(" }));
+                ";-(", ";(", ":'(", ":'-(", ":~-(", ":~(" }));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY2, new String[] {
                 "B-)", "B)" }));
