@@ -47,9 +47,6 @@
         <isset property="label"/>
     </condition>
 
-    <!-- load properties needed for running the automated tests (e.g. test.list)-->
-    <property file="${lib}/testing.properties"/>
-
     <!-- The following file contains a list of protocol account initialization
          properties, such as SIP server addresses and usernames, ICQ uin-s and
          passwords, AIM screennames and etc. The file should not be committed
@@ -428,7 +425,7 @@
 
     <!--PREPARE-TESTS-->
     <target name="identify-test">
-        <!--internal-target- identify Service Impl Compatibility Kits to run -->
+        <!--internal-target- is a single slick defined to be run alone? -->
         <condition property="test.name.known">
             <!-- has a single test class has been defined?    -->
             <!-- e.g. ant test -Dtest.name=SlickName    -->
@@ -436,28 +433,38 @@
         </condition>
     </target>
 
-    <target name="prepare-single-test" depends="identify-test"
+    <target name="prepare-single-test"
+	    depends="identify-test"
             if="test.name.known">
         <!--internal-target- prepare to run a single Service Impl Compatibility Kit -->
-        <!-- extract the simple Test class name. -->
-        <basename property="simple.test.names" file="${test.name}"/>
-        <echo message="single test prepared: ${simple.test.names}" />
+        <!-- extract the simple Test class name...
+             Command prompt ant calls should define the property as the
+             simple name (without the package hierarchy),
+             e.g. -Dtest.name=GibberishProtocolProviderServiceLick
+             netbeans must format the property using the relative-path-noext
+             rule so that we can extract the simple name. The Felix
+             slick runner ONLY works with unqualified class names. -->
+        <basename property="short.test.name" file="${test.name}"/>
+        <!-- Tell the slick runner which Test class to run. (This will prevent
+             the default external list from being defined.) -->
+        <property name="net.java.sip.communicator.slick.runner.TEST_LIST"
+                     value="${short.test.name}"/>
     </target>
 
-    <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
-    <!-- assign all known Test classes. -->
-    <target name="prepare-all-tests" depends="identify-test"
-            unless="test.name.known"
-            description="prepares to run all known Service Impl Compatibility Kits">
-        <!-- load Test classes from a test conf file. -->
-        <!-- this would set the "simple.test.names" property -->
-        <property name="simple.test.names" value="${test.list}"/>
+    <target name="prepare-all-tests"
+            depends="clean-test-reports,prepare-single-test">
+        <!--internal-target- prepare to run all selected Service Impl Compatibility Kits -->
+        <!-- load properties needed for running any/all automated tests.
+             n.b. the local file will select what is meant on this system by
+             "all tests" UNLESS a single test has already been selected. (This
+             is because ant will not replace a property value once set.) -->
+        <property file="${lib}/testing.properties"/>
+        <echo message="tests prepared: ${net.java.sip.communicator.slick.runner.TEST_LIST}" />
     </target>
 
     <!--RUN-TESTS-->
     <target name="test"
-        depends="prepare-single-test,prepare-all-tests,clean-test-reports,
-                 -deploy-os-specific-bundles"
+        depends="prepare-all-tests,-deploy-os-specific-bundles"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
         <!-- Do the testing itself. Note that we don't fail on error as we need
@@ -468,18 +475,24 @@
             resultproperty="test.result.code"
             classpathref="project.class.path">
 
-            <!-- The following two configure felix telling it that it's running
-                 as a test environment-->
+            <!-- Tell felix to run as a test environment-->
             <sysproperty key="felix.config.properties"
-                value="file:${lib}/felix.unit.test.properties"/>
+                         value="file:${lib}/felix.unit.test.properties"/>
 
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
-                value="${test.reports.dir}"/>
+                         value="${test.reports.dir}"/>
 
-            <!-- Tell the slick runner about TestSutes we've preregistered. -->
+            <!-- Tell the slick runner which Test classes to run. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
-                value="${simple.test.names}"/>
+                         value="${net.java.sip.communicator.slick.runner.TEST_LIST}"/>
+
+            <!-- use a meta contact list file different to normal client. -->
+            <sysproperty key="net.java.sip.communicator.CONTACTLIST_FILE_NAME"
+                         value="net.java.sip.communicator.CONTACTLIST_FILE_NAME"/>
+            <!-- use a configuration file different to normal client. -->
+            <sysproperty key="net.java.sip.communicator.CONFIGURATION_FILE_NAME"
+                         value="net.java.sip.communicator.CONFIGURATION_FILE_NAME"/>
 
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
