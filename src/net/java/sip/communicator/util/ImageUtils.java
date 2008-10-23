@@ -120,7 +120,7 @@ public class ImageUtils
         }
         catch (Exception e)
         {
-            logger.error("Could not create image.", e);
+            logger.debug("Could not create image.", e);
         }
 
         return imageIcon;
