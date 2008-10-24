@@ -35,6 +35,8 @@ public class ConfigurationFrame
 
     private ConfigFormList configList;
 
+    private JScrollPane configScrollList;
+
     private TitlePanel titlePanel = new TitlePanel();
 
     private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
@@ -58,6 +60,11 @@ public class ConfigurationFrame
 
         this.configList = new ConfigFormList(this);
 
+        this.configScrollList = new JScrollPane(
+                this.configList,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         this.setTitle(Messages.getI18NString("configuration").getText());
 
         this.getContentPane().setLayout(new BorderLayout());
@@ -68,7 +75,7 @@ public class ConfigurationFrame
 
         this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        this.mainPanel.add(configList, BorderLayout.WEST);
+        this.mainPanel.add(configScrollList, BorderLayout.WEST);
 
         buttonsPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
             Constants.BORDER_COLOR));
