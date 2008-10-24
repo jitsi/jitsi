@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.service.media;
 
-import net.java.sip.communicator.service.protocol.*;
-import java.text.*;
+import java.awt.*;
 import java.net.*;
+import java.text.*;
+
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * A CallSession contains parameters associated with a particular Call such as
@@ -221,4 +224,36 @@ public interface CallSession
      * @return the call associated with this session
      */
     public Call getCall();
+
+    /**
+     * Adds a specific <code>VideoListener</code> to this
+     * <code>CallSession</code> in order to receive notifications when
+     * visual/video <code>Component</code>s are being added and removed.
+     * 
+     * @param listener the <code>VideoListener</code> to be notified when
+     *            visual/video <code>Component</code>s are being added or
+     *            removed in this <code>CallSession</code>
+     */
+    void addVideoListener(VideoListener listener);
+
+    /**
+     * Gets the visual/video <code>Component</code>s available in this
+     * <code>CallSession</code>.
+     * 
+     * @return an array of the visual <code>Component</code>s available in this
+     *         <code>CallSession</code>
+     */
+    Component[] getVisualComponents();
+
+    /**
+     * Removes a specific <code>VideoListener</code> from this
+     * <code>CallSession</code> in order to no longer have it receive
+     * notifications when visual/video <code>Component</code>s are being added
+     * and removed.
+     * 
+     * @param listener the <code>VideoListener</code> to no longer be notified
+     *            when visual/video <code>Component</code>s are being added or
+     *            removed in this <code>CallSession</code>
+     */
+    void removeVideoListener(VideoListener listener);
 }

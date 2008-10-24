@@ -715,6 +715,10 @@ public class ProtocolProviderServiceSipImpl
                 OperationSetTypingNotifications.class.getName(),
                 opSetTyping);
 
+            // OperationSetVideoTelephony
+            supportedOperationSets.put(OperationSetVideoTelephony.class
+                .getName(), new OperationSetVideoTelephonySipImpl());
+
             // init DTMF (from JM Heitz)
             OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);
             this.supportedOperationSets.put(

@@ -6,29 +6,30 @@
  */
 package net.java.sip.communicator.impl.media;
 
+import java.awt.Component;
 import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
 import javax.media.*;
+import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 import javax.media.rtp.event.*;
 import javax.sdp.*;
 
+import net.java.sip.communicator.impl.media.codec.*;
+import net.java.sip.communicator.impl.media.keyshare.*;
 import net.java.sip.communicator.impl.media.transform.*;
 import net.java.sip.communicator.impl.media.transform.srtp.*;
 import net.java.sip.communicator.impl.media.transform.zrtp.*;
-import net.java.sip.communicator.impl.media.keyshare.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.MediaException;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.impl.media.codec.*;
-import javax.media.control.*;
 
 import gnu.java.zrtp.*;
 
@@ -147,12 +148,8 @@ public class CallSessionImpl
      */
     private final List<Player> players = new ArrayList<Player>();
 
-    /**
-     * The list of currently open Video frames that we have created during this
-     * session.
-     */
-    private final List<javax.swing.JFrame> videoFrames =
-        new ArrayList<javax.swing.JFrame>();
+    private final List<VideoListener> videoListeners =
+        new ArrayList<VideoListener>();
 
     /**
      * SRTP TransformConnectors corresponding to each RTPManager when SRTP
@@ -2230,13 +2227,25 @@ public class CallSessionImpl
 
     /**
      * Indicates that a change has occurred in the state of the source call.
+     * 
      * @param evt the <tt>CallChangeEvent</tt> instance containing the source
-     * calls and its old and new state.
+     *            calls and its old and new state.
      */
     public void callStateChanged(CallChangeEvent evt)
     {
-        if( evt.getNewValue() == CallState.CALL_IN_PROGRESS
-            && evt.getNewValue() != evt.getOldValue())
+        Object newValue = evt.getNewValue();
+
+        if (newValue == evt.getOldValue())
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Ignoring call state change from " + newValue
+                    + " to the same state.");
+            }
+            return;
+        }
+
+        if (newValue == CallState.CALL_IN_PROGRESS)
         {
             try
             {
@@ -2251,51 +2260,47 @@ public class CallSessionImpl
                 logger.error("Failed to start streaming.", ex);
             }
         }
-        else if( evt.getNewValue() == CallState.CALL_ENDED
-                 && evt.getNewValue() != evt.getOldValue())
+        else if (newValue == CallState.CALL_ENDED)
         {
             logger.warn("Stopping streaming.");
             stopStreaming();
-            mediaServCallback.getMediaControl(getCall())
-                .stopProcessingMedia(this);
+            mediaServCallback.getMediaControl(getCall()).stopProcessingMedia(
+                this);
 
-            //close all players that we have created in this session
+            // close all players that we have created in this session
             Iterator<Player> playersIter = players.iterator();
 
-            while(playersIter.hasNext())
+            while (playersIter.hasNext())
             {
                 Player player = playersIter.next();
                 player.stop();
+
+                /*
+                 * The player is being disposed so let the (interested)
+                 * listeners know its Player#getVisualComponent() (if any)
+                 * should be released.
+                 */
+                Component visualComponent = getVisualComponent(player);
+                if (visualComponent != null)
+                {
+                    fireVideoEvent(VideoEvent.VIDEO_REMOVED, visualComponent);
+                }
+
                 player.deallocate();
                 player.close();
                 playersIter.remove();
             }
 
-            // close all video frames that we have created in this session
-            Iterator<javax.swing.JFrame> videoFramesIter =
-                videoFrames.iterator();
-            while(videoFramesIter.hasNext())
-            {
-                javax.swing.JFrame frame = videoFramesIter.next();
-                frame.setVisible(false);
-                frame.dispose();
-                videoFramesIter.remove();
-            }
-
-            //remove ourselves as listeners from the call
+            // remove ourselves as listeners from the call
             evt.getSourceCall().removeCallChangeListener(this);
 
-            RTPManager audioRtpMan = getAudioRtpManager();
-
-            if(audioRtpMan != null)
-                audioRtpMan.dispose();
-
-            RTPManager videoRtpMan = getVideoRtpManager();
-            if(videoRtpMan != null)
-                videoRtpMan.dispose();
+            /*
+             * The disposal of the audio and video RTPManager which used to be
+             * here shouldn't be necessary because #stopStreaming() should've
+             * already take care of it.
+             */
         }
     }
-
 
     /**
      * Indicates that a change has occurred in the status of the source
@@ -2412,7 +2417,6 @@ public class CallSessionImpl
         logger.debug(
             "received the following JMF SendStreamEvent - "
             + event.getClass().getName() + "="+ event);
-
     }
 
     /**
@@ -2423,15 +2427,14 @@ public class CallSessionImpl
      */
     public synchronized void update(ReceiveStreamEvent evt)
     {
-        RTPManager mgr = (RTPManager) evt.getSource();
         Participant participant = evt.getParticipant(); // could be null.
         ReceiveStream stream = evt.getReceiveStream(); // could be null.
+
         if (evt instanceof NewReceiveStreamEvent)
         {
             try
             {
                 logger.debug("received a new incoming stream. " + evt);
-                stream = ( (NewReceiveStreamEvent) evt).getReceiveStream();
                 DataSource ds = stream.getDataSource();
                 // Find out the formats.
                 RTPControl ctl = (RTPControl) ds.getControl(
@@ -2510,6 +2513,7 @@ public class CallSessionImpl
     /**
      * This method is called when an event is generated by a
      * <code>Controller</code> that this listener is registered with.
+     * 
      * @param ce The event generated.
      */
     public synchronized void controllerUpdate(ControllerEvent ce)
@@ -2522,14 +2526,15 @@ public class CallSessionImpl
             return;
         }
 
-        //if configuration is completed and this is a processor
-        //we need to set file format and explicitly call realize().
+        // if configuration is completed and this is a processor
+        // we need to set file format and explicitly call realize().
         if (ce instanceof ConfigureCompleteEvent)
         {
             try
             {
-                ((Processor)player).setContentDescriptor(
-                        new FileTypeDescriptor(FileTypeDescriptor.WAVE));
+                ((Processor) player)
+                    .setContentDescriptor(new FileTypeDescriptor(
+                        FileTypeDescriptor.WAVE));
                 player.realize();
             }
             catch (Exception exc)
@@ -2537,24 +2542,22 @@ public class CallSessionImpl
                 logger.error("failed to record to file", exc);
             }
         }
-
         // Get this when the internal players are realized.
-        if (ce instanceof RealizeCompleteEvent)
+        else if (ce instanceof RealizeCompleteEvent)
         {
 
-            //set the volume as it is not on max by default.
-            //XXX: I am commenting this since apparently it is causing some
-            //problems on windows.
-            //GainControl gc
-            //    = (GainControl)player.getControl(GainControl.class.getName());
-            //if (gc != null)
-            //{
-            //    logger.debug("Setting volume to max");
-            //    gc.setLevel(1);
-            //}
-            //else
-            //    logger.debug("Player does not have gain control.");
-
+            // set the volume as it is not on max by default.
+            // XXX: I am commenting this since apparently it is causing some
+            // problems on windows.
+            // GainControl gc
+            // = (GainControl)player.getControl(GainControl.class.getName());
+            // if (gc != null)
+            // {
+            // logger.debug("Setting volume to max");
+            // gc.setLevel(1);
+            // }
+            // else
+            // logger.debug("Player does not have gain control.");
 
             logger.debug("A player was realized and will be started.");
             player.start();
@@ -2563,18 +2566,19 @@ public class CallSessionImpl
             {
                 try
                 {
-                    logger.info("starting recording to file: "+dataSink);
+                    logger.info("starting recording to file: " + dataSink);
                     MediaLocator dest = new MediaLocator(dataSink);
-                    DataSink sink = Manager.createDataSink(
-                        ((Processor)player).getDataOutput(), dest);
+                    DataSink sink =
+                        Manager.createDataSink(((Processor) player)
+                            .getDataOutput(), dest);
                     player.start();
-                    //do we know the output file's duration
+                    // do we know the output file's duration
                     RecordInitiator record = new RecordInitiator(sink);
                     record.start();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    logger.error("failed while trying to record to file",e);
+                    logger.error("failed while trying to record to file", e);
                 }
             }
             else
@@ -2582,46 +2586,30 @@ public class CallSessionImpl
                 player.start();
             }
 
-
-            /** @todo video frame is currently handled with very ugly test code
-             * please don't forget to remove */
-            //------------ ugly video test code starts here --------------------
-            java.awt.Component vc = player.getVisualComponent();
-            if(vc != null)
+            Component visualComponent = player.getVisualComponent();
+            if (visualComponent != null)
             {
-                javax.swing.JFrame frame = new javax.swing.JFrame();
-                frame.setTitle("SIP Communicator - Video Call");
-                frame.getContentPane().add(vc);
-                frame.pack();
-                //center
-                java.awt.Dimension frameSize = frame.getSize();
-
-                //ugly resize if too tiny
-                if(frameSize.width < 300)
-                {
-                    frame.setSize(frameSize.width * 2, frameSize.height * 2);
-                    frameSize = frame.getSize();
-                }
-                java.awt.Dimension screenSize
-                    = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-
-                frame.setLocation((screenSize.width - frameSize.width)/2
-                    ,(screenSize.height - frameSize.height)/2);
-
-                frame.setVisible(true);
-                videoFrames.add(frame);
+                fireVideoEvent(VideoEvent.VIDEO_ADDED, visualComponent);
             }
-            //------------- ugly video test code ends here ---------------------
         }
-        if (ce instanceof StartEvent) {
+        else if (ce instanceof StartEvent)
+        {
             logger.debug("Received a StartEvent");
         }
-        if (ce instanceof ControllerErrorEvent) {
-            logger.error(
-                "The following error was reported while starting a player"
-                + ce);
+        else if (ce instanceof ControllerErrorEvent)
+        {
+            logger
+                .error("The following error was reported while starting a player"
+                    + ce);
         }
-        if (ce instanceof ControllerClosedEvent) {
+        else if (ce instanceof ControllerClosedEvent)
+        {
+
+            /*
+             * XXX ControllerClosedEvent is the super of ControllerErrorEvent so
+             * the check for the latter should be kept in front of the check for
+             * the former.
+             */
             logger.debug("Received a ControllerClosedEvent");
         }
     }
@@ -2924,5 +2912,119 @@ public class CallSessionImpl
     public void setMute(boolean mute)
     {
         mediaServCallback.getMediaControl(getCall()).setMute(mute);
+    }
+
+    public void addVideoListener(VideoListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (videoListeners)
+        {
+            if (!videoListeners.contains(listener))
+                videoListeners.add(listener);
+        }
+    }
+
+    /*
+     * Gets the visual Components of the #players of this CallSession by calling
+     * Player#getVisualComponent(). Ignores the failures to access the visual
+     * Components of unrealized Players.
+     */
+    public Component[] getVisualComponents()
+    {
+        List<Component> visualComponents = new ArrayList<Component>();
+
+        for (Iterator<Player> playerIter = players.iterator(); playerIter
+            .hasNext();)
+        {
+            Component visualComponent = getVisualComponent(playerIter.next());
+
+            if (visualComponent != null)
+                visualComponents.add(visualComponent);
+        }
+        return visualComponents.toArray(new Component[visualComponents.size()]);
+    }
+
+    /**
+     * Gets the visual <code>Component</code> of a specific <code>Player</code>
+     * if it has one and ignores the failure to access it if the specified
+     * <code>Player</code> is unrealized.
+     * 
+     * @param player the <code>Player</code> to get the visual
+     *            <code>Component</code> of if it has one
+     * @return the visual <code>Component</code> of the specified
+     *         <code>Player</code> if it has one; <tt>null</tt> if the specified
+     *         <code>Player</code> does not have a visual <code>Component</code>
+     *         or the <code>Player</code> is unrealized
+     */
+    private Component getVisualComponent(Player player)
+    {
+        Component visualComponent;
+
+        try
+        {
+            visualComponent = player.getVisualComponent();
+        }
+        catch (NotRealizedError e)
+        {
+            visualComponent = null;
+            if (logger.isDebugEnabled())
+            {
+                logger
+                    .debug("Called Player#getVisualComponent() on Unrealized player "
+                        + player);
+            }
+        }
+        return visualComponent;
+    }
+
+    public void removeVideoListener(VideoListener listener)
+    {
+        videoListeners.remove(listener);
+    }
+
+    /**
+     * Notifies the <code>VideoListener</code>s registered with this
+     * <code>CallSession</code> about a specific type of change in the
+     * availability of a specific visual <code>Component</code> depicting video.
+     * 
+     * @param type the type of change as defined by <code>VideoEvent</code> in
+     *            the availability of the specified visual
+     *            <code>Component</code> depciting video
+     * @param visualComponent the visual <code>Component</code> depicting video
+     *            which has been added or removed in this
+     *            <code>CallSession</code>
+     */
+    protected void fireVideoEvent(int type, Component visualComponent)
+    {
+        VideoListener[] listeners;
+
+        synchronized (videoListeners)
+        {
+            listeners =
+                videoListeners
+                    .toArray(new VideoListener[videoListeners.size()]);
+        }
+
+        if (listeners.length > 0)
+        {
+            VideoEvent event = new VideoEvent(this, type, visualComponent);
+
+            for (int listenerIndex = 0; listenerIndex < listeners.length; listenerIndex++)
+            {
+                VideoListener listener = listeners[listenerIndex];
+
+                switch (type)
+                {
+                case VideoEvent.VIDEO_ADDED:
+                    listener.videoAdded(event);
+                    break;
+                case VideoEvent.VIDEO_REMOVED:
+                    listener.videoRemoved(event);
+                    break;
+                }
+            }
+        }
     }
 }

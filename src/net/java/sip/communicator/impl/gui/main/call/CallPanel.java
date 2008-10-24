@@ -28,36 +28,23 @@ public class CallPanel
     extends JScrollPane
     implements CallChangeListener, CallParticipantListener
 {
-    private JPanel mainPanel = new JPanel();
+    private final JPanel mainPanel = new JPanel();
 
-    private Hashtable participantsPanels = new Hashtable();
+    private final Hashtable<CallParticipant, CallParticipantPanel> participantsPanels =
+        new Hashtable<CallParticipant, CallParticipantPanel>();
 
     private String title;
 
     private Call call;
 
-    private String callType;
-
-    private CallPanel(String callType)
-    {
-        this.callType = callType;
-
-        this.initCallPanel();
-    }
-
-    private void initCallPanel()
+    public CallPanel(Call call, String callType)
     {
         this.mainPanel.setBorder(BorderFactory
-            .createEmptyBorder(20, 10, 20, 10));
+            .createEmptyBorder(5, 5, 5, 5));
 
         this.mainPanel.setLayout(new BorderLayout());
 
         this.getViewport().add(mainPanel);
-    }
-
-    public CallPanel(Call call, String callType)
-    {
-        this(callType);
 
         int contactsCount = call.getCallParticipantsCount();
 
@@ -83,87 +70,6 @@ public class CallPanel
     }
 
     /**
-     * Creates an instance of CallPanel for the given call and call type.
-     * 
-     * @param callManager the CallManager that manages this panel
-     * @param contacts the list of contacts for this call panel
-     */
-    public CallPanel(Vector contacts, String callType)
-    {
-        this(callType);
-
-        int contactsCount = contacts.size();
-
-        if (contactsCount > 0)
-        {
-            Contact firstContact = (Contact) contacts.get(0);
-
-            this.title = firstContact.getDisplayName();
-
-            if (contactsCount < 2)
-            {
-                this.mainPanel.setLayout(new BorderLayout());
-            }
-            else
-            {
-                int rows = contactsCount / 2 + contactsCount % 2;
-                this.mainPanel.setLayout(new GridLayout(rows, 2));
-            }
-        }
-
-        Iterator i = contacts.iterator();
-
-        while (i.hasNext())
-        {
-            Contact contact = (Contact) i.next();
-
-            this.addCallParticipant(contact.getDisplayName(), callType);
-        }
-    }
-
-    /**
-     * Creates an instance of CallPanel for the given call and call type.
-     * 
-     * @param callManager the CallManager that manages this call panel
-     * @param contactString the contact string that we are calling
-     */
-    public CallPanel(String contactString, String callType)
-    {
-        this(callType);
-
-        this.title = contactString;
-
-        this.addCallParticipant(contactString, callType);
-    }
-
-    /**
-     * Creates and adds a panel for a call participant.
-     * 
-     * @param participantName the call participant name
-     * @param callType the type of call: INCOMING or OUTGOING
-     */
-    private CallParticipantPanel addCallParticipant(String participantName,
-        String callType)
-    {
-        CallParticipantPanel participantPanel =
-            getParticipantPanel(participantName);
-
-        if (participantPanel == null)
-        {
-            participantPanel = new CallParticipantPanel(participantName);
-
-            this.mainPanel.add(participantPanel);
-
-            participantPanel.setCallType(callType);
-
-            this.participantsPanels.put(new CallParticipantWrapper(
-                participantName), participantPanel);
-        }
-
-        return participantPanel;
-    }
-
-    /**
      * Creates and adds a panel for a call participant.
      * 
      * @param participant the call participant
@@ -183,8 +89,7 @@ public class CallPanel
 
             participantPanel.setCallType(callType);
 
-            this.participantsPanels.put(
-                new CallParticipantWrapper(participant), participantPanel);
+            this.participantsPanels.put(participant, participantPanel);
         }
 
         return participantPanel;
@@ -249,7 +154,7 @@ public class CallPanel
                 {
                     Timer timer =
                         new Timer(5000, new RemoveParticipantPanelListener(
-                            getParticipantWrapper(participant)));
+                            participant));
 
                     timer.setRepeats(false);
                     timer.start();
@@ -365,10 +270,9 @@ public class CallPanel
      * @param call the <tt>Call</tt> corresponding to this <tt>CallPanel</tt>
      * @param callType the call type - INCOMING or OUTGOING
      */
-    public void setCall(Call call, String callType)
+    private void setCall(Call call, String callType)
     {
         this.call = call;
-        this.callType = callType;
 
         this.call.addCallChangeListener(this);
 
@@ -377,12 +281,11 @@ public class CallPanel
         this.mainPanel.removeAll();
         this.participantsPanels.clear();
 
-        Iterator participants = call.getCallParticipants();
+        Iterator<CallParticipant> participants = call.getCallParticipants();
 
         while (participants.hasNext())
         {
-
-            CallParticipant participant = (CallParticipant) participants.next();
+            CallParticipant participant = participants.next();
 
             participant.addCallParticipantListener(this);
 
@@ -410,24 +313,22 @@ public class CallPanel
     private class RemoveParticipantPanelListener
         implements ActionListener
     {
-        private CallParticipantWrapper participantWrapper;
+        private CallParticipant participant;
 
-        public RemoveParticipantPanelListener(
-            CallParticipantWrapper participantWrapper)
+        public RemoveParticipantPanelListener(CallParticipant participant)
         {
-            this.participantWrapper = participantWrapper;
+            this.participant = participant;
         }
 
         public void actionPerformed(ActionEvent e)
         {
             CallParticipantPanel participantPanel =
-                (CallParticipantPanel) participantsPanels
-                    .get(participantWrapper);
+                participantsPanels.get(participant);
 
             mainPanel.remove(participantPanel);
 
             // remove the participant panel from the list of panels
-            participantsPanels.remove(participantWrapper);
+            participantsPanels.remove(participant);
         }
     }
 
@@ -437,7 +338,7 @@ public class CallPanel
      * @return an <tt>Iterator</tt> over a list of all participant panels
      *         contained in this call panel
      */
-    public Iterator getParticipantsPanels()
+    public Iterator<CallParticipantPanel> getParticipantsPanels()
     {
         return participantsPanels.values().iterator();
     }
@@ -452,73 +353,21 @@ public class CallPanel
      */
     public CallParticipantPanel getParticipantPanel(CallParticipant participant)
     {
-        Iterator participants = participantsPanels.entrySet().iterator();
+        Iterator<Map.Entry<CallParticipant, CallParticipantPanel>> participants =
+            participantsPanels.entrySet().iterator();
 
         while (participants.hasNext())
         {
-            Map.Entry participantEntry = (Map.Entry) participants.next();
+            Map.Entry<CallParticipant, CallParticipantPanel> participantEntry =
+                participants.next();
+            CallParticipant entryParticipant = participantEntry.getKey();
 
-            CallParticipantWrapper participantWrapper =
-                (CallParticipantWrapper) participantEntry.getKey();
-
-            if (participantWrapper.getCallParticipant() != null
-                && participantWrapper.getCallParticipant().equals(participant))
-                return (CallParticipantPanel) participantEntry.getValue();
+            if ((entryParticipant != null)
+                && entryParticipant.equals(participant))
+            {
+                return participantEntry.getValue();
+            }
         }
-
-        return null;
-    }
-
-    /**
-     * Returns the <tt>CallParticipantPanel</tt>, which correspond to the given
-     * participant name.
-     * 
-     * @param participantName the name of the participant we're looking for
-     * @return the <tt>CallParticipantPanel</tt>, which correspond to the given
-     *         participant name
-     */
-    public CallParticipantPanel getParticipantPanel(String participantName)
-    {
-        Iterator participants = participantsPanels.entrySet().iterator();
-
-        while (participants.hasNext())
-        {
-            Map.Entry participantEntry = (Map.Entry) participants.next();
-
-            CallParticipantWrapper participantWrapper =
-                (CallParticipantWrapper) participantEntry.getKey();
-
-            if (participantWrapper.getParticipantName().equals(participantName))
-                return (CallParticipantPanel) participantEntry.getValue();
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the <tt>CallParticipantWrapper</tt>, which correspond to the
-     * given participant.
-     * 
-     * @param participant the <tt>CallParticipant</tt> we're looking for
-     * @return the <tt>CallParticipantWrapper</tt>, which correspond to the
-     *         given participant
-     */
-    private CallParticipantWrapper getParticipantWrapper(
-        CallParticipant participant)
-    {
-        Iterator participants = participantsPanels.entrySet().iterator();
-
-        while (participants.hasNext())
-        {
-            Map.Entry participantEntry = (Map.Entry) participants.next();
-
-            CallParticipantWrapper participantWrapper =
-                (CallParticipantWrapper) participantEntry.getKey();
-
-            if (participantWrapper.getCallParticipant().equals(participant))
-                return participantWrapper;
-        }
-
         return null;
     }
 }

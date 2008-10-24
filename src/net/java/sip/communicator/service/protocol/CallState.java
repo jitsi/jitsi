@@ -14,12 +14,12 @@ package net.java.sip.communicator.service.protocol;
  * CALL_INITIALIZATION -> CALL_IN_PROGRESS -> CALL_ENDED
  * <p>
  * When you start calling someone or receive a call alert, the call that is
- * automatically created is in the CALL_INITIALIZATION_PHASE. As soon as one
- * of the participants passes into a CONNECTED call participant state, the call
+ * automatically created is in the CALL_INITIALIZATION_PHASE. As soon as one of
+ * the participants passes into a CONNECTED call participant state, the call
  * would enter the CALL_IN_PROGRESS state. When the last call participant enters
  * a DISCONNECTED state the call itself would go into the CALL_ENDED state and
  * will be ready for garbage collection.
- *
+ * 
  * @author Emil Ivov
  */
 public class CallState
@@ -30,14 +30,14 @@ public class CallState
      * <p>
      * This constant has the String value "Initializing".
      */
-    public static final String _CALL_INITIALIZATION  = "Initializing";
+    public static final String _CALL_INITIALIZATION = "Initializing";
 
     /**
-     * This constant value indicates that the associated call is currently in
-     * an initialization state.
+     * This constant value indicates that the associated call is currently in an
+     * initialization state.
      */
-    public static final CallState CALL_INITIALIZATION
-        = new CallState(_CALL_INITIALIZATION);
+    public static final CallState CALL_INITIALIZATION =
+        new CallState(_CALL_INITIALIZATION);
 
     /**
      * This constant containing a String representation of the CALL_IN_PROGRESS
@@ -48,28 +48,27 @@ public class CallState
     public static final String _CALL_IN_PROGRESS = "In Progress";
 
     /**
-     * This constant value indicates that the associated call is currently in
-     * an active state.
+     * This constant value indicates that the associated call is currently in an
+     * active state.
      */
-    public static final CallState CALL_IN_PROGRESS
-        = new CallState(_CALL_IN_PROGRESS);
+    public static final CallState CALL_IN_PROGRESS =
+        new CallState(_CALL_IN_PROGRESS);
 
     /**
-     * This constant containing a String representation of the
-     * CALL_ENDED state.
+     * This constant containing a String representation of the CALL_ENDED state.
      * <p>
      * This constant has the String value "Ended".
      */
     public static final String _CALL_ENDED = "Ended";
 
     /**
-     * This constant value indicates that the associated call is currently in
-     * a terminated phase.
+     * This constant value indicates that the associated call is currently in a
+     * terminated phase.
      */
     public static final CallState CALL_ENDED = new CallState(_CALL_ENDED);
 
     /**
-     * A string representationf this Call State. Could be
+     * A string representation of this Call State. Could be
      * _CALL_INITIALIZATION, _CALL_IN_PROGRESS, _CALL_ENDED.
      */
     private String callStateStr;
@@ -77,6 +76,7 @@ public class CallState
     /**
      * Create a call state object with a value corresponding to the specified
      * string.
+     * 
      * @param callState a string representation of the state.
      */
     private CallState(String callState)
@@ -85,10 +85,10 @@ public class CallState
     }
 
     /**
-     * Returns a String representation of tha CallSte.
-     *
-     * @return a string value (one of the _CALL_XXX constants) representing
-     * this call state).
+     * Returns a String representation of this CallState.
+     * 
+     * @return a string value (one of the _CALL_XXX constants) representing this
+     *         call state).
      */
     public String getStateString()
     {
@@ -96,14 +96,14 @@ public class CallState
     }
 
     /**
-     * Returns a string represenation of this call state. Strings returned
-     * by this method have the following format:
-     * "CallState:<STATE_STRING>" and are meant to be used for  loggin/debugging
-     * purposes.
+     * Returns a string representation of this call state. Strings returned by
+     * this method have the following format: "CallState:<STATE_STRING>" and are
+     * meant to be used for logging/debugging purposes.
+     * 
      * @return a string representation of this object.
      */
     public String toString()
     {
-        return getClass().getName()+":"+getStateString();
+        return getClass().getName() + ":" + getStateString();
     }
 }
