@@ -8,9 +8,9 @@ package net.java.sip.communicator.service.keybindings;
 
 import java.util.*;
 
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
-import chooser.Persistence;
+import chooser.*;
 
 /**
  * Wrapper for keybinding sets. Observers are notified when there's a change.

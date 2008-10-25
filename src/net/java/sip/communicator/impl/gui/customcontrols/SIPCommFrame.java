@@ -8,15 +8,15 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.keybindings.*;
-import java.util.*;
 
 /**
  * A custom frame that remembers its size and location and could have a
@@ -79,6 +79,7 @@ public abstract class SIPCommFrame
      * Sets the input map to utilize a given category of keybindings. The frame
      * is updated to reflect the new bindings when they change. This replaces
      * any previous bindings that have been added.
+     * 
      * @param category set of keybindings to be utilized
      */
     protected void setKeybindingInput(KeybindingSet.Category category)
@@ -91,17 +92,16 @@ public abstract class SIPCommFrame
         }
 
         // Adds new bindings to input map
-        KeybindingsService service = GuiActivator.getKeybindingsService();
-        this.bindings = service.getBindings(category);
+        this.bindings =
+            GuiActivator.getKeybindingsService().getBindings(category);
 
-        for (KeyStroke key : this.bindings.getBindings().keySet())
+        for (Map.Entry<KeyStroke, String> key2action : this.bindings
+            .getBindings().entrySet())
         {
-            String action = this.bindings.getBindings().get(key);
-            imap.put(key, action);
+            imap.put(key2action.getKey(), key2action.getValue());
         }
 
         this.bindings.addObserver(this);
-
     }
     
     /**
@@ -382,18 +382,21 @@ public abstract class SIPCommFrame
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
-    // Listens for changes in binding sets so they can be reflected in the input
-    // map
+    /**
+     * Listens for changes in binding sets so they can be reflected in the input
+     * map
+     */
     public void update(Observable obs, Object arg)
     {
         if (obs instanceof KeybindingSet)
         {
             KeybindingSet changedBindings = (KeybindingSet) obs;
+
             resetInputMap();
-            for (KeyStroke binding : changedBindings.getBindings().keySet())
+            for (Map.Entry<KeyStroke, String> key2action : changedBindings
+                .getBindings().entrySet())
             {
-                String action = changedBindings.getBindings().get(binding);
-                imap.put(binding, action);
+                imap.put(key2action.getKey(), key2action.getValue());
             }
         }
     }
