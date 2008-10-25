@@ -507,9 +507,6 @@ public class MetaContactListServiceImpl
             throw new NullPointerException("Internal Error. Orphan group.");
         }
 
-        ContactGroup parentProtoGroup
-            = resolveProtoPath(protoProvider, parentMetaGroup);
-
         OperationSetPersistentPresence opSetPersPresence
             = (OperationSetPersistentPresence) protoProvider
             .getSupportedOperationSets().get(OperationSetPersistentPresence
@@ -522,6 +519,15 @@ public class MetaContactListServiceImpl
             return null;
         }
 
+        ContactGroup parentProtoGroup;
+        // special treatment for the root group (stop the recursion)
+        if (parentMetaGroup.getParentMetaContactGroup() == null) {
+            parentProtoGroup = opSetPersPresence.
+                                    getServerStoredContactListRoot();
+        } else {
+            parentProtoGroup = resolveProtoPath(protoProvider, parentMetaGroup);
+        }
+        
         //create the proto group
         BlockingGroupEventRetriever evtRetriever
             = new BlockingGroupEventRetriever(metaGroup.getGroupName());
@@ -722,7 +728,7 @@ public class MetaContactListServiceImpl
         MetaContactGroupImpl newMetaGroup = new MetaContactGroupImpl(groupName);
 
         ( (MetaContactGroupImpl) parent).addSubgroup(newMetaGroup);
-
+        
         //fire the event
         fireMetaContactGroupEvent(newMetaGroup
             , null, null, MetaContactGroupEvent. META_CONTACT_GROUP_ADDED);
