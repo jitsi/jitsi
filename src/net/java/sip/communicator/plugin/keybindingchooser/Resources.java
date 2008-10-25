@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.keybindingchooser;
 
 import java.io.*;
@@ -19,7 +18,7 @@ import net.java.sip.communicator.util.*;
  */
 public class Resources
 {
-    private static Logger log = Logger.getLogger(Resources.class);
+    private static Logger logger = Logger.getLogger(Resources.class);
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -40,12 +39,13 @@ public class Resources
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        InputStream in = KeybindingChooserActivator.
-            getResources().getImageInputStream(imageID);
-        
-        if(in == null)
+        InputStream in =
+            KeybindingChooserActivator.getResources().getImageInputStream(
+                imageID);
+
+        if (in == null)
             return null;
-        
+
         byte[] image = null;
 
         try
@@ -55,7 +55,7 @@ public class Resources
         }
         catch (IOException e)
         {
-            log.error("Failed to load image:" + imageID, e);
+            logger.error("Failed to load image:" + imageID, e);
         }
 
         return image;
