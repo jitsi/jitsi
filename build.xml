@@ -34,6 +34,7 @@
     <property name="test.reports.dir" value="test-reports"/>
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
     <property name="test.local.properties.file" value="${lib}/testing.properties"/>
+    <property name="test.accounts.properties.file" value="${lib}/accounts.properties"/>
     <property name="release" value="release"/>
     <property name="log" value="log"/>
     <property name="release.src" value="${release}/install"/>
@@ -47,15 +48,6 @@
                value="nightly.${label}">
         <isset property="label"/>
     </condition>
-
-    <!-- The following file contains a list of protocol account initialization
-         properties, such as SIP server addresses and usernames, ICQ uin-s and
-         passwords, AIM screennames and etc. The file should not be committed
-         to CVS or shared among developers since that could lead to multiple
-         login problems and cause testing to fail. You could create the file
-         yourself using the lib/account.properties.template and setting all
-         fields as indicated. -->
-    <property file="${lib}/accounts.properties"/>
 
     <!-- windows specific properties -->
     <condition property="is.running.windows" value="${os.name}">
@@ -424,7 +416,22 @@
 
     <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
 
-    <!--PREPARE-TESTS-->
+    <!--PREPARE-TESTING-ACCOUNTS-->
+    <target name="prepare-local-accounts">
+        <!--internal-target- setup testing accounts properties -->
+        <!-- The following local file should contain a list of protocol
+             account initialization properties, such as SIP server addresses
+             and usernames, ICQ uin-s and passwords, AIM screennames and etc.
+             You should create the file based on lib/account.properties.template
+             and set all the empty fields as indicated. -->
+        <available property="accounts.properties.present"
+                   file="${test.accounts.properties.file}"/>
+        <fail unless="accounts.properties.present"
+              message="${test.accounts.properties.file} not found - did you copy the template?"/>
+        <property file="${test.accounts.properties.file}"/>
+    </target>
+
+    <!--PREPARE-TESTS-TO-BE-RUN-->
     <target name="identify-test">
         <!--internal-target- is a single slick defined to be run alone? -->
         <condition property="test.name.known">
@@ -469,7 +476,7 @@
 
     <!--RUN-TESTS-->
     <target name="test"
-        depends="prepare-all-tests,-deploy-os-specific-bundles"
+        depends="prepare-all-tests,prepare-local-accounts,-deploy-os-specific-bundles"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
         <!-- Do the testing itself. Note that we don't fail on error as we need

@@ -9,13 +9,14 @@
     <import file="../build.xml"/>
 
     <target name="debug-selected-file-in-test"
-            depends="prepare-all-tests,-deploy-os-specific-bundles"
+            depends="prepare-local-accounts,prepare-all-tests,-deploy-os-specific-bundles"
             description="Starts felix and debugs the selected Service Impl Compatibility Kit" >
         <!-- This target runs felix under the debugger, but it can only work with
              unit test classes that extend TestSuite and implements BundleActivator
              e.g. GibberishProtocolProviderServiceLick -->
-        <fail unless="test.name.known"
-              message="debug impossible when 'test.name' property not defined!" />
+
+        <!-- if 'test.name' property is not defined, we will be
+             runing all tests defined in testing.properties. -->
 
         <!-- we allow users to pass command line args using the "args" system
              property. However we need to manually set tha prop to an empty
