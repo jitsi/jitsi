@@ -59,10 +59,10 @@ install: build
 
 	# Copy OS specific and native libs
 	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
-ifeq ($(DEB_HOST_ARCH),i386)
-	cp -r $(BASEDIR)/lib/native/linux debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native
-else ifeq ($(DEB_HOST_ARCH),amd64)
+ifeq ($(DEB_HOST_ARCH),amd64)
 	cp -r $(BASEDIR)/lib/native/linux-64 debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native
+else
+	cp -r $(BASEDIR)/lib/native/linux debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native
 endif
 
 	# Copy SIP Communicator bundles
@@ -77,7 +77,7 @@ endif
 	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/bundle/junit.jar
 
 	# Make felix deploy its bundles in ~/.felix/sip-communicator.bin
-	sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/felix.client.run.properties
+	# sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/felix.client.run.properties
 
 
 # Build i386 files here.
@@ -102,7 +102,7 @@ binary-arch: build install
 	dh_link
 	dh_compress
 	dh_fixperms
-	dh_strip -Xjdic_misc
+	#dh_strip -Xjdic_misc
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
