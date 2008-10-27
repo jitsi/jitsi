@@ -40,6 +40,7 @@ import org.osgi.framework.*;
  * bundles to this particular swing ui implementation.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class UIServiceImpl
     implements  UIService,
@@ -52,14 +53,12 @@ public class UIServiceImpl
 
     private AccountRegWizardContainerImpl wizardContainer;
 
-    private Map<Container, Vector<Object>> registeredPlugins
-        = new Hashtable<Container, Vector<Object>>();
-
     private Vector<PluginComponentListener>
         pluginComponentListeners = new Vector<PluginComponentListener>();
 
     private static final List<Container> supportedContainers
         = new ArrayList<Container>();
+
     static
     {
         supportedContainers.add(Container.CONTAINER_MAIN_TOOL_BAR);
@@ -100,6 +99,15 @@ public class UIServiceImpl
 
         this.mainFrame = new MainFrame();
 
+        /*
+         * The mainFrame isn't fully ready without the MetaContactListService so
+         * make sure it's set before allowing anything, such as LoginManager, to
+         * use the mainFrame. Otherwise, LoginManager, for example, will call
+         * back from its event listener(s) into the mainFrame and cause a
+         * NullPointerException.
+         */
+        mainFrame.setContactList(GuiActivator.getMetaContactListService());
+
         this.mainFrame.initBounds();
 
         GuiActivator.getUIService().registerExportedWindow(mainFrame);
@@ -111,8 +119,6 @@ public class UIServiceImpl
         this.wizardContainer = new AccountRegWizardContainerImpl(mainFrame);
 
         this.configurationFrame = new ConfigurationFrame(mainFrame);
-
-        mainFrame.setContactList(GuiActivator.getMetaContactListService());
 
         if (ConfigurationManager.isTransparentWindowEnabled())
         {
@@ -151,7 +157,7 @@ public class UIServiceImpl
      * Creates the corresponding PluginComponentEvent and notifies all
      * <tt>ContainerPluginListener</tt>s that a plugin component is added or
      * removed from the container.
-     *
+     * 
      * @param pluginComponent the plugin component that is added to the
      *            container.
      * @param containerID the containerID that corresponds to the container
@@ -159,24 +165,22 @@ public class UIServiceImpl
      * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
      *            the nature of the event.
      */
-    private void firePluginEvent(   PluginComponent pluginComponent,
-                                    int eventID)
+    private void firePluginEvent(PluginComponent pluginComponent, int eventID)
     {
-        PluginComponentEvent evt
-            = new PluginComponentEvent( pluginComponent,
-                                        eventID);
+        PluginComponentEvent evt =
+            new PluginComponentEvent(pluginComponent, eventID);
 
         logger.debug("Will dispatch the following plugin component event: "
             + evt);
 
         synchronized (pluginComponentListeners)
         {
-            Iterator listeners = this.pluginComponentListeners.iterator();
+            Iterator<PluginComponentListener> listeners =
+                this.pluginComponentListeners.iterator();
 
             while (listeners.hasNext())
             {
-                PluginComponentListener l = (PluginComponentListener) listeners
-                    .next();
+                PluginComponentListener l = listeners.next();
 
                 switch (evt.getEventID())
                 {
@@ -426,15 +430,6 @@ public class UIServiceImpl
         }
     }
 
-    /**
-     * Sets the contact list service to this UI Service implementation.
-     * @param contactList the MetaContactList service
-     */
-    public void setContactList(MetaContactListService contactList)
-    {
-        this.mainFrame.setContactList(contactList);
-    }
-
     public void addPluginComponentListener(PluginComponentListener l)
     {
         synchronized (pluginComponentListeners)
@@ -681,18 +676,6 @@ public class UIServiceImpl
     }
 
     /**
-     * The <tt>RunApplication</tt> implements the Runnable interface and is used to
-     * shows the main application window in a separate thread.
-     */
-    private class RunApplicationGui implements Runnable
-    {
-        public void run()
-        {
-            mainFrame.setVisible(true);
-        }
-    }
-
-    /**
      * Sets the look&feel and the theme.
      */
     private void setDefaultThemePack()
@@ -860,64 +843,6 @@ public class UIServiceImpl
             layoutConstraint = BorderLayout.EAST;
 
         return layoutConstraint;
-    }
-
-    private class DefaultPluginComponent implements PluginComponent
-    {
-        private Component component;
-
-        private Container container;
-
-        public DefaultPluginComponent(  Component component,
-                                        Container container)
-        {
-            this.component = component;
-            this.container = container;
-        }
-
-        public Object getComponent()
-        {
-            return component;
-        }
-
-        public String getConstraints()
-        {
-            return Container.END;
-        }
-
-        public Container getContainer()
-        {
-            return container;
-        }
-
-        public String getName()
-        {
-            return component.getName();
-        }
-
-        public void setCurrentContact(MetaContact metaContact)
-        {
-            if (component instanceof ContactAwareComponent)
-                ((ContactAwareComponent) component)
-                    .setCurrentContact(metaContact);
-        }
-
-        public void setCurrentContactGroup(MetaContactGroup metaGroup)
-        {
-            if (component instanceof ContactAwareComponent)
-                ((ContactAwareComponent) component)
-                    .setCurrentContactGroup(metaGroup);
-        }
-
-        public int getPositionIndex()
-        {
-            return -1;
-        }
-
-        public boolean isNativeComponent()
-        {
-            return false;
-        }
     }
 
     public void propertyChange(PropertyChangeEvent evt)
