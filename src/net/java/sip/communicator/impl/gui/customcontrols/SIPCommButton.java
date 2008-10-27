@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
@@ -87,6 +86,18 @@ public class SIPCommButton extends JButton {
     public void paintComponent(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);
+
+        /*
+         * As JComponent#paintComponent says, if you do not invoker super's
+         * implementation you must honor the opaque property, that is if this
+         * component is opaque, you must completely fill in the background in a
+         * non-opaque color. If you do not honor the opaque property you will
+         * likely see visual artifacts.
+         */
+        if (isOpaque()) {
+            g.setColor(getBackground());
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
 
         if (this.bgImage != null)
         {
