@@ -146,16 +146,16 @@ public class DictException
             result = "optional timing";
             break;
         case 220 :
-            result = "Connexion OK";
+            result = "Connection OK";
             break;
         case 221 :
             result = "Closing Connection";
             break;
         case 230 :
-            result = "Authentification successful";
+            result = "Authentication successful";
             break;
         case 250 :
-            result = "Ok";
+            result = "OK";
             break;
         case 330 :
             result = "send response";
