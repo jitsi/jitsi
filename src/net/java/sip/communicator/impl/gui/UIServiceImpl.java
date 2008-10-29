@@ -565,10 +565,10 @@ public class UIServiceImpl
 
         return chatWindowManager.getSelectedChat();
     }
-    
+
     /**
      * Returns the phone number currently entered in the phone number field.
-     * 
+     *
      * @return the phone number currently entered in the phone number field.
      */
     public String getCurrentPhoneNumber()
@@ -686,6 +686,7 @@ public class UIServiceImpl
             new Color(GuiActivator.getResources()
                     .getColor("tooltipBackground")));
         toolTipManager.setInitialDelay(500);
+        toolTipManager.setDismissDelay(60000);
         toolTipManager.setEnabled(true);
 
         // we need to set the UIDefaults class loader so that it may access
@@ -871,7 +872,7 @@ public class UIServiceImpl
                         Messages.getI18NString("transparencyNotEnabled").getText())
                     .showDialog();
                 }
-                
+
                 ConfigurationManager.setTransparentWindowEnabled(false);
             }
         }
