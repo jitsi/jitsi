@@ -203,18 +203,20 @@ public class EditTextToolBar
                                             "Choose a colour",
                                             colorLabel.getBackground());
 
-                colorLabel.setBackground(newColor);
-
-                ActionEvent evt =
-                    new ActionEvent(chatEditorPane,
-                        ActionEvent.ACTION_PERFORMED, "");
-
-                Action action =
-                    new HTMLEditorKit.ForegroundAction(new Integer(newColor
-                        .getRGB()).toString(), newColor);
-
-                action.actionPerformed(evt);
-
+                if (newColor != null) {
+                    colorLabel.setBackground(newColor);
+    
+                    ActionEvent evt =
+                        new ActionEvent(chatEditorPane,
+                            ActionEvent.ACTION_PERFORMED, "");
+    
+                    Action action =
+                        new HTMLEditorKit.ForegroundAction(new Integer(newColor
+                            .getRGB()).toString(), newColor);
+    
+                    action.actionPerformed(evt);
+                }
+                
                 chatEditorPane.requestFocus();
             }
         });
