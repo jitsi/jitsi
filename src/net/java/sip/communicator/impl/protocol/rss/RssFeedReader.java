@@ -25,6 +25,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Jean-Albert Vescovo
  * @author Mihai Balan
+ * @author Vincent Lucas
  */
 public class RssFeedReader
 {
@@ -73,7 +74,6 @@ public class RssFeedReader
      */
     public RssFeedReader(URL contactRssURL)
         throws OperationFailedException, FileNotFoundException
-    //public RssFeedReader(URL contactRssURL, RssItemKey lastItemKey)
     {
         this.rssURL = contactRssURL;
         this.lastItemKey  = null;
@@ -130,29 +130,6 @@ public class RssFeedReader
         // retrieve items
         this.items = (SyndEntry[]) this.feed.getEntries().toArray(new SyndEntry[0]);
         Arrays.sort(items, new SyndEntryComparator());
-
-        /*for(int i=0; i < items.length; ++i)
-        {
-            System.out.println("CHENZO item_list[" + i + "] URI: " + items[i].getUri()
-                    + ", Date: " + items[i].getPublishedDate() + ", Title: " +
-                    items[i].getTitle());
-        }*/
-        
-        /*if (items.length == 0)
-        {
-            lastItemKey = new RssItemKey(new Date(0));
-            return;
-        }*/
-        /*if (items[items.length - 1].getPublishedDate() != null)
-        {
-            Arrays.sort(items, new SyndEntryComparator());
-            lastItemKey =
-                new RssItemKey(items[items.length - 1].getPublishedDate()); 
-        }
-        else
-        {
-            lastItemKey = new RssItemKey(items[0].getLink());
-        }*/
     }
 
     /**
@@ -174,12 +151,6 @@ public class RssFeedReader
         // Try to retrieve the feed and to complete this instanciation.
         this.retrieveFlow();
         
-        // TODO move this message in a resources file.
-        if (items.length == 0)
-        {
-            return "<b>No items currently available for this feed !</b><br>";
-        }
-
         for (i = items.length - 1;
                 i >= 0 &&  (new RssItemKey(items[i])).compareTo(lastItemKey) != 0;
                 --i)
@@ -201,10 +172,6 @@ public class RssFeedReader
             return null;
         }
         lastItemKey = new RssItemKey(items[items.length - 1]);
-        /*System.out.println("CHENZO LAST_ITEM_KEY link: " +
-                items[items.length - 1].getLink() +
-                " Date: " +
-                items[items.length - 1].getPublishedDate());*/
         printedFeed
             .append ("<em>Send anything to refresh this feed...</em><br>\n");
         return printedFeed.toString();
