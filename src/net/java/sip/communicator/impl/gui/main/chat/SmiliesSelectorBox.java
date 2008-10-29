@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
 package net.java.sip.communicator.impl.gui.main.chat;
@@ -20,17 +19,18 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
- * The <tt>SmiliesSelectorBox</tt> is the component where user could choose
- * a smiley icon to send.
+ * The <tt>SmiliesSelectorBox</tt> is the component where user could choose a
+ * smiley icon to send.
  * 
  * @author Yana Stamcheva
  */
-public class SmiliesSelectorBox extends JMenuBar
+public class SmiliesSelectorBox
+    extends JMenuBar
     implements ActionListener
 {
     private ChatWritePanel chatWritePanel;
 
-    private ArrayList imageList;
+    private ArrayList<Smiley> imageList;
 
     private int gridRowCount = 0;
 
@@ -38,14 +38,14 @@ public class SmiliesSelectorBox extends JMenuBar
 
     private SIPCommMenu selectorBox = new SIPCommMenu();
 
-    private static int BUTTON_HEIGHT
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
+    private static int BUTTON_HEIGHT =
+        GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
 
-    private static int BUTTON_WIDTH
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
+    private static int BUTTON_WIDTH =
+        GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
 
-    private SelectorBoxRolloverListener rolloverListener
-        = new SelectorBoxRolloverListener();
+    private SelectorBoxRolloverListener rolloverListener =
+        new SelectorBoxRolloverListener();
 
     /**
      * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes
@@ -53,7 +53,8 @@ public class SmiliesSelectorBox extends JMenuBar
      * 
      * @param imageList The pack of smiley icons.
      */
-    public SmiliesSelectorBox(ArrayList imageList, ChatWritePanel writePanel)
+    public SmiliesSelectorBox(ArrayList<Smiley> imageList,
+        ChatWritePanel writePanel)
     {
         this.imageList = imageList;
 
@@ -63,11 +64,10 @@ public class SmiliesSelectorBox extends JMenuBar
 
         this.setOpaque(false);
         this.selectorBox.setOpaque(false);
-        this.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        this.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
 
-        //Should explicitly remove any border in order to align correctly the
-        //icon.
+        // Should explicitly remove any border in order to align correctly the
+        // icon.
         this.selectorBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         this.selectorBox.setIcon(new ImageIcon(ImageLoader
@@ -75,23 +75,22 @@ public class SmiliesSelectorBox extends JMenuBar
 
         this.calculateGridDimensions(imageList.size());
 
-        this.selectorBox.getPopupMenu().setLayout(new GridLayout(
-                this.gridRowCount, this.gridColCount, 5, 5));
+        this.selectorBox.getPopupMenu().setLayout(
+            new GridLayout(this.gridRowCount, this.gridColCount, 5, 5));
 
-        for (int i = 0; i < imageList.size(); i++) {
+        for (Smiley smiley : imageList)
+        {
 
-            Smiley smiley = (Smiley) this.imageList.get(i);
+            ImageIcon imageIcon =
+                new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
 
-            ImageIcon imageIcon
-                = new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
+            JMenuItem smileyItem = new JMenuItem(imageIcon);
 
-            JMenuItem smileyItem = new JMenuItem (imageIcon);
+            // smileyItem.setPreferredSize(
+            // new Dimension( imageIcon.getIconWidth(),
+            // imageIcon.getIconHeight()));
 
-//            smileyItem.setPreferredSize(
-//                new Dimension(  imageIcon.getIconWidth(),
-//                                imageIcon.getIconHeight()));
-
-//            smileyItem.setMargin(new Insets(2, 2, 2, 2));
+            // smileyItem.setMargin(new Insets(2, 2, 2, 2));
 
             smileyItem.setToolTipText(smiley.getSmileyStrings()[0]);
 
@@ -102,16 +101,18 @@ public class SmiliesSelectorBox extends JMenuBar
 
         this.add(selectorBox);
     }
-    
+
     /**
      * In order to have a popup which is at the form closest to sqware.
+     * 
      * @param itemsCount the count of items that will be laied out.
      */
-    private void calculateGridDimensions(int itemsCount) {
+    private void calculateGridDimensions(int itemsCount)
+    {
 
         this.gridRowCount = (int) Math.round(Math.sqrt(itemsCount));
 
-        this.gridColCount = (int) Math.round(itemsCount / gridRowCount);
+        this.gridColCount = (int) Math.ceil(itemsCount / gridRowCount);
     }
 
     /**
@@ -124,13 +125,14 @@ public class SmiliesSelectorBox extends JMenuBar
 
     /**
      * Returns TRUE if the selector box is opened, otherwise returns FALSE.
+     * 
      * @return TRUE if the selector box is opened, otherwise returns FALSE
      */
     public boolean isMenuSelected()
     {
-        if(selectorBox.isPopupMenuVisible())
+        if (selectorBox.isPopupMenuVisible())
             return true;
-        
+
         return false;
     }
 
@@ -143,9 +145,8 @@ public class SmiliesSelectorBox extends JMenuBar
         JMenuItem smileyItem = (JMenuItem) e.getSource();
         String buttonText = smileyItem.getToolTipText();
 
-        for (int i = 0; i < this.imageList.size(); i++)
+        for (Smiley smiley : imageList)
         {
-            Smiley smiley = (Smiley) this.imageList.get(i);
 
             String smileyString = smiley.getSmileyStrings()[0];
 
@@ -171,9 +172,8 @@ public class SmiliesSelectorBox extends JMenuBar
         this.selectorBox.setFont(getFont().deriveFont(Font.BOLD, 10f));
         this.selectorBox.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.selectorBox.setHorizontalTextPosition(SwingConstants.CENTER);
-        this.selectorBox.setForeground(
-            new Color(GuiActivator.getResources().
-                getColor("chatMenuForeground")));
+        this.selectorBox.setForeground(new Color(GuiActivator.getResources()
+            .getColor("chatMenuForeground")));
     }
 
     /**
@@ -181,11 +181,11 @@ public class SmiliesSelectorBox extends JMenuBar
      * this smilies selector box.
      * 
      * @param isRollover <code>true</code> to enable the roll-over,
-     * <code>false</code> - otherwise.
+     *            <code>false</code> - otherwise.
      */
     public void setRollover(boolean isRollover)
     {
-        if(isRollover)
+        if (isRollover)
             selectorBox.addMouseListener(rolloverListener);
         else
             selectorBox.removeMouseListener(rolloverListener);
@@ -195,7 +195,8 @@ public class SmiliesSelectorBox extends JMenuBar
      * Handles <tt>MouseEvent</tt>s and changes the state of the contained
      * selector box in order to make a roll-over effect.
      */
-    private class SelectorBoxRolloverListener extends MouseAdapter
+    private class SelectorBoxRolloverListener
+        extends MouseAdapter
     {
         public void mouseEntered(MouseEvent e)
         {
