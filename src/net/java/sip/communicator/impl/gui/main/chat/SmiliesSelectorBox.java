@@ -38,11 +38,11 @@ public class SmiliesSelectorBox
 
     private SIPCommMenu selectorBox = new SIPCommMenu();
 
-    private static int BUTTON_HEIGHT =
-        GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
+    private static int BUTTON_HEIGHT
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
 
-    private static int BUTTON_WIDTH =
-        GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
+    private static int BUTTON_WIDTH 
+        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
 
     private SelectorBoxRolloverListener rolloverListener =
         new SelectorBoxRolloverListener();
