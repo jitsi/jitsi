@@ -233,17 +233,21 @@ public class EditTextToolBar
         {
             public void keyTyped(KeyEvent e)
             {
-                if (chatWritePanel.getText().length() > 0)
+                // The editor pane seems to forget the formatting when it is
+                // empty so we use the interface as a reminder for it
+                if (chatEditorPane.getDocument().getLength() == 0)
                 {
-                    Color currentColor
-                        = (Color) ((HTMLEditorKit) chatEditorPane
-                            .getEditorKit()).getInputAttributes().getAttribute(
-                                StyleConstants.Foreground);
-
-                    if (currentColor != null)
-                        colorLabel.setBackground(currentColor);
-                    else
-                        colorLabel.setBackground(Color.BLACK);
+                    Color newColor = colorLabel.getBackground();
+                    
+                    ActionEvent evt =
+                        new ActionEvent(chatEditorPane,
+                            ActionEvent.ACTION_PERFORMED, "");
+    
+                    Action action =
+                        new HTMLEditorKit.ForegroundAction(new Integer(newColor
+                            .getRGB()).toString(), newColor);
+    
+                    action.actionPerformed(evt);
                 }
             }
         });
@@ -326,6 +330,8 @@ public class EditTextToolBar
 
         chatEditorPane.addKeyListener(new KeyAdapter()
         {
+            private boolean wasEmpty = false;
+            
             public void keyTyped(KeyEvent e)
             {
                 if (chatEditorPane.getText().length() > 0)
@@ -359,33 +365,70 @@ public class EditTextToolBar
                                 final JToggleButton button)
 
     {
+        /*
+        // use the last settings if the pane is empty
+        if (chatEditorPane.getDocument().getLength() == 0) 
+        {
+            return;
+        }
+        */
+        
         boolean selected = false;
 
+        // if nothing is selected
         if (chatEditorPane.getSelectedText() == null)
         {
             int index = chatEditorPane.getCaretPosition();
-            selected =
+            
+            // if we are at the beginning of the document, use the style of the
+            // first character
+            if (index == 0) {
+                index = 1;
+            }
+            
+            // use the style of the character preceding the carret
+            AttributeSet attributes =
                 ((HTMLDocument) chatEditorPane.getDocument())
-                    .getCharacterElement(index - 1).getAttributes()
-                    .containsAttribute(styleConstant, true);
+                    .getCharacterElement(index - 1).getAttributes();
+            
+            if (attributes.getAttribute(styleConstant) != null)
+            {
+                selected = attributes.containsAttribute(styleConstant, true);
+            }
         }
         else
         {
-            for (int index = chatEditorPane.getSelectionStart();
-                index < chatEditorPane.getSelectionEnd(); index++)
+            int index = chatEditorPane.getSelectionStart();
+            
+            // initialize selected with the first character attributes
+            if (index < chatEditorPane.getSelectionEnd()) {
+                AttributeSet attributes =
+                    ((HTMLDocument) chatEditorPane.getDocument())
+                        .getCharacterElement(index).getAttributes();
+                
+                if (attributes.getAttribute(styleConstant) != null)
+                {
+                    selected = attributes
+                        .containsAttribute(styleConstant, true);
+                }
+            }
+            
+            // AND all the attributes to determine the global attribute
+            for (index++; index < chatEditorPane.getSelectionEnd(); index++)
             {
                 AttributeSet attributes =
                     ((HTMLDocument) chatEditorPane.getDocument())
                         .getCharacterElement(index).getAttributes();
 
-                selected =
-                    selected
-                        || attributes.containsAttribute(styleConstant, true);
+                if (attributes.getAttribute(styleConstant) != null)
+                {
+                    selected = selected
+                        && attributes.containsAttribute(styleConstant, true);
+                }
             }
         }
 
-        if (chatEditorPane.getText().length() > 0)
-            button.setSelected(selected);
+        button.setSelected(selected);
     }
 
     /**
@@ -397,34 +440,34 @@ public class EditTextToolBar
     private void selectColor(   final Object styleConstant,
                                 final JLabel colorLabel)
     {
-        Object selectedAttribute = null;
-
-        if (chatEditorPane.getSelectedText() == null)
+        // use the last settings if the pane is empty
+        if (chatEditorPane.getDocument().getLength() == 0) 
         {
-            int index = chatEditorPane.getCaretPosition();
-            selectedAttribute =
-                ((HTMLDocument) chatEditorPane.getDocument())
-                    .getCharacterElement(index - 1).getAttributes()
-                    .getAttribute(styleConstant);
-        }
-        else
-        {
-            for (int index = chatEditorPane.getSelectionStart();
-                index < chatEditorPane.getSelectionEnd(); index++)
-            {
-                AttributeSet attributes =
-                    ((HTMLDocument) chatEditorPane.getDocument())
-                        .getCharacterElement(index).getAttributes();
-
-                if (attributes.getAttribute(styleConstant) != null)
-                    selectedAttribute = attributes.getAttribute(styleConstant);
-            }
+            return;
         }
 
-        if (selectedAttribute != null)
-            colorLabel.setBackground((Color)selectedAttribute);
-        else
+        int index = chatEditorPane.getCaretPosition();
+        
+        // if we are at the beginning of the document, use the style of the
+        // first character
+        if (index == 0) {
+            index = 1;
+        }
+        
+        // use the style of the character preceding the carret
+        AttributeSet attributes =
+            ((HTMLDocument) chatEditorPane.getDocument())
+                .getCharacterElement(index - 1).getAttributes();
+
+        if (attributes.getAttribute(styleConstant) != null)
+        {
+            Object selectedAttribute = attributes.getAttribute(styleConstant);
+            colorLabel.setBackground((Color) selectedAttribute);
+        }
+        else 
+        {
             colorLabel.setBackground(Color.BLACK);
+        }
     }
 
     /**
