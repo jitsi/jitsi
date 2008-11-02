@@ -907,6 +907,11 @@
             <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+        	   
+        	<zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+        	<zipfileset src="${lib.noinst}/ffmpeg-java-gpl.jar" prefix=""/>
+        	<zipfileset src="${lib.noinst}/jna.jar" prefix=""/>
         </jar>
 
         <!-- Creates a bundle containing the impl of the media package and
@@ -922,6 +927,11 @@
             <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+        	
+        	<zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/ffmpeg-java-gpl.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jna.jar" prefix=""/>
         </jar>
 
         <!-- Creates a bundle containing the impl of the media package and
@@ -937,6 +947,11 @@
             <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+	
+        	<zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/ffmpeg-java-gpl.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jna.jar" prefix=""/>
         </jar>
 
     </target>
@@ -1033,6 +1048,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
         </jar>
     </target>
+
     <target name="bundle-sip-slick">
         <!--internal-target- Creates a bundle containing the all tests for the
             sip implementation of the protocol provider package -->
@@ -1343,7 +1359,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
         </jar>
     </target>
-
+	
     <!-- BUNDLE-PLUGIN-GIBBERISHACCREGWIZZ -->
     <target name="bundle-plugin-gibberishaccregwizz">
         <!-- Creates a bundle for the plugin Gibberish Account Registration

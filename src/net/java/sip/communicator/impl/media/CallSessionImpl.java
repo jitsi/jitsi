@@ -235,7 +235,7 @@ public class CallSessionImpl
                 8,
                 1,
                 -1,
-                AudioFormat.SIGNED)
+                AudioFormat.SIGNED)        
     };
 
     /**
@@ -256,6 +256,7 @@ public class CallSessionImpl
      * to be done for every time we instantiate an RTP manager.
      */
     private static boolean formatsRegisteredOnce = false;
+    private static boolean formatsRegisteredOnceVideo = false;
 
     /**
      * The last <code>intendedDestination</code> to which
@@ -283,7 +284,7 @@ public class CallSessionImpl
         registerCustomCodecFormats(audioRtpManager);
 
         // not currently needed, we don't have any custom video formats.
-        // registerCustomCodecFormats(videoRtpManager);
+         registerCustomVideoCodecFormats(videoRtpManager);
 
         call.addCallChangeListener(this);
         initializePortNumbers();
@@ -1599,7 +1600,7 @@ public class CallSessionImpl
                 {
                     am.setAttribute("rtpmap", "4 G723/8000");
                     am.setAttribute("fmtp", "4 annexa=no;bitrate=6.3");
-                }
+                } 
             }
 
             byte onHold = this.onHold;
@@ -1624,6 +1625,19 @@ public class CallSessionImpl
                     , 1
                     , "RTP/AVP"
                     , supportedVideoEncodings);
+            
+            String h264Str = String.valueOf(Constants.H264_RTP_SDP);
+            for (int i = 0; i < supportedVideoEncodings.length; i++) 
+            {
+                if(supportedVideoEncodings[i].equals(h264Str))
+                {
+                    vm.setAttribute("rtpmap", 
+                        Constants.H264_RTP_SDP + " H264/90000");
+                    vm.setAttribute("fmtp", 
+                        Constants.H264_RTP_SDP + " packetization-mode=1");
+                } 
+            }
+            
             byte onHold = this.onHold;
 
             if (!mediaServCallback.getDeviceConfiguration()
@@ -2223,6 +2237,30 @@ public class CallSessionImpl
         }
 
         formatsRegisteredOnce = true;
+    }
+    
+    static void registerCustomVideoCodecFormats(RTPManager rtpManager)
+    {
+        // if we have already registered custom formats and we are running JMF
+        // we bail out.
+        if (!FMJConditionals.REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER
+            && formatsRegisteredOnceVideo)
+        {
+            return;
+        }
+
+        javax.media.Format format = new VideoFormat(Constants.H264_RTP);
+        logger.debug("registering format " + format + " with RTP manager");
+            /*
+             * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat
+             * leaks memory, since it stores the Format in a static Vector.
+             * AFAIK there is no easy way around it, but the memory impact
+             * should not be too bad.
+             */
+            rtpManager.addFormat(
+                format, MediaUtils.jmfToSdpEncoding(format.getEncoding()));
+
+        formatsRegisteredOnceVideo = true;
     }
 
     /**

@@ -12,6 +12,7 @@ package net.java.sip.communicator.impl.media.device;
 
 import java.io.*;
 import java.util.*;
+
 import javax.media.*;
 import javax.media.format.*;
 
@@ -174,7 +175,7 @@ public class JmfDeviceDetector
         //those that do not apply will silently fail.
         logger.info("Looking for video capture devices");
         int nDevices = 0;
-        //Windows
+/*        //Windows
         try
         {
             VFWAuto vfwAuto = new VFWAuto();
@@ -231,19 +232,18 @@ public class JmfDeviceDetector
         {
             logger.debug("No V4l video detected: " + exc.getMessage());
         }
-
+*/
   
         
         //FMJ
-//        try
-//        {
-//            new FMJCivilVideoAuto();
-//        }
-//        catch (Throwable exc)
-//        {
-//            logger.debug("No FMJ CIVIL video detected: " + exc.getMessage());
-//        }
-
+        try
+        {
+            new FMJCivilVideoAuto();
+        }
+        catch (Throwable exc)
+        {
+            logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
+        }
     }
 
     /**

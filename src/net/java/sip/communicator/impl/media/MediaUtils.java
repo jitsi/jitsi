@@ -92,6 +92,9 @@ public class MediaUtils {
 
         case SdpConstants.H261 :
             return VideoFormat.H261_RTP;
+            
+        case Constants.H264_RTP_SDP :
+            return Constants.H264_RTP;
 
         default :
             return null;
@@ -137,6 +140,8 @@ public class MediaUtils {
             return SdpConstants.JPEG;
         } else if (jmfEncoding.equals(VideoFormat.H261_RTP)) {
             return SdpConstants.H261;
+        } else if (jmfEncoding.equals(Constants.H264_RTP)) {
+            return Constants.H264_RTP_SDP;
         } else if (jmfEncoding.equals(Constants.ILBC)) {
             return 97;
         } else if (jmfEncoding.equals(Constants.ILBC_RTP)) {

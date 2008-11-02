@@ -17,6 +17,9 @@ public class Constants
     public static final String SPEEX = "speex";
     public static final String ILBC_RTP = "ilbc/rtp";
     public static final String ILBC = "ilbc";
+    
+    public static final String H264_RTP = "h264/rtp";
+    public static final int H264_RTP_SDP = 99;
 
     /**
      * mode    : Frame size for the encoding/decoding

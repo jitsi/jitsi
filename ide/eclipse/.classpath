@@ -34,6 +34,10 @@
     <classpathentry kind="lib" path="lib/installer-exclude/Stun4J.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/transparency.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/ymsg_network_v0_63.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/ffmpeg-java-gpl.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/jna.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/lti-civil-no_s_w_t.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/linux/installer-exclude/jmf.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/linux/jdic_stub.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/installer-exclude/jmf.jar"/>

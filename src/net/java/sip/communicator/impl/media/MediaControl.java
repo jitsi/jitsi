@@ -16,6 +16,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.sdp.*;
 
+import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.media.MediaException;
@@ -56,6 +57,7 @@ public class MediaControl
      */
     private String[] supportedVideoEncodings = new String[]
         {
+            Integer.toString(Constants.H264_RTP_SDP),
             // javax.media.format.VideoFormat.H263_RTP
             Integer.toString(SdpConstants.H263),
             // javax.media.format.VideoFormat.JPEG_RTP
@@ -140,6 +142,7 @@ public class MediaControl
      */
     private static String[] customCodecs = new String[]
     {
+        
         FMJConditionals.FMJ_CODECS
            ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
            : "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
@@ -152,6 +155,9 @@ public class MediaControl
         FMJConditionals.FMJ_CODECS
            ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
            : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
+        "net.java.sip.communicator.impl.media.codec.video.h264.NativeEncoder",
+        "net.java.sip.communicator.impl.media.codec.video.h264.NativeDecoder",
+        "net.java.sip.communicator.impl.media.codec.video.ImageScaler",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
         "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
@@ -167,7 +173,8 @@ public class MediaControl
      */
     private static String[] customPackages = new String[]
     {    // datasource for low latency ALSA input
-    "net.java.sip.communicator.impl"
+        "net.java.sip.communicator.impl",
+        "net.sf.fmj"
     };
 
     /**
@@ -230,6 +237,7 @@ public class MediaControl
     {
         //first init default preferences
         //video
+        setEncodingPreference(Constants.H264_RTP,      1100); 
         setEncodingPreference(SdpConstants.H263,      1000);
         setEncodingPreference(SdpConstants.JPEG,       950);
         setEncodingPreference(SdpConstants.H261,       800);
@@ -628,6 +636,7 @@ public class MediaControl
                     }
                     else if (format instanceof VideoFormat)
                     {
+System.out.println("format " + format + "/" + encoding + "/" + sdp);                        
                         if (!transmittableVideoEncodings.contains(sdp))
                         {
                             if (logger.isDebugEnabled())
@@ -1188,9 +1197,23 @@ public class MediaControl
                 catch (Throwable ex)
                 {
                     logger.debug("Codec : " + className +
-                                 " is NOT succsefully registered");
+                                 " is NOT succsefully registered", ex);
                 }
             }
+        }
+        
+        String className = "com.ibm.media.codec.video.h263.JavaDecoder";
+        try
+        {
+            boolean result =
+                PlugInManager.removePlugIn(className, PlugInManager.CODEC);
+            logger.debug("Codec : " + className +
+                         " is succsefully unregistered : " + result);
+        }
+        catch (Throwable ex)
+        {
+            logger.debug("Codec : " + className +
+                         " is NOT succsefully registered");
         }
 
         try
