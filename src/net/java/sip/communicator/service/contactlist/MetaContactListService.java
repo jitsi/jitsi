@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.contactlist;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -130,6 +132,34 @@ public interface MetaContactListService
      * if no such meta contact was found.
      */
     public MetaContact findMetaContactByMetaUID(String metaContactID);
+
+    /**
+     * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * from the given <tt>ProtocolProviderService</tt>.
+     * 
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
+     * contacts we're looking for.
+     * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * from the given <tt>ProtocolProviderService</tt>.
+     */
+    public Iterator<MetaContact> findAllMetaContactsForProvider(
+        ProtocolProviderService protocolProvider);
+
+    /**
+     * Returns a list of all <tt>MetaContact</tt>s contained in the given group
+     * and containing a protocol contact from the given
+     * <tt>ProtocolProviderService</tt>.
+     * 
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
+     * contacts we're looking for.
+     * @param metaContactGroup the parent group.
+     * 
+     * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * from the given <tt>ProtocolProviderService</tt>.
+     */
+    public Iterator<MetaContact> findAllMetaContactsForProvider(
+        ProtocolProviderService protocolProvider,
+        MetaContactGroup metaContactGroup);
 
     /**
      * Adds a listener for <tt>MetaContactListChangeEvent</tt>s posted after

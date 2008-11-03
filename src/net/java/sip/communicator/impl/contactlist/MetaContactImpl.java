@@ -6,15 +6,12 @@
  */
 package net.java.sip.communicator.impl.contactlist;
 
-import gov.nist.javax.sip.header.*;
-
 import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.util.*;
 /**
  * A default implementation of the MetaContact interface.

@@ -1394,6 +1394,101 @@ public class MetaContactListServiceImpl
     }
 
     /**
+     * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * from the given <tt>ProtocolProviderService</tt>.
+     * 
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
+     * contacts we're looking for.
+     * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * from the given <tt>ProtocolProviderService</tt>.
+     */
+    public Iterator<MetaContact> findAllMetaContactsForProvider(
+                                    ProtocolProviderService protocolProvider)
+    {
+        ArrayList<MetaContact> resultList = new ArrayList();
+
+        this.findAllMetaContactsForProvider(protocolProvider,
+                                            rootMetaGroup,
+                                            resultList);
+
+        return resultList.iterator();
+    }
+
+    /**
+     * Returns a list of all <tt>MetaContact</tt>s contained in the given group
+     * and containing a protocol contact from the given
+     * <tt>ProtocolProviderService</tt>.
+     * 
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
+     * contacts we're looking for.
+     * @param metaContactGroup the parent group.
+     * 
+     * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * from the given <tt>ProtocolProviderService</tt>.
+     */
+    public Iterator<MetaContact> findAllMetaContactsForProvider(
+        ProtocolProviderService protocolProvider,
+        MetaContactGroup metaContactGroup)
+    {
+        List<MetaContact> resultList = new LinkedList<MetaContact>();
+
+        this.findAllMetaContactsForProvider(protocolProvider,
+            metaContactGroup, resultList);
+
+        return resultList.iterator();
+    }
+
+    /**
+     * Returns a list of all <tt>MetaContact</tt>s contained in the given group
+     * and containing a protocol contact from the given
+     * <tt>ProtocolProviderService</tt>.
+     * 
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
+     * contacts we're looking for.
+     * @param metaContactGroup the parent group.
+     * @param resultList the list containing the result of the search.
+     */
+    private void findAllMetaContactsForProvider(
+        ProtocolProviderService protocolProvider,
+        MetaContactGroup metaContactGroup,
+        List<MetaContact> resultList)
+    {
+        Iterator<MetaContact> childContacts
+            = metaContactGroup.getChildContacts();
+
+        while (childContacts.hasNext())
+        {
+            MetaContact metaContact = childContacts.next();
+
+            Iterator<Contact> protocolContacts
+                = metaContact.getContactsForProvider(protocolProvider);
+
+            if (protocolContacts.hasNext())
+            {
+                resultList.add(metaContact);
+            }
+        }
+
+        Iterator<MetaContactGroup> subGroups
+            = metaContactGroup.getSubgroups();
+
+        while (subGroups.hasNext())
+        {
+            MetaContactGroup subGroup = subGroups.next();
+
+            Iterator<ContactGroup> protocolSubgroups
+                = subGroup.getContactGroupsForProvider(protocolProvider);
+
+            if (protocolSubgroups.hasNext())
+            {
+                this.findAllMetaContactsForProvider(protocolProvider,
+                                                    subGroup,
+                                                    resultList);
+            }
+        }
+    }
+
+    /**
      * Goes through the server stored ContactList of the specified operation
      * set, retrieves all protocol specific contacts it contains and makes sure
      * they are all present in the local contact list.
