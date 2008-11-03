@@ -1691,4 +1691,28 @@ public class ChatRoomJabberImpl
     {
         return false;
     }
+
+    /**
+     * Determines whether this chat room should be stored in the configuration
+     * file or not. If the chat room is persistent it still will be shown after a
+     * restart in the chat room list. A non-persistent chat room will be only in
+     * the chat room list until the the program is running.
+     * 
+     * @return true if this chat room is persistent, false otherwise
+     */
+    public boolean isPersistent()
+    {
+        return true;
+    }
+
+    /**
+     * Finds the member of this chat room corresponding to the given nick name.
+     * 
+     * @param nickName the nick name to search for.
+     * @return the member of this chat room corresponding to the given nick name.
+     */
+    public ChatRoomMemberJabberImpl findMemberForNickName(String jabberID)
+    {
+        return (ChatRoomMemberJabberImpl) members.get(jabberID);
+    }
 }

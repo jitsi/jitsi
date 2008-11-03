@@ -55,6 +55,25 @@ public interface ChatRoomMember
     public String getName();
 
     /**
+     * Returns the avatar of this member, that can be used when including it in
+     * user interface.
+     * 
+     * @return an avatar (e.g. user photo) of this member.
+     */
+    public byte[] getAvatar();
+
+    /**
+     * Returns the protocol contact corresponding to this member in our contact
+     * list. The contact returned here could be used by the user interface to
+     * check if this member is contained in our contact list and in function of
+     * this to show additional information add additional functionality.
+     * 
+     * @return the protocol contact corresponding to this member in our contact
+     * list.
+     */
+    public Contact getContact();
+
+    /**
      * Returns the role of this chat room member in its containing room.
      *
      * @return a <tt>ChatRoomMemberRole</tt> instance indicating the role

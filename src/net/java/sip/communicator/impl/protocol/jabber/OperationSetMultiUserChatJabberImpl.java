@@ -23,7 +23,8 @@ import org.jivesoftware.smackx.muc.*;
  * @author Yana Stamcheva
  */
 public class OperationSetMultiUserChatJabberImpl
-    implements  OperationSetMultiUserChat
+    implements  OperationSetMultiUserChat,
+                SubscriptionListener
 {
     private static final Logger logger
         = Logger.getLogger(OperationSetMultiUserChatJabberImpl.class);
@@ -74,8 +75,14 @@ public class OperationSetMultiUserChatJabberImpl
                         ProtocolProviderServiceJabberImpl jabberProvider)
     {
         this.jabberProvider = jabberProvider;
-        
+
         jabberProvider.addRegistrationStateChangeListener(providerRegListener);
+
+        OperationSetPersistentPresence presenceOpSet
+            = (OperationSetPersistentPresence) jabberProvider
+                .getOperationSet(OperationSetPersistentPresence.class);
+
+        presenceOpSet.addSubscriptionListener(this);
     }
 
     /**
@@ -806,4 +813,82 @@ public class OperationSetMultiUserChatJabberImpl
             }
         }
     }
+    
+    /**
+     * Updates corresponding chat room members when a contact has been modified
+     * in our contact list.
+     */
+     public void contactModified(ContactPropertyChangeEvent evt)
+     {
+         Contact modifiedContact = evt.getSourceContact();
+
+         this.updateChatRoomMembers(modifiedContact);
+     }
+
+     /**
+      * Updates corresponding chat room members when a contact has been created
+      * in our contact list.
+      */
+     public void subscriptionCreated(SubscriptionEvent evt)
+     {
+         Contact createdContact = evt.getSourceContact();
+
+         this.updateChatRoomMembers(createdContact);
+     }
+
+     /**
+      * Not interested in this event for our member update purposes.
+      */
+     public void subscriptionFailed(SubscriptionEvent evt)
+     {}
+
+     /**
+      * Not interested in this event for our member update purposes.
+      */
+     public void subscriptionMoved(SubscriptionMovedEvent evt)
+     {}
+
+     /**
+      * Updates corresponding chat room members when a contact has been removed
+      * from our contact list.
+      */
+     public void subscriptionRemoved(SubscriptionEvent evt)
+     {
+         // Set to null the contact reference in all corresponding chat room
+         // members.
+         this.updateChatRoomMembers(null);
+     }
+
+     /**
+      * Not interested in this event for our member update purposes.
+      */
+     public void subscriptionResolved(SubscriptionEvent evt)
+     {}
+
+     /**
+      * Finds all chat room members, which name corresponds to the name of the
+      * given contact and updates their contact references.
+      * 
+      * @param contact the contact we're looking correspondences for.
+      */
+     private void updateChatRoomMembers(Contact contact)
+     {
+         Enumeration<ChatRoomJabberImpl> chatRooms = chatRoomCache.elements();
+
+         while (chatRooms.hasMoreElements())
+         {
+             ChatRoomJabberImpl chatRoom = chatRooms.nextElement();
+
+             ChatRoomMemberJabberImpl member
+                 = chatRoom.findMemberForNickName(contact.getAddress());
+
+             if (member != null)
+             {
+                 member.setContact(contact);
+
+                 if (contact != null)
+                     member.setAvatar(contact.getImage());
+             }
+         }
+     }
 }

@@ -37,6 +37,17 @@ public class ChatRoomMemberJabberImpl
     private String nickName = null;
 
     /**
+     * The contact from our server stored contact list corresponding to this
+     * member.
+     */
+    private Contact contact;
+
+    /**
+     * The avatar of this chat room member.
+     */
+    private byte[] avatar;
+
+    /**
      * Creates a jabber chat room member with the specified containing chat
      * room parent.
      * @param containingChatRoom the room that this
@@ -57,6 +68,17 @@ public class ChatRoomMemberJabberImpl
         this.containingRoom = containingChatRoom;
 
         this.role = role;
+
+        OperationSetPersistentPresenceJabberImpl presenceOpSet
+            = (OperationSetPersistentPresenceJabberImpl) containingChatRoom
+                .getParentProvider().getOperationSet(
+                    OperationSetPersistentPresence.class);
+
+        this.contact = presenceOpSet.findContactByID(jabberID);
+
+        // If we have found a contact we set also its avatar.
+        if (contact != null)
+            this.avatar = contact.getImage();
     }
     /**
      * Returns the chat room that this member is participating in.
@@ -114,4 +136,49 @@ public class ChatRoomMemberJabberImpl
     {
         return role;
     }
+    
+    /**
+     * Returns the avatar of this member, that can be used when including it in
+     * user interface.
+     * 
+     * @return an avatar (e.g. user photo) of this member.
+     */
+     public byte[] getAvatar()
+     {
+         return avatar;
+     }
+
+     /**
+      * Sets the avatar for this member.
+      * 
+      * @param avatar the avatar to set.
+      */
+     public void setAvatar(byte[] avatar)
+     {
+         this.avatar = avatar;
+     }
+
+    /**
+     * Returns the protocol contact corresponding to this member in our contact
+     * list. The contact returned here could be used by the user interface to
+     * check if this member is contained in our contact list and in function of
+     * this to show additional information add additional functionality.
+     * 
+     * @return the protocol contact corresponding to this member in our contact
+     * list.
+     */
+     public Contact getContact()
+     {
+         return contact;
+     }
+
+    /**
+     * Sets the given contact to this member.
+     * 
+     * @param contact the contact to set.
+     */
+     public void setContact(Contact contact)
+     {
+         this.contact = contact;
+     }
 }

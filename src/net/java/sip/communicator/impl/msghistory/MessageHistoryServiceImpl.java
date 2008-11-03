@@ -1940,6 +1940,16 @@ public class MessageHistoryServiceImpl
         {
             return role;
         }
+
+        public byte[] getAvatar()
+        {
+            return null;
+        }
+
+        public Contact getContact()
+        {
+            return null;
+        }
     }
 
     /**

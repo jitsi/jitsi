@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class OperationSetMultiUserChatIrcImpl
-    implements OperationSetMultiUserChat
+    implements  OperationSetMultiUserChat
 {
 
     private static final Logger logger =

@@ -18,13 +18,17 @@ public class MockChatRoomMember
     private ChatRoom chatRoom;
     private String name;
     private ChatRoomMemberRole role;
-    
+    private Contact contact;
+    private byte[] avatar;
+
     public MockChatRoomMember(String name, ChatRoom chatRoom, 
-        ChatRoomMemberRole role)
+        ChatRoomMemberRole role, Contact contact, byte[] avatar)
     {
         this.chatRoom = chatRoom;
         this.name =  name;
         this.role = role;
+        this.contact = contact;
+        this.avatar = avatar;
     }
  
     /**
@@ -86,5 +90,27 @@ public class MockChatRoomMember
     public ChatRoomMemberRole getRole()
     {
         return role;
+    }
+
+    /**
+     * Returns the avatar of this member, that can be used when including it in
+     * user interface.
+     * 
+     * @return an avatar (e.g. user photo) of this member.
+     */
+    public byte[] getAvatar()
+    {
+        return avatar;
+    }
+
+    /**
+     * Returns the protocol contact corresponding to this member in our contact
+     * list. 
+     * @return the protocol contact corresponding to this member in our contact
+     * list.
+     */
+    public Contact getContact()
+    {
+        return contact;
     }
 }

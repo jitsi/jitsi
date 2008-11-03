@@ -149,4 +149,26 @@ public class ChatRoomMemberIrcImpl implements ChatRoomMember
     {
         this.chatRoomMemberRole = chatRoomMemberRole;
     }
+
+    /**
+     * Returns null to indicate that there's no avatar attached to the IRC
+     * member.
+     * 
+     * @return null
+     */
+     public byte[] getAvatar()
+     {
+         return null;
+     }
+
+     /**
+      * Returns null to indicate that there's no contact corresponding to the
+      * IRC member.
+      * 
+      * @return null
+      */
+     public Contact getContact()
+     {
+         return null;
+     }
 }

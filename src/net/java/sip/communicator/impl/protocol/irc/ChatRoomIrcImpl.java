@@ -1041,4 +1041,17 @@ public class ChatRoomIrcImpl
     {
         this.chatSubject = subject;
     }
+    
+    /**
+     * Determines whether this chat room should be stored in the configuration
+     * file or not. If the chat room is persistent it still will be shown after a
+     * restart in the chat room list. A non-persistent chat room will be only in
+     * the chat room list until the the program is running.
+     * 
+     * @return true if this chat room is persistent, false otherwise
+     */
+    public boolean isPersistent()
+    {
+        return true;
+    }
 }
