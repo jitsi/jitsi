@@ -74,15 +74,6 @@ public class MainFrame
 
     private MetaContactListService contactList;
 
-    private LoginManager loginManager;
-
-    private ChatWindowManager chatWindowManager;
-
-    private MultiUserChatManager multiUserChatManager;
-
-    private HistoryWindowManager historyWindowManager
-        = new HistoryWindowManager();
-
     private Hashtable<ProtocolProviderService, ContactEventHandler>
         providerContactHandlers
             = new Hashtable<ProtocolProviderService, ContactEventHandler>();
@@ -106,11 +97,7 @@ public class MainFrame
             this.setUndecorated(true);
         }
 
-        this.chatWindowManager = new ChatWindowManager(this);
-
         this.mainCallPanel = new MainCallPanel(this);
-
-        this.multiUserChatManager = new MultiUserChatManager(this);
 
         this.contactListPanel = new ContactListPanel(this);
 
@@ -356,9 +343,12 @@ public class MainFrame
                 = (OperationSetMultiUserChat)
                     supportedOperationSets.get(multiChatClassName);
 
-            multiUserChat.addInvitationListener(multiUserChatManager);
-            multiUserChat.addInvitationRejectionListener(multiUserChatManager);
-            multiUserChat.addPresenceListener(multiUserChatManager);
+            ConferenceChatManager conferenceManager
+                = GuiActivator.getUIService().getConferenceChatManager();
+
+            multiUserChat.addInvitationListener(conferenceManager);
+            multiUserChat.addInvitationRejectionListener(conferenceManager);
+            multiUserChat.addPresenceListener(conferenceManager);
         }
     }
 
@@ -598,16 +588,6 @@ public class MainFrame
             {
                 // Update the status in the contact list.
                 contactListPanel.getContactList().refreshContact(metaContact);
-
-                // Update the status in chat window.
-                if(chatWindowManager.isChatOpenedForContact(metaContact))
-                {
-                    MetaContactChatPanel chatPanel
-                        = chatWindowManager.getContactChat(metaContact);
-
-                    chatPanel.updateContactStatus(
-                        sourceContact, evt.getNewStatus());
-                }
             }
         }
     }
@@ -719,24 +699,6 @@ public class MainFrame
                 //System.exit(0);
             }
         }
-    }
-
-    /**
-     * Returns the class that manages user login.
-     * @return the class that manages user login.
-     */
-    public LoginManager getLoginManager()
-    {
-        return loginManager;
-    }
-
-    /**
-     * Sets the class that manages user login.
-     * @param loginManager The user login manager.
-     */
-    public void setLoginManager(LoginManager loginManager)
-    {
-        this.loginManager = loginManager;
     }
 
     /**
@@ -1028,35 +990,6 @@ public class MainFrame
     {
         return menu;
     }
-
-    /**
-     * Returns the <tt>ChatWindowManager</tt>.
-     * @return the <tt>ChatWindowManager</tt>
-     */
-    public ChatWindowManager getChatWindowManager()
-    {
-        return chatWindowManager;
-    }
-
-    /**
-     * Returns the <tt>HistoryWindowManager</tt>.
-     * @return the <tt>HistoryWindowManager</tt>
-     */
-    public HistoryWindowManager getHistoryWindowManager()
-    {
-        return historyWindowManager;
-    }
-
-    /**
-     * Returns the class that manages all chat room invitation and message
-     * events.
-     * @return the class that manages all chat room invitation and message
-     * events.
-     */
-    public MultiUserChatManager getMultiUserChatManager()
-    {
-        return multiUserChatManager;
-    };
 
     /**
      *

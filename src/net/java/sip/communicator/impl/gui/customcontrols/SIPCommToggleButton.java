@@ -19,8 +19,9 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommToggleButton extends JToggleButton {
-    
+public class SIPCommToggleButton
+    extends JToggleButton
+{
     private Image bgImage;
 
     private Image bgRolloverImage;
@@ -28,8 +29,6 @@ public class SIPCommToggleButton extends JToggleButton {
     private Image iconImage;
 
     private Image pressedImage;
-
-    private String iconLayout = SIPCommButton.CENTER_ICON_LAYOUT;
 
     /**
      * Creates a button with custom background image, rollover image and
@@ -42,8 +41,8 @@ public class SIPCommToggleButton extends JToggleButton {
     public SIPCommToggleButton(Image bgImage,
             Image rolloverImage, 
             Image iconImage,
-            Image pressedImage) {
-        
+            Image pressedImage)
+    {
         this.bgImage = bgImage;
         this.bgRolloverImage = rolloverImage;
         this.iconImage = iconImage;
@@ -61,15 +60,15 @@ public class SIPCommToggleButton extends JToggleButton {
      * @param bgImage The background button image.
      * @param rolloverImage The rollover button image.
      */
-    public SIPCommToggleButton(Image bgImage, Image rolloverImage) {
-
+    public SIPCommToggleButton(Image bgImage, Image rolloverImage)
+    {
         this.bgImage = bgImage;
         this.bgRolloverImage = rolloverImage;
 
         this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
                 this.bgImage.getHeight(null)));
     }
-    
+
     /**
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt>
      * to paint the button background and icon, and all additional effects
@@ -78,146 +77,67 @@ public class SIPCommToggleButton extends JToggleButton {
      * @param g The Graphics object.
      */
     
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
         AntialiasingManager.activateAntialiasing(g);
 
-        if (this.bgImage != null) {
+        if (this.bgImage != null)
+        {
             // If there's no icon, we make grey the backgroundImage
             // when disabled.
-            if (this.iconImage == null && !isEnabled()) {
+            if (this.iconImage == null && !isEnabled())
+            {
                 Image disabledImage = new ImageIcon(LightGrayFilter
                         .createDisabledImage(bgImage)).getImage();
 
                 g.drawImage(disabledImage, 0, 0, this);
-            } 
+            }
             else {
                 g.drawImage(this.bgImage, 0, 0, this);
             }
         }
 
-        if (this.iconImage != null) {
-            if (!isEnabled()) {
+        if (this.getModel().isRollover() && this.bgRolloverImage != null)
+        {
+            g.drawImage(this.bgRolloverImage, 0, 0, this);
+        }
+
+        if (this.getModel().isSelected() && this.pressedImage != null)
+        {
+            g.drawImage(this.pressedImage, 0, 0, this);
+        }
+
+        if (this.iconImage != null)
+        {
+            if (!isEnabled())
+            {
                 Image disabledImage = new ImageIcon(LightGrayFilter
                         .createDisabledImage(iconImage)).getImage();
 
-                // draw the button icon depending the current button layout
-                if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                    g.drawImage(disabledImage,
-                            (this.bgImage.getWidth(null) - disabledImage
-                                    .getWidth(null)) / 2, (this.bgImage
-                                    .getHeight(null) - disabledImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(disabledImage, 7,
-                            (this.bgImage.getHeight(null) - disabledImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(disabledImage, this.bgImage.getWidth(null) - 3,
-                            (this.bgImage.getHeight(null) - disabledImage
-                                    .getHeight(null)) / 2, this);
-                }
-            } else {
-                // draw the button icon depending the current button layout
-                if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            (this.bgImage.getWidth(null) - this.iconImage
-                                    .getWidth(null)) / 2, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage, 7,
-                            (this.bgImage.getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            this.bgImage.getWidth(null) - 3, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
+                g.drawImage(disabledImage,
+                        (this.bgImage.getWidth(null) - disabledImage
+                                .getWidth(null)) / 2, (this.bgImage
+                                .getHeight(null) - disabledImage
+                                .getHeight(null)) / 2, this);
             }
-        }
-
-        if (this.bgRolloverImage != null && this.getModel().isRollover()) {
-
-            g.drawImage(this.bgRolloverImage, 0, 0, this);
-
-            if (this.iconImage != null) {
-
-                if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            (this.bgImage.getWidth(null) - this.iconImage
-                                    .getWidth(null)) / 2, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage, 7,
-                            (this.bgImage.getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            this.bgImage.getWidth(null) - 3, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-            }
-        }
-
-        if (this.getModel().isSelected()) {
-
-            if (this.pressedImage != null) {
-                g.drawImage(this.pressedImage, 0, 0, this);
-            } else if (this.bgRolloverImage != null){
-
-                g.drawImage(this.bgRolloverImage, 0, 0, this);
-
-                if (this.iconImage != null) {
-
-                    if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                        g.drawImage(this.iconImage,
-                                (this.bgImage.getWidth(null) - this.iconImage
-                                        .getWidth(null)) / 2 + 1, (this.bgImage
-                                        .getHeight(null) - this.iconImage
-                                        .getHeight(null)) / 2 + 1, this);
-                    }
-                    else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                        g.drawImage(this.iconImage, 7 + 1, (this.bgImage
+            else
+            {
+                g.drawImage(this.iconImage,
+                        (this.bgImage.getWidth(null) - this.iconImage
+                                .getWidth(null)) / 2, (this.bgImage
                                 .getHeight(null) - this.iconImage
-                                .getHeight(null)) / 2 + 1, this);
-                    }
-                    else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                        g.drawImage(this.iconImage,
-                                this.bgImage.getWidth(null) - 3 + 1,
-                                (this.bgImage.getHeight(null) - this.iconImage
-                                        .getHeight(null)) / 2 + 1, this);
-                    }
-                }
+                                .getHeight(null)) / 2, this);
             }
         }
+
     }
 
     /**
      * Returns the background image of this button.
      * @return the background image of this button.
      */
-    public Image getBgImage() {
+    public Image getBgImage()
+    {
         return bgImage;
     }
 
@@ -225,7 +145,8 @@ public class SIPCommToggleButton extends JToggleButton {
      * Sets the background image to this button.
      * @param bgImage The background image to set.
      */
-    public void setBgImage(Image bgImage) {
+    public void setBgImage(Image bgImage)
+    {
         this.bgImage = bgImage;
     }
 
@@ -233,7 +154,8 @@ public class SIPCommToggleButton extends JToggleButton {
      * Returns the background rollover image of this button.
      * @return the background rollover image of this button.
      */
-    public Image getBgRolloverImage() {
+    public Image getBgRolloverImage()
+    {
         return bgRolloverImage;
     }
 
@@ -241,7 +163,8 @@ public class SIPCommToggleButton extends JToggleButton {
      * Sets the background rollover image to this button.
      * @param bgRolloverImage The background rollover image to set.
      */
-    public void setBgRolloverImage(Image bgRolloverImage) {
+    public void setBgRolloverImage(Image bgRolloverImage)
+    {
         this.bgRolloverImage = bgRolloverImage;
     }
 
@@ -249,7 +172,8 @@ public class SIPCommToggleButton extends JToggleButton {
      * Returns the icon image of this button.
      * @return the icon image of this button.
      */
-    public Image getIconImage() {
+    public Image getIconImage()
+    {
         return iconImage;
     }
 
@@ -257,7 +181,8 @@ public class SIPCommToggleButton extends JToggleButton {
      * Sets the icon image to this button.
      * @param iconImage The icon image to set.
      */
-    public void setIconImage(Image iconImage) {
+    public void setIconImage(Image iconImage)
+    {
         this.iconImage = iconImage;
         this.repaint();
     }
