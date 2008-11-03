@@ -385,8 +385,8 @@ public class NativeEncoder
             
             avcontext.qcompress = 1;
             
-            //int _bitRate = 267000;
-            //avcontext.bit_rate = (_bitRate * 3) >> 2; // average bit rate
+            int _bitRate = 267000;
+            avcontext.bit_rate = (_bitRate * 3) >> 2; // average bit rate
             
             AVUTIL.av_log_set_callback(new AVUtilLibrary.LogCallback(){
 

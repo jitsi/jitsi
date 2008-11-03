@@ -56,6 +56,9 @@ public class NativeDecoder
             new Dimension(128, 96)
     };
     
+    // index of default size (output format)
+    private static final int defaultSizeIx = 2;
+    
     /**
      * Constructs new h264 decoder
      */
@@ -71,6 +74,29 @@ public class NativeDecoder
         { 
             new RGBFormat() 
         };
+        
+        supportedOutputFormats = new VideoFormat[supportedSizes.length];
+        
+        for (int i = 0; i < supportedSizes.length; i++)
+        {
+            Dimension size = supportedSizes[i];
+            supportedOutputFormats[i] = 
+              //PIX_FMT_RGB32
+                new RGBFormat(
+                    size, 
+                    -1,
+                    Format.intArray, 
+                    Format.NOT_SPECIFIED, 
+                    32, 
+                    0xFF0000, 
+                    0xFF00,
+                    0xFF, 
+                    1, 
+                    size.width, 
+                    Format.FALSE, 
+                    Format.NOT_SPECIFIED);
+        }
+        
         PLUGIN_NAME = "H.264 Decoder";
 
         AVFORMAT = AVFormatLibrary.INSTANCE;
@@ -85,30 +111,21 @@ public class NativeDecoder
     protected Format[] getMatchingOutputFormats(Format in)
     {
         VideoFormat ivf = (VideoFormat) in;
-
-        supportedOutputFormats = new VideoFormat[supportedSizes.length];
         
-        for (int i = 0; i < supportedSizes.length; i++)
+        // return the default size/currently decoder and encoder 
+        //set to transmit/receive at this size
+        if(ivf.getSize() == null)
+            return new Format[]{supportedOutputFormats[defaultSizeIx]};
+
+        for (int i = 0; i < supportedOutputFormats.length; i++)
         {
-            Dimension size = supportedSizes[i];
-            supportedOutputFormats[i] = 
-              //PIX_FMT_RGB32
-                new RGBFormat(
-                    size, 
-                    -1,
-                    Format.intArray, 
-                    ivf.getFrameRate(), 
-                    32, 
-                    0xFF0000, 
-                    0xFF00, 
-                    0xFF, 
-                    1, 
-                    size.width, 
-                    Format.FALSE, 
-                    Format.NOT_SPECIFIED);
+            RGBFormat f = (RGBFormat)supportedOutputFormats[i];
+            
+            if(f.getSize().equals(ivf.getSize()))
+                return new Format[]{f};
         }
 
-        return supportedOutputFormats;
+        return null;
     }
 
     /**

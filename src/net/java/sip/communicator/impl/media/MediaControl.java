@@ -636,7 +636,6 @@ public class MediaControl
                     }
                     else if (format instanceof VideoFormat)
                     {
-System.out.println("format " + format + "/" + encoding + "/" + sdp);                        
                         if (!transmittableVideoEncodings.contains(sdp))
                         {
                             if (logger.isDebugEnabled())
