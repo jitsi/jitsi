@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
  * Parent class for gui chat room events indicating addition and removal of
@@ -16,40 +16,40 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class GuiChatRoomEvent
+public class ChatRoomListChangeEvent
     extends EventObject
 {
     private int eventID = -1;
 
     /**
-     * Indicates that the MetaContactEvent instance was triggered by
-     * adding a MetaContact.
+     * Indicates that the ChatRoomListChangeEvent instance was triggered by
+     * adding a ChatRoom in the gui.
      */
     public static final int CHAT_ROOM_ADDED = 1;
 
     /**
-     * Indicates that the MetaContactEvent instance was triggered by the
-     * removal of an existing MetaContact.
+     * Indicates that the ChatRoomListChangeEvent instance was triggered by
+     * removing a ChatRoom from the gui.
      */
     public static final int CHAT_ROOM_REMOVED = 2;
 
-    private ProtocolProviderService parentProtocolProvider;
-    
+    /**
+     * Indicates that the ChatRoomListChangeEvent instance was triggered by
+     * changing a ChatRoom in the gui (like changing its status, etc.).
+     */
+    public static final int CHAT_ROOM_CHANGED = 3;
+
     /**
      * Creates a new <tt>ChatRoom</tt> event according to the specified parameters.
      * @param source the <tt>ChatRoom</tt> instance that is added to the
      * ChatRoomsList
-     * @param protocolProvider the <tt>ProtocolProviderService</tt> underwhich
-     * the corresponding <tt>ChatRoom</tt> is located
      * @param eventID one of the CHAT_ROOM_XXX static fields indicating the
      * nature of the event.
      */
-    public GuiChatRoomEvent( ChatRoom source,
-                       ProtocolProviderService protocolProvider,
-                       int eventID)
+    public ChatRoomListChangeEvent(    ChatRoomWrapper source,
+                               int eventID)
     {
         super(source);
-        this.parentProtocolProvider = protocolProvider;
         this.eventID = eventID;
     }
 
@@ -57,20 +57,9 @@ public class GuiChatRoomEvent
      * Returns the source <tt>ChatRoom</tt>.
      * @return the source <tt>ChatRoom</tt>.
      */
-    public ChatRoom getSourceChatRoom()
+    public ChatRoomWrapper getSourceChatRoom()
     {
-        return (ChatRoom) getSource();
-    }
-
-    /**
-     * Returns the <tt>ProtocolProviderService</tt> that the <tt>ChatRoom</tt>
-     * belongs to.
-     * @return the <tt>ProtocolProviderService</tt> that the <tt>ChatRoom</tt>
-     * belongs to
-     */
-    public ProtocolProviderService getProtocolProvider()
-    {
-        return parentProtocolProvider;
+        return (ChatRoomWrapper) getSource();
     }
 
     /**
@@ -82,10 +71,10 @@ public class GuiChatRoomEvent
     {
         StringBuffer buff
             = new StringBuffer("GuiChatRoomEvent-[ ChatRoomID=");
-        buff.append(getSourceChatRoom().getName());
+        buff.append(getSourceChatRoom().getChatRoomName());
         buff.append(", eventID=").append(getEventID());
-        buff.append(", ProtocolProvider=")
-            .append(getProtocolProvider().getProtocolDisplayName());
+        buff.append(", ProtocolProvider=");
+
         return buff.toString();
     }
 

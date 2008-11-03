@@ -7,16 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.*;
 import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.systray.*;
 
 /**
  * The list model of the ContactList. This class use as a data model the
@@ -40,18 +37,6 @@ public class ContactListModel
 
     private Vector closedGroups = new Vector();
 
-    private Image msgReceivedImage
-        = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
-
-    ImageIcon statusIcon = new ImageIcon();
-
-    /**
-     * A list of all contacts that are currently "active". An "active" contact
-     * is a contact that has been sent a message. The list is used to indicate
-     * these contacts with a special icon. 
-     */
-    private Vector activeContacts = new Vector();
-    
     private boolean showOffline = true;
 
     /**
@@ -133,7 +118,7 @@ public class ContactListModel
     /**
      * Goes through all subgroups and contacts and determines the final size of
      * the contact list.
-     *
+     *0
      * @param group The group which to be measured.
      * @return The size of the contactlist
      */
@@ -192,62 +177,6 @@ public class ContactListModel
         }
 
         return size;
-    }
-
-    /**
-     * Returns the general status of the given MetaContact. Detects the status
-     * using the priority status table. The priority is defined on the
-     * "availablity" factor and here the most "available" status is returned.
-     *
-     * @param metaContact The metaContact fot which the status is asked.
-     * @return PresenceStatus The most "available" status from all subcontact
-     *         statuses.
-     */
-    public PresenceStatus getMetaContactStatus(MetaContact metaContact)
-    {
-        PresenceStatus status = null;
-        Iterator i = metaContact.getContacts();
-        while (i.hasNext())
-        {
-            Contact protoContact = (Contact) i.next();
-            PresenceStatus contactStatus = protoContact.getPresenceStatus();
-
-            if (status == null)
-            {
-                status = contactStatus;
-            }
-            else
-            {
-                status = (contactStatus.compareTo(status) > 0) ? contactStatus
-                    : status;
-            }
-        }
-        return status;
-    }
-
-    /**
-     * Returns the status icon for this MetaContact.
-     *
-     * @param contact The metaContact for which the status icon is asked.
-     * @return the status icon for this MetaContact.
-     */
-    public ImageIcon getMetaContactStatusIcon(MetaContact contact)
-    {
-        Image statusImage;
-
-        if(activeContacts.contains(contact))
-        {
-            statusImage = msgReceivedImage;
-        }
-        else
-        {
-            statusImage = Constants.getStatusIcon(this
-                .getMetaContactStatus(contact));
-        }
-
-        statusIcon.setImage(statusImage);
-
-        return statusIcon;
     }
 
     /**
@@ -607,75 +536,7 @@ public class ContactListModel
 
         return false;
     }
-    
-    /**
-     * Adds the given <tt>MetaContact</tt> to the list of active contacts.
-     * 
-     * @param metaContact the <tt>MetaContact</tt> to add.
-     */
-    public void addActiveContact(MetaContact metaContact)
-    {
-        synchronized (activeContacts)
-        {
-            SystrayService stray = GuiActivator.getSystrayService();
-            if(activeContacts.size() == 0 && stray != null)
-                stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
 
-            if(!activeContacts.contains(metaContact))
-                this.activeContacts.add(metaContact);
-        }
-    }
-    
-    /**
-     * Removes the given <tt>MetaContact</tt> from the list of active contacts.
-     * 
-     * @param metaContact the <tt>MetaContact</tt> to remove.
-     */
-    public void removeActiveContact(MetaContact metaContact)
-    {
-        synchronized (activeContacts)
-        {
-            if(activeContacts.contains(metaContact))
-                this.activeContacts.remove(metaContact);
-            
-            if(activeContacts.size() == 0)
-                GuiActivator.getSystrayService().setSystrayIcon(
-                   SystrayService.SC_IMG_TYPE);
-        }
-    }
-    
-    /**
-     * Removes all contacts from the list of active contacts.
-     */
-    public void removeAllActiveContacts()
-    {
-        synchronized (activeContacts)
-        {
-            if(activeContacts.size() > 0)
-            {
-                this.activeContacts.removeAllElements();
-                
-                GuiActivator.getSystrayService().setSystrayIcon(
-                   SystrayService.SC_IMG_TYPE);
-            }   
-        }
-    }
-    
-    /**
-     * Checks if the given contact is currently active.
-     * 
-     * @param metaContact the <tt>MetaContact</tt> to verify
-     * @return TRUE if the given <tt>MetaContact</tt> is active, FALSE -
-     * otherwise
-     */
-    public boolean isContactActive(MetaContact metaContact)
-    {
-        synchronized (activeContacts)
-        {
-            return this.activeContacts.contains(metaContact);
-        }
-    }
-    
     private void initGroupsStatus(MetaContactGroup group)
     {
         boolean isClosed = ConfigurationManager

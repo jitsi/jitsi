@@ -62,8 +62,9 @@ public class ContactListPanel
     private ChatWindowManager chatWindowManager;
 
     /**
-     * Pseudo timer used to delay multiples typings notifications before recieving
-     * the message
+     * Pseudo timer used to delay multiples typings notifications before
+     * receiving the message.
+     * 
      * Time to live : 1 minute
      */
     private Map<String,Long> proactiveTimer = new HashMap<String, Long>();
@@ -79,7 +80,8 @@ public class ContactListPanel
 
         this.mainFrame = mainFrame;
 
-        this.chatWindowManager = mainFrame.getChatWindowManager();
+        this.chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
 
         this.treePanel.setOpaque(false);
         this.setOpaque(false);
@@ -291,7 +293,7 @@ public class ContactListPanel
          */
         public void run()
         {
-            MetaContactChatPanel chatPanel;
+            ChatPanel chatPanel;
 
             if(protocolContact != null)
                 chatPanel = chatWindowManager
@@ -331,14 +333,11 @@ public class ContactListPanel
         {
             // Show an envelope on the sender contact in the contact list and
             // in the systray.
-            ContactListModel clistModel
-                = (ContactListModel) contactList.getModel();
-
-            clistModel.addActiveContact(metaContact);
+            contactList.addActiveContact(metaContact);
             contactList.refreshContact(metaContact);
 
             // Obtain the corresponding chat panel.
-            final MetaContactChatPanel chatPanel
+            final ChatPanel chatPanel
                 = chatWindowManager.getContactChat( metaContact,
                                                     protocolContact,
                                                     message.getMessageUID());
@@ -389,7 +388,11 @@ public class ContactListPanel
                                             title,
                                             message.getContent());
 
-            chatPanel.treatReceivedMessage(protocolContact);
+            ChatTransport chatTransport
+                = chatPanel.getChatSession()
+                    .findChatTransportForDescriptor(protocolContact);
+
+            chatPanel.setSelectedChatTransport(chatTransport);
         }
         else
         {
@@ -415,7 +418,7 @@ public class ContactListPanel
 
         Message msg = evt.getSourceMessage();
 
-        MetaContactChatPanel chatPanel = null;
+        ChatPanel chatPanel = null;
 
         if(chatWindowManager.isChatOpenedForContact(metaContact))
             chatPanel = chatWindowManager.getContactChat(metaContact);
@@ -487,7 +490,7 @@ public class ContactListPanel
                     new String[]{evt.getReason()}).getText();
         }
 
-        MetaContactChatPanel chatPanel = chatWindowManager
+        ChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
 
         chatPanel.processMessage(

@@ -12,17 +12,20 @@ import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
-
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -39,28 +42,37 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
-public abstract class ChatPanel
+public class ChatPanel
     extends JPanel
-    implements  Chat,
+    implements  ChatSessionRenderer,
+                Chat,
                 ChatConversationContainer
 {
     private static final Logger logger = Logger
         .getLogger(ChatPanel.class.getName());
 
-    private JSplitPane topSplitPane = new JSplitPane(
-            JSplitPane.HORIZONTAL_SPLIT);
-
     private JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    protected ChatConversationPanel conversationPanel;
+    private JCheckBox sendSmsCheckBox = new JCheckBox(
+        Messages.getI18NString("sendAsSms").getText());
 
-    protected final ChatWritePanel writeMessagePanel;
+    private JSplitPane topSplitPane;
 
-    protected ChatContactListPanel chatContactListPanel;
+    private ChatTransportSelectorBox transportSelectorBox;
 
-    protected ChatSendPanel sendPanel;
+    private JLabel sendViaLabel;
 
-    protected final ChatWindow chatWindow;
+    private ChatConversationPanel conversationPanel;
+
+    private ChatWritePanel writeMessagePanel;
+
+    private ChatRoomMemberListPanel chatContactListPanel;
+
+    private ChatSendPanel sendPanel;
+
+    private ChatWindow chatWindow;
+
+    private ChatRoomSubjectPanel subjectPanel;
 
     /**
      * Indicates that a typing notification event is successfully sent.
@@ -76,9 +88,13 @@ public abstract class ChatPanel
 
     private boolean isShown = false;
 
-    private Vector focusListeners = new Vector();
+    private ChatSession chatSession;
 
-    private final FocusPropertyChangeListener focusPropertyChangeListener;
+    private Date firstHistoryMsgTimestamp;
+
+    private Date lastHistoryMsgTimestamp;
+
+    private Vector focusListeners = new Vector();
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -93,41 +109,119 @@ public abstract class ChatPanel
 
         this.conversationPanel = new ChatConversationPanel(this);
 
-        this.chatContactListPanel = new ChatContactListPanel(this);
-
         this.sendPanel = new ChatSendPanel(this);
 
         this.writeMessagePanel = new ChatWritePanel(this);
 
-        this.topSplitPane.setResizeWeight(1.0D);
-
-        // Remove default borders from split panes.
-        this.topSplitPane.setBorder(null);
         this.messagePane.setBorder(null);
 
         this.messagePane.setResizeWeight(1.0D);
-        this.chatContactListPanel.setPreferredSize(new Dimension(150, 100));
-        this.chatContactListPanel.setMinimumSize(new Dimension(150, 100));
+
         this.writeMessagePanel.setPreferredSize(new Dimension(500, 100));
         this.writeMessagePanel.setMinimumSize(new Dimension(500, 100));
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));
 
-        this.topSplitPane.setOneTouchExpandable(true);
-
-        topSplitPane.setLeftComponent(conversationPanel);
-        topSplitPane.setRightComponent(chatContactListPanel);
-
-        this.messagePane.setTopComponent(topSplitPane);
         this.messagePane.setBottomComponent(writeMessagePanel);
 
         this.add(messagePane, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.SOUTH);
 
         this.addComponentListener(new TabSelectionComponentListener());
+    }
 
-        focusPropertyChangeListener =
-            new FocusPropertyChangeListener(KeyboardFocusManager
-                .getCurrentKeyboardFocusManager());
+    public void setChatSession(ChatSession chatSession)
+    {
+        this.chatSession = chatSession;
+
+        if (chatSession instanceof MetaContactChatSession)
+        {
+            // The subject panel is added here, because it's specific for the
+            // multi user chat and is not contained in the single chat chat panel.
+            if (subjectPanel != null)
+            {
+                this.remove(subjectPanel);
+                this.revalidate();
+                this.repaint();
+            }
+
+            if (chatContactListPanel != null)
+                topSplitPane.remove(chatContactListPanel);
+
+            if (topSplitPane != null)
+            {
+                this.messagePane.remove(topSplitPane);
+            }
+
+            this.messagePane.setTopComponent(conversationPanel);
+
+            initChatTransportSelectorBox();
+
+            //Enables to change the protocol provider by simply pressing the
+            // CTRL-P key combination
+            ActionMap amap = this.getActionMap();
+
+            amap.put("ChangeProtocol", new ChangeTransportAction());
+
+            InputMap imap = this.getInputMap(
+                JComponent.WHEN_IN_FOCUSED_WINDOW); 
+
+            imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
+                KeyEvent.CTRL_DOWN_MASK), "ChangeProtocol");
+        }
+        else if (chatSession instanceof ConferenceChatSession)
+        {
+            removeChatTransportSelectorBox();
+
+            messagePane.remove(conversationPanel);
+
+//            We don't add the subject panel for now. It takes too much space
+//            and is not used.
+//            subjectPanel
+//                = new ChatRoomSubjectPanel( chatWindow,
+//                                            (ConferenceChatSession) chatSession);
+
+            this.chatContactListPanel = new ChatRoomMemberListPanel(this);
+            this.chatContactListPanel.setPreferredSize(new Dimension(150, 100));
+            this.chatContactListPanel.setMinimumSize(new Dimension(150, 100));
+
+            this.topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+            // Remove default borders from split panes.
+            this.topSplitPane.setBorder(null);
+
+            this.topSplitPane.setResizeWeight(1.0D);
+            this.topSplitPane.setOneTouchExpandable(true);
+
+            topSplitPane.setLeftComponent(conversationPanel);
+
+            this.messagePane.setTopComponent(topSplitPane);
+
+            // The subject panel is added here, because it's specific for the
+            // multi user chat and is not contained in the single chat chat panel.
+//            this.add(subjectPanel, BorderLayout.NORTH);
+
+            topSplitPane.setRightComponent(chatContactListPanel);
+
+            // Initialize chat participants' panel.
+            Iterator<ChatContact> chatParticipants
+                = chatSession.getParticipants();
+
+            while (chatParticipants.hasNext())
+            {
+                ChatContact chatContact = chatParticipants.next();
+
+                //Add the contact to the list of contacts contained in this chat.
+                chatContactListPanel.addContact(chatContact);
+            }
+        }
+
+        if (!chatSession.getCurrentChatTransport().allowsSmsMessage())
+            sendSmsCheckBox.setEnabled(false);
+    }
+
+    public ChatSession getChatSession()
+    {
+        return chatSession;
     }
 
     /**
@@ -137,110 +231,9 @@ public abstract class ChatPanel
      */
     public void dispose()
     {
-        focusPropertyChangeListener.dispose();
         writeMessagePanel.dispose();
+        chatSession.dispose();
     }
-
-    /**
-     * Returns the identifier of this chat. In the case of a single chat this
-     * method will return the <tt>MetaContact</tt> of the chat, otherwise it
-     * will return the <tt>ChatRoomWrapper</tt> corresponding to the chat room.
-     * 
-     * @return the identifier of this chat panel
-     */
-    public abstract Object getChatIdentifier();
-
-    /**
-     * Returns the name of the chat. If this chat panel corresponds to a single
-     * chat it will return the name of the <tt>MetaContact</tt>, otherwise it
-     * will return the name of the chat room.
-     * 
-     * @return the name of the chat
-     */
-    public abstract String getChatName();
-
-    /**
-     * Implements the <tt>ChatPanel.getChatStatusIcon</tt> method.
-     *
-     * @return the status icon corresponding to this chat room
-     */
-    public abstract ImageIcon getChatStatusIcon();
-
-    /**
-     * Loads the history of the single or multi user chat corresponding to this
-     * chat panel.
-     */
-    public abstract void loadHistory();
-
-    /**
-     * Loads the history of the single or multi user chat corresponding to this
-     * chat panel, by specifying the identifier of the message which should be
-     * ignored from the obtained history.
-     * 
-     * @param escapedMessageID the identifier of the message, which should be
-     * ignored from the obtained history.
-     */
-    public abstract void loadHistory(String escapedMessageID);
-
-    /**
-     * Loads the previous page from history. This method would be called when
-     * user clicks on the left arrow button.
-     */
-    public abstract void loadPreviousPageFromHistory();
-
-    /**
-     * Loads the next page from history. This method would be called when
-     * user clicks on the right arrow button.
-     */
-    public abstract void loadNextPageFromHistory();
-
-    /**
-     * Sends the given text message to the chat corresponding to this chat
-     * panel.
-     * 
-     * @param text the text to send
-     */
-    protected abstract void sendMessage();
-
-    /**
-     * This method should be implemented in case additional treatment is needed
-     * of received messages before showing them to the user.
-     * 
-     * @param sourceContact the contact from which the message has been received
-     */
-    public abstract void treatReceivedMessage(Contact sourceContact);
-
-    /**
-     * Sends a typing notification state.
-     * 
-     * @param typingState the typing notification state to send
-     * 
-     * @return the result of this operation. One of the TYPING_NOTIFICATION_XXX
-     * constants defined in this class
-     */
-    public abstract int sendTypingNotification(int typingState);
-
-    /**
-     * Returns the date of the first message in the history of this chat.
-     * 
-     * @return the date of the first message in the history of this chat
-     */
-    public abstract Date getFirstHistoryMsgTimestamp();
-
-    /**
-     * Returns the date of the last message in the history of this chat.
-     * 
-     * @return the date of the last message in the history of this chat
-     */
-    public abstract Date getLastHistoryMsgTimestamp();
-
-    /**
-     * Invites a contact to join this chat.
-     * 
-     * @param contactAddress the address of the contact we invite
-     * @param reason the reason for the invite
-     */
-    public abstract void inviteChatContact(String contactAddress, String reason);
 
     /**
      * Returns the chat window, where this chat panel is added.
@@ -270,7 +263,8 @@ public abstract class ChatPanel
      * window. Used to show typing notification messages, links' hrefs, etc.
      * @param statusMessage The message text to be displayed.
      */
-    public void setStatusMessage(String statusMessage){
+    public void setStatusMessage(String statusMessage)
+    {
         this.sendPanel.setStatusMessage(statusMessage);
     }
 
@@ -295,16 +289,6 @@ public abstract class ChatPanel
     }
 
     /**
-     * Returns the panel containing the list of contacts in this chat.
-     * 
-     * @return the panel containing the list of contacts in this chat
-     */
-    public ChatContactListPanel getChatContactListPanel()
-    {
-        return this.chatContactListPanel;
-    }
-
-    /**
      * Returns the send panel, contained in this chat panel.
      * 
      * @return the send panel, contained in this chat panel
@@ -315,9 +299,10 @@ public abstract class ChatPanel
     }
 
     /**
-     * When user select a chat tab clicking with the mouse we change the
-     * currently selected chat panel, thus changing the title of the window,
-     * history buttons states, etc.
+     * Every time the chat panel is shown we set it as a current chat panel.
+     * This is done here and not in the Tab selection listener, because the tab
+     * change event is not fired when the user clicks on the close tab button
+     * for example.
      */
     private class TabSelectionComponentListener
         implements ComponentListener {
@@ -346,23 +331,7 @@ public abstract class ChatPanel
             if (tabbedPane.getSelectedComponent() != component)
                 return;
 
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    String chatName = getChatName();
-
-                    if(!getChatWindow().getTitle().equals(chatName))
-                    {
-                        getChatWindow().setTitle(chatName);
-
-                        getChatWindow().getMainToolBar()
-                            .changeHistoryButtonsState(ChatPanel.this);
-                    }
-
-                    ChatPanel.this.requestFocusInWriteArea();
-                }
-            });
+            chatWindow.setCurrentChatPanel(ChatPanel.this);
         }
 
         public void componentHidden(ComponentEvent evt) {
@@ -471,7 +440,7 @@ public abstract class ChatPanel
                     messageType = Constants.HISTORY_OUTGOING_MESSAGE;
 
                 historyString += processHistoryMessage(
-                            getChatWindow().getMainFrame()
+                            GuiActivator.getUIService().getMainFrame()
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(),
                             messageType,
@@ -510,7 +479,7 @@ public abstract class ChatPanel
                     .getSourceChatRoom().getParentProvider();
 
                 historyString += processHistoryMessage(
-                            getChatWindow().getMainFrame()
+                            GuiActivator.getUIService().getMainFrame()
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(),
                             Constants.HISTORY_OUTGOING_MESSAGE,
@@ -718,101 +687,6 @@ public abstract class ChatPanel
     }
 
     /**
-     * The <tt>FocusPropertyChangeListener</tt> listens for events triggered
-     * when the "focusOwner" property has changed. It is used to change the
-     * state of a contact from active (we have non read messages from this
-     * contact) to inactive, when user has opened a chat.
-     */
-    private class FocusPropertyChangeListener implements PropertyChangeListener
-    {
-        private final KeyboardFocusManager keyboardFocusManager;
-
-        private final String propertyName = "focusOwner";
-
-        public FocusPropertyChangeListener(
-            KeyboardFocusManager keyboardFocusManager)
-        {
-            this.keyboardFocusManager = keyboardFocusManager;
-
-            this.keyboardFocusManager.addPropertyChangeListener(propertyName,
-                this);
-        }
-
-        public void dispose()
-        {
-            keyboardFocusManager.removePropertyChangeListener(propertyName,
-                this);
-        }
-
-        public void propertyChange(PropertyChangeEvent evt)
-        {
-            String prop = evt.getPropertyName();
-            if ((prop.equals(propertyName)) &&
-                  (evt.getNewValue() != null) &&
-                  (evt.getNewValue() instanceof Component) &&
-                  ((Component)evt.getNewValue())
-                      .getFocusCycleRootAncestor() instanceof ChatWindow)
-            {
-                ChatWindow chatWindow = (ChatWindow)((Component)evt
-                        .getNewValue()).getFocusCycleRootAncestor();
-
-                ChatPanel chatPanel
-                    = chatWindow.getCurrentChatPanel();
-
-                if(chatPanel instanceof MetaContactChatPanel)
-                {
-                    MetaContact selectedMetaContact
-                        = ((MetaContactChatPanel)chatPanel).getMetaContact();
-
-                    ContactList clist
-                        = chatWindow.getMainFrame()
-                            .getContactListPanel().getContactList();
-                    ContactListModel clistModel
-                        = (ContactListModel) clist.getModel();
-                    
-                    // Remove the envelope from the contact when the chat has
-                    // gained the focus.
-                    if(clistModel.isContactActive(selectedMetaContact))
-                    {
-                        clistModel.removeActiveContact(selectedMetaContact);
-                        clist.refreshContact(selectedMetaContact);
-                    }
-
-                    fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
-                }
-            }
-        }
-    }
-
-    /**
-     * Implements <tt>Chat.addChatFocusListener</tt> method. Adds the given
-     * <tt>ChatFocusListener</tt> to the list of listeners.
-     *
-     * @param listener the listener that we'll be adding.
-     */
-    public void addChatFocusListener(ChatFocusListener listener)
-    {
-        synchronized (focusListeners)
-        {
-            focusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Implements <tt>Chat.removeChatFocusListener</tt> method. Removes the given
-     * <tt>ChatFocusListener</tt> from the list of listeners.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeChatFocusListener(ChatFocusListener listener)
-    {
-        synchronized (focusListeners)
-        {
-            focusListeners.remove(listener);
-        }
-    }
-
-    /**
      * Adds the given {@link KeyListener} to this <tt>Chat</tt>.
      * The <tt>KeyListener</tt> is used to inform other bundles when a user has
      * typed in the chat editor area.
@@ -855,7 +729,750 @@ public abstract class ChatPanel
     {
         writeMessagePanel.getEditorPane().setText(message);
     }
+
+    /**
+     * Indicates if the history of a hidden protocol should be shown to the
+     * user in the default <b>grey</b> history style or it should be shown as
+     * a normal message.
+     * 
+     * @param protocolProvider the protocol provider to check
+     * @return <code>true</code> if the given protocol is a hidden one and the
+     * "hiddenProtocolGreyHistoryDisabled" property is set to true.
+     */
+    private boolean isGreyHistoryStyleDisabled(
+        ProtocolProviderService protocolProvider)
+    {
+        boolean isProtocolHidden = false;
+        boolean isGreyHistoryDisabled = false;
+
+        Object hiddenProperty
+            = protocolProvider.getAccountID().getAccountProperties()
+                .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN);
+
+        if (hiddenProperty != null)
+            isProtocolHidden
+                = new Boolean((String)hiddenProperty).booleanValue();
+
+        String greyHistoryProperty
+            = GuiActivator.getResources()
+                .getSettingsString("hiddenProtocolGreyHistoryDisabled");
+
+        if (greyHistoryProperty != null)
+            isGreyHistoryDisabled
+                = new Boolean(greyHistoryProperty).booleanValue();
+
+        return isProtocolHidden && isGreyHistoryDisabled;
+    }
+
+    protected void sendMessage()
+    {
+        if (sendSmsCheckBox.isSelected())
+        {
+            this.sendSmsMessage();
+        }
+        else
+        {
+            this.sendInstantMessage();
+        }
+    }
+
+    public void sendSmsMessage()
+    {
+        String messageText = getTextFromWriteArea(
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+
+        ChatTransport smsChatTransport = chatSession.getCurrentChatTransport();
+        if (!smsChatTransport.allowsSmsMessage())
+        {
+            Iterator<ChatTransport> chatTransports
+                = chatSession.getChatTransports();
+
+            while(chatTransports.hasNext())
+            {
+                ChatTransport transport = chatTransports.next();
+
+                if (transport.allowsSmsMessage())
+                {
+                    smsChatTransport = transport;
+                    break;
+                }
+            }
+        }
+
+        // If there's no operation set we show some "not supported" messages
+        // and we return.
+        if (!smsChatTransport.allowsSmsMessage())
+        {
+            logger.error("Failed to send SMS.");
+
+            this.refreshWriteArea();
+
+            this.processMessage(
+                smsChatTransport.getName(),
+                new Date(System.currentTimeMillis()),
+                Constants.OUTGOING_MESSAGE,
+                messageText,
+                "plain/text");
+
+            this.processMessage(
+                smsChatTransport.getName(),
+                new Date(System.currentTimeMillis()),
+                Constants.ERROR_MESSAGE,
+                Messages.getI18NString("sendSmsNotSupported")
+                .getText(), "plain/text");
+
+            return;
+        }
+
+        smsChatTransport.addSmsMessageListener(
+                new SmsMessageListener(smsChatTransport));
+
+        // We open the send SMS dialog.
+        SendSmsDialog smsDialog
+            = new SendSmsDialog(this, smsChatTransport, messageText);
+
+        smsDialog.setPreferredSize(new Dimension(400, 200));
+        smsDialog.setVisible(true);
+    }
+
+    /**
+     * Implements the <tt>ChatPanel.sendMessage</tt> method. Obtains the
+     * appropriate operation set and sends the message, contained in the write
+     * area, through it.
+     */
+    protected void sendInstantMessage()
+    {
+        String htmlText = getTextFromWriteArea("text/html");
+        String plainText = getTextFromWriteArea(
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+
+        String messageText;
+        String mimeType;
+        if (    (htmlText.indexOf("<b") > -1
+                || htmlText.indexOf("<i") > -1
+                || htmlText.indexOf("<u") > -1
+                || htmlText.indexOf("<font") > -1))
+        {
+            messageText = htmlText;
+            mimeType = OperationSetBasicInstantMessaging.HTML_MIME_TYPE;
+        }
+        else
+        {
+            messageText = plainText;
+            mimeType = OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE;
+        }
+
+        try
+        {
+            chatSession.getCurrentChatTransport()
+                .sendInstantMessage(messageText, mimeType);
+        }
+        catch (IllegalStateException ex)
+        {
+            logger.error("Failed to send message.", ex);
+
+            this.processMessage(
+                chatSession.getCurrentChatTransport().getName(),
+                new Date(System.currentTimeMillis()),
+                Constants.OUTGOING_MESSAGE,
+                messageText,
+                mimeType);
+
+            this.processMessage(
+                chatSession.getCurrentChatTransport().getName(),
+                new Date(System.currentTimeMillis()),
+                Constants.ERROR_MESSAGE,
+                Messages.getI18NString("msgSendConnectionProblem")
+                .getText(), "text");
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to send message.", ex);
+
+            this.refreshWriteArea();
+
+            this.processMessage(
+                chatSession.getCurrentChatTransport().getName(),
+                new Date(System.currentTimeMillis()),
+                Constants.OUTGOING_MESSAGE,
+                messageText,
+                mimeType);
+
+            this.processMessage(
+                chatSession.getCurrentChatTransport().getName(),
+                new Date(System.currentTimeMillis()),
+                Constants.ERROR_MESSAGE,
+                Messages.getI18NString("msgDeliveryUnknownError",
+                    new String[]{ex.getMessage()})
+                    .getText(), "text");
+        }
+
+        if (chatSession.getCurrentChatTransport().allowsTypingNotifications())
+        {
+            // Send TYPING STOPPED event before sending the message
+            getChatWritePanel().stopTypingTimer();
+        }
+
+        this.refreshWriteArea();
+
+        //make sure the focus goes back to the write area
+        this.requestFocusInWriteArea();
+    }
+
+    /**
+     * Initializes the send via label and selector box.
+     */
+    private void initChatTransportSelectorBox()
+    {
+        // Initialize the "send via" selector box and adds it to the send panel.
+        if (transportSelectorBox == null)
+        {
+            transportSelectorBox = new ChatTransportSelectorBox(
+                this, chatSession, chatSession.getCurrentChatTransport());
+
+            sendViaLabel
+                = new JLabel(Messages.getI18NString("sendVia").getText());
+        }
+
+        JPanel sendPanel = getChatSendPanel().getSendPanel();
+        sendPanel.add(transportSelectorBox, 0);
+        sendPanel.add(sendViaLabel, 0);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Removes the send via selector box and label.
+     */
+    private void removeChatTransportSelectorBox()
+    {
+        if (transportSelectorBox == null)
+            return;
+
+        JPanel sendPanel = getChatSendPanel().getSendPanel();
+
+        sendPanel.remove(transportSelectorBox);
+        sendPanel.remove(sendViaLabel);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private class SmsMessageListener implements MessageListener
+    {
+        private ChatTransport chatTransport;
+
+        public SmsMessageListener(ChatTransport chatTransport)
+        {
+            this.chatTransport = chatTransport;
+        }
+
+        public void messageDelivered(MessageDeliveredEvent evt)
+        {
+            Message msg = evt.getSourceMessage();
+
+            Contact contact = evt.getDestinationContact();
+
+            processMessage(
+                contact.getDisplayName(),
+                new Date(System.currentTimeMillis()),
+                Constants.OUTGOING_MESSAGE,
+                msg.getContent(), msg.getContentType());
+
+            processMessage(
+                    contact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ACTION_MESSAGE,
+                    Messages.getI18NString("smsSuccessfullySent")
+                    .getText(), "text");
+        }
+
+        public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
+        {
+            logger.error(evt.getReason());
+
+            String errorMsg = null;
+
+            Message sourceMessage = (Message) evt.getSource();
+
+            Contact sourceContact = evt.getDestinationContact();
+
+            MetaContact metaContact = GuiActivator.getUIService().getMainFrame()
+                .getContactList().findMetaContactByContact(sourceContact);
+
+            if (evt.getErrorCode() 
+                    == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
+            {
+                errorMsg = Messages.getI18NString(
+                        "msgDeliveryOfflineNotSupported").getText();
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.NETWORK_FAILURE)
+            {
+                errorMsg = Messages.getI18NString("msgNotDelivered").getText();
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
+            {
+                errorMsg = Messages.getI18NString(
+                        "msgSendConnectionProblem").getText();
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.INTERNAL_ERROR)
+            {
+                errorMsg = Messages.getI18NString(
+                        "msgDeliveryInternalError").getText();
+            }
+            else {
+                errorMsg = Messages.getI18NString(
+                        "msgDeliveryFailedUnknownError").getText();
+            }
+
+            processMessage(
+                    metaContact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    sourceMessage.getContent(),
+                    sourceMessage.getContentType());
+
+            processMessage(
+                    metaContact.getDisplayName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    errorMsg,
+                    "text");
+        }
+
+        public void messageReceived(MessageReceivedEvent evt)
+        {}
+    }
+
+    /**
+     * Returns the date of the first message in history for this chat.
+     * 
+     * @return the date of the first message in history for this chat.
+     */
+    public Date getFirstHistoryMsgTimestamp()
+    {
+        return firstHistoryMsgTimestamp;
+    }
+
+    /**
+     * Returns the date of the last message in history for this chat.
+     * 
+     * @return the date of the last message in history for this chat.
+     */
+    public Date getLastHistoryMsgTimestamp()
+    {
+        return lastHistoryMsgTimestamp;
+    }
+
+    /**
+     * Loads history for the chat meta contact in a separate thread. Implements
+     * the <tt>ChatPanel.loadHistory</tt> method.
+     */
+    public void loadHistory()
+    {
+        new Thread()
+        {
+            public void run()
+            {
+                // Load the history period, which initializes the
+                // firstMessageTimestamp and the lastMessageTimeStamp variables.
+                // Used to disable/enable history flash buttons in the chat
+                // window tool bar.
+                loadHistoryPeriod();
+
+                // Load the last N=CHAT_HISTORY_SIZE messages from history.
+                Collection historyList = chatSession.getHistory(
+                    ConfigurationManager.getChatHistorySize());
+
+                if(historyList.size() > 0) {
+                    class ProcessHistory implements Runnable
+                    {
+                        Collection historyList;
+
+                        ProcessHistory(Collection historyList)
+                        {
+                            this.historyList = historyList;
+                        }
+
+                        public void run()
+                        {
+                            processHistory(historyList, null);
+                        }
+                    }
+                    SwingUtilities.invokeLater(new ProcessHistory(historyList));
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * Loads history messages ignoring the message given by the
+     * escapedMessageID. Implements the
+     * <tt>ChatPanel.loadHistory(String)</tt> method.
+     * 
+     * @param escapedMessageID The id of the message that should be ignored.
+     */
+    public void loadHistory(final String escapedMessageID)
+    {
+        // Load the history period, which initializes the
+        // firstMessageTimestamp and the lastMessageTimeStamp variables.
+        // Used to disable/enable history flash buttons in the chat
+        // window tool bar.
+        loadHistoryPeriod();
+
+        Collection historyList = chatSession.getHistory(
+                ConfigurationManager.getChatHistorySize());
+
+        processHistory(historyList, escapedMessageID);
+    }
     
+    /**
+     * Loads history period dates for the current chat.
+     */
+    private void loadHistoryPeriod()
+    {
+        this.firstHistoryMsgTimestamp = chatSession.getHistoryStartDate();
+
+        this.lastHistoryMsgTimestamp = chatSession.getHistoryEndDate();
+    }
+
+    /**
+     * Changes the "Send as SMS" check box state.
+     * 
+     * @param isSmsSelected <code>true</code> to set the "Send as SMS" check box
+     * selected, <code>false</code> - otherwise. 
+     */
+    public void setSmsSelected(boolean isSmsSelected)
+    {
+        sendSmsCheckBox.setSelected(isSmsSelected);
+    }
+
+    /**
+     * The <tt>ChangeProtocolAction</tt> is an <tt>AbstractAction</tt> that
+     * opens the menu, containing all available protocol contacts.
+     */
+    private class ChangeTransportAction
+        extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            /*
+             * Opens the selector box containing the protocol contact icons.
+             * This is the menu, where user could select the protocol specific
+             * contact to communicate through.
+             */
+            SIPCommMenu contactSelector = transportSelectorBox.getMenu();
+            contactSelector.doClick();
+        }
+    }
+
+    public void setContactName(ChatContact chatContact, String name)
+    {
+        if (chatContactListPanel != null)
+        {
+            chatContactListPanel.renameContact(chatContact);
+        }
+
+        getChatWindow().setTabTitle(this, name);
+
+        if( getChatWindow().getCurrentChatPanel() == this)
+        {
+            getChatWindow().setTitle(name);
+        }
+    }
+
+    public void addChatTransport(ChatTransport chatTransport)
+    {
+        transportSelectorBox.addChatTransport(chatTransport);
+    }
+
+    public void removeChatTransport(ChatTransport chatTransport)
+    {
+        transportSelectorBox.removeChatTransport(chatTransport);
+    }
+    
+    public void setSelectedChatTransport(ChatTransport chatTransport)
+    {
+        transportSelectorBox.setSelected(chatTransport);
+    }
+
+    public void updateChatTransportStatus(ChatTransport chatTransport)
+    {
+        transportSelectorBox.updateTransportStatus(chatTransport);
+
+        // Show a status message to the user.
+        String message = getChatConversationPanel().processMessage(
+            chatTransport.getName(),
+            new Date(System.currentTimeMillis()),
+            Constants.STATUS_MESSAGE,
+            Messages.getI18NString("statusChangedChatMessage",
+                new String[]{chatTransport.getStatus().getStatusName()})
+                    .getText(),
+                "text/plain");
+
+        getChatConversationPanel().appendMessageToEnd(message);
+
+        if(ConfigurationManager.isMultiChatWindowEnabled())
+        {
+            if (getChatWindow().getChatTabCount() > 0) {
+                getChatWindow().setTabIcon(this,
+                    new ImageIcon(
+                        Constants.getStatusIcon(chatTransport.getStatus())));
+            }
+        }
+    }
+
+    /**
+     * Implements <tt>ChatPanel.loadPreviousFromHistory</tt>.
+     * Loads previous page from history.
+     */
+    public void loadPreviousPageFromHistory()
+    {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
+        new Thread() {
+            public void run()
+            {
+                ChatConversationPanel conversationPanel
+                    = getChatConversationPanel();
+                
+                Date firstMsgDate
+                    = conversationPanel.getPageFirstMsgTimestamp();
+                
+                Collection c = null;
+                
+                if(firstMsgDate != null)
+                {
+                    c = chatSession.getHistoryBeforeDate(
+                        firstMsgDate,
+                        MESSAGES_PER_PAGE);
+                }
+                 
+                if(c !=null && c.size() > 0)
+                {   
+                    SwingUtilities.invokeLater(
+                            new HistoryMessagesLoader(c));
+                }
+            }   
+        }.start();
+    }
+
+    /**
+     * Implements <tt>ChatPanel.loadNextFromHistory</tt>.
+     * Loads next page from history.
+     */
+    public void loadNextPageFromHistory()
+    {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return;
+
+        new Thread()
+        {
+            public void run()
+            {
+                Date lastMsgDate
+                    = getChatConversationPanel().getPageLastMsgTimestamp();
+
+                Collection c = null;
+                if(lastMsgDate != null)
+                {  
+                    c = chatSession.getHistoryAfterDate(
+                        lastMsgDate,
+                        MESSAGES_PER_PAGE);
+                }
+
+                if(c != null && c.size() > 0)
+                    SwingUtilities.invokeLater(
+                            new HistoryMessagesLoader(c));
+            }
+        }.start();
+    }
+
+    /**
+     * From a given collection of messages shows the history in the chat window.
+     */
+    private class HistoryMessagesLoader implements Runnable
+    {
+        private Collection msgHistory;
+
+        public HistoryMessagesLoader(Collection msgHistory)
+        {
+            this.msgHistory = msgHistory;
+        }
+
+        public void run()
+        {
+            getChatConversationPanel().clear();
+
+            processHistory(msgHistory, "");
+
+            getChatConversationPanel().setDefaultContent();
+        }
+    }
+
+    public void addChatContact(ChatContact chatContact)
+    {
+        if (chatContactListPanel != null)
+            chatContactListPanel.addContact(chatContact);
+    }
+
+    public void removeChatContact(ChatContact chatContact)
+    {
+        if (chatContactListPanel != null)
+            chatContactListPanel.removeContact(chatContact);
+    }
+
+    public void updateChatContactStatus(ChatContact chatContact,
+        String statusMessage)
+    {
+        this.processMessage(
+            chatContact.getName(),
+            new Date(System.currentTimeMillis()),
+            Constants.STATUS_MESSAGE,
+            statusMessage,
+            ChatConversationPanel.TEXT_CONTENT_TYPE);
+    }
+
+    public void setChatSubject(String subject)
+    {
+        if (subjectPanel != null)
+        {
+            subjectPanel.setSubject(subject);
+
+            this.processMessage(
+                chatSession.getChatName(),
+                new Date(System.currentTimeMillis()),
+                Constants.STATUS_MESSAGE,
+                Messages.getI18NString("chatRoomSubjectChanged",
+                    new String []{chatSession.getChatName(),
+                    subject}).getText(),
+                ChatConversationPanel.TEXT_CONTENT_TYPE);
+        }
+    }
+    
+    /**
+     * Implements <tt>Chat.addChatFocusListener</tt> method. Adds the given
+     * <tt>ChatFocusListener</tt> to the list of listeners.
+     *
+     * @param listener the listener that we'll be adding.
+     */
+    public void addChatFocusListener(ChatFocusListener listener)
+    {
+        synchronized (focusListeners)
+        {
+            focusListeners.add(listener);
+        }
+    }
+
+    /**
+     * Implements <tt>Chat.removeChatFocusListener</tt> method. Removes the given
+     * <tt>ChatFocusListener</tt> from the list of listeners.
+     *
+     * @param listener the listener to remove.
+     */
+    public void removeChatFocusListener(ChatFocusListener listener)
+    {
+        synchronized (focusListeners)
+        {
+            focusListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Returns the first chat transport for the current chat session that
+     * supports group chat.
+     * 
+     * @return the first chat transport for the current chat session that
+     * supports group chat.
+     */
+    public ChatTransport findInviteChatTransport()
+    {
+        ChatTransport currentChatTransport
+            = chatSession.getCurrentChatTransport();
+
+        if (currentChatTransport.getProtocolProvider()
+                .getOperationSet(OperationSetMultiUserChat.class) != null)
+        {
+            return chatSession.getCurrentChatTransport();
+        }
+        else
+        {
+            Iterator<ChatTransport> chatTransportsIter
+                = chatSession.getChatTransports();
+
+            while (chatTransportsIter.hasNext())
+            {
+                ChatTransport chatTransport = chatTransportsIter.next();
+
+                Object groupChatOpSet
+                    = chatTransport.getProtocolProvider()
+                        .getOperationSet(OperationSetMultiUserChat.class);
+
+                if (groupChatOpSet != null)
+                    return chatTransport;
+            }
+        }
+
+        return null;
+    }
+
+    public void inviteContacts( ChatTransport inviteChatTransport,
+                                Collection chatContacts,
+                                String reason)
+    {
+        ChatSession conferenceChatSession;
+
+        if (chatSession instanceof MetaContactChatSession)
+        {
+            String newChatName = inviteChatTransport.getDisplayName();
+
+            chatContacts.add(inviteChatTransport.getName());
+
+            ConferenceChatManager conferenceChatManager
+                = GuiActivator.getUIService().getConferenceChatManager();
+
+            ChatRoomWrapper chatRoomWrapper
+                = conferenceChatManager.createChatRoom(newChatName,
+                        inviteChatTransport.getProtocolProvider());
+
+            conferenceChatSession
+                = new ConferenceChatSession(this, chatRoomWrapper);
+
+            this.setChatSession(conferenceChatSession);
+        }
+        // We're already in a conference chat.
+        else
+        {
+            conferenceChatSession = chatSession;
+        }
+
+        Iterator<String> contactsIter = chatContacts.iterator();
+        while (contactsIter.hasNext())
+        {
+            String contactAddress = contactsIter.next();
+
+            conferenceChatSession.getCurrentChatTransport()
+                .inviteChatContact(contactAddress, reason);
+        }
+    }
+
     /**
      * Informs all <tt>ChatFocusListener</tt>s that a <tt>ChatFocusEvent</tt>
      * has been triggered.
@@ -892,38 +1509,69 @@ public abstract class ChatPanel
             }
         }
     }
-
+    
     /**
-     * Indicates if the history of a hidden protocol should be shown to the
-     * user in the default <b>grey</b> history style or it should be shown as
-     * a normal message.
-     * 
-     * @param protocolProvider the protocol provider to check
-     * @return <code>true</code> if the given protocol is a hidden one and the
-     * "hiddenProtocolGreyHistoryDisabled" property is set to true.
+     * The <tt>FocusPropertyChangeListener</tt> listens for events triggered
+     * when the "focusOwner" property has changed. It is used to change the
+     * state of a contact from active (we have non read messages from this
+     * contact) to inactive, when user has opened a chat.
      */
-    private boolean isGreyHistoryStyleDisabled(
-        ProtocolProviderService protocolProvider)
+    private class FocusPropertyChangeListener implements PropertyChangeListener
     {
-        boolean isProtocolHidden = false;
-        boolean isGreyHistoryDisabled = false;
+        private final KeyboardFocusManager keyboardFocusManager;
 
-        Object hiddenProperty
-            = protocolProvider.getAccountID().getAccountProperties()
-                .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN);
+        private final String propertyName = "focusOwner";
 
-        if (hiddenProperty != null)
-            isProtocolHidden
-                = new Boolean((String)hiddenProperty).booleanValue();
+        public FocusPropertyChangeListener(
+            KeyboardFocusManager keyboardFocusManager)
+        {
+            this.keyboardFocusManager = keyboardFocusManager;
 
-        String greyHistoryProperty
-            = GuiActivator.getResources()
-                .getSettingsString("hiddenProtocolGreyHistoryDisabled");
+            this.keyboardFocusManager.addPropertyChangeListener(propertyName,
+                this);
+        }
 
-        if (greyHistoryProperty != null)
-            isGreyHistoryDisabled
-                = new Boolean(greyHistoryProperty).booleanValue();
+        public void dispose()
+        {
+            keyboardFocusManager.removePropertyChangeListener(propertyName,
+                this);
+        }
 
-        return isProtocolHidden && isGreyHistoryDisabled;
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            String prop = evt.getPropertyName();
+            if ((prop.equals(propertyName)) &&
+                  (evt.getNewValue() != null) &&
+                  (evt.getNewValue() instanceof Component) &&
+                  ((Component)evt.getNewValue())
+                      .getFocusCycleRootAncestor() instanceof ChatWindow)
+            {
+                ChatWindow chatWindow = (ChatWindow)((Component)evt
+                        .getNewValue()).getFocusCycleRootAncestor();
+
+                ChatSession chatSession
+                    = chatWindow.getCurrentChatPanel().getChatSession();
+
+                if(chatSession instanceof MetaContactChatSession)
+                {
+                    MetaContact selectedMetaContact
+                        = (MetaContact) chatSession.getDescriptor();
+
+                    ContactList clist
+                        = GuiActivator.getUIService().getMainFrame()
+                            .getContactListPanel().getContactList();
+
+                    // Remove the envelope from the contact when the chat has
+                    // gained the focus.
+                    if(clist.isMetaContactActive(selectedMetaContact))
+                    {
+                        clist.removeActiveContact(selectedMetaContact);
+                        clist.refreshContact(selectedMetaContact);
+                    }
+
+                    fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
+                }
+            }
+        }
     }
 }

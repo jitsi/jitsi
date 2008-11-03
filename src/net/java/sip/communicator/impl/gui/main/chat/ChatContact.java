@@ -6,17 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
-import java.awt.*;
-import java.util.*;
-
 import javax.swing.*;
-
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatContact</tt> is a wrapping class for the <tt>Contact</tt> and
@@ -24,145 +14,29 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-public class ChatContact
+public abstract class ChatContact
 {
-    private Logger logger = Logger.getLogger(ChatContact.class);
+    public static final int AVATAR_ICON_HEIGHT = 30;
 
-    static final int AVATAR_ICON_HEIGHT = 45;
-
-    static final int AVATAR_ICON_WIDTH = 40;
-
-    private String name;
-
-    private String address;
-
-    private ImageIcon image;
-
-    private ProtocolProviderService protocolProvider;
-
-    private boolean isMultiChatContact;
-
-    private Object sourceContact;
+    public static final int AVATAR_ICON_WIDTH = 30;
 
     private boolean isSelected;
 
     /**
-     * Creates an instance of <tt>ChatContact</tt> by passing to it the
-     * <tt>Contact</tt> for which it is created.
-     *
-     * @param contact the <tt>Contact</tt> for which this <tt>ChatContact</tt>
-     * is created
+     * Returns the descriptor object corresponding to this chat contact. In the
+     * case of single chat this could be the <tt>MetaContact</tt> and in the
+     * case of conference chat this could be the <tt>ChatRoomMember</tt>.
+     * 
+     * @return the descriptor object corresponding to this chat contact.
      */
-    public ChatContact(Contact contact)
-    {
-        this(null, contact);
-    }
-
-    /**
-     * Creates an instance of <tt>ChatContact</tt> by passing to it the
-     * corresponding <tt>MetaContact</tt> and <tt>Contact</tt>.
-     *
-     * @param metaContact the <tt>MetaContact</tt> encapsulating the given
-     * <tt>Contact</tt>
-     * @param contact the <tt>Contact</tt> for which this <tt>ChatContact</tt>
-     * is created
-     */
-    public ChatContact(MetaContact metaContact, Contact contact)
-    {
-        this.sourceContact = contact;
-        this.address = contact.getAddress();
-        this.isMultiChatContact = false;
-        this.protocolProvider = contact.getProtocolProvider();
-
-        if(metaContact != null)
-            name = metaContact.getDisplayName();
-        else
-            name = contact.getDisplayName();
-
-        if (name == null || name.length() < 1)
-            name = Messages.getI18NString("unknown").getText();
-    }
-
-    /**
-     * Creates an instance of <tt>ChatContact</tt> by passing to it the
-     * <tt>ChatRoomMember</tt> for which it is created.
-     *
-     * @param chatRoomMember the <tt>ChatRoomMember</tt> for which this
-     * <tt>ChatContact</tt> is created.
-     */
-    public ChatContact(ChatRoomMember chatRoomMember)
-    {
-        this.sourceContact = chatRoomMember;
-        this.address = chatRoomMember.getContactAddress();
-        this.isMultiChatContact = true;
-        this.protocolProvider = chatRoomMember.getProtocolProvider();
-        this.name = chatRoomMember.getName();
-
-        if (name == null || name.length() < 1)
-            name = Messages.getI18NString("unknown").getText();
-    }
-
-    /**
-     * Returns the contact identifier.
-     *
-     * @return the contact identifier
-     */
-    public String getAddress()
-    {
-        return address;
-    }
+    public abstract Object getDescriptor();
 
     /**
      * Returns the contact name.
      *
      * @return the contact name
      */
-    public String getName()
-    {
-        return name;
-    }
-
-    /**
-     * Returns the current presence status for single user chat contacts and
-     * null for multi user chat contacts.
-     *
-     * @return the current presence status for single user chat contacts and
-     * null for multi user chat contacts
-     */
-    public ImageIcon getStatusIcon()
-    {
-        if(!isMultiChatContact)
-        {
-            return new ImageIcon(Constants.getStatusIcon(
-                ((Contact)sourceContact).getPresenceStatus()));
-        }
-        else
-        {
-            return new ImageIcon(
-                Constants.getStatusIcon(Constants.ONLINE_STATUS));
-        }
-    }
-
-    /**
-     * Returns the <tt>ProtocolProviderService</tt> of the contact.
-     *
-     * @return the <tt>ProtocolProviderService</tt> of the contact
-     */
-    public ProtocolProviderService getProtocolProvider()
-    {
-        return protocolProvider;
-    }
-
-    /**
-     * Returns the source contact. It could be an instance of <tt>Contact</tt>
-     * or <tt>ChatRoomMember</tt> interface.
-     *
-     * @return the source contact
-     */
-    public Object getSourceContact()
-    {
-        return sourceContact;
-    }
+    public abstract String getName();
 
     /**
      * Returns the avatar image corresponding to the source contact. In the case
@@ -171,40 +45,7 @@ public class ChatContact
      * @return the avatar image corresponding to the source contact. In the case
      * of multi user chat contact returns null
      */
-    public ImageIcon getImage()
-    {
-        byte[] contactImage = null;
-
-        if(!(sourceContact instanceof Contact))
-            return null;
-
-        Contact contact = (Contact)sourceContact;
-
-        MetaContact metaContact = GuiActivator.getMetaContactListService()
-            .findMetaContactByContact(contact);
-
-        if(metaContact != null)
-        {
-            contactImage = metaContact.getAvatar();
-        }
-        else if(contact != null)
-        {
-            try
-            {
-                contactImage = contact.getImage();
-            }
-            catch (Exception ex)
-            {
-                logger.error("Failed to load contact photo.", ex);
-            }
-        }
-
-        return ImageUtils.getScaledRoundedImage(
-                    contactImage,
-                    AVATAR_ICON_WIDTH,
-                    AVATAR_ICON_HEIGHT
-                    );
-    }
+    public abstract ImageIcon getAvatar();
 
     /**
      * Returns <code>true</code> if this is the currently selected contact in

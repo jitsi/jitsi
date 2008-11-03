@@ -13,12 +13,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.main.chatroomslist.chatroomwizard.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -33,10 +31,10 @@ public class ChatRoomServerRightButtonMenu
 {
     private I18NString createChatRoomString
         = Messages.getI18NString("createChatRoom");
-    
+
     private I18NString joinChannelString
         = Messages.getI18NString("joinChatRoom");
-    
+
     private JMenuItem createChatRoomItem = new JMenuItem(
         createChatRoomString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
@@ -45,10 +43,8 @@ public class ChatRoomServerRightButtonMenu
         joinChannelString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
 
-    private MainFrame mainFrame;
-    
-    private ProtocolProviderService protocolProvider;
-        
+    private ChatRoomProviderWrapper chatRoomProvider;
+
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
      * 
@@ -57,15 +53,12 @@ public class ChatRoomServerRightButtonMenu
      * user chat server
      */
     public ChatRoomServerRightButtonMenu(
-        MainFrame mainFrame,
-        ProtocolProviderService protocolProvider)
+        ChatRoomProviderWrapper chatRoomProvider)
     {
         super();
 
-        this.mainFrame = mainFrame;
-     
-        this.protocolProvider = protocolProvider;
-        
+        this.chatRoomProvider = chatRoomProvider;
+
         this.setLocation(getLocation());
 
         this.init();
@@ -103,15 +96,15 @@ public class ChatRoomServerRightButtonMenu
         if (itemName.equals("createChatRoom"))
         {
             CreateChatRoomDialog createChatRoomDialog
-                = new CreateChatRoomDialog(mainFrame, protocolProvider);
-            
+                = new CreateChatRoomDialog(chatRoomProvider);
+
             createChatRoomDialog.setVisible(true);
         }
         else if (itemName.equals("joinChatRoom"))
         {
             JoinChatRoomDialog joinChannelDialog
-                = new JoinChatRoomDialog(mainFrame, protocolProvider);
-            
+                = new JoinChatRoomDialog(chatRoomProvider);
+
             joinChannelDialog.pack();
             joinChannelDialog.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2

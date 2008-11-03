@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -30,16 +31,9 @@ public class ChatWindowManager
 {
     private Logger logger = Logger.getLogger(ChatWindowManager.class);
 
-    private Hashtable chats = new Hashtable();
-
-    private MainFrame mainFrame;
+    private ArrayList chatPanels = new ArrayList();
 
     private Object syncChat = new Object();
-
-    public ChatWindowManager(MainFrame mainFrame)
-    {
-        this.mainFrame = mainFrame;
-    }
 
     /**
      * Opens a the specified chatPanel and brings it to the front if so
@@ -89,16 +83,16 @@ public class ChatWindowManager
                     && chatWindow.getChatTabCount() > 0)
                 {
                     chatPanel.getChatWindow().highlightTab(chatPanel);
-                    
+
                     chatPanel.setCaretToEnd();
                 }
             }
             else
             {
                 chatWindow.setVisible(true);
-                
+
                 chatWindow.setCurrentChatPanel(chatPanel);
-                
+
                 chatPanel.setCaretToEnd();
             }
         }
@@ -115,10 +109,12 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            if(containsChat(metaContact)
-                && getChat(metaContact).isShown())
+            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
+
+            if(chatSession != null
+                && getChat(chatSession).isShown())
                 return true;
-            
+
             return false;
         }
     }
@@ -135,10 +131,13 @@ public class ChatWindowManager
     {   
         synchronized (syncChat)
         {
-            if(containsChat(chatRoomWrapper)
-                && getChat(chatRoomWrapper).isShown())
+            ChatSession chatSession
+                = findChatSessionForDescriptor(chatRoomWrapper);
+
+            if(chatSession != null
+                && getChat(chatSession).isShown())
                 return true;
-            
+
             return false;
         }
     }
@@ -151,32 +150,31 @@ public class ChatWindowManager
      * <tt>ChatRoom</tt>
      */
     public boolean isChatOpenedForChatRoom(ChatRoom chatRoom)
-    {   
+    {
         synchronized (syncChat)
         {
-            ChatRoomWrapper chatRoomWrapper = null;
-            
-            Enumeration chatKeys = chats.keys();
-            while(chatKeys.hasMoreElements())
+            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
+            while(chatPanelsIter.hasNext())
             {
-                Object o = chatKeys.nextElement();
-                
-                if(o instanceof ChatRoomWrapper)
+                ChatPanel chatPanel = chatPanelsIter.next();
+
+                ChatSession chatSession = chatPanel.getChatSession();
+
+                Object descriptor = chatSession.getDescriptor();
+
+                if(descriptor instanceof ChatRoomWrapper)
                 {
-                    if(((ChatRoomWrapper)o).getChatRoom()
-                        .equals(chatRoom))
+                    ChatRoomWrapper chatRoomWrapper
+                        = (ChatRoomWrapper) descriptor;
+
+                    if(chatRoomWrapper.getChatRoom().equals(chatRoom)
+                        && getChat(chatSession).isShown())
                     {
-                        chatRoomWrapper = (ChatRoomWrapper)o;
-                        
-                        break;
+                        return true;
                     }
                 }
             }
-            
-            if(containsChat(chatRoomWrapper)
-                && getChat(chatRoomWrapper).isShown())
-                return true;
-            
+
             return false;
         }
     }
@@ -278,13 +276,15 @@ public class ChatWindowManager
      * @param metaContact the meta contact.
      * @return the chat panel corresponding to the given meta contact
      */
-    public MetaContactChatPanel getContactChat(MetaContact metaContact)
+    public ChatPanel getContactChat(MetaContact metaContact)
     {
         synchronized (syncChat)
         {
-            if(containsChat(metaContact))
+            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
+
+            if(chatSession != null)
             {
-                return (MetaContactChatPanel) getChat(metaContact);
+                return getChat(chatSession);
             }
             else
             {
@@ -300,14 +300,16 @@ public class ChatWindowManager
      * @param protocolContact the protocol specific contact
      * @return the chat panel corresponding to the given meta contact
      */
-    public MetaContactChatPanel getContactChat( MetaContact metaContact,
-                                                Contact protocolContact)
+    public ChatPanel getContactChat(MetaContact metaContact,
+                                    Contact protocolContact)
     {
         synchronized (syncChat)
         {
-            if(containsChat(metaContact))
+            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
+
+            if(chatSession != null)
             {
-                return (MetaContactChatPanel) getChat(metaContact);
+                return getChat(chatSession);
             }
             else
                 return createChat(metaContact, protocolContact);
@@ -323,15 +325,17 @@ public class ChatWindowManager
      * excluded from the history when the last one is loaded in the chat
      * @return the chat panel corresponding to the given meta contact
      */
-    public MetaContactChatPanel getContactChat( MetaContact metaContact,
+    public ChatPanel getContactChat( MetaContact metaContact,
                                                 Contact protocolContact,
                                                 String escapedMessageID)
     {
         synchronized (syncChat)
         {
-            if(containsChat(metaContact))
+            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
+
+            if(chatSession != null)
             {
-                return (MetaContactChatPanel) getChat(metaContact);
+                return getChat(chatSession);
             }
             else
                 return createChat(  metaContact,
@@ -347,28 +351,28 @@ public class ChatWindowManager
     public ChatPanel getSelectedChat()
     {
         ChatPanel selectedChat = null;
-        
-        Enumeration chatPanels = chats.keys();
-        
+
+        Iterator chatPanelsIter = chatPanels.iterator();
+
         synchronized (syncChat)
         {
             if (ConfigurationManager.isMultiChatWindowEnabled())
             {
-                if (chatPanels.hasMoreElements())
+                if (chatPanelsIter.hasNext())
                 {
                     ChatPanel firstChatPanel
-                        = (ChatPanel) chatPanels.nextElement();
-                    
+                        = (ChatPanel) chatPanelsIter.next();
+
                     selectedChat
                         = firstChatPanel.getChatWindow().getCurrentChatPanel();
                 }
             }
             else
             {
-                while (chatPanels.hasMoreElements())
+                while (chatPanelsIter.hasNext())
                 {
-                    ChatPanel chatPanel = (ChatPanel) chatPanels.nextElement();
-                    
+                    ChatPanel chatPanel = (ChatPanel) chatPanelsIter.next();
+
                     if (chatPanel.getChatWindow().isFocusOwner())
                         selectedChat = chatPanel;
                 }
@@ -385,13 +389,16 @@ public class ChatWindowManager
      * room for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
-    public ConferenceChatPanel getMultiChat(ChatRoomWrapper chatRoomWrapper)
+    public ChatPanel getMultiChat(ChatRoomWrapper chatRoomWrapper)
     {
         synchronized (syncChat)
         {
-            if(containsChat(chatRoomWrapper))
+            ChatSession chatSession
+                = findChatSessionForDescriptor(chatRoomWrapper);
+
+            if(chatSession != null)
             {
-                return (ConferenceChatPanel) getChat(chatRoomWrapper);
+                return getChat(chatSession);
             }
             else
                 return createChat(chatRoomWrapper);
@@ -404,7 +411,7 @@ public class ChatWindowManager
      * @param chatRoom the chat room, for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
-    public ConferenceChatPanel getMultiChat(ChatRoom chatRoom)
+    public ChatPanel getMultiChat(ChatRoom chatRoom)
     {
         return getMultiChat(chatRoom, null);
     }
@@ -417,40 +424,42 @@ public class ChatWindowManager
      * excluded from the history when the last one is loaded in the chat
      * @return the chat panel corresponding to the given chat room
      */
-    public ConferenceChatPanel getMultiChat(ChatRoom chatRoom,
-                                            String escapedMessageID)
+    public ChatPanel getMultiChat(  ChatRoom chatRoom,
+                                    String escapedMessageID)
     {
         synchronized (syncChat)
         {
-            Enumeration chatKeys = chats.keys();
-            while(chatKeys.hasMoreElements())
-            {
-                Object o = chatKeys.nextElement();
-                
-                if(o instanceof ChatRoomWrapper)
-                {
-                    if(((ChatRoomWrapper)o).getChatRoom()
-                            .equals(chatRoom))
-                    {
-                        return (ConferenceChatPanel) 
-                                    getChat((ChatRoomWrapper) o);
-                    }
-                }
-            }
+            ChatRoomList chatRoomList = GuiActivator.getUIService()
+                .getConferenceChatManager().getChatRoomList();
 
             // Search in the chat room's list for a chat room that correspond
             // to the given one.
             ChatRoomWrapper chatRoomWrapper
-                = mainFrame.getMultiUserChatManager().getChatRoomList()
-                    .findChatRoomWrapperFromChatRoom(chatRoom);
+                = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
 
-            if(chatRoomWrapper == null)
-                chatRoomWrapper = new ChatRoomWrapper(chatRoom);
+            if (chatRoomWrapper == null)
+            {
+                ChatRoomProviderWrapper parentProvider
+                    = chatRoomList.findServerWrapperFromProvider(
+                        chatRoom.getParentProvider());
+
+                chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
+
+                chatRoomList.addChatRoom(chatRoomWrapper);
+            }
+
+            ChatSession chatSession
+                = findChatSessionForDescriptor(chatRoomWrapper);
+
+            if (chatSession != null)
+            {
+                return getChat(chatSession);
+            }
 
             return createChat(chatRoomWrapper, escapedMessageID);
         }
     }
-            
+
     /**
      * Closes the selected chat tab or the window if there are no tabs.
      *
@@ -465,16 +474,14 @@ public class ChatWindowManager
         if (chatWindow.getChatCount() == 0)
             disposeChatWindow(chatWindow);
 
-        ChatPanel removedChatPanel;
-        synchronized (chats)
+        boolean isChatPanelContained = false;
+        synchronized (chatPanels)
         {
-            removedChatPanel =
-                (ChatPanel) chats.remove(chatPanel.getChatIdentifier());
+            isChatPanelContained = chatPanels.remove(chatPanel);
         }
-        if (removedChatPanel != null)
-        {
-            removedChatPanel.dispose();
-        }
+
+        if (isChatPanelContained)
+            chatPanel.dispose();
     }
 
     /**
@@ -486,7 +493,7 @@ public class ChatWindowManager
      *
      * @return the newly created ChatPanel
      */
-    private MetaContactChatPanel createChat(MetaContact metaContact)
+    private ChatPanel createChat(MetaContact metaContact)
     {
         Contact defaultContact = metaContact.getDefaultContact();
 
@@ -537,7 +544,7 @@ public class ChatWindowManager
      * @param protocolContact The protocol contact.
      * @return The <code>ChatPanel</code> newly created.
      */
-    private MetaContactChatPanel createChat(MetaContact contact,
+    private ChatPanel createChat(MetaContact contact,
                                             Contact protocolContact)
     {
         return createChat(contact, protocolContact, null);
@@ -547,31 +554,31 @@ public class ChatWindowManager
      * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
      * list ot created <tt>ChatPanel</tt>s.
      *
-     * @param contact The MetaContact for this chat.
+     * @param metaContact The MetaContact for this chat.
      * @param protocolContact The protocol contact.
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
      */
-    private MetaContactChatPanel createChat(MetaContact contact,
-                                            Contact protocolContact,
-                                            String escapedMessageID)
+    private ChatPanel createChat(   MetaContact metaContact,
+                                    Contact protocolContact,
+                                    String escapedMessageID)
     {
         ChatWindow chatWindow;
 
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
+            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
+
             // If we're in a tabbed window we're looking for the chat window
             // through one of the already created chats.
-            if(chats.keys().hasMoreElements())
+            if(chatPanelsIter.hasNext())
             {
-                chatWindow
-                    = ((ChatPanel) chats.elements().nextElement())
-                        .getChatWindow();
+                chatWindow = chatPanelsIter.next().getChatWindow();
             }
             else
             {
-                chatWindow = new ChatWindow(mainFrame);
+                chatWindow = new ChatWindow();
 
                 GuiActivator.getUIService()
                     .registerExportedWindow(chatWindow);
@@ -579,15 +586,21 @@ public class ChatWindowManager
         }
         else
         {
-            chatWindow = new ChatWindow(mainFrame);
+            chatWindow = new ChatWindow();
         }
 
-        MetaContactChatPanel chatPanel
-            = new MetaContactChatPanel(chatWindow, contact, protocolContact);
+        ChatPanel chatPanel = new ChatPanel(chatWindow);
 
-        synchronized (chats)
+        MetaContactChatSession chatSession
+            = new MetaContactChatSession(   chatPanel,
+                                            metaContact,
+                                            protocolContact);
+
+        chatPanel.setChatSession(chatSession);
+
+        synchronized (chatPanels)
         {
-            this.chats.put(contact, chatPanel);
+            this.chatPanels.add(chatPanel);
         }
 
         if (ConfigurationManager.isHistoryShown())
@@ -608,7 +621,7 @@ public class ChatWindowManager
      * @param chatRoom the <tt>ChatRoom</tt>, for which the chat will be created
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ConferenceChatPanel createChat( ChatRoomWrapper chatRoomWrapper)
+    private ChatPanel createChat( ChatRoomWrapper chatRoomWrapper)
     {
         return createChat(chatRoomWrapper, null);
     }
@@ -622,25 +635,24 @@ public class ChatWindowManager
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ConferenceChatPanel createChat( ChatRoomWrapper chatRoomWrapper,
+    private ChatPanel createChat( ChatRoomWrapper chatRoomWrapper,
                                             String escapedMessageID)
     {
-        
         ChatWindow chatWindow;
 
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
+            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
+
             // If we're in a tabbed window we're looking for the chat window
             // through one of the already created chats.
-            if(chats.elements().hasMoreElements())
+            if(chatPanelsIter.hasNext())
             {
-                chatWindow
-                    = ((ChatPanel) chats.elements()
-                        .nextElement()).getChatWindow();
+                chatWindow = chatPanelsIter.next().getChatWindow();
             }
             else
             {
-                chatWindow = new ChatWindow(mainFrame);
+                chatWindow = new ChatWindow();
 
                 GuiActivator.getUIService()
                     .registerExportedWindow(chatWindow);
@@ -648,15 +660,20 @@ public class ChatWindowManager
         }
         else
         {
-            chatWindow = new ChatWindow(mainFrame);
+            chatWindow = new ChatWindow();
         }
 
-        ConferenceChatPanel chatPanel
-            = new ConferenceChatPanel(chatWindow, chatRoomWrapper);
+        ChatPanel chatPanel = new ChatPanel(chatWindow);
 
-        synchronized (chats)
+        ConferenceChatSession chatSession
+            = new ConferenceChatSession(chatPanel,
+                                        chatRoomWrapper);
+
+        chatPanel.setChatSession(chatSession);
+
+        synchronized (chatPanels)
         {
-            this.chats.put(chatRoomWrapper, chatPanel);
+            this.chatPanels.add(chatPanel);
         }
 
         if (ConfigurationManager.isHistoryShown())
@@ -671,21 +688,26 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns TRUE if this chat window contains a chat for the given contact,
-     * FALSE otherwise.
-     *
-     * @param key the key, which corresponds to the chat we are looking for. It
-     * could be a <tt>MetaContact</tt> in the case of single user chat and
-     * a <tt>ChatRoom</tt> in the case of a multi user chat
-     * @return TRUE if this chat window contains a chat corresponding to the
-     * given key, FALSE otherwise
+     * Finds the chat session corresponding to the given chat descriptor.
+     * 
+     * @param descriptor The chat descriptor.
+     * @return The chat session corresponding to the given chat descriptor.
      */
-    private boolean containsChat(Object key)
+    private ChatSession findChatSessionForDescriptor(Object descriptor)
     {
-        synchronized (chats)
+        Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
+
+        while (chatPanelsIter.hasNext())
         {
-            return chats.containsKey(key);
+            ChatPanel chatPanel = chatPanelsIter.next();
+
+            ChatSession chatSession = chatPanel.getChatSession();
+
+            if (chatSession.getDescriptor().equals(descriptor))
+                return chatSession; 
         }
+
+        return null;
     }
 
     /**
@@ -698,9 +720,9 @@ public class ChatWindowManager
      */
     private boolean containsChat(ChatPanel chatPanel)
     {
-        synchronized (chats)
+        synchronized (chatPanels)
         {
-            return chats.containsValue(chatPanel);
+            return chatPanels.contains(chatPanel);
         }
     }
     
@@ -712,12 +734,19 @@ public class ChatWindowManager
      * a <tt>ChatRoom</tt> in the case of a multi user chat
      * @return the <tt>ChatPanel</tt> corresponding to the given meta contact
      */
-    private ChatPanel getChat(Object key)
+    private ChatPanel getChat(ChatSession chatSession)
     {
-        synchronized (chats)
+        Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
+
+        while (chatPanelsIter.hasNext())
         {
-            return (ChatPanel) chats.get(key);
+            ChatPanel chatPanel = chatPanelsIter.next();
+
+            if (chatSession.equals(chatPanel.getChatSession()))
+                return chatPanel; 
         }
+
+        return null;
     }
     
     /**
@@ -725,36 +754,18 @@ public class ChatWindowManager
      */
     private void disposeChatWindow(ChatWindow chatWindow)
     {
-        ChatPanel[] removedChatPanels = null;
-        synchronized (chats)
-        {
-            // If we're in a tabbed window we clear the list of active chats, as
-            // they'll be all gone with the window.
-            if (ConfigurationManager.isMultiChatWindowEnabled())
-            {
-                Collection values = chats.values();
-                removedChatPanels = new ChatPanel[values.size()];
-                values.toArray(removedChatPanels);
+        Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
 
-                chats.clear();
-            }
-            else
-            {
-                ChatPanel removedChatPanel =
-                    (ChatPanel) chats.remove(chatWindow.getCurrentChatPanel()
-                        .getChatIdentifier());
-                if (removedChatPanel != null)
-                {
-                    removedChatPanels = new ChatPanel[] { removedChatPanel };
-                }
-            }
-        }
-        if (removedChatPanels != null)
+        while (chatPanelsIter.hasNext())
         {
-            for (int i = 0; i < removedChatPanels.length; i++)
-            {
-                removedChatPanels[i].dispose();
-            }
+            ChatPanel chatPanel = chatPanelsIter.next();
+
+            chatPanel.dispose();
+        }
+
+        synchronized (chatPanels)
+        {
+            chatPanels.clear();
         }
 
         if (chatWindow.getChatCount() > 0)
@@ -768,13 +779,11 @@ public class ChatWindowManager
         chatWindow.dispose();
 
         ContactList clist
-            = mainFrame.getContactListPanel().getContactList();
-
-        ContactListModel clistModel
-            = (ContactListModel) clist.getModel();
+            = GuiActivator.getUIService().getMainFrame()
+                .getContactListPanel().getContactList();
 
         // Remove the envelope from the all active contacts in the contact list.
-        clistModel.removeAllActiveContacts();
+        clist.removeAllActiveContacts();
 
         clist.refreshAll();
     }

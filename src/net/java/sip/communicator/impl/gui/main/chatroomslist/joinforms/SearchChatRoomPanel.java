@@ -14,9 +14,10 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 public class SearchChatRoomPanel
@@ -44,11 +45,9 @@ public class SearchChatRoomPanel
     
     private JScrollPane chatRoomsScrollPane = new JScrollPane();
 
-    private Window parentWindow;
-
     private WizardContainer wizardContainer;
 
-    private ProtocolProviderService protocolProvider;
+    private ChatRoomProviderWrapper chatRoomProvider;
 
     /**
      * Creates a <tt>SearchChatRoomPanel</tt> instance without specifying 
@@ -56,9 +55,9 @@ public class SearchChatRoomPanel
      */
     public SearchChatRoomPanel(WizardContainer wizardContainer)
     {
-        this(null, null);
-        
         this.wizardContainer = wizardContainer;
+
+        this.init();
     }
 
     /**
@@ -68,13 +67,16 @@ public class SearchChatRoomPanel
      * @param protocolProvider the protocol provider corresponding to the
      * account for which the search panel is created
      */
-    public SearchChatRoomPanel( Window parentWindow,
-                                ProtocolProviderService protocolProvider)
+    public SearchChatRoomPanel(ChatRoomProviderWrapper provider)
     {
-        super(new BorderLayout());
+        this.chatRoomProvider = provider;
 
-        this.parentWindow = parentWindow;
-        this.protocolProvider = protocolProvider;
+        this.init();
+    }
+
+    private void init()
+    {
+        this.setLayout(new BorderLayout());
 
         this.buttonPanel.add(searchButton);
 
@@ -114,23 +116,7 @@ public class SearchChatRoomPanel
      */
     public void actionPerformed(ActionEvent e)
     {
-        new Thread()
-        {
-            public void run()
-            {
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        loadChatRoomsList();
-                    }
-                });
-            }
-        }.start();
-
-        if (parentWindow != null)
-            parentWindow.setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        this.loadChatRoomsList();
     }
 
     /**
@@ -138,26 +124,8 @@ public class SearchChatRoomPanel
      */
     public void loadChatRoomsList()
     {
-        OperationSetMultiUserChat multiUserChat
-            = (OperationSetMultiUserChat) protocolProvider
-                .getOperationSet(OperationSetMultiUserChat.class);
-
-        List list = null;
-
-        try
-        {
-            list = multiUserChat.getExistingChatRooms();
-        }
-        catch (OperationFailedException e)
-        {
-            logger.error("Failed to obtain existing chat rooms for server: "
-                + protocolProvider.getAccountID().getService(), e);
-        }
-        catch (OperationNotSupportedException e)
-        {
-            logger.error("Failed to obtain existing chat rooms for server: "
-                + protocolProvider.getAccountID().getService(), e);
-        }
+        List list = GuiActivator.getUIService().getConferenceChatManager()
+            .getExistingChatRooms(chatRoomProvider);
 
         if(list != null)
         {
@@ -171,9 +139,7 @@ public class SearchChatRoomPanel
 
             this.mainPanel.add(chatRoomsScrollPane);
 
-            if (parentWindow != null)
-                parentWindow.pack();
-            else
+            if (wizardContainer != null)
                 wizardContainer.refresh();
 
             // When we're finished we replace the "wait cursor"
@@ -238,9 +204,9 @@ public class SearchChatRoomPanel
      * @param protocolProvider the protocol provider for which we'd search a
      * chat room
      */
-    public void setProtocolProvider(ProtocolProviderService protocolProvider)
+    public void setChatRoomProvider(ChatRoomProviderWrapper provider)
     {
-        this.protocolProvider = protocolProvider;
+        this.chatRoomProvider = provider;
     }
 
     /**

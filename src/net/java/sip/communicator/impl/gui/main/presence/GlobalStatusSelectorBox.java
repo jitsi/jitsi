@@ -224,7 +224,8 @@ public class GlobalStatusSelectorBox
                     saveStatusInformation(  protocolProvider,
                         onlineItem.getName());
 
-                    this.mainFrame.getLoginManager().login(protocolProvider);
+                    GuiActivator.getUIService().getLoginManager()
+                        .login(protocolProvider);
                 }
                 else
                 {
@@ -279,7 +280,8 @@ public class GlobalStatusSelectorBox
                         saveStatusInformation(  protocolProvider,
                                                 offlineItem.getName());
 
-                        mainFrame.getLoginManager().logoff(protocolProvider);
+                        GuiActivator.getUIService().getLoginManager()
+                            .logoff(protocolProvider);
 
                         continue;
                     }
@@ -303,7 +305,7 @@ public class GlobalStatusSelectorBox
 
                     try 
                     {
-                        mainFrame.getLoginManager()
+                        GuiActivator.getUIService().getLoginManager()
                             .setManuallyDisconnected(true);
 
                         protocolProvider.unregister();

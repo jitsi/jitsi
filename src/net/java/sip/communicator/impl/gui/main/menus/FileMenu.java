@@ -161,10 +161,10 @@ public class FileMenu
             //in embedded mode?)
             //System.exit(0);
         }
-        else if (itemName.endsWith("myChatRooms"))
+        else if (itemName.equals("myChatRooms"))
         {
-            MyChatRoomsDialog chatRoomsDialog
-                = new MyChatRoomsDialog(parentWindow);
+            ChatRoomListDialog chatRoomsDialog
+                = new ChatRoomListDialog(parentWindow);
 
             chatRoomsDialog.setPreferredSize(new Dimension(500, 400));
             chatRoomsDialog.setVisible(true);

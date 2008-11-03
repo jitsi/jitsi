@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -71,7 +72,7 @@ public class InvitationReceivedDialog
      * The <tt>MultiUserChatManager</tt> is the one that deals with invitation
      * events.
      */
-    private MultiUserChatManager multiUserChatManager;
+    private ConferenceChatManager multiUserChatManager;
     
     /**
      * The operation set that would handle the rejection if the user choose to
@@ -88,20 +89,20 @@ public class InvitationReceivedDialog
      * rejection if the user choose to reject the invitation
      * @param invitation the invitation that this dialog represents
      */
-    public InvitationReceivedDialog (MultiUserChatManager multiUserChatManager,            
+    public InvitationReceivedDialog (ConferenceChatManager multiUserChatManager,
             OperationSetMultiUserChat multiUserChatOpSet,
             ChatRoomInvitation invitation)
     {
-        super(multiUserChatManager.getMainFrame());
+        super(GuiActivator.getUIService().getMainFrame());
 
         this.multiUserChatManager = multiUserChatManager;
-       
+
         this.multiUserChatOpSet = multiUserChatOpSet;
-        
+
         this.invitation = invitation;
 
         this.setModal(false);
-        
+
         this.setTitle(title);
 
         this.mainPanel.setPreferredSize(new Dimension(400, 230));

@@ -11,6 +11,7 @@ import java.util.*;
 
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -43,14 +44,15 @@ public class JoinChatRoomWizardPage1
      * @param protocolProvidersList The list of available installed 
      * <tt>ProtocolProviderServices</tt>, from which the user could select.
      */
-    public JoinChatRoomWizardPage1( WizardContainer wizard,
-                                    NewChatRoom joinChatRoom,
-                                    Iterator protocolProvidersList)
+    public JoinChatRoomWizardPage1(
+        WizardContainer wizard,
+        NewChatRoom joinChatRoom,
+        Iterator<ChatRoomProviderWrapper> chatRoomProviders)
     {
         this.wizard = wizard;
 
         selectAccountPanel
-            = new SelectAccountPanel(joinChatRoom, protocolProvidersList);
+            = new SelectAccountPanel(joinChatRoom, chatRoomProviders);
 
         selectAccountPanel.addCheckBoxCellListener(this);
     }

@@ -147,8 +147,6 @@ public class ContactRightButtonMenu
     {
         super();
 
-        this.mainFrame = contactList.getMainFrame();
-
         this.guiContactList = contactList;
 
         this.contactItem = contactItem;
@@ -519,7 +517,7 @@ public class ContactRightButtonMenu
             HistoryWindow history;
 
             HistoryWindowManager historyWindowManager
-                = mainFrame.getHistoryWindowManager();
+                = GuiActivator.getUIService().getHistoryWindowManager();
 
             if(historyWindowManager
                 .containsHistoryWindowForContact(contactItem))
@@ -534,8 +532,7 @@ public class ContactRightButtonMenu
             }
             else
             {
-                history = new HistoryWindow(
-                    this.mainFrame, this.contactItem);
+                history = new HistoryWindow(this.contactItem);
 
                 historyWindowManager
                     .addHistoryWindowForContact(contactItem, history);

@@ -300,7 +300,9 @@ public class ChatWritePanel
                 stoppedTypingTimer.setDelay(2 * 1000);
                 typingState = OperationSetTypingNotifications.STATE_TYPING;
 
-                int result = chatPanel.sendTypingNotification(typingState);
+                int result = chatPanel.getChatSession()
+                    .getCurrentChatTransport()
+                        .sendTypingNotification(typingState);
 
                 if (result == ChatPanel.TYPING_NOTIFICATION_SUCCESSFULLY_SENT)
                     typingTimer.start();
@@ -325,8 +327,9 @@ public class ChatWritePanel
         {
             if (typingState == OperationSetTypingNotifications.STATE_TYPING)
             {
-                chatPanel
-                    .sendTypingNotification(OperationSetTypingNotifications.STATE_TYPING);
+                chatPanel.getChatSession().getCurrentChatTransport()
+                    .sendTypingNotification(
+                        OperationSetTypingNotifications.STATE_TYPING);
             }
         }
         else if (stoppedTypingTimer.equals(source))
@@ -338,7 +341,9 @@ public class ChatWritePanel
                 {
                     typingState = OperationSetTypingNotifications.STATE_PAUSED;
 
-                    int result = chatPanel.sendTypingNotification(typingState);
+                    int result = chatPanel.getChatSession()
+                        .getCurrentChatTransport().
+                            sendTypingNotification(typingState);
 
                     if (result == ChatPanel.TYPING_NOTIFICATION_SUCCESSFULLY_SENT)
                         stoppedTypingTimer.setDelay(3 * 1000);
@@ -362,7 +367,8 @@ public class ChatWritePanel
     {
         typingState = OperationSetTypingNotifications.STATE_STOPPED;
 
-        int result = chatPanel.sendTypingNotification(typingState);
+        int result = chatPanel.getChatSession().getCurrentChatTransport()
+            .sendTypingNotification(typingState);
 
         if (result == ChatPanel.TYPING_NOTIFICATION_SUCCESSFULLY_SENT)
             stoppedTypingTimer.stop();

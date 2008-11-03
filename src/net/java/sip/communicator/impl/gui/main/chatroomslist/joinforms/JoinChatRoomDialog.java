@@ -11,11 +11,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -45,11 +45,7 @@ public class JoinChatRoomDialog
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private OperationSetMultiUserChat multiUserChatOpSet;
-    
-    private MainFrame mainFrame;
-    
-    private ProtocolProviderService protocolProvider;
+    private ChatRoomProviderWrapper chatRoomProvider;
     
     /**
      * Creates an instance of <tt>JoinChatRoomDialog</tt>.
@@ -58,18 +54,11 @@ public class JoinChatRoomDialog
      * @param pps the <tt>ProtocolProviderService</tt>, which will be the chat
      * server for the newly created chat room
      */
-    public JoinChatRoomDialog(MainFrame mainFrame,
-            ProtocolProviderService pps)
+    public JoinChatRoomDialog(ChatRoomProviderWrapper provider)
     {
-        super(mainFrame, false);
-        
-        this.mainFrame = mainFrame;
-        this.protocolProvider = pps;
-        this.multiUserChatOpSet
-            = (OperationSetMultiUserChat) protocolProvider
-                .getOperationSet(OperationSetMultiUserChat.class);
+        this.chatRoomProvider = provider;
 
-        this.searchPanel = new SearchChatRoomPanel(this, protocolProvider);
+        this.searchPanel = new SearchChatRoomPanel(chatRoomProvider);
 
         this.setTitle(Messages.getI18NString("joinChatRoom").getText());
 
@@ -106,48 +95,9 @@ public class JoinChatRoomDialog
         String name = button.getName();
 
         if (name.equals("join"))
-        {           
-            new Thread()
-            {
-                public void run()
-                {
-                    ChatRoom chatRoom = null;
-
-                    String chatRoomName = searchPanel.getChatRoomName();
-
-                    try
-                    {
-                        chatRoom = multiUserChatOpSet
-                            .findRoom(chatRoomName);
-                    }
-                    catch (OperationFailedException e1)
-                    {
-                        logger.error("Failed to find chat room with name:"
-                            + chatRoomName, e1);
-                    }
-                    catch (OperationNotSupportedException e1)
-                    {
-                        logger.error("Failed to find chat room with name:"
-                            + chatRoomName, e1);
-                    }
-
-                    if(chatRoom == null)
-                    {
-                        new ErrorDialog(mainFrame,
-                            Messages.getI18NString("error").getText(),
-                            Messages.getI18NString("chatRoomNotExist",
-                                new String[]{chatRoomName,
-                                protocolProvider.getAccountID().getService()})
-                                .getText())
-                                .showDialog();
-                    }
-                    else
-                    {
-                        mainFrame.getMultiUserChatManager()
-                            .joinChatRoom(chatRoom);
-                    }
-                }
-            }.start();
+        {
+            GuiActivator.getUIService().getConferenceChatManager()
+                .joinChatRoom(searchPanel.getChatRoomName(), chatRoomProvider);
         }
         this.dispose();
     }

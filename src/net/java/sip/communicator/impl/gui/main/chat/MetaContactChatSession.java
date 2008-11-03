@@ -1,0 +1,621 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
+package net.java.sip.communicator.impl.gui.main.chat;
+
+import java.util.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactlist.event.*;
+import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+
+/**
+ * An implementation of the <tt>ChatSession</tt> interface that represents a
+ * user-to-user chat session.
+ * 
+ * @author Yana Stamcheva
+ */
+public class MetaContactChatSession
+    implements  ChatSession,
+                MetaContactListListener
+{
+    private MetaContact metaContact;
+
+    private Contact protocolContact;
+
+    private ArrayList<ChatContact> chatParticipants = new ArrayList();
+
+    private ArrayList<ChatTransport> chatTransports = new ArrayList();
+
+    private MetaContactListService metaContactListService;
+
+    private ChatTransport currentChatTransport;
+
+    private ChatSessionRenderer sessionRenderer;
+
+    /**
+     * Creates an instance of <tt>MetaContactChatSession</tt> by specifying the
+     * renderer, which gives the connection with the UI, the meta contact
+     * corresponding to the session and the protocol contact to be used as
+     * transport.
+     * 
+     * @param sessionRenderer the renderer, which gives the connection with
+     * the UI.
+     * @param metaContact the meta contact corresponding to the session and the
+     * protocol contact.
+     * @param protocolContact the protocol contact to be used as transport.
+     */
+    public MetaContactChatSession(  ChatSessionRenderer sessionRenderer,
+                                    MetaContact metaContact,
+                                    Contact protocolContact)
+    {
+        this.sessionRenderer = sessionRenderer;
+        this.metaContact = metaContact;
+        this.protocolContact = protocolContact;
+
+        ChatContact chatContact = new MetaContactChatContact(metaContact);
+
+        chatParticipants.add(chatContact);
+
+        this.initChatTransports();
+
+        // Obtain the MetaContactListService and add this class to it as a
+        // listener of all events concerning the contact list.
+        metaContactListService = GuiActivator.getMetaContactListService();
+
+        if (metaContactListService != null)
+            metaContactListService.addMetaContactListListener(this);
+    }
+
+    /**
+     * Returns an iterator to the list of all participants contained in this 
+     * chat session.
+     * 
+     * @return an iterator to the list of all participants contained in this 
+     * chat session.
+     */
+    public Iterator getParticipants()
+    {
+        return chatParticipants.iterator();
+    }
+
+    /**
+     * Returns all available chat transports for this chat session. Each chat
+     * transport is corresponding to a protocol provider.
+     * 
+     * @return all available chat transports for this chat session.
+     */
+    public Iterator getChatTransports()
+    {
+        return chatTransports.iterator();
+    }
+
+    /**
+     * Returns the name of this chat.
+     * 
+     * @return the name of this chat
+     */
+    public String getChatName()
+    {
+        String displayName = metaContact.getDisplayName();
+
+        if (displayName != null && displayName.length() > 0)
+            return metaContact.getDisplayName();
+
+        return Messages.getI18NString("unknown").getText();
+    }
+
+    /**
+     * Returns a collection of the last N number of messages given by count.
+     * 
+     * @param count The number of messages from history to return.
+     * @return a collection of the last N number of messages given by count.
+     */
+    public Collection getHistory(int count)
+    {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return null;
+
+        return msgHistory.findLast(
+            metaContact, ConfigurationManager.getChatHistorySize());
+    }
+
+    /**
+     * Returns a collection of the last N number of messages given by count.
+     * 
+     * @param date The date up to which we're looking for messages.
+     * @param count The number of messages from history to return.
+     * @return a collection of the last N number of messages given by count.
+     */
+    public Collection getHistoryBeforeDate(Date date, int count)
+    {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return null;
+
+        return msgHistory.findLastMessagesBefore(
+            metaContact, date, ConfigurationManager.getChatHistorySize());
+    }
+
+    /**
+     * Returns a collection of the last N number of messages given by count.
+     * 
+     * @param date The date from which we're looking for messages.
+     * @param count The number of messages from history to return.
+     * @return a collection of the last N number of messages given by count.
+     */
+    public Collection getHistoryAfterDate(Date date, int count)
+    {
+        final MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return null;
+
+        return msgHistory.findFirstMessagesAfter(
+            metaContact, date, ConfigurationManager.getChatHistorySize());
+    }
+
+    /**
+     * Returns the start date of the history of this chat session.
+     * 
+     * @return the start date of the history of this chat session.
+     */
+    public Date getHistoryStartDate()
+    {
+        Date startHistoryDate = null;
+
+        MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return null;
+
+        Collection firstMessage = msgHistory
+            .findFirstMessagesAfter(metaContact, new Date(0), 1);
+
+        if(firstMessage.size() > 0)
+        {
+            Iterator i = firstMessage.iterator();
+
+            Object o = i.next();
+
+            if(o instanceof MessageDeliveredEvent)
+            {
+                MessageDeliveredEvent evt
+                    = (MessageDeliveredEvent)o;
+
+                startHistoryDate = evt.getTimestamp();
+            }
+            else if(o instanceof MessageReceivedEvent)
+            {
+                MessageReceivedEvent evt = (MessageReceivedEvent)o;
+
+                startHistoryDate = evt.getTimestamp();
+            }
+        }
+
+        return startHistoryDate;
+    }
+
+    /**
+     * Returns the end date of the history of this chat session.
+     * 
+     * @return the end date of the history of this chat session.
+     */
+    public Date getHistoryEndDate()
+    {
+        Date endHistoryDate = null;
+
+        MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+
+        // If the MessageHistoryService is not registered we have nothing to do
+        // here. The MessageHistoryService could be "disabled" from the user
+        // through one of the configuration forms.
+        if (msgHistory == null)
+            return null;
+
+        Collection lastMessage = msgHistory
+            .findLastMessagesBefore(metaContact, new Date(Long.MAX_VALUE), 1);
+
+        if(lastMessage.size() > 0)
+        {
+            Iterator i1 = lastMessage.iterator();
+
+            Object o1 = i1.next();
+
+            if(o1 instanceof MessageDeliveredEvent)
+            {
+                MessageDeliveredEvent evt
+                    = (MessageDeliveredEvent)o1;
+
+                endHistoryDate = evt.getTimestamp();
+            }
+            else if(o1 instanceof MessageReceivedEvent)
+            {
+                MessageReceivedEvent evt = (MessageReceivedEvent)o1;
+
+                endHistoryDate = evt.getTimestamp();
+            }
+        }
+
+        return endHistoryDate;
+    }
+
+    /**
+     * Returns the default mobile number used to send sms-es in this session.
+     * 
+     * @return the default mobile number used to send sms-es in this session.
+     */
+    public String getDefaultSmsNumber()
+    {
+        String smsNumber = null;
+
+        List detailsList = metaContact.getDetails("mobile");
+
+        if (detailsList != null && detailsList.size() > 0)
+        {
+            smsNumber = (String) detailsList.iterator().next();
+        }
+
+        return smsNumber;
+    }
+
+    /**
+     * Sets the default mobile number used to send sms-es in this session.
+     * 
+     * @param smsPhoneNumber The default mobile number used to send sms-es in
+     * this session.
+     */
+    public void setDefaultSmsNumber(String smsPhoneNumber)
+    {
+        metaContact.addDetail("mobile", smsPhoneNumber);
+    }
+
+    /**
+     * Initializes all chat transports for this chat session.
+     */
+    private void initChatTransports()
+    {
+        Iterator<Contact> protocolContacts = metaContact.getContacts();
+
+        while (protocolContacts.hasNext())
+        {
+            Contact contact = protocolContacts.next();
+
+            MetaContactChatTransport chatTransport
+                = new MetaContactChatTransport(this, contact);
+
+            chatTransports.add(chatTransport);
+
+            if (contact.equals(protocolContact))
+                currentChatTransport = chatTransport;
+        }
+    }
+
+    /**
+     * Returns the currently used transport for all operation within this chat
+     * session.
+     * 
+     * @return the currently used transport for all operation within this chat
+     * session.
+     */
+    public ChatTransport getCurrentChatTransport()
+    {
+        return currentChatTransport;
+    }
+
+    /**
+     * Sets the transport that will be used for all operations within this chat
+     * session.
+     * 
+     * @param chatTransport The transport to set as a default transport for this
+     * session.
+     */
+    public void setCurrentChatTransport(ChatTransport chatTransport)
+    {
+        this.currentChatTransport = chatTransport;
+    }
+
+    public void childContactsReordered(MetaContactGroupEvent evt)
+    {}
+
+    public void metaContactAdded(MetaContactEvent evt)
+    {}
+
+    public void metaContactGroupAdded(MetaContactGroupEvent evt)
+    {}
+
+    public void metaContactGroupModified(MetaContactGroupEvent evt)
+    {}
+
+    public void metaContactGroupRemoved(MetaContactGroupEvent evt)
+    {}
+
+    public void metaContactModified(MetaContactModifiedEvent evt)
+    {}
+
+    public void metaContactMoved(MetaContactMovedEvent evt)
+    {}
+
+    public void metaContactRemoved(MetaContactEvent evt)
+    {}
+
+    /**
+     * Implements <tt>MetaContactListListener.metaContactRenamed</tt> method.
+     * When a meta contact is renamed, updates all related labels in this
+     * chat panel.
+     */
+    public void metaContactRenamed(MetaContactRenamedEvent evt)
+    {
+        String newName = evt.getNewDisplayName();
+
+        if(evt.getSourceMetaContact().equals(metaContact))
+        {
+            ChatContact chatContact
+                = findChatContactByMetaContact(evt.getSourceMetaContact());
+
+            sessionRenderer.setContactName(chatContact, newName);
+        }
+    }
+
+    /**
+     * Implements <tt>MetaContactListListener.protoContactAdded</tt> method.
+     * When a proto contact is added, updates the "send via" selector box.
+     */
+    public void protoContactAdded(ProtoContactEvent evt)
+    {
+        if (evt.getNewParent().equals(metaContact))
+        {
+            MetaContactChatTransport chatTransport
+                = new MetaContactChatTransport( this,
+                                                evt.getProtoContact());
+
+            sessionRenderer.addChatTransport(chatTransport);
+        }
+    }
+
+    /**
+     * Implements <tt>MetaContactListListener.protoContactMoved</tt> method.
+     * When a proto contact is moved, updates the "send via" selector box.
+     */
+    public void protoContactMoved(ProtoContactEvent evt)
+    {
+        MetaContactChatTransport chatTransport = null;
+
+        if (evt.getOldParent().equals(metaContact))
+        {
+            Iterator chatTransportsIter = chatTransports.iterator();
+
+            while (chatTransportsIter.hasNext())
+            {
+                chatTransport
+                    = (MetaContactChatTransport) chatTransportsIter.next();
+
+                if(chatTransport.getContact().equals(evt.getProtoContact()))
+                {
+                    sessionRenderer.removeChatTransport(chatTransport);
+                    break;
+                }
+            }
+        }
+        else if (evt.getNewParent().equals(metaContact))
+        {
+            chatTransport
+                = new MetaContactChatTransport( this,
+                                                evt.getProtoContact());
+
+            sessionRenderer.addChatTransport(chatTransport);
+        }
+    }
+
+    /**
+     * Implements <tt>MetaContactListListener.protoContactRemoved</tt> method.
+     * When a proto contact is removed, updates the "send via" selector box.
+     */
+    public void protoContactRemoved(ProtoContactEvent evt)
+    {
+        if (evt.getOldParent().equals(metaContact))
+        {
+            Iterator chatTransportsIter = chatTransports.iterator();
+
+            MetaContactChatTransport chatTransport = null;
+            while (chatTransportsIter.hasNext())
+            {
+                chatTransport
+                    = (MetaContactChatTransport) chatTransportsIter.next();
+
+                if(chatTransport.getContact().equals(evt.getProtoContact()))
+                {
+                    sessionRenderer.removeChatTransport(chatTransport);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the <tt>ChatContact</tt> corresponding to the given
+     * <tt>MetaContact</tt>.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to search for
+     * @return the <tt>ChatContact</tt> corresponding to the given
+     * <tt>MetaContact</tt>.
+     */
+    private ChatContact findChatContactByMetaContact(MetaContact metaContact)
+    {
+        Iterator chatContactsIter = chatParticipants.iterator();
+
+        while(chatContactsIter.hasNext())
+        {
+            ChatContact chatContact
+                = (ChatContact) chatContactsIter.next();
+
+            Object chatSourceContact = chatContact.getDescriptor();
+
+            MetaContact parentMetaContact
+                = GuiActivator.getMetaContactListService()
+                    .findMetaContactByContact((Contact) chatSourceContact);
+
+            if(parentMetaContact != null
+                    && parentMetaContact.equals(metaContact))
+                return chatContact;
+        }
+
+        return null;
+    }
+
+    /**
+     * Disposes this chat session.
+     */
+    public void dispose()
+    {
+        if (metaContactListService != null)
+            metaContactListService.removeMetaContactListListener(this);
+
+        Iterator<ChatTransport> chatTransportsIter = chatTransports.iterator();
+
+        while (chatTransportsIter.hasNext())
+        {
+            ChatTransport chatTransport = chatTransportsIter.next();
+
+            chatTransport.dispose();
+        }
+    }
+
+    /**
+     * Returns the <tt>ChatSessionRenderer</tt> that provides the connection
+     * between this chat session and its UI.
+     * 
+     * @return The <tt>ChatSessionRenderer</tt>.
+     */
+    public ChatSessionRenderer getChatSessionRenderer()
+    {
+        return sessionRenderer;
+    }
+
+    /**
+     * Returns the descriptor of this chat session.
+     * 
+     * @return the descriptor of this chat session.
+     */
+    public Object getDescriptor()
+    {
+        return metaContact;
+    }
+
+    /**
+     * Returns <code>true</code> if this contact is persistent, otherwise
+     * returns <code>false</code>.
+     * @return <code>true</code> if this contact is persistent, otherwise
+     * returns <code>false</code>.
+     */
+    public boolean isDescriptorPersistent()
+    {
+        if(metaContact == null)
+            return false;
+
+        Contact defaultContact = metaContact.getDefaultContact();
+
+        if(defaultContact == null)
+            return false;
+
+        ContactGroup parent = defaultContact.getParentContactGroup();
+
+        boolean isParentPersist = true;
+        boolean isParentResolved = true;
+        if(parent != null)
+        {
+            isParentPersist = parent.isPersistent();
+            isParentResolved = parent.isResolved();
+        }
+
+        if(!defaultContact.isPersistent() &&
+           !defaultContact.isResolved() &&
+           !isParentPersist &&
+           !isParentResolved)
+        {
+           return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    /**
+     * Returns the ChatTransport corresponding to the given descriptor.
+     * 
+     * @param descriptor The descriptor of the chat transport we're looking for.
+     * @return The ChatTransport corresponding to the given descriptor.
+     */
+    public ChatTransport findChatTransportForDescriptor(Object descriptor)
+    {
+        Iterator<ChatTransport> chatTransportsIter = chatTransports.iterator();
+
+        while (chatTransportsIter.hasNext())
+        {
+            ChatTransport chatTransport = chatTransportsIter.next();
+
+            if (chatTransport.getDescriptor().equals(descriptor))
+                return chatTransport;
+        }
+
+        return null;
+    }
+
+    /**
+     * Implements the <tt>ChatPanel.getChatStatusIcon</tt> method.
+     *
+     * @return the status icon corresponding to this chat room
+     */
+    public ImageIcon getChatStatusIcon()
+    {
+        PresenceStatus status
+            = this.metaContact.getDefaultContact().getPresenceStatus();
+
+        return new ImageIcon(Constants.getStatusIcon(status));
+    }
+
+    /**
+     * Returns the avatar icon of this chat session.
+     *
+     * @return the avatar icon of this chat session.
+     */
+    public byte[] getChatAvatar()
+    {
+        return metaContact.getAvatar();
+    }
+
+    public void protoContactModified(ProtoContactEvent evt)
+    {}
+}

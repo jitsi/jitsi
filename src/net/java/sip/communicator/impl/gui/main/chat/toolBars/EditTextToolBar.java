@@ -46,8 +46,11 @@ public class EditTextToolBar
 
     private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 
-    private JButton fontButton = new JButton(
-        new ImageIcon(ImageLoader.getImage(ImageLoader.FONT_ICON)));
+    private SIPCommButton fontButton = new SIPCommButton(
+        ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
+        ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
+        ImageLoader.getImage(ImageLoader.FONT_ICON),
+        ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON));
 
     private SmiliesSelectorBox smiliesBox;
 
@@ -67,9 +70,7 @@ public class EditTextToolBar
         this.chatWritePanel = writePanel;
         this.chatEditorPane = writePanel.getEditorPane();
 
-        this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
-        this.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 
         this.initStyleToolbarButtons();
 
@@ -93,8 +94,6 @@ public class EditTextToolBar
 
         logger.trace("[GUI] Editor Pane font name: "
             + chatEditorPane.getFont().getName());
-
-        fontButton.setPreferredSize(new Dimension(25, 25));
 
         fontButton.addActionListener(new ActionListener()
         {
@@ -137,8 +136,8 @@ public class EditTextToolBar
                                             ActionEvent.ACTION_PERFORMED,
                                             new Integer(fontSize).toString());
 
-                    action =
-                        new StyledEditorKit.FontSizeAction(
+                    action
+                        = new StyledEditorKit.FontSizeAction(
                             new Integer(fontSize).toString(),
                             fontSize);
 
@@ -187,7 +186,7 @@ public class EditTextToolBar
     private void initColorLabel()
     {
         this.colorLabel = new ColorLabel();
-        colorLabel.setPreferredSize(new Dimension(21, 21));
+        colorLabel.setPreferredSize(new Dimension(18, 18));
 
         colorLabel.setOpaque(true);
         colorLabel.setBackground(Color.BLACK);
@@ -205,18 +204,18 @@ public class EditTextToolBar
 
                 if (newColor != null) {
                     colorLabel.setBackground(newColor);
-    
+
                     ActionEvent evt =
                         new ActionEvent(chatEditorPane,
                             ActionEvent.ACTION_PERFORMED, "");
-    
+
                     Action action =
                         new HTMLEditorKit.ForegroundAction(new Integer(newColor
                             .getRGB()).toString(), newColor);
-    
+
                     action.actionPerformed(evt);
                 }
-                
+
                 chatEditorPane.requestFocus();
             }
         });
@@ -262,27 +261,24 @@ public class EditTextToolBar
      */
     private void initStyleToolbarButtons()
     {
-        this.boldButton =
-            initStyleToggleButton(boldAction, StyleConstants.Bold);
-
-        boldButton.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.TEXT_BOLD_BUTTON)));
+        this.boldButton = initStyleToggleButton(
+                ImageLoader.getImage(ImageLoader.TEXT_BOLD_BUTTON),
+                boldAction,
+                StyleConstants.Bold);
 
         this.add(boldButton);
 
-        this.italicButton =
-            initStyleToggleButton(italicAction, StyleConstants.Italic);
-
-        italicButton.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.TEXT_ITALIC_BUTTON)));
+        this.italicButton = initStyleToggleButton(
+            ImageLoader.getImage(ImageLoader.TEXT_ITALIC_BUTTON),
+            italicAction,
+            StyleConstants.Italic);
 
         this.add(italicButton);
 
-        this.underlineButton =
-            initStyleToggleButton(underlineAction, StyleConstants.Underline);
-
-        underlineButton.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.TEXT_UNDERLINED_BUTTON)));
+        this.underlineButton = initStyleToggleButton(
+            ImageLoader.getImage(ImageLoader.TEXT_UNDERLINED_BUTTON),
+            underlineAction,
+            StyleConstants.Underline);
 
         this.add(underlineButton);
 
@@ -296,11 +292,18 @@ public class EditTextToolBar
      * @param styleConstant the style constant
      * @return the toggle button with the associated action and style constant
      */
-    private JToggleButton initStyleToggleButton(final Action action,
-        final Object styleConstant)
+    private JToggleButton initStyleToggleButton(Image buttonImage,
+                                                final Action action,
+                                                final Object styleConstant)
     {
-        final JToggleButton button = new JToggleButton();
-        button.setPreferredSize(new Dimension(25, 25));
+        final SIPCommToggleButton button
+            = new SIPCommToggleButton(
+                ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
+                ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
+                buttonImage,
+                ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON_PRESSED));
+
+        button.setPreferredSize(new Dimension(18, 18));
         button.setName(styleConstant.toString());
         button.addActionListener(new ActionListener()
         {

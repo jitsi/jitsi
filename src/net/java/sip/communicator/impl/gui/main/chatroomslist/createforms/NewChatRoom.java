@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -17,27 +19,54 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class NewChatRoom
 {
-    private ProtocolProviderService protocolProvider;
-    
-    private String chatRoomName;
+   private ProtocolProviderService protocolProvider;
 
-    public String getChatRoomName()
-    {
-        return chatRoomName;
-    }
+   private String chatRoomName;
 
-    public void setChatRoomName(String chatRoomName)
-    {
-        this.chatRoomName = chatRoomName;
-    }
+   private List<String> userList;
+   
+   private String invitationMessage = "";
 
-    public ProtocolProviderService getProtocolProvider()
-    {
-        return protocolProvider;
-    }
+   public String getInvitationMessage()
+   {
+       return invitationMessage;
+   }
 
-    public void setProtocolProvider(ProtocolProviderService protocolProvider)
-    {
-        this.protocolProvider = protocolProvider;
-    }
+   public void setInvitationMessage(String invitationMessage)
+   {
+       this.invitationMessage = invitationMessage;
+   }
+
+   public List<String> getUserList()
+   {
+       if(userList == null || userList.size() < 1)
+           return new LinkedList<String>();
+       
+       return userList;
+   }
+
+   public void setUserList(List<String> userList)
+   {
+       this.userList = userList;
+   }
+
+   public String getChatRoomName()
+   {
+       return chatRoomName;
+   }
+
+   public void setChatRoomName(String chatRoomName)
+   {
+       this.chatRoomName = chatRoomName;
+   }
+
+   public ProtocolProviderService getProtocolProvider()
+   {
+       return protocolProvider;
+   }
+
+   public void setProtocolProvider(ProtocolProviderService protocolProvider)
+   {
+       this.protocolProvider = protocolProvider;
+   }
 }

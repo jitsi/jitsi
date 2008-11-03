@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
  * The <tt>NewChatRoom</tt> is meant to be used from the
@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class NewChatRoom
 {
-    private ProtocolProviderService protocolProvider;
+    private ChatRoomProviderWrapper chatRoomProvider;
 
     private String chatRoomName;
 
@@ -42,23 +42,23 @@ public class NewChatRoom
     }
 
     /**
-     * Returns the protocol provider corresponding to the chosen account.
+     * Returns the chat room provider corresponding to the chosen account.
      * 
-     * @return the protocol provider corresponding to the chosen account
+     * @return the chat room provider corresponding to the chosen account
      */
-    public ProtocolProviderService getProtocolProvider()
+    public ChatRoomProviderWrapper getChatRoomProvider()
     {
-        return protocolProvider;
+        return chatRoomProvider;
     }
 
     /**
-     * Sets the protocol provider corresponding to the chosen account.
+     * Sets the chat room provider corresponding to the chosen account.
      * 
-     * @param protocolProvider the protocol provider corresponding to
+     * @param provider the chat room provider corresponding to
      * the chosen account
      */
-    public void setProtocolProvider(ProtocolProviderService protocolProvider)
+    public void setChatRoomProvider(ChatRoomProviderWrapper provider)
     {
-        this.protocolProvider = protocolProvider;
+        this.chatRoomProvider = provider;
     }
 }

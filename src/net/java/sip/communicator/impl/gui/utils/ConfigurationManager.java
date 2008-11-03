@@ -611,7 +611,7 @@ public class ConfigurationManager
      * @param newChatRoomId the new identifier of the chat room
      * @param newChatRoomName the new chat room name
      */
-    public static void updateChatRoom(  ProtocolProviderService protocolProvider,
+    public static void saveChatRoom(  ProtocolProviderService protocolProvider,
                                         String oldChatRoomId,
                                         String newChatRoomId,
                                         String newChatRoomName)

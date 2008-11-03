@@ -54,7 +54,7 @@ public class LoginManager
     public LoginManager(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
-        this.mainFrame.setLoginManager(this);
+
         GuiActivator.bundleContext.addServiceListener(this);
     }
 
@@ -174,8 +174,8 @@ public class LoginManager
 
             if(multiUserChat != null)
             {
-                mainFrame.getMultiUserChatManager().getChatRoomList()
-                    .synchronizeOpSetWithLocalContactList(
+                GuiActivator.getUIService().getConferenceChatManager()
+                    .getChatRoomList().synchronizeOpSetWithLocalContactList(
                         protocolProvider, multiUserChat); 
             }
         }

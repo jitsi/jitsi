@@ -18,6 +18,7 @@ import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -42,7 +43,7 @@ public class SelectAccountPanel extends JPanel
     
     private NewChatRoom joinChatRoom;
     
-    private Iterator protocolProvidersList;
+    private Iterator chatRoomProvidersList;
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
@@ -65,18 +66,19 @@ public class SelectAccountPanel extends JPanel
      * 
      * @param joinChatRoom an object that collects all user choices through the
      * wizard
-     * @param protocolProvidersList The list of available 
-     * <tt>ProtocolProviderServices</tt>, from which the user could select.
+     * @param chatRoomProviders The list of available 
+     * <tt>ChatRoomProviderWrapper</tt>s, from which the user could select.
      */
-    public SelectAccountPanel(NewChatRoom joinChatRoom, 
-            Iterator protocolProvidersList)
+    public SelectAccountPanel(
+        NewChatRoom joinChatRoom, 
+        Iterator<ChatRoomProviderWrapper> chatRoomProviders)
     {
         super(new BorderLayout());
 
         this.setPreferredSize(new Dimension(600, 400));
         this.joinChatRoom = joinChatRoom;
 
-        this.protocolProvidersList = protocolProvidersList;
+        this.chatRoomProvidersList = chatRoomProviders;
 
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
 
@@ -117,39 +119,25 @@ public class SelectAccountPanel extends JPanel
         tableModel.addColumn(Messages.getI18NString("account").getText());
         tableModel.addColumn(Messages.getI18NString("protocol").getText());
 
-        while(protocolProvidersList.hasNext())
+        while(chatRoomProvidersList.hasNext())
         {
-            ProtocolProviderService pps 
-                = (ProtocolProviderService)protocolProvidersList.next();
+            ChatRoomProviderWrapper provider 
+                = (ChatRoomProviderWrapper) chatRoomProvidersList.next();
 
-            OperationSet opSet = pps.getOperationSet(
-                OperationSetMultiUserChat.class);
-
-            if(opSet == null)
-                continue;
-
-            String pName = pps.getProtocolDisplayName();
-
-            Image protocolImage = null;
-            try
-            {
-                protocolImage = ImageIO.read(
-                    new ByteArrayInputStream(pps.getProtocolIcon()
-                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
-            }
-            catch (IOException e)
-            {
-                logger.error("Could not read image.", e);
-            }
+            String pName = provider.getName();
 
             JLabel protocolLabel = new JLabel();
             protocolLabel.setText(pName);
-            protocolLabel.setIcon(new ImageIcon(protocolImage));
+
+            byte[] providerImage = provider.getImage();
+
+            if (providerImage != null)
+                protocolLabel.setIcon(new ImageIcon(providerImage));
 
             JRadioButton radioButton = new JRadioButton();
 
             tableModel.addRow(new Object[]{radioButton,
-                    pps, protocolLabel});
+                    provider, protocolLabel});
 
             radioButtonGroup.add(radioButton);
         }
@@ -205,14 +193,14 @@ public class SelectAccountPanel extends JPanel
     public boolean isRadioSelected()
     {
         TableModel model = accountsTable.getModel();
-        
+
         for (int i = 0; i < accountsTable.getRowCount(); i ++) {
             Object value = model.getValueAt(i, 0);
-            
+
             if (value instanceof JRadioButton)
             {
                 JRadioButton radioButton = (JRadioButton) value;
-                
+
                 if(radioButton.isSelected())
                     return true;
             }
@@ -228,14 +216,18 @@ public class SelectAccountPanel extends JPanel
     {
         TableModel model = accountsTable.getModel();
 
-        for (int i = 0; i < accountsTable.getRowCount(); i ++) {
+        for (int i = 0; i < accountsTable.getRowCount(); i ++)
+        {
             Object value = model.getValueAt(i, 0);
-            
-            if (value instanceof JRadioButton) {
-                JRadioButton radioButton = (JRadioButton)value;
-                if(radioButton.isSelected()){
-                    joinChatRoom.setProtocolProvider(
-                        (ProtocolProviderService)model.getValueAt(i, 1));
+
+            if (value instanceof JRadioButton)
+            {
+                JRadioButton radioButton = (JRadioButton) value;
+
+                if(radioButton.isSelected())
+                {
+                    joinChatRoom.setChatRoomProvider(
+                        (ChatRoomProviderWrapper) model.getValueAt(i, 1));
                 }
             }
         }

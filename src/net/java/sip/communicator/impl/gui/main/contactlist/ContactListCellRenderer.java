@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.*;
@@ -36,13 +35,13 @@ public class ContactListCellRenderer
 
     private static final int AVATAR_WIDTH = 30;
 
-    private Color groupForegroundColor;
+    protected Color groupForegroundColor;
 
-    private Color contactForegroundColor;
+    protected Color contactForegroundColor;
 
-    private JLabel nameLabel = new JLabel();
+    protected JLabel nameLabel = new JLabel();
 
-    private JLabel photoLabel = new JLabel();
+    protected JLabel photoLabel = new JLabel();
 
     private JPanel buttonsPanel;
 
@@ -50,18 +49,21 @@ public class ContactListCellRenderer
         = GuiActivator.getResources()
             .getSettingsInt("contactListRowTransparency");
 
-    private boolean isSelected = false;
+    private Image msgReceivedImage
+        = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
 
-    private int index = 0;
+    protected ImageIcon statusIcon = new ImageIcon();
 
-    private boolean isLeaf = true;
+    protected boolean isSelected = false;
 
-    private MainFrame mainFrame;
+    protected int index = 0;
+
+    protected boolean isLeaf = true;
 
     /**
      * Initialize the panel containing the node.
      */
-    public ContactListCellRenderer(MainFrame mainFrame)
+    public ContactListCellRenderer()
     {
         super(new BorderLayout());
 
@@ -76,8 +78,6 @@ public class ContactListCellRenderer
 
         if (contactForegroundProperty > -1)
             contactForegroundColor = new Color(contactForegroundProperty);
-
-        this.mainFrame = mainFrame;
 
         buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new GridLayout(1, 0));
@@ -114,15 +114,14 @@ public class ContactListCellRenderer
         this.photoLabel.setIcon(null);
 
         ContactList contactList = (ContactList) list;
-        ContactListModel listModel = (ContactListModel) contactList.getModel();
 
         if (value instanceof MetaContact)
         {
             this.setPreferredSize(new Dimension(20, 30));
 
-            MetaContact contactItem = (MetaContact) value;
+            MetaContact metaContact = (MetaContact) value;
 
-            String displayName = contactItem.getDisplayName();
+            String displayName = metaContact.getDisplayName();
 
             if (displayName == null || displayName.length() < 1)
             {
@@ -131,8 +130,17 @@ public class ContactListCellRenderer
 
             this.nameLabel.setText(displayName);
 
-            this.nameLabel.setIcon(listModel
-                    .getMetaContactStatusIcon(contactItem));
+            if(contactList.isMetaContactActive(metaContact))
+            {
+                statusIcon.setImage(msgReceivedImage);
+            }
+            else
+            {
+                statusIcon.setImage(Constants.getStatusIcon(
+                    contactList.getMetaContactStatus(metaContact)));
+            }
+
+            this.nameLabel.setIcon(statusIcon);
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
 
@@ -141,7 +149,7 @@ public class ContactListCellRenderer
 
             this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 1));
 
-            byte[] avatar = contactItem.getAvatar(true);
+            byte[] avatar = metaContact.getAvatar(true);
             if (avatar != null && avatar.length > 0)
             {
                 ImageIcon roundedAvatar

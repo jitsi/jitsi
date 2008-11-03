@@ -12,9 +12,10 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 /**
@@ -56,33 +57,20 @@ public class ChatRoomAuthenticationWindow
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
     private LoginWindowBackground backgroundPanel;
-    
-    private ChatRoom chatRoom;
 
-    private MainFrame mainFrame;
-    
+    private ChatRoomWrapper chatRoom;
+
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      * @param mainFrame the parent <tt>MainFrame</tt> window.
      * @param chatRoom the chat room for which we're authenticating
      */
-    public ChatRoomAuthenticationWindow(MainFrame mainFrame, ChatRoom chatRoom)
+    public ChatRoomAuthenticationWindow(ChatRoomWrapper chatRoom)
     {
-        this.mainFrame = mainFrame;
-        
         this.chatRoom = chatRoom;
-        
-        ProtocolIcon protocolIcon
-            = chatRoom.getParentProvider().getProtocolIcon();
 
-        Image logoImage = null;
-
-        if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
-            logoImage = ImageLoader.getBytesInImage(
-                protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
-        else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
-            logoImage = ImageLoader.getBytesInImage(
-                protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+        ImageIcon logoImage
+            = new ImageIcon(chatRoom.getParentProvider().getImage());
 
         if(logoImage != null)
             backgroundPanel = new LoginWindowBackground(logoImage);
@@ -118,8 +106,9 @@ public class ChatRoomAuthenticationWindow
     private void init()
     {
         this.idValue = new JTextField(
-            chatRoom.getParentProvider().getAccountID().getUserID());
-        
+            chatRoom.getParentProvider().getProtocolProvider()
+                .getAccountID().getUserID());
+
         this.infoTextArea.setOpaque(false);
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
@@ -127,7 +116,7 @@ public class ChatRoomAuthenticationWindow
         this.infoTextArea.setEditable(false);
         this.infoTextArea.setText(
             Messages.getI18NString("chatRoomRequiresPassword",
-                new String[]{chatRoom.getName()}).getText());
+                new String[]{chatRoom.getChatRoomName()}).getText());
 
         this.idLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -189,17 +178,11 @@ public class ChatRoomAuthenticationWindow
 
         if (buttonName.equals("ok"))
         {
-            new Thread()
-            {
-                public void run()
-                {
-                    mainFrame.getMultiUserChatManager()
-                        .joinChatRoom(chatRoom, idValue.getText(),
-                            new String(passwdField.getPassword()).getBytes());
-                }
-            }.start();
+            GuiActivator.getUIService().getConferenceChatManager()
+                .joinChatRoom(chatRoom, idValue.getText(),
+                    new String(passwdField.getPassword()).getBytes());
         }
-        
+
         this.dispose();
     }
 
@@ -210,8 +193,8 @@ public class ChatRoomAuthenticationWindow
      */
     private class LoginWindowBackground extends JPanel
     {
-        private Image bgImage;
-        public LoginWindowBackground(Image bgImage)
+        private ImageIcon bgImage;
+        public LoginWindowBackground(ImageIcon bgImage)
         {
             this.bgImage = bgImage;
         }
@@ -229,7 +212,7 @@ public class ChatRoomAuthenticationWindow
             Graphics2D g2 = (Graphics2D) g;
 
             if(bgImage != null)
-                g2.drawImage(bgImage, 30, 30, null);
+                g2.drawImage(bgImage.getImage(), 30, 30, null);
 
             g2.drawImage(ImageLoader.getImage(
                     ImageLoader.AUTH_WINDOW_BACKGROUND),
@@ -269,6 +252,8 @@ public class ChatRoomAuthenticationWindow
      */
     public void setVisible(boolean isVisible)
     {
+        this.pack();
+
         super.setVisible(isVisible);
 
         if(isVisible)

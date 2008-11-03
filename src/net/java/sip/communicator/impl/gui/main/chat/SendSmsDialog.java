@@ -9,15 +9,12 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -53,11 +50,9 @@ public class SendSmsDialog
     
     private ChatPanel chatPanel;
     
-    private OperationSetSmsMessaging smsOpSet;
+    private String smsMessage;
     
-    private Message smsMessage;
-    
-    private MetaContact metaContact;
+    private ChatTransport chatTransport;
     
     /**
      * Creates and constructs the SendSmsDialog, by specifying its parent chat,
@@ -70,18 +65,16 @@ public class SendSmsDialog
      * send the message
      */
     public SendSmsDialog(   ChatPanel chatPanel,
-                            Message message,
-                            OperationSetSmsMessaging opSet)
+                            ChatTransport chatTransport,
+                            String message)
     {
         super(chatPanel.getChatWindow());
         
         this.chatPanel = chatPanel;
         
-        this.smsOpSet = opSet;
+        this.chatTransport = chatTransport;
         
         this.smsMessage = message;
-        
-        this.metaContact = (MetaContact) chatPanel.getChatIdentifier();
         
         this.setTitle(title);
         
@@ -94,14 +87,10 @@ public class SendSmsDialog
         this.mainPanel.add(phoneNumberBox, BorderLayout.CENTER);
         this.mainPanel.add(detailsArea, BorderLayout.SOUTH);
         
-        List detailsList = metaContact.getDetails("mobile");
+        String defaultSmsNumber
+            = chatTransport.getParentChatSession().getDefaultSmsNumber();
         
-        if (detailsList != null && detailsList.size() > 0)
-        {
-            String detail = (String) detailsList.iterator().next();
-            
-            phoneNumberBox.setText(detail);
-        }
+        phoneNumberBox.setText(defaultSmsNumber);
         
         this.detailsArea.setOpaque(false);
         this.detailsArea.setLineWrap(true);
@@ -120,11 +109,6 @@ public class SendSmsDialog
         });
     }
 
-    @Override
-    protected void close(boolean isEscaped)
-    {
-    }
-    
     /**
      * Sends the given message to the given phoneNumber, using the current
      * SMS operation set.
@@ -132,13 +116,13 @@ public class SendSmsDialog
      * @param phoneNumber the phone number to which the message should be sent.
      * @param message the message to send.
      */
-    private void sendSmsMessage(String phoneNumber, Message message)
+    private void sendSmsMessage(String phoneNumber, String message)
     {
-        metaContact.addDetail("mobile", phoneNumber);
-        
+        chatTransport.getParentChatSession().setDefaultSmsNumber(phoneNumber);
+
         try
         {
-            smsOpSet.sendSmsMessage(phoneNumber, message);
+            chatTransport.sendSmsMessage(phoneNumber, message);
         }
         catch (IllegalStateException ex)
         {
@@ -150,8 +134,8 @@ public class SendSmsDialog
                 phoneNumber,
                 new Date(System.currentTimeMillis()),
                 Constants.OUTGOING_MESSAGE,
-                message.getContent(),
-                message.getContentType());
+                message,
+                "text/plain");
 
             chatPanel.processMessage(
                 phoneNumber,
@@ -170,7 +154,8 @@ public class SendSmsDialog
                 phoneNumber,
                 new Date(System.currentTimeMillis()),
                 Constants.OUTGOING_MESSAGE,
-                message.getContent(), message.getContentType());
+                message,
+                "text/plain");
 
             chatPanel.processMessage(
                 phoneNumber,
@@ -182,5 +167,10 @@ public class SendSmsDialog
         }
         
         this.dispose();
+    }
+
+    @Override
+    protected void close(boolean isEscaped)
+    {
     }
 }

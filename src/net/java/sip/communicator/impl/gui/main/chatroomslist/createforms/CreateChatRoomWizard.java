@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -27,8 +28,6 @@ public class CreateChatRoomWizard
     private Logger logger
         = Logger.getLogger(CreateChatRoomWizard.class.getName());
     
-    private MainFrame mainFrame;
-    
     private NewChatRoom newChatRoom = new NewChatRoom();
     
     private CreateChatRoomWizardPage1 page1;
@@ -43,11 +42,9 @@ public class CreateChatRoomWizard
     public CreateChatRoomWizard(MainFrame mainFrame)
     {
         super(mainFrame);
-        
-        this.mainFrame = mainFrame;
-     
+
         super.addWizardListener(this);
-        
+
         this.setTitle(Messages.getI18NString("createChatRoomWizard").getText());
 
         this.setFinishButtonText(Messages.getI18NString("create").getText());
@@ -65,63 +62,15 @@ public class CreateChatRoomWizard
     }
 
     /**
-     * Creates a new chat room in a separate thread.
-     */
-    private class CreateChatRoom extends Thread
-    {
-        NewChatRoom newChatRoom;
-        
-        CreateChatRoom(NewChatRoom newChatRoom)
-        {
-            this.newChatRoom = newChatRoom;
-        }
-        
-        public void run()
-        {
-            ChatRoom chatRoom = null;
-            try
-            {
-                chatRoom = mainFrame.getMultiUserChatOpSet(
-                    newChatRoom.getProtocolProvider()).createChatRoom(
-                        newChatRoom.getChatRoomName(), null);
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error("Failed to create chat room.", ex);
-                
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    Messages.getI18NString(
-                        "createChatRoomError",
-                        new String[]{newChatRoom.getChatRoomName()}).getText(),
-                        ex)
-                .showDialog();
-            }
-            catch (OperationNotSupportedException ex)
-            {
-                logger.error("Failed to create chat room.", ex);
-
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    Messages.getI18NString(
-                        "createChatRoomError",
-                        new String[]{newChatRoom.getChatRoomName()}).getText(),
-                        ex)
-                .showDialog();
-            }
-
-            if(chatRoom != null)
-                mainFrame.getMultiUserChatManager().getChatRoomList()
-                    .addChatRoom(new ChatRoomWrapper(chatRoom));
-        }
-    }
-
-    /**
      * Implements the Wizard.wizardFinished method.
      */
     public void wizardFinished(WizardEvent e)
     {
         if(e.getEventCode() == WizardEvent.SUCCESS)
-            new CreateChatRoom(newChatRoom).start();
+        {
+            GuiActivator.getUIService().getConferenceChatManager()
+                .createChatRoom(newChatRoom.getChatRoomName(),
+                                newChatRoom.getProtocolProvider());
+        }
     }
 }

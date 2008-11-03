@@ -91,10 +91,10 @@ public class ChatRoomsListCellRenderer extends JPanel
 
             this.isLeaf = true;
         }
-        else if (value instanceof MultiUserChatServerWrapper)
+        else if (value instanceof ChatRoomProviderWrapper)
         {
-            MultiUserChatServerWrapper serverWrapper
-                = (MultiUserChatServerWrapper) value;
+            ChatRoomProviderWrapper serverWrapper
+                = (ChatRoomProviderWrapper) value;
 
             ProtocolProviderService pps = serverWrapper.getProtocolProvider();
 

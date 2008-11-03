@@ -1,0 +1,322 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.chatroomslist;
+
+import java.util.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
+
+/**
+ * The <tt>ChatRoomsList</tt> is the list containing all chat rooms.
+ *
+ * @author Yana Stamcheva
+ */
+public class ChatRoomList
+{
+    private Logger logger = Logger.getLogger(ChatRoomList.class);
+
+    /**
+     * The list containing all chat servers and rooms.
+     */
+    private Vector<ChatRoomProviderWrapper> providersList
+        = new Vector<ChatRoomProviderWrapper>();
+
+    /**
+     * Initializes the list of chat rooms.
+     */
+    public void loadList()
+    {
+        try
+        {
+            ServiceReference[] serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                                        ProtocolProviderService.class.getName(),
+                                        null);
+
+            // If we don't have providers at this stage we just return.
+            if (serRefs == null)
+                return;
+
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                ServiceReference protocolProviderRef = serRefs[i];
+
+                ProtocolProviderService protocolProvider
+                    = (ProtocolProviderService) GuiActivator
+                        .bundleContext.getService(protocolProviderRef);
+
+                Object multiUserChatOpSet
+                    = protocolProvider
+                        .getOperationSet(OperationSetMultiUserChat.class);
+
+                if (multiUserChatOpSet != null)
+                {
+                    this.addChatProvider(protocolProvider);
+                }
+            }
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("Failed to obtain service references.", e);
+        }
+    }
+
+    /**
+     * Adds a chat server and all its existing chat rooms.
+     *
+     * @param pps the <tt>ProtocolProviderService</tt> corresponding to the chat
+     * server
+     * @param multiUserChatOperationSet the <tt>OperationSetMultiUserChat</tt>
+     * from which we manage chat rooms
+     */
+    public void addChatProvider(ProtocolProviderService pps)
+    {
+        ChatRoomProviderWrapper chatRoomProvider
+            = new ChatRoomProviderWrapper(pps);
+
+        providersList.add(chatRoomProvider);
+
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        List accounts = configService
+                .getPropertyNamesByPrefix(prefix, true);
+
+        Iterator accountsIter = accounts.iterator();
+
+        while(accountsIter.hasNext()) {
+            String accountRootPropName
+                = (String) accountsIter.next();
+
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(pps
+                    .getAccountID().getAccountUniqueID()))
+            {
+                List chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                Iterator chatRoomsIter = chatRooms.iterator();
+
+                while(chatRoomsIter.hasNext())
+                {
+                    String chatRoomPropName
+                        = (String) chatRoomsIter.next();
+
+                    String chatRoomID
+                        = configService.getString(chatRoomPropName);
+
+                    String chatRoomName = configService.getString(
+                        chatRoomPropName + ".chatRoomName");
+
+                    ChatRoomWrapper chatRoomWrapper
+                        = new ChatRoomWrapper(  chatRoomProvider,
+                                                chatRoomID,
+                                                chatRoomName);
+
+                    chatRoomProvider.addChatRoom(chatRoomWrapper);
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes the corresponding server and all related chat rooms from this
+     * list.
+     * 
+     * @param pps the <tt>ProtocolProviderService</tt> corresponding to the
+     * server to remove
+     */
+    public void removeChatProvider(ChatRoomProviderWrapper chatRoomProvider)
+    {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        Iterator<String> accountsIter = configService
+            .getPropertyNamesByPrefix(prefix, true).iterator();
+
+        while(accountsIter.hasNext())
+        {
+            String accountRootPropName = accountsIter.next();
+
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(chatRoomProvider.getProtocolProvider()
+                    .getAccountID().getAccountUniqueID()))
+            {
+                List<String> chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                Iterator<String> chatRoomsIter = chatRooms.iterator();
+
+                while(chatRoomsIter.hasNext())
+                {
+                    String chatRoomPropName = chatRoomsIter.next();
+
+                    configService.setProperty(
+                        chatRoomPropName + ".chatRoomName",
+                        null);
+                }
+
+                configService.setProperty(accountRootPropName, null);
+            }
+        }
+    }
+
+    /**
+     * Adds a chat room to this list.
+     *
+     * @param chatRoomWrapper the <tt>ChatRoom</tt> to add
+     */
+    public void addChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {
+        ChatRoomProviderWrapper chatRoomProvider
+            = chatRoomWrapper.getParentProvider();
+
+        if (!chatRoomProvider.containsChatRoom(chatRoomWrapper))
+            chatRoomProvider.addChatRoom(chatRoomWrapper);
+
+        if (chatRoomWrapper.isPersistent())
+        {
+            ConfigurationManager.saveChatRoom(
+                chatRoomProvider.getProtocolProvider(),
+                chatRoomWrapper.getChatRoomID(),
+                chatRoomWrapper.getChatRoomID(),
+                chatRoomWrapper.getChatRoomName());
+        }
+    }
+
+    /**
+     * Removes the given <tt>ChatRoom</tt> from the list of all chat rooms.
+     * 
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to remove
+     */
+    public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {
+        ChatRoomProviderWrapper chatRoomProvider
+            = chatRoomWrapper.getParentProvider();
+
+        if (providersList.contains(chatRoomProvider))
+        {
+            chatRoomProvider.removeChatRoom(chatRoomWrapper);
+
+            if (chatRoomWrapper.isPersistent())
+            {
+                ConfigurationManager.saveChatRoom(
+                    chatRoomProvider.getProtocolProvider(),
+                    chatRoomWrapper.getChatRoomID(),
+                    null,   // The new identifier.
+                    null);   // The name of the chat room.
+            }
+        }
+    }
+
+    /**
+     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
+     * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
+     * corresponding wrapper - returns null.
+     *  
+     * @param chatRoom the <tt>ChatRoom</tt> that we're looking for
+     * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given
+     * <tt>ChatRoom</tt>
+     */
+    public ChatRoomWrapper findChatRoomWrapperFromChatRoom(ChatRoom chatRoom)
+    {
+        for (ChatRoomProviderWrapper provider : providersList)
+        {
+            ChatRoomWrapper systemRoomWrapper = provider.getSystemRoomWrapper();
+
+            if (systemRoomWrapper.getChatRoom() != null
+                && systemRoomWrapper.getChatRoom().equals(chatRoom))
+            {
+                return systemRoomWrapper;
+            }
+            else
+            {
+                ChatRoomWrapper chatRoomWrapper
+                    = provider.findChatRoomWrapperForChatRoom(chatRoom);
+
+                if (chatRoomWrapper != null)
+                    return chatRoomWrapper;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
+     * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
+     * corresponding wrapper - returns null.
+     *  
+     * @param protocolProvider the protocol provider that we're looking for
+     * @return the <tt>ChatRoomProvider</tt> object corresponding to
+     * the given <tt>ProtocolProviderService</tt>
+     */
+    public ChatRoomProviderWrapper findServerWrapperFromProvider(
+        ProtocolProviderService protocolProvider)
+    {
+        for(ChatRoomProviderWrapper chatRoomProvider : providersList)
+        {
+            if(chatRoomProvider.getProtocolProvider().equals(protocolProvider))
+            {
+                return chatRoomProvider;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Goes through the locally stored chat rooms list and for each
+     * {@link ChatRoomWrapper} tries to find the corresponding server stored
+     * {@link ChatRoom} in the specified operation set. Joins automatically all
+     * found chat rooms.
+     *
+     * @param protocolProvider the protocol provider for the account to
+     * synchronize
+     * @param opSet the multi user chat operation set, which give us access to
+     * chat room server 
+     */
+    public void synchronizeOpSetWithLocalContactList(
+        ProtocolProviderService protocolProvider,
+        final OperationSetMultiUserChat opSet)
+    {
+        ChatRoomProviderWrapper chatRoomProvider
+            = findServerWrapperFromProvider(protocolProvider);
+
+        if (chatRoomProvider != null)
+        {
+            chatRoomProvider.synchronizeProvider();
+        }
+    }
+
+    /**
+     * Returns an iterator to the list of chat room providers.
+     * 
+     * @return an iterator to the list of chat room providers.
+     */
+    public Iterator<ChatRoomProviderWrapper> getChatRoomProviders()
+    {
+        return providersList.iterator();
+    }
+}

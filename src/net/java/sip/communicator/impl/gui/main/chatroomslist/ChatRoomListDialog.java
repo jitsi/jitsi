@@ -25,19 +25,17 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class MyChatRoomsDialog
+public class ChatRoomListDialog
     extends SIPCommDialog
     implements  ActionListener
 {
-    private Logger logger = Logger.getLogger(MyChatRoomsDialog.class);
+    private Logger logger = Logger.getLogger(ChatRoomListDialog.class);
 
     private static final String CREATE_CHAT_ROOM = "CreateChatRoom";
 
     private static final String JOIN_CHAT_ROOM = "JoinChatRoom";
 
     private static final String CANCEL = "Cancel";
-
-    private ChatRoomsListPanel chatRoomsListPanel;
 
     private MainFrame mainFrame;
 
@@ -47,7 +45,7 @@ public class MyChatRoomsDialog
      * 
      * @param parentWindow the parent window of this dialog
      */
-    public MyChatRoomsDialog(MainFrame parentWindow)
+    public ChatRoomListDialog(MainFrame parentWindow)
     {
         super(parentWindow);
 
@@ -63,9 +61,7 @@ public class MyChatRoomsDialog
      */
     private void init()
     {
-        this.chatRoomsListPanel
-            = new ChatRoomsListPanel(mainFrame,
-                mainFrame.getMultiUserChatManager().getChatRoomList());
+        ChatRoomListUI chatRoomsListUI = new ChatRoomListUI(this);
 
         I18NString createChatRoomString
             = Messages.getI18NString("createChatRoom");
@@ -89,7 +85,7 @@ public class MyChatRoomsDialog
         this.setTitle(Messages.getI18NString("myChatRooms").getText());
 
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-        this.getContentPane().add(chatRoomsListPanel, BorderLayout.CENTER);
+        this.getContentPane().add(chatRoomsListUI, BorderLayout.CENTER);
 
         buttonPanel.add(joinChatRoomButton);
         buttonPanel.add(createChatRoomButton);

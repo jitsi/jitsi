@@ -7,20 +7,17 @@
 
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -63,22 +60,17 @@ public class ChatRoomRightButtonMenu
         removeChatRoomString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
 
-    private MainFrame mainFrame;
-    
     private ChatRoomWrapper chatRoomWrapper = null;
-        
+
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
      * @param mainFrame the main application window
      * @param chatRoomWrapper the chat room wrapper, corresponding to the
      * selected chat room
      */
-    public ChatRoomRightButtonMenu( MainFrame mainFrame,
-                                    ChatRoomWrapper chatRoomWrapper)
+    public ChatRoomRightButtonMenu(ChatRoomWrapper chatRoomWrapper)
     {
         super();
-
-        this.mainFrame = mainFrame;
 
         this.chatRoomWrapper = chatRoomWrapper;
 
@@ -138,91 +130,27 @@ public class ChatRoomRightButtonMenu
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        final ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        ConferenceChatManager conferenceManager
+            = GuiActivator.getUIService().getConferenceChatManager();
 
         if (itemName.equals("removeChatRoom"))
         {
-            ChatWindowManager chatWindowManager
-                = mainFrame.getChatWindowManager();
+            conferenceManager.removeChatRoom(chatRoomWrapper);
 
-            ConferenceChatPanel chatPanel
-                = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-            chatWindowManager.closeChat(chatPanel);
-
-            mainFrame.getMultiUserChatManager()
-                .getChatRoomList().removeChatRoom(chatRoomWrapper);
-
-            if(chatRoom == null)
-                return;
-
-            new Thread()
-            {
-                public void run()
-                {
-                    chatRoom.leave();
-                }
-            }.start();
-            
         }
         else if (itemName.equals("leaveChatRoom"))
         {
-            if(chatRoom == null)
-            {
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("warning").getText(),
-                    Messages.getI18NString("haveToBeConnectedToLeave")
-                            .getText())
-                        .showDialog();
-                
-                return;
-            }
-
-            new Thread()
-            {
-                public void run()
-                {
-                    mainFrame.getMultiUserChatManager().leaveChatRoom(chatRoom);
-                }
-            }.start();
+            conferenceManager.leaveChatRoom(chatRoomWrapper);
         }
         else if (itemName.equals("joinChatRoom"))
         {
-            if(chatRoom == null)
-            {
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("warning").getText(),
-                    Messages.getI18NString("haveToBeConnectedToJoin")
-                            .getText())
-                        .showDialog();
-                
-                return;
-            }
-
-            new Thread()
-            {
-                public void run()
-                {
-                    mainFrame.getMultiUserChatManager().joinChatRoom(chatRoom);
-                }
-            }.start();
+            conferenceManager.joinChatRoom(chatRoomWrapper);
         }
         else if(itemName.equals("joinAsChatRoom"))
         {
-            if(chatRoom == null)
-            {
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("warning").getText(),
-                    Messages.getI18NString("haveToBeConnectedToJoin")
-                            .getText())
-                        .showDialog();
-                
-                return;
-            }
-
             ChatRoomAuthenticationWindow authWindow
-                = new ChatRoomAuthenticationWindow(mainFrame, chatRoom);
-            
+                = new ChatRoomAuthenticationWindow(chatRoomWrapper);
+
             authWindow.setVisible(true);
         }
     }

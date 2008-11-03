@@ -241,16 +241,16 @@ public class ExtendedMainToolBar
         {
             public void chatChanged(ChatPanel panel) 
             {
-                if(panel instanceof MetaContactChatPanel)
+                if(panel.getChatSession() instanceof MetaContactChatSession)
                 { 
                     MetaContact contact = 
-                        ((MetaContactChatPanel)panel).getMetaContact();
-                    
+                        (MetaContact) panel.getChatSession().getDescriptor();
+
                     if(contact == null) return;
-                    
+
                     Contact defaultContact = contact.getDefaultContact();
                     if(defaultContact == null) return;
-                    
+
                     ContactGroup parent = defaultContact.getParentContactGroup();
                     boolean isParentPersist = true;
                     boolean isParentResolved = true;
@@ -330,70 +330,70 @@ public class ExtendedMainToolBar
         extends JLabel
     {
         private Image iconImage;
-    
+
         private boolean isMouseOver = false;
-    
+
         private boolean isMousePressed = false;
-    
+
         public ToolBarButton(Image iconImage)
         {
             super(new ImageIcon(iconImage));
-    
+
             this.setFont(getFont().deriveFont(Font.BOLD, 10f));
             this.setForeground(new Color(
                 GuiActivator.getResources().getColor("toolBarForeground")));
-    
+
             this.setVerticalTextPosition(SwingConstants.BOTTOM);
             this.setHorizontalTextPosition(SwingConstants.CENTER);
         }
-    
+
         public void setMouseOver(boolean isMouseOver)
         {
             this.isMouseOver = isMouseOver;
             this.repaint();
         }
-    
+
         public void setMousePressed(boolean isMousePressed)
         {
             this.isMousePressed = isMousePressed;
             this.repaint();
         }
-    
+
         public void paintComponent(Graphics g)
         {
             Graphics2D g2 = (Graphics2D) g;
-    
+
             AntialiasingManager.activateAntialiasing(g2);
-    
+
             Color color = null;
-    
+
             if(isMouseOver)
             {
                 color = new Color(
                     GuiActivator.getResources()
                     .getColor("toolbarRolloverBackground"));
-    
+
                 g2.setColor(color);
-    
+
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 2, 8, 8);
             }
-    
+
             if (isMousePressed)
             {
                 color = new Color(
                     GuiActivator.getResources().getColor("toolbarBackground"));
-    
+
                 g2.setColor(new Color(   color.getRed(),
                                         color.getGreen(),
                                         color.getBlue(),
                                         100));
-    
+
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 2, 8, 8);
             }
-    
+
             super.paintComponent(g2);
         }
-        
+
         public Action getAction()
         {
             return null;
@@ -441,9 +441,9 @@ public class ExtendedMainToolBar
             HistoryWindow history;
 
             HistoryWindowManager historyWindowManager
-                = messageWindow.getMainFrame().getHistoryWindowManager();
+                = GuiActivator.getUIService().getHistoryWindowManager();
 
-            Object historyContact = chatPanel.getChatIdentifier();
+            Object historyContact = chatPanel.getChatSession().getDescriptor();
 
             if(historyWindowManager
                 .containsHistoryWindowForContact(historyContact))
@@ -458,8 +458,8 @@ public class ExtendedMainToolBar
             }
             else
             {
-                history = new HistoryWindow(messageWindow
-                    .getMainFrame(), chatPanel.getChatIdentifier());
+                history = new HistoryWindow(
+                    chatPanel.getChatSession().getDescriptor());
 
                 history.setVisible(true);
 
@@ -473,10 +473,11 @@ public class ExtendedMainToolBar
             {
                 AddContactWizard addCWizz = 
                         new AddContactWizard(
-                            messageWindow.getMainFrame(),
+                            GuiActivator.getUIService().getMainFrame(),
                             currentChatContact.getAddress(),
                             currentChatContact.getProtocolProvider()
                         );
+
                 addCWizz.setVisible(true);
             }
         }

@@ -12,6 +12,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -116,7 +117,8 @@ public class SimpleStatusMenu
         if(itemName.equals(Constants.ONLINE_STATUS))
         {
             if(!protocolProvider.isRegistered()) {
-                this.mainFrame.getLoginManager().login(protocolProvider);
+                GuiActivator.getUIService().getLoginManager()
+                    .login(protocolProvider);
             }
         }
         else
@@ -127,7 +129,7 @@ public class SimpleStatusMenu
                             .equals(RegistrationState.UNREGISTERING))
             {
                 try {
-                    mainFrame.getLoginManager()
+                    GuiActivator.getUIService().getLoginManager()
                         .setManuallyDisconnected(true);
                     protocolProvider.unregister();
                 }

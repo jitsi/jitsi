@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ChatRoomWrapper
 {
-    private ProtocolProviderService parentProvider;
+    private ChatRoomProviderWrapper parentProvider;
 
     private ChatRoom chatRoom;
 
@@ -29,15 +29,16 @@ public class ChatRoomWrapper
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
      * the identifier and the name of the chat room.
      * 
-     * @param protocolProvider the protocol provider to which the corresponding
+     * @param parentProvider the protocol provider to which the corresponding
      * chat room belongs
      * @param chatRoomID the identifier of the corresponding chat room
      * @param chatRoomName the name of the corresponding chat room
      */
-    public ChatRoomWrapper(ProtocolProviderService protocolProvider,
-        String chatRoomID, String chatRoomName)
+    public ChatRoomWrapper( ChatRoomProviderWrapper parentProvider,
+                            String chatRoomID,
+                            String chatRoomName)
     {
-        this.parentProvider = protocolProvider;
+        this.parentProvider = parentProvider;
         this.chatRoomID = chatRoomID;
         this.chatRoomName = chatRoomName;
     }
@@ -48,11 +49,13 @@ public class ChatRoomWrapper
      * 
      * @param chatRoom the chat room to which this wrapper corresponds.
      */
-    public ChatRoomWrapper(ChatRoom chatRoom)
+    public ChatRoomWrapper( ChatRoomProviderWrapper parentProvider,
+                            ChatRoom chatRoom)
     {
-        this(chatRoom.getParentProvider(),
-            chatRoom.getIdentifier(), chatRoom.getName());
-        
+        this(   parentProvider,
+                chatRoom.getIdentifier(),
+                chatRoom.getName());
+
         this.chatRoom = chatRoom;
     }
 
@@ -121,8 +124,23 @@ public class ChatRoomWrapper
      * 
      * @return the parent protocol provider
      */
-    public ProtocolProviderService getParentProvider()
+    public ChatRoomProviderWrapper getParentProvider()
     {
         return this.parentProvider;
+    }
+
+    /**
+     * Returns <code>true</code> if the chat room inside is persistent,
+     * otherwise - returns <code>false</code>.
+     * 
+     * @return <code>true</code> if the chat room inside is persistent,
+     * otherwise - returns <code>false</code>.
+     */
+    public boolean isPersistent()
+    {
+        if (chatRoom != null)
+            return chatRoom.isPersistent();
+        else
+            return true;
     }
 }

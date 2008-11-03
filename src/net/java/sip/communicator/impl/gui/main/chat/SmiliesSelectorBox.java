@@ -6,16 +6,14 @@
 
 package net.java.sip.communicator.impl.gui.main.chat;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -38,12 +36,6 @@ public class SmiliesSelectorBox
 
     private SIPCommMenu selectorBox = new SIPCommMenu();
 
-    private static int BUTTON_HEIGHT
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
-
-    private static int BUTTON_WIDTH 
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
-
     private SelectorBoxRolloverListener rolloverListener =
         new SelectorBoxRolloverListener();
 
@@ -60,11 +52,8 @@ public class SmiliesSelectorBox
 
         this.chatWritePanel = writePanel;
 
-        this.selectorBox.setUI(new SIPCommChatSelectorMenuUI());
-
         this.setOpaque(false);
         this.selectorBox.setOpaque(false);
-        this.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
 
         // Should explicitly remove any border in order to align correctly the
         // icon.
@@ -207,5 +196,9 @@ public class SmiliesSelectorBox
         {
             selectorBox.setMouseOver(false);
         }
+    }
+
+    public void paintComponent(Graphics g)
+    {
     }
 }

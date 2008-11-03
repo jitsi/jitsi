@@ -47,11 +47,9 @@ public class ChatSendPanel
      */
     public ChatSendPanel(ChatPanel chatPanel)
     {
-        super(new BorderLayout(5, 5));
+        super(new BorderLayout(5, 0));
 
         this.chatPanel = chatPanel;
-
-        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.statusPanel.add(statusLabel);
 

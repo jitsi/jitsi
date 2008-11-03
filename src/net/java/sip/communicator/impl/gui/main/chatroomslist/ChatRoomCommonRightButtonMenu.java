@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -58,18 +59,18 @@ public class ChatRoomCommonRightButtonMenu
 
     private MainFrame mainFrame;
 
-    private ProtocolProviderService protocolProvider;
+    private ChatRoomProviderWrapper chatRoomProvider;
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
      */
-    public ChatRoomCommonRightButtonMenu(MainFrame mainFrame,
-        ProtocolProviderService pps)
+    public ChatRoomCommonRightButtonMenu(   MainFrame mainFrame,
+                                            ChatRoomProviderWrapper provider)
     {
         super();
 
         this.mainFrame = mainFrame;
 
-        this.protocolProvider = pps;
+        this.chatRoomProvider = provider;
 
         this.setLocation(getLocation());
 
@@ -150,15 +151,15 @@ public class ChatRoomCommonRightButtonMenu
 
         if (itemName.equals("createChatRoom"))
         {
-            AddChatRoomDialog addChatRoomDialog
-                = new AddChatRoomDialog(mainFrame, protocolProvider);
+            CreateChatRoomDialog addChatRoomDialog
+                = new CreateChatRoomDialog(chatRoomProvider);
 
             addChatRoomDialog.setVisible(true);
         }
         else if (itemName.equals("searchForChatRooms"))
         {
             JoinChatRoomDialog joinChatRoomDialog
-                = new JoinChatRoomDialog(mainFrame, protocolProvider);
+                = new JoinChatRoomDialog(chatRoomProvider);
 
             joinChatRoomDialog.showDialog();
         }

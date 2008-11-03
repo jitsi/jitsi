@@ -69,8 +69,6 @@ public class HistoryWindow
 
     private MessageHistoryService msgHistory;
 
-    private MainFrame mainFrame;
-
     private Hashtable dateHistoryTable = new Hashtable();
     
     private JLabel readyLabel = new JLabel(
@@ -89,9 +87,8 @@ public class HistoryWindow
      * @param mainFrame the main application window
      * @param historyContact the <tt>MetaContact</tt> or the <tt>ChatRoom</tt>
      */
-    public HistoryWindow(MainFrame mainFrame, Object historyContact)
+    public HistoryWindow(Object historyContact)
     {
-        this.mainFrame = mainFrame;
         this.historyContact = historyContact;
 
         chatConvPanel = new ChatConversationPanel(this);
@@ -242,7 +239,8 @@ public class HistoryWindow
                         .getDestinationContact().getProtocolProvider();
 
                     processedMessage = chatConvPanel.processMessage(
-                            this.mainFrame.getAccount(protocolProvider),
+                            GuiActivator.getUIService().getMainFrame()
+                                .getAccount(protocolProvider),
                             evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
                             evt.getSourceMessage().getContent(),
                             evt.getSourceMessage().getContentType(),
@@ -663,7 +661,7 @@ public class HistoryWindow
         }
         else
         {
-            mainFrame.getHistoryWindowManager()
+            GuiActivator.getUIService().getHistoryWindowManager()
                 .removeHistoryWindowForContact(historyContact);
 
             this.dispose();

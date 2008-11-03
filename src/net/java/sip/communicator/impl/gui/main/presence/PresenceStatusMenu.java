@@ -12,6 +12,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -132,7 +133,8 @@ public class PresenceStatusMenu
             {
                 JMenuItem menuItem = (JMenuItem) e.getSource();
 
-                LoginManager loginManager = mainFrame.getLoginManager();
+                LoginManager loginManager
+                    = GuiActivator.getUIService().getLoginManager();
 
                 Iterator statusSet = presence.getSupportedStatusSet();
 

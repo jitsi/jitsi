@@ -8,6 +8,8 @@
 package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -27,7 +29,8 @@ public class ChatRoomNamePanel
     extends JPanel
     implements DocumentListener
 {
-    private JLabel nameLabel = new JLabel(
+   
+   private JLabel nameLabel = new JLabel(
         Messages.getI18NString("chatRoomName").getText());
     
     private JTextField textField = new JTextField();

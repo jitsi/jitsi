@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -23,6 +24,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -39,7 +41,6 @@ public class ContactList
                 MouseListener,
                 MouseMotionListener
 {
-
     private static final String ADD_OPERATION = "AddOperation";
 
     private static final String REMOVE_OPERATION = "RemoveOperation";
@@ -71,6 +72,13 @@ public class ContactList
     private ContactListDraggable draggedElement;
 
     /**
+     * A list of all contacts that are currently "active". An "active" contact
+     * is a contact that has been sent a message. The list is used to indicate
+     * these contacts with a special icon. 
+     */
+    private Vector activeContacts = new Vector();
+    
+    /**
      * Creates an instance of the <tt>ContactList</tt>.
      *
      * @param mainFrame The main application window.
@@ -92,7 +100,7 @@ public class ContactList
         this.getSelectionModel().setSelectionMode(
             ListSelectionModel.SINGLE_SELECTION);
 
-        this.setCellRenderer(new ContactListCellRenderer(mainFrame));
+        this.setCellRenderer(new ContactListCellRenderer());
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
@@ -1575,7 +1583,7 @@ public class ContactList
             byte[] avatarImage = metaContact.getAvatar();
 
             if (avatarImage != null && avatarImage.length > 0)
-                tip.setImage(new ImageIcon(metaContact.getAvatar()));
+                tip.setImage(new ImageIcon(avatarImage));
 
             tip.setTitle(metaContact.getDisplayName());
 
@@ -1638,5 +1646,130 @@ public class ContactList
         }
 
         return null;
+    }
+
+    /**
+     * Adds the given <tt>MetaContact</tt> to the list of active contacts.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to add.
+     */
+    public void addActiveContact(MetaContact metaContact)
+    {
+        synchronized (activeContacts)
+        {
+            SystrayService stray = GuiActivator.getSystrayService();
+            if(activeContacts.size() == 0 && stray != null)
+                stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
+
+            if(!activeContacts.contains(metaContact))
+                this.activeContacts.add(metaContact);
+        }
+    }
+    
+    /**
+     * Removes the given <tt>MetaContact</tt> from the list of active contacts.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to remove.
+     */
+    public void removeActiveContact(MetaContact metaContact)
+    {
+        synchronized (activeContacts)
+        {
+            if(activeContacts.contains(metaContact))
+                this.activeContacts.remove(metaContact);
+
+            if(activeContacts.size() == 0)
+                GuiActivator.getSystrayService().setSystrayIcon(
+                   SystrayService.SC_IMG_TYPE);
+        }
+    }
+    
+    /**
+     * Removes all contacts from the list of active contacts.
+     */
+    public void removeAllActiveContacts()
+    {
+        synchronized (activeContacts)
+        {
+            if(activeContacts.size() > 0)
+            {
+                this.activeContacts.removeAllElements();
+
+                GuiActivator.getSystrayService().setSystrayIcon(
+                   SystrayService.SC_IMG_TYPE);
+            }
+        }
+    }
+    
+    /**
+     * Checks if the given contact is currently active.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to verify
+     * @return TRUE if the given <tt>MetaContact</tt> is active, FALSE -
+     * otherwise
+     */
+    public boolean isMetaContactActive(MetaContact metaContact)
+    {
+        synchronized (activeContacts)
+        {
+            return this.activeContacts.contains(metaContact);
+        }
+    }
+
+    /**
+     * Returns the general status of the given MetaContact. Detects the status
+     * using the priority status table. The priority is defined on the
+     * "availablity" factor and here the most "available" status is returned.
+     *
+     * @param metaContact The metaContact fot which the status is asked.
+     * @return PresenceStatus The most "available" status from all subcontact
+     *         statuses.
+     */
+    public PresenceStatus getMetaContactStatus(MetaContact metaContact)
+    {
+        PresenceStatus status = null;
+        Iterator i = metaContact.getContacts();
+        while (i.hasNext())
+        {
+            Contact protoContact = (Contact) i.next();
+            PresenceStatus contactStatus = protoContact.getPresenceStatus();
+
+            if (status == null)
+            {
+                status = contactStatus;
+            }
+            else
+            {
+                status = (contactStatus.compareTo(status) > 0) ? contactStatus
+                    : status;
+            }
+        }
+        return status;
+    }
+
+    /**
+     * Resets the contained mouse listeners and adds the given one. This allows
+     * other components to integrate the contact list by specifying their own
+     * mouse events.
+     * 
+     * @param l the mouse listener to set.
+     */
+    public void setMouseListener(MouseListener l)
+    {
+        this.removeMouseListener(this);
+        this.addMouseListener(l);
+    }
+
+    /**
+     * Resets the contained mouse motion listeners and adds the given one. This
+     * allows other components to integrate the contact list by specifying their
+     * own mouse events.
+     * 
+     * @param l the mouse listener to set.
+     */
+    public void setMouseMotionListener(MouseMotionListener l)
+    {
+        this.removeMouseMotionListener(this);
+        this.addMouseMotionListener(l);
     }
 }

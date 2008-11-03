@@ -28,17 +28,17 @@ public class ChatRoomSubjectPanel
     extends JPanel
 {
     private Logger logger = Logger.getLogger(ChatRoomSubjectPanel.class);
-    
+
     private JLabel subjectLabel = new JLabel(
         Messages.getI18NString("subject").getText() + ": ");
-    
+
     private JTextField subjectField = new JTextField();
- 
+
     private JButton configButton = new JButton(new ImageIcon(
         ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON)));
-    
-    private ChatRoomWrapper chatRoomWrapper;
-    
+
+    private ConferenceChatSession chatSession;
+
     /**
      * The parent window.
      */
@@ -52,11 +52,11 @@ public class ChatRoomSubjectPanel
      * chat room subject and the configuration information.
      */
     public ChatRoomSubjectPanel(ChatWindow chatWindow,
-                                ChatRoomWrapper chatRoomWrapper)
+                                ConferenceChatSession chatSession)
     {
         super(new BorderLayout(5, 5));
 
-        this.chatRoomWrapper = chatRoomWrapper;
+        this.chatSession = chatSession;
         this.chatWindow = chatWindow;
 
         this.add(subjectLabel, BorderLayout.WEST);
@@ -69,11 +69,8 @@ public class ChatRoomSubjectPanel
 
         this.configButton.addActionListener(new ConfigButtonActionListener());
 
-        if(chatRoomWrapper.getChatRoom() != null)
-        {
-            this.subjectField.setText(
-                chatRoomWrapper.getChatRoom().getSubject());
-        }
+        this.subjectField.setText(chatSession.getChatSubject());
+
         // The subject is set not editable until we implement this functionality.
         // TODO: Implement the editing of the chat room subject
         this.subjectField.setEditable(false);
@@ -99,19 +96,15 @@ public class ChatRoomSubjectPanel
          * room when user clicks on the configuration button.
          */
         public void actionPerformed(ActionEvent evt)
-        {   
-            if(chatRoomWrapper.getChatRoom() == null)
-                return;
-            
+        {
             try
             {
                 ChatRoomConfigurationForm configForm
-                    = chatRoomWrapper.getChatRoom()
-                        .getConfigurationForm();
+                    = chatSession.getChatConfigurationForm();
 
                 ChatRoomConfigurationWindow configWindow
                     = new ChatRoomConfigurationWindow(
-                        chatRoomWrapper.getChatRoomName(), configForm);
+                        chatSession.getChatName(), configForm);
 
                 configWindow.setVisible(true);
             }
@@ -129,7 +122,7 @@ public class ChatRoomSubjectPanel
                         Messages.getI18NString("warning").getText(),
                         Messages.getI18NString(
                             "chatRoomOpenConfigForbidden",
-                            new String[]{chatRoomWrapper.getChatRoomName()})
+                            new String[]{chatSession.getChatName()})
                             .getText(),
                         ErrorDialog.WARNING)
                             .showDialog();
@@ -142,7 +135,7 @@ public class ChatRoomSubjectPanel
                         Messages.getI18NString(
                             "chatRoomOpenConfigFailed",
                             new String[]{
-                            chatRoomWrapper.getChatRoomName()})
+                            chatSession.getChatName()})
                             .getText(),
                         e).showDialog();
                 }

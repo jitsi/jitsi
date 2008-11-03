@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-
 /**
  * The <tt>ChatContactRightButtonMenu</tt> is the menu, opened when user clicks
  * with the right mouse button on a contact in the list of contacts in the chat
@@ -75,18 +74,18 @@ public class ChatContactRightButtonMenu
     {
         this.add(kickItem);
         this.add(banItem);
-                
+
         this.kickItem.setName("kick");
         this.banItem.setName("ban");
-                
+
         this.kickItem
             .setMnemonic(kickString.getMnemonic());
-        
+
         this.banItem
             .setMnemonic(banString.getMnemonic());
-    
+
         this.kickItem.addActionListener(this);
-        this.banItem.addActionListener(this);                
+        this.banItem.addActionListener(this);
     }
 
     /**
@@ -97,7 +96,7 @@ public class ChatContactRightButtonMenu
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
-        
+
         if (itemName.equals("kick"))
         {
             new ReasonDialog(KICK_OPERATION).setVisible(true);
@@ -154,12 +153,13 @@ public class ChatContactRightButtonMenu
                     //This menu is shown only for chat rooms, so we're sure
                     // here that we deal with a multi user chat.
                     ChatRoomWrapper chatRoomWrapper
-                        = (ChatRoomWrapper) chatPanel.getChatIdentifier();
-                    
+                        = (ChatRoomWrapper) chatPanel
+                            .getChatSession().getDescriptor();
+
                     ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-                    
+
                     if(chatRoom == null)
-                    {   
+                    {
                         new ErrorDialog(chatPanel.getChatWindow(),
                             Messages.getI18NString("error").getText(),
                             Messages.getI18NString("chatRoomNotJoined")
@@ -197,7 +197,7 @@ public class ChatContactRightButtonMenu
             this.titlePanel.add(iconLabel, BorderLayout.WEST);
             this.titlePanel.add(infoLabel, BorderLayout.CENTER);
             
-            this.mainPanel.add(titlePanel, BorderLayout.NORTH);            
+            this.mainPanel.add(titlePanel, BorderLayout.NORTH);
             this.mainPanel.add(reasonLabel, BorderLayout.WEST);
             this.mainPanel.add(reasonField, BorderLayout.CENTER);
             this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
@@ -235,15 +235,15 @@ public class ChatContactRightButtonMenu
             try
             {
                 chatRoom.kickParticipant(
-                    (ChatRoomMember)chatContact
-                        .getSourceContact(),
+                    (ChatRoomMember) chatContact
+                        .getDescriptor(),
                     reason);
             }
             catch (OperationFailedException e)
             {
                 logger.error("Failed to kick participant.", e);
-                
-                if (e.getErrorCode()                
+
+                if (e.getErrorCode()
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
                 {
                     ErrorDialog errorDialog
@@ -298,7 +298,7 @@ public class ChatContactRightButtonMenu
             {
                 chatRoom.banParticipant(
                     (ChatRoomMember)chatContact
-                        .getSourceContact(),
+                        .getDescriptor(),
                     reason);
             }
             catch (OperationFailedException e)

@@ -113,8 +113,8 @@ public class JoinChatRoomWizardPage2
         wizard.setNextFinishButtonEnabled(false);
 
         searchChatRoomPanel.requestFocusInField();
-        searchChatRoomPanel.setProtocolProvider(
-            joinChatRoom.getProtocolProvider());
+        searchChatRoomPanel.setChatRoomProvider(
+            joinChatRoom.getChatRoomProvider());
     }
 
     public void pageShowing()

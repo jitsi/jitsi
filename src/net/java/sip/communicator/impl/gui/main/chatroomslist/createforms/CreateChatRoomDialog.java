@@ -4,20 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.chatroomslist.chatroomwizard;
+package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>CreateChatRoomDialog</tt> is the dialog containing the form for adding
@@ -29,10 +27,8 @@ import net.java.sip.communicator.util.*;
  */
 public class CreateChatRoomDialog
     extends SIPCommDialog
-    implements ActionListener {
-
-    private Logger logger = Logger.getLogger(CreateChatRoomDialog.class.getName());
-    
+    implements ActionListener
+{
     private ChatRoomNamePanel chatRoomPanel = new ChatRoomNamePanel();
     
     private I18NString addString = Messages.getI18NString("create");
@@ -47,11 +43,7 @@ public class CreateChatRoomDialog
     
     private JPanel mainPanel = new JPanel(new BorderLayout());
     
-    private MetaContactListService clist;
-    
-    private MainFrame mainFrame;
-    
-    private ProtocolProviderService pps;
+    private ChatRoomProviderWrapper chatRoomProvider;
     
     /**
      * Creates an instance of <tt>CreateChatRoomDialog</tt> that represents a dialog
@@ -60,24 +52,22 @@ public class CreateChatRoomDialog
      * @param mainFrame The <tt>MainFrame</tt> parent window.
      * @param pps The <tt>ProtocolProviderService</tt>.
      */
-    public CreateChatRoomDialog(MainFrame mainFrame,
-            ProtocolProviderService pps) {
-        
-        super(mainFrame);
-        
-        this.mainFrame = mainFrame;
-        this.pps = pps;
-        
+    public CreateChatRoomDialog(ChatRoomProviderWrapper provider)
+    {
+        this.chatRoomProvider = provider;
+
         this.init();
     }
-    
+
     /**
      * Initializes the dialog.
      */
-    private void init() {
+    private void init()
+    {
         this.setTitle(Messages.getI18NString("createChatRoom").getText());
         
-        this.setSize(520, 250);
+        this.setSize(620, 450);
+        this.setPreferredSize(new Dimension(620, 450));
         
         this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("create");
@@ -100,17 +90,22 @@ public class CreateChatRoomDialog
         
         this.getContentPane().add(mainPanel);
     }
-    
+
     /**
      * 
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
-        
+
         if (name.equals("create"))
         {
-            new CreateChatRoom().start();
+            String chatRoomName = chatRoomPanel.getChatRoomName();
+
+            GuiActivator.getUIService().getConferenceChatManager()
+                .createChatRoom(chatRoomName,
+                                chatRoomProvider.getProtocolProvider());
         }
         this.dispose();
     }
@@ -118,51 +113,5 @@ public class CreateChatRoomDialog
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
-    }
-    
-    /**
-     * Creates a new chat room in a separate thread.
-     */
-    private class CreateChatRoom extends Thread
-    {           
-        public void run()
-        {
-            String chatRoomName = chatRoomPanel.getChatRoomName();
-            
-            ChatRoom chatRoom = null;
-            try
-            {   
-                chatRoom = mainFrame.getMultiUserChatOpSet(pps).createChatRoom(
-                        chatRoomName, null);
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error("Failed to create chat room.", ex);
-                
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    Messages.getI18NString(
-                        "createChatRoomError",
-                        new String[]{chatRoomName}).getText(),
-                        ex)
-                .showDialog();
-            }
-            catch (OperationNotSupportedException ex)
-            {
-                logger.error("Failed to create chat room.", ex);
-
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    Messages.getI18NString(
-                        "createChatRoomError",
-                        new String[]{chatRoomName}).getText(),
-                        ex)
-                .showDialog();
-            }
-
-            if(chatRoom != null)
-                mainFrame.getMultiUserChatManager().getChatRoomList()
-                    .addChatRoom(new ChatRoomWrapper(chatRoom));
-        }
     }
 }

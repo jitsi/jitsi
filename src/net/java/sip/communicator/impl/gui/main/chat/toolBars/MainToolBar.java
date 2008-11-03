@@ -13,21 +13,20 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -46,47 +45,31 @@ public class MainToolBar
 {
     private Logger logger = Logger.getLogger(MainToolBar.class);
 
-    private ChatToolbarButton copyButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.COPY_ICON));
+    private ChatToolbarButton saveButton
+        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.SAVE_ICON));
 
-    private ChatToolbarButton cutButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.CUT_ICON));
+    private ChatToolbarButton printButton
+        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.PRINT_ICON));
 
-    private ChatToolbarButton pasteButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.PASTE_ICON));
+    private ChatToolbarButton previousButton
+        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
 
-    private ChatToolbarButton saveButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.SAVE_ICON));
+    private ChatToolbarButton nextButton
+        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.NEXT_ICON));
 
-    private ChatToolbarButton printButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.PRINT_ICON));
+    private ChatToolbarButton historyButton
+        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.HISTORY_ICON));
 
-    private ChatToolbarButton previousButton = new ChatToolbarButton(
-        ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
+    private ChatToolbarButton sendFileButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
-    private ChatToolbarButton nextButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.NEXT_ICON));
-
-    private ChatToolbarButton historyButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.HISTORY_ICON));
-    
-    private ChatToolbarButton addButton = new ChatToolbarButton(ImageLoader
-            .getImage(ImageLoader.QUICK_MENU_ADD_ICON));
-
-    private ChatToolbarButton sendFileButton = new ChatToolbarButton(
-        ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
-
-    private ChatToolbarButton fontButton = new ChatToolbarButton(ImageLoader
-        .getImage(ImageLoader.FONT_ICON));
-
-    private static int BUTTON_HEIGHT
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
-
-    private static int BUTTON_WIDTH
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
+    private ChatToolbarButton conferenceButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
     private ChatWindow messageWindow;
-    
+
     private Contact currentChatContact = null;
 
     /**
@@ -101,40 +84,22 @@ public class MainToolBar
      * 
      * @param messageWindow The parent <tt>ChatWindow</tt>.
      */
-    public MainToolBar(ChatWindow messageWindow) {
-
+    public MainToolBar(ChatWindow messageWindow)
+    {
         this.messageWindow = messageWindow;
-        
-        this.setRollover(true);
-        this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
-        this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
 
-//        this.add(saveButton);
-//        this.add(printButton);
-//
-//        this.addSeparator();
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 
-        this.add(cutButton);
-        this.add(copyButton);
-        this.add(pasteButton);
+        this.add(conferenceButton);
+
+        this.addSeparator();
+
+        this.add(historyButton);
 
         this.addSeparator();
 
         this.add(previousButton);
         this.add(nextButton);
-
-        this.addSeparator();
-
-//        this.add(sendFileButton);
-        this.add(historyButton);
-        
-        this.addSeparator();
-        
-        this.add(addButton);
-
-//        this.addSeparator();
-//
-//        this.add(fontButton);
 
         this.saveButton.setName("save");
         this.saveButton.setToolTipText(
@@ -143,18 +108,6 @@ public class MainToolBar
         this.printButton.setName("print");
         this.printButton.setToolTipText(
             Messages.getI18NString("print").getText());
-
-        this.cutButton.setName("cut");
-        this.cutButton.setToolTipText(
-            Messages.getI18NString("cut").getText() + " Ctrl-X");
-
-        this.copyButton.setName("copy");
-        this.copyButton.setToolTipText(
-            Messages.getI18NString("copy").getText() + " Ctrl-C");
-
-        this.pasteButton.setName("paste");
-        this.pasteButton.setToolTipText(
-            Messages.getI18NString("paste").getText() + " Ctrl-P");
 
         this.previousButton.setName("previous");
         this.previousButton.setToolTipText(
@@ -172,95 +125,19 @@ public class MainToolBar
         this.historyButton.setToolTipText(
             Messages.getI18NString("history").getText() + " Ctrl-H");
 
-        this.addButton.setName("addContact");
-        this.addButton.setToolTipText(
-            Messages.getI18NString("addContact").getText());
-//        this.addButton.setEnabled(false);
-        
-        this.fontButton.setName("font");
-        this.fontButton.setToolTipText(
-            Messages.getI18NString("font").getText());
+        this.conferenceButton.setName("conference");
+        this.conferenceButton.setToolTipText(
+            Messages.getI18NString("conference").getText());
 
         this.saveButton.addActionListener(this);
         this.printButton.addActionListener(this);
-        this.cutButton.addActionListener(this);
-        this.copyButton.addActionListener(this);
-        this.pasteButton.addActionListener(this);
         this.previousButton.addActionListener(this);
         this.nextButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
         this.historyButton.addActionListener(this);
-        this.addButton.addActionListener(this);
-        this.fontButton.addActionListener(this);
-
-        this.saveButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.printButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.cutButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.copyButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.pasteButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.previousButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.nextButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.sendFileButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.historyButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        this.fontButton.setPreferredSize(
-            new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-
-        // Disable all buttons that do nothing.
-        this.saveButton.setEnabled(false);
-        this.printButton.setEnabled(false);
-        this.sendFileButton.setEnabled(false);
-        this.fontButton.setEnabled(false);
+        this.conferenceButton.addActionListener(this);
 
         this.initPluginComponents();
-        
-        messageWindow.addChatChangeListener(new ChatChangeListener() 
-        {
-            public void chatChanged(ChatPanel panel) 
-            {
-                if(panel instanceof MetaContactChatPanel)
-                { 
-                    MetaContact contact = 
-                        ((MetaContactChatPanel)panel).getMetaContact();
-                    
-                    if(contact == null) return;
-                    
-                    Contact defaultContact = contact.getDefaultContact();
-                    if(defaultContact == null) return;
-                    
-                    ContactGroup parent = defaultContact.getParentContactGroup();
-                    boolean isParentPersist = true;
-                    boolean isParentResolved = true;
-                    if(parent != null)
-                    {
-                        isParentPersist = parent.isPersistent();
-                        isParentResolved = parent.isResolved();
-                    }
-                    
-                    if(!defaultContact.isPersistent() &&
-                       !defaultContact.isResolved() &&
-                       !isParentPersist &&
-                       !isParentResolved)
-                    {
-                       addButton.setVisible(true);
-                       currentChatContact = defaultContact;
-                    }
-                    else
-                    {
-                        addButton.setVisible(false);
-                        currentChatContact = null;
-                    }  
-                }
-            }
-        });
     }
 
     /**
@@ -279,13 +156,13 @@ public class MainToolBar
      */
     public void actionPerformed(ActionEvent e)
     {
-
         AbstractButton button = (AbstractButton) e.getSource();
         String buttonText = button.getName();
 
         ChatPanel chatPanel = messageWindow.getCurrentChatPanel();
-        
-        if (buttonText.equalsIgnoreCase("save")) {
+
+        if (buttonText.equalsIgnoreCase("save"))
+        {
             // TODO: Implement the save operation in chat MainToolBar.
         }
         else if (buttonText.equalsIgnoreCase("print")) {
@@ -319,47 +196,39 @@ public class MainToolBar
             HistoryWindow history;
 
             HistoryWindowManager historyWindowManager
-                = messageWindow.getMainFrame().getHistoryWindowManager();
+                = GuiActivator.getUIService().getHistoryWindowManager();
 
-            Object historyContact = chatPanel.getChatIdentifier();
+            ChatSession chatSession = chatPanel.getChatSession();
 
             if(historyWindowManager
-                .containsHistoryWindowForContact(historyContact))
+                .containsHistoryWindowForContact(chatSession.getDescriptor()))
             {
                 history = historyWindowManager
-                    .getHistoryWindowForContact(historyContact);
+                    .getHistoryWindowForContact(chatSession.getDescriptor());
 
                 if(history.getState() == JFrame.ICONIFIED)
                     history.setState(JFrame.NORMAL);
-                
+
                 history.toFront();
             }
             else
             {
-                history = new HistoryWindow(messageWindow
-                    .getMainFrame(), chatPanel.getChatIdentifier());
+                history = new HistoryWindow(
+                    chatPanel.getChatSession().getDescriptor());
 
                 history.setVisible(true);
 
-                historyWindowManager.addHistoryWindowForContact(historyContact,
-                                                                history);
+                historyWindowManager
+                    .addHistoryWindowForContact(chatSession.getDescriptor(),
+                                                    history);
             }
         }
-        else if (buttonText.equalsIgnoreCase("font")) {
-
-        }
-        else if (buttonText.equalsIgnoreCase("addContact")) 
+        else if (buttonText.equalsIgnoreCase("conference")) 
         {
-            if(currentChatContact != null)
-            {
-                AddContactWizard addCWizz = 
-                        new AddContactWizard(
-                            messageWindow.getMainFrame(),
-                            currentChatContact.getAddress(),
-                            currentChatContact.getProtocolProvider()
-                        );
-                addCWizz.setVisible(true);
-            }
+            ChatInviteDialog inviteDialog
+                = new ChatInviteDialog(chatPanel);
+
+            inviteDialog.setVisible(true);
         }
     }
 
@@ -454,7 +323,7 @@ public class MainToolBar
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
-        
+
         if(c.getContainer().equals(Container.CONTAINER_CHAT_TOOL_BAR))
         {
             this.addSeparator();
@@ -478,5 +347,4 @@ public class MainToolBar
             this.remove((Component) c.getComponent());
         }
     }
-
 }

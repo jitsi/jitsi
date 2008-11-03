@@ -6,10 +6,14 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
+import java.util.*;
+
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -51,8 +55,13 @@ public class JoinChatRoomWizard
 
         this.setFinishButtonText(Messages.getI18NString("join").getText());
 
-        page1 = new JoinChatRoomWizardPage1(this, newChatRoom,
-                    mainFrame.getProtocolProviders());
+        Iterator<ChatRoomProviderWrapper> chatRoomProviders
+            = GuiActivator.getUIService().getConferenceChatManager()
+                .getChatRoomList().getChatRoomProviders();
+
+        page1 = new JoinChatRoomWizardPage1(this,
+                                            newChatRoom,
+                                            chatRoomProviders);
 
         this.registerWizardPage(JoinChatRoomWizardPage1.IDENTIFIER, page1);
 
@@ -64,67 +73,15 @@ public class JoinChatRoomWizard
     }
 
     /**
-     * Joins a chat room in a separate thread.
-     */
-    private class JoinChatRoom extends Thread
-    {
-        NewChatRoom newChatRoom;
-
-        JoinChatRoom(NewChatRoom newChatRoom)
-        {
-            this.newChatRoom = newChatRoom;
-        }
-        
-        public void run()
-        {
-            ChatRoom chatRoom = null;
-
-            String chatRoomName = newChatRoom.getChatRoomName();
-
-            OperationSetMultiUserChat multiUserChatOpSet
-                = (OperationSetMultiUserChat) newChatRoom.getProtocolProvider()
-                .getOperationSet(OperationSetMultiUserChat.class);
-
-            try
-            {
-                chatRoom = multiUserChatOpSet
-                    .findRoom(chatRoomName);
-            }
-            catch (OperationFailedException e1)
-            {
-                logger.error("Failed to find chat room with name:"
-                    + chatRoomName, e1);
-            }
-            catch (OperationNotSupportedException e1)
-            {
-                logger.error("Failed to find chat room with name:"
-                    + chatRoomName, e1);
-            }
-
-            if(chatRoom == null)
-            {
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    Messages.getI18NString("chatRoomNotExist",
-                        new String[]{chatRoomName,
-                        newChatRoom.getProtocolProvider().getAccountID()
-                        .getService()}).getText())
-                        .showDialog();
-            }
-            else
-            {
-                mainFrame.getMultiUserChatManager()
-                    .joinChatRoom(chatRoom);
-            }
-        }
-    }
-
-    /**
      * Implements the Wizard.wizardFinished method.
      */
     public void wizardFinished(WizardEvent e)
     {
         if(e.getEventCode() == WizardEvent.SUCCESS)
-            new JoinChatRoom(newChatRoom).start();
+        {
+            GuiActivator.getUIService().getConferenceChatManager()
+                .joinChatRoom(  newChatRoom.getChatRoomName(),
+                                newChatRoom.getChatRoomProvider());
+        }
     }
 }
