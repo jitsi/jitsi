@@ -251,6 +251,12 @@ public class ImageLoader {
         = new ImageID("MAIN_WINDOW_BACKGROUND");
 
     /**
+     * The add icon used in some forms.
+     */
+    public static final ImageID ADD_ICON
+        = new ImageID("ADD_ICON");
+
+    /**
      * The background of the main window and chat window.
      */
     public static final ImageID MORE_BUTTON
@@ -481,6 +487,12 @@ public class ImageLoader {
         = new ImageID("DEFAULT_USER_PHOTO");
 
     /**
+     * The image used to draw a frame around the contact photo image.
+     */
+    public static final ImageID USER_PHOTO_FRAME
+        = new ImageID("USER_PHOTO_FRAME");
+
+    /**
      * The minimize button icon in the <tt>CallPanel</tt>.
      */
     public static final ImageID CALL_PANEL_MINIMIZE_BUTTON
@@ -503,20 +515,6 @@ public class ImageLoader {
      */
     public static final ImageID CALL_PANEL_RESTORE_ROLLOVER_BUTTON
         = new ImageID("CALL_PANEL_RESTORE_ROLLOVER_BUTTON");
-
-    /**
-     * The background image of the "Add contact to chat" button in the
-     * chat window.
-     */
-    public static final ImageID ADD_TO_CHAT_BUTTON
-        = new ImageID("ADD_TO_CHAT_BUTTON");
-
-    /**
-     * The background rollover image of the "Add contact to chat" button in
-     * the chat window.
-     */
-    public static final ImageID ADD_TO_CHAT_ROLLOVER_BUTTON
-        = new ImageID("ADD_TO_CHAT_ROLLOVER_BUTTON");
 
     /**
      * The icon image of the "Add contact to chat" button in the
@@ -698,7 +696,16 @@ public class ImageLoader {
     public static final ImageID QUICK_MENU_CREATE_GROUP_ICON
         = new ImageID("QUICK_MENU_CREATE_GROUP_ICON");
 
-    // ///////////////////// Edit Text Toolbar icons //////////////////////////
+    /**
+     * Add not in contact list contact icon.
+     */
+    public static final ImageID ADD_CONTACT_CHAT_ICON
+        = new ImageID("ADD_CONTACT_CHAT_ICON");
+
+    public static final ImageID DELETE_BUTTON_ICON
+        = new ImageID("DELETE_BUTTON_ICON");
+
+    /////////////////////// Edit Text Toolbar icons /////////////////////////
 
     /**
      * "Left align" button image in the <tt>EditTextToolBar</tt> in the
@@ -764,25 +771,16 @@ public class ImageLoader {
         = new ImageID("TEXT_UNDERLINED_BUTTON");
 
     /**
-     * "Bold" button rollover image in the <tt>EditTextToolBar</tt> in the
-     * <tt>ChatWindow</tt>.
+     * Edit toolbar button background icon.
      */
-    public static final ImageID TEXT_BOLD_ROLLOVER_BUTTON
-        = new ImageID("TEXT_BOLD_ROLLOVER_BUTTON");
+    public static final ImageID EDIT_TOOLBAR_BUTTON
+        = new ImageID("EDIT_TOOLBAR_BUTTON");
 
     /**
-     * "Italic" button roll-over image in the <tt>EditTextToolBar</tt> in the
-     * <tt>ChatWindow</tt>.
+     * Edit toolbar button background icon for toggled state.
      */
-    public static final ImageID TEXT_ITALIC_ROLLOVER_BUTTON
-        = new ImageID("TEXT_ITALIC_ROLLOVER_BUTTON");
-
-    /**
-     * "Underline" button roll-over image in the <tt>EditTextToolBar</tt> in
-     * the <tt>ChatWindow</tt>.
-     */
-    public static final ImageID TEXT_UNDERLINED_ROLLOVER_BUTTON
-        = new ImageID("TEXT_UNDERLINED_ROLLOVER_BUTTON");
+    public static final ImageID EDIT_TOOLBAR_BUTTON_PRESSED
+        = new ImageID("EDIT_TOOLBAR_BUTTON_PRESSED");
 
     /**
      * The icon shown in the invite dialog.
