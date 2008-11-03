@@ -305,13 +305,19 @@ public class ProtocolProviderServiceMsnImpl
             supportedOperationSets.put( OperationSetPresence.class.getName(),
                                         persistentPresence);
 
-            //initialize the IM operation set
-            OperationSetBasicInstantMessagingMsnImpl basicInstantMessaging =
-                new OperationSetBasicInstantMessagingMsnImpl(this);
+            // initialize the multi user chat operation set
+           OperationSetMultiUserChat multiUserChat = new OperationSetMultiUserChatMsnImpl(
+                   this);
 
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
-                basicInstantMessaging);
+           supportedOperationSets.put(OperationSetMultiUserChat.class
+                   .getName(), multiUserChat);
+
+           // initialize the IM operation set
+           OperationSetBasicInstantMessagingMsnImpl basicInstantMessaging = new OperationSetBasicInstantMessagingMsnImpl(
+                   this);
+
+           supportedOperationSets.put(OperationSetBasicInstantMessaging.class
+                   .getName(), basicInstantMessaging);
 
             //initialize the typing notifications operation set
             typingNotifications =
@@ -512,14 +518,17 @@ public class ProtocolProviderServiceMsnImpl
 
                 logger.error("Error in Msn lib ", throwable);
 
-                if(isRegistered())
-                {
-                    unregister(false);
-                    fireRegistrationStateChanged(
-                        getRegistrationState(),
-                        RegistrationState.UNREGISTERED,
-                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
-                }
+//                We don't want to disconnect on any error, that's why we're
+//                commenting the following lines for now.
+//
+//                if(isRegistered())
+//                {
+//                    unregister(false);
+//                    fireRegistrationStateChanged(
+//                        getRegistrationState(),
+//                        RegistrationState.UNREGISTERED,
+//                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+//                }
             }
         }
     }

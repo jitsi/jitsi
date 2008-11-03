@@ -40,6 +40,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
      */
     private OperationSetPersistentPresenceMsnImpl opSetPersPresence = null;
 
+    private OperationSetMultiUserChatMsnImpl opSetMuc = null;
     /**
      * Creates an instance of this operation set.
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
@@ -50,6 +51,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
         ProtocolProviderServiceMsnImpl provider)
     {
         this.msnProvider = provider;
+        opSetMuc = (OperationSetMultiUserChatMsnImpl) msnProvider
+       .getOperationSet(OperationSetMultiUserChat.class);
         provider.addRegistrationStateChangeListener(new RegistrationStateListener());
     }
 
@@ -185,7 +188,11 @@ public class OperationSetBasicInstantMessagingMsnImpl
                                            MsnInstantMessage message,
                                            MsnContact contact)
         {
-            Message newMessage = createMessage(message.getContent());
+           // FILTER OUT THE GROUP MESSAGES
+           if (opSetMuc.isGroupChatMessage(switchboard))
+               return;
+           
+           Message newMessage = createMessage(message.getContent());
             Contact sourceContact = opSetPersPresence.
                 findContactByID(contact.getEmail().getEmailAddress());
 
