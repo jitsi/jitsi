@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
@@ -31,9 +32,9 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-import com.sun.jna.examples.*;
-
 import org.osgi.framework.*;
+
+import com.sun.jna.examples.*;
 
 /**
  * An implementation of the <tt>UIService</tt> that gives access to other
@@ -79,7 +80,16 @@ public class UIServiceImpl
 
     private LoginManager loginManager;
 
+    private ChatWindowManager chatWindowManager
+        = new ChatWindowManager();
+
+    private ConferenceChatManager conferenceChatManager
+        = new ConferenceChatManager();
+
     private ConfigurationFrame configurationFrame;
+
+    private HistoryWindowManager historyWindowManager
+        = new HistoryWindowManager();
 
     private boolean exitOnClose = true;
 
@@ -524,14 +534,12 @@ public class UIServiceImpl
      *
      * @see UIService#getChat(Contact)
      */
-    public Chat getChat(Contact contact)
+    public ChatPanel getChat(Contact contact)
     {
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
 
-        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-
-        MetaContactChatPanel chatPanel
+        ChatPanel chatPanel
             = chatWindowManager.getContactChat(metaContact);
 
         return chatPanel;
@@ -544,11 +552,9 @@ public class UIServiceImpl
      * about.
      * @return the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
      */
-    public Chat getChat(ChatRoom chatRoom)
+    public ChatPanel getChat(ChatRoom chatRoom)
     {
-        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-
-        ConferenceChatPanel chatPanel
+        ChatPanel chatPanel
             = chatWindowManager.getMultiChat(chatRoom);
 
         return chatPanel;
@@ -559,10 +565,8 @@ public class UIServiceImpl
      *
      * @return the selected <tt>Chat</tt>.
      */
-    public Chat getCurrentChat()
+    public ChatPanel getCurrentChat()
     {
-        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-
         return chatWindowManager.getSelectedChat();
     }
 
@@ -652,6 +656,35 @@ public class UIServiceImpl
     public LoginManager getLoginManager()
     {
         return loginManager;
+    }
+
+    /**
+     * Returns the chat conference manager.
+     * 
+     * @return the chat conference manager.
+     */
+    public ConferenceChatManager getConferenceChatManager()
+    {
+        return conferenceChatManager;
+    }
+
+    /**
+     * Returns the chat window manager.
+     * 
+     * @return the chat window manager.
+     */
+    public ChatWindowManager getChatWindowManager()
+    {
+        return chatWindowManager;
+    }
+
+    /**
+     * Returns the <tt>HistoryWindowManager</tt>.
+     * @return the <tt>HistoryWindowManager</tt>
+     */
+    public HistoryWindowManager getHistoryWindowManager()
+    {
+        return historyWindowManager;
     }
 
     /**

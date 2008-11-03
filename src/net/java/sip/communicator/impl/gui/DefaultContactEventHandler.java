@@ -88,10 +88,10 @@ public class DefaultContactEventHandler implements ContactEventHandler
          */
         public void run()
         {
-            MetaContactChatPanel chatPanel;
+            ChatPanel chatPanel;
 
             ChatWindowManager chatWindowManager
-                = mainFrame.getChatWindowManager();
+                = GuiActivator.getUIService().getChatWindowManager();
 
             chatPanel = chatWindowManager
                     .getContactChat(metaContact, protocolContact);
