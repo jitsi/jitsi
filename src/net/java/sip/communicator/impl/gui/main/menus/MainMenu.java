@@ -11,6 +11,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -45,6 +46,10 @@ public class MainMenu
      */
     public MainMenu(MainFrame mainFrame)
     {
+        this.setForeground(
+            new Color(GuiActivator.getResources()
+                    .getColor("mainMenuForeground")));
+
         this.fileMenu = new FileMenu(mainFrame);
         this.toolsMenu = new ToolsMenu(mainFrame);
         this.helpMenu = new HelpMenu(mainFrame);
