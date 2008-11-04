@@ -52,6 +52,10 @@ public class MessageWindowMenuBar
 
         this.parentWindow = parentWindow;
 
+        this.setForeground(
+            new Color(GuiActivator.getResources()
+                    .getColor("mainMenuForeground")));
+
         fileMenu = new FileMenu(this.parentWindow);
 
         editMenu = new EditMenu(this.parentWindow);
