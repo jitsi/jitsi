@@ -1630,6 +1630,11 @@ public class ContactList
 
         int index = this.locationToIndex(currentMouseLocation);
 
+        // If the index is equals to -1, then we have nothing to do here, we
+        // just return null.
+        if (index == -1)
+            return null;
+
         Object element = this.getModel().getElementAt(index);
 
         if (element instanceof MetaContact)
