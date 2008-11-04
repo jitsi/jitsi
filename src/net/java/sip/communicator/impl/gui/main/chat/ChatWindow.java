@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -356,7 +355,14 @@ public class ChatWindow
 
         this.setChatContactPhoto(chatPanel.getChatSession());
 
-        getMainToolBar().changeHistoryButtonsState(chatPanel);
+        ChatTransport inviteChatTransport = chatPanel.findInviteChatTransport();
+
+        if (inviteChatTransport != null)
+            mainToolBar.enableInviteButton(true);
+        else
+            mainToolBar.enableInviteButton(false);
+
+        mainToolBar.changeHistoryButtonsState(chatPanel);
 
         chatPanel.requestFocusInWriteArea();
     }

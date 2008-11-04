@@ -63,8 +63,10 @@ public class ChatRoomMemberMsnImpl implements ChatRoomMember
     *            The role of the member inside the chat room
     */
 
-   public ChatRoomMemberMsnImpl(ChatRoomMsnImpl chatRoom, String nickName,
-           String userAddress, ChatRoomMemberRole role)
+   public ChatRoomMemberMsnImpl(   ChatRoomMsnImpl chatRoom,
+                                   String nickName,
+                                   String userAddress,
+                                   ChatRoomMemberRole role)
    {
        this.containingRoom = chatRoom;
        this.nickName = nickName;

@@ -33,7 +33,8 @@ public class ChatRoomMsnImpl
     /**
      * List of the members of the chat room.
      */
-    private Hashtable<String, ChatRoomMemberMsnImpl> members = new Hashtable();
+    private Hashtable<String, ChatRoomMemberMsnImpl> members
+        = new Hashtable<String, ChatRoomMemberMsnImpl>();
 
     /**
      * List of unresolved member names.
@@ -694,12 +695,6 @@ public class ChatRoomMsnImpl
      */
     public void joinAs(String nickName) throws OperationFailedException
     {
-        ChatRoomMemberMsnImpl member =
-            new ChatRoomMemberMsnImpl(this, nickName, parentProvider
-                .getAccountID().getAccountAddress(), ChatRoomMemberRole.MEMBER);
-
-        members.put(nickName, member);
-
         // We don't specify a reason.
         opSetMuc.fireLocalUserPresenceEvent(this,
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED, null);
@@ -726,13 +721,12 @@ public class ChatRoomMsnImpl
             switchboard.close();
             switchboard = null;
         }
-        Iterator membersSet = members.entrySet().iterator();
 
-        while (membersSet.hasNext())
+        Iterator membersIter = members.values().iterator();
+
+        while (membersIter.hasNext())
         {
-            Map.Entry memberEntry = (Map.Entry) membersSet.next();
-
-            ChatRoomMember member = (ChatRoomMember) memberEntry.getValue();
+            ChatRoomMember member = (ChatRoomMember) membersIter.next();
 
             fireMemberPresenceEvent(member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
@@ -771,16 +765,17 @@ public class ChatRoomMsnImpl
 
         for (MsnContact msnContact : contacts)
         {
-            if (!members.containsKey(msnContact.getDisplayName()))
-            { // if the member is not inside the members list, create a member
+            if (!members.containsKey(msnContact.getId()))
+            {   // if the member is not inside the members list, create a member
                 // instance,
                 // add it to the list and fire a member presence event
                 ChatRoomMemberMsnImpl member =
                     new ChatRoomMemberMsnImpl(this,
-                        msnContact.getDisplayName(), msnContact.getEmail()
-                            .toString(), ChatRoomMemberRole.MEMBER);
+                        msnContact.getDisplayName(),
+                        msnContact.getEmail().getEmailAddress(),
+                        ChatRoomMemberRole.MEMBER);
 
-                members.put(member.getName(), member);
+                members.put(msnContact.getId(), member);
 
                 fireMemberPresenceEvent(member,
                     ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
@@ -793,20 +788,9 @@ public class ChatRoomMsnImpl
         }
     }
 
-    public ChatRoomMemberMsnImpl getChatRoomMember(String nickName,
-        String userAdress)
+    public ChatRoomMemberMsnImpl getChatRoomMember(String id)
     {
-        Iterator chatRoomMembers = this.members.values().iterator();
-
-        while (chatRoomMembers.hasNext())
-        {
-            ChatRoomMemberMsnImpl member =
-                (ChatRoomMemberMsnImpl) chatRoomMembers.next();
-
-            if (nickName.equals(member.getName()))
-                return member;
-        }
-        return null;
+        return members.get(id);
     }
 
     /**
@@ -866,9 +850,9 @@ public class ChatRoomMsnImpl
      * 
      * @param member The member to add.
      */
-    public void addChatRoomMember(ChatRoomMemberMsnImpl member)
+    public void addChatRoomMember(String id, ChatRoomMemberMsnImpl member)
     {
-        members.put(member.getName(), member);
+        members.put(id, member);
 
         fireMemberPresenceEvent(member,
             ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
@@ -880,9 +864,11 @@ public class ChatRoomMsnImpl
      * 
      * @param member The member to remove.
      */
-    public void removeChatRoomMember(ChatRoomMemberMsnImpl member)
+    public void removeChatRoomMember(String id)
     {
-        members.remove(member.getName());
+        ChatRoomMember member = members.get(id);
+
+        members.remove(id);
 
         fireMemberPresenceEvent(member,
             ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT, null);
@@ -897,8 +883,9 @@ public class ChatRoomMsnImpl
      * @param eventID the identifier of the event
      * @param eventReason the reason of the event
      */
-    private void fireMemberPresenceEvent(ChatRoomMember member, String eventID,
-        String eventReason)
+    private void fireMemberPresenceEvent(   ChatRoomMember member,
+                                            String eventID,
+                                            String eventReason)
     {
         ChatRoomMemberPresenceChangeEvent evt =
             new ChatRoomMemberPresenceChangeEvent(this, member, eventID,
@@ -945,8 +932,21 @@ public class ChatRoomMsnImpl
      * @param nickName the nick name to search for.
      * @return the member of this chat room corresponding to the given nick name.
      */
-    public ChatRoomMemberMsnImpl findMemberForNickName(String nickName)
+    public ChatRoomMemberMsnImpl findMemberForAddress(String userAddress)
     {
-        return (ChatRoomMemberMsnImpl) members.get(nickName);
+        Iterator<ChatRoomMemberMsnImpl> membersIter
+            = members.values().iterator();
+
+        while (membersIter.hasNext())
+        {
+            ChatRoomMemberMsnImpl member = membersIter.next();
+
+            if (member.getContactAddress().equals(userAddress))
+            {
+                return member;
+            }
+        }
+
+        return null;
     }
 }

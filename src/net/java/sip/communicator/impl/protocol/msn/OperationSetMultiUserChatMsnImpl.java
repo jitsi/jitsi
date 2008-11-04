@@ -582,17 +582,14 @@ public class OperationSetMultiUserChatMsnImpl
         extends MsnMessageAdapter
         implements MsnEmailListener
     {
-        public void instantMessageReceived(MsnSwitchboard switchboard,
-            MsnInstantMessage message, MsnContact contact)
+        public void instantMessageReceived( MsnSwitchboard switchboard,
+                                            MsnInstantMessage message,
+                                            MsnContact contact)
         {
             if (!isGroupChatMessage(switchboard))
                 return;
 
             Message newMessage = createMessage(message.getContent());
-
-            Contact sourceContact =
-                opSetPersPresence.findContactByID(contact.getEmail()
-                    .getEmailAddress());
 
             logger.debug("Group chat message received.");
             Object attachment = switchboard.getAttachment();
@@ -615,8 +612,7 @@ public class OperationSetMultiUserChatMsnImpl
                     return;
 
                 ChatRoomMemberMsnImpl member =
-                    chatRoom.getChatRoomMember(contact.getDisplayName(),
-                        contact.getEmail().getEmailAddress());
+                    chatRoom.getChatRoomMember(contact.getId());
 
                 ChatRoomMessageReceivedEvent msgReceivedEvent =
                     new ChatRoomMessageReceivedEvent(
@@ -624,7 +620,8 @@ public class OperationSetMultiUserChatMsnImpl
                         member,
                         new Date(),
                         newMessage,
-                        ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+                        ChatRoomMessageReceivedEvent
+                            .CONVERSATION_MESSAGE_RECEIVED);
 
                 chatRoom.fireMessageEvent(msgReceivedEvent);
 
@@ -698,16 +695,19 @@ public class OperationSetMultiUserChatMsnImpl
                 if (chatRoom == null)
                     return;
 
+                String memberId = contact.getId();
+
                 ChatRoomMemberMsnImpl member =
-                    chatRoom.getChatRoomMember(contact.getDisplayName(),
-                        contact.getEmail().getEmailAddress());
+                    chatRoom.getChatRoomMember(memberId);
+
                 if (member == null)
                 {
                     member =
                         new ChatRoomMemberMsnImpl(chatRoom, contact
                             .getDisplayName(), contact.getEmail().toString(),
                             ChatRoomMemberRole.MEMBER);
-                    chatRoom.addChatRoomMember(member);
+
+                    chatRoom.addChatRoomMember(memberId, member);
                 }
             }
             catch (Exception e)
@@ -718,7 +718,7 @@ public class OperationSetMultiUserChatMsnImpl
         }
 
         public void contactLeaveSwitchboard(MsnSwitchboard switchboard,
-            MsnContact contact)
+                                            MsnContact contact)
         {
             logger
                 .debug(contact.getDisplayName() + " has left the Switchboard");
@@ -742,13 +742,14 @@ public class OperationSetMultiUserChatMsnImpl
                 if (chatRoom == null)
                     return;
 
+                String memberId = contact.getId();
+
                 ChatRoomMemberMsnImpl member =
-                    chatRoom.getChatRoomMember(contact.getDisplayName(),
-                        contact.getEmail().getEmailAddress());
+                    chatRoom.getChatRoomMember(memberId);
 
                 if (member != null)
                 {
-                    chatRoom.removeChatRoomMember(member);
+                    chatRoom.removeChatRoomMember(memberId);
                 }
             }
             catch (OperationFailedException e)
@@ -889,7 +890,7 @@ public class OperationSetMultiUserChatMsnImpl
              ChatRoomMsnImpl chatRoom = chatRooms.nextElement();
 
              ChatRoomMemberMsnImpl member
-                 = chatRoom.findMemberForNickName(contact.getAddress());
+                 = chatRoom.findMemberForAddress(contact.getAddress());
 
              if (member != null)
              {

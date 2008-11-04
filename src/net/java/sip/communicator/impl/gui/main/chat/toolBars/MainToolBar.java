@@ -64,7 +64,7 @@ public class MainToolBar
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
-    private ChatToolbarButton conferenceButton
+    private ChatToolbarButton inviteButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
@@ -90,10 +90,7 @@ public class MainToolBar
 
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 
-        this.add(conferenceButton);
-
-        this.addSeparator();
-
+        this.add(inviteButton);
         this.add(historyButton);
 
         this.addSeparator();
@@ -125,9 +122,9 @@ public class MainToolBar
         this.historyButton.setToolTipText(
             Messages.getI18NString("history").getText() + " Ctrl-H");
 
-        this.conferenceButton.setName("conference");
-        this.conferenceButton.setToolTipText(
-            Messages.getI18NString("conference").getText());
+        this.inviteButton.setName("invite");
+        this.inviteButton.setToolTipText(
+            Messages.getI18NString("invite").getText());
 
         this.saveButton.addActionListener(this);
         this.printButton.addActionListener(this);
@@ -135,7 +132,7 @@ public class MainToolBar
         this.nextButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
         this.historyButton.addActionListener(this);
-        this.conferenceButton.addActionListener(this);
+        this.inviteButton.addActionListener(this);
 
         this.initPluginComponents();
     }
@@ -161,31 +158,12 @@ public class MainToolBar
 
         ChatPanel chatPanel = messageWindow.getCurrentChatPanel();
 
-        if (buttonText.equalsIgnoreCase("save"))
+        if (buttonText.equalsIgnoreCase("previous"))
         {
-            // TODO: Implement the save operation in chat MainToolBar.
-        }
-        else if (buttonText.equalsIgnoreCase("print")) {
-            // TODO: Implement the print operation in chat MainToolBar.
-        }
-        else if (buttonText.equalsIgnoreCase("cut")) {
-
-            chatPanel.cut();
-        }
-        else if (buttonText.equalsIgnoreCase("copy")) {
-
-            chatPanel.copy();
-        }
-        else if (buttonText.equalsIgnoreCase("paste")) {
-
-            chatPanel.paste();
-        }
-        else if (buttonText.equalsIgnoreCase("previous"))
-        {   
             chatPanel.loadPreviousPageFromHistory();
         }
         else if (buttonText.equalsIgnoreCase("next"))
-        {   
+        {
             chatPanel.loadNextPageFromHistory();
         }
         else if (buttonText.equalsIgnoreCase("sendFile")) {
@@ -223,7 +201,7 @@ public class MainToolBar
                                                     history);
             }
         }
-        else if (buttonText.equalsIgnoreCase("conference")) 
+        else if (buttonText.equalsIgnoreCase("invite")) 
         {
             ChatInviteDialog inviteDialog
                 = new ChatInviteDialog(chatPanel);
@@ -346,5 +324,19 @@ public class MainToolBar
         {
             this.remove((Component) c.getComponent());
         }
+    }
+
+    /**
+     * Enables or disables the conference button in this tool bar.
+     * 
+     * @param isEnabled <code>true</code> if the conference button should be
+     * enabled, <code>false</code> - otherwise.
+     */
+    public void enableInviteButton(boolean isEnabled)
+    {
+        if (isEnabled)
+            this.add(inviteButton, 0);
+        else
+            this.remove(inviteButton);
     }
 }
