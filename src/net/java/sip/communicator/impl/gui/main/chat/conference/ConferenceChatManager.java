@@ -881,6 +881,16 @@ public class ConferenceChatManager
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) service;
 
+        Object multiUserChatOpSet
+            = protocolProvider
+                .getOperationSet(OperationSetMultiUserChat.class);
+
+        // We don't care if there's no group chat operation set.
+        if (multiUserChatOpSet == null)
+        {
+            return;
+        }
+
         if (event.getType() == ServiceEvent.REGISTERED)
         {
             chatRoomList.addChatProvider(protocolProvider);
