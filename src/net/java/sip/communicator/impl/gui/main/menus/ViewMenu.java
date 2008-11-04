@@ -35,6 +35,8 @@ public class ViewMenu
 
         super(Messages.getI18NString("view").getText());
 
+        this.setOpaque(false);
+
         this.setForeground(
             new Color(GuiActivator.getResources().
                 getColor("mainMenuForeground")));

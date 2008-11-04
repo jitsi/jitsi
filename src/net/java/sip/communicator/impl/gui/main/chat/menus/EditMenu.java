@@ -55,6 +55,8 @@ public class EditMenu extends SIPCommMenu
 
         super(Messages.getI18NString("edit").getText());
 
+        this.setOpaque(false);
+
         this.chatWindow = chatWindow;
 
         this.setForeground(new Color(

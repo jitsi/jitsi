@@ -50,6 +50,8 @@ public class FileMenu extends SIPCommMenu
 
         super(Messages.getI18NString("file").getText());
 
+        this.setOpaque(false);
+
         this.parentWindow = parentWindow;
 
         this.setForeground(new Color(

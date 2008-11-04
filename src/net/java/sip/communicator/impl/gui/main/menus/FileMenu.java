@@ -79,6 +79,8 @@ public class FileMenu
 
         super(Messages.getI18NString("file").getText());
 
+        this.setOpaque(false);
+
         this.setForeground(
             new Color(GuiActivator.getResources().getColor("mainMenuForeground")));
 

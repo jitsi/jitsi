@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
@@ -18,7 +17,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
@@ -54,6 +52,8 @@ public class ToolsMenu
 
         super(Messages.getI18NString("tools").getText());
 
+        this.setOpaque(false);
+
         this.setForeground(
             new Color(GuiActivator.getResources().
                 getColor("mainMenuForeground")));
@@ -61,14 +61,14 @@ public class ToolsMenu
         this.parentWindow = parentWindow;
 
         this.add(configMenuItem);
-        
+
         this.configMenuItem.setName("config");
-        
+
         this.configMenuItem.addActionListener(this);
-        
+
         this.setMnemonic(Messages.getI18NString("tools").getMnemonic());
         this.configMenuItem.setMnemonic(settingsString.getMnemonic());
-        
+
         this.initPluginComponents();
     }
 

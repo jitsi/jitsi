@@ -47,6 +47,8 @@ public class HelpMenu
     {
         super(Messages.getI18NString("help").getText());
 
+        this.setOpaque(false);
+
         this.mainFrame = mainFrame;
 
         this.setMnemonic(Messages.getI18NString("help").getMnemonic());
