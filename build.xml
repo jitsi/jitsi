@@ -601,6 +601,8 @@
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
+        	<sysproperty key="jna.library.path"
+        	                path="${ld.library.path}:${path}:${dyld.library.path}"/>
 
             <!-- pass l10n properties from ant call for
                  easy translation debugging -->
