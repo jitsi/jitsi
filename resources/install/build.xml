@@ -635,6 +635,8 @@
         <javaproperty name="apple.awt.showGrowBox" value="true"/>
         <javaproperty name="java.library.path"
                       value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
+        <javaproperty name="jna.library.path"
+	                      value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
 
         <javaproperty name="net.java.sip.communicator.SC_HOME_DIR_NAME"
                       value="${application.name}"/>

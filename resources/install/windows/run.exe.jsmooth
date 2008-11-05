@@ -27,6 +27,8 @@
 <javaProperties>
 <name>java.library.path</name>
 <value>./native</value>
+<name>jna.library.path</name>
+<value>./native</value>
 </javaProperties>
 <mainClassName>net.java.sip.communicator.launcher.SIPCommunicator</mainClassName>
 <maximumMemoryHeap>1073741824</maximumMemoryHeap>
