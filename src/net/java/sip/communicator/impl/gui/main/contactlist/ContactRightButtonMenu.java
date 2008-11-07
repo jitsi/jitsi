@@ -118,8 +118,6 @@ public class ContactRightButtonMenu
 
     private MetaContact contactItem;
 
-    private MainFrame mainFrame;
-
     private String moveToPrefix = "moveTo:";
 
     private String removeContactPrefix = "removeContact:";
@@ -137,6 +135,9 @@ public class ContactRightButtonMenu
     private MoveSubcontactMessageDialog moveDialog;
 
     private ContactList guiContactList;
+
+    private MainFrame mainFrame;
+
     /**
      * Creates an instance of ContactRightButtonMenu.
      * @param contactList The contact list over which this menu is shown.
@@ -146,6 +147,8 @@ public class ContactRightButtonMenu
                                     MetaContact contactItem)
     {
         super();
+
+        this.mainFrame = GuiActivator.getUIService().getMainFrame();
 
         this.guiContactList = contactList;
 
@@ -180,7 +183,7 @@ public class ContactRightButtonMenu
                 .getImage(ImageLoader.CALL_16x16_ICON)));
 
         //Initialize the addSubcontact menu.
-        Iterator providers = this.mainFrame.getProtocolProviders();
+        Iterator providers = mainFrame.getProtocolProviders();
 
         if(providers.hasNext()) 
         {
@@ -302,7 +305,8 @@ public class ContactRightButtonMenu
             }
 
             OperationSetWebContactInfo wContactInfo
-                = mainFrame.getWebContactInfoOpSet(protocolProvider);
+                = (OperationSetWebContactInfo) protocolProvider
+                    .getOperationSet(OperationSetWebContactInfo.class);
         }
 
         this.add(sendMessageItem);
