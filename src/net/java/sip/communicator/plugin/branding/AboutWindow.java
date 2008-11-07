@@ -253,4 +253,9 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
     {
         return this;
     }
+
+    /**
+     * Implementation of {@link ExportedWindow#setParams(Object[])}.
+     */
+    public void setParams(Object[] windowParams) {}
 }

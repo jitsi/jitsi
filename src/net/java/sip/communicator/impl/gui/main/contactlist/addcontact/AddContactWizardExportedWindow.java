@@ -117,4 +117,9 @@ public class AddContactWizardExportedWindow
     {
         getWizard().setVisible(isVisible);
     }
+
+    /**
+     * Implementation of {@link ExportedWindow#setParams(Object[])}.
+     */
+    public void setParams(Object[] windowParams) {}
 }

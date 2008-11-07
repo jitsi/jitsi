@@ -285,4 +285,8 @@ public class ConfigurationFrame
         this.configList.removeConfigForm(configForm);
     }
 
+    /**
+     * Implementation of {@link ExportedWindow#setParams(Object[])}.
+     */
+    public void setParams(Object[] windowParams) {}
 }

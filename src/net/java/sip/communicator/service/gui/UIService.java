@@ -162,10 +162,25 @@ public interface UIService
      * @throws IllegalArgumentException if the specified <tt>windowID</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all WINDOW_XXX ID-s.
-     * @return the window to be shown
-     * @see #getSupportedExportedWindows()
+     * @return the window to be shown.
      */
     public ExportedWindow getExportedWindow(WindowID windowID)
+        throws IllegalArgumentException;
+
+    /**
+     * Returns an exported window given by the <tt>WindowID</tt>.
+     * This could be for example the "Add contact" window or any other window
+     * within the application. The <tt>windowID</tt> should be one of the
+     * WINDOW_XXX obtained by the <tt>getSupportedExportedWindows</tt> method.
+     *
+     * @param windowID One of the WINDOW_XXX WindowID-s.
+     * @param params The parameters to be passed to the returned exported window.
+     * @throws IllegalArgumentException if the specified <tt>windowID</tt>
+     * is not recognized by the implementation (note that implementations
+     * MUST properly handle all WINDOW_XXX ID-s.
+     * @return the window to be shown.
+     */
+    public ExportedWindow getExportedWindow(WindowID windowID, Object[] params)
         throws IllegalArgumentException;
 
     /**

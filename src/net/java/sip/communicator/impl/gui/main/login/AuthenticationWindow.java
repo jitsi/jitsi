@@ -387,4 +387,9 @@ public class AuthenticationWindow
     {
         return this;
     }
+
+    /**
+     * Implementation of {@link ExportedWindow#setParams(Object[])}.
+     */
+    public void setParams(Object[] windowParams) {}
 }

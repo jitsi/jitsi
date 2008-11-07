@@ -477,6 +477,29 @@ public class UIServiceImpl
      * <tt>WindowID</tt>.
      *
      * @param windowID the id of the window we'd like to retrieve.
+     * @param params the params to be passed to the returned window.
+     * @return a reference to the <tt>ExportedWindow</tt> instance corresponding
+     * to <tt>windowID</tt>.
+     * @see UIService#getExportedWindow(WindowID)
+     */
+    public ExportedWindow getExportedWindow(WindowID windowID, Object[] params)
+    {
+        if (exportedWindows.containsKey(windowID))
+        {
+            ExportedWindow win = (ExportedWindow) exportedWindows.get(windowID);
+            win.setParams(params);
+
+            return win;
+        }
+        return null;
+    }
+
+    /**
+     * Implements the <code>getExportedWindow</code> in the UIService
+     * interface. Returns the window corresponding to the given
+     * <tt>WindowID</tt>.
+     *
+     * @param windowID the id of the window we'd like to retrieve.
      *
      * @return a reference to the <tt>ExportedWindow</tt> instance corresponding
      * to <tt>windowID</tt>.
@@ -484,11 +507,7 @@ public class UIServiceImpl
      */
     public ExportedWindow getExportedWindow(WindowID windowID)
     {
-        if (exportedWindows.containsKey(windowID))
-        {
-            return (ExportedWindow) exportedWindows.get(windowID);
-        }
-        return null;
+        return getExportedWindow(windowID, null);
     }
 
     /**

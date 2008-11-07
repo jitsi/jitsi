@@ -101,4 +101,14 @@ public interface ExportedWindow
      * @return the source of the window
      */
     public Object getSource();
+    
+    /**
+     * This method can be called to pass any params to the exported window. This
+     * method will be automatically called by
+     * {@link UIService#getExportedWindow(WindowID, Object[])} in order to set
+     * the parameters passed.
+     * 
+     * @param windowParams the parameters to pass.
+     */
+    public void setParams(Object[] windowParams);
 }

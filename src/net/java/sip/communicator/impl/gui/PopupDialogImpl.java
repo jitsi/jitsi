@@ -486,4 +486,9 @@ public class PopupDialogImpl
     {
         return this;
     }
+    
+    /**
+     * Implementation of {@link ExportedWindow#setParams(Object[])}.
+     */
+    public void setParams(Object[] windowParams) {}
 }
