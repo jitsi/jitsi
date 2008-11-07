@@ -38,6 +38,9 @@ public class ContactPhotoLabel extends JLabel
             = ImageUtils.scaleIconWithinBounds( photoFrameImage,
                                                 width,
                                                 height);
+
+        this.setAlignmentX(CENTER_ALIGNMENT);
+        this.setAlignmentY(CENTER_ALIGNMENT);
     }
 
     /**
