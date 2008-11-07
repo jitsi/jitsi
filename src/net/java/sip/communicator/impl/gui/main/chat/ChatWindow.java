@@ -1105,16 +1105,18 @@ public class ChatWindow
             {
                 ChatTransport transport = (ChatTransport) transports.next();
 
+                ImageIcon protocolStatusIcon;
                 if (transport.getStatus() != null)
                 {
-                    Image protocolStatusIcon
-                        = ImageLoader.getBytesInImage(
-                            transport.getStatus().getStatusIcon());
+                    protocolStatusIcon
+                        = new ImageIcon(transport.getStatus().getStatusIcon());
                 }
+                else
+                    protocolStatusIcon = new ImageIcon();
 
                 String transportAddress = transport.getName();
 
-                tip.addProtocolContact( new ImageIcon(),
+                tip.addProtocolContact( protocolStatusIcon,
                                         transportAddress);
             }
 
@@ -1136,4 +1138,9 @@ public class ChatWindow
             return chatSession.getChatName();
         }
     }
+
+    /**
+     * Implementation of {@link ExportedWindow#setParams(Object[])}.
+     */
+    public void setParams(Object[] windowParams) {}
 }
