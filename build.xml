@@ -195,6 +195,14 @@
         </fileset>
     </path>
 
+    <path id="simple.test.class.path">
+        <!-- used for testing classes outside felix -->
+        <path refid="debug.class.path"/>
+        <!-- Include all test class files, even if they exist
+             in a jar file already. -->
+        <pathelement location="${dest}" />
+    </path>
+
     <!-- Import installation build xml -->
     <import file="${inst.resrc}/build.xml"/>
 
@@ -454,8 +462,11 @@
              slick runner ONLY works with unqualified class names. -->
         <basename property="short.test.name" file="${test.name}"/>
         <!-- Tell the slick runner which Test class to run. (This will prevent
-             the default external list from being defined.) -->
+             the default external list from being defined.) At this
+             stage we don't know if it will run under felix or standalone-->
         <property name="net.java.sip.communicator.slick.runner.TEST_LIST"
+                     value="${short.test.name}"/>
+        <property name="net.java.sip.communicator.slick.runner.SLICKLESS_TEST_LIST"
                      value="${short.test.name}"/>
     </target>
 
@@ -472,6 +483,7 @@
               message="${test.local.properties.file} not found - did you copy the template?"/>
         <property file="${test.local.properties.file}"/>
         <echo message="tests prepared: ${net.java.sip.communicator.slick.runner.TEST_LIST}" />
+        <echo message="slickless tests prepared: ${net.java.sip.communicator.slick.runner.SLICKLESS_TEST_LIST}" />
     </target>
 
     <!--RUN-TESTS-->
@@ -498,6 +510,10 @@
             <!-- Tell the slick runner which Test classes to run. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
                          value="${net.java.sip.communicator.slick.runner.TEST_LIST}"/>
+
+            <!-- Tell the slickless runner which Test classes to run. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.SLICKLESS_TEST_LIST"
+                         value="${net.java.sip.communicator.slick.runner.SLICKLESS_TEST_LIST}"/>
 
             <!-- use a meta contact list file different to normal client. -->
             <sysproperty key="net.java.sip.communicator.CONTACTLIST_FILE_NAME"
@@ -557,6 +573,44 @@
         <report format="frames" todir="${test.html.reports.dir}"/>
       </junitreport>
     </target>
+
+    
+    <target name="run-simple-tests"
+            depends="prepare-all-tests,prepare-local-accounts,-deploy-os-specific-bundles"
+            description="runs selected non-felix tests under junit.">
+
+        <junit haltonfailure="true" fork="true">
+            <formatter type="brief" usefile="false"/>
+            <test name="net.java.sip.communicator.slick.slickless.SlicklessTests"/>
+            <classpath refid="simple.test.class.path" />
+
+            <!-- Tell the slickless runner which Test classes to run. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.SLICKLESS_TEST_LIST"
+                         value="${net.java.sip.communicator.slick.runner.SLICKLESS_TEST_LIST}"/>
+
+            <!-- Tell the slick runner where to store test results. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
+                         value="${test.reports.dir}"/>
+
+            <!-- use a meta contact list file different to normal client. -->
+            <sysproperty key="net.java.sip.communicator.CONTACTLIST_FILE_NAME"
+                         value="net.java.sip.communicator.CONTACTLIST_FILE_NAME"/>
+            <!-- use a configuration file different to normal client. -->
+            <sysproperty key="net.java.sip.communicator.CONFIGURATION_FILE_NAME"
+                         value="net.java.sip.communicator.CONFIGURATION_FILE_NAME"/>
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="${lib}/logging.properties"/>
+
+            <!-- Tell all protocol testers their account details. -->
+            <syspropertyset id="accounts">
+              <propertyref prefix="accounts"/>
+              <propertyref prefix="net"/>
+            </syspropertyset>
+        </junit>
+    </target>
+
 
     <!--RUN-SIP-COMMUNICATOR -->
     <target name="run" depends="-deploy-os-specific-bundles"
