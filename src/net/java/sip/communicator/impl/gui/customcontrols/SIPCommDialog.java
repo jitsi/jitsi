@@ -8,61 +8,71 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 public abstract class SIPCommDialog extends JDialog
 {
     private Logger logger = Logger.getLogger(SIPCommDialog.class);
-    
+
     private ActionMap amap;
     private InputMap imap;
-    
+
     private boolean isSaveSizeAndLocation = true;
 
     public SIPCommDialog()
     {
-        this.addWindowListener(new DialogWindowAdapter());
+        super();
 
-        this.initInputMap();
+        this.init();
     }
 
     public SIPCommDialog(Dialog owner)
     {
         super(owner);
-        
-        this.addWindowListener(new DialogWindowAdapter());
-        
-        this.initInputMap();
+
+        this.init();
     }
  
     public SIPCommDialog(Frame owner)
     {
         super(owner);
-        
-        this.addWindowListener(new DialogWindowAdapter());
-        
-        this.initInputMap();
+
+        this.init();
     }
     
     public SIPCommDialog(Dialog owner, boolean isSaveSizeAndLocation)
     {
         this(owner);
-        
+
         this.isSaveSizeAndLocation = isSaveSizeAndLocation;
     }
-     
+
     public SIPCommDialog(Frame owner, boolean isSaveSizeAndLocation)
     {
         this(owner);
-        
+
         this.isSaveSizeAndLocation = isSaveSizeAndLocation;
     }
-    
+
+    /**
+     * Initializes this dialog.
+     */
+    private void init()
+    {
+        this.setContentPane(new MainContentPane());
+
+        this.addWindowListener(new DialogWindowAdapter());
+
+        this.initInputMap();
+    }
+
     private void initInputMap()
     {
         amap = this.getRootPane().getActionMap();
@@ -362,6 +372,100 @@ public abstract class SIPCommDialog extends JDialog
         super.dispose();
     }
     
+    private class MainContentPane extends JPanel
+    {
+        Color bgStartColor = new Color(GuiActivator.getResources()
+            .getColor("mainBackgroundStartColor"));
+
+        Color bgEndColor = new Color(GuiActivator.getResources()
+            .getColor("mainBackgroundEndColor"));
+
+        GeneralPath headerBackground = new GeneralPath();
+
+        public MainContentPane()
+        {
+            super(new BorderLayout());
+
+            this.setBackground(new Color(
+                GuiActivator.getResources()
+                .getColor("desktopBackgroundColor")));
+
+            int borderSize = GuiActivator.getResources()
+                .getSettingsInt("mainWindowBorderSize");
+
+            this.setBorder(BorderFactory
+                .createEmptyBorder( borderSize,
+                                    borderSize,
+                                    borderSize,
+                                    borderSize));
+        }
+
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+
+            Graphics2D g2 = (Graphics2D) g;
+
+            AntialiasingManager.activateAntialiasing(g2);
+
+            GradientPaint bgGradientColor
+                = new GradientPaint(this.getWidth()/2, 0,
+                bgStartColor,
+                this.getWidth()/2,
+                80,
+                bgEndColor);
+
+            GradientPaint borderShadow = new GradientPaint(0, 0,
+                new Color(255, 255, 255, 200),
+                this.getWidth(),
+                this.getHeight(),
+                new Color(0, 0, 0, 150));
+
+            g2.setPaint(borderShadow);
+            g2.fillRoundRect(3, 3,
+                this.getWidth() - 6,
+                this.getHeight() - 6,
+                10, 10);
+
+            g2.setPaint(bgGradientColor);
+            g2.fillRoundRect(5, 5, this.getWidth() - 10, 80, 10, 10);
+
+            g2.setColor(bgEndColor);
+            g2.fillRoundRect(5, 80,
+                    this.getWidth() - 10,
+                    this.getHeight() - 85, 10, 10);
+
+            GradientPaint curveShadow = new GradientPaint(0, 0,
+                new Color(255, 255, 255, 150),
+                this.getWidth(),
+                this.getHeight(),
+                new Color(255, 255, 255, 50));
+
+            g2.setPaint(curveShadow);
+            g2.setStroke(new BasicStroke(1f));
+            CubicCurve2D curve1 = new CubicCurve2D.Float(
+                50, -1, 250, 30, 50, 150, 0, 300);
+
+            g2.draw(curve1);
+
+            CubicCurve2D curve2 = new CubicCurve2D.Float(
+                this.getWidth() - 20, 0,
+                this.getWidth(), 100,
+                this.getWidth()/2, 100,
+                0, 150);
+
+            g2.draw(curve2);
+
+            CubicCurve2D curve3 = new CubicCurve2D.Float(
+                0, 90,
+                this.getWidth()/3, 60,
+                2*this.getWidth()/3, 60,
+                this.getWidth(), 90);
+
+            g2.draw(curve3);
+        }
+    }
+
     /**
      * All functions implemented in this method will be invoked when user
      * presses the Escape key. 

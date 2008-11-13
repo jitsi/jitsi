@@ -7,8 +7,11 @@
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
+
+import org.jvnet.lafwidget.animation.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -18,65 +21,66 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommButton extends JButton {
-
-    public static final String LEFT_ICON_LAYOUT = "left";
-
-    public static final String CENTER_ICON_LAYOUT = "center";
-
-    public static final String RIGHT_ICON_LAYOUT = "right";
-
+public class SIPCommButton
+    extends JButton
+{
     private Image bgImage;
-
-    private Image bgRolloverImage;
-
-    private Image iconImage;
 
     private Image pressedImage;
 
-    private String iconLayout = SIPCommButton.CENTER_ICON_LAYOUT;
+    private Image iconImage;
 
     /**
-     * Creates a button with custom background image, rollover image and
-     * icon image.
+     * Creates a button with custom background image and icon image.
      * 
      * @param bgImage       The background image.
-     * @param rolloverImage The rollover image.
      * @param iconImage     The icon.
      */
-    public SIPCommButton(Image bgImage,
-            Image rolloverImage, 
-            Image iconImage,
-            Image pressedImage) {
+    public SIPCommButton(   Image bgImage,
+                            Image pressedImage,
+                            Image iconImage)
+    {
         super();
 
+        MouseRolloverHandler mouseHandler = new MouseRolloverHandler();
+
+        this.addMouseListener(mouseHandler);
+        this.addMouseMotionListener(mouseHandler);
+
         this.bgImage = bgImage;
-        this.bgRolloverImage = rolloverImage;
-        this.iconImage = iconImage;
         this.pressedImage = pressedImage;
+        this.iconImage = iconImage;
 
-        this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
-                this.bgImage.getHeight(null)));
+        if (bgImage != null)
+        {
+            this.setPreferredSize(new Dimension(bgImage.getWidth(null),
+                                                bgImage.getHeight(null)));
 
-        this.setIcon(new ImageIcon(this.bgImage));
+            this.setIcon(new ImageIcon(this.bgImage));
+        }
     }
 
     /**
-     * Creates a button with custom background image and rollover image.
+     * Creates a button with custom background image.
      * 
      * @param bgImage The background button image.
-     * @param rolloverImage The rollover button image.
      */
-    public SIPCommButton(Image bgImage, Image rolloverImage) {
-        super();
-
-        this.bgImage = bgImage;
-        this.bgRolloverImage = rolloverImage;
-
-        this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
-                this.bgImage.getHeight(null)));
+    public SIPCommButton(   Image bgImage,
+                            Image iconImage)
+    {
+        this(bgImage, null, iconImage);
     }
-    
+
+    /**
+     * Creates a button with custom background image.
+     * 
+     * @param bgImage The background button image.
+     */
+    public SIPCommButton(Image bgImage)
+    {
+        this(bgImage, null);
+    }
+
     /**
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt>
      * to paint the button background and icon, and all additional effects
@@ -95,7 +99,8 @@ public class SIPCommButton extends JButton {
          * non-opaque color. If you do not honor the opaque property you will
          * likely see visual artifacts.
          */
-        if (isOpaque()) {
+        if (isOpaque())
+        {
             g.setColor(getBackground());
             g.fillRect(0, 0, getWidth(), getHeight());
         }
@@ -104,181 +109,159 @@ public class SIPCommButton extends JButton {
         {
             // If there's no icon, we make grey the backgroundImage
             // when disabled.
-            if (this.iconImage == null && !isEnabled()) {
-                Image disabledImage = new ImageIcon(LightGrayFilter
+            Image paintBgImage;
+            if (this.iconImage == null && !isEnabled())
+            {
+                paintBgImage = new ImageIcon(LightGrayFilter
                         .createDisabledImage(bgImage)).getImage();
-
-                g.drawImage(disabledImage, 0, 0, this);
-            } 
-            else {
-                g.drawImage(this.bgImage, 0, 0, this);
             }
+            else
+                paintBgImage = bgImage;
+
+            g.drawImage(paintBgImage,
+                        this.getWidth()/2 - this.bgImage.getWidth(null)/2,
+                        this.getHeight()/2 - this.bgImage.getHeight(null)/2,
+                        this);
         }
 
-        if (this.iconImage != null) {
-            if (!isEnabled()) {
-                Image disabledImage = new ImageIcon(LightGrayFilter
+        if (this.iconImage != null)
+        {
+            Image paintIconImage;
+            if (!isEnabled())
+            {
+                paintIconImage = new ImageIcon(LightGrayFilter
                         .createDisabledImage(iconImage)).getImage();
-
-                // draw the button icon depending the current button layout
-                if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                    g.drawImage(disabledImage,
-                            (this.bgImage.getWidth(null) - disabledImage
-                                    .getWidth(null)) / 2, (this.bgImage
-                                    .getHeight(null) - disabledImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(disabledImage, 7,
-                            (this.bgImage.getHeight(null) - disabledImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(disabledImage, this.bgImage.getWidth(null) - 3,
-                            (this.bgImage.getHeight(null) - disabledImage
-                                    .getHeight(null)) / 2, this);
-                }
-            } else {
-                // draw the button icon depending the current button layout
-                if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            (this.bgImage.getWidth(null) - this.iconImage
-                                    .getWidth(null)) / 2, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage, 7,
-                            (this.bgImage.getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            this.bgImage.getWidth(null) - 3, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
             }
+            else
+                paintIconImage = iconImage;
 
+            g.drawImage(paintIconImage,
+                        this.getWidth()/2 - this.iconImage.getWidth(null)/2,
+                        this.getHeight()/2 - this.iconImage.getHeight(null)/2,
+                        this);
         }
 
-        if (this.bgRolloverImage != null && this.getModel().isRollover()) {
+        // Rollover state.
+        FadeTracker fadeTracker = FadeTracker.getInstance();
 
-            g.drawImage(this.bgRolloverImage, 0, 0, this);
-
-            if (this.iconImage != null) {
-
-                if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            (this.bgImage.getWidth(null) - this.iconImage
-                                    .getWidth(null)) / 2, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage, 7,
-                            (this.bgImage.getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-                else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                    g.drawImage(this.iconImage,
-                            this.bgImage.getWidth(null) - 3, (this.bgImage
-                                    .getHeight(null) - this.iconImage
-                                    .getHeight(null)) / 2, this);
-                }
-            }
+        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
+        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
+        {
+            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
         }
 
-        if (this.getModel().isPressed()) {
+        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility/2));
 
-            if (this.pressedImage != null) {
+        if (this.bgImage != null)
+        {
+            g.fillRoundRect(this.getWidth()/2 - this.bgImage.getWidth(null)/2,
+                            this.getHeight()/2 - this.bgImage.getHeight(null)/2,
+                            bgImage.getWidth(null), bgImage.getHeight(null),
+                            10, 10);
+        }
+        else
+        {
+            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
+        }
+
+        // Pressed state.
+        if (this.getModel().isPressed())
+        {
+            if (this.pressedImage != null)
+            {
                 g.drawImage(this.pressedImage, 0, 0, this);
-            } else {
-
-                g.drawImage(this.bgRolloverImage, 0, 0, this);
-
-                if (this.iconImage != null) {
-
-                    if (this.iconLayout
-                            .equals(SIPCommButton.CENTER_ICON_LAYOUT)) {
-                        g.drawImage(this.iconImage,
-                                (this.bgImage.getWidth(null) - this.iconImage
-                                        .getWidth(null)) / 2 + 1, (this.bgImage
-                                        .getHeight(null) - this.iconImage
-                                        .getHeight(null)) / 2 + 1, this);
-                    }
-                    else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                        g.drawImage(this.iconImage, 7 + 1, (this.bgImage
-                                .getHeight(null) - this.iconImage
-                                .getHeight(null)) / 2 + 1, this);
-                    }
-                    else if (this.iconLayout
-                            .equals(SIPCommButton.LEFT_ICON_LAYOUT)) {
-                        g.drawImage(this.iconImage,
-                                this.bgImage.getWidth(null) - 3 + 1,
-                                (this.bgImage.getHeight(null) - this.iconImage
-                                        .getHeight(null)) / 2 + 1, this);
-                    }
-                }
+            }
+            else if (this.iconImage != null)
+            {
+                g.drawImage(this.iconImage,
+                    this.getWidth()/2 - this.iconImage.getWidth(null)/2 + 1,
+                    this.getHeight()/2 - this.iconImage.getHeight(null)/2 + 1,
+                    this);
             }
         }
     }
 
-    /**
-     * Returns the background image of this button.
-     * @return the background image of this button.
-     */
-    public Image getBgImage() {
+    public Image getBackgroundImage()
+    {
         return bgImage;
     }
 
-    /**
-     * Sets the background image to this button.
-     * @param bgImage The background image to set.
-     */
-    public void setBgImage(Image bgImage) {
+    public void setBackgroundImage(Image bgImage)
+    {
         this.bgImage = bgImage;
     }
 
-    /**
-     * Returns the background rollover image of this button.
-     * @return the background rollover image of this button.
-     */
-    public Image getBgRolloverImage() {
-        return bgRolloverImage;
+    protected class ButtonRepaintCallback implements FadeTrackerCallback
+    {
+        public void fadeEnded(FadeKind arg0)
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    SIPCommButton.this.repaint();
+                }
+            });
+        }
+
+        public void fadePerformed(FadeKind arg0, float arg1)
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    SIPCommButton.this.repaint();
+                }
+            });
+        }
+
+        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
+        {
+            
+        }
     }
 
-    /**
-     * Sets the background rollover image to this button.
-     * @param bgRolloverImage The background rollover image to set.
-     */
-    public void setBgRolloverImage(Image bgRolloverImage) {
-        this.bgRolloverImage = bgRolloverImage;
-    }
+    protected class MouseRolloverHandler
+        implements  MouseListener,
+                    MouseMotionListener
+    {
+        public void mouseMoved(MouseEvent e)
+        {}
 
-    /**
-     * Returns the icon image of this button.
-     * @return the icon image of this button.
-     */
-    public Image getIconImage() {
-        return iconImage;
-    }
+        public void mouseExited(MouseEvent e)
+        {
+            getModel().setRollover(false);
 
-    /**
-     * Sets the icon image to this button.
-     * @param iconImage The icon image to set.
-     */
-    public void setIconImage(Image iconImage) {
-        this.iconImage = iconImage;
+            FadeTracker fadeTracker = FadeTracker.getInstance();
+
+            fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
+                SIPCommButton.this,
+                true,
+                new ButtonRepaintCallback());
+        }
+
+        public void mouseClicked(MouseEvent e)
+        {}
+
+        public void mouseEntered(MouseEvent e)
+        {
+            getModel().setRollover(true);
+
+            FadeTracker fadeTracker = FadeTracker.getInstance();
+
+            fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
+                SIPCommButton.this,
+                true,
+                new ButtonRepaintCallback());
+        }
+
+        public void mousePressed(MouseEvent e)
+        {}
+
+        public void mouseReleased(MouseEvent e)
+        {}
+
+        public void mouseDragged(MouseEvent e)
+        {}
     }
 }

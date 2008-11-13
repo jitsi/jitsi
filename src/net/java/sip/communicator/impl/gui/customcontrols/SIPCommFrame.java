@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -36,8 +37,6 @@ public abstract class SIPCommFrame
 
     public SIPCommFrame()
     {
-        this.setContentPane(new MainPanel());
-
         this.init();
     }
 
@@ -46,6 +45,8 @@ public abstract class SIPCommFrame
      */
     private void init()
     {
+        this.setContentPane(new MainContentPane());
+
         this.setIconImage(
             ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
@@ -401,28 +402,97 @@ public abstract class SIPCommFrame
         }
     }
 
-    private class MainPanel extends JPanel
+    private class MainContentPane extends JPanel
     {
-        public MainPanel()
+        Color bgStartColor = new Color(GuiActivator.getResources()
+            .getColor("mainBackgroundStartColor"));
+
+        Color bgEndColor = new Color(GuiActivator.getResources()
+            .getColor("mainBackgroundEndColor"));
+
+        GeneralPath headerBackground = new GeneralPath();
+
+        public MainContentPane()
         {
             super(new BorderLayout());
 
-            this.setOpaque(false);
+            this.setBackground(new Color(
+                GuiActivator.getResources()
+                .getColor("desktopBackgroundColor")));
+
+            int borderSize = GuiActivator.getResources()
+                .getSettingsInt("mainWindowBorderSize");
+
+            this.setBorder(BorderFactory
+                .createEmptyBorder( borderSize,
+                                    borderSize,
+                                    borderSize,
+                                    borderSize));
         }
 
-        protected void paintComponent(Graphics g)
+        public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
 
             Graphics2D g2 = (Graphics2D) g;
 
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+            AntialiasingManager.activateAntialiasing(g2);
 
-            g2.setColor(new Color(255, 255, 255,
-                ConfigurationManager.getWindowTransparency()));
+            GradientPaint bgGradientColor
+                = new GradientPaint(this.getWidth()/2, 0,
+                bgStartColor,
+                this.getWidth()/2,
+                80,
+                bgEndColor);
 
-            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 5, 5);
+            GradientPaint borderShadow = new GradientPaint(0, 0,
+                new Color(255, 255, 255, 200),
+                this.getWidth(),
+                this.getHeight(),
+                new Color(0, 0, 0, 150));
+
+            g2.setPaint(borderShadow);
+            g2.fillRoundRect(3, 3,
+                this.getWidth() - 6,
+                this.getHeight() - 6,
+                10, 10);
+
+            g2.setPaint(bgGradientColor);
+            g2.fillRoundRect(5, 5, this.getWidth() - 10, 80, 10, 10);
+
+            g2.setColor(bgEndColor);
+            g2.fillRoundRect(5, 80,
+                    this.getWidth() - 10,
+                    this.getHeight() - 85, 10, 10);
+
+            GradientPaint curveShadow = new GradientPaint(0, 0,
+                new Color(255, 255, 255, 150),
+                this.getWidth(),
+                this.getHeight(),
+                new Color(255, 255, 255, 50));
+
+            g2.setPaint(curveShadow);
+            g2.setStroke(new BasicStroke(1f));
+            CubicCurve2D curve1 = new CubicCurve2D.Float(
+                50, -1, 250, 30, 50, 150, 0, 300);
+
+            g2.draw(curve1);
+
+            CubicCurve2D curve2 = new CubicCurve2D.Float(
+                this.getWidth() - 20, 0,
+                this.getWidth(), 100,
+                this.getWidth()/2, 100,
+                0, 150);
+
+            g2.draw(curve2);
+
+            CubicCurve2D curve3 = new CubicCurve2D.Float(
+                0, 90,
+                this.getWidth()/3, 60,
+                2*this.getWidth()/3, 60,
+                this.getWidth(), 90);
+
+            g2.draw(curve3);
         }
     }
 

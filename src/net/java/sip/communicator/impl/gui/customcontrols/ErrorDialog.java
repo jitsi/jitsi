@@ -49,13 +49,16 @@ public class ErrorDialog
 
     private JScrollPane stackTraceScrollPane = new JScrollPane();
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JPanel infoMessagePanel = new JPanel();
+    private TransparentPanel infoMessagePanel = new TransparentPanel();
 
-    private JPanel messagePanel = new JPanel(new BorderLayout());
+    private TransparentPanel messagePanel
+        = new TransparentPanel(new BorderLayout());
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
     /**
      * Set visible or hide the details of the error.

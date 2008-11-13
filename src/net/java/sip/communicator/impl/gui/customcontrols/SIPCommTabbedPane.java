@@ -15,7 +15,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
-import javax.accessibility.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
@@ -34,9 +33,8 @@ public class SIPCommTabbedPane
     extends JTabbedPane
     implements ChangeListener
 {
-    
     private int overTabIndex = -1;
-    
+
     private int lastSelectedIndex;
 
     /**
@@ -46,31 +44,40 @@ public class SIPCommTabbedPane
      * @param closingTabs support for closable tabs
      * @param maximizingTabs support for maximisable tabs
      */
-    public SIPCommTabbedPane(boolean closingTabs, boolean maximizingTabs) {
+    public SIPCommTabbedPane(boolean closingTabs, boolean maximizingTabs)
+    {
         super.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        
+
+        UIManager.getDefaults()
+            .put("TabbedPane.tabAreaInsets", new Insets(0, 5, 0, 0));
+
+        UIManager.getDefaults()
+            .put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+
         this.setUI(new SIPCommTabbedPaneEnhancedUI());
 
         if(closingTabs)
             this.setCloseIcon(true);
-        
+
         if(maximizingTabs)
             this.setMaxIcon(true);
-        
+
         this.addChangeListener(this);
     }
 
     /**
      * Returns the index of the last tab on which the mouse did an action.
      */
-    public int getOverTabIndex() {
+    public int getOverTabIndex()
+    {
         return overTabIndex;
     }
 
     /**
      * Returns <code>true</code> if the close icon is enabled.
      */
-    public boolean isCloseEnabled() {
+    public boolean isCloseEnabled()
+    {
         SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
         return ui.isCloseEnabled();
     }
@@ -78,7 +85,8 @@ public class SIPCommTabbedPane
     /**
      * Returns <code>true</code> if the max/detach icon is enabled.
      */
-    public boolean isMaxEnabled() {
+    public boolean isMaxEnabled()
+    {
         SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
         return ui.isMaxEnabled();
     }
@@ -87,14 +95,16 @@ public class SIPCommTabbedPane
      * Override JTabbedPane method. Does nothing.
      * @param tabLayoutPolicy The tab layout policy.
      */
-    public void setTabLayoutPolicy(int tabLayoutPolicy) {
+    public void setTabLayoutPolicy(int tabLayoutPolicy)
+    {
     }
 
     /**
      * Override JTabbedPane method. Does nothing.
      * @param tabPlacement The tab placement.
      */
-    public void setTabPlacement(int tabPlacement) {
+    public void setTabPlacement(int tabPlacement)
+    {
     }
 
     /**
@@ -102,7 +112,8 @@ public class SIPCommTabbedPane
      *
      * @param b whether the tabbedPane should have a close icon or not
      */
-    public void setCloseIcon(boolean b) {
+    public void setCloseIcon(boolean b)
+    {
         SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
         ui.setCloseIcon(b);
     }
@@ -112,7 +123,8 @@ public class SIPCommTabbedPane
      *
      * @param b whether the tabbedPane should have a max/detach icon or not
      */
-    public void setMaxIcon(boolean b) {
+    public void setMaxIcon(boolean b)
+    {
         SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
         ui.setMaxIcon(b);
     }
@@ -123,8 +135,8 @@ public class SIPCommTabbedPane
      *
      * @param index index of the tabbedPane to be detached
      */
-    public void detachTab(int index) {
-
+    public void detachTab(int index)
+    {
         if (index < 0 || index >= getTabCount())
             return;
 
@@ -208,7 +220,8 @@ public class SIPCommTabbedPane
      * @see #fireCloseTabEvent
      * @see #removeCloseListener
      */
-    public synchronized void addCloseListener(CloseListener l) {
+    public synchronized void addCloseListener(CloseListener l)
+    {
         listenerList.add(CloseListener.class, l);
     }
 
@@ -219,7 +232,8 @@ public class SIPCommTabbedPane
      * @see #fireMaxTabEvent
      * @see #removeMaxListener
      */
-    public synchronized void addMaxListener(MaxListener l) {
+    public synchronized void addMaxListener(MaxListener l)
+    {
         listenerList.add(MaxListener.class, l);
     }
 
@@ -230,7 +244,8 @@ public class SIPCommTabbedPane
      * @see #fireDoubleClickTabEvent
      * @see #removeDoubleClickListener
      */
-    public synchronized void addDoubleClickListener(DoubleClickListener l) {
+    public synchronized void addDoubleClickListener(DoubleClickListener l)
+    {
         listenerList.add(DoubleClickListener.class, l);
     }
 
@@ -241,7 +256,8 @@ public class SIPCommTabbedPane
      * @see #firePopupOutsideTabEvent
      * @see #removePopupOutsideListener
      */
-    public synchronized void addPopupOutsideListener(PopupOutsideListener l) {
+    public synchronized void addPopupOutsideListener(PopupOutsideListener l)
+    {
         listenerList.add(PopupOutsideListener.class, l);
     }
 
@@ -252,7 +268,8 @@ public class SIPCommTabbedPane
      * @see #fireCloseTabEvent
      * @see #addCloseListener
      */
-    public synchronized void removeCloseListener(CloseListener l) {
+    public synchronized void removeCloseListener(CloseListener l)
+    {
         listenerList.remove(CloseListener.class, l);
     }
 
@@ -263,7 +280,8 @@ public class SIPCommTabbedPane
      * @see #fireMaxTabEvent
      * @see #addMaxListener
      */
-    public synchronized void removeMaxListener(MaxListener l) {
+    public synchronized void removeMaxListener(MaxListener l)
+    {
         listenerList.remove(MaxListener.class, l);
     }
 
@@ -275,7 +293,8 @@ public class SIPCommTabbedPane
      * @see #fireDoubleClickTabEvent
      * @see #addDoubleClickListener
      */
-    public synchronized void removeDoubleClickListener(DoubleClickListener l) {
+    public synchronized void removeDoubleClickListener(DoubleClickListener l)
+    {
         listenerList.remove(DoubleClickListener.class, l);
     }
 
@@ -288,7 +307,8 @@ public class SIPCommTabbedPane
      * @see #addPopupOutsideListener
      */
     public synchronized void removePopupOutsideListener(
-                                        PopupOutsideListener l) {
+                                        PopupOutsideListener l)
+    {
         listenerList.remove(PopupOutsideListener.class, l);
     }
 
@@ -307,11 +327,13 @@ public class SIPCommTabbedPane
      *
      * @see #addCloseListener
      */
-    public void fireCloseTabEvent(MouseEvent e, int overTabIndex) {
+    public void fireCloseTabEvent(MouseEvent e, int overTabIndex)
+    {
         this.overTabIndex = overTabIndex;
 
         EventListener[] closeListeners = getListeners(CloseListener.class);
-        for (int i = 0; i < closeListeners.length; i++) {
+        for (int i = 0; i < closeListeners.length; i++)
+        {
             ((CloseListener) closeListeners[i]).closeOperation(e);
         }
     }
@@ -331,11 +353,13 @@ public class SIPCommTabbedPane
      *
      * @see #addMaxListener
      */
-    public void fireMaxTabEvent(MouseEvent e, int overTabIndex) {
+    public void fireMaxTabEvent(MouseEvent e, int overTabIndex)
+    {
         this.overTabIndex = overTabIndex;
 
         EventListener[] maxListeners = getListeners(MaxListener.class);
-        for (int i = 0; i < maxListeners.length; i++) {
+        for (int i = 0; i < maxListeners.length; i++)
+        {
             ((MaxListener) maxListeners[i]).maxOperation(e);
         }
     }
@@ -355,12 +379,14 @@ public class SIPCommTabbedPane
      *
      * @see #addDoubleClickListener
      */
-    public void fireDoubleClickTabEvent(MouseEvent e, int overTabIndex) {
+    public void fireDoubleClickTabEvent(MouseEvent e, int overTabIndex)
+    {
         this.overTabIndex = overTabIndex;
 
         EventListener[] dClickListeners
             = getListeners(DoubleClickListener.class);
-        for (int i = 0; i < dClickListeners.length; i++) {
+        for (int i = 0; i < dClickListeners.length; i++)
+        {
             ((DoubleClickListener) dClickListeners[i]).doubleClickOperation(e);
         }
     }
@@ -377,12 +403,14 @@ public class SIPCommTabbedPane
      *
      * @see #addPopupOutsideListener
      */
-    public void firePopupOutsideTabEvent(MouseEvent e) {
+    public void firePopupOutsideTabEvent(MouseEvent e)
+    {
         this.overTabIndex = -1;
 
         EventListener[] popupListeners
             = getListeners(PopupOutsideListener.class);
-        for (int i = 0; i < popupListeners.length; i++) {
+        for (int i = 0; i < popupListeners.length; i++)
+        {
             ((PopupOutsideListener) popupListeners[i]).popupOutsideOperation(e);
         }
     }
@@ -392,10 +420,11 @@ public class SIPCommTabbedPane
      * hightlight if the tab which is selected.
      * @param tabIndex The index of the tab to be selected.
      */
-    public void setSelectedIndex(int tabIndex) {
-        
+    public void setSelectedIndex(int tabIndex)
+    {
         SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
-        if (ui.isTabHighlighted(tabIndex)) {
+        if (ui.isTabHighlighted(tabIndex))
+        {
             ui.tabRemoveHighlight(tabIndex);
         }
         super.setSelectedIndex(tabIndex);
@@ -406,8 +435,10 @@ public class SIPCommTabbedPane
      *
      * @param tabIndex The tab index.
      */
-    public void highlightTab(int tabIndex) {
+    public void highlightTab(int tabIndex)
+    {
         SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
+
         if (!ui.isTabHighlighted(tabIndex)
                 && this.getSelectedIndex() != tabIndex)
             ui.tabAddHightlight(tabIndex);

@@ -1,38 +1,36 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
+
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
-
 /**
- * The <tt>TitlePanel</tt> is a decorated panel, that could be used for a
- * header or a title area. This panel is used for example in the
+ * The <tt>TitlePanel</tt> is a decorated panel, that could be used for a header
+ * or a title area. This panel is used for example in the
  * <tt>ConfigurationFrame</tt>.
  * 
  * @author Yana Stamcheva
  */
-public class TitlePanel extends JPanel {
-
+public class TitlePanel
+    extends TransparentPanel
+{
     private JLabel titleLabel = new JLabel();
 
-    /**
-     * The size of the gradient used for painting the background of some
-     * components.
-     */
-    private static final int GRADIENT_SIZE = 10;
+    private Color gradientStartColor = new Color(255, 255, 255, 200);
+
+    private Color gradientEndColor = new Color(255, 255, 255, 50);
 
     /**
      * Creates an instance of <tt>TitlePanel</tt>.
      */
-    public TitlePanel() {
+    public TitlePanel()
+    {
 
         super(new FlowLayout(FlowLayout.CENTER));
 
@@ -47,8 +45,8 @@ public class TitlePanel extends JPanel {
      * 
      * @param title A String title.
      */
-    public TitlePanel(String title) {
-
+    public TitlePanel(String title)
+    {
         super(new FlowLayout(FlowLayout.CENTER));
 
         this.titleLabel.setFont(this.getFont().deriveFont(Font.BOLD, 14));
@@ -59,50 +57,37 @@ public class TitlePanel extends JPanel {
     }
 
     /**
-     * Overrides the <code>paintComponent</code> method of <tt>JPanel</tt>
-     * to paint a gradient background of this panel.
+     * Overrides the <code>paintComponent</code> method of <tt>JPanel</tt> to
+     * paint a gradient background of this panel.
      */
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
 
-        GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                Constants.GRADIENT_DARK_COLOR, this.getWidth() / 2,
-                GRADIENT_SIZE,
-                Constants.GRADIENT_LIGHT_COLOR);
-
-        GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
-                .getHeight()
-                - GRADIENT_SIZE,
-                Constants.GRADIENT_LIGHT_COLOR, this.getWidth() / 2,
-                this.getHeight(), Constants.GRADIENT_DARK_COLOR);
+        GradientPaint p =
+            new GradientPaint(this.getWidth() / 2, 0,
+                                gradientStartColor,
+                                this.getWidth() / 2,
+                                getHeight(),
+                                gradientEndColor);
 
         g2.setPaint(p);
-        g2.fillRect(0, 0, this.getWidth(), GRADIENT_SIZE);
-
-        g2.setColor(Constants.GRADIENT_LIGHT_COLOR);
-        g2.fillRect(0, GRADIENT_SIZE, this.getWidth(),
-                this.getHeight() - GRADIENT_SIZE);
-
-        g2.setPaint(p1);
-        g2.fillRect(0, this.getHeight() - GRADIENT_SIZE
-                - 1, this.getWidth(), this.getHeight() - 1);
-
-        g2.setColor(Constants.BORDER_COLOR);
-        g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1, 5, 5);
+        g2.fillRoundRect(0, 0, this.getWidth(), getHeight(), 10, 10);
     }
 
     /**
      * Sets the title String.
+     * 
      * @param title The title String.
      */
     public void setTitleText(String title)
     {
         this.removeAll();
-        
+
         this.titleLabel.setText(title);
-        
+
         this.add(titleLabel);
     }
 }

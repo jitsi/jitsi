@@ -42,13 +42,15 @@ public class MessageDialog
 
     private StyledHTMLEditorPane messageArea = new StyledHTMLEditorPane();
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JPanel checkBoxPanel = new JPanel(
-            new FlowLayout(FlowLayout.LEADING));
+    private TransparentPanel checkBoxPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.LEADING));
 
-    private JPanel messagePanel = new JPanel(new BorderLayout(5, 5));
-    
+    private TransparentPanel messagePanel
+        = new TransparentPanel(new BorderLayout(5, 5));
+
     private boolean isConfirmationEnabled = true;
 
     private int returnCode;
