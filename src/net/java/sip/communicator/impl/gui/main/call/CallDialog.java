@@ -51,15 +51,13 @@ public class CallDialog
 
         this.setPreferredSize(new Dimension(500, 400));
 
-        JPanel buttonsPanel = new JPanel(new BorderLayout(5, 5));
+        TransparentPanel buttonsPanel
+            = new TransparentPanel(new BorderLayout(5, 5));
 
-        SIPCommButton hangupButton = new SIPCommButton(ImageLoader
-            .getImage(ImageLoader.HANGUP_BUTTON_BG), ImageLoader
-            .getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG), null, ImageLoader
-            .getImage(ImageLoader.HANGUP_BUTTON_PRESSED_BG));
+        SIPCommButton hangupButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
         SIPCommButton dialButton = new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
             ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
 
         dialButton.setName(DIAL_BUTTON);

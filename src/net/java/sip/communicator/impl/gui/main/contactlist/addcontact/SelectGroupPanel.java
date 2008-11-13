@@ -24,11 +24,11 @@ import net.java.sip.communicator.service.contactlist.*;
  * @author Yana Stamcheva
  */
 public class SelectGroupPanel
-    extends JPanel
+    extends TransparentPanel
     implements  ItemListener
 {
-
-    private JPanel groupPanel = new JPanel(new BorderLayout()); 
+    private TransparentPanel groupPanel
+        = new TransparentPanel(new BorderLayout()); 
     
     private JLabel groupLabel = new JLabel(
             Messages.getI18NString("selectGroup").getText() + ": ");
@@ -40,9 +40,11 @@ public class SelectGroupPanel
     private JLabel infoTitleLabel = new JLabel(
             Messages.getI18NString("selectGroupWizardTitle").getText());
     
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private TransparentPanel labelsPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
     
-    private JPanel rightPanel = new JPanel(new BorderLayout());
+    private TransparentPanel rightPanel
+        = new TransparentPanel(new BorderLayout());
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));

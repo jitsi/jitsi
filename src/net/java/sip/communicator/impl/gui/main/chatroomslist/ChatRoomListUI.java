@@ -24,7 +24,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomListUI
-    extends JScrollPane
+    extends SCScrollPane
     implements  MouseListener,
                 ChatRoomListChangeListener
 {
@@ -50,14 +50,10 @@ public class ChatRoomListUI
 
         this.treePanel.add(chatRoomList, BorderLayout.NORTH);
 
-        this.treePanel.setOpaque(false);
-        this.setViewport(new ImageBackgroundViewport());
-        this.getViewport().setView(treePanel);
+        this.setViewportView(treePanel);
 
         this.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        this.getVerticalScrollBar().setUnitIncrement(30);
 
         this.getActionMap().put("runChat", new ChatRoomsListPanelEnterAction());
 

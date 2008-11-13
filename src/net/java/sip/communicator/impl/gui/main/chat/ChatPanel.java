@@ -43,7 +43,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class ChatPanel
-    extends JPanel
+    extends TransparentPanel
     implements  ChatSessionRenderer,
                 Chat,
                 ChatConversationContainer
@@ -114,7 +114,7 @@ public class ChatPanel
         this.writeMessagePanel = new ChatWritePanel(this);
 
         this.messagePane.setBorder(null);
-
+        this.messagePane.setOpaque(false);
         this.messagePane.setResizeWeight(1.0D);
 
         this.writeMessagePanel.setPreferredSize(new Dimension(500, 100));
@@ -188,7 +188,6 @@ public class ChatPanel
 
             // Remove default borders from split panes.
             this.topSplitPane.setBorder(null);
-
             this.topSplitPane.setResizeWeight(1.0D);
             this.topSplitPane.setOneTouchExpandable(true);
 

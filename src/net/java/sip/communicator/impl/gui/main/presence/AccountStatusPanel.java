@@ -11,16 +11,16 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 public class AccountStatusPanel
-    extends JPanel
-    implements RegistrationStateChangeListener
+    extends TransparentPanel
+    implements  RegistrationStateChangeListener
 {
     private static final int AVATAR_ICON_HEIGHT = 45;
 
@@ -30,13 +30,16 @@ public class AccountStatusPanel
 
     private GlobalStatusSelectorBox statusComboBox;
 
-    private JPanel rightPanel = new JPanel(new GridLayout(0, 1, 0, 0));
+    private TransparentPanel rightPanel
+        = new TransparentPanel(new GridLayout(0, 1, 0, 0));
 
-    private ImageIcon imageIcon = ImageUtils.scaleIconWithinBounds(
-        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO),
-                AVATAR_ICON_WIDTH, AVATAR_ICON_HEIGHT);
+    private ImageIcon imageIcon
+        = new ImageIcon(ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
 
-    private JLabel accountImageLabel = new JLabel(imageIcon);
+    private FramedImage accountImageLabel
+        = new FramedImage(  imageIcon,
+                            AVATAR_ICON_WIDTH,
+                            AVATAR_ICON_HEIGHT);
 
     private JLabel accountNameLabel
         = new JLabel(GuiActivator.getResources().getI18NString("accountMe"));
@@ -54,19 +57,17 @@ public class AccountStatusPanel
         if (ConfigurationManager.isTransparentWindowEnabled())
             this.setUI(new SIPCommOpaquePanelUI());
 
-        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        this.setOpaque(false);
         this.accountNameLabel.setOpaque(false);
-        this.statusComboBox.setOpaque(false);
-        this.rightPanel.setOpaque(false);
+        this.statusMenuBar.setOpaque(false);
 
         // Align status combo box with account name field.
         statusMenuBar.setLayout(new BorderLayout(0, 0));
+        statusMenuBar.setUI(new SIPCommMenuBarUI());
         statusComboBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         accountNameLabel.setFont(
             accountNameLabel.getFont().deriveFont(Font.BOLD));
+
         statusMenuBar.add(statusComboBox);
 
         this.add(accountImageLabel, BorderLayout.WEST);
@@ -147,15 +148,10 @@ public class AccountStatusPanel
                         byte[] accountImage
                             = AccountInfoUtils.getImage(accountInfoOpSet);
 
-                        ImageIcon roundedImage
-                            = ImageUtils.getScaledRoundedImage(
-                                    accountImage,
-                                    AVATAR_ICON_WIDTH,
-                                    AVATAR_ICON_HEIGHT);
-
-                        if (roundedImage != null)
+                        if (accountImage != null)
                         {
-                            accountImageLabel.setIcon(roundedImage);
+                            accountImageLabel
+                                .setImageIcon(new ImageIcon(accountImage));
                         }
 
                         String firstName
@@ -195,20 +191,5 @@ public class AccountStatusPanel
                 }
             }).start();
         }
-    }
-
-    protected void paintComponent(Graphics g)
-    {
-        AntialiasingManager.activateAntialiasing(g);
-
-        super.paintComponent(g);
-
-        Color bgColor = new Color(
-            GuiActivator.getResources()
-                .getColor("accountRegistrationBackground"));
-
-        g.setColor(bgColor);
-
-        g.fillRoundRect(5, 5, this.getWidth() - 10, this.getHeight() - 10, 8, 8);
     }
 }

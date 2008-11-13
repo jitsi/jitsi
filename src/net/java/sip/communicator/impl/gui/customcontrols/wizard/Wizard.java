@@ -80,8 +80,8 @@ public class Wizard
 
     private JLabel wizardIconLabel;
 
-    private JPanel wizardIconPanel =
-        new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private TransparentPanel wizardIconPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     /**
      * The i18n text used for the buttons. Loaded from a property resource file.
@@ -110,7 +110,7 @@ public class Wizard
 
     private WizardController wizardController;
 
-    private JPanel cardPanel;
+    private TransparentPanel cardPanel;
 
     private CardLayout cardLayout;
 
@@ -445,11 +445,11 @@ public class Wizard
          * panels in the same spot.
          */
 
-        JPanel buttonPanel = new JPanel();
+        TransparentPanel buttonPanel = new TransparentPanel();
         JSeparator separator = new JSeparator();
         Box buttonBox = new Box(BoxLayout.X_AXIS);
 
-        cardPanel = new JPanel();
+        cardPanel = new TransparentPanel();
 
         cardLayout = new CardLayout();
         cardPanel.setLayout(cardLayout);

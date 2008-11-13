@@ -6,13 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.*;
-
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
-
-import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * @author Yana Stamcheva
@@ -28,17 +24,11 @@ public class SIPCommMenuBarUI
         return new SIPCommMenuBarUI();
     }
 
-    public void paint(Graphics g, JComponent c)
+    protected void installDefaults()
     {
-        AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);
+        super.installDefaults();
 
-        Color defaultColor = UIManager.getColor("Panel.background");
-        int red = defaultColor.getRed();
-        int green = defaultColor.getGreen();
-        int blue = defaultColor.getBlue();
-
-        g.setColor(new Color(red, green, blue));
-        g.fillRect(0, 0, c.getWidth(), c.getHeight());
+        LookAndFeel.installProperty(menuBar, "opaque", Boolean.FALSE);
+        LookAndFeel.installBorder(menuBar, null);
     }
 }

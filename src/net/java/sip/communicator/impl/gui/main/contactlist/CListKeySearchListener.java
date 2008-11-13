@@ -8,6 +8,8 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.event.*;
+
+import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.service.contactlist.*;
@@ -35,7 +37,7 @@ import net.java.sip.communicator.service.contactlist.*;
  */
 public class CListKeySearchListener implements KeyListener {
 
-    private ContactList contactList;
+    private JList contactList;
 
     private String lastTypedKey;
 
@@ -48,7 +50,7 @@ public class CListKeySearchListener implements KeyListener {
      * ContactList.
      * @param contactList The contact list.
      */
-    public CListKeySearchListener(ContactList contactList) {
+    public CListKeySearchListener(JList contactList) {
         this.contactList = contactList;
     }
 

@@ -45,6 +45,10 @@ public class ExtendedCallHistorySearchActivator
                                   extendedSearch,
                                   containerFilter);
 
+        context.registerService(FavoritesButton.class.getName(),
+                                new CallHistoryButton(),
+                                null);
+
         logger.info("EXTENDED CALL HISTORY SEARCH... [REGISTERED]");
     }
 

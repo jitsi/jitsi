@@ -32,7 +32,7 @@ import say.swing.*;
  * @author Yana Stamcheva
  */
 public class EditTextToolBar
-    extends SIPCommToolBar
+    extends TransparentPanel
 {
     private Logger logger = Logger.getLogger(EditTextToolBar.class);
 
@@ -48,9 +48,7 @@ public class EditTextToolBar
 
     private SIPCommButton fontButton = new SIPCommButton(
         ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
-        ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
-        ImageLoader.getImage(ImageLoader.FONT_ICON),
-        ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON));
+        ImageLoader.getImage(ImageLoader.FONT_ICON));
 
     private SmiliesSelectorBox smiliesBox;
 
@@ -70,18 +68,14 @@ public class EditTextToolBar
         this.chatWritePanel = writePanel;
         this.chatEditorPane = writePanel.getEditorPane();
 
+        this.setOpaque(false);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 
         this.initStyleToolbarButtons();
 
-        this.addSeparator();
-
         this.add(fontButton);
-        this.addSeparator();
 
         this.initColorLabel();
-
-        this.addSeparator();
 
         this.smiliesBox = new SmiliesSelectorBox(
             ImageLoader.getDefaultSmiliesPack(), chatWritePanel);

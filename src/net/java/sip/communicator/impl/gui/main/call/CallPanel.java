@@ -12,6 +12,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -25,13 +26,14 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Lubomir Marinov
  */
 public class CallPanel
-    extends JScrollPane
+    extends SCScrollPane
     implements CallChangeListener, CallParticipantListener
 {
-    private final JPanel mainPanel = new JPanel();
+    private final TransparentPanel mainPanel = new TransparentPanel();
 
-    private final Hashtable<CallParticipant, CallParticipantPanel> participantsPanels =
-        new Hashtable<CallParticipant, CallParticipantPanel>();
+    private final Hashtable<CallParticipant, CallParticipantPanel>
+        participantsPanels =
+            new Hashtable<CallParticipant, CallParticipantPanel>();
 
     private String title;
 
@@ -44,7 +46,7 @@ public class CallPanel
 
         this.mainPanel.setLayout(new BorderLayout());
 
-        this.getViewport().add(mainPanel);
+        this.setViewportView(mainPanel);
 
         int contactsCount = call.getCallParticipantsCount();
 

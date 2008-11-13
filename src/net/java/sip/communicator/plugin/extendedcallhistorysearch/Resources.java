@@ -9,7 +9,6 @@ package net.java.sip.communicator.plugin.extendedcallhistorysearch;
 
 import java.awt.image.*;
 import java.io.*;
-import java.util.*;
 
 import javax.imageio.*;
 import javax.swing.*;

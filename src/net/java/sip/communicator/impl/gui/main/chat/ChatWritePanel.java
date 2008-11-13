@@ -17,6 +17,7 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
@@ -35,7 +36,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class ChatWritePanel
-    extends JPanel
+    extends TransparentPanel
     implements  ActionListener,
                 KeyListener,
                 MouseListener,
@@ -67,7 +68,7 @@ public class ChatWritePanel
     public ChatWritePanel(ChatPanel panel)
     {
         super(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane();
+        SCScrollPane scrollPane = new SCScrollPane();
 
         this.chatPanel = panel;
 
@@ -90,13 +91,7 @@ public class ChatWritePanel
         scrollPane
             .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        scrollPane.getViewport().add(editorPane, BorderLayout.CENTER);
-
-        scrollPane.setBorder(BorderFactory
-            .createCompoundBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3),
-                SIPCommBorders.getBoldRoundBorder()));
-
-        scrollPane.getVerticalScrollBar().setUnitIncrement(30);
+        scrollPane.setViewportView(editorPane);
 
         this.typingTimer.setRepeats(true);
 

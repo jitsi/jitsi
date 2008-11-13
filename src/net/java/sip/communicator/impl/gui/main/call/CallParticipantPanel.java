@@ -13,6 +13,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,7 +28,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Lubomir Marinov
  */
 public class CallParticipantPanel
-    extends JPanel
+    extends TransparentPanel
 {
     private final JLabel stateLabel = new JLabel("Unknown", JLabel.CENTER);
 
@@ -127,7 +128,7 @@ public class CallParticipantPanel
                 new MuteButton(this.callParticipant),
                 createTransferCallButton(), createSecureCallButton() };
 
-        Container buttonBar = new JPanel(new GridLayout(1, 0));
+        Container buttonBar = new TransparentPanel(new GridLayout(1, 0));
         for (int buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++)
         {
             Component button = buttons[buttonIndex];
@@ -157,7 +158,7 @@ public class CallParticipantPanel
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
         photoLabel.setPreferredSize(new Dimension(90, 90));
 
-        JPanel center = new JPanel(new FitLayout());
+        JPanel center = new TransparentPanel(new FitLayout());
         center.add(photoLabel);
 
         addVideoListener(center, photoLabel);
@@ -186,7 +187,7 @@ public class CallParticipantPanel
         // secureLabel
         Component secureLabel = createSecureCallLabel();
 
-        Container namePanel = new JPanel(new GridLayout(0, 1));
+        Container namePanel = new TransparentPanel(new GridLayout(0, 1));
         namePanel.add(nameLabel);
         namePanel.add(stateLabel);
         namePanel.add(timeLabel);

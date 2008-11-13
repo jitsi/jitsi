@@ -53,11 +53,15 @@ public class GeneralConfigurationForm
     private void initGUI()
     {
         BorderLayout borderLayout = new BorderLayout();
+
         this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         this.setLayout(borderLayout);
         setPreferredSize(new Dimension(500, 300));
         {
             mainPanel = new JPanel();
+            this.setOpaque(false);
+            this.mainPanel.setOpaque(false);
+
             BoxLayout boxLayout = new BoxLayout(
                 mainPanel, javax.swing.BoxLayout.Y_AXIS);
             mainPanel.setLayout(boxLayout);
@@ -86,6 +90,8 @@ public class GeneralConfigurationForm
             }
             {
                 logHistoryPanel = new JPanel();
+                logHistoryPanel.setOpaque(false);
+
                 mainPanel.add(logHistoryPanel);
                 mainPanel.add(Box.createVerticalStrut(10));
                 logHistoryPanel.setLayout(null);
@@ -154,6 +160,8 @@ public class GeneralConfigurationForm
             }
             {
                 sendMessagePanel = new JPanel();
+                sendMessagePanel.setOpaque(false);
+
                 BorderLayout sendMessagePanelLayout
                     = new BorderLayout(10, 10);
                 sendMessagePanel.setLayout(sendMessagePanelLayout);

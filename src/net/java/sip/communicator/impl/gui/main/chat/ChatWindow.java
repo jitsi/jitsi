@@ -58,6 +58,8 @@ public class ChatWindow
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
 
+    private JPanel northPanel = new JPanel(new BorderLayout());
+
     private JPanel statusBarPanel = new JPanel(new BorderLayout());
 
     private JPanel pluginPanelNorth = new JPanel();
@@ -84,6 +86,8 @@ public class ChatWindow
             this.setUndecorated(true);
         }
 
+        this.setHierarchicallyOpaque(false);
+
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         //If in mode TABBED_CHAT_WINDOW initialize the tabbed pane
@@ -109,8 +113,6 @@ public class ChatWindow
 
         this.setJMenuBar(menuBar);
 
-        JPanel northPanel = new JPanel(new BorderLayout());
-
         boolean isToolBarExtended
             = new Boolean(GuiActivator.getResources().
                 getSettingsString("isToolBarExteneded")).booleanValue();
@@ -119,8 +121,6 @@ public class ChatWindow
             mainToolBar = new ExtendedMainToolBar(this);
         else
             mainToolBar = new MainToolBar(this);
-
-        northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
 
         northPanel.add(new LogoBar(), BorderLayout.NORTH);
         northPanel.add(mainToolBar, BorderLayout.CENTER);
@@ -150,6 +150,20 @@ public class ChatWindow
             = GuiActivator.getResources().getSettingsInt("chatWindowHeight");
 
         this.setSize(width, height);
+    }
+
+    /**
+     * Sets the given isOpaque property to this panel and all its contained
+     * components.
+     * 
+     * @param isOpaque <code>true</code> to set this panel paque and
+     * <code>false</code> - otherwise.
+     */
+    public void setHierarchicallyOpaque(boolean isOpaque)
+    {
+        northPanel.setOpaque(isOpaque);
+        mainPanel.setOpaque(isOpaque);
+        statusBarPanel.setOpaque(isOpaque);
     }
 
     /*
@@ -844,13 +858,15 @@ public class ChatWindow
          */
         public LogoBar()
         {
-            int width = GuiActivator.getResources().getSettingsInt("logoBarWidth");
-            int height = GuiActivator.getResources().getSettingsInt("logoBarHeight");
+            int width
+                = GuiActivator.getResources().getSettingsInt("logoBarWidth");
+            int height
+                = GuiActivator.getResources().getSettingsInt("logoBarHeight");
 
             this.setMinimumSize(new Dimension(width, height));
             this.setPreferredSize(new Dimension(width, height));
 
-        BufferedImage bgImage
+            BufferedImage bgImage
                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
 
             Rectangle rect
@@ -968,7 +984,7 @@ public class ChatWindow
         byte[] chatAvatar = chatSession.getChatAvatar();
 
         ImageIcon contactPhotoIcon;
-        if (chatAvatar != null)
+        if (chatAvatar != null && chatAvatar.length > 0)
         {
             contactPhotoIcon = ImageUtils.getScaledRoundedImage(chatAvatar,
                                                                 10,
@@ -988,9 +1004,9 @@ public class ChatWindow
      */
     private class ContactPhotoPanel extends JLayeredPane
     {
-        private ContactPhotoLabel photoLabel
-            = new ContactPhotoLabel(ChatContact.AVATAR_ICON_WIDTH,
-                                    ChatContact.AVATAR_ICON_HEIGHT);
+        private FramedImage photoLabel
+            = new FramedImage(ChatContact.AVATAR_ICON_WIDTH,
+                              ChatContact.AVATAR_ICON_HEIGHT);
 
         private JLabel addContactButton = new JLabel(
             new ImageIcon(ImageLoader.getImage(
@@ -1053,26 +1069,21 @@ public class ChatWindow
             byte[] chatAvatar = chatSession.getChatAvatar();
 
             ImageIcon contactPhotoIcon;
-            if (chatAvatar != null)
+            if (chatAvatar != null && chatAvatar.length > 0)
             {
-                contactPhotoIcon = ImageUtils.getScaledRoundedImage(
-                    chatAvatar,
-                    ChatContact.AVATAR_ICON_WIDTH,
-                    ChatContact.AVATAR_ICON_HEIGHT);
+                contactPhotoIcon = new ImageIcon(chatAvatar);
 
                 this.tooltipIcon = new ImageIcon(chatAvatar);
             }
             else
             {
-                contactPhotoIcon = ImageUtils.getScaledRoundedImage(
-                    ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO),
-                    ChatContact.AVATAR_ICON_WIDTH,
-                    ChatContact.AVATAR_ICON_HEIGHT);
+                contactPhotoIcon = new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
 
                 this.tooltipIcon = null;
             }
 
-            this.photoLabel.setIcon(contactPhotoIcon);
+            this.photoLabel.setImageIcon(contactPhotoIcon);
 
             // Need to set the tooltip in order to have createToolTip called
             // from the TooltipManager.

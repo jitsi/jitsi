@@ -10,6 +10,7 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
@@ -22,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class AccountRegSummaryPage
-    extends JScrollPane
+    extends SCScrollPane
     implements WizardPage
 {
     private String backPageIdentifier;
@@ -53,13 +54,14 @@ public class AccountRegSummaryPage
         this.wizardContainer = wizardContainer;
 
         this.pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
+
         this.mainPanel.add(pageTitleLabel, BorderLayout.NORTH);
         this.mainPanel.add(keysPanel, BorderLayout.WEST);
         this.mainPanel.add(valuesPanel, BorderLayout.CENTER);
 
         this.wrapPanel.add(mainPanel, BorderLayout.NORTH);
 
-        this.getViewport().add(wrapPanel);
+        this.setViewportView(wrapPanel);
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }

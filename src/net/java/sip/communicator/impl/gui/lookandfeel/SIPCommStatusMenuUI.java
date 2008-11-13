@@ -48,17 +48,12 @@ public class SIPCommStatusMenuUI
     {
         AntialiasingManager.activateAntialiasing(g);
 
+        super.paintBackground(g, menuItem, bgColor);
+
         Color oldColor = g.getColor();
 
         int menuWidth = menuItem.getWidth();
         int menuHeight = menuItem.getHeight();
-
-        Color newBgColor = new Color(
-            GuiActivator.getResources()
-                .getColor("accountRegistrationBackground"));
-
-        g.setColor(newBgColor);
-        g.fillRect(0, 0, menuWidth, menuHeight);
 
         if (menuItem.isSelected())
         {

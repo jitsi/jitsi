@@ -476,7 +476,7 @@ public class ContactRightButtonMenu
         }
         else if (itemName.equalsIgnoreCase("sendMessage"))
         {
-            ContactListPanel clistPanel = mainFrame.getContactListPanel();
+            ContactListPane clistPanel = mainFrame.getContactListPanel();
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
                     contactItem));
         }
@@ -485,7 +485,7 @@ public class ContactRightButtonMenu
             Contact defaultSmsContact
                 = contactItem.getDefaultContact(OperationSetSmsMessaging.class);
 
-            ContactListPanel clistPanel = mainFrame.getContactListPanel();
+            ContactListPane clistPanel = mainFrame.getContactListPanel();
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
                     contactItem, defaultSmsContact, true));
         }

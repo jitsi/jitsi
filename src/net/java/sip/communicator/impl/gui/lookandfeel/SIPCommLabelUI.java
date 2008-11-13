@@ -29,6 +29,6 @@ public class SIPCommLabelUI extends MetalLabelUI {
 
     public void paint(Graphics g, JComponent c) {
         AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);        
+        super.paint(g, c);
     }
 }

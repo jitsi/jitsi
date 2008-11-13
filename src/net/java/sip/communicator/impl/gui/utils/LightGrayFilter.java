@@ -37,7 +37,7 @@ public class LightGrayFilter extends GrayFilter {
      * @return A disabled image based on the source image.
      */
     public static Image createDisabledImage(Image i) {
-        LightGrayFilter filter = new LightGrayFilter(true, 65);
+        LightGrayFilter filter = new LightGrayFilter(true, 30);
         ImageProducer prod = new FilteredImageSource(i.getSource(), filter);
         Image grayImage = Toolkit.getDefaultToolkit().createImage(prod);
 

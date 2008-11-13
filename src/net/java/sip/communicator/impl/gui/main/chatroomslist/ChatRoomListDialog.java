@@ -80,7 +80,7 @@ public class ChatRoomListDialog
 
         JButton cancelButton = new JButton(cancelString.getText());
 
-        JPanel buttonPanel = new JPanel();
+        TransparentPanel buttonPanel = new TransparentPanel();
 
         this.setTitle(Messages.getI18NString("myChatRooms").getText());
 

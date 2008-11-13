@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
@@ -39,34 +38,24 @@ import org.osgi.framework.*;
  * @author Lubomir Marinov
  */
 public class MainToolBar
-    extends SIPCommToolBar
+    extends TransparentPanel
     implements  ActionListener,
                 PluginComponentListener
 {
     private Logger logger = Logger.getLogger(MainToolBar.class);
 
-    private ChatToolbarButton saveButton
-        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.SAVE_ICON));
+    private ChatToolbarButton inviteButton = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
-    private ChatToolbarButton printButton
-        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.PRINT_ICON));
+    private ChatToolbarButton historyButton = new ChatToolbarButton(
+        ImageLoader.getImage(ImageLoader.HISTORY_ICON));
 
-    private ChatToolbarButton previousButton
-        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
-
-    private ChatToolbarButton nextButton
-        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.NEXT_ICON));
-
-    private ChatToolbarButton historyButton
-        = new ChatToolbarButton(ImageLoader.getImage(ImageLoader.HISTORY_ICON));
+    private ChatToolbarButton optionsButton = new ChatToolbarButton(
+        ImageLoader.getImage(ImageLoader.CHAT_CONFIGURE_ICON));
 
     private ChatToolbarButton sendFileButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
-
-    private ChatToolbarButton inviteButton
-        = new ChatToolbarButton(
-                ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
     private ChatWindow messageWindow;
 
@@ -88,31 +77,21 @@ public class MainToolBar
     {
         this.messageWindow = messageWindow;
 
-        this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        this.setOpaque(false);
+
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
 
         this.add(inviteButton);
         this.add(historyButton);
+        this.add(optionsButton);
 
-        this.addSeparator();
-
-        this.add(previousButton);
-        this.add(nextButton);
-
-        this.saveButton.setName("save");
-        this.saveButton.setToolTipText(
-            Messages.getI18NString("save").getText() + " Ctrl-S");
-
-        this.printButton.setName("print");
-        this.printButton.setToolTipText(
-            Messages.getI18NString("print").getText());
-
-        this.previousButton.setName("previous");
-        this.previousButton.setToolTipText(
-            Messages.getI18NString("previous").getText());
-
-        this.nextButton.setName("next");
-        this.nextButton.setToolTipText(
-            Messages.getI18NString("next").getText());
+//        this.previousButton.setName("previous");
+//        this.previousButton.setToolTipText(
+//            Messages.getI18NString("previous").getText());
+//
+//        this.nextButton.setName("next");
+//        this.nextButton.setToolTipText(
+//            Messages.getI18NString("next").getText());
 
         this.sendFileButton.setName("sendFile");
         this.sendFileButton.setToolTipText(
@@ -126,13 +105,16 @@ public class MainToolBar
         this.inviteButton.setToolTipText(
             Messages.getI18NString("invite").getText());
 
-        this.saveButton.addActionListener(this);
-        this.printButton.addActionListener(this);
-        this.previousButton.addActionListener(this);
-        this.nextButton.addActionListener(this);
+        this.optionsButton.setName("options");
+        this.optionsButton.setToolTipText(
+            Messages.getI18NString("options").getText());
+
+//        this.previousButton.addActionListener(this);
+//        this.nextButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
         this.historyButton.addActionListener(this);
         this.inviteButton.addActionListener(this);
+        this.optionsButton.addActionListener(this);
 
         this.initPluginComponents();
     }
@@ -158,18 +140,18 @@ public class MainToolBar
 
         ChatPanel chatPanel = messageWindow.getCurrentChatPanel();
 
-        if (buttonText.equalsIgnoreCase("previous"))
+        if (buttonText.equals("previous"))
         {
             chatPanel.loadPreviousPageFromHistory();
         }
-        else if (buttonText.equalsIgnoreCase("next"))
+        else if (buttonText.equals("next"))
         {
             chatPanel.loadNextPageFromHistory();
         }
-        else if (buttonText.equalsIgnoreCase("sendFile")) {
+        else if (buttonText.equals("sendFile")) {
 
         }
-        else if (buttonText.equalsIgnoreCase("history"))
+        else if (buttonText.equals("history"))
         {
             HistoryWindow history;
 
@@ -201,12 +183,19 @@ public class MainToolBar
                                                     history);
             }
         }
-        else if (buttonText.equalsIgnoreCase("invite")) 
+        else if (buttonText.equals("invite")) 
         {
             ChatInviteDialog inviteDialog
                 = new ChatInviteDialog(chatPanel);
 
             inviteDialog.setVisible(true);
+        }
+        else if (buttonText.equals("options"))
+        {
+            ExportedWindow optionsDialog = GuiActivator.getUIService()
+                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
+
+            optionsDialog.setVisible(true);
         }
     }
 
@@ -226,36 +215,38 @@ public class MainToolBar
      */
     public void changeHistoryButtonsState(ChatPanel chatPanel)
     {
-        ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
-        
-        Date firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
-        Date lastMsgInHistory = chatPanel.getLastHistoryMsgTimestamp();
-        Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
-        Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
-        
-        if(firstMsgInHistory == null || lastMsgInHistory == null)
-        {
-            previousButton.setEnabled(false);
-            nextButton.setEnabled(false);
-            return;
-        }
-        
-        if(firstMsgInHistory.compareTo(firstMsgInPage) < 0)
-            previousButton.setEnabled(true);
-        else
-            previousButton.setEnabled(false);
-        
-        if(lastMsgInPage.getTime() > 0
-                && (lastMsgInHistory.compareTo(lastMsgInPage) > 0))
-        {
-            nextButton.setEnabled(true);
-        }
-        else
-        {
-            nextButton.setEnabled(false);
-        }
+//        Disabling history buttons until they start to work properly.
+//        
+//        ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
+//        
+//        Date firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
+//        Date lastMsgInHistory = chatPanel.getLastHistoryMsgTimestamp();
+//        Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
+//        Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
+//        
+//        if(firstMsgInHistory == null || lastMsgInHistory == null)
+//        {
+//            previousButton.setEnabled(false);
+//            nextButton.setEnabled(false);
+//            return;
+//        }
+//        
+//        if(firstMsgInHistory.compareTo(firstMsgInPage) < 0)
+//            previousButton.setEnabled(true);
+//        else
+//            previousButton.setEnabled(false);
+//        
+//        if(lastMsgInPage.getTime() > 0
+//                && (lastMsgInHistory.compareTo(lastMsgInPage) > 0))
+//        {
+//            nextButton.setEnabled(true);
+//        }
+//        else
+//        {
+//            nextButton.setEnabled(false);
+//        }
     }
-    
+
     private void initPluginComponents()
     {
         // Search for plugin components registered through the OSGI bundle
@@ -304,7 +295,6 @@ public class MainToolBar
 
         if(c.getContainer().equals(Container.CONTAINER_CHAT_TOOL_BAR))
         {
-            this.addSeparator();
             this.add((Component) c.getComponent());
 
             this.revalidate();

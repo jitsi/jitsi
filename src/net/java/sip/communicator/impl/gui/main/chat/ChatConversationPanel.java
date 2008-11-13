@@ -22,7 +22,6 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -38,7 +37,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ChatConversationPanel
-    extends JScrollPane
+    extends SCScrollPane
     implements  HyperlinkListener,
                 MouseListener,
                 ClipboardOwner
@@ -122,29 +121,10 @@ public class ChatConversationPanel
 
         this.setWheelScrollingEnabled(true);
 
-        ImageBackgroundViewport imageViewport = new ImageBackgroundViewport();
-
-        this.setViewport(imageViewport);
-
-        // As the JComponent.setOpaque(false) function slows down the display
-        // speed, we only set it when a custom image for the background exists.
-        // If there is no custom background image, we simply skip the
-        // JComponent.setOpaque(false) function call.
-        if(imageViewport.getBackgroundImage() != null)
-        {
-            this.chatEditorPane.setOpaque(false);
-        }
-
-        this.getViewport().setView(chatEditorPane);
-
-        this.getVerticalScrollBar().setUnitIncrement(30);
+        this.setViewportView(chatEditorPane);
 
         this.setHorizontalScrollBarPolicy(
-        	JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        this.setBorder(BorderFactory
-            .createCompoundBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3),
-                SIPCommBorders.getBoldRoundBorder()));
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 

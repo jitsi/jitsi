@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.contactlist.*;
  * 
  * @author Yana Stamcheva
  */
-public class ContactInfoPanel
+public class ContactInfoDialog
     extends JDialog
     implements WindowFocusListener
 {
@@ -37,7 +37,7 @@ public class ContactInfoPanel
      * @param owner The frame owner of this dialog.
      * @param contactItem The <tt>MetaContact</tt> for the info.
      */
-    public ContactInfoPanel(Frame owner, MetaContact contactItem)
+    public ContactInfoDialog(Frame owner, MetaContact contactItem)
     {
         super(owner);
 

@@ -359,6 +359,9 @@ public class UIServiceImpl
     {
         this.exitOnClose = exitOnClose;
 
+        if (mainFrame == null)
+            return;
+
         if (exitOnClose)
             mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         else

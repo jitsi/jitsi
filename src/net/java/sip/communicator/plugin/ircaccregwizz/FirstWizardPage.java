@@ -151,6 +151,11 @@ public class FirstWizardPage
      */
     private void init()
     {
+        this.mainPanel.setOpaque(false);
+        this.labelsPanel.setOpaque(false);
+        this.valuesPanel.setOpaque(false);
+        this.emptyPanel.setOpaque(false);
+
         this.nickField.getDocument().addDocumentListener(this);
         this.serverField.getDocument().addDocumentListener(this);
         this.defaultPort.addActionListener(this);
@@ -477,6 +482,11 @@ public class FirstWizardPage
         JPanel simplePanel = new JPanel(new BorderLayout());
         JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
         JPanel valuesPanel = new JPanel(new GridLayout(0, 1));
+
+        simplePanel.setOpaque(false);
+        labelsPanel.setOpaque(false);
+        valuesPanel.setOpaque(false);
+        emptyPanel2.setOpaque(false);
 
         simplePanel.add(labelsPanel, BorderLayout.WEST);
         simplePanel.add(valuesPanel, BorderLayout.CENTER);

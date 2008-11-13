@@ -51,7 +51,9 @@ public class MainMenu
                     .getColor("mainMenuForeground")));
 
         this.fileMenu = new FileMenu(mainFrame);
+
         this.toolsMenu = new ToolsMenu(mainFrame);
+
         this.helpMenu = new HelpMenu(mainFrame);
 
         this.init();

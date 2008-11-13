@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -23,7 +24,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class SearchPanel
-    extends JPanel
+    extends TransparentPanel
     implements  ActionListener,
                 DocumentListener
 {
@@ -38,7 +39,8 @@ public class SearchPanel
 
     private JTextField searchTextField = new JTextField();
     
-    private JPanel textFieldPanel = new JPanel(new BorderLayout());
+    private TransparentPanel textFieldPanel
+        = new TransparentPanel(new BorderLayout());
 
     /*
     private JRadioButton todayMessagesRadio = new JRadioButton(Messages
@@ -201,24 +203,19 @@ public class SearchPanel
     }
 
     public void insertUpdate(DocumentEvent e)
-    {
-        // TODO Auto-generated method stub
-        
-    }
+    {}
 
     public void removeUpdate(DocumentEvent e)
     {
         if (searchTextField.getText() == null
-                || searchTextField.getText().equals("")) {
+                || searchTextField.getText().equals(""))
+        {
             historyWindow.showHistoryByKeyword("");
         }
     }
 
     public void changedUpdate(DocumentEvent e)
-    {
-        // TODO Auto-generated method stub
-        
-    }
+    {}
 
     /**
      * Enables the settings for a default search.

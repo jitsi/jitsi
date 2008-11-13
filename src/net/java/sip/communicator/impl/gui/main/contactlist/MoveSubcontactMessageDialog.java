@@ -40,9 +40,14 @@ public class MoveSubcontactMessageDialog
     
     private JButton cancelButton = new JButton(cancelString.getText());
     
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private TransparentPanel labelsPanel
+        = new TransparentPanel(new GridLayout(0, 1));
+    
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
+    
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
     
     private int dialogWidth = 350;
     private int dialogHeight = 150;

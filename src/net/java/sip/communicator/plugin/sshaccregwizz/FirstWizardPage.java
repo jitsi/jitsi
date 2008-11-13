@@ -149,10 +149,25 @@ public class FirstWizardPage
      */
     private void init()
     {
-        
+        this.mainPanel.setOpaque(false);
+        this.labelsPanel.setOpaque(false);
+        this.valuesPanel.setOpaque(false);
+        this.accountPanel.setOpaque(false);
+        this.identityFilePanel.setOpaque(false);
+        this.knownHostsFilePanel.setOpaque(false);
+        this.emptyPanel1.setOpaque(false);
+        this.emptyPanel2.setOpaque(false);
+        this.emptyPanel3.setOpaque(false);
+        this.emptyPanel4.setOpaque(false);
+        this.emptyPanel5.setOpaque(false);
+        this.emptyPanel6.setOpaque(false);
+        this.emptyPanel7.setOpaque(false);
+        this.emptyPanel8.setOpaque(false);
+        this.emptyPanel9.setOpaque(false);
+
         this.accountIDField.getDocument().addDocumentListener(this);
         this.existingAccountLabel.setForeground(Color.RED);
-        
+
         /*
          * Following empty panels cover the space needed between key labels
          * WRT Height 2 key lables = 1 text field

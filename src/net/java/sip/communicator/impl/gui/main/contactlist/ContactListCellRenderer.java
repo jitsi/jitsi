@@ -35,15 +35,19 @@ public class ContactListCellRenderer
 
     private static final int AVATAR_WIDTH = 30;
 
-    protected Color groupForegroundColor;
+    private ImageIcon openedGroupIcon = new ImageIcon(ImageLoader
+        .getImage(ImageLoader.DOWN_ARROW_ICON));
+
+    private ImageIcon closedGroupIcon = new ImageIcon(ImageLoader
+        .getImage(ImageLoader.RIGHT_ARROW_ICON));
+
+    private Color groupForegroundColor;
 
     protected Color contactForegroundColor;
 
     protected JLabel nameLabel = new JLabel();
 
     protected JLabel photoLabel = new JLabel();
-
-    private JPanel buttonsPanel;
 
     private int rowTransparency
         = GuiActivator.getResources()
@@ -79,15 +83,8 @@ public class ContactListCellRenderer
         if (contactForegroundProperty > -1)
             contactForegroundColor = new Color(contactForegroundProperty);
 
-        buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new GridLayout(1, 0));
-
-        this.buttonsPanel.setName("buttonsPanel");
-
         this.setOpaque(false);
         this.nameLabel.setOpaque(false);
-        this.buttonsPanel.setOpaque(false);
-
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         this.nameLabel.setIconTextGap(2);
@@ -147,7 +144,7 @@ public class ContactListCellRenderer
             if (contactForegroundColor != null)
                 this.nameLabel.setForeground(contactForegroundColor);
 
-            this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 1));
+            this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 3));
 
             byte[] avatar = metaContact.getAvatar(true);
             if (avatar != null && avatar.length > 0)
@@ -165,8 +162,6 @@ public class ContactListCellRenderer
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 30);
 
-            this.buttonsPanel.removeAll();
-
             this.nameLabel.setBounds(
                     0, 0, list.getWidth() - 28, 17);
             this.photoLabel.setBounds(
@@ -183,9 +178,6 @@ public class ContactListCellRenderer
             this.nameLabel.setText(groupItem.getGroupName() 
                     + "  ( " + groupItem.countChildContacts() + " )");
 
-            this.nameLabel.setIcon(new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.GROUPS_16x16_ICON)));
-
             this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
 
             if (groupForegroundColor != null)
@@ -197,30 +189,16 @@ public class ContactListCellRenderer
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
 
-            JLabel groupContentIndicator = new JLabel();
-
             if(((ContactListModel)list.getModel()).isGroupClosed(groupItem))
-                photoLabel.setIcon(new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.CLOSED_GROUP)));
+                this.nameLabel.setIcon(closedGroupIcon);
             else
-                photoLabel.setIcon(new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.OPENED_GROUP)));
+                this.nameLabel.setIcon(openedGroupIcon);
 
-            //the width is fixed in 
-            //order all the icons to be with the same size
-            groupContentIndicator.setBounds(0, 0, 12, 12);
-            this.buttonsPanel.setPreferredSize(
-                    new Dimension(17, 16));
-            this.buttonsPanel.setBounds(
-                    list.getWidth() - 2 - 17, 0,
-                    17, 16);
-
-            this.buttonsPanel.add(groupContentIndicator);
+            // We have no photo icon for groups.
+            this.photoLabel.setIcon(null);
 
             this.isLeaf = false;
         }
-
-//        this.add(buttonsPanel, BorderLayout.EAST);
 
         this.isSelected = isSelected;
 
@@ -241,15 +219,18 @@ public class ContactListCellRenderer
 
         if (!this.isLeaf)
         {
-            GradientPaint p = new GradientPaint(this.getWidth()/2, 0,
+            GradientPaint p = new GradientPaint(0,
+                0,
                 Constants.CONTACT_LIST_GROUP_BG_COLOR,
-                this.getWidth()/2,
-                this.getHeight(),
+                this.getWidth() - 5,
+                0,
                 Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR);
 
             g2.setPaint(p);
 
-            g2.fillRoundRect(1, 1, this.getWidth(), this.getHeight() - 1, 7, 7);
+            g2.fillRoundRect(   1, 1,
+                                this.getWidth() - 2, this.getHeight() - 1,
+                                10, 10);
         }
         else if (index%2 > 0)
         {
@@ -260,18 +241,14 @@ public class ContactListCellRenderer
                                     bgColor.getGreen(),
                                     bgColor.getBlue(),
                                     rowTransparency));
-            g2.fillRect(0, 0, this.getWidth(), this.getHeight());
         }
 
         if (this.isSelected)
         {
             g2.setColor(Constants.SELECTED_COLOR);
-            g2.fillRoundRect(1, 0, this.getWidth(), this.getHeight(), 7, 7);
-
-            g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
-            g2.setStroke(new BasicStroke(1.5f));
-            g2.drawRoundRect(1, 0, this.getWidth() - 1, this.getHeight() - 1,
-                    7, 7);
+            g2.fillRoundRect(   1, 1,
+                                this.getWidth() - 2, this.getHeight() - 1,
+                                10, 10);
         }
     }
 }

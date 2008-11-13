@@ -104,7 +104,7 @@ public class FirstWizardPage
         this.userIDField.getDocument().addDocumentListener(this);
         this.firstField.getDocument().addDocumentListener(this);
         this.rememberContacts.setSelected(false);
-        
+
         // not used so disable it for the moment
         this.rememberContacts.setEnabled(false);
 

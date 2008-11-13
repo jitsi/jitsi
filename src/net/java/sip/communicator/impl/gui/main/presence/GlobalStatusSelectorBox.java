@@ -42,7 +42,7 @@ public class GlobalStatusSelectorBox
 {
     private int IMAGE_INDENT = 10;
 
-    private Image arrowImage = ImageLoader.getImage(ImageLoader.COMBO_BOX_ARROW);
+    private Image arrowImage = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
     private Logger logger = Logger.getLogger(
         GlobalStatusSelectorBox.class.getName());
@@ -98,6 +98,8 @@ public class GlobalStatusSelectorBox
         this.mainFrame = mainFrame;
 
         this.setUI(new SIPCommStatusMenuUI());
+
+        this.setOpaque(false);
 
         this.setText("Offline");
         this.setIcon(offlineIcon);

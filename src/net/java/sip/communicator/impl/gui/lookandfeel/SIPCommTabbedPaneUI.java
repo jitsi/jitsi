@@ -20,7 +20,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.plaf.*;
-import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
@@ -30,10 +29,10 @@ import net.java.sip.communicator.impl.gui.utils.*;
 /**
  * SIPCommTabbedPaneUI implementation.
  */
-public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
-
+public class SIPCommTabbedPaneUI
+    extends BasicTabbedPaneUI
+{
     // Instance variables initialized at installation
-
     private ContainerListener containerListener;
 
     private Vector htmlViews;
@@ -99,8 +98,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     protected Vector highlightedTabs = new Vector();
 
-    public SIPCommTabbedPaneUI() {
-
+    public SIPCommTabbedPaneUI()
+    {
         super();
 
         closeImgB = ImageLoader.getImage(ImageLoader.CLOSE_TAB_SELECTED_ICON);
@@ -118,47 +117,56 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         maxItem = new JMenuItem("Detach");
         closeItem = new JMenuItem("Close");
 
-        maxItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        maxItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 ((SIPCommTabbedPane) tabPane).fireMaxTabEvent(null, tabPane
                         .getSelectedIndex());
             }
         });
 
-        closeItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        closeItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 ((SIPCommTabbedPane) tabPane).fireCloseTabEvent(null, tabPane
                         .getSelectedIndex());
-
             }
         });
 
         setPopupMenu();
     }
 
-    protected boolean isOneActionButtonEnabled() {
+    protected boolean isOneActionButtonEnabled()
+    {
         return isCloseButtonEnabled || isMaxButtonEnabled;
     }
 
-    public boolean isCloseEnabled() {
+    public boolean isCloseEnabled()
+    {
         return isCloseButtonEnabled;
     }
 
-    public boolean isMaxEnabled() {
+    public boolean isMaxEnabled()
+    {
         return isMaxButtonEnabled;
     }
 
-    public void setCloseIcon(boolean b) {
+    public void setCloseIcon(boolean b)
+    {
         isCloseButtonEnabled = b;
         setPopupMenu();
     }
 
-    public void setMaxIcon(boolean b) {
+    public void setMaxIcon(boolean b)
+    {
         isMaxButtonEnabled = b;
         setPopupMenu();
     }
 
-    private void setPopupMenu() {
+    private void setPopupMenu()
+    {
         actionPopupMenu.removeAll();
         if (isMaxButtonEnabled)
             actionPopupMenu.add(maxItem);
@@ -172,13 +180,13 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             FontMetrics metrics)
     {
         int delta = 0;
-        
+
         Insets tabInsets = getTabInsets(tabPlacement, tabIndex);
-        
+
         if (isOneActionButtonEnabled())
         {
             tabInsets.right = 0;
-            
+
             if (isCloseButtonEnabled)
                 delta += BUTTONSIZE;
             if (isMaxButtonEnabled)
@@ -189,15 +197,15 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
     }
 
     protected int calculateTabHeight(int tabPlacement, int tabIndex,
-            int fontHeight) {
-
+            int fontHeight)
+    {
         return super.calculateTabHeight(tabPlacement, tabIndex, fontHeight + 4);
     }
 
     protected void layoutLabel(int tabPlacement, FontMetrics metrics,
             int tabIndex, String title, Icon icon, Rectangle tabRect,
-            Rectangle iconRect, Rectangle textRect, boolean isSelected) {
-
+            Rectangle iconRect, Rectangle textRect, boolean isSelected)
+    {
         textRect.x = textRect.y = iconRect.x = iconRect.y = 0;
 
         View v = getTextViewForTab(tabIndex);
@@ -217,22 +225,26 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     }
 
-    protected MouseListener createMouseListener() {
+    protected MouseListener createMouseListener()
+    {
         return new MyMouseHandler();
     }
 
-    protected ScrollableTabButton createScrollableTabButton(int direction) {
+    protected ScrollableTabButton createScrollableTabButton(int direction)
+    {
         return new ScrollableTabButton(direction);
     }
 
-    protected Rectangle newCloseRect(Rectangle rect) {
+    protected Rectangle newCloseRect(Rectangle rect)
+    {
         int dx = rect.x + rect.width;
         int dy = (rect.y + rect.height) / 2 - 6;
         return new Rectangle(dx - BUTTONSIZE - WIDTHDELTA, dy, BUTTONSIZE,
                 BUTTONSIZE);
     }
 
-    protected Rectangle newMaxRect(Rectangle rect) {
+    protected Rectangle newMaxRect(Rectangle rect)
+    {
         int dx = rect.x + rect.width;
         int dy = (rect.y + rect.height) / 2 - 6;
         if (isCloseButtonEnabled)
@@ -242,14 +254,15 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
                 BUTTONSIZE);
     }
 
-    protected void updateOverTab(int x, int y) {
+    protected void updateOverTab(int x, int y)
+    {
         if (overTabIndex != (overTabIndex = getTabAtLocation(x, y)))
             tabScroller.tabPanel.repaint();
 
     }
 
-    protected void updateCloseIcon(int x, int y) {
-
+    protected void updateCloseIcon(int x, int y)
+    {
         if (overTabIndex != -1) {
             int newCloseIndexStatus = INACTIVE;
 
@@ -262,8 +275,10 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         }
     }
 
-    protected void updateMaxIcon(int x, int y) {
-        if (overTabIndex != -1) {
+    protected void updateMaxIcon(int x, int y)
+    {
+        if (overTabIndex != -1)
+        {
             int newMaxIndexStatus = INACTIVE;
 
             Rectangle maxRect = newMaxRect(rects[overTabIndex]);
@@ -276,11 +291,11 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         }
     }
 
-    private void setTabIcons(int x, int y) {
+    private void setTabIcons(int x, int y)
+    {
         // if the mouse isPressed
-        if (!mousePressed) {
+        if (!mousePressed)
             updateOverTab(x, y);
-        }
 
         if (isCloseButtonEnabled)
             updateCloseIcon(x, y);
@@ -288,7 +303,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             updateMaxIcon(x, y);
     }
 
-    public static ComponentUI createUI(JComponent c) {
+    public static ComponentUI createUI(JComponent c)
+    {
         return new SIPCommTabbedPaneUI();
     }
 
@@ -300,10 +316,9 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * 
      * @see javax.swing.JTabbedPane#getTabLayoutPolicy
      */
-    protected LayoutManager createLayoutManager() {
-
+    protected LayoutManager createLayoutManager()
+    {
         return new TabbedPaneScrollLayout();
-
     }
 
     /*
@@ -319,15 +334,15 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * 
      * @since 1.4
      */
-    protected void installComponents() {
-
-        if (tabScroller == null) {
+    protected void installComponents()
+    {
+        if (tabScroller == null)
+        {
             tabScroller = new ScrollableTabSupport(tabPane.getTabPlacement());
             tabPane.add(tabScroller.viewport);
             tabPane.add(tabScroller.scrollForwardButton);
             tabPane.add(tabScroller.scrollBackwardButton);
         }
-
     }
 
     /**
@@ -336,86 +351,104 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * 
      * @since 1.4
      */
-    protected void uninstallComponents() {
-
+    protected void uninstallComponents() 
+    {
         tabPane.remove(tabScroller.viewport);
         tabPane.remove(tabScroller.scrollForwardButton);
         tabPane.remove(tabScroller.scrollBackwardButton);
         tabScroller = null;
-
     }
 
-    protected void installListeners() {
-        if ((propertyChangeListener = createPropertyChangeListener()) != null) {
+    protected void installListeners()
+    {
+        if ((propertyChangeListener = createPropertyChangeListener()) != null)
+        {
             tabPane.addPropertyChangeListener(propertyChangeListener);
         }
-        if ((tabChangeListener = createChangeListener()) != null) {
+        if ((tabChangeListener = createChangeListener()) != null)
+        {
             tabPane.addChangeListener(tabChangeListener);
         }
-        if ((mouseListener = createMouseListener()) != null) {
+        if ((mouseListener = createMouseListener()) != null)
+        {
             tabScroller.tabPanel.addMouseListener(mouseListener);
         }
 
-        if ((focusListener = createFocusListener()) != null) {
+        if ((focusListener = createFocusListener()) != null)
+        {
             tabPane.addFocusListener(focusListener);
         }
 
         // PENDING(api) : See comment for ContainerHandler
-        if ((containerListener = new ContainerHandler()) != null) {
+        if ((containerListener = new ContainerHandler()) != null)
+        {
             tabPane.addContainerListener(containerListener);
-            if (tabPane.getTabCount() > 0) {
+            if (tabPane.getTabCount() > 0)
+            {
                 htmlViews = createHTMLVector();
             }
         }
 
-        if ((motionListener = new MyMouseMotionListener()) != null) {
+        if ((motionListener = new MyMouseMotionListener()) != null)
+        {
             tabScroller.tabPanel.addMouseMotionListener(motionListener);
         }
 
     }
 
-    protected void uninstallListeners() {
-        if (mouseListener != null) {
+    protected void uninstallListeners()
+    {
+        if (mouseListener != null)
+        {
             tabScroller.tabPanel.removeMouseListener(mouseListener);
             mouseListener = null;
         }
 
-        if (motionListener != null) {
+        if (motionListener != null)
+        {
             tabScroller.tabPanel.removeMouseMotionListener(motionListener);
             motionListener = null;
         }
 
-        if (focusListener != null) {
+        if (focusListener != null)
+        {
             tabPane.removeFocusListener(focusListener);
             focusListener = null;
         }
 
         // PENDING(api): See comment for ContainerHandler
-        if (containerListener != null) {
+        if (containerListener != null)
+        {
             tabPane.removeContainerListener(containerListener);
             containerListener = null;
-            if (htmlViews != null) {
+            if (htmlViews != null)
+            {
                 htmlViews.removeAllElements();
                 htmlViews = null;
             }
         }
-        if (tabChangeListener != null) {
+        if (tabChangeListener != null)
+        {
             tabPane.removeChangeListener(tabChangeListener);
             tabChangeListener = null;
         }
-        if (propertyChangeListener != null) {
+        if (propertyChangeListener != null)
+        {
             tabPane.removePropertyChangeListener(propertyChangeListener);
             propertyChangeListener = null;
         }
 
     }
 
-    protected ChangeListener createChangeListener() {
+    protected ChangeListener createChangeListener()
+    {
         return new TabSelectionHandler();
     }
 
-    protected void installKeyboardActions() {
-        InputMap km = getMyInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    protected void installKeyboardActions()
+    {
+        InputMap km
+            = getMyInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         SwingUtilities.replaceUIInputMap(tabPane,
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, km);
@@ -433,16 +466,21 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     }
 
-    InputMap getMyInputMap(int condition) {
-        if (condition == JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT) {
+    InputMap getMyInputMap(int condition)
+    {
+        if (condition == JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+        {
             return (InputMap) UIManager.get("TabbedPane.ancestorInputMap");
-        } else if (condition == JComponent.WHEN_FOCUSED) {
+        }
+        else if (condition == JComponent.WHEN_FOCUSED)
+        {
             return (InputMap) UIManager.get("TabbedPane.focusInputMap");
         }
         return null;
     }
 
-    ActionMap createMyActionMap() {
+    ActionMap createMyActionMap()
+    {
         ActionMap map = new ActionMapUIResource();
         map.put("navigateNext", new NextAction());
         map.put("navigatePrevious", new PreviousAction());
@@ -461,7 +499,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         return map;
     }
 
-    protected void uninstallKeyboardActions() {
+    protected void uninstallKeyboardActions()
+    {
         SwingUtilities.replaceUIActionMap(tabPane, null);
         SwingUtilities.replaceUIInputMap(tabPane,
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, null);
@@ -473,12 +512,15 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * Reloads the mnemonics. This should be invoked when a memonic changes,
      * when the title of a mnemonic changes, or when tabs are added/removed.
      */
-    private void updateMnemonics() {
+    private void updateMnemonics()
+    {
         resetMnemonics();
-        for (int counter = tabPane.getTabCount() - 1; counter >= 0; counter--) {
+        for (int counter = tabPane.getTabCount() - 1; counter >= 0; counter--)
+        {
             int mnemonic = tabPane.getMnemonicAt(counter);
 
-            if (mnemonic > 0) {
+            if (mnemonic > 0)
+            {
                 addMnemonic(counter, mnemonic);
             }
         }
@@ -487,8 +529,10 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
     /**
      * Resets the mnemonics bindings to an empty state.
      */
-    private void resetMnemonics() {
-        if (mnemonicToIndexMap != null) {
+    private void resetMnemonics()
+    {
+        if (mnemonicToIndexMap != null)
+        {
             mnemonicToIndexMap.clear();
             mnemonicInputMap.clear();
         }
@@ -497,19 +541,24 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
     /**
      * Adds the specified mnemonic at the specified index.
      */
-    private void addMnemonic(int index, int mnemonic) {
-        if (mnemonicToIndexMap == null) {
+    private void addMnemonic(int index, int mnemonic)
+    {
+        if (mnemonicToIndexMap == null)
+        {
             initMnemonics();
         }
+
         mnemonicInputMap.put(KeyStroke.getKeyStroke(mnemonic, Event.ALT_MASK),
                 "setSelectedIndex");
+
         mnemonicToIndexMap.put(new Integer(mnemonic), new Integer(index));
     }
 
     /**
      * Installs the state needed for mnemonics.
      */
-    private void initMnemonics() {
+    private void initMnemonics()
+    {
         mnemonicToIndexMap = new Hashtable();
         mnemonicInputMap = new InputMapUIResource();
         mnemonicInputMap.setParent(SwingUtilities.getUIInputMap(tabPane,
@@ -522,7 +571,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     // UI Rendering
 
-    public void paint(Graphics g, JComponent c) {
+    public void paint(Graphics g, JComponent c)
+    {
         int tc = tabPane.getTabCount();
 
         if (tabCount != tc) {
@@ -537,11 +587,11 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
         // Paint content border
         paintContentBorder(g, tabPlacement, selectedIndex);
-
     }
 
     protected void paintTab(Graphics g, int tabPlacement, Rectangle[] rects,
-            int tabIndex, Rectangle iconRect, Rectangle textRect) {
+            int tabIndex, Rectangle iconRect, Rectangle textRect)
+    {
         Rectangle tabRect = rects[tabIndex];
         int selectedIndex = tabPane.getSelectedIndex();
         boolean isSelected = selectedIndex == tabIndex;
@@ -552,7 +602,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         int cropx = 0;
         int cropy = 0;
 
-        if (g instanceof Graphics2D) {
+        if (g instanceof Graphics2D)
+        {
             g2 = (Graphics2D) g;
 
             // Render visual for cropped tab edge...
@@ -561,14 +612,16 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
             cropline = viewRect.x + viewRect.width;
             if ((tabRect.x < cropline)
-                    && (tabRect.x + tabRect.width > cropline)) {
+                    && (tabRect.x + tabRect.width > cropline))
+            {
 
                 cropx = cropline - 1;
                 cropy = tabRect.y;
                 cropShape = true;
             }
 
-            if (cropShape) {
+            if (cropShape)
+            {
                 save = g2.getClip();
                 g2
                         .clipRect(tabRect.x, tabRect.y, tabRect.width,
@@ -599,13 +652,14 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         paintFocusIndicator(g, tabPlacement, rects, tabIndex, iconRect,
                 textRect, isSelected);
 
-        if (cropShape) {
+        if (cropShape)
+        {
             paintCroppedTabEdge(g, tabPlacement, tabIndex, isSelected, cropx,
                     cropy);
             g2.setClip(save);
-
-        } else if (isOver || isSelected) {
-
+        }
+        else if (isOver || isSelected)
+        {
             int dx = tabRect.x + tabRect.width - BUTTONSIZE - WIDTHDELTA;
             int dy = (tabRect.y + tabRect.height) / 2 - 7;
 
@@ -617,13 +671,15 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     }
 
-    protected void paintCloseIcon(Graphics g, int dx, int dy, boolean isOver) {
+    protected void paintCloseIcon(Graphics g, int dx, int dy, boolean isOver)
+    {
         // paintActionButton(g, dx, dy, closeIndexStatus, isOver, closeB,
         // closeImgB);
         g.drawImage(closeImgI, dx, dy + 1, null);
     }
 
-    protected void paintMaxIcon(Graphics g, int dx, int dy, boolean isOver) {
+    protected void paintMaxIcon(Graphics g, int dx, int dy, boolean isOver)
+    {
         if (isCloseButtonEnabled)
             dx -= BUTTONSIZE;
 
@@ -632,8 +688,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
     }
 
     protected void paintActionButton(Graphics g, int dx, int dy, int status,
-            boolean isOver, JButton button, Image image) {
-
+            boolean isOver, JButton button, Image image)
+    {
         button.setBorder(null);
 
         if (isOver) {
@@ -671,15 +727,17 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
     private static final int CROP_SEGMENT = 12;
 
     private void paintCroppedTabEdge(Graphics g, int tabPlacement,
-            int tabIndex, boolean isSelected, int x, int y) {
-
+            int tabIndex, boolean isSelected, int x, int y)
+    {
         g.setColor(shadow);
         g.drawLine(x, y, x, y + rects[tabIndex].height);
 
     }
 
-    private void ensureCurrentLayout() {
-        if (!tabPane.isValid()) {
+    private void ensureCurrentLayout()
+    {
+        if (!tabPane.isValid())
+        {
             tabPane.validate();
         }
         /*
@@ -687,7 +745,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
          * fail. We handle that by forcing a layout if tabPane is still invalid.
          * See bug 4237677.
          */
-        if (!tabPane.isValid()) {
+        if (!tabPane.isValid())
+        {
             TabbedPaneLayout layout = (TabbedPaneLayout) tabPane.getLayout();
             layout.calculateLayoutInfo();
         }
@@ -716,7 +775,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * @since 1.4
      */
 
-    protected Rectangle getTabBounds(int tabIndex, Rectangle dest) {
+    protected Rectangle getTabBounds(int tabIndex, Rectangle dest)
+    {
         dest.width = rects[tabIndex].width;
         dest.height = rects[tabIndex].height;
 
@@ -728,19 +788,23 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         return dest;
     }
 
-    private int getTabAtLocation(int x, int y) {
+    private int getTabAtLocation(int x, int y)
+    {
         ensureCurrentLayout();
 
         int tabCount = tabPane.getTabCount();
-        for (int i = 0; i < tabCount; i++) {
-            if (rects[i].contains(x, y)) {
+        for (int i = 0; i < tabCount; i++)
+        {
+            if (rects[i].contains(x, y))
+            {
                 return i;
             }
         }
         return -1;
     }
 
-    public int getOverTabIndex() {
+    public int getOverTabIndex()
+    {
         return overTabIndex;
     }
 
@@ -748,7 +812,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * Returns the index of the tab closest to the passed in location, note that
      * the returned tab may not contain the location x,y.
      */
-    private int getClosestTab(int x, int y) {
+    private int getClosestTab(int x, int y)
+    {
         int min = 0;
         int tabCount = Math.min(rects.length, tabPane.getTabCount());
         int max = tabCount;
@@ -756,29 +821,40 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         boolean useX = (tabPlacement == TOP || tabPlacement == BOTTOM);
         int want = (useX) ? x : y;
 
-        while (min != max) {
+        while (min != max)
+        {
             int current = (max + min) / 2;
             int minLoc;
             int maxLoc;
 
-            if (useX) {
+            if (useX)
+            {
                 minLoc = rects[current].x;
                 maxLoc = minLoc + rects[current].width;
-            } else {
+            }
+            else
+            {
                 minLoc = rects[current].y;
                 maxLoc = minLoc + rects[current].height;
             }
-            if (want < minLoc) {
+            if (want < minLoc)
+            {
                 max = current;
-                if (min == max) {
+                if (min == max)
+                {
                     return Math.max(0, current - 1);
                 }
-            } else if (want >= maxLoc) {
+            }
+            else if (want >= maxLoc)
+            {
                 min = current;
-                if (max - min <= 1) {
+                if (max - min <= 1)
+                {
                     return Math.max(current + 1, tabCount - 1);
                 }
-            } else {
+            }
+            else
+            {
                 return current;
             }
         }
@@ -790,7 +866,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * JTabbedPane's coordinate space to the coordinate space of the
      * ScrollableTabPanel. This is used for SCROLL_TAB_LAYOUT ONLY.
      */
-    private Point translatePointToTabPanel(int srcx, int srcy, Point dest) {
+    private Point translatePointToTabPanel(int srcx, int srcy, Point dest)
+    {
         Point vpp = tabScroller.viewport.getLocation();
         Point viewp = tabScroller.viewport.getViewPosition();
         dest.x = srcx + vpp.x + viewp.x;
@@ -806,102 +883,132 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
     // protected in the next release where
     // API changes are allowed
     //
-    boolean requestMyFocusForVisibleComponent() {
+    boolean requestMyFocusForVisibleComponent()
+    {
         Component visibleComponent = getVisibleComponent();
-        if (visibleComponent.isFocusable()) {
+        if (visibleComponent.isFocusable())
+        {
             visibleComponent.requestFocus();
             return true;
-        } else if (visibleComponent instanceof JComponent) {
-            if (((JComponent) visibleComponent).requestFocusInWindow()) {
+        }
+        else if (visibleComponent instanceof JComponent)
+        {
+            if (((JComponent) visibleComponent).requestFocusInWindow())
+            {
                 return true;
             }
         }
         return false;
     }
 
-    private static class RightAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class RightAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             ui.navigateSelectedTab(EAST);
         }
     };
 
-    private static class LeftAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class LeftAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             ui.navigateSelectedTab(WEST);
         }
     };
 
-    private static class UpAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class UpAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             ui.navigateSelectedTab(NORTH);
         }
     };
 
-    private static class DownAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class DownAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             ui.navigateSelectedTab(SOUTH);
         }
     };
 
-    private static class NextAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class NextAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             ui.navigateSelectedTab(NEXT);
         }
     };
 
-    private static class PreviousAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class PreviousAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             ui.navigateSelectedTab(PREVIOUS);
         }
     };
 
-    private static class PageUpAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class PageUpAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             int tabPlacement = pane.getTabPlacement();
-            if (tabPlacement == TOP || tabPlacement == BOTTOM) {
+            if (tabPlacement == TOP || tabPlacement == BOTTOM)
+            {
                 ui.navigateSelectedTab(WEST);
-            } else {
+            }
+            else
+            {
                 ui.navigateSelectedTab(NORTH);
             }
         }
     };
 
-    private static class PageDownAction extends AbstractAction {
+    private static class PageDownAction extends AbstractAction
+    {
         public void actionPerformed(ActionEvent e) {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             int tabPlacement = pane.getTabPlacement();
-            if (tabPlacement == TOP || tabPlacement == BOTTOM) {
+            if (tabPlacement == TOP || tabPlacement == BOTTOM)
+            {
                 ui.navigateSelectedTab(EAST);
-            } else {
+            }
+            else
+            {
                 ui.navigateSelectedTab(SOUTH);
             }
         }
     };
 
-    private static class RequestFocusAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class RequestFocusAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             pane.requestFocus();
         }
     };
 
-    private static class RequestFocusForVisibleAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class RequestFocusForVisibleAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
             ui.requestMyFocusForVisibleComponent();
@@ -913,22 +1020,29 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * command. The tab selected is based on the first tab that has a mnemonic
      * matching the first character of the action command.
      */
-    private static class SetSelectedIndexAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class SetSelectedIndexAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = (JTabbedPane) e.getSource();
 
-            if (pane != null && (pane.getUI() instanceof SIPCommTabbedPaneUI)) {
+            if (pane != null && (pane.getUI() instanceof SIPCommTabbedPaneUI))
+            {
                 SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
                 String command = e.getActionCommand();
 
-                if (command != null && command.length() > 0) {
+                if (command != null && command.length() > 0)
+                {
                     int mnemonic = (int) e.getActionCommand().charAt(0);
-                    if (mnemonic >= 'a' && mnemonic <= 'z') {
+                    if (mnemonic >= 'a' && mnemonic <= 'z')
+                    {
                         mnemonic -= ('a' - 'A');
                     }
+
                     Integer index = (Integer) ui.mnemonicToIndexMap
                             .get(new Integer(mnemonic));
-                    if (index != null && pane.isEnabledAt(index.intValue())) {
+                    if (index != null && pane.isEnabledAt(index.intValue()))
+                    {
                         pane.setSelectedIndex(index.intValue());
                     }
                 }
@@ -936,15 +1050,23 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         }
     };
 
-    private static class ScrollTabsForwardAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class ScrollTabsForwardAction
+        extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = null;
             Object src = e.getSource();
-            if (src instanceof JTabbedPane) {
+            if (src instanceof JTabbedPane)
+            {
                 pane = (JTabbedPane) src;
-            } else if (src instanceof ScrollableTabButton) {
+            }
+            else if (src instanceof ScrollableTabButton)
+            {
                 pane = (JTabbedPane) ((ScrollableTabButton) src).getParent();
-            } else {
+            }
+            else
+            {
                 return; // shouldn't happen
             }
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
@@ -954,15 +1076,23 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         }
     }
 
-    private static class ScrollTabsBackwardAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
+    private static class ScrollTabsBackwardAction
+        extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
             JTabbedPane pane = null;
             Object src = e.getSource();
-            if (src instanceof JTabbedPane) {
+            if (src instanceof JTabbedPane)
+            {
                 pane = (JTabbedPane) src;
-            } else if (src instanceof ScrollableTabButton) {
+            }
+            else if (src instanceof ScrollableTabButton)
+            {
                 pane = (JTabbedPane) ((ScrollableTabButton) src).getParent();
-            } else {
+            }
+            else
+            {
                 return; // shouldn't happen
             }
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
@@ -977,18 +1107,22 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * class should be treated as a &quot;protected&quot; inner class.
      * Instantiate it only within subclasses of BasicTabbedPaneUI.
      */
+    private class TabbedPaneScrollLayout
+        extends TabbedPaneLayout
+    {
 
-    private class TabbedPaneScrollLayout extends TabbedPaneLayout {
-
-        protected int preferredTabAreaHeight(int tabPlacement, int width) {
+        protected int preferredTabAreaHeight(int tabPlacement, int width)
+        {
             return calculateMaxTabHeight(tabPlacement);
         }
 
-        protected int preferredTabAreaWidth(int tabPlacement, int height) {
+        protected int preferredTabAreaWidth(int tabPlacement, int height)
+        {
             return calculateMaxTabWidth(tabPlacement);
         }
 
-        public void layoutContainer(Container parent) {
+        public void layoutContainer(Container parent)
+        {
             int tabPlacement = tabPane.getTabPlacement();
             int tabCount = tabPane.getTabCount();
             Insets insets = tabPane.getInsets();
@@ -997,14 +1131,18 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
             calculateLayoutInfo();
 
-            if (selectedIndex < 0) {
-                if (visibleComponent != null) {
+            if (selectedIndex < 0)
+            {
+                if (visibleComponent != null)
+                {
                     // The last tab was removed, so remove the component
                     setVisibleComponent(null);
                 }
-            } else {
-                Component selectedComponent = tabPane
-                        .getComponentAt(selectedIndex);
+            }
+            else
+            {
+                Component selectedComponent =
+                    tabPane.getComponentAt(selectedIndex);
                 boolean shouldChangeFocus = false;
 
                 // In order to allow programs to use a single component
@@ -1014,12 +1152,14 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
                 // explicitly state we support this in the spec, but since
                 // programs are now depending on this, we're making it work.
                 //
-                if (selectedComponent != null) {
+                if (selectedComponent != null)
+                {
                     if (selectedComponent != visibleComponent
-                            && visibleComponent != null) {
-                        if (KeyboardFocusManager
-                                .getCurrentKeyboardFocusManager()
-                                .getFocusOwner() != null) {
+                        && visibleComponent != null)
+                    {
+                        if (KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                                .getFocusOwner() != null)
+                        {
                             shouldChangeFocus = true;
                         }
                     }
@@ -1031,11 +1171,13 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
                 Rectangle bounds = tabPane.getBounds();
                 int numChildren = tabPane.getComponentCount();
 
-                if (numChildren > 0) {
+                if (numChildren > 0)
+                {
 
                     // calculate tab area bounds
                     tw = bounds.width - insets.left - insets.right;
-                    th = calculateTabAreaHeight(tabPlacement, runCount,
+                    th =
+                        calculateTabAreaHeight(tabPlacement, runCount,
                             maxTabHeight);
                     tx = insets.left;
                     ty = insets.top;
@@ -1043,27 +1185,34 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
                     // calculate content area bounds
                     cx = tx + contentInsets.left;
                     cy = ty + th + contentInsets.top;
-                    cw = bounds.width - insets.left - insets.right
+                    cw =
+                        bounds.width - insets.left - insets.right
                             - contentInsets.left - contentInsets.right;
-                    ch = bounds.height - insets.top - insets.bottom - th
+                    ch =
+                        bounds.height - insets.top - insets.bottom - th
                             - contentInsets.top - contentInsets.bottom;
 
-                    for (int i = 0; i < numChildren; i++) {
+                    for (int i = 0; i < numChildren; i++)
+                    {
                         Component child = tabPane.getComponent(i);
 
-                        if (child instanceof ScrollableTabViewport) {
+                        if (child instanceof ScrollableTabViewport)
+                        {
                             JViewport viewport = (JViewport) child;
                             Rectangle viewRect = viewport.getViewRect();
                             int vw = tw;
                             int vh = th;
 
-                            int totalTabWidth = rects[tabCount - 1].x
+                            int totalTabWidth =
+                                rects[tabCount - 1].x
                                     + rects[tabCount - 1].width;
-                            if (totalTabWidth > tw) {
+                            if (totalTabWidth > tw)
+                            {
                                 // Need to allow space for scrollbuttons
                                 vw = Math.max(tw - 36, 36);
                                 ;
-                                if (totalTabWidth - viewRect.x <= vw) {
+                                if (totalTabWidth - viewRect.x <= vw)
+                                {
                                     // Scrolled to the end, so ensure the
                                     // viewport size is
                                     // such that the scroll offset aligns with a
@@ -1074,8 +1223,11 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
                             child.setBounds(tx, ty, vw, vh);
 
-                        } else if (child instanceof ScrollableTabButton) {
-                            ScrollableTabButton scrollbutton = (ScrollableTabButton) child;
+                        }
+                        else if (child instanceof ScrollableTabButton)
+                        {
+                            ScrollableTabButton scrollbutton =
+                                (ScrollableTabButton) child;
                             Dimension bsize = scrollbutton.getPreferredSize();
                             int bx = 0;
                             int by = 0;
@@ -1083,33 +1235,42 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
                             int bh = bsize.height;
                             boolean visible = false;
 
-                            int totalTabWidth = rects[tabCount - 1].x
+                            int totalTabWidth =
+                                rects[tabCount - 1].x
                                     + rects[tabCount - 1].width;
 
-                            if (totalTabWidth > tw) {
-                                int dir = scrollbutton.scrollsForward() ? EAST
-                                        : WEST;
+                            if (totalTabWidth > tw)
+                            {
+                                int dir =
+                                    scrollbutton.scrollsForward() ? EAST : WEST;
                                 scrollbutton.setDirection(dir);
                                 visible = true;
-                                bx = dir == EAST ? bounds.width - insets.left
+                                bx =
+                                    dir == EAST ? bounds.width - insets.left
                                         - bsize.width : bounds.width
                                         - insets.left - 2 * bsize.width;
-                                by = (tabPlacement == TOP ? ty + th
+                                by =
+                                    (tabPlacement == TOP ? ty + th
                                         - bsize.height : ty);
                             }
 
                             child.setVisible(visible);
-                            if (visible) {
+                            if (visible)
+                            {
                                 child.setBounds(bx, by, bw, bh);
                             }
 
-                        } else {
+                        }
+                        else
+                        {
                             // All content children...
                             child.setBounds(cx, cy, cw, ch);
                         }
                     }
-                    if (shouldChangeFocus) {
-                        if (!requestMyFocusForVisibleComponent()) {
+                    if (shouldChangeFocus)
+                    {
+                        if (!requestMyFocusForVisibleComponent())
+                        {
                             tabPane.requestFocus();
                         }
                     }
@@ -1117,7 +1278,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             }
         }
 
-        protected void calculateTabRects(int tabPlacement, int tabCount) {
+        protected void calculateTabRects(int tabPlacement, int tabCount)
+        {
             FontMetrics metrics = getFontMetrics();
             Dimension size = tabPane.getSize();
             Insets insets = tabPane.getInsets();
@@ -1139,21 +1301,24 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             runCount = 0;
             selectedRun = -1;
 
-            if (tabCount == 0) {
+            if (tabCount == 0)
                 return;
-            }
 
             selectedRun = 0;
             runCount = 1;
 
             // Run through tabs and lay them out in a single run
             Rectangle rect;
-            for (i = 0; i < tabCount; i++) {
+            for (i = 0; i < tabCount; i++)
+            {
                 rect = rects[i];
 
-                if (i > 0) {
+                if (i > 0)
+                {
                     rect.x = rects[i - 1].x + rects[i - 1].width - 1;
-                } else {
+                }
+                else
+                {
                     tabRuns[0] = 0;
                     maxTabWidth = 0;
                     totalHeight += maxTabHeight;
@@ -1165,7 +1330,6 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
                 rect.y = y;
                 rect.height = maxTabHeight /* - 2 */;
-
             }
 
             // tabPanel.setSize(totalWidth, totalHeight);
@@ -1174,7 +1338,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         }
     }
 
-    private class ScrollableTabSupport implements ChangeListener {
+    private class ScrollableTabSupport implements ChangeListener
+    {
         public ScrollableTabViewport viewport;
 
         public ScrollableTabPanel tabPanel;
@@ -1187,7 +1352,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
         private Point tabViewPosition = new Point(0, 0);
 
-        ScrollableTabSupport(int tabPlacement) {
+        ScrollableTabSupport(int tabPlacement)
+        {
             viewport = new ScrollableTabViewport();
             tabPanel = new ScrollableTabPanel();
             viewport.setView(tabPanel);
@@ -1199,30 +1365,34 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             // scrollBackwardButton = new ScrollableTabButton(WEST);
         }
 
-        public void scrollForward(int tabPlacement) {
+        public void scrollForward(int tabPlacement)
+        {
             Dimension viewSize = viewport.getViewSize();
             Rectangle viewRect = viewport.getViewRect();
 
-            if (tabPlacement == TOP || tabPlacement == BOTTOM) {
-                if (viewRect.width >= viewSize.width - viewRect.x) {
+            if (tabPlacement == TOP || tabPlacement == BOTTOM)
+            {
+                if (viewRect.width >= viewSize.width - viewRect.x)
                     return; // no room left to scroll
-                }
-            } else { // tabPlacement == LEFT || tabPlacement == RIGHT
-                if (viewRect.height >= viewSize.height - viewRect.y) {
+            }
+            else
+            { // tabPlacement == LEFT || tabPlacement == RIGHT
+                if (viewRect.height >= viewSize.height - viewRect.y)
                     return;
-                }
             }
             setLeadingTabIndex(tabPlacement, leadingTabIndex + 1);
         }
 
-        public void scrollBackward(int tabPlacement) {
-            if (leadingTabIndex == 0) {
+        public void scrollBackward(int tabPlacement)
+        {
+            if (leadingTabIndex == 0)
                 return; // no room left to scroll
-            }
+
             setLeadingTabIndex(tabPlacement, leadingTabIndex - 1);
         }
 
-        public void setLeadingTabIndex(int tabPlacement, int index) {
+        public void setLeadingTabIndex(int tabPlacement, int index)
+        {
             leadingTabIndex = index;
             Dimension viewSize = viewport.getViewSize();
             Rectangle viewRect = viewport.getViewRect();
@@ -1230,7 +1400,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             tabViewPosition.x = leadingTabIndex == 0 ? 0
                     : rects[leadingTabIndex].x;
 
-            if ((viewSize.width - tabViewPosition.x) < viewRect.width) {
+            if ((viewSize.width - tabViewPosition.x) < viewRect.width)
+            {
                 // We've scrolled to the end, so adjust the viewport size
                 // to ensure the view position remains aligned on a tab boundary
                 Dimension extentSize = new Dimension(viewSize.width
@@ -1241,7 +1412,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             viewport.setViewPosition(tabViewPosition);
         }
 
-        public void stateChanged(ChangeEvent e) {
+        public void stateChanged(ChangeEvent e)
+        {
             JViewport viewport = (JViewport) e.getSource();
             int tabPlacement = tabPane.getTabPlacement();
             int tabCount = tabPane.getTabCount();
@@ -1252,12 +1424,11 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             leadingTabIndex = getClosestTab(viewRect.x, viewRect.y);
 
             // If the tab isn't right aligned, adjust it.
-            if (leadingTabIndex + 1 < tabCount) {
+            if (leadingTabIndex + 1 < tabCount)
+            {
 
-                if (rects[leadingTabIndex].x < viewRect.x) {
+                if (rects[leadingTabIndex].x < viewRect.x)
                     leadingTabIndex++;
-                }
-
             }
             Insets contentInsets = getContentBorderInsets(tabPlacement);
 
@@ -1269,7 +1440,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
         }
 
-        public String toString() {
+        public String toString()
+        {
             return new String("viewport.viewSize=" + viewport.getViewSize()
                     + "\n" + "viewport.viewRectangle=" + viewport.getViewRect()
                     + "\n" + "leadingTabIndex=" + leadingTabIndex + "\n"
@@ -1278,29 +1450,40 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     }
 
-    private class ScrollableTabViewport extends JViewport implements UIResource {
-        public ScrollableTabViewport() {
+    private class ScrollableTabViewport
+        extends JViewport
+        implements UIResource
+    {
+        public ScrollableTabViewport()
+        {
             super();
+            setOpaque(false);
             setScrollMode(SIMPLE_SCROLL_MODE);
         }
     }
 
-    private class ScrollableTabPanel extends JPanel implements UIResource {
-        public ScrollableTabPanel() {
+    private class ScrollableTabPanel
+        extends TransparentPanel
+        implements UIResource
+    {
+        public ScrollableTabPanel()
+        {
             setLayout(null);
         }
 
-        public void paintComponent(Graphics g) {
+        public void paintComponent(Graphics g)
+        {
             super.paintComponent(g);
             SIPCommTabbedPaneUI.this.paintTabArea(g, tabPane.getTabPlacement(),
                     tabPane.getSelectedIndex());
-
         }
     }
 
     protected class ScrollableTabButton extends BasicArrowButton implements
-            UIResource, SwingConstants {
-        public ScrollableTabButton(int direction) {
+            UIResource, SwingConstants
+    {
+        public ScrollableTabButton(int direction)
+        {
             super(direction, UIManager.getColor("TabbedPane.selected"),
                     UIManager.getColor("TabbedPane.shadow"), UIManager
                             .getColor("TabbedPane.darkShadow"), UIManager
@@ -1308,7 +1491,8 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
         }
 
-        public boolean scrollsForward() {
+        public boolean scrollsForward()
+        {
             return direction == EAST || direction == SOUTH;
         }
 
@@ -1319,17 +1503,20 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * class should be treated as a &quot;protected&quot; inner class.
      * Instantiate it only within subclasses of BasicTabbedPaneUI.
      */
-    public class TabSelectionHandler implements ChangeListener {
-        public void stateChanged(ChangeEvent e) {
+    public class TabSelectionHandler implements ChangeListener
+    {
+        public void stateChanged(ChangeEvent e)
+        {
             JTabbedPane tabPane = (JTabbedPane) e.getSource();
             tabPane.revalidate();
             tabPane.repaint();
 
-            if (tabPane.getTabLayoutPolicy() == JTabbedPane.SCROLL_TAB_LAYOUT) {
+            if (tabPane.getTabLayoutPolicy() == JTabbedPane.SCROLL_TAB_LAYOUT)
+            {
                 int index = tabPane.getSelectedIndex();
-                if (index < rects.length && index != -1) {
+
+                if (index < rects.length && index != -1)
                     tabScroller.tabPanel.scrollRectToVisible(rects[index]);
-                }
             }
         }
     }
@@ -1369,36 +1556,46 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
      * that.
      */
 
-    private class ContainerHandler implements ContainerListener {
-        public void componentAdded(ContainerEvent e) {
+    private class ContainerHandler implements ContainerListener
+    {
+        public void componentAdded(ContainerEvent e)
+        {
             JTabbedPane tp = (JTabbedPane) e.getContainer();
             Component child = e.getChild();
-            if (child instanceof UIResource) {
+            if (child instanceof UIResource)
                 return;
-            }
+
             int index = tp.indexOfComponent(child);
             String title = tp.getTitleAt(index);
+
             boolean isHTML = BasicHTML.isHTMLString(title);
-            if (isHTML) {
-                if (htmlViews == null) { // Initialize vector
+            if (isHTML)
+            {
+                if (htmlViews == null)
+                { // Initialize vector
                     htmlViews = createHTMLVector();
-                } else { // Vector already exists
+                }
+                else
+                { // Vector already exists
                     View v = BasicHTML.createHTMLView(tp, title);
                     htmlViews.insertElementAt(v, index);
                 }
-            } else { // Not HTML
-                if (htmlViews != null) { // Add placeholder
+            }
+            else
+            { // Not HTML
+                if (htmlViews != null)
+                { // Add placeholder
                     htmlViews.insertElementAt(null, index);
                 } // else nada!
             }
         }
 
-        public void componentRemoved(ContainerEvent e) {
+        public void componentRemoved(ContainerEvent e)
+        {
             JTabbedPane tp = (JTabbedPane) e.getContainer();
             Component child = e.getChild();
-            if (child instanceof UIResource) {
+            if (child instanceof UIResource)
                 return;
-            }
 
             // NOTE 4/15/2002 (joutwate):
             // This fix is implemented using client properties since there is
@@ -1407,25 +1604,32 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
             // modified to use it.
             Integer indexObj = (Integer) tp
                     .getClientProperty("__index_to_remove__");
-            if (indexObj != null) {
+            if (indexObj != null)
+            {
                 int index = indexObj.intValue();
-                if (htmlViews != null && htmlViews.size() >= index) {
+                if (htmlViews != null && htmlViews.size() >= index)
+                {
                     htmlViews.removeElementAt(index);
                 }
             }
         }
     }
 
-    private Vector createHTMLVector() {
+    private Vector createHTMLVector()
+    {
         Vector htmlViews = new Vector();
         int count = tabPane.getTabCount();
         if (count > 0) {
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
                 String title = tabPane.getTitleAt(i);
-                if (BasicHTML.isHTMLString(title)) {
+                if (BasicHTML.isHTMLString(title))
+                {
                     htmlViews.addElement(BasicHTML.createHTMLView(tabPane,
                             title));
-                } else {
+                }
+                else
+                {
                     htmlViews.addElement(null);
                 }
             }
@@ -1433,35 +1637,42 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         return htmlViews;
     }
 
-    class MyMouseHandler extends MouseHandler {
-        public MyMouseHandler() {
+    class MyMouseHandler extends MouseHandler
+    {
+        public MyMouseHandler()
+        {
             super();
         }
 
-        public void mousePressed(MouseEvent e) {
-            
-            if (closeIndexStatus == OVER) {
+        public void mousePressed(MouseEvent e)
+        {
+            if (closeIndexStatus == OVER)
+            {
                 closeIndexStatus = PRESSED;
                 tabScroller.tabPanel.repaint();
             }
-            else if (maxIndexStatus == OVER) {
+            else if (maxIndexStatus == OVER)
+            {
                 maxIndexStatus = PRESSED;
                 tabScroller.tabPanel.repaint();
             }
-            else {
+            else
+            {
                 super.mousePressed(e);
             }
         }
 
-        public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() > 1 && overTabIndex != -1) {
+        public void mouseClicked(MouseEvent e)
+        {
+            if (e.getClickCount() > 1 && overTabIndex != -1)
+            {
                 ((SIPCommTabbedPane) tabPane).fireDoubleClickTabEvent(e,
                         overTabIndex);
             }
         }
 
-        public void mouseReleased(MouseEvent e) {
-            
+        public void mouseReleased(MouseEvent e)
+        {
             updateOverTab(e.getX(), e.getY());
 
             if (overTabIndex == -1) {
@@ -1470,25 +1681,28 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
                 return;
             }
 
-            if (isOneActionButtonEnabled() && e.isPopupTrigger()) {
+            if (isOneActionButtonEnabled() && e.isPopupTrigger())
+            {
                 super.mousePressed(e);
 
-                closeIndexStatus = INACTIVE; //Prevent undesired action when
-                maxIndexStatus = INACTIVE; //right-clicking on icons
+                closeIndexStatus = INACTIVE; // Prevent undesired action when
+                maxIndexStatus = INACTIVE; // right-clicking on icons
 
                 actionPopupMenu.show(tabScroller.tabPanel, e.getX(), e.getY());
                 return;
             }
 
-            if (closeIndexStatus == PRESSED) {
+            if (closeIndexStatus == PRESSED)
+            {
                 closeIndexStatus = OVER;
                 tabScroller.tabPanel.repaint();
                 ((SIPCommTabbedPane) tabPane)
-                        .fireCloseTabEvent(e, overTabIndex);
+                    .fireCloseTabEvent(e, overTabIndex);
                 return;
             }
 
-            if (maxIndexStatus == PRESSED) {
+            if (maxIndexStatus == PRESSED)
+            {
                 maxIndexStatus = OVER;
                 tabScroller.tabPanel.repaint();
                 ((SIPCommTabbedPane) tabPane).fireMaxTabEvent(e, overTabIndex);
@@ -1497,8 +1711,10 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
         }
 
-        public void mouseExited(MouseEvent e) {
-            if (!mousePressed) {
+        public void mouseExited(MouseEvent e)
+        {
+            if (!mousePressed)
+            {
                 overTabIndex = -1;
                 tabScroller.tabPanel.repaint();
             }
@@ -1506,49 +1722,68 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     }
 
-    class MyMouseMotionListener implements MouseMotionListener {
+    class MyMouseMotionListener
+        implements MouseMotionListener
+    {
 
-        public void mouseMoved(MouseEvent e) {
+        public void mouseMoved(MouseEvent e)
+        {
             if (actionPopupMenu.isVisible())
-                return; //No updates when popup is visible
+                return; // No updates when popup is visible
             mousePressed = false;
             setTabIcons(e.getX(), e.getY());
         }
 
-        public void mouseDragged(MouseEvent e) {
+        public void mouseDragged(MouseEvent e)
+        {
             if (actionPopupMenu.isVisible())
-                return; //No updates when popup is visible
+                return; // No updates when popup is visible
             mousePressed = true;
             setTabIcons(e.getX(), e.getY());
         }
     }
 
-    public void tabAddHightlight(int tabIndex) {
+    public void tabAddHightlight(int tabIndex)
+    {
         this.highlightedTabs.add(new Integer(tabIndex));
     }
 
-    public void tabRemoveHighlight(int tabIndex) {
+    public void tabRemoveHighlight(int tabIndex)
+    {
         Enumeration highlightedEnum = this.highlightedTabs.elements();
 
-        while (highlightedEnum.hasMoreElements()) {
+        while (highlightedEnum.hasMoreElements())
+        {
             Integer element = (Integer) highlightedEnum.nextElement();
 
-            if (element.intValue() == tabIndex) {
+            if (element.intValue() == tabIndex)
+            {
                 this.highlightedTabs.remove(element);
                 break;
             }
         }
     }
 
-    public boolean isTabHighlighted(int tabIndex) {
+    public boolean isTabHighlighted(int tabIndex)
+    {
         Enumeration highlightedEnum = this.highlightedTabs.elements();
 
-        while (highlightedEnum.hasMoreElements()) {
+        while (highlightedEnum.hasMoreElements())
+        {
             Integer element = (Integer) highlightedEnum.nextElement();
 
             if (element.intValue() == tabIndex)
                 return true;
         }
         return false;
+    }
+
+    /**
+     * We don't want to have a content border.
+     */
+    protected void paintContentBorder(  Graphics g,
+                                        int tabPlacement,
+                                        int selectedIndex)
+    {
     }
 }

@@ -405,8 +405,7 @@ public class DialPanel
         public DialButton(Image iconImage)
         {
             super(  ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG),
-                    ImageLoader.getImage(ImageLoader.DIAL_BUTTON_ROLLOVER_BG),
-                    iconImage, null);
+                    iconImage);
         }
     }
 

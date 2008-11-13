@@ -20,7 +20,6 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -50,8 +49,9 @@ public class HistoryWindow
         .getLogger(HistoryWindow.class.getName());
 
     private ChatConversationPanel chatConvPanel;
-    
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
     private JProgressBar progressBar;
 
@@ -61,7 +61,8 @@ public class HistoryWindow
 
     private HistoryMenu historyMenu;
 
-    private JPanel northPanel = new JPanel(new BorderLayout());
+    private TransparentPanel northPanel
+        = new TransparentPanel(new BorderLayout());
 
     private DatesPanel datesPanel;
 

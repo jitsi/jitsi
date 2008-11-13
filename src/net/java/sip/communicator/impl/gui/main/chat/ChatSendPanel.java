@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -23,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ChatSendPanel
-    extends JPanel
+    extends TransparentPanel
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(ChatSendPanel.class);
@@ -32,9 +33,11 @@ public class ChatSendPanel
 
     private JButton sendButton = new JButton(sendString.getText());
 
-    private JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private TransparentPanel statusPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
 
-    private JPanel sendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private TransparentPanel sendPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private JLabel statusLabel = new JLabel();
 

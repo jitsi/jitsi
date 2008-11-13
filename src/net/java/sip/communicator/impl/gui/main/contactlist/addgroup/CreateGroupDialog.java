@@ -38,9 +38,11 @@ public class CreateGroupDialog
     
     private JButton cancelButton = new JButton(cancelString.getText());
     
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout());
     
     private MetaContactListService clist;
     

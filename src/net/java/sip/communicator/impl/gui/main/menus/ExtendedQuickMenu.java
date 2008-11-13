@@ -51,7 +51,7 @@ public class ExtendedQuickMenu
                 ComponentListener,
                 ListSelectionListener
 {
-    private Logger logger = Logger.getLogger(QuickMenu.class.getName());
+    private Logger logger = Logger.getLogger(ExtendedQuickMenu.class.getName());
 
     private SIPCommToolBar toolBar = new SIPCommToolBar();
 

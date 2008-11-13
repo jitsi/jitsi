@@ -35,7 +35,7 @@ public class ImageUtils
     public static ImageIcon
         scaleIconWithinBounds(Image image, int width, int height)
     {
-        ImageIcon scaledImage;
+        Image scaledImage;
         int scaleHint = Image.SCALE_SMOOTH;
         double originalRatio =
             (double) image.getWidth(null) / image.getHeight(null);
@@ -43,15 +43,14 @@ public class ImageUtils
 
         if(originalRatio > areaRatio)
         {
-            scaledImage = new ImageIcon(image.
-                    getScaledInstance(width, -1,scaleHint));
+            scaledImage = image.getScaledInstance(width, -1,scaleHint);
         }
         else
         {
-            scaledImage = new ImageIcon(image.
-                    getScaledInstance(-1, height, scaleHint));
+            scaledImage = image.getScaledInstance(-1, height, scaleHint);
         }
-        return scaledImage;
+
+        return new ImageIcon(scaledImage);
     }
 
     /**
@@ -72,8 +71,8 @@ public class ImageUtils
                                                                     height);
 
         destImage
-            = new BufferedImage(scaledImage.getIconWidth(),
-                                scaledImage.getIconHeight(),
+            = new BufferedImage(scaledImage.getImage().getWidth(null),
+                                scaledImage.getImage().getHeight(null),
                                 BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = destImage.createGraphics();

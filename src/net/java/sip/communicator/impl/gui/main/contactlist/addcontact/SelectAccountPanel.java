@@ -33,7 +33,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class SelectAccountPanel
-    extends JPanel
+    extends TransparentPanel
     implements ServiceListener
 {
     private Logger logger = Logger.getLogger(SelectAccountPanel.class);
@@ -47,9 +47,11 @@ public class SelectAccountPanel
 
     private NewContact newContact;
 
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
+    private TransparentPanel labelsPanel
+        = new TransparentPanel(new GridLayout(0, 1));
 
-    private JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
+    private TransparentPanel rightPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
     private JLabel iconLabel =
         new JLabel(new ImageIcon(ImageLoader
@@ -63,7 +65,8 @@ public class SelectAccountPanel
         new JLabel(Messages.getI18NString("selectProvidersWizardTitle")
             .getText(), JLabel.CENTER);
 
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private TransparentPanel buttonPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private JButton addAccountButton =
         new JButton(Messages.getI18NString("addAccount").getText());

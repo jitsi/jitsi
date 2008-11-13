@@ -21,31 +21,34 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class CreateGroupPanel
-    extends JPanel
+    extends TransparentPanel
 {
 
     private JLabel uinLabel = new JLabel(
         Messages.getI18NString("groupName").getText());
-    
+
     private JTextField textField = new JTextField();
-    
-    private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
-    
+
+    private TransparentPanel dataPanel
+        = new TransparentPanel(new BorderLayout(5, 5));
+
     private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
             Messages.getI18NString("createGroupName").getText());
-    
+
     private JLabel infoTitleLabel = new JLabel(
         Messages.getI18NString("createGroup").getText());
-    
+
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_GROUP_ICON)));
-    
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
-    
-    private JPanel rightPanel = new JPanel(new BorderLayout());
-    
+
+    private TransparentPanel labelsPanel
+        = new TransparentPanel(new GridLayout(0, 1));
+
+    private TransparentPanel rightPanel
+        = new TransparentPanel(new BorderLayout());
+
     private JLabel errorLabel = new JLabel();
-    
+
     /**
      * Creates and initializes the <tt>CreateGroupPanel</tt>.
      */

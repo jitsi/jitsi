@@ -49,7 +49,7 @@ public class ContactList
 
     private Logger logger = Logger.getLogger(ContactList.class.getName());
 
-    private MetaContactListService contactList;
+    private MetaContactListService contactListService;
 
     private ContactListModel listModel;
 
@@ -87,15 +87,13 @@ public class ContactList
     {
         this.mainFrame = mainFrame;
 
-        this.contactList = mainFrame.getContactList();
+        this.contactListService = GuiActivator.getMetaContactListService();
 
-        this.listModel = new ContactListModel(contactList);
-
-        this.setModel(listModel);
+        this.listModel = new ContactListModel(contactListService);
 
         this.setOpaque(false);
 
-        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        this.setModel(listModel);
 
         this.getSelectionModel().setSelectionMode(
             ListSelectionModel.SINGLE_SELECTION);
@@ -104,12 +102,25 @@ public class ContactList
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        this.contactList.addMetaContactListListener(this);
+        this.setShowOffline(ConfigurationManager.isShowOffline());
+
+        this.initListeners();
+
+        new ContactListRefresh().start();
+    }
+
+    /**
+     * Initialize all listeners.
+     */
+    private void initListeners()
+    {
+        this.contactListService.addMetaContactListListener(this);
 
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 
-        this.addFocusListener(new FocusAdapter() {
+        this.addFocusListener(new FocusAdapter()
+        {
             public void focusLost(FocusEvent e)
             {
                 if (draggedElement != null)
@@ -120,7 +131,13 @@ public class ContactList
             }
         });
 
-        this.addKeyListener(new KeyAdapter() {
+        CListKeySearchListener keyListener
+            = new CListKeySearchListener(this);
+
+        this.addKeyListener(keyListener);
+
+        this.addKeyListener(new KeyAdapter()
+        {
             public void keyPressed(KeyEvent e)
             {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
@@ -144,10 +161,6 @@ public class ContactList
                 }
             }
         });
-
-        this.setShowOffline(ConfigurationManager.isShowOffline());
-
-        new ContactListRefresh().start();
     }
 
     /**
@@ -245,7 +258,7 @@ public class ContactList
     {
         MetaContactGroup group = evt.getSourceMetaContactGroup();
 
-        if (!group.equals(contactList.getRoot()))
+        if (!group.equals(contactListService.getRoot()))
             this.addGroup(group);
     }
 
@@ -257,7 +270,7 @@ public class ContactList
     {
         MetaContactGroup group = evt.getSourceMetaContactGroup();
 
-        if (!group.equals(contactList.getRoot()))
+        if (!group.equals(contactListService.getRoot()))
             this.modifyGroup(evt.getSourceMetaContactGroup());
     }
 
@@ -269,7 +282,7 @@ public class ContactList
     {
         MetaContactGroup group = evt.getSourceMetaContactGroup();
 
-        if (!group.equals(contactList.getRoot()))
+        if (!group.equals(contactListService.getRoot()))
             this.removeGroup(evt.getSourceMetaContactGroup());
     }
 
@@ -299,9 +312,7 @@ public class ContactList
      */
     public int getNextMatch(String prefix, int startIndex, Position.Bias bias)
     {
-        ContactListModel model = (ContactListModel) this.getModel();
-
-        int max = model.getSize();
+        int max = listModel.getSize();
 
         if (prefix == null)
         {
@@ -320,7 +331,7 @@ public class ContactList
         int index = startIndex;
         do
         {
-            Object o = model.getElementAt(index);
+            Object o = listModel.getElementAt(index);
 
             if (o != null)
             {
@@ -349,7 +360,7 @@ public class ContactList
      */
     public Iterator getAllGroups()
     {
-        return contactList.getRoot().getSubgroups();
+        return contactListService.getRoot().getSubgroups();
     }
 
     /**
@@ -360,7 +371,7 @@ public class ContactList
      */
     public MetaContactGroup getGroupByID(String metaUID)
     {
-        Iterator i = contactList.getRoot().getSubgroups();
+        Iterator i = contactListService.getRoot().getSubgroups();
         while (i.hasNext())
         {
             MetaContactGroup group = (MetaContactGroup) i.next();
@@ -559,9 +570,13 @@ public class ContactList
         int selectedIndex = this.getSelectedIndex();
         Object selectedValue = this.getSelectedValue();
 
-        ContactListCellRenderer renderer = (ContactListCellRenderer) this
-            .getCellRenderer().getListCellRendererComponent(this,
-                selectedValue, selectedIndex, true, true);
+        ContactListCellRenderer renderer
+            = (ContactListCellRenderer) this.getCellRenderer()
+                .getListCellRendererComponent(  this,
+                                                selectedValue,
+                                                selectedIndex,
+                                                true,
+                                                true);
 
         Point selectedCellPoint = this.indexToLocation(selectedIndex);
 
@@ -739,7 +754,9 @@ public class ContactList
             || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
             || (e.isControlDown() && !e.isMetaDown()))
         {
-            this.setSelectedIndex(locationToIndex(e.getPoint()));
+            int index = this.locationToIndex(e.getPoint());
+
+            this.setSelectedIndex(index);
         }
 
         int selectedIndex = this.getSelectedIndex();
@@ -747,7 +764,10 @@ public class ContactList
 
         ContactListCellRenderer renderer = (ContactListCellRenderer) this
             .getCellRenderer().getListCellRendererComponent(this,
-                selectedValue, selectedIndex, true, true);
+                                                            selectedValue,
+                                                            selectedIndex,
+                                                            true,
+                                                            true);
 
         Point selectedCellPoint = this.indexToLocation(selectedIndex);
 
@@ -778,31 +798,6 @@ public class ContactList
                                                             mContact,
                                                             null,
                                                             image);
-            }
-            else if (component instanceof JPanel)
-            {
-                if (component.getName() != null
-                    && component.getName().equals("buttonsPanel"))
-                {
-                    JPanel panel = (JPanel) component;
-
-                    int internalX = translatedX
-                        - (renderer.getWidth() - panel.getWidth() - 2);
-
-                    Component c = getHorizontalComponent(panel, internalX);
-
-                    if (c instanceof ContactProtocolButton)
-                    {
-                     // we are not dragging a whole metacontact but a specific
-                     // contact inside it
-                     ContactProtocolButton cb = (ContactProtocolButton) c;
-                     draggedElement = new ContactListDraggable(
-                                                     this,
-                                                     mContact,
-                                                     cb.getProtocolContact(),
-                                                     cb.getBgImage());
-                    }
-                }
             }
         }
 
@@ -845,8 +840,6 @@ public class ContactList
     public void mouseReleased(MouseEvent e)
     {
         int selectedIndex = this.locationToIndex(e.getPoint());
-
-        ContactListModel listModel = (ContactListModel) this.getModel();
 
         Object dest = listModel.getElementAt(selectedIndex);
 
@@ -979,7 +972,7 @@ public class ContactList
         public void run()
         {
 
-            ContactInfoPanel contactInfoPanel = new ContactInfoPanel(mainFrame,
+            ContactInfoDialog contactInfoPanel = new ContactInfoDialog(mainFrame,
                 contactItem);
 
             SwingUtilities.convertPointToScreen(p, ContactList.this);
@@ -1262,7 +1255,7 @@ public class ContactList
      */
     public void refreshAll()
     {
-        this.modifyGroup(contactList.getRoot());
+        this.modifyGroup(contactListService.getRoot());
     }
 
     /**
@@ -1310,7 +1303,7 @@ public class ContactList
     {
         if (o == null)
         {
-            setSelectedIndex(-1);
+            this.setSelectedIndex(-1);
         }
         else
         {
@@ -1347,6 +1340,14 @@ public class ContactList
      */
     public void setShowOffline(boolean isShowOffline)
     {
+        Object selectedObject = null;
+        int currentlySelectedIndex = this.getSelectedIndex();
+
+        if(currentlySelectedIndex != -1)
+        {
+            selectedObject = listModel.getElementAt(currentlySelectedIndex);
+        }
+
         int listSize = listModel.getSize();
 
         listModel.setShowOffline(isShowOffline);
@@ -1376,6 +1377,22 @@ public class ContactList
             }
             else
                 listModel.contentAdded(0, newListSize - 1);
+        }
+
+        // Try to set the previously selected object.
+        if (selectedObject != null)
+        {
+            if (selectedObject instanceof MetaContact)
+            {
+                this.setSelectedIndex(
+                    listModel.indexOf((MetaContact) selectedObject));
+            }
+            else
+            {
+                this.setSelectedIndex(
+                    listModel.indexOf(
+                            (MetaContactGroup) selectedObject));
+            }
         }
     }
 
@@ -1573,7 +1590,7 @@ public class ContactList
 
         int index = this.locationToIndex(currentMouseLocation);
 
-        Object element = this.getModel().getElementAt(index);
+        Object element = listModel.getElementAt(index);
 
         MetaContactTooltip tip = new MetaContactTooltip();
         if (element instanceof MetaContact)
@@ -1635,7 +1652,7 @@ public class ContactList
         if (index == -1)
             return null;
 
-        Object element = this.getModel().getElementAt(index);
+        Object element = listModel.getElementAt(index);
 
         if (element instanceof MetaContact)
         {

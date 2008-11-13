@@ -22,11 +22,8 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -40,6 +37,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.jvnet.lafwidget.animation.*;
+import org.jvnet.lafwidget.utils.LafConstants.*;
 import org.osgi.framework.*;
 
 /**
@@ -58,9 +57,19 @@ public class MainFrame
 {
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout(0, 8));
 
-    private JPanel statusBarPanel = new JPanel(new BorderLayout());
+    private TransparentPanel statusBarPanel
+        = new TransparentPanel(new BorderLayout());
+
+    private ImageIcon moreActionsIcon = new ImageIcon(ImageLoader
+        .getImage(ImageLoader.MORE_ACTIONS_BUTTON));
+
+    private ImageIcon moreActionsRolloverIcon = new ImageIcon(ImageLoader
+        .getImage(ImageLoader.MORE_ACTIONS_ROLLOVER_BUTTON));
+
+    private JLabel moreActionsLabel = new JLabel(moreActionsIcon);
 
     private MainMenu menu;
 
@@ -85,7 +94,7 @@ public class MainFrame
     private JPanel pluginPanelWest = new JPanel();
     private JPanel pluginPanelEast = new JPanel();
 
-    private ContactListPanel contactListPanel;
+    private ContactListPane contactListPanel;
 
     /**
      * Creates an instance of <tt>MainFrame</tt>.
@@ -99,21 +108,9 @@ public class MainFrame
 
         this.mainCallPanel = new MainCallPanel(this);
 
-        this.contactListPanel = new ContactListPanel(this);
+        this.contactListPanel = new ContactListPane(this);
 
         this.accountStatusPanel = new AccountStatusPanel(this);
-
-        String isToolbarExtendedString
-            = GuiActivator.getResources().
-                getSettingsString("isToolBarExteneded");
-
-        boolean isToolBarExtended
-            = new Boolean(isToolbarExtendedString).booleanValue();
-
-        if (isToolBarExtended)
-            quickMenu = new ExtendedQuickMenu(this);
-        else
-            quickMenu = new QuickMenu(this);
 
         menu = new MainMenu(this);
 
@@ -126,8 +123,6 @@ public class MainFrame
                 "applicationName");
 
         this.setTitle(applicationName);
-
-        this.setContentPane(new MainContentPane());
 
         this.mainPanel.setBackground(new Color(
                 GuiActivator.getResources()
@@ -143,30 +138,53 @@ public class MainFrame
      */
     private void init()
     {
+        if (GuiActivator.getUIService().getExitOnMainWindowClose())
+            this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        else
+            this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
         this.setKeybindingInput(KeybindingSet.Category.MAIN);
         this.addKeybindingAction("main-rename", new RenameAction());
 
-        JPanel northPanel = new JPanel(new BorderLayout());
-        JPanel centerPanel = new JPanel(new BorderLayout());
+        TransparentPanel northPanel = new TransparentPanel(new BorderLayout());
 
-        northPanel.setOpaque(false);
-        centerPanel.setOpaque(false);
-        this.statusBarPanel.setOpaque(false);
-        this.contactListPanel.setOpaque(false);
-        this.mainCallPanel.setOpaque(false);
+        TransparentPanel centerPanel
+            = new TransparentPanel(new BorderLayout(0, 0));
+
+        String isToolbarExtendedString
+            = GuiActivator.getResources().
+                getSettingsString("isToolBarExteneded");
+
+        boolean isToolBarExtended
+            = new Boolean(isToolbarExtendedString).booleanValue();
 
         JPanel menusPanel = new JPanel(new BorderLayout());
 
-        this.setJMenuBar(menu);
+        if (isToolBarExtended)
+        {
+            quickMenu = new ExtendedQuickMenu(this);
 
-        menusPanel.add(quickMenu, BorderLayout.SOUTH);
+            menusPanel.add(quickMenu, BorderLayout.SOUTH);
+        }
+
+        this.setJMenuBar(menu);
 
         menusPanel.setUI(new SIPCommOpaquePanelUI());
 
         northPanel.add(new LogoBar(), BorderLayout.NORTH);
         northPanel.add(menusPanel, BorderLayout.CENTER);
+        northPanel.add(accountStatusPanel, BorderLayout.SOUTH);
 
-        centerPanel.add(accountStatusPanel, BorderLayout.NORTH);
+        TransparentPanel moreActionsPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+
+        moreActionsPanel.add(moreActionsLabel);
+        moreActionsLabel.setToolTipText(GuiActivator.getResources()
+            .getI18NString("openTools"));
+
+        moreActionsLabel.addMouseListener(new ActionMenuMouseListener());
+
+        centerPanel.add(moreActionsPanel, BorderLayout.NORTH);
         centerPanel.add(contactListPanel, BorderLayout.CENTER);
         centerPanel.add(mainCallPanel, BorderLayout.SOUTH);
 
@@ -247,14 +265,8 @@ public class MainFrame
 
         contactListPanel.initList(contactList);
 
-        CListKeySearchListener keyListener
-            = new CListKeySearchListener(contactListPanel.getContactList());
-
-        contactListPanel.addKeyListener(keyListener);
-
-        contactListPanel.getContactList().addKeyListener(keyListener);
-
-        contactListPanel.getContactList().addListSelectionListener(mainCallPanel);
+        contactListPanel.getContactList()
+            .addListSelectionListener(mainCallPanel);
     }
 
     /**
@@ -705,7 +717,7 @@ public class MainFrame
      * Returns the panel containing the ContactList.
      * @return ContactListPanel the panel containing the ContactList
      */
-    public ContactListPanel getContactListPanel()
+    public ContactListPane getContactListPanel()
     {
         return this.contactListPanel;
     }
@@ -1501,30 +1513,104 @@ public class MainFrame
         return mainCallPanel.getPhoneNumberComboText();
     }
 
-    private class MainContentPane extends JPanel
-    {
-        public MainContentPane()
-        {
-            super(new BorderLayout());
-
-            this.setBackground(new Color(
-                GuiActivator.getResources()
-                .getColor("desktopBackgroundColor")));
-
-            int borderSize = GuiActivator.getResources()
-                .getSettingsInt("mainWindowBorderSize");
-
-            this.setBorder(BorderFactory
-                .createEmptyBorder( borderSize,
-                                    borderSize,
-                                    borderSize,
-                                    borderSize));
-        }
-    }
-
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
     public void setParams(Object[] windowParams) {}
 
+
+    /**
+     * Initializes the more actions panel.
+     */
+    private class ActionMenuMouseListener extends MouseAdapter
+    {
+        public void mouseEntered(MouseEvent e)
+        {
+            moreActionsLabel.setIcon(moreActionsRolloverIcon);
+            moreActionsLabel.revalidate();
+            moreActionsLabel.repaint();
+        }
+
+        public void mouseExited(MouseEvent e)
+        {
+            moreActionsLabel.setIcon(moreActionsIcon);
+            moreActionsLabel.revalidate();
+            moreActionsLabel.repaint();
+        }
+
+        public void mousePressed(MouseEvent e)
+        {
+            ActionMenuGlassPane glassPane = new ActionMenuGlassPane();
+
+            ActionMenuPanel actionMenuPanel = new ActionMenuPanel();
+
+            glassPane.add(actionMenuPanel);
+
+            if (isVisible() && rootPane != null)
+                rootPane.setGlassPane(glassPane);
+
+            FadeTracker fadeTracker = FadeTracker.getInstance();
+
+            if (!glassPane.isVisible())
+            {
+                fadeTracker.trackFadeIn(AnimationUtils.SLIDE_ANIMATION,
+                                        actionMenuPanel,
+                                        null,
+                                        true,
+                                        new MenuRepaintCallback(actionMenuPanel),
+                                        AnimationKind.REGULAR);
+
+                actionMenuPanel.setSlideIn(true);
+            }
+            else
+            {
+                fadeTracker.trackFadeOut(AnimationUtils.SLIDE_ANIMATION,
+                    actionMenuPanel,
+                    null,
+                    true,
+                    new MenuRepaintCallback(actionMenuPanel),
+                    AnimationKind.REGULAR);
+
+                actionMenuPanel.setSlideIn(false);
+            }
+
+            glassPane.setVisible(!glassPane.isVisible());
+        }
+    }
+
+    protected class MenuRepaintCallback
+        implements FadeTrackerCallback
+    {
+        private ActionMenuPanel actionMenu;
+
+        public MenuRepaintCallback(ActionMenuPanel actionMenu)
+        {
+            this.actionMenu = actionMenu;
+        }
+
+        public void fadeEnded(FadeKind arg0)
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    actionMenu.repaint();
+                }
+            });
+        }
+
+        public void fadePerformed(FadeKind arg0, float arg1)
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    actionMenu.repaint();
+                }
+            });
+        }
+
+        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
+        {}
+    }
 }

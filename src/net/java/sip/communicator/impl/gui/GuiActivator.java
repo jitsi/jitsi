@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -92,7 +94,7 @@ public class GuiActivator implements BundleActivator
 
             logger.info("UI Service ...[REGISTERED]");
 
-            this.uiService.loadApplicationGui();
+            uiService.loadApplicationGui();
 
             logger.logEntry();
         }

@@ -94,6 +94,12 @@ public class FirstWizardPage
      */
     private void init()
     {
+        this.mainPanel.setOpaque(false);
+        this.labelsPanel.setOpaque(false);
+        this.valuesPanel.setOpaque(false);
+        this.uinPassPanel.setOpaque(false);
+        this.emptyPanel.setOpaque(false);
+
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
 

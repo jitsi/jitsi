@@ -79,15 +79,11 @@ public class ReceivedCallDialog
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-        SIPCommButton callButton = new SIPCommButton(ImageLoader
-            .getImage(ImageLoader.CALL_BUTTON_BG), ImageLoader
-            .getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG), null, ImageLoader
-            .getImage(ImageLoader.CALL_BUTTON_PRESSED_BG));
+        SIPCommButton callButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
 
-        SIPCommButton hangupButton = new SIPCommButton(ImageLoader
-            .getImage(ImageLoader.HANGUP_BUTTON_BG), ImageLoader
-            .getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG), null, ImageLoader
-            .getImage(ImageLoader.HANGUP_BUTTON_PRESSED_BG));
+        SIPCommButton hangupButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
         mainPanel.setPreferredSize(new Dimension(400, 90));
         mainPanel.setOpaque(false);

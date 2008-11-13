@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -38,8 +39,8 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class ContactListPanel
-    extends JPanel
+public class ContactListPane
+    extends SCScrollPane
     implements  MessageListener,
                 TypingNotificationsListener,
                 ContactListListener,
@@ -49,15 +50,13 @@ public class ContactListPanel
 
     private ContactList contactList;
 
-    private JScrollPane contactListScrollPane = new JScrollPane();
-
-    private JPanel treePanel = new JPanel(new BorderLayout());
-
     private TypingTimer typingTimer = new TypingTimer();
 
     private CommonRightButtonMenu commonRightButtonMenu;
 
-    private Logger logger = Logger.getLogger(ContactListPanel.class);
+    private Logger logger = Logger.getLogger(ContactListPane.class);
+
+    private ActionMenuGlassPane contactListPanel;
 
     private ChatWindowManager chatWindowManager;
 
@@ -74,29 +73,15 @@ public class ContactListPanel
      *
      * @param mainFrame The parent frame.
      */
-    public ContactListPanel(MainFrame mainFrame)
+    public ContactListPane(MainFrame mainFrame)
     {
-        super(new BorderLayout());
-
         this.mainFrame = mainFrame;
 
         this.chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
 
-        this.treePanel.setOpaque(false);
-        this.setOpaque(false);
-        contactListScrollPane.getViewport().setOpaque(false);
-
-        contactListScrollPane.getViewport().setView(treePanel);
-
-        contactListScrollPane.setHorizontalScrollBarPolicy(
+        this.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        contactListScrollPane.getVerticalScrollBar().setUnitIncrement(30);
-
-        this.setPreferredSize(new Dimension(200, 450));
-        this.setMinimumSize(new Dimension(80, 200));
-        this.add(contactListScrollPane);
 
         this.initPluginComponents();
     }
@@ -111,15 +96,17 @@ public class ContactListPanel
     {
         this.contactList = new ContactList(mainFrame);
 
+        this.setViewportView(contactList);
+
         this.contactList.addContactListListener(this);
-        this.treePanel.addMouseListener(new MouseAdapter() {
+        this.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e)
             {
 
                 if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
                     commonRightButtonMenu = new CommonRightButtonMenu(mainFrame);
 
-                    commonRightButtonMenu.setInvoker(treePanel);
+                    commonRightButtonMenu.setInvoker(ContactListPane.this);
 
                     commonRightButtonMenu.setLocation(e.getX()
                             + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
@@ -129,8 +116,6 @@ public class ContactListPanel
                 }
             }
         });
-
-        this.treePanel.add(contactList, BorderLayout.NORTH);
 
         this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 

@@ -14,6 +14,7 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -109,7 +110,6 @@ public class ExtendedMainToolBar
     {
         this.messageWindow = messageWindow;
 
-        this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         this.setPreferredSize(new Dimension(300, DEFAULT_BUTTON_HEIGHT + 5));
 
@@ -123,22 +123,11 @@ public class ExtendedMainToolBar
         this.add(cutButton);
         this.add(copyButton);
         this.add(pasteButton);
-
-        this.addSeparator();
-
         this.add(settingsButton);
-
-        this.addSeparator();
-
         this.add(previousButton);
         this.add(nextButton);
-
-        this.addSeparator();
-
 //        this.add(sendFileButton);
         this.add(historyButton);
-        
-        this.addSeparator();
         this.add(addButton);
 
 //        this.addSeparator();

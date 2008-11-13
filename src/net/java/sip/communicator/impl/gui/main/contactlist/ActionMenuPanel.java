@@ -1,0 +1,322 @@
+package net.java.sip.communicator.impl.gui.main.contactlist;
+
+import java.awt.*;
+import java.awt.event.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
+
+import org.jvnet.lafwidget.animation.*;
+import org.osgi.framework.*;
+
+public class ActionMenuPanel
+    extends JPanel
+    implements  ActionListener
+{
+    private Logger logger = Logger.getLogger(ActionMenuPanel.class);
+
+    private Color baseStartColor = new Color(
+        GuiActivator.getResources().getColor("actionPanelBgStartColor"));
+
+    private Color baseEndColor = new Color(
+        GuiActivator.getResources().getColor("actionPanelBgEndColor"));
+
+    private Color startBgColor = new Color( baseStartColor.getRed(),
+                                            baseStartColor.getGreen(),
+                                            baseStartColor.getBlue(),
+                                            220);
+
+    private Color endBgColor = new Color(   baseEndColor.getRed(),
+                                            baseEndColor.getGreen(),
+                                            baseEndColor.getBlue(),
+                                            220);
+
+    private boolean isSlideIn = false;
+
+    public ActionMenuPanel()
+    {
+        super(new FlowLayout(FlowLayout.LEFT, 15, 15));
+
+        this.setOpaque(false);
+        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        this.initListeners();
+
+        SIPCommButton addContactButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.QUICK_MENU_ADD_ICON));
+
+        SIPCommButton optionsButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON));
+
+        SIPCommButton showOfflineButton;
+        boolean isShowOffline = ConfigurationManager.isShowOffline();
+
+        if (isShowOffline)
+            showOfflineButton = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON));
+        else
+            showOfflineButton = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON));
+
+        SIPCommButton soundButton;
+        boolean isMute = GuiActivator.getAudioNotifier().isMute();
+
+        if (isMute)
+            soundButton = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON));
+        else
+            soundButton = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_OFF_ICON));
+
+        SIPCommButton myChatRoomsButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.QUICK_MENU_MY_CHAT_ROOMS_ICON));
+
+        addContactButton.addActionListener(this);
+        optionsButton.addActionListener(this);
+        showOfflineButton.addActionListener(this);
+        soundButton.addActionListener(this);
+        myChatRoomsButton.addActionListener(this);
+
+        addContactButton.setName("addContact");
+        optionsButton.setName("options");
+        showOfflineButton.setName("showOffline");
+        soundButton.setName("sound");
+        myChatRoomsButton.setName("chatRooms");
+
+        JPanel addContactPanel
+            = createMoreActionsButtonPanel(addContactButton, "Contacts");
+
+        JPanel configPanel
+            = createMoreActionsButtonPanel(optionsButton, "Options");
+
+        JPanel showOfflinePanel
+            = createMoreActionsButtonPanel(showOfflineButton, "Show/Hide");
+
+        JPanel soundPanel
+            = createMoreActionsButtonPanel(soundButton, "Sound");
+
+        JPanel myChatRoomsPanel
+            = createMoreActionsButtonPanel(myChatRoomsButton, "Chatrooms");
+
+        this.add(addContactPanel);
+        this.add(configPanel);
+        this.add(showOfflinePanel);
+        this.add(soundPanel);
+        this.add(myChatRoomsPanel);
+
+        this.initPluginComponents();
+    }
+
+    private JPanel createMoreActionsButtonPanel(JButton button,
+                                                String buttonText)
+    {
+        JLabel buttonLabel = new JLabel(buttonText);
+
+        TransparentPanel buttonPanel = new TransparentPanel();
+
+        buttonPanel.setPreferredSize(new Dimension(60, 60));
+
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+
+        buttonLabel.setForeground(Color.WHITE);
+        buttonLabel.setFont(buttonLabel.getFont().deriveFont(9f));
+        buttonLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setToolTipText(buttonText);
+
+        buttonPanel.add(button);
+        buttonPanel.add(buttonLabel);
+
+        buttonPanel.doLayout();
+
+        return buttonPanel;
+    }
+
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+
+        AntialiasingManager.activateAntialiasing(g2);
+
+        GradientPaint p = new GradientPaint(this.getWidth()/2, 0,
+                                            startBgColor,
+                                            this.getWidth()/2, this.getHeight(),
+                                            endBgColor);
+
+        FadeTracker fadeTracker = FadeTracker.getInstance();
+
+        float animation;
+        if (isSlideIn)
+            animation = 1.0f;
+        else
+            animation = 0.0f;
+
+        if (fadeTracker.isTracked(this, AnimationUtils.SLIDE_ANIMATION))
+        {
+            animation
+                = fadeTracker.getFade(this, AnimationUtils.SLIDE_ANIMATION);
+        }
+
+        int height = (int) (getHeight()*animation);
+
+        g2.setPaint(p);
+        g2.fillRoundRect(0, 0,
+            this.getWidth() - 1,
+            height - 1, 15, 15);
+
+        g2.setColor(baseStartColor);
+        g2.drawRoundRect(0, 0,
+            this.getWidth() - 1,
+            height - 1, 15, 15);
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+        SIPCommButton button = (SIPCommButton) e.getSource();
+        String buttonName = button.getName();
+
+        if (buttonName.equals("addContact"))
+        {
+            AddContactWizard wizard = new AddContactWizard(
+                    GuiActivator.getUIService().getMainFrame());
+
+            wizard.setVisible(true);
+        }
+        else if (buttonName.equals("options"))
+        {
+            ExportedWindow optionsDialog = GuiActivator.getUIService()
+                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
+
+            optionsDialog.setVisible(true);
+        }
+        else if (buttonName.equals("showOffline"))
+        {
+            boolean isShowOffline = ConfigurationManager.isShowOffline();
+
+            updateShowOfflineButton(button, isShowOffline);
+
+            GuiActivator.getUIService().getMainFrame().getContactListPanel()
+                .getContactList().setShowOffline(!isShowOffline);
+        }
+        else if (buttonName.equals("sound"))
+        {
+            boolean isMute = GuiActivator.getAudioNotifier().isMute();
+
+            updateMuteButton(button, isMute);
+            GuiActivator.getAudioNotifier().setMute(!isMute);
+        }
+        else if (buttonName.equals("chatRooms"))
+        {
+            ChatRoomListDialog chatRoomsDialog = new ChatRoomListDialog(
+                GuiActivator.getUIService().getMainFrame());
+
+            chatRoomsDialog.setPreferredSize(new Dimension(500, 400));
+            chatRoomsDialog.setVisible(true);
+        }
+    }
+
+    public void updateMuteButton(SIPCommButton soundButton, boolean isMute)
+    {
+        if(!isMute)
+            soundButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON));
+        else
+            soundButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_OFF_ICON));
+
+        soundButton.repaint();
+        this.getParent().repaint();
+    }
+
+    public void updateShowOfflineButton(SIPCommButton showOfflineButton,
+                                        boolean isShowOffline)
+    {
+        if(!isShowOffline)
+            showOfflineButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON));
+        else
+            showOfflineButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON));
+
+        showOfflineButton.repaint();
+        this.getParent().repaint();
+    }
+
+    public boolean isSlideIn()
+    {
+        return isSlideIn;
+    }
+
+    public void setSlideIn(boolean isSlideIn)
+    {
+        this.isSlideIn = isSlideIn;
+    }
+
+    /**
+     * We need to add explicitly empty mouse listeners in order to catch all
+     * mouse events from the glass pane. Otherwise all underlying panel
+     * listeners are active.
+     */
+    private void initListeners()
+    {
+        this.addMouseListener(new MouseAdapter(){});
+
+        this.addMouseMotionListener(new MouseMotionAdapter(){});
+    }
+
+    private void initPluginComponents()
+    {
+     // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                FavoritesButton.class.getName(), null);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.trace("Could not obtain plugin reference.", exc);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                FavoritesButton c = (FavoritesButton) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
+
+                addPluginComponent(c);
+            }
+        }
+    }
+
+    private void addPluginComponent(final FavoritesButton c)
+    {
+        SIPCommButton cButton = new SIPCommButton(
+            ImageLoader.getBytesInImage(c.getImage()));
+
+        JPanel cPanel = createMoreActionsButtonPanel(cButton,
+                                                     c.getText());
+
+        cButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                c.actionPerformed();
+            }
+        });
+
+        this.add(cPanel);
+    }
+}

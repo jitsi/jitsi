@@ -35,7 +35,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class MainCallPanel
-    extends JPanel
+    extends TransparentPanel
     implements  ActionListener,
                 ListSelectionListener,
                 RegistrationStateChangeListener,
@@ -51,28 +51,28 @@ public class MainCallPanel
 
     private ProtocolProviderService protocolProvider;
 
-    private JPanel buttonsPanel
-        = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
-    private SIPCommButton callButton = new SIPCommButton(ImageLoader
-        .getImage(ImageLoader.CALL_BUTTON_BG), ImageLoader
-        .getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG), null, ImageLoader
-        .getImage(ImageLoader.CALL_BUTTON_PRESSED_BG));
+    private SIPCommButton callButton = new SIPCommButton(
+        ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG),
+        ImageLoader.getImage(ImageLoader.CALL_BUTTON_PRESSED_BG),
+        null);
 
     private CallComboBox phoneNumberCombo = new CallComboBox(this);
 
-    private JPanel comboPanel = new JPanel(new BorderLayout(5, 5));
+    private TransparentPanel comboPanel
+        = new TransparentPanel(new BorderLayout());
 
     private JLabel callViaLabel
         = new JLabel(Messages.getI18NString("callVia").getText() + " ");
 
-    private JPanel callViaPanel
-        = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
+    private TransparentPanel callViaPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
 
     private AccountSelectorBox accountSelectorBox = new AccountSelectorBox(this);
 
     private SIPCommButton dialButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
         ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
 
     private DialpadDialog dialpadDialog;
@@ -88,9 +88,9 @@ public class MainCallPanel
 
         this.mainFrame = mainFrame;
 
-        this.dialpadDialog = new DialpadDialog(this);
+        this.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        comboPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+        this.dialpadDialog = new DialpadDialog(this);
 
         phoneNumberCombo.setEditable(true);
 
@@ -103,10 +103,6 @@ public class MainCallPanel
 
         buttonsPanel.add(callButton);
 
-        this.setOpaque(false);
-        callViaPanel.setOpaque(false);
-        comboPanel.setOpaque(false);
-        buttonsPanel.setOpaque(false);
         phoneNumberCombo.setOpaque(false);
 
         comboPanel.add(dialButton, BorderLayout.WEST);

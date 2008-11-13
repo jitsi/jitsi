@@ -16,8 +16,8 @@ import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -33,7 +33,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class AccountsConfigurationForm
-    extends JPanel
+    extends TransparentPanel
     implements  ConfigurationForm,
                 ActionListener,
                 ServiceListener
@@ -43,11 +43,13 @@ public class AccountsConfigurationForm
 
     private JScrollPane scrollPane = new JScrollPane();
 
-    private JPanel wrapAccountsPanel = new JPanel(new BorderLayout());
+    private TransparentPanel wrapAccountsPanel
+        = new TransparentPanel(new BorderLayout());
 
-    private JPanel accountsPanel = new JPanel();
+    private TransparentPanel accountsPanel = new TransparentPanel();
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private I18NString newString = Messages.getI18NString("newAccount");
 
@@ -57,8 +59,6 @@ public class AccountsConfigurationForm
 
     private JButton saveButton = new JButton(saveString.getText());
 
-    private MainFrame mainFrame;
-
     private Hashtable accounts = new Hashtable();
 
     /**
@@ -66,11 +66,9 @@ public class AccountsConfigurationForm
      *
      * @param mainFrame the main application window
      */
-    public AccountsConfigurationForm(MainFrame mainFrame)
+    public AccountsConfigurationForm()
     {
         super(new BorderLayout());
-
-        this.mainFrame = mainFrame;
 
         GuiActivator.bundleContext.addServiceListener(this);
 

@@ -24,33 +24,36 @@ import net.java.sip.communicator.service.gui.WizardContainer;
  * @author Yana Stamcheva
  */
 public class AddContactPanel
-    extends JPanel
+    extends TransparentPanel
     implements DocumentListener
 {
 
     private JLabel uinLabel = new JLabel(
         Messages.getI18NString("identifier").getText());
-    
+
     private JTextField textField = new JTextField();
-    
-    private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
-    
+
+    private TransparentPanel dataPanel
+        = new TransparentPanel(new BorderLayout(5, 5));
+
     private SIPCommMsgTextArea infoLabel 
         = new SIPCommMsgTextArea(
             Messages.getI18NString("addContactIdentifier").getText());
-    
+
     private JLabel infoTitleLabel = new JLabel(
         Messages.getI18NString("addContact").getText());
-    
+
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
-    
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
-    
-    private JPanel rightPanel = new JPanel(new BorderLayout());
-    
+
+    private TransparentPanel labelsPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+
+    private TransparentPanel rightPanel
+        = new TransparentPanel(new BorderLayout());
+
     private WizardContainer parentWizard;
-    
+
     /**
      * Creates and initializes the <tt>AddContactPanel</tt>.
      */

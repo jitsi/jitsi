@@ -27,11 +27,14 @@ public class NewAccountDialog
 {
     private Logger logger = Logger.getLogger(NewAccountDialog.class);
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout(5, 5));
 
-    private JPanel accountPanel = new JPanel(new BorderLayout());
+    private TransparentPanel accountPanel
+        = new TransparentPanel(new BorderLayout());
 
-    private JPanel networkPanel = new JPanel(new BorderLayout());
+    private TransparentPanel networkPanel
+        = new TransparentPanel(new BorderLayout());
 
     private JLabel networkLabel = new JLabel(
         Messages.getI18NString("network").getText());
@@ -47,10 +50,11 @@ public class NewAccountDialog
     private JButton cancelButton = new JButton(
         Messages.getI18NString("cancel").getText());
 
-    private JPanel rightButtonPanel
-        = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+    private TransparentPanel rightButtonPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
-    private JPanel buttonPanel = new JPanel(new BorderLayout());
+    private TransparentPanel buttonPanel
+        = new TransparentPanel(new BorderLayout());
 
     private String preferredWizardName;
 
@@ -219,13 +223,17 @@ public class NewAccountDialog
     {
         accountPanel.removeAll();
 
-        JPanel fixedWidthPanel = new JPanel();
+        TransparentPanel fixedWidthPanel = new TransparentPanel();
+
         this.accountPanel.add(fixedWidthPanel, BorderLayout.SOUTH);
         fixedWidthPanel.setPreferredSize(new Dimension(430, 3));
         fixedWidthPanel.setMinimumSize(new Dimension(430, 3));
         fixedWidthPanel.setMaximumSize(new Dimension(430, 3));
 
-        accountPanel.add((Component) wizard.getSimpleForm(), BorderLayout.NORTH);
+        JComponent simpleWizardForm = (JComponent) wizard.getSimpleForm();
+        simpleWizardForm.setOpaque(false);
+
+        accountPanel.add(simpleWizardForm, BorderLayout.NORTH);
         accountPanel.revalidate();
         accountPanel.repaint();
         this.pack();

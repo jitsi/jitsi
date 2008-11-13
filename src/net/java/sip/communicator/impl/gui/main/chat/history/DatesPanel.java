@@ -12,6 +12,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 /**
@@ -20,7 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class DatesPanel
-    extends JScrollPane
+    extends SCScrollPane
     implements ListSelectionListener
 {
 
@@ -52,7 +53,7 @@ public class DatesPanel
         this.datesList.setCellRenderer(renderer);
 
         this.datesList.setFont(Constants.FONT.deriveFont(Font.BOLD));
-        
+
         this.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 0),
                 SIPCommBorders.getBoldRoundBorder()));
@@ -61,7 +62,7 @@ public class DatesPanel
 
         this.listPanel.add(datesList, BorderLayout.NORTH);
 
-        this.getViewport().add(listPanel);
+        this.setViewportView(listPanel);
 
         this.datesList.addListSelectionListener(this);
         

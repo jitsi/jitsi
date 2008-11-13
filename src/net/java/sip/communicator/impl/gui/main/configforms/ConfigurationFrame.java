@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -35,15 +34,18 @@ public class ConfigurationFrame
 
     private ConfigFormList configList;
 
-    private JScrollPane configScrollList;
+    private SCScrollPane configScrollList;
 
     private TitlePanel titlePanel = new TitlePanel();
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout(5, 5));
 
-    private JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
+    private TransparentPanel centerPanel
+        = new TransparentPanel(new BorderLayout(5, 5));
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private MainFrame mainFrame;
 
@@ -60,10 +62,12 @@ public class ConfigurationFrame
 
         this.configList = new ConfigFormList(this);
 
-        this.configScrollList = new JScrollPane(
-                this.configList,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        this.configScrollList = new SCScrollPane();
+
+        this.configScrollList.setHorizontalScrollBarPolicy(
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        this.configScrollList.setViewportView(configList);
 
         this.setTitle(Messages.getI18NString("configuration").getText());
 
@@ -116,7 +120,7 @@ public class ConfigurationFrame
      */
     public void addDefaultForms()
     {
-        this.addConfigurationForm(new AccountsConfigurationForm(mainFrame));
+        this.addConfigurationForm(new AccountsConfigurationForm());
     }
 
     /**
@@ -133,8 +137,12 @@ public class ConfigurationFrame
 
         this.centerPanel.add(titlePanel, BorderLayout.NORTH);
 
-        this.centerPanel.add(configFormDescriptor.getConfigFormPanel(),
-            BorderLayout.CENTER);
+        JComponent configFormPanel
+            = (JComponent) configFormDescriptor.getConfigFormPanel();
+
+        configFormPanel.setOpaque(false);
+
+        this.centerPanel.add(configFormPanel, BorderLayout.CENTER);
 
         this.centerPanel.revalidate();
         this.centerPanel.repaint();

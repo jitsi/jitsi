@@ -263,10 +263,16 @@ public class ImageLoader {
         = new ImageID("MORE_BUTTON");
 
     /**
+     * Closed group icon.
+     */
+    public static final ImageID RIGHT_ARROW_ICON
+        = new ImageID("RIGHT_ARROW_ICON");
+
+    /**
      * The background of the main window and chat window.
      */
-    public static final ImageID COMBO_BOX_ARROW
-        = new ImageID("COMBO_BOX_ARROW");
+    public static final ImageID DOWN_ARROW_ICON
+        = new ImageID("DOWN_ARROW_ICON");
 
     /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
@@ -331,6 +337,12 @@ public class ImageLoader {
         = new ImageID("QUICK_MENU_BUTTON_ROLLOVER_BG");
 
     /**
+     * The background rollover image of a <tt>QuickMenu</tt> button.
+     */
+    public static final ImageID QUICK_MENU_MY_CHAT_ROOMS_ICON
+        = new ImageID("QUICK_MENU_MY_CHAT_ROOMS_ICON");
+
+    /**
      * The call button image.
      */
     public static final ImageID CALL_BUTTON_BG
@@ -341,12 +353,6 @@ public class ImageLoader {
      */
     public static final ImageID HANGUP_BUTTON_BG
         = new ImageID("HANGUP_BUTTON_BG");
-
-    /**
-     * The call button mouse over image.
-     */
-    public static final ImageID CALL_ROLLOVER_BUTTON_BG
-        = new ImageID("CALL_ROLLOVER_BUTTON_BG");
 
     /**
      * The hangup button mouse over image.
@@ -491,6 +497,12 @@ public class ImageLoader {
      */
     public static final ImageID USER_PHOTO_FRAME
         = new ImageID("USER_PHOTO_FRAME");
+
+    /**
+     * The image used to draw a shadow over the contact photo image.
+     */
+    public static final ImageID USER_PHOTO_SHADOW
+        = new ImageID("USER_PHOTO_SHADOW");
 
     /**
      * The minimize button icon in the <tt>CallPanel</tt>.
@@ -695,6 +707,32 @@ public class ImageLoader {
      */
     public static final ImageID QUICK_MENU_CREATE_GROUP_ICON
         = new ImageID("QUICK_MENU_CREATE_GROUP_ICON");
+
+    /**
+     * More actions button.
+     */
+    public static final ImageID MORE_ACTIONS_BUTTON
+        = new ImageID("MORE_ACTIONS_BUTTON");
+
+    /**
+     * More actions button rollover state.
+     */
+    public static final ImageID MORE_ACTIONS_ROLLOVER_BUTTON
+        = new ImageID("MORE_ACTIONS_ROLLOVER_BUTTON");
+
+    /**
+     * More actions button.
+     */
+    public static final ImageID HIDE_ACTIONS_BUTTON
+        = new ImageID("HIDE_ACTIONS_BUTTON");
+
+    /**
+     * More actions button rollover state.
+     */
+    public static final ImageID HIDE_ACTIONS_ROLLOVER_BUTTON
+        = new ImageID("MORE_ACTIONS_ROLLOVER_BUTTON");
+
+    // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**
      * Add not in contact list contact icon.
@@ -910,6 +948,8 @@ public class ImageLoader {
     public static final ImageID CHAT_SEND_FILE_ROLLOVER_BUTTON
         = new ImageID("CHAT_SEND_FILE_ROLLOVER_BUTTON");
 
+    public static final ImageID CHAT_CONFIGURE_ICON
+        = new ImageID("CHAT_CONFIGURE_ICON");
 
     ////////////////////////////// 16x16 icons ////////////////////////////////
     /**

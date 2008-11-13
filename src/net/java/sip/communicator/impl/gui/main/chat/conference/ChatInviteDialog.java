@@ -42,13 +42,13 @@ public class ChatInviteDialog
         GuiActivator.getResources().getI18NString("cancel"));
 
     private DefaultListModel contactListModel = new DefaultListModel();
-    
+
     private DefaultListModel selectedContactListModel = new DefaultListModel();
-    
+
     private ChatPanel chatPanel;
-    
+
     private ChatTransport inviteChatTransport;
-    
+
     /**
      * Constructs the <tt>ChatInviteDialog</tt>.
      * 
@@ -66,9 +66,11 @@ public class ChatInviteDialog
 
         this.setTitle(title);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        TransparentPanel mainPanel
+            = new TransparentPanel(new BorderLayout(5, 5));
 
-        JPanel northPanel = new JPanel(new BorderLayout(10, 10));
+        TransparentPanel northPanel
+            = new TransparentPanel(new BorderLayout(10, 10));
 
         mainPanel.setPreferredSize(new Dimension(450, 350));
 
@@ -95,7 +97,8 @@ public class ChatInviteDialog
         northPanel.add(iconLabel, BorderLayout.WEST);
         northPanel.add(infoTextArea, BorderLayout.CENTER);
 
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        TransparentPanel buttonsPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
         inviteButton.addActionListener(this);
         cancelButton.addActionListener(this);
@@ -208,12 +211,12 @@ public class ChatInviteDialog
             }
         });
 
-        JPanel centerPanel = new JPanel(new BorderLayout());
+        TransparentPanel centerPanel = new TransparentPanel(new BorderLayout());
 
         centerPanel.add(listPanel, BorderLayout.CENTER);
         centerPanel.add(addRemoveButtonsPanel, BorderLayout.SOUTH);
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        TransparentPanel southPanel = new TransparentPanel(new BorderLayout());
         southPanel.add(reasonArea, BorderLayout.CENTER);
         southPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
