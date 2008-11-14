@@ -37,11 +37,14 @@ public class ImageScaler extends AbstractCodec implements Codec
         new RGBFormat(new Dimension(704, 576), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         //CIF
         new RGBFormat(new Dimension(352, 288), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(new Dimension(320, 240), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         //QCIF
         new RGBFormat(new Dimension(176, 144), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         //SQCIF
         new RGBFormat(new Dimension(128, 96), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         };
+    
+    private boolean toProcess = true;
 
     @Override
     public Format[] getSupportedInputFormats()
@@ -72,6 +75,14 @@ public class ImageScaler extends AbstractCodec implements Codec
             return null;    // must set a size.
         
 //      logger.fine("FORMAT: " + MediaCGUtils.formatToStr(format));
+
+        if(outputFormat != null)
+        {
+            VideoFormat outVFormat = (VideoFormat)outputFormat;
+            if(outVFormat.getSize() != null)
+                toProcess = !outVFormat.getSize().equals(videoFormat.getSize());
+        }
+        
         // TODO: check VideoFormat and compatibility
         bufferToImage = new BufferToImage((VideoFormat) format);
         return super.setInputFormat(format);
@@ -88,6 +99,18 @@ public class ImageScaler extends AbstractCodec implements Codec
         if (isEOM(input))
         {
             propagateEOM(output);   // TODO: what about data? can there be any?
+            return BUFFER_PROCESSED_OK;
+        }
+        
+        // sometimes format sizes are the same but some other field is different
+        // and jmf use the scaler (in my case length field was not sent in 
+        // one of the formats) the check for sizes is made in method
+        // setInputFormat
+        if(!toProcess)
+        {
+            output.setData(input.getData());
+            output.setLength(input.getLength());
+            output.setOffset(input.getOffset());
             return BUFFER_PROCESSED_OK;
         }
         

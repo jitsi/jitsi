@@ -27,4 +27,7 @@ public class Constants
      * 30 - 30 ms
      */
     public static int ILBC_MODE = 30;
+
+    public static int VIDEO_WIDTH = 352;
+    public static int VIDEO_HEIGHT = 288;
 }

@@ -399,6 +399,9 @@ public class MediaControl
         if (videoDeviceInfo != null)
         {
             videoDataSource = createDataSource(videoDeviceInfo.getLocator());
+            
+            // we will check video sizes and will set the most appropriate one
+            selectVideoSize(videoDataSource);
         }
 
         // Create the av data source
@@ -1288,5 +1291,50 @@ public class MediaControl
     {
         if (muteAudioDataSource != null)
             muteAudioDataSource.setMute(mute);
+    }
+
+    /**
+     * Selects the nearest size supported by the capture device,
+     * to make drivers scale the images.
+     * 
+     * @param videoDS the video datasource
+     */
+    private void selectVideoSize(DataSource videoDS)
+    {
+        FormatControl fControl = 
+            (FormatControl)videoDS.getControl(FormatControl.class.getName());
+
+        if(fControl == null)
+            return;
+
+        // On MacOSX isight camera reports two sizes 640x480 and 320x240
+        // if we use the default size 352x288 we must use source format 640x480
+        // in this situation we suffer from high cpu usage as every frame is 
+        // scaled, so we use the non standard format 320x240.
+        String osName = System.getProperty("os.name");
+        if (osName.startsWith("Mac"))
+        {
+            Constants.VIDEO_WIDTH = 320;
+            Constants.VIDEO_HEIGHT = 240;
+        }
+
+        Format targetFormat = null;
+        double targetWidth = Constants.VIDEO_WIDTH;
+        
+        Format[] fs = fControl.getSupportedFormats();
+        for (int i = 0; i < fs.length; i++)
+        {
+            VideoFormat format = (VideoFormat)fs[i];
+
+            Dimension size = format.getSize();
+            if(size.getWidth() >= Constants.VIDEO_WIDTH
+                && size.getWidth() <= targetWidth)
+            {
+                targetFormat = format;
+            }
+        }
+
+        if(targetFormat != null)
+            fControl.setFormat(targetFormat);
     }
 }

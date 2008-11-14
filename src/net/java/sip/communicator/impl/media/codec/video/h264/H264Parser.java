@@ -27,7 +27,7 @@ public class H264Parser
     private byte[] encodedFrame = new byte[MAX_FRAME_SIZE];
     // the size of the result data
     private int encodedFrameLen;
-    
+
     /**
      * New rtp packet is received. We push it to the parser to extract the data.
      * @param inputBuffer the data from the rtp packet
@@ -36,12 +36,12 @@ public class H264Parser
     public boolean pushRTPInput(Buffer inputBuffer)
     {
         long currentStamp = inputBuffer.getTimeStamp();
-        
+
         // the rtp marker field points that this is the last packet of 
         // the received frame
         boolean hasMarker = 
             (inputBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0;
-        
+
         // if the timestamp changes we are starting receiving a new frame
         if(!(currentStamp == lastTimestamp))
         {
@@ -50,33 +50,40 @@ public class H264Parser
         }
         // the new frame timestamp
         lastTimestamp = currentStamp;
-        
+
         byte[] inData = (byte[]) inputBuffer.getData();
         int inputOffset = inputBuffer.getOffset();
         byte fByte = inData[inputOffset];
         int type = fByte & 0x1f;
-        
-        // types from 1 to 23 are treated the same way
-        if (type >= 1 && type <= 23)
+        try
         {
-            System.arraycopy(startSequence, 0, encodedFrame, encodedFrameLen, startSequence.length);
-            encodedFrameLen += startSequence.length;
-            int len = inputBuffer.getLength();
-            System.arraycopy(inData, inputOffset, encodedFrame, encodedFrameLen, len);
-            encodedFrameLen += len;
+            // types from 1 to 23 are treated the same way
+            if (type >= 1 && type <= 23)
+            {
+                System.arraycopy(startSequence, 0, encodedFrame, encodedFrameLen, startSequence.length);
+                encodedFrameLen += startSequence.length;
+                int len = inputBuffer.getLength();
+                System.arraycopy(inData, inputOffset, encodedFrame, encodedFrameLen, len);
+                encodedFrameLen += len;
+            }
+            else if (type == 24)
+            {
+                //return deencapsulateSTAP(inputBuffer);
+            }
+            else if (type == 28)
+            {
+                deencapsulateFU(fByte, inputBuffer);
+            }
+            else
+            {
+                logger.warn("Skipping unsupported NAL unit type");
+                return false;
+            }
         }
-        else if (type == 24)
+        catch(Exception ex)
         {
-            //return deencapsulateSTAP(inputBuffer);
-        }
-        else if (type == 28)
-        {
-            deencapsulateFU(fByte, inputBuffer);
-        }
-        else
-        {
-            logger.warn("Skipping unsupported NAL unit type");
-            return false;
+            logger.warn("Cannot parse incoming " + ex.getMessage());
+            return true;
         }
 
         if(hasMarker)
@@ -88,7 +95,7 @@ public class H264Parser
             return false;
         }
     }
-    
+
     /**
      * Extract data from FU packet. This are packets accross several 
      * rtp packets, the fisrt has a start bit set, we store all data
@@ -101,10 +108,10 @@ public class H264Parser
         byte[] buf = (byte[])inputBuffer.getData();
         int len = inputBuffer.getLength();
         int offset = inputBuffer.getOffset();
-        
+
         offset++;
         len--;
-        
+
         byte fu_indicator = nal;
         byte fu_header = buf[offset];
         boolean start_bit = (fu_header >> 7) != 0;
@@ -115,11 +122,11 @@ public class H264Parser
         //the original nal forbidden bit and NRI are stored in this packet's nal;
         reconstructed_nal = (byte)(fu_indicator & (byte)0xe0);  
         reconstructed_nal |= nal_type;
-        
+
         // skip the fu_header...
         offset++;
         len--;
-        
+
         if(start_bit)
         {
             // copy in the start sequence, and the reconstructed nal....

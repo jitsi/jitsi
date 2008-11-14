@@ -24,25 +24,14 @@ public class NativeEncoder
 {
     private final Logger logger = Logger.getLogger(NativeEncoder.class);
     
-    // supported formats
-//    private final static int P720_WIDTH = 720;
-//    private final static int P720_HEIGHT = 480;
-//    private final static int CIF4_WIDTH = 704;
-//    private final static int CIF4_HEIGHT = 576;
-    private final static int CIF_WIDTH = 352;
-    private final static int CIF_HEIGHT = 288;
-//    private final static int QCIF_WIDTH = 176;
-//    private final static int QCIF_HEIGHT = 144;
-//    private final static int SQCIF_WIDTH = 128;
-//    private final static int SQCIF_HEIGHT = 96;
-
     private final static String PLUGIN_NAME = "H264 Encoder";
 
-    private final static int DEF_WIDTH = CIF_WIDTH;
-    private final static int DEF_HEIGHT = CIF_HEIGHT;
+    private static int DEF_WIDTH = 352;
+    private static int DEF_HEIGHT = 288;
 
     // without the headers
-    private final static int MAX_PAYLOAD_SIZE = 1400;
+//    private final static int MAX_PAYLOAD_SIZE = 1400;
+    private final static int MAX_PAYLOAD_SIZE = 984;
     
     private final static int INPUT_BUFFER_PADDING_SIZE = 8;
 
@@ -80,11 +69,18 @@ public class NativeEncoder
     // the current rtp sequence
     private int seq = 0;
 
+    private static int IFRAME_INTERVAL = 125;
+
+    private int framesSinceLastIFrame = 0;
+
     /**
      * Constructor
      */
     public NativeEncoder()
     {
+        DEF_WIDTH = Constants.VIDEO_WIDTH;
+        DEF_HEIGHT = Constants.VIDEO_HEIGHT;
+
         int strideY = DEF_WIDTH;
         int strideUV = strideY / 2;
         int offsetU = strideY * DEF_HEIGHT;
@@ -93,23 +89,22 @@ public class NativeEncoder
         int inputYuvLength = (strideY + strideUV) * DEF_HEIGHT;
         float sourceFrameRate = TARGET_FRAME_RATE;
 
-        
         inputFormats = new Format[]{ 
             new YUVFormat(new Dimension(DEF_WIDTH, DEF_HEIGHT), 
                 inputYuvLength + INPUT_BUFFER_PADDING_SIZE,
                 Format.byteArray, sourceFrameRate, YUVFormat.YUV_420, strideY,
                 strideUV, 0, offsetU, offsetV) 
             };
-        
+
         inputFormat = null;
         outputFormat = null;
-        
+
         AVFORMAT = AVFormatLibrary.INSTANCE;
         AVCODEC = AVCodecLibrary.INSTANCE;
         AVUTIL = AVUtilLibrary.INSTANCE;
-        
+
         AVFORMAT.av_register_all();
-        
+
         AVCODEC.avcodec_init();
     }
 
@@ -218,31 +213,36 @@ public class NativeEncoder
             {
                 int bufOfset = 0;
                 int size = buf.length;
-                
+
                 int nri = buf[bufOfset]  & 0x60;
                 byte[] tmp = new byte[MAX_PAYLOAD_SIZE];
                 tmp[0] = 28;        /* FU Indicator; Type = 28 ---> FU-A */
                 tmp[0] |= nri;
                 tmp[1] = buf[bufOfset];
+                // set start bit
                 tmp[1] |= 1 << 7;
+                // remove end bit
+                tmp[1] &= ~(1 << 6);
+
                 bufOfset += 1;
                 size -= 1;
                 int currentSIx = 0;
                 while (size + 2 > MAX_PAYLOAD_SIZE) 
                 {
                     System.arraycopy(buf, bufOfset, tmp, 2, MAX_PAYLOAD_SIZE - 2);
-                    
+
                     nals.add(currentSIx++, tmp.clone());
-                    
+
                     bufOfset += MAX_PAYLOAD_SIZE - 2;
                     size -= MAX_PAYLOAD_SIZE - 2;
                     tmp[1] &= ~(1 << 7);
                 }
-                
+
                 byte[] tmp2 = new byte[size + 2];
                 tmp2[0] = tmp[0];
                 tmp2[1] = tmp[1];
                 tmp2[1] |= 1 << 6;
+
                 System.arraycopy(buf, bufOfset, tmp2, 2, size);
                 nals.add(currentSIx++, tmp2);
 
@@ -268,7 +268,7 @@ public class NativeEncoder
                 return BUFFER_PROCESSED_OK;
             }
         }
-        
+
         if (isEOM(inBuffer))
         {
             propagateEOM(outBuffer);
@@ -299,12 +299,23 @@ public class NativeEncoder
         // copy data to avpicture
         rawFrameBuffer.write(0, 
             (byte[])inBuffer.getData(), inBuffer.getOffset(), encFrameLen);
+
+        if(framesSinceLastIFrame >= IFRAME_INTERVAL )
+        {
+            avpicture.key_frame = 1;
+            framesSinceLastIFrame = 0;
+        }
+        else
+        {
+            framesSinceLastIFrame++;
+            avpicture.key_frame = 0;
+        }
         
         // encode data
         int encLen = 
             AVCODEC.avcodec_encode_video(
                 avcontext, encFrameBuffer, encFrameLen, avpicture);
-
+        
         byte[] r = encFrameBuffer.getByteArray(0, encLen);
 
         // split encoded data to nals
@@ -321,8 +332,15 @@ public class NativeEncoder
             prevIx = ix;
             ix = prevIx + 3;
         }
-        
+
         int len = ix - prevIx;
+        if(len < 0)
+        {
+            logger.warn("aaaa");
+            outBuffer.setDiscard(true);
+            return BUFFER_PROCESSED_OK;
+        }
+            
         byte[] b = new byte[len - 3];
         System.arraycopy(r, prevIx+ 3, b, 0, len-3);
         nals.add(b);
@@ -365,65 +383,100 @@ public class NativeEncoder
             if (outputFormat == null)
                 throw new ResourceUnavailableException(
                     "No output format selected");
-            
+
             AVCODEC.avcodec_init();
-            
+
             avcodec = AVCODEC.avcodec_find_encoder(AVCodecLibrary.CODEC_ID_H264);
             avcontext = AVCODEC.avcodec_alloc_context();
             avpicture = AVCODEC.avcodec_alloc_frame();
-            
+
+            avcontext.crf = 1f;
+
             avcontext.pix_fmt = AVFormatLibrary.PIX_FMT_YUV420P;
             avcontext.width  = DEF_WIDTH;
             avcontext.height = DEF_HEIGHT;
-            
+
             avcontext.time_base = new FFMPEGLibrary.AVRational(1, TARGET_FRAME_RATE);
-            
+
             avpicture.linesize[0] = DEF_WIDTH;
             avpicture.linesize[1] = DEF_WIDTH / 2;
             avpicture.linesize[2] = DEF_WIDTH / 2;
             //avpicture.quality = (int)10;
-            
-            avcontext.qcompress = 1;
-            
-            int _bitRate = 267000;
-            avcontext.bit_rate = (_bitRate * 3) >> 2; // average bit rate
-            
-            AVUTIL.av_log_set_callback(new AVUtilLibrary.LogCallback(){
 
-                public void callback(Pointer p, int l, String fmtS,
-                    Pointer va_list)
-                {
-                    logger.info("encoder: " + fmtS);
-                }});
+            avcontext.qcompress = 1;
+
+            int _bitRate = 48000;
+            avcontext.bit_rate = _bitRate; // average bit rate
+            avcontext.bit_rate_tolerance = _bitRate;// so to be 1 in x264
+            avcontext.rc_max_rate = _bitRate;
+            avcontext.sample_aspect_ratio.den = 0;
+            avcontext.sample_aspect_ratio.num = 0;
+            avcontext.thread_count = 0;
+            avcontext.time_base.den = 15;//25500; //???
+            avcontext.time_base.num = 1000;
+            avcontext.qmin = 10;
+            avcontext.qmax = 22;
+            avcontext.max_qdiff = 4;
+            
+            avcontext.partitions |= 0x111;
+            //X264_PART_I4X4 0x001  
+            //X264_PART_P8X8 0x010
+            //X264_PART_B8X8 0x100
+            
+            avcontext.flags |= AVCodecLibrary.CODEC_FLAG_PASS1;            
+            avcontext.mb_decision = AVCodecContext.FF_MB_DECISION_SIMPLE;
+
+            avcontext.rc_eq = "blurCplx^(1-qComp)";
+
+            avcontext.flags |= AVCodecLibrary.CODEC_FLAG_LOOP_FILTER;
+            avcontext.me_method = 1;
+            avcontext.me_subpel_quality = 5;
+            avcontext.me_range = 16;
+            avcontext.me_cmp |= AVCodecContext.FF_CMP_CHROMA;
+            avcontext.thread_count = 1;
+            avcontext.scenechange_threshold = 40;
+            avcontext.crf = 0;// Constant quality mode (also known as constant ratefactor)
+            //avcontext.rc_buffer_size = _bitRate * 64;
+            avcontext.gop_size = IFRAME_INTERVAL;
+            framesSinceLastIFrame = IFRAME_INTERVAL + 1;
+            avcontext.i_quant_factor = 1f/1.4f;
+
+//            AVUTIL.av_log_set_callback(new AVUtilLibrary.LogCallback(){
+//
+//                public void callback(Pointer p, int l, String fmtS,
+//                    Pointer va_list)
+//                {
+//                    logger.info("encoder: " + fmtS);
+//                }});
                
             if (AVCODEC.avcodec_open(avcontext, avcodec) < 0)
                  throw new RuntimeException("Could not open codec "); 
-            
+
             opened = true;
-            
+
             encFrameLen = (DEF_WIDTH * DEF_HEIGHT * 3) / 2;
-            
+
             rawFrameBuffer = AVUTIL.av_malloc(encFrameLen);
             encFrameBuffer = AVUTIL.av_malloc(encFrameLen);
-            
+
             int size = DEF_WIDTH * DEF_HEIGHT;
             avpicture.data0 = rawFrameBuffer;        
             avpicture.data1 = avpicture.data0.share(size);
             avpicture.data2 = avpicture.data1.share(size/4);
         }
     }
-    
+
     public synchronized void close()
     {
         if (opened)
         {
             super.close();
-            
+
             AVCODEC.avcodec_close(avcontext);
-            
+
             AVUTIL.av_free(avpicture.getPointer());
             AVUTIL.av_free(avcontext.getPointer());
-            
+
             AVUTIL.av_free(rawFrameBuffer);
             AVUTIL.av_free(encFrameBuffer);
         }

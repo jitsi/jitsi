@@ -24,12 +24,12 @@ public class NativeDecoder
     extends VideoCodec
 {
     private final Logger logger = Logger.getLogger(NativeDecoder.class);
-    
+
     // Instances for the ffmpeg lib
     private AVFormatLibrary AVFORMAT;
     private AVCodecLibrary AVCODEC;
     private AVUtilLibrary AVUTIL;
-    
+
     // The codec we will use
     private AVCodec avcodec;
     private AVCodecContext avcontext;
@@ -37,10 +37,10 @@ public class NativeDecoder
     private AVFrame avpicture;
     // Used to convert decoded data to RGB
     private AVFrame frameRGB;
-    
+
     // The parser used to parse rtp content
     private H264Parser parser = new H264Parser();
-    
+
     // supported sizes by the codec
     private Dimension[] supportedSizes = new Dimension[]
     {
@@ -50,15 +50,19 @@ public class NativeDecoder
             new Dimension(704, 576),
             //CIF
             new Dimension(352, 288),
+            new Dimension(320, 240),
             //QCIF
             new Dimension(176, 144),
             //SQCIF
             new Dimension(128, 96)
     };
-    
+
     // index of default size (output format)
-    private static final int defaultSizeIx = 2;
-    
+    private static int defaultSizeIx = 2;
+
+    // current width of video, so we can detect changes in video size
+    private double currentVideoWidth;
+
     /**
      * Constructs new h264 decoder
      */
@@ -69,17 +73,24 @@ public class NativeDecoder
             { 
                 new VideoFormat(Constants.H264_RTP)
             };
-        
+
         defaultOutputFormats = new VideoFormat[]
         { 
             new RGBFormat() 
         };
-        
+
         supportedOutputFormats = new VideoFormat[supportedSizes.length];
+        
+        Dimension targetVideoSize = 
+            new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
         
         for (int i = 0; i < supportedSizes.length; i++)
         {
             Dimension size = supportedSizes[i];
+            
+            if(size.equals(targetVideoSize))
+                defaultSizeIx = i;
+
             supportedOutputFormats[i] = 
               //PIX_FMT_RGB32
                 new RGBFormat(
@@ -96,7 +107,10 @@ public class NativeDecoder
                     Format.FALSE, 
                     Format.NOT_SPECIFIED);
         }
-        
+
+        currentVideoWidth = 
+            supportedOutputFormats[defaultSizeIx].getSize().getWidth();
+
         PLUGIN_NAME = "H.264 Decoder";
 
         AVFORMAT = AVFormatLibrary.INSTANCE;
@@ -111,7 +125,7 @@ public class NativeDecoder
     protected Format[] getMatchingOutputFormats(Format in)
     {
         VideoFormat ivf = (VideoFormat) in;
-        
+
         // return the default size/currently decoder and encoder 
         //set to transmit/receive at this size
         if(ivf.getSize() == null)
@@ -143,6 +157,13 @@ public class NativeDecoder
         else
             return null;
     }
+    
+    @Override
+    public Format setOutputFormat(Format format)
+    {
+        
+        return super.setOutputFormat(format);
+    }
 
     /**
      * Init the codec instances.
@@ -150,27 +171,27 @@ public class NativeDecoder
     public void open() throws ResourceUnavailableException
     {
         avcodec = AVCODEC.avcodec_find_decoder(AVCodecLibrary.CODEC_ID_H264);
-        
+
         avcontext = AVCODEC.avcodec_alloc_context();
-        
+
         if (AVCODEC.avcodec_open(avcontext, avcodec) < 0)
             throw new RuntimeException("Could not open codec "); 
-        
+
         avpicture = AVCODEC.avcodec_alloc_frame();
-        
+
         avcontext.lowres = 1;
-        
+
         avcontext.workaround_bugs = 1;
 
-        AVUTIL.av_log_set_callback(new AVUtilLibrary.LogCallback()
-        {
-
-            public void callback(Pointer p, int l, String fmtS, Pointer va_list)
-            {
-                logger.info("decoder: " + fmtS);
-
-            }
-        });
+//        AVUTIL.av_log_set_callback(new AVUtilLibrary.LogCallback()
+//        {
+//
+//            public void callback(Pointer p, int l, String fmtS, Pointer va_list)
+//            {
+//                logger.info("decoder: " + fmtS);
+//
+//            }
+//        });
 
         frameRGB = AVCODEC.avcodec_alloc_frame();
 
@@ -192,7 +213,7 @@ public class NativeDecoder
     }
 
     public int process(Buffer inputBuffer, Buffer outputBuffer)
-    {        
+    {
         if (!checkInputBuffer(inputBuffer))
         {            
             return BUFFER_PROCESSED_FAILED;
@@ -203,7 +224,7 @@ public class NativeDecoder
             propagateEOM(outputBuffer);
             return BUFFER_PROCESSED_OK;
         }
-        
+
         if(!parser.pushRTPInput(inputBuffer))
         {
             return OUTPUT_BUFFER_NOT_FILLED;
@@ -213,15 +234,25 @@ public class NativeDecoder
         IntByReference got_picture = new IntByReference();
         Pointer encBuf = AVUTIL.av_malloc(parser.getEncodedFrameLen());
         arraycopy(parser.getEncodedFrame(), 0, encBuf, 0, parser.getEncodedFrameLen());
-  
+
         // decodes the data
         AVCODEC.avcodec_decode_video(
             avcontext, avpicture, got_picture, encBuf, parser.getEncodedFrameLen());
 
+        if(currentVideoWidth != avcontext.width)
+        {
+            currentVideoWidth = avcontext.width;
+            VideoFormat format = getVideoFormat(currentVideoWidth);
+            if(format != null)
+            {
+                outputBuffer.setFormat(format);
+                outputFormat = format;
+            }
+        }
+
         if(got_picture.getValue() == 0)
         {
             outputBuffer.setDiscard(true);
-            
             AVUTIL.av_free(encBuf);
             
             return BUFFER_PROCESSED_OK;
@@ -231,7 +262,7 @@ public class NativeDecoder
         int numBytes = AVCODEC.avpicture_get_size(
             AVCodecLibrary.PIX_FMT_RGB32, avcontext.width, avcontext.height);
         Pointer buffer = AVUTIL.av_malloc(numBytes);
-        
+
         AVCODEC.avpicture_fill(
             frameRGB, buffer, AVCodecLibrary.PIX_FMT_RGB32, avcontext.width, avcontext.height);
 
@@ -239,19 +270,19 @@ public class NativeDecoder
         AVCODEC.img_convert(frameRGB, AVCodecLibrary.PIX_FMT_RGB32, 
             avpicture, avcontext.pix_fmt, avcontext.width, 
             avcontext.height);
-    
+
         int[] data = 
             frameRGB.data0.getIntArray(0, avcontext.height * avcontext.width);
         int[] outData = validateIntArraySize(outputBuffer, data.length);
         System.arraycopy(data, 0, outData, 0, data.length);
-        
+
         outputBuffer.setOffset(0);
         outputBuffer.setLength(outData.length);
         outputBuffer.setData(outData);
-    
+
         AVUTIL.av_free(encBuf);
         AVUTIL.av_free(buffer);
-    
+
         return BUFFER_PROCESSED_OK;
     }
 
@@ -284,5 +315,16 @@ public class NativeDecoder
         {
             return super.checkFormat(format);
         }
+    }
+
+    private VideoFormat getVideoFormat(double width)
+    {
+        for (int i = 0; i < supportedOutputFormats.length; i++)
+        {
+            VideoFormat vf = supportedOutputFormats[i];
+            if(vf.getSize().getWidth() == width)
+                return vf;
+        }
+        return null;
     }
 }
