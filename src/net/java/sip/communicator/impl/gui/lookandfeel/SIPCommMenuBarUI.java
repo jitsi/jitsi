@@ -29,6 +29,5 @@ public class SIPCommMenuBarUI
         super.installDefaults();
 
         LookAndFeel.installProperty(menuBar, "opaque", Boolean.FALSE);
-        LookAndFeel.installBorder(menuBar, null);
     }
 }
