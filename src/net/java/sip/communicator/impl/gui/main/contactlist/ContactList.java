@@ -570,6 +570,10 @@ public class ContactList
         int selectedIndex = this.getSelectedIndex();
         Object selectedValue = this.getSelectedValue();
 
+        // If there's no index selected we have nothing to do here.
+        if (selectedIndex < 0)
+            return;
+
         ContactListCellRenderer renderer
             = (ContactListCellRenderer) this.getCellRenderer()
                 .getListCellRendererComponent(  this,
@@ -756,11 +760,16 @@ public class ContactList
         {
             int index = this.locationToIndex(e.getPoint());
 
-            this.setSelectedIndex(index);
+            if (index != -1)
+                this.setSelectedIndex(index);
         }
 
         int selectedIndex = this.getSelectedIndex();
         Object selectedValue = this.getSelectedValue();
+
+        // If there's no index selected we have nothing to do here.
+        if (selectedIndex < 0)
+            return;
 
         ContactListCellRenderer renderer = (ContactListCellRenderer) this
             .getCellRenderer().getListCellRendererComponent(this,
