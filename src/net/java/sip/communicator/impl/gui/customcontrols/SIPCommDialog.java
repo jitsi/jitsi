@@ -400,11 +400,14 @@ public abstract class SIPCommDialog extends JDialog
             int borderSize = GuiActivator.getResources()
                 .getSettingsInt("mainWindowBorderSize");
 
-            this.setBorder(BorderFactory
-                .createEmptyBorder( borderSize,
-                                    borderSize,
-                                    borderSize,
-                                    borderSize));
+            if (isColorBgEnabled)
+            {
+                this.setBorder(BorderFactory
+                    .createEmptyBorder( borderSize,
+                                        borderSize,
+                                        borderSize,
+                                        borderSize));
+            }
         }
 
         public void paintComponent(Graphics g)

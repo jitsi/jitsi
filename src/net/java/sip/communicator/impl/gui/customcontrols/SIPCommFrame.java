@@ -430,11 +430,14 @@ public abstract class SIPCommFrame
             int borderSize = GuiActivator.getResources()
                 .getSettingsInt("mainWindowBorderSize");
 
-            this.setBorder(BorderFactory
-                .createEmptyBorder( borderSize,
-                                    borderSize,
-                                    borderSize,
-                                    borderSize));
+            if (isColorBgEnabled)
+            {
+                this.setBorder(BorderFactory
+                    .createEmptyBorder( borderSize,
+                                        borderSize,
+                                        borderSize,
+                                        borderSize));
+            }
         }
 
         public void paintComponent(Graphics g)
