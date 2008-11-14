@@ -57,8 +57,6 @@ public class HistoryWindow
 
     private SearchPanel searchPanel;
 
-    private JMenuBar historyMenuBar = new JMenuBar();
-
     private HistoryMenu historyMenu;
 
     private TransparentPanel northPanel
@@ -149,10 +147,6 @@ public class HistoryWindow
      */
     private void initPanels()
     {
-        this.historyMenuBar.add(historyMenu);
-
-        this.northPanel.add(historyMenuBar, BorderLayout.NORTH);
-
         this.northPanel.add(searchPanel, BorderLayout.CENTER);
 
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
