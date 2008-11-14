@@ -213,15 +213,23 @@ public class SIPCommTabbedPaneUI
             tabPane.putClientProperty("html", v);
         }
 
-        SwingUtilities.layoutCompoundLabel((JComponent) tabPane, metrics,
-                title, icon, SwingUtilities.CENTER, SwingUtilities.LEFT,
-                SwingUtilities.CENTER, SwingUtilities.CENTER, tabRect,
-                iconRect, textRect, 0);
+        SwingUtilities.layoutCompoundLabel((JComponent) tabPane,
+                                            metrics,
+                                            title,
+                                            icon,
+                                            SwingUtilities.CENTER,
+                                            SwingUtilities.LEFT,
+                                            SwingUtilities.CENTER,
+                                            SwingUtilities.CENTER,
+                                            tabRect,
+                                            iconRect,
+                                            textRect,
+                                            0);
 
         tabPane.putClientProperty("html", null);
 
         iconRect.x = tabRect.x + 5;
-        textRect.x = iconRect.x + iconRect.width;
+        textRect.x = iconRect.x + iconRect.width + 5;
 
     }
 
