@@ -404,6 +404,13 @@ public abstract class SIPCommFrame
 
     private class MainContentPane extends JPanel
     {
+        String isColorBgEnabledProp
+            = "net.java.sip.communicator.impl.gui.isWindowColorBackgroundEnabled";
+
+        boolean isColorBgEnabled = new Boolean(
+            GuiActivator.getResources().getSettingsString(isColorBgEnabledProp))
+                .booleanValue();
+
         Color bgStartColor = new Color(GuiActivator.getResources()
             .getColor("mainBackgroundStartColor"));
 
@@ -418,7 +425,7 @@ public abstract class SIPCommFrame
 
             this.setBackground(new Color(
                 GuiActivator.getResources()
-                .getColor("desktopBackgroundColor")));
+                .getColor("mainBackground")));
 
             int borderSize = GuiActivator.getResources()
                 .getSettingsInt("mainWindowBorderSize");
@@ -433,6 +440,11 @@ public abstract class SIPCommFrame
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
+
+            // If the custom color window background is not enabled we have
+            // nothing to do here.
+            if (!isColorBgEnabled)
+                return;
 
             Graphics2D g2 = (Graphics2D) g;
 
