@@ -38,8 +38,6 @@ public class ActionMenuPanel
                                             baseEndColor.getBlue(),
                                             220);
 
-    private boolean isSlideIn = false;
-
     public ActionMenuPanel()
     {
         super(new FlowLayout(FlowLayout.LEFT, 15, 15));
@@ -154,29 +152,15 @@ public class ActionMenuPanel
 
         FadeTracker fadeTracker = FadeTracker.getInstance();
 
-        float animation;
-        if (isSlideIn)
-            animation = 1.0f;
-        else
-            animation = 0.0f;
-
-        if (fadeTracker.isTracked(this, AnimationUtils.SLIDE_ANIMATION))
-        {
-            animation
-                = fadeTracker.getFade(this, AnimationUtils.SLIDE_ANIMATION);
-        }
-
-        int height = (int) (getHeight()*animation);
-
         g2.setPaint(p);
         g2.fillRoundRect(0, 0,
             this.getWidth() - 1,
-            height - 1, 15, 15);
+            this.getHeight() - 1, 15, 15);
 
         g2.setColor(baseStartColor);
         g2.drawRoundRect(0, 0,
             this.getWidth() - 1,
-            height - 1, 15, 15);
+            this.getHeight() - 1, 15, 15);
     }
 
     public void actionPerformed(ActionEvent e)
@@ -249,16 +233,6 @@ public class ActionMenuPanel
 
         showOfflineButton.repaint();
         this.getParent().repaint();
-    }
-
-    public boolean isSlideIn()
-    {
-        return isSlideIn;
-    }
-
-    public void setSlideIn(boolean isSlideIn)
-    {
-        this.isSlideIn = isSlideIn;
     }
 
     /**

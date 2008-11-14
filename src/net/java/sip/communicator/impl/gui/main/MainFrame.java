@@ -1549,68 +1549,9 @@ public class MainFrame
             if (isVisible() && rootPane != null)
                 rootPane.setGlassPane(glassPane);
 
-            FadeTracker fadeTracker = FadeTracker.getInstance();
-
-            if (!glassPane.isVisible())
-            {
-                fadeTracker.trackFadeIn(AnimationUtils.SLIDE_ANIMATION,
-                                        actionMenuPanel,
-                                        null,
-                                        true,
-                                        new MenuRepaintCallback(actionMenuPanel),
-                                        AnimationKind.REGULAR);
-
-                actionMenuPanel.setSlideIn(true);
-            }
-            else
-            {
-                fadeTracker.trackFadeOut(AnimationUtils.SLIDE_ANIMATION,
-                    actionMenuPanel,
-                    null,
-                    true,
-                    new MenuRepaintCallback(actionMenuPanel),
-                    AnimationKind.REGULAR);
-
-                actionMenuPanel.setSlideIn(false);
-            }
-
+            glassPane.revalidate();
             glassPane.setVisible(!glassPane.isVisible());
+            glassPane.repaint();
         }
-    }
-
-    protected class MenuRepaintCallback
-        implements FadeTrackerCallback
-    {
-        private ActionMenuPanel actionMenu;
-
-        public MenuRepaintCallback(ActionMenuPanel actionMenu)
-        {
-            this.actionMenu = actionMenu;
-        }
-
-        public void fadeEnded(FadeKind arg0)
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    actionMenu.repaint();
-                }
-            });
-        }
-
-        public void fadePerformed(FadeKind arg0, float arg1)
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    actionMenu.repaint();
-                }
-            });
-        }
-
-        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
-        {}
     }
 }
