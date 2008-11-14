@@ -40,8 +40,6 @@ public class CallParticipantPanel
      */
     private final Date callStartTime = new Date(System.currentTimeMillis());
 
-    private Date conversationStartTime;
-
     private Date callDuration;
 
     private Timer timer;
@@ -458,7 +456,6 @@ public class CallParticipantPanel
      */
     public void startCallTimer()
     {
-        this.conversationStartTime = new Date(System.currentTimeMillis());
         this.timer.start();
     }
 
@@ -481,23 +478,12 @@ public class CallParticipantPanel
         {
             Date time =
                 GuiUtils.substractDates(new Date(System.currentTimeMillis()),
-                    conversationStartTime);
+                    new Date(callParticipant.getCallDurationStartTime()));
 
             callDuration.setTime(time.getTime());
 
             timeLabel.setText(GuiUtils.formatTime(time));
         }
-    }
-
-    /**
-     * Returns the start time of the conversation. If no conversation was made
-     * will return null.
-     * 
-     * @return the start time of the conversation
-     */
-    public Date getConversationStartTime()
-    {
-        return conversationStartTime;
     }
 
     /**

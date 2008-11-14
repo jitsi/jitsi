@@ -6,10 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.*;
+import java.net.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import java.net.*;
 
 /**
  * The CallParticipant is an interface that represents participants in a call.
@@ -26,6 +25,14 @@ import java.net.*;
  */
 public interface CallParticipant
 {
+
+    /**
+     * The constant indicating that a <code>CallParticipant</code> has not yet
+     * transitioned into a state marking the beginning of a participation in a
+     * <code>Call</code> or that such a transition may have happened but the
+     * time of its occurrence is unknown.
+     */
+    public static final long CALL_DURATION_START_TIME_UNKNOWN = 0;
 
     /**
      * Returns a unique identifier representing this participant. Identifiers
@@ -81,18 +88,22 @@ public interface CallParticipant
     public void removeCallParticipantListener(CallParticipantListener listener);
 
     /**
-     * Returns the date (time) when this call participant acquired its current
-     * status. This method is to be used by the phone ui interface in order
-     * to show the duration of a call.
-     * @return a java.util.Date object containing the date when this call
-     * participant entered its current state.
+     * Gets the time at which this <code>CallParticipant</code> transitioned
+     * into a state (likely {@link CallParticipantState#CONNECTED}) marking the
+     * start of the duration of the participation in a <code>Call</code>.
+     * 
+     * @return the time at which this <code>CallParticipant</code> transitioned
+     *         into a state marking the start of the duration of the
+     *         participation in a <code>Call</code> or
+     *         {@link #CALL_DURATION_START_TIME_UNKNOWN} if such a transition
+     *         has not been performed
      */
-    public Date getCurrentStateStartDate();
+    long getCallDurationStartTime();
 
     /**
      * Returns a string representation of the participant in the form of
      * <br>
-     * Display Name <address>;status=CallParticipantStatus
+     * Display Name &lt;address&gt;;status=CallParticipantStatus
      * @return a string representation of the participant and its state.
      */
     public String toString();

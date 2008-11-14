@@ -6,18 +6,17 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.*;
 import java.net.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-
 /**
- * The DefaultCallParticipant provides a default implementation for most of the
- * CallParticpant methods with the purpose of only leaving custom protocol
- * development to clients using the PhoneUI service.
- *
+ * Provides a default implementation for most of the
+ * <code>CallParticipant</code> methods with the purpose of only leaving custom
+ * protocol development to clients using the PhoneUI service.
+ * 
  * @author Emil Ivov
  */
 public abstract class AbstractCallParticipant
@@ -29,8 +28,15 @@ public abstract class AbstractCallParticipant
     /**
      * All the CallParticipant listeners registered with this CallParticipant.
      */
-    protected ArrayList<CallParticipantListener> callParticipantListeners
+    protected final List<CallParticipantListener> callParticipantListeners
                             = new ArrayList<CallParticipantListener>();
+
+    /**
+     * The state of the call participant.
+     */
+    private CallParticipantState state = CallParticipantState.UNKNOWN;
+
+    private long callDurationStartTime = CALL_DURATION_START_TIME_UNKNOWN;
 
     /**
      * Registers the <tt>listener</tt> to the list of listeners that would be
@@ -42,7 +48,7 @@ public abstract class AbstractCallParticipant
         synchronized(callParticipantListeners)
         {
             if (!callParticipantListeners.contains(listener))
-                this.callParticipantListeners.add(listener);
+                callParticipantListeners.add(listener);
         }
     }
 
@@ -52,10 +58,10 @@ public abstract class AbstractCallParticipant
      */
     public void removeCallParticipantListener(CallParticipantListener listener)
     {
+        if (listener == null)
+            return;
         synchronized(callParticipantListeners)
         {
-            if (listener == null)
-                return;
             callParticipantListeners.remove(listener);
         }
     }
@@ -136,8 +142,8 @@ public abstract class AbstractCallParticipant
 
     /**
      * Returns a string representation of the participant in the form of
-     * <br>
-     * Display Name <address>;status=CallParticipantStatus
+     * <br/>
+     * Display Name &lt;address&gt;;status=CallParticipantStatus
      * @return a string representation of the participant and its state.
      */
     public String toString()
@@ -160,6 +166,76 @@ public abstract class AbstractCallParticipant
         //if signaling protocols (such as SIP) know where to get this URL from
         //they should override this method
         return null;
+    }
+
+    /**
+     * Returns an object representing the current state of that participant.
+     *
+     * @return a CallParticipantState instance representin the participant's
+     *   state.
+     */
+    public CallParticipantState getState()
+    {
+        return state;
+    }
+
+    /**
+     * Causes this CallParticipant to enter the specified state. The method also
+     * sets the currentStateStartDate field and fires a
+     * CallParticipantChangeEvent.
+     *
+     * @param newState the state this call participant should enter.
+     * @param reason a string that could be set to contain a human readable
+     * explanation for the transition (particularly handy when moving into a
+     * FAILED state).
+     */
+    public void setState(CallParticipantState newState, String reason)
+    {
+        CallParticipantState oldState = getState();
+
+        if(oldState == newState)
+            return;
+
+        this.state = newState;
+
+        if (CallParticipantState.CONNECTED.equals(newState)
+            && !CallParticipantState.isOnHold(oldState))
+        {
+            callDurationStartTime = System.currentTimeMillis();
+        }
+
+        fireCallParticipantChangeEvent(
+                CallParticipantChangeEvent.CALL_PARTICIPANT_STATE_CHANGE,
+                oldState,
+                newState);
+    }
+
+    /**
+     * Causes this CallParticipant to enter the specified state. The method also
+     * sets the currentStateStartDate field and fires a
+     * CallParticipantChangeEvent.
+     *
+     * @param newState the state this call participant should enter.
+     */
+    public void setState(CallParticipantState newState)
+    {
+        setState(newState, null);
+    }
+
+    /**
+     * Gets the time at which this <code>CallParticipant</code> transitioned
+     * into a state (likely {@link CallParticipantState#CONNECTED}) marking the
+     * start of the duration of the participation in a <code>Call</code>.
+     * 
+     * @return the time at which this <code>CallParticipant</code> transitioned
+     *         into a state marking the start of the duration of the
+     *         participation in a <code>Call</code> or
+     *         {@link CallParticipant#CALL_DURATION_START_TIME_UNKNOWN} if such
+     *         a transition has not been performed
+     */
+    public long getCallDurationStartTime()
+    {
+        return callDurationStartTime;
     }
 
     /**

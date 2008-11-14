@@ -6,16 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.net.*;
 import java.text.*;
-import java.util.*;
+import javax.sip.*;
 import javax.sip.address.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import javax.sip.*;
-import java.net.*;
 
 /**
  * Our SIP implementation of the default CallParticipant;
@@ -32,16 +31,6 @@ public class CallParticipantSipImpl
      * The sip address of this participant
      */
     private Address participantAddress = null;
-
-    /**
-     * The state of the call participant.
-     */
-    protected CallParticipantState callParticipantState =
-                                                   CallParticipantState.UNKNOWN;
-    /**
-     * Indicates the date when  is call participant passed into its current state.
-     */
-    protected Date currentStateStartDate = new Date();
 
     /**
      * A byte array containing the image/photo representing the call participant.
@@ -145,68 +134,6 @@ public class CallParticipantSipImpl
                 CallParticipantChangeEvent.CALL_PARTICIPANT_ADDRESS_CHANGE,
                 oldAddress,
                 address.toString());
-    }
-
-    /**
-     * Returns an object representing the current state of that participant.
-     *
-     * @return a CallParticipantState instance representin the participant's
-     *   state.
-     */
-    public CallParticipantState getState()
-    {
-        return callParticipantState;
-    }
-
-    /**
-     * Causes this CallParticipant to enter the specified state. The method also
-     * sets the currentStateStartDate field and fires a
-     * CallParticipantChangeEvent.
-     *
-     * @param newState the state this call participant should enter.
-     * @param reason a string that could be set to contain a human readable
-     * explanation for the transition (particularly handy when moving into a
-     * FAILED state).
-     */
-    protected void setState(CallParticipantState newState, String reason)
-    {
-        CallParticipantState oldState = getState();
-
-        if(oldState == newState)
-            return;
-
-        this.callParticipantState = newState;
-        this.currentStateStartDate = new Date();
-        fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_STATE_CHANGE,
-                oldState,
-                newState);
-    }
-
-    /**
-     * Causes this CallParticipant to enter the specified state. The method also
-     * sets the currentStateStartDate field and fires a
-     * CallParticipantChangeEvent.
-     *
-     * @param newState the state this call participant should enter.
-     */
-    protected void setState(CallParticipantState newState)
-    {
-        setState(newState, null);
-    }
-
-
-
-    /**
-     * Returns the date (time) when this call participant acquired its
-     * current status.
-     *
-     * @return a java.util.Date object containing the date when this call
-     *   participant entered its current state.
-     */
-    public Date getCurrentStateStartDate()
-    {
-        return currentStateStartDate;
     }
 
     /**

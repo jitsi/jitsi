@@ -6,11 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 import org.jivesoftware.smackx.jingle.*;
 
 /**
@@ -22,26 +19,11 @@ import org.jivesoftware.smackx.jingle.*;
 public class CallParticipantJabberImpl
     extends AbstractCallParticipant
 {
-    /**
-     * Logger of this class
-     */
-    private static final Logger logger
-        = Logger.getLogger(CallParticipantJabberImpl.class);
 
     /**
      * The jabber address of this participant
      */
     private String participantAddress = null;
-
-    /**
-     * The state of the call participant.
-     */
-    protected CallParticipantState callParticipantState =
-                                                   CallParticipantState.UNKNOWN;
-    /**
-     * Indicates the date when  is call participant passed into its current state.
-     */
-    protected Date currentStateStartDate = new Date();
 
     /**
      * A byte array containing the image/photo representing the call participant.
@@ -116,66 +98,6 @@ public class CallParticipantJabberImpl
     }
 
     /**
-     * Returns an object representing the current state of that participant.
-     *
-     * @return a CallParticipantState instance representing the participant's
-     *   state.
-     */
-    public CallParticipantState getState()
-    {
-        return callParticipantState;
-    }
-
-    /**
-     * Causes this CallParticipant to enter the specified state. The method also
-     * sets the currentStateStartDate field and fires a
-     * CallParticipantChangeEvent.
-     *
-     * @param newState the state this call participant should enter.
-     * @param reason a string that could be set to contain a human readable
-     * explanation for the transition (particularly handy when moving into a
-     * FAILED state).
-     */
-    protected void setState(CallParticipantState newState, String reason)
-    {
-        CallParticipantState oldState = getState();
-
-        if(oldState == newState)
-            return;
-
-        this.callParticipantState = newState;
-        this.currentStateStartDate = new Date();
-        fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_STATE_CHANGE,
-                oldState,
-                newState);
-    }
-
-    /**
-     * Causes this CallParticipant to enter the specified state. The method also
-     * sets the currentStateStartDate field and fires a
-     * CallParticipantChangeEvent.
-     *
-     * @param newState the state this call participant should enter.
-     */
-    protected void setState(CallParticipantState newState)
-    {
-        setState(newState, null);
-    }
-
-    /**
-     * Returns the date (time) when this call participant acquired its
-     * current status.
-     *
-     * @return a java.util.Date object containing the date when this call
-     *   participant entered its current state.
-     */
-    public Date getCurrentStateStartDate()
-    {
-        return currentStateStartDate;
-    }
-
-    /**
      * Returns a human readable name representing this participant.
      *
      * @return a String containing a name for that participant.
@@ -195,21 +117,6 @@ public class CallParticipantJabberImpl
             }
         }
         return participantAddress;
-    }
-
-    /**
-     * Sets a human readable name representing this participant.
-     *
-     * @param displayName the participant's display name
-     */
-    protected void setDisplayName(String displayName)
-    {
-        String oldName = getDisplayName();
-
-//        fireCallParticipantChangeEvent(
-//                CallParticipantChangeEvent.CALL_PARTICIPANT_DISPLAY_NAME_CHANGE,
-//                oldName,
-//                displayName);
     }
 
     /**
