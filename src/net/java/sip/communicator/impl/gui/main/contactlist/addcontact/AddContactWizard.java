@@ -217,4 +217,14 @@ public class AddContactWizard
     {
         return mainFrame;
     }
+    
+    /**
+     * Sets the unique contact ID string in the wizard.
+     *
+     * @param UIN the unique contact ID string
+     */
+    void setUIN(String UIN)
+    {
+        this.page3.setUIN(UIN);
+    }
 }

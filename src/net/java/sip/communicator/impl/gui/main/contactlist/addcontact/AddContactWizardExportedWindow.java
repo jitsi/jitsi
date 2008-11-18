@@ -30,7 +30,7 @@ public class AddContactWizardExportedWindow
     /**
      * The <code>AddContactWizard</code> adapted by this instance.
      */
-    private Window wizard;
+    private AddContactWizard wizard;
 
     /**
      * Initializes a new <code>AddContactWizardExportedWindow</code> which is to
@@ -66,7 +66,7 @@ public class AddContactWizardExportedWindow
      * 
      * @return the <code>AddContactWizard</code> adapted by this instance
      */
-    private Window getWizard()
+    private AddContactWizard getWizard()
     {
         if (wizard == null)
         {
@@ -121,5 +121,14 @@ public class AddContactWizardExportedWindow
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
-    public void setParams(Object[] windowParams) {}
+    public void setParams(Object[] windowParams)
+    {
+        if( windowParams != null
+            && windowParams.length > 0
+            && windowParams[0] instanceof String)
+            this.getWizard().setUIN((String) windowParams[0]);
+        else
+            this.getWizard().setUIN("");
+    }
+
 }
