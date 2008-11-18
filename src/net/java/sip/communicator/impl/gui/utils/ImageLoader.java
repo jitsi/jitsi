@@ -487,6 +487,20 @@ public class ImageLoader {
         new ImageID("SECURE_BUTTON_OFF");
 
     /**
+     * The button icon of the Enter Full Screen command. The icon shown in the
+     * CallParticipant panel.
+     */
+    public static final ImageID ENTER_FULL_SCREEN_BUTTON =
+        new ImageID("ENTER_FULL_SCREEN_BUTTON");
+
+    /**
+     * The button icon of the Exit Full Screen command. The icon shown in the
+     * CallParticipant panel.
+     */
+    public static final ImageID EXIT_FULL_SCREEN_BUTTON =
+        new ImageID("EXIT_FULL_SCREEN_BUTTON");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO

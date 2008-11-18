@@ -49,6 +49,38 @@ public class FitLayout
         return (components.length > 0) ? components[0] : null;
     }
 
+    protected void layoutComponent(Component component, Rectangle bounds,
+        float alignmentX, float alignmentY)
+    {
+        Dimension componentSize = component.getPreferredSize();
+        boolean scale = false;
+        double ratio = 1;
+
+        if ((componentSize.width != bounds.width) && (componentSize.width > 0))
+        {
+            scale = true;
+            ratio = bounds.width / (double) componentSize.width;
+        }
+        if ((componentSize.height != bounds.height)
+            && (componentSize.height > 0))
+        {
+            scale = true;
+            ratio =
+                Math.min(bounds.height / (double) componentSize.height, ratio);
+        }
+        if (scale)
+        {
+            componentSize.width = (int) (componentSize.width * ratio);
+            componentSize.height = (int) (componentSize.height * ratio);
+        }
+
+        component.setBounds(bounds.x
+            + Math.round((bounds.width - componentSize.width) * alignmentX),
+            bounds.y
+                + Math.round((bounds.height - componentSize.height)
+                    * alignmentY), componentSize.width, componentSize.height);
+    }
+
     /*
      * Scales the first Component if its preferred size is larger than the size
      * of its parent Container in order to display the Component in its entirety
@@ -59,36 +91,8 @@ public class FitLayout
         Component component = getComponent(parent);
 
         if (component != null)
-        {
-            Dimension componentSize = component.getPreferredSize();
-            Dimension parentSize = parent.getSize();
-            boolean scale = false;
-            double ratio = 1;
-
-            if ((componentSize.width > parentSize.width)
-                && (componentSize.width > 0))
-            {
-                scale = true;
-                ratio = parentSize.width / (double) componentSize.width;
-            }
-            if ((componentSize.height > parentSize.height)
-                && (componentSize.height > 0))
-            {
-                scale = true;
-                ratio =
-                    Math.min(parentSize.height / (double) componentSize.height,
-                        ratio);
-            }
-            if (scale)
-            {
-                componentSize.width = (int) (componentSize.width * ratio);
-                componentSize.height = (int) (componentSize.height * ratio);
-            }
-
-            component.setBounds((parentSize.width - componentSize.width) / 2,
-                (parentSize.height - componentSize.height) / 2,
-                componentSize.width, componentSize.height);
-        }
+            layoutComponent(component, new Rectangle(parent.getSize()),
+                Component.CENTER_ALIGNMENT, Component.CENTER_ALIGNMENT);
     }
 
     /*

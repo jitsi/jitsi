@@ -34,6 +34,12 @@ public interface OperationSetVideoTelephony
      */
     void addVideoListener(CallParticipant participant, VideoListener listener);
 
+    Component createLocalVisualComponent(CallParticipant participant,
+        VideoListener listener) throws OperationFailedException;
+
+    void disposeLocalVisualComponent(CallParticipant participant,
+        Component component);
+
     /**
      * Gets the visual/video <code>Component</code>s available in this telephony
      * for a specific <code>CallParticipant</code>.

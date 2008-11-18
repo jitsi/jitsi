@@ -19,6 +19,9 @@ import java.util.*;
 public class VideoEvent
     extends EventObject
 {
+    public static final int LOCAL = 1;
+
+    public static final int REMOTE = 2;
 
     /**
      * The type of a <code>VideoEvent</code> which notifies about a specific
@@ -33,6 +36,17 @@ public class VideoEvent
      * available by the firing provider.
      */
     public static final int VIDEO_REMOVED = 2;
+
+    /**
+     * The indicator which determines whether this event and, more specifically,
+     * the visual <code>Component</code> it describes have been consumed and
+     * should be considered owned, referenced (which is important because
+     * <code>Component</code>s belong to a single <code>Container</code> at a
+     * time).
+     */
+    private boolean consumed;
+
+    private final int origin;
 
     /**
      * The type of availability change this <code>VideoEvent</code> notifies
@@ -60,13 +74,33 @@ public class VideoEvent
      * @param visualComponent the visual <code>Component</code> depicting video
      *            which had its availability in the <code>source</code> provider
      *            changed
+     * @param origin
      */
-    public VideoEvent(Object source, int type, Component visualComponent)
+    public VideoEvent(Object source, int type, Component visualComponent,
+        int origin)
     {
         super(source);
 
         this.type = type;
         this.visualComponent = visualComponent;
+        this.origin = origin;
+    }
+
+    /**
+     * Consumes this event and, more specifically, marks the
+     * <code>Component</code> it describes as owned, referenced in order to let
+     * other potential consumers know about its current ownership status (which
+     * is important because <code>Component</code>s belong to a single
+     * <code>Container</code> at a time).
+     */
+    public void consume()
+    {
+        consumed = true;
+    }
+
+    public int getOrigin()
+    {
+        return origin;
     }
 
     /**
@@ -95,5 +129,23 @@ public class VideoEvent
     public Component getVisualComponent()
     {
         return visualComponent;
+    }
+
+    /**
+     * Determines whether this event and, more specifically, the visual
+     * <code>Component</code> it describes have been consumed and should be
+     * considered owned, referenced (which is important because
+     * <code>Component</code>s belong to a single <code>Container</code> at a
+     * time).
+     * 
+     * @return <tt>true</tt> if this event and, more specifically, the visual
+     *         <code>Component</code> it describes have been consumed and should
+     *         be considered owned, referenced (which is important because
+     *         <code>Component</code>s belong to a single <code>Container</code>
+     *         at a time); otherwise, <tt>false</tt>
+     */
+    public boolean isConsumed()
+    {
+        return consumed;
     }
 }

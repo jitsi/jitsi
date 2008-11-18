@@ -52,6 +52,8 @@ public class MediaControl
      */
     private MutePushBufferDataSource muteAudioDataSource;
 
+    private SourceCloneable cloneableVideoDataSource;
+
     /**
      * SDP Codes of all video formats that JMF supports.
      */
@@ -402,6 +404,19 @@ public class MediaControl
             
             // we will check video sizes and will set the most appropriate one
             selectVideoSize(videoDataSource);
+
+            DataSource cloneableVideoDataSource =
+                Manager.createCloneableDataSource(videoDataSource);
+            if (cloneableVideoDataSource == null)
+            {
+                this.cloneableVideoDataSource = null;
+            }
+            else
+            {
+                videoDataSource = cloneableVideoDataSource;
+                this.cloneableVideoDataSource =
+                    (SourceCloneable) cloneableVideoDataSource;
+            }
         }
 
         // Create the av data source
@@ -1336,5 +1351,11 @@ public class MediaControl
 
         if(targetFormat != null)
             fControl.setFormat(targetFormat);
+    }
+
+    public DataSource createLocalVideoDataSource()
+    {
+        return (cloneableVideoDataSource == null) ? null
+            : cloneableVideoDataSource.createClone();
     }
 }

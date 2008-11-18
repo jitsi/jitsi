@@ -207,6 +207,9 @@ public class CallSessionImpl
      */
     private byte onHold;
 
+    private final Map<Component, LocalVisualComponentData> localVisualComponents =
+        new HashMap<Component, LocalVisualComponentData>();
+
     /**
      * List of RTP format strings which are supported by SIP Communicator in addition
      * to the JMF standard formats.
@@ -2321,7 +2324,8 @@ public class CallSessionImpl
                 Component visualComponent = getVisualComponent(player);
                 if (visualComponent != null)
                 {
-                    fireVideoEvent(VideoEvent.VIDEO_REMOVED, visualComponent);
+                    fireVideoEvent(VideoEvent.VIDEO_REMOVED, visualComponent,
+                        VideoEvent.REMOTE);
                 }
 
                 player.deallocate();
@@ -2627,7 +2631,8 @@ public class CallSessionImpl
             Component visualComponent = player.getVisualComponent();
             if (visualComponent != null)
             {
-                fireVideoEvent(VideoEvent.VIDEO_ADDED, visualComponent);
+                fireVideoEvent(VideoEvent.VIDEO_ADDED, visualComponent,
+                    VideoEvent.REMOTE);
             }
         }
         else if (ce instanceof StartEvent)
@@ -2964,6 +2969,100 @@ public class CallSessionImpl
         }
     }
 
+    public Component createLocalVisualComponent(final VideoListener listener)
+        throws MediaException
+    {
+        DataSource dataSource =
+            mediaServCallback.getMediaControl(getCall())
+                .createLocalVideoDataSource();
+
+        if (dataSource != null)
+        {
+            Player player;
+
+            try
+            {
+                player = Manager.createPlayer(dataSource);
+            }
+            catch (IOException ex)
+            {
+                throw new MediaException(
+                    "Failed to create Player for local video DataSource.",
+                    MediaException.IO_ERROR, ex);
+            }
+            catch (NoPlayerException ex)
+            {
+                throw new MediaException(
+                    "Failed to create Player for local video DataSource.",
+                    MediaException.INTERNAL_ERROR, ex);
+            }
+
+            player.addControllerListener(new ControllerListener()
+            {
+                public void controllerUpdate(ControllerEvent event)
+                {
+                    controllerUpdateForCreateLocalVisualComponent(event,
+                        listener);
+                }
+            });
+            player.start();
+        }
+        return null;
+    }
+
+    private void controllerUpdateForCreateLocalVisualComponent(
+        ControllerEvent controllerEvent, VideoListener listener)
+    {
+        if (controllerEvent instanceof RealizeCompleteEvent)
+        {
+            Player player = (Player) controllerEvent.getSourceController();
+            Component visualComponent = player.getVisualComponent();
+
+            if (visualComponent != null)
+            {
+                VideoEvent videoEvent =
+                    new VideoEvent(this, VideoEvent.VIDEO_ADDED,
+                        visualComponent, VideoEvent.LOCAL);
+
+                listener.videoAdded(videoEvent);
+
+                if (videoEvent.isConsumed())
+                {
+                    localVisualComponents.put(visualComponent,
+                        new LocalVisualComponentData(player, listener));
+                }
+            }
+        }
+    }
+
+    public void disposeLocalVisualComponent(Component component)
+    {
+        if (component == null)
+            throw new IllegalArgumentException("component");
+
+        LocalVisualComponentData data = localVisualComponents.get(component);
+        if (data != null)
+        {
+            Player player = data.player;
+
+            player.stop();
+            player.deallocate();
+            player.close();
+            localVisualComponents.remove(component);
+
+            VideoListener listener = data.listener;
+
+            if (listener != null)
+            {
+                VideoEvent videoEvent =
+                    new VideoEvent(this, VideoEvent.VIDEO_REMOVED, component,
+                        VideoEvent.LOCAL);
+
+                listener.videoRemoved(videoEvent);
+            }
+        }
+    }
+
     /*
      * Gets the visual Components of the #players of this CallSession by calling
      * Player#getVisualComponent(). Ignores the failures to access the visual
@@ -3033,8 +3132,10 @@ public class CallSessionImpl
      * @param visualComponent the visual <code>Component</code> depicting video
      *            which has been added or removed in this
      *            <code>CallSession</code>
+     * @param origin
      */
-    protected void fireVideoEvent(int type, Component visualComponent)
+    protected void fireVideoEvent(int type, Component visualComponent,
+        int origin)
     {
         VideoListener[] listeners;
 
@@ -3047,7 +3148,8 @@ public class CallSessionImpl
 
         if (listeners.length > 0)
         {
-            VideoEvent event = new VideoEvent(this, type, visualComponent);
+            VideoEvent event =
+                new VideoEvent(this, type, visualComponent, origin);
 
             for (int listenerIndex = 0; listenerIndex < listeners.length; listenerIndex++)
             {
@@ -3063,6 +3165,19 @@ public class CallSessionImpl
                     break;
                 }
             }
+        }
+    }
+
+    private static class LocalVisualComponentData
+    {
+        public final VideoListener listener;
+
+        public final Player player;
+
+        public LocalVisualComponentData(Player player, VideoListener listener)
+        {
+            this.player = player;
+            this.listener = listener;
         }
     }
 }

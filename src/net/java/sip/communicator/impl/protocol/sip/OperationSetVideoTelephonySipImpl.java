@@ -50,6 +50,40 @@ public class OperationSetVideoTelephonySipImpl
                 new InternalVideoListener(this, participant, listener));
     }
 
+    public Component createLocalVisualComponent(CallParticipant participant,
+        VideoListener listener) throws OperationFailedException
+    {
+        CallSession callSession =
+            ((CallSipImpl) participant.getCall()).getMediaCallSession();
+
+        if (callSession != null)
+        {
+            try
+            {
+                return callSession.createLocalVisualComponent(listener);
+            }
+            catch (MediaException ex)
+            {
+                throw new OperationFailedException(
+                    "Failed to create visual Component for local video (capture).",
+                    OperationFailedException.INTERNAL_ERROR, ex);
+            }
+        }
+        return null;
+    }
+
+    public void disposeLocalVisualComponent(CallParticipant participant,
+        Component component)
+    {
+        CallSession callSession =
+            ((CallSipImpl) participant.getCall()).getMediaCallSession();
+
+        if (callSession != null)
+        {
+            callSession.disposeLocalVisualComponent(component);
+        }
+    }
+
     /*
      * Delegates to the CallSession of the Call of the specified CallParticipant
      * because the video is provided by the CallSession in the SIP protocol
@@ -176,8 +210,8 @@ public class OperationSetVideoTelephonySipImpl
          */
         public void videoAdded(VideoEvent event)
         {
-            delegate.videoAdded(new VideoEvent(this, VideoEvent.VIDEO_ADDED,
-                event.getVisualComponent()));
+            delegate.videoAdded(new VideoEvent(this, event.getType(), event
+                .getVisualComponent(), event.getOrigin()));
         }
 
         /*
@@ -189,8 +223,8 @@ public class OperationSetVideoTelephonySipImpl
          */
         public void videoRemoved(VideoEvent event)
         {
-            delegate.videoAdded(new VideoEvent(this, VideoEvent.VIDEO_REMOVED,
-                event.getVisualComponent()));
+            delegate.videoAdded(new VideoEvent(this, event.getType(), event
+                .getVisualComponent(), event.getOrigin()));
         }
     }
 }

@@ -92,7 +92,7 @@ public class TransferCallButton
             if (telephony != null)
             {
                 final TransferCallDialog dialog =
-                    new TransferCallDialog(getFrame());
+                    new TransferCallDialog(getFrame(this));
 
                 /*
                  * Transferring a call works only when the call is in progress
@@ -165,7 +165,7 @@ public class TransferCallButton
      * <code>OperationSetBasicTelephony</code> to have a specific address.
      *
      * @param telephony the <code>OperationSetBasicTelephony</code> to have its
-     *            <code>CallParticipant</code>s examed in search for one which
+     *            <code>CallParticipant</code>s examined in search for one which
      *            has a specific address
      * @param address the address to locate the associated
      *            <code>CallParticipant</code> of
@@ -245,20 +245,21 @@ public class TransferCallButton
 
     /**
      * Gets the first <code>Frame</code> in the ancestor <code>Component</code>
-     * hierarchy of this button.
+     * hierarchy of a specific <code>Component</code>.
      * <p>
-     * The located <code>Frame</code> (if any) is used as the owner of
-     * <code>Dialog</code>s opened by this button in order to provide natural
-     * <code>Frame</code> ownership.
+     * The located <code>Frame</code> (if any) is often used as the owner of
+     * <code>Dialog</code>s opened by the specified <code>Component</code> in
+     * order to provide natural <code>Frame</code> ownership.
      * </p>
      * 
      * @return the first <code>Frame</code> in the ancestor
-     *         <code>Component</code> hierarchy of this button; <tt>null</tt>,
-     *         if no such <code>Frame</code> was located
+     *         <code>Component</code> hierarchy of the specified
+     *         <code>Component</code>; <tt>null</tt>, if no such
+     *         <code>Frame</code> was located
      */
-    private Frame getFrame()
+    public static Frame getFrame(Component component)
     {
-        for (Component component = this; component != null;)
+        while (component != null)
         {
             Container container = component.getParent();
 

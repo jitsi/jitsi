@@ -1,0 +1,88 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.call;
+
+import java.awt.*;
+
+/**
+ * @author Lubomir Marinov
+ */
+public class VideoLayout extends FitLayout
+{
+    public static final String LOCAL = "LOCAL";
+
+    private static final float LOCAL_TO_REMOTE_RATIO = 0.25f;
+
+    public static final String REMOTE = "REMOTE";
+
+    private Component local;
+
+    private Component remote;
+
+    public void addLayoutComponent(String name, Component comp)
+    {
+        super.addLayoutComponent(name, comp);
+
+        if ((name == null) || name.equals(REMOTE))
+            remote = comp;
+        else if (name.equals(LOCAL))
+            local = comp;
+    }
+
+    protected Component getComponent(Container parent)
+    {
+        return getRemote();
+    }
+
+    public Component getLocal()
+    {
+        return local;
+    }
+
+    public Component getRemote()
+    {
+        return remote;
+    }
+
+    public void layoutContainer(Container parent)
+    {
+        super.layoutContainer(parent);
+
+        Component local = getLocal();
+        if (local != null)
+        {
+            Dimension parentSize = parent.getSize();
+            int height = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
+
+            super.layoutComponent(local, new Rectangle(0, parentSize.height
+                - height, Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO),
+                height), Component.LEFT_ALIGNMENT, Component.BOTTOM_ALIGNMENT);
+        }
+    }
+
+    public Dimension minimumLayoutSize(Container parent)
+    {
+        // TODO Auto-generated method stub
+        return super.minimumLayoutSize(parent);
+    }
+
+    public Dimension preferredLayoutSize(Container parent)
+    {
+        // TODO Auto-generated method stub
+        return super.preferredLayoutSize(parent);
+    }
+
+    public void removeLayoutComponent(Component comp)
+    {
+        super.removeLayoutComponent(comp);
+
+        if (remote == comp)
+            remote = null;
+        else if (local == comp)
+            local = null;
+    }
+}

@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>CallParticipantPanel</tt> is the panel containing data for a call
@@ -30,6 +31,9 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class CallParticipantPanel
     extends TransparentPanel
 {
+    private static final Logger logger =
+        Logger.getLogger(CallParticipantPanel.class);
+
     private final JLabel stateLabel = new JLabel("Unknown", JLabel.CENTER);
 
     private final JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
@@ -49,6 +53,13 @@ public class CallParticipantPanel
     private final String participantName;
 
     private final CallParticipant callParticipant;
+
+    private final java.util.List<Container> videoContainers =
+        new ArrayList<Container>();
+
+    private OperationSetVideoTelephony videoTelephony;
+
+    private Component localVideo;
 
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
@@ -109,6 +120,8 @@ public class CallParticipantPanel
 
         this.timer = new Timer(1000, new CallTimerListener());
         this.timer.setRepeats(true);
+
+        addVideoListener();
     }
 
     /**
@@ -122,18 +135,30 @@ public class CallParticipantPanel
     {
         Component[] buttons =
             new Component[]
-            { new HoldButton(this.callParticipant),
-                new MuteButton(this.callParticipant),
-                createTransferCallButton(), createSecureCallButton() };
+            { new HoldButton(callParticipant), new MuteButton(callParticipant),
+                createTransferCallButton(), createSecureCallButton(),
+                createEnterFullScreenButton() };
+        Dimension preferredButtonSize = new Dimension(24, 24);
 
+        return createButtonBar(buttons, preferredButtonSize);
+    }
+
+    private Component createButtonBar(Component[] buttons,
+        Dimension preferredButtonSize)
+    {
         Container buttonBar = new TransparentPanel(new GridLayout(1, 0));
+
         for (int buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++)
         {
             Component button = buttons[buttonIndex];
 
             if (button != null)
             {
-                button.setPreferredSize(new Dimension(24, 24));
+                if ((button instanceof JButton)
+                    || (button instanceof JToggleButton))
+                {
+                    button.setPreferredSize(preferredButtonSize);
+                }
                 buttonBar.add(button);
             }
         }
@@ -151,17 +176,145 @@ public class CallParticipantPanel
      */
     private Component createCenter()
     {
-        JLabel photoLabel =
+        final JLabel photoLabel =
             new JLabel(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
         photoLabel.setPreferredSize(new Dimension(90, 90));
 
-        JPanel center = new TransparentPanel(new FitLayout());
-        center.add(photoLabel);
+        final Container videoContainer = createVideoContainer(photoLabel);
+        videoContainer.addHierarchyListener(new HierarchyListener()
+        {
+            public void hierarchyChanged(HierarchyEvent event)
+            {
+                int changeFlags = HierarchyEvent.DISPLAYABILITY_CHANGED;
 
-        addVideoListener(center, photoLabel);
+                if ((event.getChangeFlags() & changeFlags) == changeFlags)
+                {
+                    synchronized (videoContainers)
+                    {
+                        boolean changed = false;
 
-        return center;
+                        if (videoContainer.isDisplayable())
+                        {
+                            if (!videoContainers.contains(videoContainer))
+                                changed = videoContainers.add(videoContainer);
+                        }
+                        else
+                            changed = videoContainers.remove(videoContainer);
+                        if (changed)
+                            handleVideoEvent(null);
+                    }
+                }
+            }
+        });
+        return videoContainer;
+    }
+
+    /**
+     * Creates a new AWT <code>Container</code> which can display a single
+     * <code>Component</code> at a time (supposedly, one which represents video)
+     * and, in the absence of such a <code>Component</code>, displays a
+     * predefined default <code>Component</code> (in accord with the previous
+     * supposition, one which is the default when there is no video). The
+     * returned <code>Container</code> will track the <code>Components</code>s
+     * added to and removed from it in order to make sure that
+     * <code>noVideoContainer</code> is displayed as described.
+     * 
+     * @param noVideoComponent the predefined default <code>Component</code> to
+     *            be displayed in the returned <code>Container</code> when there
+     *            is no other <code>Component</code> in it
+     * @return a new <code>Container</code> which can display a single
+     *         <code>Component</code> at a time and, in the absence of such a
+     *         <code>Component</code>, displays <code>noVideoComponent</code>
+     */
+    private Container createVideoContainer(final Component noVideoComponent)
+    {
+        final ContainerListener containerListener = new ContainerListener()
+        {
+
+            /*
+             * Since the videoContainer displays either noVideoComponent or a
+             * single visual Component which represents video, ensures the last
+             * Component added to the Container is the only Component it
+             * contains i.e. noVideoComponent goes away when the video is
+             * displayed and the video goes away when noVideoComponent is
+             * displayed.
+             */
+            public void componentAdded(ContainerEvent event)
+            {
+                Container container = event.getContainer();
+                Component local =
+                    ((VideoLayout) container.getLayout()).getLocal();
+                Component added = event.getChild();
+
+                if ((local != null) && (added == local))
+                    return;
+
+                Component[] components = container.getComponents();
+                boolean validate = false;
+
+                for (int i = 0; i < components.length; i++)
+                {
+                    Component component = components[i];
+
+                    if ((component != added) && (component != local))
+                    {
+                        container.remove(component);
+                        validate = true;
+                    }
+                }
+                if (validate)
+                    container.validate();
+            }
+
+            /*
+             * Displays noVideoComponent when there is no visual Component which
+             * represents video to be displayed.
+             */
+            public void componentRemoved(ContainerEvent event)
+            {
+                Container container = event.getContainer();
+
+                if ((container.getComponentCount() <= 0)
+                    || (((VideoLayout) container.getLayout()).getRemote() == null))
+                {
+                    container.add(noVideoComponent, VideoLayout.REMOTE);
+                    container.validate();
+                }
+            }
+        };
+        Container videoContainer = new TransparentPanel(new VideoLayout())
+        {
+
+            /*
+             * Ensures noVideoComponent is displayed even when the clients of
+             * the videoContainer invoke its #removeAll() to remove their
+             * previous visual Components representing video. Just adding
+             * noVideoComponent upon ContainerEvent#COMPONENT_REMOVED when there
+             * is no other Component left in the Container will cause an
+             * infinite loop because Container#removeAll() will detect that a
+             * new Component has been added while dispatching the event and will
+             * then try to remove the new Component.
+             */
+            public void removeAll()
+            {
+                removeContainerListener(containerListener);
+                try
+                {
+                    super.removeAll();
+                }
+                finally
+                {
+                    addContainerListener(containerListener);
+                    containerListener.componentRemoved(new ContainerEvent(this,
+                        ContainerEvent.COMPONENT_REMOVED, null));
+                }
+            }
+        };
+
+        videoContainer.addContainerListener(containerListener);
+        videoContainer.add(noVideoComponent, VideoLayout.REMOTE);
+        return videoContainer;
     }
 
     /**
@@ -286,41 +439,33 @@ public class CallParticipantPanel
     /**
      * Sets up listening to notifications about adding or removing video for the
      * <code>CallParticipant</code> this panel depicts and displays the video in
-     * question in a specific visual <code>Container</code> (currently, the
-     * central UI area) as soon as it arrives. If the video is removed at a
-     * later point, the method reverts to showing a specific default visual
-     * <code>Component</code> (currently, the photo of the
-     * <code>CallParticipant</code>).
-     * 
-     * @param videoContainer the visual <code>Container</code> the display area
-     *            of which will display video when it's available
-     * @param noVideoComponent the default visual <code>Component</code> to be
-     *            displayed in <code>videoContainer</code> when previously
-     *            displayed video is no longer available
+     * question in the last-known of {@link #videoContainers} (because the video
+     * is represented by a <code>Component</code> and it cannot be displayed in
+     * multiple <code>Container</code>s at one and the same time) as soon as it
+     * arrives.
      */
-    private void addVideoListener(final Container videoContainer,
-        final Component noVideoComponent)
+    private OperationSetVideoTelephony addVideoListener()
     {
         final Call call = callParticipant.getCall();
         if (call == null)
-            return;
+            return null;
 
         final OperationSetVideoTelephony telephony =
             (OperationSetVideoTelephony) call.getProtocolProvider()
                 .getOperationSet(OperationSetVideoTelephony.class);
         if (telephony == null)
-            return;
+            return null;
 
         final VideoListener videoListener = new VideoListener()
         {
             public void videoAdded(VideoEvent event)
             {
-                handleVideoEvent(telephony, videoContainer, noVideoComponent);
+                handleVideoEvent(event);
             }
 
             public void videoRemoved(VideoEvent event)
             {
-                handleVideoEvent(telephony, videoContainer, noVideoComponent);
+                handleVideoEvent(event);
             }
         };
 
@@ -336,9 +481,23 @@ public class CallParticipantPanel
             private void addVideoListener()
             {
                 telephony.addVideoListener(callParticipant, videoListener);
+                try
+                {
+                    telephony.createLocalVisualComponent(callParticipant,
+                        videoListener);
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error(
+                        "Failed to create local video/visual Component.", ex);
+                }
                 videoListenerIsAdded = true;
 
-                handleVideoEvent(telephony, videoContainer, noVideoComponent);
+                synchronized (videoContainers)
+                {
+                    videoTelephony = telephony;
+                    handleVideoEvent(null);
+                }
             }
 
             /*
@@ -406,39 +565,104 @@ public class CallParticipantPanel
             private void removeVideoListener()
             {
                 telephony.removeVideoListener(callParticipant, videoListener);
+                if (localVideo != null)
+                    telephony.disposeLocalVisualComponent(callParticipant,
+                        localVideo);
                 videoListenerIsAdded = false;
+
+                synchronized (videoTelephony)
+                {
+                    if (telephony.equals(videoTelephony))
+                        videoTelephony = null;
+                }
             }
         };
         call.addCallChangeListener(callListener);
         callListener.callStateChanged(new CallChangeEvent(call,
             CallChangeEvent.CALL_STATE_CHANGE, null, call.getCallState()));
+
+        return telephony;
     }
 
     /**
      * When a video is added or removed for the <code>callParticipant</code>,
-     * makes sure to display it or hide it respectively.
+     * makes sure to display or hide it respectively.
      * 
-     * @param telephony the <code>OperationSetVideoTelephony</code> of
-     *            <code>callParticipant</code> which gives access to the video
-     * @param videoContainer the visual <code>Container</code> in which the
-     *            video is to be displayed (currently, the central UI area
-     *            displaying the photo when there is no video)
-     * @param noVideoComponent the default visual <code>Component</code> to be
-     *            displayed in <code>videoContainer</code> when the previously
-     *            added video is no longer received from the
-     *            <code>callParticipant</code> (currently, the photo)
+     * @param event a <code>VideoEvent</code> describing the added visual
+     *            <code>Component</code> representing video and the provider it
+     *            was added into or <code>null</code> if such information is not
+     *            available
      */
-    private synchronized void handleVideoEvent(
-        OperationSetVideoTelephony telephony, Container videoContainer,
-        Component noVideoComponent)
+    private void handleVideoEvent(final VideoEvent event)
     {
-        Component[] videos = telephony.getVisualComponents(callParticipant);
-        Component video =
-            ((videos == null) || (videos.length < 1)) ? null : videos[0];
+        synchronized (videoContainers)
+        {
+            if ((event != null) && !event.isConsumed()
+                && (event.getOrigin() == VideoEvent.LOCAL))
+            {
+                Component localVideo = event.getVisualComponent();
 
-        videoContainer.removeAll();
-        videoContainer.add((video == null) ? noVideoComponent : video);
-        videoContainer.validate();
+                switch (event.getType())
+                {
+                case VideoEvent.VIDEO_ADDED:
+                    this.localVideo = localVideo;
+
+                    /*
+                     * Let the creator of the local visual Component know it
+                     * shouldn't be disposed of because we're going to use it.
+                     */
+                    event.consume();
+                    break;
+
+                case VideoEvent.VIDEO_REMOVED:
+                    if (this.localVideo == localVideo)
+                        this.localVideo = null;
+                    break;
+                }
+            }
+        }
+
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    handleVideoEvent(event);
+                }
+            });
+            return;
+        }
+
+        synchronized (videoContainers)
+        {
+            int videoContainerCount;
+
+            if ((videoTelephony != null)
+                && ((videoContainerCount = videoContainers.size()) > 0))
+            {
+                Container videoContainer =
+                    videoContainers.get(videoContainerCount - 1);
+                int zOrder = 0;
+
+                videoContainer.removeAll();
+
+                // LOCAL
+                if (localVideo != null)
+                    videoContainer.add(localVideo, VideoLayout.LOCAL, zOrder++);
+
+                // REMOTE
+                Component[] videos =
+                    videoTelephony.getVisualComponents(callParticipant);
+                Component video =
+                    ((videos == null) || (videos.length < 1)) ? null
+                        : videos[0];
+                if (video != null)
+                    videoContainer.add(video, VideoLayout.REMOTE, zOrder++);
+
+                videoContainer.validate();
+            }
+        }
     }
 
     /**
@@ -544,5 +768,173 @@ public class CallParticipantPanel
     public String getParticipantName()
     {
         return participantName;
+    }
+
+    private Component createEnterFullScreenButton()
+    {
+        JButton button =
+            new JButton(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON)));
+
+        button.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                enterFullScreen();
+            }
+        });
+        return button;
+    }
+
+    private Component createExitFullScreenButton()
+    {
+        JButton button =
+            new JButton(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON)));
+
+        button.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                Object source = event.getSource();
+                Frame fullScreenFrame =
+                    (source instanceof Component) ? TransferCallButton
+                        .getFrame((Component) source) : null;
+
+                exitFullScreen(fullScreenFrame);
+            }
+        });
+        return button;
+    }
+
+    private Component createFullScreenButtonBar()
+    {
+        Component[] buttons =
+            new Component[]
+            { new HoldButton(callParticipant), new MuteButton(callParticipant),
+                createExitFullScreenButton() };
+        Dimension preferredButtonSize = new Dimension(36, 36);
+
+        return createButtonBar(buttons, preferredButtonSize);
+    }
+
+    private void enterFullScreen()
+    {
+        // Create the main Components of the UI.
+        final JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.setTitle(getParticipantName());
+        frame.setUndecorated(true);
+
+        Component center = createCenter();
+        final Component buttonBar = createFullScreenButtonBar();
+
+        // Lay out the main Components of the UI.
+        final Container contentPane = frame.getContentPane();
+        contentPane.setLayout(new FullScreenLayout(false));
+        if (center != null)
+            contentPane.add(center, FullScreenLayout.CENTER);
+        if (buttonBar != null)
+        {
+            contentPane.add(buttonBar, FullScreenLayout.SOUTH);
+
+            buttonBar.setVisible(false);
+            addMouseMotionListener(contentPane, new MouseMotionAdapter()
+            {
+                public void mouseMoved(MouseEvent event)
+                {
+                    Component component = event.getComponent();
+
+                    if ((component != null) && !component.equals(buttonBar))
+                    {
+                        Point pointInContentPane =
+                            SwingUtilities.convertPoint(component, event
+                                .getPoint(), contentPane);
+
+                        buttonBar.setVisible(buttonBar.getBounds().contains(
+                            pointInContentPane));
+                    }
+                }
+            });
+        }
+
+        // Full-screen windows usually have black backgrounds.
+        Color background = Color.black;
+        contentPane.setBackground(background);
+        setBackground(center, background);
+
+        addKeyListener(frame, new KeyAdapter()
+        {
+            public void keyPressed(KeyEvent event)
+            {
+                if (!event.isConsumed()
+                    && (event.getKeyCode() == KeyEvent.VK_ESCAPE))
+                {
+                    event.consume();
+                    exitFullScreen(frame);
+                }
+            }
+        });
+        frame.addWindowStateListener(new WindowStateListener()
+        {
+            public void windowStateChanged(WindowEvent event)
+            {
+                switch (event.getID())
+                {
+                case WindowEvent.WINDOW_CLOSED:
+                case WindowEvent.WINDOW_DEACTIVATED:
+                case WindowEvent.WINDOW_ICONIFIED:
+                case WindowEvent.WINDOW_LOST_FOCUS:
+                    exitFullScreen(frame);
+                    break;
+                }
+            }
+        });
+        getGraphicsConfiguration().getDevice().setFullScreenWindow(frame);
+    }
+
+    private void exitFullScreen(Window fullScreenWindow)
+    {
+        getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+        if (fullScreenWindow != null)
+        {
+            if (fullScreenWindow.isVisible())
+                fullScreenWindow.setVisible(false);
+            fullScreenWindow.dispose();
+        }
+    }
+
+    private void setBackground(Component component, Color background)
+    {
+        component.setBackground(background);
+        if (component instanceof Container)
+        {
+            Component[] components = ((Container) component).getComponents();
+            for (int i = 0; i < components.length; i++)
+                setBackground(components[i], background);
+        }
+    }
+
+    private void addKeyListener(Component component, KeyListener l)
+    {
+        component.addKeyListener(l);
+        if (component instanceof Container)
+        {
+            Component[] components = ((Container) component).getComponents();
+            for (int i = 0; i < components.length; i++)
+                addKeyListener(components[i], l);
+        }
+    }
+
+    private void addMouseMotionListener(Component component,
+        MouseMotionListener l)
+    {
+        component.addMouseMotionListener(l);
+        if (component instanceof Container)
+        {
+            Component[] components = ((Container) component).getComponents();
+            for (int i = 0; i < components.length; i++)
+                addMouseMotionListener(components[i], l);
+        }
     }
 }

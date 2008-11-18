@@ -236,6 +236,11 @@ public interface CallSession
      */
     void addVideoListener(VideoListener listener);
 
+    Component createLocalVisualComponent(VideoListener listener)
+        throws MediaException;
+
+    void disposeLocalVisualComponent(Component component);
+
     /**
      * Gets the visual/video <code>Component</code>s available in this
      * <code>CallSession</code>.

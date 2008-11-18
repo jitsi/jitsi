@@ -23,7 +23,7 @@ public interface VideoListener
      * Notifies that a visual <code>Component</code> representing video has been
      * added to the provider this listener has been added to.
      * 
-     * @param event a <code>VisualEvent</code> describing the added visual
+     * @param event a <code>VideoEvent</code> describing the added visual
      *            <code>Component</code> representing video and the provider it
      *            was added into
      */
@@ -33,7 +33,7 @@ public interface VideoListener
      * Notifies that a visual <code>Component</code> representing video has been
      * removed from the provider this listener has been added to.
      * 
-     * @param event a <code>VisualEvent</code> describing the removed visual
+     * @param event a <code>VideoEvent</code> describing the removed visual
      *            <code>Component</code> representing video and the provider it
      *            was removed from
      */
