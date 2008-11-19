@@ -31,7 +31,7 @@ public class NativeEncoder
 
     // without the headers
 //    private final static int MAX_PAYLOAD_SIZE = 1400;
-    private final static int MAX_PAYLOAD_SIZE = 984;
+    private final static int MAX_PAYLOAD_SIZE = 512;
     
     private final static int INPUT_BUFFER_PADDING_SIZE = 8;
 
@@ -69,7 +69,8 @@ public class NativeEncoder
     // the current rtp sequence
     private int seq = 0;
 
-    private static int IFRAME_INTERVAL = 125;
+    // key frame every four seconds
+    private static int IFRAME_INTERVAL = TARGET_FRAME_RATE * 4;
 
     private int framesSinceLastIFrame = 0;
 
@@ -417,13 +418,12 @@ public class NativeEncoder
             avcontext.qmin = 10;
             avcontext.qmax = 22;
             avcontext.max_qdiff = 4;
-            
+
             avcontext.partitions |= 0x111;
             //X264_PART_I4X4 0x001  
             //X264_PART_P8X8 0x010
             //X264_PART_B8X8 0x100
-            
-            avcontext.flags |= AVCodecLibrary.CODEC_FLAG_PASS1;            
+
             avcontext.mb_decision = AVCodecContext.FF_MB_DECISION_SIMPLE;
 
             avcontext.rc_eq = "blurCplx^(1-qComp)";

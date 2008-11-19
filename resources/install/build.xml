@@ -30,6 +30,8 @@
 -->
 <project name="sip-communicator-installer" basedir="." default="ant-usage">
 
+    <import file="../../build.xml"/>
+
     <property file="${inst.resrc}/ant-build-config.properties"/>
     <!-- Load installer properties -->
     <!-- USERS NEED TO UPDATE THIS FILE -->

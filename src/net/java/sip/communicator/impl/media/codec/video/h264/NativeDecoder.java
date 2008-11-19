@@ -174,9 +174,6 @@ public class NativeDecoder
 
         avcontext = AVCODEC.avcodec_alloc_context();
 
-        if (AVCODEC.avcodec_open(avcontext, avcodec) < 0)
-            throw new RuntimeException("Could not open codec "); 
-
         avpicture = AVCODEC.avcodec_alloc_frame();
 
         avcontext.lowres = 1;
@@ -193,6 +190,9 @@ public class NativeDecoder
 //            }
 //        });
 
+        if (AVCODEC.avcodec_open(avcontext, avcodec) < 0)
+            throw new RuntimeException("Could not open codec ");
+
         frameRGB = AVCODEC.avcodec_alloc_frame();
 
         opened = true;
@@ -204,9 +204,9 @@ public class NativeDecoder
         {
             opened = false;
             super.close();
-            
+
             AVCODEC.avcodec_close(avcontext);
-            
+
             AVUTIL.av_free(avpicture.getPointer());
             AVUTIL.av_free(avcontext.getPointer());
         }
@@ -215,7 +215,7 @@ public class NativeDecoder
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         if (!checkInputBuffer(inputBuffer))
-        {            
+        {
             return BUFFER_PROCESSED_FAILED;
         }
 
@@ -254,7 +254,7 @@ public class NativeDecoder
         {
             outputBuffer.setDiscard(true);
             AVUTIL.av_free(encBuf);
-            
+
             return BUFFER_PROCESSED_OK;
         }
   

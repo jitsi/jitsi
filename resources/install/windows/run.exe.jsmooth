@@ -27,6 +27,8 @@
 <javaProperties>
 <name>java.library.path</name>
 <value>./native</value>
+</javaProperties>
+<javaProperties>
 <name>jna.library.path</name>
 <value>./native</value>
 </javaProperties>
