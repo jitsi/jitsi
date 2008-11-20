@@ -48,13 +48,6 @@ public class DeviceConfiguration
     private CaptureDeviceInfo videoCaptureDevice = null;
 
     /**
-     * The capture device used by default by this
-     * <code>DeviceConfiguration</code> for video when it is not explicitly
-     * configured to use a specific video capture device.
-     */
-    private CaptureDeviceInfo defaultVideoCaptureDevice;
-
-    /**
      * Default constructor.
      */
     public DeviceConfiguration()
@@ -148,20 +141,6 @@ public class DeviceConfiguration
     }
 
     /**
-     * Gets the capture device which is to be used by default by this
-     * <code>DeviceConfiguration</code> for audio when it is not explicitly
-     * configured to use a specific audio capture device.
-     * 
-     * @return a <code>CaptureDeviceInfo</code> describing the default audio
-     *         capture device
-     */
-    public CaptureDeviceInfo getDefaultAudioCaptureDevice()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
      * Gets the list of audio capture devices which are available through this
      * <code>DeviceConfiguration</code>, amongst which are
      * {@link #getAudioCaptureDevice()} and
@@ -174,8 +153,25 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo[] getAvailableAudioCaptureDevices()
     {
-        // TODO Auto-generated method stub
-        return NO_CAPTURE_DEVICES;
+        Vector audioCaptureDevices =
+            CaptureDeviceManager.getDeviceList(new AudioFormat(
+                AudioFormat.LINEAR, 44100, 16, 1));// 1 means 1 channel for mono
+        if (audioCaptureDevices.size() < 1)
+        {
+            return NO_CAPTURE_DEVICES;
+        }
+        else
+        {
+            CaptureDeviceInfo[] result = 
+                new CaptureDeviceInfo[audioCaptureDevices.size()];
+
+            for (int i = 0; i < result.length; i++)
+            {
+                result[i] = (CaptureDeviceInfo)audioCaptureDevices.get(i);
+            }
+
+            return result;
+        }
     }
 
     /**
@@ -191,8 +187,30 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo[] getAvailableVideoCaptureDevices()
     {
-        // TODO Auto-generated method stub
-        return NO_CAPTURE_DEVICES;
+        Vector videoCaptureDevices =
+            CaptureDeviceManager
+                .getDeviceList(new VideoFormat(VideoFormat.RGB));
+
+        Vector yuvVideoCaptureDevices =
+                CaptureDeviceManager.getDeviceList(new VideoFormat(
+                    VideoFormat.YUV));
+
+        videoCaptureDevices.addAll(yuvVideoCaptureDevices);
+
+        if (videoCaptureDevices.size() < 1)
+        {
+            return NO_CAPTURE_DEVICES;
+        }
+
+        CaptureDeviceInfo[] result = 
+            new CaptureDeviceInfo[videoCaptureDevices.size()];
+
+        for (int i = 0; i < result.length; i++)
+        {
+            result[i] = (CaptureDeviceInfo)videoCaptureDevices.get(i);
+        }
+
+        return result;
     }
 
     /**
@@ -207,16 +225,24 @@ public class DeviceConfiguration
     }
 
     /**
-     * Gets the capture device which is to be used by default by this
+     * Sets the capture device which is to be used by default by this
      * <code>DeviceConfiguration</code> for video when it is not explicitly
-     * configured to use a specific video capture device.
+     * configured to use a specific audio capture device.
      * 
-     * @return a <code>CaptureDeviceInfo</code> describing the default video
-     *         capture device
+     * @param device a <code>CaptureDeviceInfo</code> describing the video
+     *            capture device to be made default for this
+     *            <code>DeviceConfiguration</code>
      */
-    public CaptureDeviceInfo getDefaultVideoCaptureDevice()
+    public void setVideoCaptureDevice(CaptureDeviceInfo device)
     {
-        return defaultVideoCaptureDevice;
+        if (videoCaptureDevice != device)
+        {
+            CaptureDeviceInfo oldDevice = videoCaptureDevice;
+
+            videoCaptureDevice = device;
+
+            firePropertyChange(DEFAULT_VIDEO_CAPTURE_DEVICE, oldDevice, device);
+        }
     }
 
     /**
@@ -228,13 +254,13 @@ public class DeviceConfiguration
      *            capture device to be made default for this
      *            <code>DeviceConfiguration</code>
      */
-    public void setDefaultVideoCaptureDevice(CaptureDeviceInfo device)
+    public void setAudioCaptureDevice(CaptureDeviceInfo device)
     {
-        if (defaultVideoCaptureDevice != device)
+        if (audioCaptureDevice != device)
         {
-            CaptureDeviceInfo oldDevice = defaultVideoCaptureDevice;
+            CaptureDeviceInfo oldDevice = audioCaptureDevice;
 
-            defaultVideoCaptureDevice = device;
+            audioCaptureDevice = device;
 
             firePropertyChange(DEFAULT_VIDEO_CAPTURE_DEVICE, oldDevice, device);
         }
