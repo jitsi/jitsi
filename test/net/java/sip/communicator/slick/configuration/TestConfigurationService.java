@@ -12,6 +12,7 @@ import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Tests basic ConfiguratioService behaviour.

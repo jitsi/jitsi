@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.configuration;
 
-import net.java.sip.communicator.service.configuration.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A PropertyVetoException is thrown when a proposed change to a

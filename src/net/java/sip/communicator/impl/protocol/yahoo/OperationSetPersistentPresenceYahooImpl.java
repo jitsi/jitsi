@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.yahoo;
 
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;

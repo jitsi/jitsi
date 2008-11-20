@@ -4,11 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
- 
 package net.java.sip.communicator.impl.systray.jdic;
 
 import java.awt.*;
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import javax.swing.*;

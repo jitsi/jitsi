@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.configuration.event;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A VetoableChange event gets fired whenever a property is about to change.

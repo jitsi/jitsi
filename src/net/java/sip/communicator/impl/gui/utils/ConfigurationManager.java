@@ -10,8 +10,8 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 public class ConfigurationManager
 {

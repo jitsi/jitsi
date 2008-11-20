@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;

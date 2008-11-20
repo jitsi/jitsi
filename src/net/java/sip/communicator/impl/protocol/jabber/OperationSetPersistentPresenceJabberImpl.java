@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import org.jivesoftware.smack.*;

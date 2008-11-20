@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.net.*;
 import java.text.*;
 import java.util.*;
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
 import java.io.*;
 
 import javax.sip.*;

@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import junit.framework.*;
