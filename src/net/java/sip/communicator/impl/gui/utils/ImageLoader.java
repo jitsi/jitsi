@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
@@ -17,6 +16,7 @@ import javax.imageio.*;
 import javax.imageio.stream.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -976,7 +976,7 @@ public class ImageLoader {
      * Call 16x16 image.
      * //TODO : change to an appropriate logo
      */
-    public static final ImageLoader.ImageID CALL_16x16_ICON
+    public static final ImageID CALL_16x16_ICON
             = new ImageID("CALL_16x16_ICON");
 
     /**
@@ -1342,21 +1342,6 @@ public class ImageLoader {
             log.logExit();
         }
         return images;
-    }
-
-    /**
-     * Represents the Image Identifier.
-     */
-    public static class ImageID {
-        private String id;
-
-        private ImageID(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
     }
 
     /**

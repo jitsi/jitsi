@@ -96,24 +96,6 @@ public class Resources
     {
         return getResources().getI18NString(key);
     }
-
-    /**
-     * Represents the Image Identifier.
-     */
-    public static class ImageID
-    {
-        private String id;
-
-        private ImageID(String id)
-        {
-            this.id = id;
-        }
-
-        public String getId()
-        {
-            return id;
-        }
-    }
     
     public static ResourceManagementService getResources()
     {

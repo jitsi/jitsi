@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.gibberishaccregwizz;
 
 import java.io.*;
@@ -75,24 +74,6 @@ public class Resources
         }
 
         return image;
-    }
-
-    /**
-     * Represents the Image Identifier.
-     */
-    public static class ImageID
-    {
-        private String id;
-
-        private ImageID(String id)
-        {
-            this.id = id;
-        }
-
-        public String getId()
-        {
-            return id;
-        }
     }
     
     public static ResourceManagementService getResources()

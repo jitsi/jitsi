@@ -4,15 +4,15 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.utils;
 
 import java.net.*;
+
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
- * The <tt>Smily</tt> is used to store a smily.
+ * The <tt>Smiley</tt> is used to store a smiley.
  * 
  * @author Yana Stamcheva
  */

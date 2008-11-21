@@ -9,11 +9,11 @@
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -63,23 +63,4 @@ public class Resources
         
         return image;
     }
-    
-    /**
-     * Represents the Image Identifier.
-     */
-    public static class ImageID
-    {
-        private String id;
-        
-        private ImageID(String id)
-        {
-            this.id = id;
-        }
-        
-        public String getId()
-        {
-            return id;
-        }
-    }
-    
 }
