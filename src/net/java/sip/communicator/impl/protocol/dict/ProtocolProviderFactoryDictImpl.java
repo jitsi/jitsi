@@ -28,11 +28,6 @@ public class ProtocolProviderFactoryDictImpl
         = Logger.getLogger(ProtocolProviderFactoryDictImpl.class);
 
     /**
-     * Name for the auto-create group
-     */
-    private String groupName = "Dictionaries";
-
-    /**
      * Creates an instance of the ProtocolProviderFactoryDictImpl.
      */
     public ProtocolProviderFactoryDictImpl()
@@ -124,6 +119,9 @@ public class ProtocolProviderFactoryDictImpl
         
         try
         {
+            String groupName = DictActivator.getResources()
+                .getI18NString("dict.dictionaries");
+            
             mcl.createMetaContactGroup(mcl.getRoot(), groupName);
         }
         catch (MetaContactListException ex)
@@ -155,7 +153,15 @@ public class ProtocolProviderFactoryDictImpl
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) DictActivator.getBundleContext()
                 .getService(serRef);
-
+        
+        // Gets group name
+        String groupName = DictActivator.getResources()
+            .getI18NString("dict.dictionaries");
+        
+        // Gets contact name
+        String contactName = DictActivator.getResources()
+            .getI18NString("dict.anyDictionaryFrom", new String[] {accountID.getUserID()});
+        
         // Gets the MetaContactGroup for the "dictionaries" group.
         MetaContactGroup group = mcl.getRoot().getMetaContactSubgroup(groupName);
 
@@ -165,7 +171,7 @@ public class ProtocolProviderFactoryDictImpl
         // Create the default contact.
         mcl.createMetaContact(protocolProvider, group, dict_uin);
         // Rename the default contact.
-        mcl.renameMetaContact(group.getMetaContact(protocolProvider, dict_uin), accountID.getUserID() + "_default_dictionary");
+        mcl.renameMetaContact(group.getMetaContact(protocolProvider, dict_uin), contactName);
     }
 
     @Override

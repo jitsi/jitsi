@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.dictaccregwizz;
 
+import net.java.dict4j.*;
+
 /**
  * The <tt>DictAccountRegistration</tt> is used to store all user input data
  * through the <tt>DictAccountRegistrationWizard</tt>.
@@ -16,7 +18,6 @@ package net.java.sip.communicator.plugin.dictaccregwizz;
 public class DictAccountRegistration
 {
     private String userID;
-    private String password;
 
     /**
      * The hostname of the DICT server.
@@ -29,15 +30,10 @@ public class DictAccountRegistration
     private int port;
     
     /**
-     * The code id of the strategie selected for the matching of words in dictionnaries.
+     * The strategy selected for the matching of words in dictionaries.
      */
-    private String strategyCode;
+    private Strategy strategy;
     
-    /**
-     * The real name of the strategie selected for the matching of words in dictionnaries.
-     */
-    private String strategy;
-
     /**
      * Returns the User ID of the dict registration account.
      * @return the User ID of the dict registration account.
@@ -45,16 +41,6 @@ public class DictAccountRegistration
     public String getUserID()
     {
         return userID;
-    }
-
-    /**
-     * Sets the password of the dict registration account.
-     *
-     * @param password the password of the dict registration account.
-     */
-    public void setPassword(String password)
-    {
-        this.password = password;
     }
 
     /**
@@ -93,7 +79,7 @@ public class DictAccountRegistration
      * Returns the strategy that will be used for this dict account.
      * @return the strategy that will be used for this dict account.
      */
-    public String getStrategy() {
+    public Strategy getStrategy() {
         return this.strategy;
     }
 
@@ -101,23 +87,7 @@ public class DictAccountRegistration
      * Sets the strategy for this dict account.
      * @param strategy the strategy for this dict account.
      */
-    public void setStrategy(String strategy) {
+    public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
-    }
-    
-    /**
-     * Returns the strategy code that will be used for this dict account.
-     * @return the strategy code that will be used for this dict account.
-     */
-    public String getStrategyCode() {
-        return this.strategyCode;
-    }
-
-    /**
-     * Sets the strategy code for this dict account.
-     * @param strategyCode the strategy code for this dict account.
-     */
-    public void setStrategyCode(String strategyCode) {
-        this.strategyCode = strategyCode;
     }
 }

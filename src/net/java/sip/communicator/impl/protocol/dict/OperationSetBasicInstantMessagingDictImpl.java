@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.protocol.dict;
 
 import java.util.*;
+
+import net.java.dict4j.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-
-import net.java.sip.communicator.util.*;
 
 /**
  * Instant messaging functionalities for the Dict protocol.
@@ -22,9 +22,6 @@ public class OperationSetBasicInstantMessagingDictImpl
     extends AbstractOperationSetBasicInstantMessaging
     implements RegistrationStateChangeListener
 {
-    private static final Logger logger
-        = Logger.getLogger(OperationSetBasicInstantMessagingDictImpl.class);
-
     /**
      * The currently valid persistent presence operation set.
      */
@@ -34,6 +31,8 @@ public class OperationSetBasicInstantMessagingDictImpl
      * The protocol provider that created us.
      */
     private ProtocolProviderServiceDictImpl parentProvider = null;
+    
+    private DictAccountID accountID;
 
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -49,10 +48,17 @@ public class OperationSetBasicInstantMessagingDictImpl
     {
         this.opSetPersPresence = opSetPersPresence;
         this.parentProvider = provider;
+        this.accountID = (DictAccountID) provider.getAccountID();
 
         parentProvider.addRegistrationStateChangeListener(this);
     }
 
+    public Message createMessage(String content)
+    {
+        return new MessageDictImpl(content, HTML_MIME_TYPE,
+                DEFAULT_MIME_ENCODING, null);
+    }
+    
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -170,9 +176,8 @@ public class OperationSetBasicInstantMessagingDictImpl
         Message msg = this.createMessage("");
         
         String database = dictContact.getContactID();
-        DictAdapter dictAdapter = dictContact.getDictAdapter();
+        DictConnection conn = this.parentProvider.getConnection();
         boolean doMatch = false;
-        DictResultset fctResult;
         
         String word;
         
@@ -187,27 +192,19 @@ public class OperationSetBasicInstantMessagingDictImpl
         // Try to get the definition of the work
         try
         {
-            fctResult = dictAdapter.define(database, word);
-            msg =
-                this.createMessage(this.retrieveDefine(fctResult, word),
-                    HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
+            List<Definition> definitions = conn.define(database, word);
+            msg = this.createMessage(retrieveDefine(definitions, word));
         }
-        catch(DictException dex)
+        catch(DictException dx)
         {
-            if (dex.getErrorCode() == 552)
+            if (dx.getErrorCode() == DictReturnCode.NO_MATCH)
             { // No word found, we are going to try the match command
                 doMatch = true;
             }
             else
             { // Otherwise we display the error returned by the server
-                msg = this.createMessage(manageException(dex, database));
+                msg = this.createMessage(manageException(dx, database));
             }
-        }
-        catch(Exception ex)
-        {
-            logger.error("Failed to retrieve Definition. Error was: "
-                    + ex.getMessage()
-                    , ex);
         }
         
         if (doMatch)
@@ -215,18 +212,13 @@ public class OperationSetBasicInstantMessagingDictImpl
             // Trying the match command
             try
             {
-                fctResult = dictAdapter.match(database, word);
-                msg = this.createMessage(this.retrieveMatch(fctResult, word));
+                List<MatchWord> matchWords = conn.match(database, word,
+                        this.accountID.getStrategy());
+                msg = this.createMessage(retrieveMatch(matchWords, word));
             }
-            catch(DictException dex)
+            catch(DictException dx)
             {
-                msg = this.createMessage(manageException(dex, database));
-            }
-            catch(Exception ex)
-            {
-                logger.error("Failed to retrieve Match. Error was: "
-                        + ex.getMessage()
-                        , ex);
+                msg = this.createMessage(manageException(dx, database));
             }
         }
         
@@ -241,28 +233,26 @@ public class OperationSetBasicInstantMessagingDictImpl
      * @param word the queried word
      * @return the formatted result
      */
-    private String retrieveDefine(DictResultset data, String word)
+    private String retrieveDefine(List<Definition> data, String word)
     {
-        String result;
-        DictResult resultData;
+        StringBuffer res = new StringBuffer();
+        Definition def;
 
-        result = "<pre>";
-        
-        for (int i=0; i<data.getNbResults(); i++)
+        for (int i=0; i<data.size(); i++)
         {
-            resultData = data.getResultset(i);
+            def = data.get(i);
             
-            if(i != 0 && resultData.hasNext())
+            if(i != 0 && data.size() > 0)
             {
-                result += "<hr>";
+                res.append("<hr>");
             }
-            while (resultData.hasNext())
-            {
-                result += resultData.next() + "\n";
-            }
-            result = result.replaceAll("\n+\\z", "\n");
+            res.append(def.getDefinition().replaceAll("\n", "<br>"))
+                .append("<div align=\"right\"><font size=\"-2\">-- From ")
+                .append(def.getDictionary())
+                .append("</font></div>");
         }
-        result += "</pre>";
+        
+        String result = res.toString();
         result = formatResult(result, "\\\\", "<em>", "</em>");
         result = formatResult(result, "[\\[\\]]", "<cite>", "</cite>");
         result = formatResult(result, "[\\{\\}]", "<strong>", "</strong>");
@@ -328,45 +318,25 @@ public class OperationSetBasicInstantMessagingDictImpl
      * @param word the queried word
      * @return the formatted result
      */
-    private String retrieveMatch(DictResultset data, String word)
+    private String retrieveMatch(List<MatchWord> data, String word)
     {
-        String result = "";
-        String temp;
-        DictResult resultData;
+        StringBuffer result = new StringBuffer();
         boolean isStart = true;
         
-        result = "No definitions found for \""+ word +"\", perhaps you mean:\n";
+        result.append(DictActivator.getResources()
+            .getI18NString("dict.matchResult", new String[] {word}));
         
-        for (int i=0; i<data.getNbResults(); i++)
+        for (int i=0; i<data.size(); i++)
         {
-            resultData = data.getResultset(i);
+            if (isStart)
+                isStart = false;
+            else
+                result.append(", ");
             
-            while(resultData.hasNext())
-            {
-                temp = resultData.next();
-                
-                if (isStart)
-                {
-                    isStart = false;
-                }
-                else
-                {
-                    result += ", ";
-                }
-                
-                // Return format : dictCode "match word"
-                temp = (temp.split(" ", 2))[1];
-                
-                if (temp.indexOf(" ") == -1)
-                {
-                    temp = temp.substring(1, temp.length() -1);
-                }
-                
-                result += temp;
-            }
+            result.append(data.get(i).getWord());
         }
         
-        return result;
+        return result.toString();
     }
 
     /**
@@ -381,15 +351,22 @@ public class OperationSetBasicInstantMessagingDictImpl
         int errorCode = dix.getErrorCode();
 
         // We change the text only for exception 550 (invalid dictionary) and 551 (invalid strategy)
-        if (errorCode == 550)
+        if (errorCode == DictReturnCode.INVALID_DATABASE)
         {
-            return "The current dictionary '" + database + "' doesn't exist anymore on the server";
+            return DictActivator.getResources()
+                .getI18NString("dict.invalidDatabase", new String[] {database});
         }
-        else if (errorCode == 551)
+        else if (errorCode == DictReturnCode.INVALID_STRATEGY)
         {
-            return "The current strategy isn't available on the server";
+            return DictActivator.getResources()
+                .getI18NString("dict.invalidStrategy");
+        }
+        else if (errorCode == DictReturnCode.NO_MATCH)
+        {
+            return DictActivator.getResources()
+                .getI18NString("dict.noMatch");
         }
 
-        return dix.getErrorMessage();
+        return dix.getMessage();
     }
 }

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.dict;
 
 import net.java.sip.communicator.service.protocol.*;
+
 import java.util.Map;
 
 /**
@@ -26,5 +27,35 @@ public class DictAccountID
     DictAccountID(String userID, Map accountProperties)
     {
         super(userID, accountProperties, ProtocolNames.DICT, "dict.org");
+    }
+
+    /**
+     * Returns the dict server adress
+     * @return the dict server adress
+     */
+    public String getHost()
+    {
+        return (String) this.getAccountProperties()
+                .get(ProtocolProviderFactory.SERVER_ADDRESS);
+    }
+    
+    /**
+     * Returns the dict server port
+     * @return the dict server port
+     */
+    public int getPort()
+    {
+        return Integer.parseInt((String) this.getAccountProperties()
+                .get(ProtocolProviderFactory.SERVER_PORT)); 
+    }
+    
+    /**
+     * Returns the selected strategy
+     * @return the selected strategy
+     */
+    public String getStrategy()
+    {
+        return (String) this.getAccountProperties()
+                .get(ProtocolProviderFactory.STRATEGY);
     }
 }

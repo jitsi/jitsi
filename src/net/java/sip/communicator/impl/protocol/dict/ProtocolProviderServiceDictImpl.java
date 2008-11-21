@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.dict;
 
 import java.util.*;
 
+import net.java.dict4j.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.version.*;
@@ -35,7 +36,7 @@ public class ProtocolProviderServiceDictImpl
     /**
      * The id of the account that this protocol provider represents.
      */
-    private AccountID accountID = null;
+    private DictAccountID accountID = null;
 
     /**
      * We use this to lock access to initialization.
@@ -66,6 +67,11 @@ public class ProtocolProviderServiceDictImpl
         = RegistrationState.UNREGISTERED;
 
     /**
+     * the <tt>DictConnection</tt> opened by this provider
+     */
+    private DictConnection dictConnection;
+
+    /**
      * The default constructor for the Dict protocol provider.
      */
     public ProtocolProviderServiceDictImpl()
@@ -91,7 +97,11 @@ public class ProtocolProviderServiceDictImpl
     {
         synchronized(initializationLock)
         {
-            this.accountID = accountID;
+            this.accountID = (DictAccountID) accountID;
+            
+            this.dictConnection = new DictConnection(this.accountID.getHost(),
+                    this.accountID.getPort());
+            this.dictConnection.setClientName(getSCVersion());
 
             //initialize the presence operationset
             OperationSetPersistentPresenceDictImpl persistentPresence =
@@ -131,65 +141,14 @@ public class ProtocolProviderServiceDictImpl
             isInitialized = true;
         }
     }
-
-    /**
-     * Retrieve the DictAdapter linked with the account. If there is no instance, one is created
-     * @return a DictAdapter instance
-     */
-    public DictAdapter getDictAdapter()
-    {
-        String host = (String) this.accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.SERVER_ADDRESS);
-        int port = Integer.parseInt((String) this.accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.SERVER_PORT));
-        String strategy = (String) this.accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.STRATEGY);
-        
-        String key = this.accountID.getUserID();
-        DictAdapter result = DictRegistry.get(key);
-        
-        if (!(result instanceof DictAdapter))
-        {
-            result = new DictAdapter(host, port, strategy);
-            
-            
-            // Set the clientname from the current version 
-            BundleContext bundleContext = DictActivator.getBundleContext();
-            ServiceReference versionServRef = bundleContext
-                .getServiceReference(VersionService.class.getName());
-            
-            VersionService versionService = (VersionService) bundleContext
-                .getService(versionServRef);
-            
-            result.setClientName(versionService.getCurrentVersion().toString());
-            
-            // Store the DictAdapter
-            DictRegistry.put(key, result);
-        }
-        
-        return result;
-    }
     
     /**
-     * Close the DictAdapter linked with the account ID
+     * Returns the <tt>DictConnection</tt> opened by this provider
+     * @return the <tt>DictConnection</tt> opened by this provider
      */
-    public void closeDictAdapter()
+    public DictConnection getConnection()
     {
-        String key = this.accountID.getUserID();
-        DictAdapter result = DictRegistry.get(key);
-        
-        if ((result instanceof DictAdapter))
-        {
-            try
-            {
-                result.close();
-                DictRegistry.remove(key);
-            }
-            catch (Exception ex)
-            {
-                logger.error(ex);
-            }
-        }
+        return this.dictConnection;
     }
     
     /**
@@ -279,14 +238,50 @@ public class ProtocolProviderServiceDictImpl
     public void register(SecurityAuthority authority)
         throws OperationFailedException
     {
-        RegistrationState oldState = currentRegistrationState;
-        currentRegistrationState = RegistrationState.REGISTERED;
-
-        fireRegistrationStateChanged(
-            oldState
-            , currentRegistrationState
-            , RegistrationStateChangeEvent.REASON_USER_REQUEST
-            , null);
+        // Try to connect to the server
+        boolean connected = connect();
+        
+        if (connected)
+        {
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.REGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                null);
+            currentRegistrationState = RegistrationState.REGISTERED;
+        }
+        else
+        {
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                null);
+            currentRegistrationState = RegistrationState.UNREGISTERED;
+        }
+    }
+    
+    /**
+     * Checks if the connection to the dict server is open
+     * @return TRUE if the connection is open - FALSE otherwise
+     */
+    private boolean connect()
+    {
+        if (this.dictConnection.isConnected())
+        {
+            return true;
+        }
+        
+        try
+        {
+            return this.dictConnection.isAvailable();
+        }
+        catch (DictException dx)
+        {
+            logger.info(dx);
+        }
+        
+        return false;
     }
 
     /**
@@ -302,7 +297,8 @@ public class ProtocolProviderServiceDictImpl
         }
         logger.trace("Killing the Dict Protocol Provider for account "
                 + this.accountID.getUserID());
-        this.closeDictAdapter();
+        
+        closeConnection();
 
         if(isRegistered())
         {
@@ -335,13 +331,41 @@ public class ProtocolProviderServiceDictImpl
     public void unregister()
         throws OperationFailedException
     {
-        RegistrationState oldState = currentRegistrationState;
-        currentRegistrationState = RegistrationState.UNREGISTERED;
-
+        closeConnection();
+        
         fireRegistrationStateChanged(
-            oldState
-            , currentRegistrationState
-            , RegistrationStateChangeEvent.REASON_USER_REQUEST
-            , null);
+                getRegistrationState(),
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                null);
+    }
+    
+    /**
+     * Close the connection to the server 
+     */
+    private void closeConnection()
+    {
+        try
+        {
+            this.dictConnection.close();
+        }
+        catch (DictException dx)
+        {
+            logger.info(dx);
+        }
+    }
+    
+    /**
+     * Returns the current version of SIP-Communicator
+     * @return the current version of SIP-Communicator
+     */
+    private String getSCVersion()
+    {
+        BundleContext bc = DictActivator.getBundleContext();
+        ServiceReference vsr = bc.getServiceReference(VersionService.class.getName());
+        
+        VersionService vs = (VersionService) bc.getService(vsr);
+        return vs.getCurrentVersion().toString();
+        
     }
 }

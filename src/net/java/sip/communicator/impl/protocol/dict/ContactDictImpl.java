@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.dict;
 
+import net.java.dict4j.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -19,6 +20,12 @@ public class ContactDictImpl
     implements Contact
 {
     private Logger logger = Logger.getLogger(ContactDictImpl.class);
+    
+    /**
+     * Icon
+     */
+    private static byte[] icon = DictActivator.getResources()
+        .getImageInBytes("pageImageDict");
     
     /**
      * The id of the contact.
@@ -117,21 +124,30 @@ public class ContactDictImpl
     {
         if (dictName == null)
         {
-            try
+            if (this.contactID.equals("*"))
             {
-                dictName = getDictAdapter().getDictionaryName(contactID);
-
-                // If the dict name is still null, set it to the contact ID
-                if (dictName == null)
-                {
-                    dictName = contactID;
-                }
+                this.dictName =  DictActivator.getResources()
+                            .getI18NString("dict.anyDictionary");
             }
-            catch (Exception e)
+            else if (this.contactID.equals("!"))
             {
-                // Can't read data
-                logger.error("Error while getting dictionary long name", e);
-                dictName = contactID;
+                this.dictName = DictActivator.getResources()
+                            .getI18NString("dict.firstMatch");
+            }
+            else
+            {
+                try
+                {
+                    this.dictName = this.parentProvider.getConnection()
+                            .getDictionaryName(this.contactID);
+                }
+                catch (DictException dx)
+                {
+                    logger.error("Error while getting dictionary long name", dx);
+                }
+                
+                if (this.dictName == null)
+                    this.dictName = this.contactID;
             }
         }
 
@@ -146,7 +162,7 @@ public class ContactDictImpl
      */
     public byte[] getImage()
     {
-        return null;
+        return icon;
     }
 
     /**
@@ -178,15 +194,6 @@ public class ContactDictImpl
     public ProtocolProviderService getProtocolProvider()
     {
         return parentProvider;
-    }
-    
-    /**
-     * Return a reference to the socket connexion linked with the Account
-     * @return a reference to the socket connexion (DictAdapter)
-     */
-    public DictAdapter getDictAdapter()
-    {
-        return parentProvider.getDictAdapter();
     }
 
     /**

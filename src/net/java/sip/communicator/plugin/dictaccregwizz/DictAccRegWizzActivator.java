@@ -21,7 +21,8 @@ import org.osgi.framework.*;
  * @author ROTH Damien
  * @author LITZELMANN Cedric
  */
-public class DictAccRegWizzActivator implements BundleActivator
+public class DictAccRegWizzActivator
+    implements BundleActivator
 {
     public static BundleContext bundleContext;
 

@@ -6,14 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.dict;
 
-import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
-
-import org.osgi.framework.*;
 
 /**
  * Reperesents the Dict protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -25,20 +20,16 @@ import org.osgi.framework.*;
 public class ProtocolIconDictImpl
     implements ProtocolIcon
 {
-    private static Logger logger = Logger.getLogger(ProtocolIconDictImpl.class);
-    
-    private static ResourceManagementService resourcesService;
-    
     /**
      * A hash table containing the protocol icon in different sizes.
      */
     private static Hashtable<String,byte[]> iconsTable = new Hashtable<String,byte[]>();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("dictProtocolIcon"));
+            DictActivator.getResources().getImageInBytes("dictProtocolIcon"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("dict64x64Icon"));
+                DictActivator.getResources().getImageInBytes("dict64x64Icon"));
     }
 
     /**
@@ -80,52 +71,5 @@ public class ProtocolIconDictImpl
     public byte[] getConnectingIcon()
     {
         return iconsTable.get(ProtocolIcon.ICON_SIZE_16x16);
-    }
-    
-    /**
-     * Returns the byte representation of the image corresponding to the given
-     * identifier.
-     * 
-     * @param imageID the identifier of the image
-     * @return the byte representation of the image corresponding to the given
-     * identifier.
-     */
-    private static byte[] getImageInBytes(String imageID) 
-    {
-        InputStream in = DictActivator.getResources().
-            getImageInputStream(imageID);
-
-        if (in == null)
-            return null;
-        byte[] image = null;
-        try 
-        {
-            image = new byte[in.available()];
-
-            in.read(image);
-        }
-        catch (IOException e) 
-        {
-            logger.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
-    }
-
-    public static ResourceManagementService getResources()
-    {
-        if (resourcesService == null)
-        {
-            ServiceReference serviceReference = DictActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService)DictActivator.bundleContext
-                .getService(serviceReference);
-        }
-
-        return resourcesService;
     }
 }

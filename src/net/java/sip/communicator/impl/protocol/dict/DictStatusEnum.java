@@ -30,9 +30,8 @@ public class DictStatusEnum
      */
     public static final DictStatusEnum OFFLINE
         = new DictStatusEnum(
-            0
-            , "Offline"
-            , getImageInBytes("dictProtocolIcon"));
+            0, "Offline",
+            DictActivator.getResources().getImageInBytes("dictOfflineIcon"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -40,9 +39,8 @@ public class DictStatusEnum
      */
     public static final DictStatusEnum ONLINE
         = new DictStatusEnum(
-            65
-            , "Online"
-            , getImageInBytes("dictProtocolIcon"));
+            65, "Online",
+            DictActivator.getResources().getImageInBytes("dictProtocolIcon"));
 
     /**
      * Initialize the list of supported status states.
@@ -77,35 +75,5 @@ public class DictStatusEnum
     static Iterator supportedStatusSet()
     {
         return supportedStatusSet.iterator();
-    }
-
-    /**
-     * Returns the byte representation of the image corresponding to the given
-     * identifier.
-     * 
-     * @param imageID the identifier of the image
-     * @return the byte representation of the image corresponding to the given
-     * identifier.
-     */
-    public static byte[] getImageInBytes(String imageID) 
-    {
-        InputStream in = DictActivator.getResources().
-            getImageInputStream(imageID);
-
-        if (in == null)
-            return null;
-        byte[] image = null;
-        try 
-        {
-            image = new byte[in.available()];
-
-            in.read(image);
-        }
-        catch (IOException e) 
-        {
-            logger.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
     }
 }

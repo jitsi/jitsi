@@ -8,13 +8,14 @@ package net.java.sip.communicator.plugin.dictaccregwizz;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.dict4j.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the host,
@@ -27,8 +28,6 @@ public class FirstWizardPage
     extends JPanel
     implements WizardPage, DocumentListener, ActionListener
 {
-    private static Logger logger = Logger.getLogger(FirstWizardPage.class);
-
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel hostPortPanel = new JPanel(new BorderLayout(10, 10));
@@ -37,13 +36,13 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new JPanel();
 
-    private JLabel hostLabel = new JLabel("Host");
+    private JLabel hostLabel = new JLabel(Resources.getString("dict.host"));
 
     private JPanel emptyPanel = new JPanel();
 
     private JLabel hostExampleLabel = new JLabel("Ex: dict.org");
 
-    private JLabel portLabel = new JLabel("Port");
+    private JLabel portLabel = new JLabel(Resources.getString("dict.port"));
 
     private JLabel existingAccountLabel =
         new JLabel(Resources.getString("existingAccount"));
@@ -57,18 +56,15 @@ public class FirstWizardPage
     
     private JPanel strategyTitleBloc = new JPanel(new BorderLayout());
     
-    private JLabel strategyTitle = new JLabel(Resources.getString("strategyList"));
+    private JLabel strategyTitle = new JLabel(Resources.getString("dict.strategyList"));
     
-    private JButton strategyLoader = new JButton(Resources.getString("strategyActu"));
+    private JButton strategyLoader = new JButton(Resources.getString("dict.strategyActu"));
     
-    private Vector<String> strategyList;
-    private JScrollPane jScrollPane;
-    private JList strategyBox;
-    private JTextArea strategyDescription = new JTextArea(Resources.getString("strategyDesc"));
-    private JLabel strategyMessage;
-    private boolean strategyMessInstall = false;
+    private StrategiesList strategiesList;
+    private JTextArea strategyDescription = new JTextArea(Resources.getString("dict.strategyDesc"));    
+    private ProgressPanel searchProgressPanel;
 
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new JPanel(new BorderLayout());
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -76,9 +72,7 @@ public class FirstWizardPage
     
     private String initstrategy = "";
     
-    private ArrayList<String> strategiesAssoc = new ArrayList<String>();
-    
-    private StrategyThread populateThread = null;
+    private ThreadManager searchThread = null;
     
     private boolean firstAccount = false;
     
@@ -105,7 +99,8 @@ public class FirstWizardPage
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         
-        this.populateThread = new StrategyThread(this);
+        this.searchThread = new ThreadManager(this);
+        this.searchProgressPanel = new ProgressPanel(this.searchThread);
 
         this.firstAccount = !this.hasAccount();
         
@@ -117,9 +112,6 @@ public class FirstWizardPage
         {
             this.init();
         }
-        
-        this.populateThread = new StrategyThread(this);
-        this.populateThread.start();
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
@@ -156,7 +148,8 @@ public class FirstWizardPage
         hostPortPanel.add(labelsPanel, BorderLayout.WEST);
         hostPortPanel.add(valuesPanel, BorderLayout.CENTER);
 
-        hostPortPanel.setBorder(BorderFactory.createTitledBorder("Server informations"));
+        hostPortPanel.setBorder(BorderFactory.createTitledBorder(
+                Resources.getString("dict.serverInformations")));
         
         this.labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
         this.valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
@@ -178,22 +171,12 @@ public class FirstWizardPage
             public void keyReleased(KeyEvent evt) {;}
         });
         
-        // Strategies
-        this.strategyList = new Vector<String>();
-        this.strategyBox = new JList(this.strategyList);
-        
-        for (int i=0; i<20; i++)
-        {
-            this.strategyList.add("Elem "+i);
-        }
-        
-        this.strategyBox.setVisibleRowCount(6);
-        
-        this.strategyBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
-        this.jScrollPane = new JScrollPane();
-        this.jScrollPane.getViewport().add(this.strategyBox);
-        this.strategyPanel.add(this.jScrollPane);
+        // Strategies list
+        this.strategiesList = new StrategiesList();
+
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.getViewport().add(this.strategiesList);
+        this.strategyPanel.add(scrollPane);
         
         // Strategy title + button
         this.strategyTitleBloc.add(this.strategyTitle, BorderLayout.WEST);
@@ -215,47 +198,49 @@ public class FirstWizardPage
         sSouthPanel.add(this.strategyDescription);
         
         // Message
-        this.strategyMessage = new JLabel(" ");        
-        sSouthPanel.add(this.strategyMessage, BorderLayout.SOUTH);
+        sSouthPanel.add(this.searchProgressPanel, BorderLayout.SOUTH);
         
         this.strategyPanel.add(sSouthPanel, BorderLayout.SOUTH);
         
         this.strategyPanel.add(this.strategyTitleBloc, BorderLayout.NORTH);
-        this.strategyPanel.setBorder(BorderFactory.createTitledBorder("Strategy selection"));
+        this.strategyPanel.setBorder(BorderFactory.createTitledBorder(
+                Resources.getString("dict.strategySelection")));
         mainPanel.add(this.strategyPanel);
 
         this.add(mainPanel, BorderLayout.NORTH);
     }
     
+    /**
+     * Initialize the UI for the first account
+     */
     private void initFirstAccount()
     {
         // Data init
         this.hostField = new JTextField("dict.org");
         this.portField = new JTextField("2628");
         
-        // Init strategy box
-        this.strategyList = new Vector<String>();
-        this.strategyBox = new JList(this.strategyList);
-        this.strategyMessage = new JLabel(" ");
+        // Init strategies list
+        this.strategiesList = new StrategiesList();
         
-        
+        this.mainPanel = new JPanel(new BorderLayout());
+
         JPanel infoTitlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JTextArea firstDescription = new JTextArea(Resources.getString("firstAccount"));
-        JLabel title = new JLabel(Resources.getString("dictAccountInfoTitle"));
-        
+        JTextArea firstDescription = new JTextArea(Resources.getString("dict.firstAccount"));
+        JLabel title = new JLabel(Resources.getString("dict.accountInfoTitle"));
+
         // Title
         title.setFont(title.getFont().deriveFont(Font.BOLD, 14.0f));
         infoTitlePanel.add(title);
-        this.add(infoTitlePanel, BorderLayout.NORTH);
-        this.add(this.strategyMessage, BorderLayout.SOUTH);
-        
+        this.mainPanel.add(infoTitlePanel, BorderLayout.NORTH);
+        this.mainPanel.add(this.searchProgressPanel, BorderLayout.SOUTH);
+
         // Description
         firstDescription.setLineWrap(true);
         firstDescription.setLineWrap(true);
         firstDescription.setRows(6);
         firstDescription.setWrapStyleWord(true);
         firstDescription.setAutoscrolls(false);
-        this.add(firstDescription);
+        this.mainPanel.add(firstDescription);
     }
 
     /**
@@ -315,10 +300,8 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        //*
         String host = hostField.getText();
         int port = Integer.parseInt(portField.getText());
-        int stPos;
         boolean isModified = false;
         
         if (this.initAccountID instanceof AccountID)
@@ -335,14 +318,18 @@ public class FirstWizardPage
         }
         
         // We check if a strategy has been selected
-        if (this.strategyList.size() == 0)
+        if (this.strategiesList.getModel().getSize() == 0)
         {   // No Strategy, we get them
             this.populateStrategies();
             
-            while (this.populateThread.isRunning()) {;}
+            if (!this.searchThread.waitThread())
+            {
+                // TODO error dialog : thread interrupted ? no thread ?
+                this.strategiesList.clear();
+            }
         }
 
-        if (this.strategyList.size() == 0)
+        if (this.strategiesList.getModel().getSize() == 0)
         {
             // No strategy, maybe not connected
             // Information message is already on the wizard
@@ -365,12 +352,8 @@ public class FirstWizardPage
 
             registration.setHost(host);
             registration.setPort(port);
-            
-            stPos = this.strategyBox.getSelectedIndex();
-            registration.setStrategyCode(this.strategiesAssoc.get(stPos));
-            registration.setStrategy(this.strategyBox.getSelectedValue().toString());
+            registration.setStrategy((Strategy) this.strategiesList.getSelectedValue());
         }
-        //*/
         isPageCommitted = true;
     }
 
@@ -380,7 +363,7 @@ public class FirstWizardPage
      */
     private void setNextButtonEnabled()
     {
-        boolean hostOK = DictAdapter.isUrl(hostField.getText());
+        boolean hostOK = DictConnection.isUrl(hostField.getText());
         boolean portOK = (this.portField.getText().length() != 0)
             && Integer.parseInt(this.portField.getText()) > 10;
         
@@ -399,7 +382,7 @@ public class FirstWizardPage
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
             
             // Clear the list and disable the button
-            this.strategyList.clear();
+            this.strategiesList.clear();
             this.strategyLoader.setEnabled(false);
         }
     }
@@ -536,7 +519,6 @@ public class FirstWizardPage
      */
     private boolean isExistingAccount(String host, int port)
     {
-        //*
         ProtocolProviderFactory factory =
             DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
@@ -563,99 +545,74 @@ public class FirstWizardPage
                 }
             }
         }
-        //*/
         return false;
     }
        
     /**
-     * Start the thread which will populate the Strategy List
+     * Start the thread which will populate the Strategies List
      */
     public void populateStrategies()
     {
-        // Clear ArrayLists
-        this.strategiesAssoc.clear();
-        this.strategyList.clear();
-        
-        
-        //this.populateThread = new StrategyThread(this);
-        this.populateThread.setHost(this.hostField.getText())
-                           .setPort(Integer.parseInt(this.portField.getText()))
-                           .sendProcessRequest();
+        // Clear ArrayList
+        this.strategiesList.clear();
+
+        boolean ok = this.searchThread.submitRequest(this.hostField.getText(),
+                                    Integer.parseInt(this.portField.getText()));
+
+        if (!ok)
+        {
+            // TODO Display error
+        }
     }
-    
-    /**
-     * Called by the thread, display a message
-     * @param message a message
-     */
-    public void threadMessage(String message)
-    {
-        this.strategyMessage.setText(message);
-    }
-    
-    /**
-     * Called by the thread, remove the special message section
-     */
-    public void threadRemoveMessage()
-    {
-        this.strategyMessage.setText(" ");
-    }
-    
-    /**
-     * Called by the thread, add a strategy in the list
-     * @param code The strategy code
-     * @param description The strategy description
-     */
-    public void threadAddStrategy(String code, String description)
-    {
-        this.strategiesAssoc.add(code);
-        this.strategyList.add(description);
-        this.strategyBox.setListData(this.strategyList);
-    }
-    
+
     /**
      * Automatic selection of a strategy
      */
     public void autoSelectStrategy()
     {
-        int index = -1;
-        
-        if (this.initstrategy.length() > 0)
-        {   // saved strategy
-            index = this.strategiesAssoc.indexOf(this.initstrategy);
-            this.initstrategy = "";
-        }
-        if (index < 0)
-        {
-            // First case : levenstein distance
-            index = this.strategiesAssoc.indexOf("lev");
-        }
-        if (index < 0)
-        {
-            // Second case : soundex
-            index = this.strategiesAssoc.indexOf("soundex");
-        }
-        if (index < 0)
-        {
-            // Last case : prefix
-            index = this.strategiesAssoc.indexOf("prefix");
-        }
-        
-        // If the index is still < 0, we select the first index
-        if (index < 0)
-        {
-            index = 0;
-        }
-        if (index < this.strategyBox.getVisibleRowCount())
-        {
-            // If the index is visible row, we don't need to scroll
-            this.strategyBox.setSelectedIndex(index);
-        }
-        else
-        {
-            // Otherwise, we scroll to the selected value 
-            this.strategyBox.setSelectedValue(this.strategyList.get(index), true);
-        }
-        
+        this.strategiesList.autoSelectStrategy(this.initstrategy);
+    }
+
+    /**
+     * 
+     * @param strategies
+     */
+    public void setStrategies(List<Strategy> strategies)
+    {
+        this.strategiesList.setStrategies(strategies);
+    }
+    
+    /**
+     * Informs the user of the current status of the search
+     * Should only be called by the thread
+     * @param message Search status
+     */
+    public void progressMessage(String message)
+    {
+        this.searchProgressPanel.nextStep(message);
+    }
+
+    
+    /**
+     * Informs the wizard that the search of the strategies is complete.
+     * Should only be called by the thread
+     */
+    public void strategiesSearchComplete()
+    {
+        setStrategyButtonEnable(true);
+        this.searchProgressPanel.finish();
+    }
+    
+    /**
+     * Informs the wizard that the search of the strategies is a failure
+     * Should only be called by the thread
+     * @param reason Reason message
+     * @param de Exception thrown
+     */
+    public void strategiesSearchFailure(String reason, DictException de)
+    {
+        strategiesSearchComplete();
+        // TODO SHOW ERROR MESSAGE
     }
 
     /**
@@ -676,6 +633,16 @@ public class FirstWizardPage
     public Object getSimpleForm()
     {
         return mainPanel;
+    }
+    
+    /**
+     * Indicates if this is the first dict account
+     * 
+     * @return TRUE if this is the first dict account - FALSE otherwise
+     */
+    public boolean isFirstAccount()
+    {
+        return this.firstAccount;
     }
     
     public boolean isCommitted()

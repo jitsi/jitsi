@@ -28,7 +28,7 @@ public class DictActivator
     /**
      * The currently valid bundle context.
      */
-    static BundleContext bundleContext = null;
+    private static BundleContext bundleContext = null;
 
     private ServiceRegistration dictPpFactoryServReg = null;
     private static ProtocolProviderFactoryDictImpl
@@ -58,7 +58,7 @@ public class DictActivator
         dictProviderFactory = new ProtocolProviderFactoryDictImpl();
 
         //reg the dict provider factory.
-        dictPpFactoryServReg =  context.registerService(
+        dictPpFactoryServReg = context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     dictProviderFactory,
                     hashtable);
@@ -90,7 +90,7 @@ public class DictActivator
         throws Exception
     {
         
-        this.dictProviderFactory.stop();
+        dictProviderFactory.stop();
         dictPpFactoryServReg.unregister();
         
         logger.info("DICT protocol implementation [STOPPED].");

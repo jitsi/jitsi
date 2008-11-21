@@ -2,7 +2,7 @@ Bundle-Activator: net.java.sip.communicator.impl.protocol.dict.DictActivator
 Bundle-Name: Dict Protocol Provider
 Bundle-Description: A bundle providing support for the Dict protocol.
 Bundle-Vendor: sip-communicator.org
-Bundle-Version: 0.0.1
+Bundle-Version: 1.0.0
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.configuration,
@@ -12,3 +12,4 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.version
+Export-Package: net.java.dict4j

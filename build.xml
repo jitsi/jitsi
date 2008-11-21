@@ -1740,6 +1740,7 @@ javax.swing.event, javax.swing.border"/>
              manifest="${src}/net/java/sip/communicator/impl/protocol/dict/dict.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/dict"
                     prefix="net/java/sip/communicator/impl/protocol/dict"/>
+            <zipfileset src="${lib.noinst}/dict4j.jar" prefix=""/>
         </jar>
     </target>
 

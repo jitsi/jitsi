@@ -86,7 +86,7 @@ public class DictAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameDict");
+        return Resources.getString("dict.protocolName");
     }
 
     /**
@@ -96,7 +96,7 @@ public class DictAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionDict");
+        return Resources.getString("dict.protocolDescription");
     }
 
     /**
@@ -122,7 +122,7 @@ public class DictAccountRegistrationWizard
 
         summaryTable.put("Host", registration.getHost());
         summaryTable.put("Port", String.valueOf(registration.getPort()));
-        summaryTable.put("Strategy", registration.getStrategy());
+        summaryTable.put("Strategy", registration.getStrategy().getName());
 
         return summaryTable.entrySet().iterator();
     }
@@ -140,7 +140,7 @@ public class DictAccountRegistrationWizard
         
         return this.installAccount(factory, registration.getHost(),
                                    registration.getPort(),
-                                   registration.getStrategyCode());
+                                   registration.getStrategy().getCode());
     }
 
     /**
@@ -165,11 +165,9 @@ public class DictAccountRegistrationWizard
         ProtocolProviderFactory factory
             = DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
-        /*return this.installAccount(factory,
-                                   userName);*/
         return this.installAccount(factory, registration.getHost(),
                                    registration.getPort(),
-                                   registration.getStrategyCode());
+                                   registration.getStrategy().getCode());
     }
 
     /**
