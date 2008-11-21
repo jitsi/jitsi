@@ -4,21 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.systray;
 
-import java.awt.image.*;
-import java.io.*;
 import java.net.*;
-import java.util.*;
 
-import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
-import org.osgi.framework.*;
 /**
  * The Messages class manages the access to the internationalization
  * properties files.
@@ -27,8 +20,6 @@ import org.osgi.framework.*;
  */
 public class Resources 
 {    
-    private static Logger log = Logger.getLogger(Resources.class);
-    
     private static ResourceManagementService resourcesService;
     
     /**
@@ -61,24 +52,7 @@ public class Resources
      */
     public static ImageIcon getImage(String imageID)
     {
-        BufferedImage image = null;
-
-        InputStream in = 
-            getResources().getImageInputStream(imageID);
-        
-        if(in == null)
-            return null;
-        
-        try
-        {
-            image = ImageIO.read(in);
-        }
-        catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID, e);
-        }
-
-        return new ImageIcon(image);
+        return getResources().getImage(imageID);
     }
     
     /**
@@ -106,18 +80,9 @@ public class Resources
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = SystrayActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = 
-                (ResourceManagementService)SystrayActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(SystrayActivator.bundleContext);
         return resourcesService;
     }
 }

@@ -62,20 +62,8 @@ public class KeybindingChooserActivator
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference =
-                bundleContext
-                    .getServiceReference(ResourceManagementService.class
-                        .getName());
-
-            if (serviceReference == null)
-                return null;
-
             resourcesService =
-                (ResourceManagementService) bundleContext
-                    .getService(serviceReference);
-        }
-
+                ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
     }
 }

@@ -6,12 +6,7 @@
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
-import java.io.*;
-
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
-
-import org.osgi.framework.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
@@ -19,10 +14,8 @@ import org.osgi.framework.*;
  * 
  * @author Yana Stamcheva
  */
-public class Resources {
-
-    private static Logger log = Logger.getLogger(Resources.class);
-
+public class Resources
+{
     private static ResourceManagementService resourcesService;
 
     public static ImageID SIP_LOGO = new ImageID("protocolIconSip");
@@ -47,42 +40,15 @@ public class Resources {
      */
     public static byte[] getImage(ImageID imageID)
     {
-       InputStream in = 
-            getResources().getImageInputStream(imageID.getId());
-        
-        if(in == null)
-            return null;
-        
-        byte[] image = null;
-
-        try
-        {
-            image = new byte[in.available()];
-            in.read(image);
-        }
-        catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
+        return getResources().getImageInBytes(imageID.getId());
     }
 
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = SIPAccRegWizzActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = 
-                (ResourceManagementService)SIPAccRegWizzActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(SIPAccRegWizzActivator.bundleContext);
         return resourcesService;
     }
 }

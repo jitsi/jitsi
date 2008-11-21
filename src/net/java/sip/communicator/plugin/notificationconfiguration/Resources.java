@@ -4,28 +4,22 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
-
-import org.osgi.framework.*;
 
 /**
  * The Messages class manages the access to the internationalization
  * properties files.
  * @author Yana Stamcheva
  */
-public class Resources {
-
-    private static Logger log = Logger.getLogger(Resources.class);
+public class Resources 
+{
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -68,37 +62,17 @@ public class Resources {
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        InputStream in = 
-            getResources().getImageInputStream(imageID);
-
-        if(in == null)
-            return null;
-
-        byte[] image = null;
-
-        try
-        {
-            image = new byte[in.available()];
-            in.read(image);
-        }
-        catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
+        return getResources().getImageInBytes(imageID);
     }
 
     private static ResourceManagementService getResources()
     {
-        ServiceReference serviceReference = NotificationConfigurationActivator
-            .bundleContext.getServiceReference(
-                ResourceManagementService.class.getName());
 
-        if(serviceReference == null)
-            return null;
-
-        return (ResourceManagementService) NotificationConfigurationActivator
-            .bundleContext.getService(serviceReference);
+        /*
+         * TODO If the method is called more than once, the trend seems to be
+         * caching the value.
+         */
+        return ResourceManagementServiceUtils
+            .getService(NotificationConfigurationActivator.bundleContext);
     }
 }

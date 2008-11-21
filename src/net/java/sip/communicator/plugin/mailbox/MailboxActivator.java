@@ -11,9 +11,9 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Activates the Mailbox plug-in.
@@ -165,17 +165,8 @@ public class MailboxActivator
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
     }
 }

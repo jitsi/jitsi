@@ -8,8 +8,6 @@ package net.java.sip.communicator.plugin.simpleaccreg;
 
 import net.java.sip.communicator.service.resources.*;
 
-import org.osgi.framework.*;
-
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
@@ -66,22 +64,13 @@ public class Resources
     {
         return getResources().getSettingsString(key);
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = SimpleAccountRegistrationActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = 
-                (ResourceManagementService)SimpleAccountRegistrationActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(SimpleAccountRegistrationActivator.bundleContext);
         return resourcesService;
     }
 }

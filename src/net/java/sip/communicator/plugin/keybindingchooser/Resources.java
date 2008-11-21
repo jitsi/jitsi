@@ -6,10 +6,6 @@
  */
 package net.java.sip.communicator.plugin.keybindingchooser;
 
-import java.io.*;
-
-import net.java.sip.communicator.util.*;
-
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
@@ -18,7 +14,6 @@ import net.java.sip.communicator.util.*;
  */
 public class Resources
 {
-    private static Logger logger = Logger.getLogger(Resources.class);
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -39,25 +34,7 @@ public class Resources
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        InputStream in =
-            KeybindingChooserActivator.getResources().getImageInputStream(
-                imageID);
-
-        if (in == null)
-            return null;
-
-        byte[] image = null;
-
-        try
-        {
-            image = new byte[in.available()];
-            in.read(image);
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
+        return KeybindingChooserActivator.getResources().getImageInBytes(
+            imageID);
     }
 }

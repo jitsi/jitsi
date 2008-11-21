@@ -6,14 +6,7 @@
  */
 package net.java.sip.communicator.plugin.autoaway;
 
-import java.io.*;
-import java.awt.image.*;
-import javax.imageio.*;
-import javax.swing.*;
 import net.java.sip.communicator.service.resources.*;
-
-import net.java.sip.communicator.util.*;
-import org.osgi.framework.*;
 
 /**
  * The Messages class manages the access to the internationalization properties
@@ -23,8 +16,6 @@ import org.osgi.framework.*;
  */
 public class Resources
 {
-    private static Logger logger = Logger.getLogger(Resources.class);
-    
     private static ResourceManagementService resourcesService;
 
     /**
@@ -47,18 +38,9 @@ public class Resources
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = AutoAwayActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = 
-                (ResourceManagementService)AutoAwayActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(AutoAwayActivator.bundleContext);
         return resourcesService;
     }
 }

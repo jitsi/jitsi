@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.plugin.profiler4j;
 
-import java.util.*;
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.resources.*;
 
 /**
@@ -30,23 +28,13 @@ public class Resources
     {
         return getResources().getI18NString(key);
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = ProfilerActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if (serviceReference == null) {
-                return null;
-            }
-            
-            resourcesService = 
-            	(ResourceManagementService) ProfilerActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(ProfilerActivator.bundleContext);
         return resourcesService;
     }
 }

@@ -6,13 +6,9 @@
 package net.java.sip.communicator.plugin.updatechecker;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
-import java.util.logging.*;
 
-import javax.swing.*;
-
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
  *

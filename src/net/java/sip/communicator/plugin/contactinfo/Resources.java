@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.contactinfo;
 
 import java.awt.*;
@@ -15,8 +14,6 @@ import javax.imageio.*;
 
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-
-import org.osgi.framework.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
@@ -70,18 +67,9 @@ public class Resources {
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = ContactInfoActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = 
-                (ResourceManagementService)ContactInfoActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(ContactInfoActivator.bundleContext);
         return resourcesService;
     }
 }

@@ -4,29 +4,20 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.accountinfo;
 
-import java.awt.image.*;
-import java.io.*;
-
-import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
-import org.osgi.framework.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
  * 
  * @author Yana Stamcheva
  */
-public class Resources {
-
-    private static Logger log = Logger.getLogger(Resources.class);
-
+public class Resources
+{
     private static ResourceManagementService resourcesService;
 
     /**
@@ -46,24 +37,7 @@ public class Resources {
      */
     public static ImageIcon getImage(String imageID)
     {
-        BufferedImage image = null;
-
-        InputStream in = 
-            getResources().getImageInputStream(imageID);
-        
-        if(in == null)
-            return null;
-        
-        try
-        {
-            image = ImageIO.read(in);
-        }
-        catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID, e);
-        }
-
-        return new ImageIcon(image);
+        return getResources().getImage(imageID);
     }
     
     /**
@@ -73,42 +47,15 @@ public class Resources {
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        InputStream in = 
-            getResources().getImageInputStream(imageID);
-        
-        if(in == null)
-            return null;
-        
-        byte[] image = null;
-
-        try
-        {
-            image = new byte[in.available()];
-            in.read(image);
-        }
-        catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
+        return getResources().getImageInBytes(imageID);
     }
     
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = AccountInfoActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = 
-                (ResourceManagementService)AccountInfoActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(AccountInfoActivator.bundleContext);
         return resourcesService;
     }
 }

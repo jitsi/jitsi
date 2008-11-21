@@ -6,15 +6,6 @@
  */
 package net.java.sip.communicator.plugin.mailbox;
 
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-
-import javax.imageio.*;
-import javax.swing.*;
-
-import net.java.sip.communicator.util.*;
-
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
@@ -23,7 +14,6 @@ import net.java.sip.communicator.util.*;
  */
 public class Resources
 {
-    private static Logger logger = Logger.getLogger(Resources.class);
 
     /**
      * Returns an internationalized string corresponding to the given key.
@@ -44,22 +34,6 @@ public class Resources
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        logger.debug("Loading imageID=" + imageID);
-
-        try
-        {
-            InputStream in = 
-                MailboxActivator.getResources().getImageInputStream(imageID);
-            byte[] image = new byte[in.available()];
-            in.read(image);
-            
-            return image;
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to load image:" + imageID, e);
-        }
-
-        return null;
+        return MailboxActivator.getResources().getImageInBytes(imageID);
     }
 }

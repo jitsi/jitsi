@@ -11,19 +11,13 @@
  */
 package net.java.sip.communicator.impl.protocol.ssh;
 
-import java.io.*;
-
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 /**
- *
  * @author Shobhit Jindal
  */
 public class Resources
 {
-    private static Logger log = Logger.getLogger(Resources.class);
-    
     public static ImageID SSH_LOGO = new ImageID("protocolIconSsh");
     
     /**
@@ -45,22 +39,6 @@ public class Resources
      */
     public static byte[] getImage(ImageID imageID)
     {
-        byte[] image = null;
-        InputStream inputStream;
-        try
-        {
-            inputStream = 
-                SSHActivator.getResources().getImageInputStream(imageID.getId());
-            
-            image = new byte[inputStream.available()];
-            
-            inputStream.read(image);
-        }
-        catch (IOException exc)
-        {
-            log.error("Failed to load image:" + imageID.getId(), exc);
-        }
-        
-        return image;
+        return SSHActivator.getResources().getImageInBytes(imageID.getId());
     }
 }
