@@ -26,11 +26,17 @@ public class DeviceConfiguration
 
     /**
      * The name of the <code>DeviceConfiguration</code> property which
-     * represents the capture device used by default by the
-     * <code>DeviceConfiguration</code> for video when it is not explicitly
-     * configured to use a specific video capture device.
+     * represents the device used by <code>DeviceConfiguration</code> for video
+     * capture.
      */
-    public static final String DEFAULT_VIDEO_CAPTURE_DEVICE = "DEFAULT_VIDEO_CAPTURE_DEVICE";
+    public static final String AUDIO_CAPTURE_DEVICE = "AUDIO_CAPTURE_DEVICE";
+
+    /**
+     * The name of the <code>DeviceConfiguration</code> property which
+     * represents the device used by <code>DeviceConfiguration</code> for video
+     * capture.
+     */
+    public static final String VIDEO_CAPTURE_DEVICE = "VIDEO_CAPTURE_DEVICE";
 
     private static final CaptureDeviceInfo[] NO_CAPTURE_DEVICES =
         new CaptureDeviceInfo[0];
@@ -52,7 +58,6 @@ public class DeviceConfiguration
      */
     public DeviceConfiguration()
     {
-
     }
 
     /**
@@ -81,19 +86,18 @@ public class DeviceConfiguration
     private void extractConfiguredCaptureDevices()
     {
         logger.info("Scanning for configured Audio Devices.");
-        Vector audioCaptureDevices =
-            CaptureDeviceManager.getDeviceList(new AudioFormat(
-                AudioFormat.LINEAR, 44100, 16, 1));// 1 means 1 channel for mono
-        if (audioCaptureDevices.size() < 1)
+        CaptureDeviceInfo[] audioCaptureDevices =
+            getAvailableAudioCaptureDevices();
+        if (audioCaptureDevices.length < 1)
         {
             logger.warn("No Audio Device was found.");
             audioCaptureDevice = null;
         }
         else
         {
-            logger.debug("Found " + audioCaptureDevices.size()
+            logger.debug("Found " + audioCaptureDevices.length
                 + " capture devices: " + audioCaptureDevices);
-            audioCaptureDevice = (CaptureDeviceInfo) audioCaptureDevices.get(0);
+            audioCaptureDevice = audioCaptureDevices[0];
             logger.info("Found " + audioCaptureDevice.getName()
                 + " as an audio capture device.");
         }
@@ -153,25 +157,11 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo[] getAvailableAudioCaptureDevices()
     {
-        Vector audioCaptureDevices =
+        Vector<CaptureDeviceInfo> audioCaptureDevices =
             CaptureDeviceManager.getDeviceList(new AudioFormat(
                 AudioFormat.LINEAR, 44100, 16, 1));// 1 means 1 channel for mono
-        if (audioCaptureDevices.size() < 1)
-        {
-            return NO_CAPTURE_DEVICES;
-        }
-        else
-        {
-            CaptureDeviceInfo[] result = 
-                new CaptureDeviceInfo[audioCaptureDevices.size()];
 
-            for (int i = 0; i < result.length; i++)
-            {
-                result[i] = (CaptureDeviceInfo)audioCaptureDevices.get(i);
-            }
-
-            return result;
-        }
+        return audioCaptureDevices.toArray(NO_CAPTURE_DEVICES);
     }
 
     /**
@@ -187,30 +177,14 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo[] getAvailableVideoCaptureDevices()
     {
-        Vector videoCaptureDevices =
-            CaptureDeviceManager
-                .getDeviceList(new VideoFormat(VideoFormat.RGB));
+        Set<CaptureDeviceInfo> videoCaptureDevices =
+            new HashSet<CaptureDeviceInfo>();
 
-        Vector yuvVideoCaptureDevices =
-                CaptureDeviceManager.getDeviceList(new VideoFormat(
-                    VideoFormat.YUV));
-
-        videoCaptureDevices.addAll(yuvVideoCaptureDevices);
-
-        if (videoCaptureDevices.size() < 1)
-        {
-            return NO_CAPTURE_DEVICES;
-        }
-
-        CaptureDeviceInfo[] result = 
-            new CaptureDeviceInfo[videoCaptureDevices.size()];
-
-        for (int i = 0; i < result.length; i++)
-        {
-            result[i] = (CaptureDeviceInfo)videoCaptureDevices.get(i);
-        }
-
-        return result;
+        videoCaptureDevices.addAll(CaptureDeviceManager
+            .getDeviceList(new VideoFormat(VideoFormat.RGB)));
+        videoCaptureDevices.addAll(CaptureDeviceManager
+            .getDeviceList(new VideoFormat(VideoFormat.YUV)));
+        return videoCaptureDevices.toArray(NO_CAPTURE_DEVICES);
     }
 
     /**
@@ -225,13 +199,12 @@ public class DeviceConfiguration
     }
 
     /**
-     * Sets the capture device which is to be used by default by this
-     * <code>DeviceConfiguration</code> for video when it is not explicitly
-     * configured to use a specific audio capture device.
+     * Sets the device which is to be used by this
+     * <code>DeviceConfiguration</code> for video capture.
      * 
-     * @param device a <code>CaptureDeviceInfo</code> describing the video
-     *            capture device to be made default for this
-     *            <code>DeviceConfiguration</code>
+     * @param device a <code>CaptureDeviceInfo</code> describing device to be
+     *            used by this <code>DeviceConfiguration</code> for video
+     *            capture
      */
     public void setVideoCaptureDevice(CaptureDeviceInfo device)
     {
@@ -241,18 +214,17 @@ public class DeviceConfiguration
 
             videoCaptureDevice = device;
 
-            firePropertyChange(DEFAULT_VIDEO_CAPTURE_DEVICE, oldDevice, device);
+            firePropertyChange(VIDEO_CAPTURE_DEVICE, oldDevice, device);
         }
     }
 
     /**
-     * Sets the capture device which is to be used by default by this
-     * <code>DeviceConfiguration</code> for video when it is not explicitly
-     * configured to use a specific audio capture device.
+     * Sets the device which is to be used by this
+     * <code>DeviceConfiguration</code> for audio capture.
      * 
-     * @param device a <code>CaptureDeviceInfo</code> describing the video
-     *            capture device to be made default for this
-     *            <code>DeviceConfiguration</code>
+     * @param device a <code>CaptureDeviceInfo</code> describing the device to
+     *            be used by this <code>DeviceConfiguration</code> for audio
+     *            capture
      */
     public void setAudioCaptureDevice(CaptureDeviceInfo device)
     {
@@ -262,7 +234,7 @@ public class DeviceConfiguration
 
             audioCaptureDevice = device;
 
-            firePropertyChange(DEFAULT_VIDEO_CAPTURE_DEVICE, oldDevice, device);
+            firePropertyChange(AUDIO_CAPTURE_DEVICE, oldDevice, device);
         }
     }
 
