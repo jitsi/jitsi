@@ -3,7 +3,6 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.*;
@@ -47,8 +46,6 @@ public class ConfigurationFrame
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private MainFrame mainFrame;
-
     /**
      * Creates an instance of <tt>ConfigurationManagerImpl</tt>.
      *
@@ -57,8 +54,6 @@ public class ConfigurationFrame
     public ConfigurationFrame(MainFrame mainFrame)
     {
         super(mainFrame);
-
-        this.mainFrame = mainFrame;
 
         this.configList = new ConfigFormList(this);
 
@@ -161,11 +156,8 @@ public class ConfigurationFrame
         if (isVisible)
         {
             this.configList.setSelectedIndex(0);
-
-            super.setVisible(true);
         }
-        else
-            super.setVisible(false);
+        super.setVisible(isVisible);
     }
 
     /**
@@ -245,15 +237,17 @@ public class ConfigurationFrame
 
         ConfigurationForm configForm = (ConfigurationForm) sService;
 
-        if (event.getType() == ServiceEvent.REGISTERED)
+        switch (event.getType())
         {
+        case ServiceEvent.REGISTERED:
             logger.info("Handling registration of a new Configuration Form.");
 
             this.addConfigurationForm(configForm);
-        }
-        else if (event.getType() == ServiceEvent.UNREGISTERING)
-        {
+            break;
+
+        case ServiceEvent.UNREGISTERING:
             this.removeConfigurationForm(configForm);
+            break;
         }
     }
 
@@ -273,8 +267,10 @@ public class ConfigurationFrame
 
         if (descriptor != null)
         {
-            if (configForm.getIndex() > -1)
-                configList.addConfigForm(descriptor, configForm.getIndex());
+            int index = configForm.getIndex();
+
+            if (index > -1)
+                configList.addConfigForm(descriptor, index);
             else
                 configList.addConfigForm(descriptor);
         }

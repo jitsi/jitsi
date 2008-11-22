@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.*;
@@ -12,7 +11,6 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in the
@@ -26,7 +24,6 @@ public class ConfigFormListCellRenderer
     extends JPanel 
     implements ListCellRenderer
 {
-    private Logger logger = Logger.getLogger(ConfigFormListCellRenderer.class);
     
     /**
      * The size of the gradient used for painting the selected background of
@@ -88,13 +85,15 @@ public class ConfigFormListCellRenderer
             int index, boolean isSelected, boolean cellHasFocus)
     {
         ConfigFormDescriptor cfDescriptor = (ConfigFormDescriptor) value;
-        
-        if(cfDescriptor.getConfigFormIcon() != null)            
-            iconLabel.setIcon(cfDescriptor.getConfigFormIcon());
-        
-        if(cfDescriptor.getConfigFormTitle() != null)
-            textLabel.setText(cfDescriptor.getConfigFormTitle());
-        
+
+        ImageIcon icon = cfDescriptor.getConfigFormIcon();
+        if(icon != null)            
+            iconLabel.setIcon(icon);
+
+        String title = cfDescriptor.getConfigFormTitle();
+        if (title != null)
+            textLabel.setText(title);
+
         this.isSelected = isSelected;
 
         return this;
@@ -115,45 +114,37 @@ public class ConfigFormListCellRenderer
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
+        int width = getWidth();
+        int height = getHeight();
 
         if (isSelected)
         {
-            GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                    SELECTED_START_COLOR, this
-                            .getWidth() / 2,
-                    SELECTED_GRADIENT_SIZE,
-                    SELECTED_END_COLOR);
+            GradientPaint p =
+                new GradientPaint(width / 2, 0, SELECTED_START_COLOR,
+                    width / 2, SELECTED_GRADIENT_SIZE, SELECTED_END_COLOR);
 
-            GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
-                    .getHeight()
-                    - SELECTED_GRADIENT_SIZE,
-                    SELECTED_END_COLOR,
-                    this.getWidth() / 2, this.getHeight() - 1,
+            GradientPaint p1 =
+                new GradientPaint(width / 2, height - SELECTED_GRADIENT_SIZE,
+                    SELECTED_END_COLOR, width / 2, height - 1,
                     SELECTED_START_COLOR);
 
             g2.setPaint(p);
-            g2.fillRect(0, 0, this.getWidth(),
-                    SELECTED_GRADIENT_SIZE);
+            g2.fillRect(0, 0, width, SELECTED_GRADIENT_SIZE);
 
             g2.setColor(SELECTED_END_COLOR);
-            g2.fillRect(0, SELECTED_GRADIENT_SIZE, this
-                    .getWidth(), this.getHeight()
-                    - SELECTED_GRADIENT_SIZE);
+            g2.fillRect(0, SELECTED_GRADIENT_SIZE, width, height
+                - SELECTED_GRADIENT_SIZE);
 
             g2.setPaint(p1);
-            g2.fillRect(0, this.getHeight()
-                    - SELECTED_GRADIENT_SIZE, this
-                    .getWidth(), this.getHeight() - 1);
+            g2.fillRect(0, height - SELECTED_GRADIENT_SIZE, width, height - 1);
 
             g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
-            g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
-                    5, 5);
+            g2.drawRoundRect(0, 0, width - 1, height - 1, 5, 5);
         }
         else
         {
             g2.setColor(SELECTED_START_COLOR);
-            g2.drawLine(0, this.getHeight() - 1,
-                    this.getWidth(), this.getHeight() - 1);
+            g2.drawLine(0, height - 1, width, height - 1);
         }
     }
 }

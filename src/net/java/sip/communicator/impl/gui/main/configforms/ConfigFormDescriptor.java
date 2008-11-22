@@ -24,9 +24,9 @@ import net.java.sip.communicator.util.*;
  */
 public class ConfigFormDescriptor
 {
-    private Logger logger = Logger.getLogger(ConfigFormDescriptor.class);
+    private final Logger logger = Logger.getLogger(ConfigFormDescriptor.class);
     
-    private ConfigurationForm configForm;
+    private final ConfigurationForm configForm;
     
     private ImageIcon configFormIcon;
     
