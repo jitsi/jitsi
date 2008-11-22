@@ -91,8 +91,7 @@ public class ThreadManager
     /**
      * Thread used to search the strategies
      * 
-     * @author ROTH Damien
-     * @author LITZELMANN Cédric
+     * @author ROTH Damien, LITZELMANN Cedric
      */
     class StrategyThread
         extends Thread
