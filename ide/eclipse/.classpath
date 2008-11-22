@@ -12,6 +12,7 @@
     <classpathentry kind="lib" path="lib/installer-exclude/aclibico-2.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/commons-logging.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/concurrent.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/dict4j.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/dnsjava-2.0.3.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/ffmpeg-java-gpl.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
