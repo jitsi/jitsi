@@ -506,6 +506,13 @@ public class ProtocolProviderServiceIcqImpl
             supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 basicInstantMessaging);
+            
+          //initialize the multi chat operation set
+           OperationSetMultiUserChatIcqImpl multiUserOpSet = new OperationSetMultiUserChatIcqImpl(
+                   this);
+
+           supportedOperationSets.put(OperationSetMultiUserChat.class
+                   .getName(), multiUserOpSet);
 
             //initialize the typing notifications operation set
             OperationSetTypingNotifications typingNotifications =

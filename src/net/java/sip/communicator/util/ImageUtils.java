@@ -105,7 +105,7 @@ public class ImageUtils
                                                     int width,
                                                     int height)
     {
-        if (imageBytes == null || imageBytes.length < 1)
+        if (imageBytes == null || !(imageBytes.length > 0))
             return null;
 
         ImageIcon imageIcon = null;
