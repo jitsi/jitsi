@@ -141,7 +141,6 @@ public class StrategiesList
         /**
          * Implements <tt>ListModel.getElementAt</tt>
          */
-        @Override
         public Object getElementAt(int row)
         {
             return this.data.get(row);
@@ -150,7 +149,6 @@ public class StrategiesList
         /**
          * Implements <tt>ListModel.getSize</tt>
          */
-        @Override
         public int getSize()
         {
             return this.data.size();
@@ -183,7 +181,6 @@ public class StrategiesList
         extends JLabel
         implements ListCellRenderer
     {
-        @Override
         /**
          * implements <tt>ListCellRenderer.getListCellRendererComponent</tt>
          */
@@ -211,3 +208,4 @@ public class StrategiesList
         }
     }
 }
+

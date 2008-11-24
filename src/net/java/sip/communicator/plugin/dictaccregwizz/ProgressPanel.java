@@ -128,7 +128,6 @@ public class ProgressPanel
         this.validate();
     }
 
-    @Override
     public void actionPerformed(ActionEvent arg0)
     {
         this.searchThread.cancel();
