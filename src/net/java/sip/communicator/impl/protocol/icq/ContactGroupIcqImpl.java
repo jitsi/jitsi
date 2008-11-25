@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The ICQ implementation of the ContactGroup interface. Intances of this class
@@ -576,6 +575,4 @@ public class ContactGroupIcqImpl
     {
         return getGroupName();
     }
-
-
 }
