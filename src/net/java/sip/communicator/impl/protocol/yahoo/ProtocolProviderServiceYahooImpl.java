@@ -344,6 +344,13 @@ public class ProtocolProviderServiceYahooImpl
                 OperationSetBasicInstantMessaging.class.getName(),
                 basicInstantMessaging);
 
+           //initialize the multi user chat operation set
+            OperationSetMultiUserChatYahooImpl multiUserChatOpSet = 
+               new OperationSetMultiUserChatYahooImpl(this);
+            
+            supportedOperationSets.put(OperationSetMultiUserChat.class.getName(),
+                   multiUserChatOpSet);
+            
             //initialize the typing notifications operation set
             typingNotifications =
                 new OperationSetTypingNotificationsYahooImpl(this);

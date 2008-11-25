@@ -455,7 +455,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-    private String processLinks(String message)
+    public String processLinks(String message)
     {
         StringBuffer msgBuffer = new StringBuffer();
 
