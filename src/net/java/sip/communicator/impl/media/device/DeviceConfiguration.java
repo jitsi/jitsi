@@ -7,9 +7,12 @@
 package net.java.sip.communicator.impl.media.device;
 
 import java.util.*;
+
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.media.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -37,6 +40,12 @@ public class DeviceConfiguration
      * capture.
      */
     public static final String VIDEO_CAPTURE_DEVICE = "VIDEO_CAPTURE_DEVICE";
+    
+    private static final String PROP_AUDIO_DEVICE =
+        "net.java.sip.communicator.impl.media.audiodev";
+
+    private static final String PROP_VIDEO_DEVICE =
+        "net.java.sip.communicator.impl.media.videodev";
 
     private static final CaptureDeviceInfo[] NO_CAPTURE_DEVICES =
         new CaptureDeviceInfo[0];
@@ -54,10 +63,48 @@ public class DeviceConfiguration
     private CaptureDeviceInfo videoCaptureDevice = null;
 
     /**
+    * Listeners that will be notified every time
+    * a device has been changed.
+    */
+    private Vector<PropertyChangeListener> propertyChangeListeners = 
+        new Vector<PropertyChangeListener>();
+
+    /**
      * Default constructor.
      */
     public DeviceConfiguration()
     {
+    }
+    
+    /**
+     * Adds <tt>listener</tt> to the list of listeners registered to receive
+     * events upon modification of chat room properties such as its subject
+     * for example.
+     *
+     * @param listener the <tt>ChatRoomChangeListener</tt> that is to be
+     * registered for <tt>ChatRoomChangeEvent</tt>-s.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+        synchronized(propertyChangeListeners)
+        {
+            if (!propertyChangeListeners.contains(listener))
+                propertyChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes <tt>listener</tt> from the list of listeneres current
+     * registered for chat room modification events.
+     *
+     * @param listener the <tt>ChatRoomChangeListener</tt> to remove.
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        synchronized(propertyChangeListeners)
+        {
+            propertyChangeListeners.remove(listener);
+        }
     }
 
     /**
@@ -97,7 +144,23 @@ public class DeviceConfiguration
         {
             logger.debug("Found " + audioCaptureDevices.length
                 + " capture devices: " + audioCaptureDevices);
-            audioCaptureDevice = audioCaptureDevices[0];
+
+            String audioDevName = 
+                (String)MediaActivator.getConfigurationService().
+                    getProperty(PROP_AUDIO_DEVICE);
+
+            if(audioDevName == null)
+                audioCaptureDevice = audioCaptureDevices[0];
+            else
+            {
+                for (int i = 0; i < audioCaptureDevices.length; i++)
+                {
+                    CaptureDeviceInfo captureDeviceInfo =
+                        audioCaptureDevices[i];
+                    if(audioDevName.equals(captureDeviceInfo.getName()))
+                        audioCaptureDevice = captureDeviceInfo;
+                }
+            }
             logger.info("Found " + audioCaptureDevice.getName()
                 + " as an audio capture device.");
         }
@@ -108,7 +171,26 @@ public class DeviceConfiguration
                 .getDeviceList(new VideoFormat(VideoFormat.RGB));
         if (videoCaptureDevices.size() > 0)
         {
-            videoCaptureDevice = (CaptureDeviceInfo) videoCaptureDevices.get(0);
+            String videoDevName = 
+                (String)MediaActivator.getConfigurationService().
+                    getProperty(PROP_VIDEO_DEVICE);
+
+            if(videoDevName == null)
+            {
+                videoCaptureDevice = 
+                    (CaptureDeviceInfo)videoCaptureDevices.get(0);
+            }
+            else
+            {
+                for (int i = 0; i < videoCaptureDevices.size(); i++)
+                {
+                    CaptureDeviceInfo captureDeviceInfo =
+                        (CaptureDeviceInfo) videoCaptureDevices.get(i);
+                    if(videoDevName.equals(captureDeviceInfo.getName()))
+                        videoCaptureDevice = captureDeviceInfo;
+                }
+            }
+
             logger.info("Found " + videoCaptureDevice.getName()
                 + " as an RGB Video Device.");
         }
@@ -118,10 +200,29 @@ public class DeviceConfiguration
             videoCaptureDevices =
                 CaptureDeviceManager.getDeviceList(new VideoFormat(
                     VideoFormat.YUV));
+
             if (videoCaptureDevices.size() > 0)
             {
-                videoCaptureDevice =
-                    (CaptureDeviceInfo) videoCaptureDevices.get(0);
+                String videoDevName = 
+                    (String)MediaActivator.getConfigurationService().
+                        getProperty(PROP_VIDEO_DEVICE);
+
+                if(videoDevName == null)
+                {
+                    videoCaptureDevice = 
+                        (CaptureDeviceInfo)videoCaptureDevices.get(0);
+                }
+                else
+                {
+                    for (int i = 0; i < videoCaptureDevices.size(); i++)
+                    {
+                        CaptureDeviceInfo captureDeviceInfo =
+                            (CaptureDeviceInfo) videoCaptureDevices.get(i);
+                        if(videoDevName.equals(captureDeviceInfo.getName()))
+                            videoCaptureDevice = captureDeviceInfo;
+                    }
+                }
+
                 logger.info("Found " + videoCaptureDevice.getName()
                     + " as an YUV Video Device.");
             }
@@ -214,6 +315,9 @@ public class DeviceConfiguration
 
             videoCaptureDevice = device;
 
+            MediaActivator.getConfigurationService().
+                setProperty(PROP_VIDEO_DEVICE, device.getName());
+
             firePropertyChange(VIDEO_CAPTURE_DEVICE, oldDevice, device);
         }
     }
@@ -234,6 +338,9 @@ public class DeviceConfiguration
 
             audioCaptureDevice = device;
 
+            MediaActivator.getConfigurationService().
+                setProperty(PROP_AUDIO_DEVICE, device.getName());
+
             firePropertyChange(AUDIO_CAPTURE_DEVICE, oldDevice, device);
         }
     }
@@ -241,7 +348,14 @@ public class DeviceConfiguration
     protected void firePropertyChange(String property, Object oldValue,
         Object newValue)
     {
-        // TODO Auto-generated method stub
+        Iterator<PropertyChangeListener> iter = 
+            propertyChangeListeners.iterator();
+        while (iter.hasNext())
+        {
+            PropertyChangeListener pl = (PropertyChangeListener) iter.next();
+            pl.propertyChange(
+                new PropertyChangeEvent(this, property, oldValue, newValue));
+        }
     }
 
     /**

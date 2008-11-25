@@ -12,6 +12,7 @@ import java.util.*;
 import javax.sdp.*;
 import javax.media.Time;
 
+import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.event.*;
@@ -69,9 +70,15 @@ public class MediaServiceImpl
     private MediaEventDispatcher mediaDispatcher = new MediaEventDispatcher();
 
     /**
-     * Our configuration helper.
+     * Our device configuration helper.
      */
     private DeviceConfiguration deviceConfiguration = new DeviceConfiguration();
+
+    /**
+     * Our encoding configuration helper.
+     */
+    private EncodingConfiguration encodingConfiguration = 
+        new EncodingConfiguration();
 
     /**
      * Our media control helper. The media control instance that we will be 
@@ -359,6 +366,17 @@ public class MediaServiceImpl
     {
         return deviceConfiguration;
     }
+    
+    /**
+     * A valid instance of the EncodingConfiguration that a call session may use
+     * to query for encodings and their priority.
+     *
+     * @return a valid instance of the EncodingConfiguration
+     */
+    public EncodingConfiguration getEncodingConfiguration()
+    {
+        return encodingConfiguration;
+    }
 
     /**
      * We use this thread to detect, initialize and configure all capture
@@ -388,7 +406,9 @@ public class MediaServiceImpl
                 try
                 {
                     deviceConfiguration.initialize();
-                    defaultMediaControl.initialize(deviceConfiguration);
+                    encodingConfiguration.initialize();
+                    defaultMediaControl.
+                        initialize(deviceConfiguration, encodingConfiguration);
                     sdpFactory = SdpFactory.getInstance();
                     isStarted = true;
                 }
@@ -497,7 +517,6 @@ public class MediaServiceImpl
     {
         callDataSinkMappings.remove(call);
     }
-
 
 //------------------ main method for testing ---------------------------------
     /**

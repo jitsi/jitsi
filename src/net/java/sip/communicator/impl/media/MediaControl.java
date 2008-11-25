@@ -38,9 +38,14 @@ public class MediaControl
     private final Logger logger = Logger.getLogger(MediaControl.class);
 
     /**
-     * Our configuration helper.
+     * Our device configuration helper.
      */
     private DeviceConfiguration deviceConfiguration = null;
+
+    /**
+     * Our encoding configuration helper.
+     */
+    private EncodingConfiguration encodingConfiguration = null;
 
     /**
      * A data source merging our audio and video data sources.
@@ -55,45 +60,14 @@ public class MediaControl
     private SourceCloneable cloneableVideoDataSource;
 
     /**
-     * SDP Codes of all video formats that JMF supports.
+     * SDP Codes of all video formats that JMF supports for current datasource.
      */
-    private String[] supportedVideoEncodings = new String[]
-        {
-            Integer.toString(Constants.H264_RTP_SDP),
-            // javax.media.format.VideoFormat.H263_RTP
-            Integer.toString(SdpConstants.H263),
-            // javax.media.format.VideoFormat.JPEG_RTP
-            Integer.toString(SdpConstants.JPEG),
-            // javax.media.format.VideoFormat.H261_RTP
-            Integer.toString(SdpConstants.H261)
-        };
+    private String[] supportedVideoEncodings;
 
     /**
-     * SDP Codes of all audio formats that JMF supports.
+     * SDP Codes of all audio formats that JMF supports for current datasource.
      */
-    private String[] supportedAudioEncodings = new String[]
-        {
-            // ILBC
-            Integer.toString(97),
-            // javax.media.format.AudioFormat.G723_RTP
-            Integer.toString(SdpConstants.G723),
-            // javax.media.format.AudioFormat.GSM_RTP;
-            Integer.toString(SdpConstants.GSM),
-            // javax.media.format.AudioFormat.ULAW_RTP;
-            Integer.toString(SdpConstants.PCMU),
-            // javax.media.format.AudioFormat.DVI_RTP;
-            Integer.toString(SdpConstants.DVI4_8000),
-            // javax.media.format.AudioFormat.DVI_RTP;
-            Integer.toString(SdpConstants.DVI4_16000),
-            // javax.media.format.AudioFormat.ALAW;
-            Integer.toString(SdpConstants.PCMA),
-            Integer.toString(110),
-            // javax.media.format.AudioFormat.G728_RTP;
-            Integer.toString(SdpConstants.G728)
-            // javax.media.format.AudioFormat.G729_RTP
-            // g729 is not suppported by JMF
-            //Integer.toString(SdpConstants.G729)
-        };
+    private String[] supportedAudioEncodings;
 
     /**
      * The indicator which determines whether {@link #supportedAudioEncodings}
@@ -102,19 +76,6 @@ public class MediaControl
      * synchronize the access to the mentioned calculation.
      */
     private final boolean[] supportedEncodingsAreCalculated = new boolean[1];
-
-    private static final String PROP_SDP_PREFERENCE
-                            = "net.java.sip.communicator.impl.media.sdppref";
-
-    /**
-     * That's where we keep format preferences matching SDP formats to integers.
-     * We keep preferences for both audio and video formats here in case we'd
-     * ever need to compare them to one another. In most cases however both
-     * would be decorelated and other components (such as the UI) should present
-     * them separately.
-     */
-    private final Hashtable<String, Integer> encodingPreferences =
-        new Hashtable<String, Integer>();
 
     /**
      * The processor that will be handling content coming from our capture data
@@ -138,46 +99,6 @@ public class MediaControl
      */
     private static final String DEBUG_DATA_SOURCE_URL_PROPERTY_NAME
       = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
-
-    /**
-     *
-     */
-    private static String[] customCodecs = new String[]
-    {
-        
-        FMJConditionals.FMJ_CODECS
-           ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
-           : "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
-        FMJConditionals.FMJ_CODECS
-           ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
-           : "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
-        FMJConditionals.FMJ_CODECS
-           ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
-           : "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
-        FMJConditionals.FMJ_CODECS
-           ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
-           : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
-        "net.java.sip.communicator.impl.media.codec.video.h264.NativeEncoder",
-        "net.java.sip.communicator.impl.media.codec.video.h264.NativeDecoder",
-        "net.java.sip.communicator.impl.media.codec.video.ImageScaler",
-        "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
-        "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
-        "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
-        "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaDecoder"
-//        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaDecoder",
-//        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaEncoder",
-//        "net.java.sip.communicator.impl.media.codec.audio.g729.DePacketizer",
-//        "net.java.sip.communicator.impl.media.codec.audio.g729.Packetizer"
-    };
-
-    /**
-     * Custom Packages provided by Sip-Communicator
-     */
-    private static String[] customPackages = new String[]
-    {    // datasource for low latency ALSA input
-        "net.java.sip.communicator.impl",
-        "net.sf.fmj"
-    };
 
     /**
      * The default constructor.
@@ -207,14 +128,12 @@ public class MediaControl
      *
      * @throws MediaException if initialization fails.
      */
-    public void initialize(DeviceConfiguration deviceConfig)
+    public void initialize( DeviceConfiguration deviceConfig, 
+                            EncodingConfiguration encodingConfig)
         throws MediaException
     {
         this.deviceConfiguration = deviceConfig;
-        initializeFormatPreferences();
-
-        // register our own datasources
-        registerCustomPackages();
+        this.encodingConfiguration = encodingConfig;
 
         String debugDataSourceURL
             = MediaActivator.getConfigurationService().getString(
@@ -228,139 +147,20 @@ public class MediaControl
         {
             initDebugDataSource(debugDataSourceURL);
         }
-    }
 
-    /**
-     * Retrieves (from the configuration service) preferences specified for
-     * various formats and assigns default ones to those that haven't been
-     * mentioned.
-     */
-    private void initializeFormatPreferences()
-    {
-        //first init default preferences
-        //video
-        setEncodingPreference(Constants.H264_RTP,      1100); 
-        setEncodingPreference(SdpConstants.H263,      1000);
-        setEncodingPreference(SdpConstants.JPEG,       950);
-        setEncodingPreference(SdpConstants.H261,       800);
+        deviceConfiguration.addPropertyChangeListener(new PropertyChangeListener(){
 
-        //audio
-        setEncodingPreference(SdpConstants.PCMU,       650);
-        setEncodingPreference(SdpConstants.PCMA,       600);
-        setEncodingPreference(97,                      500);
-        setEncodingPreference(SdpConstants.GSM,        450);
-        setEncodingPreference(110,                     350);
-        setEncodingPreference(SdpConstants.DVI4_8000,  300);
-        setEncodingPreference(SdpConstants.DVI4_16000, 250);
-        setEncodingPreference(SdpConstants.G723,       150);
-        setEncodingPreference(SdpConstants.G728,       100);
-
-        //now override with those that are specified by the user.
-        ConfigurationService confService
-            = MediaActivator.getConfigurationService();
-
-        List<String> sdpPreferences = confService.getPropertyNamesByPrefix(
-                        PROP_SDP_PREFERENCE, false);
-        Iterator<String> sdpPreferencesIter = sdpPreferences.iterator();
-        while(sdpPreferencesIter.hasNext())
-        {
-            String pName = sdpPreferencesIter.next();
-            String prefStr = confService.getString(pName);
-            String fmtName = pName.substring(pName.lastIndexOf('.'));
-            int    preference = -1;
-            int    fmt = -1;
-
-
-            try
+            public void propertyChange(PropertyChangeEvent evt)
             {
-                preference = Integer.parseInt(prefStr);
-                fmt = Integer.parseInt(fmtName);
-            }
-            catch (NumberFormatException exc)
-            {
-                logger.warn("Failed to parse format ("
-                            + fmtName +") or preference("
-                            + prefStr + ").", exc);
-                continue;
-            }
-
-            setEncodingPreference(fmt, preference);
-
-            //now sort the arrays so that they are returned by order of
-            //preference.
-            sortEncodingsArray( this.supportedAudioEncodings);
-            sortEncodingsArray( this.supportedVideoEncodings);
-        }
-    }
-
-    /**
-     * Compares the two formats for order.  Returns a negative integer,
-     * zero, or a positive integer as the first format has been assigned a
-     * preference higher, equal to, or greater than the one of the second.<p>
-     *
-     * @param enc1 the first format to compare for preference.
-     * @param enc2 the second format to compare for preference.
-     *
-     * @return a negative integer, zero, or a positive integer as the first
-     * format has been assigned a preference higher, equal to, or greater than
-     * the one of the second.
-     */
-    private int compareEncodingPreferences(String enc1, String enc2)
-    {
-        Integer pref1 = encodingPreferences.get(enc1);
-        int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
-
-        Integer pref2 = encodingPreferences.get(enc2);
-        int pref2IntValue = (pref2 == null) ? 0 : pref2.intValue();
-
-        return pref2IntValue - pref1IntValue;
-    }
-
-    /**
-     * Sorts the <tt>encodingsArray</tt> according to user specified
-     * preferences.
-     *
-     * @param encodingsArray the array of encodings that we'd like to sort
-     * according to encoding preferences specifies by the user.
-     */
-    private void sortEncodingsArray(String[] encodingsArray)
-    {
-        Arrays.sort(encodingsArray, new Comparator<String>()
-        {
-            public int compare(String s1, String s2)
-            {
-                return compareEncodingPreferences(s1, s2);
-            }
-        });
-    }
-
-    /**
-     * Sets <tt>pref</tt> as the preference associated with <tt>encoding</tt>.
-     * Use this method for both audio and video encodings and don't worry if
-     * preferences are equal since we rarely need to compare prefs of video
-     * encodings to those of audio encodings.
-     *
-     * @param encoding the SDP int of the encoding whose pref we're setting.
-     * @param pref a positive int indicating the preference for that encoding.
-     */
-    private void setEncodingPreference(int encoding, int pref)
-    {
-        setEncodingPreference(Integer.toString(encoding), new Integer(pref));
-    }
-
-    /**
-     * Sets <tt>pref</tt> as the preference associated with <tt>encoding</tt>.
-     * Use this method for both audio and video encodings and don't worry if
-     * preferences are equal since we rarely need to compare prefs of video
-     * encodings to those of audio encodings.
-     *
-     * @param encoding a string containing the SDP int of the encoding whose
-     * pref we're setting.
-     * @param pref a positive int indicating the preference for that encoding.
-     */
-    private void setEncodingPreference(String encoding, Integer pref)
-    {
-        this.encodingPreferences.put(encoding, pref);
+                try
+                {
+                    initCaptureDevices();
+                }
+                catch (MediaException e)
+                {
+                    logger.error("Cannot init capture devices after change", e);
+                }
+            }});
     }
 
     /**
@@ -519,9 +319,6 @@ public class MediaControl
     private void initProcessor(DataSource dataSource)
         throws MediaException
     {
-        // register our custom codecs
-        registerCustomCodecs();
-
         try
         {
             try
@@ -673,41 +470,36 @@ public class MediaControl
         }
 
         //now update the supported encodings arrays.
-
         final int transmittableAudioEncodingCount =
             transmittableAudioEncodings.size();
         if (transmittableAudioEncodingCount > 0)
         {
-            supportedAudioEncodings =
-                transmittableAudioEncodings
-                    .toArray(new String[transmittableAudioEncodingCount]);
-
-            // sort the supported encodings according to user preferences.
-            this.sortEncodingsArray(supportedAudioEncodings);
+            supportedAudioEncodings = 
+                encodingConfiguration.updateEncodings(transmittableAudioEncodings);
         }
-        //else
+        else
         {
             //just leave supportedAudioEncodings as  it was in the beginning
             //as it will be only receiving so it could say it supports
             //everything.
+            supportedAudioEncodings = 
+                encodingConfiguration.getSupportedAudioEncodings();
         }
 
         final int transmittableVideoEncodingCount =
             transmittableVideoEncodings.size();
         if (transmittableVideoEncodingCount > 0)
         {
-            supportedVideoEncodings =
-                transmittableVideoEncodings
-                    .toArray(new String[transmittableVideoEncodingCount]);
-
-            // sort the supported encodings according to user preferences.
-            this.sortEncodingsArray(supportedVideoEncodings);
+            supportedVideoEncodings = 
+                encodingConfiguration.updateEncodings(transmittableVideoEncodings);
         }
-        //else
+        else
         {
             //just leave supportedVideoEncodings as  it was in the beginning
             //as it will be only receiving so it could say it supports
             //everything.
+            supportedVideoEncodings = 
+                encodingConfiguration.getSupportedVideoEncodings();
         }
     }
 
@@ -1174,115 +966,6 @@ public class MediaControl
         }
 
         processorReaders.remove(reader);
-    }
-
-    /**
-     * Register in JMF the custom codecs we provide
-     */
-    private void registerCustomCodecs()
-    {
-        // use a set to check if the codecs are already
-        // registered in jmf.properties
-        Set<String> registeredPlugins = new HashSet<String>();
-
-        registeredPlugins.addAll(PlugInManager.getPlugInList(null, null,
-            PlugInManager.CODEC));
-
-        for (int i = 0; i < customCodecs.length; i++)
-        {
-            String className = customCodecs[i];
-
-            if (registeredPlugins.contains(className))
-            {
-                logger.debug("Codec : " + className + " is already registered");
-            }
-            else
-            {
-                try
-                {
-                    Object instance = Class.forName(className).newInstance();
-
-                    boolean result =
-                        PlugInManager.addPlugIn(
-                            className,
-                            ( (Codec) instance).getSupportedInputFormats(),
-                            ( (Codec) instance).getSupportedOutputFormats(null),
-                            PlugInManager.CODEC);
-                    logger.debug("Codec : " + className +
-                                 " is succsefully registered : " + result);
-                }
-                catch (Throwable ex)
-                {
-                    logger.debug("Codec : " + className +
-                                 " is NOT succsefully registered", ex);
-                }
-            }
-        }
-        
-        String className = "com.ibm.media.codec.video.h263.JavaDecoder";
-        try
-        {
-            boolean result =
-                PlugInManager.removePlugIn(className, PlugInManager.CODEC);
-            logger.debug("Codec : " + className +
-                         " is succsefully unregistered : " + result);
-        }
-        catch (Throwable ex)
-        {
-            logger.debug("Codec : " + className +
-                         " is NOT succsefully registered");
-        }
-
-        try
-        {
-            PlugInManager.commit();
-        }
-        catch (IOException ex)
-        {
-            logger.error("Cannot commit to PlugInManager", ex);
-        }
-
-
-        // Register the custom codec formats with the RTP manager once at
-        // initialization. This is needed for the Sun JMF implementation. It
-        // causes the registration of the formats with the static FormatInfo
-        // instance of com.sun.media.rtp.RTPSessionMgr, which in turn makes the
-        // formats available when the supported encodings arrays are generated
-        // in initProcessor(). In other JMF implementations this might not be
-        // needed, but should do no harm.
-
-        //Commented as it fails to load alaw codec
-//        RTPManager rtpManager = RTPManager.newInstance();
-//        CallSessionImpl.registerCustomCodecFormats(rtpManager);
-//        rtpManager.dispose();
-    }
-
-
-    /**
-     * Register in JMF the custom packages we provide
-     */
-    private void registerCustomPackages()
-    {
-        Vector<String> currentPackagePrefix =
-            PackageManager.getProtocolPrefixList();
-
-        for (int i = 0; i < customPackages.length; i++)
-        {
-            String className = customPackages[i];
-
-            // linear search in a loop, but it doesn't have to scale since the
-            // list is always short
-            if (!currentPackagePrefix.contains(className))
-            {
-                currentPackagePrefix.addElement(className);
-                logger.debug("Adding package  : " + className);
-            }
-        }
-
-        PackageManager.setProtocolPrefixList(currentPackagePrefix);
-        PackageManager.commitProtocolPrefixList();
-        logger.debug("Registering new protocol prefix list : "
-                     + currentPackagePrefix);
     }
 
     /**
