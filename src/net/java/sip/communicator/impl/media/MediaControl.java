@@ -14,11 +14,9 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
-import javax.sdp.*;
 
 import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.impl.media.device.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.media.MediaException;
 import net.java.sip.communicator.util.*;
 

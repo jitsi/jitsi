@@ -777,7 +777,7 @@
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-smacklib,
-        bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
+        bundle-jabber,bundle-jabber-slick,bundle-swing-common,bundle-swing-ui,bundle-ui-service,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -958,6 +958,8 @@
                 prefix="net/java/sip/communicator/service/media"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset dir="${resources}/images/impl/media"
+                prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
@@ -979,6 +981,8 @@
                 prefix="net/java/sip/communicator/service/media"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset dir="${resources}/images/impl/media"
+                prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
@@ -999,6 +1003,8 @@
                 prefix="net/java/sip/communicator/service/media"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset dir="${resources}/images/impl/media"
+                prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
@@ -1298,6 +1304,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/service/gui/gui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
                 prefix="net/java/sip/communicator/service/gui"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SWING-COMMON -->
+    <target name="bundle-swing-common">
+        <!-- Common/generic Swing additions not specific to SIP Communicator. -->
+        <jar compress="false" destfile="${bundles.dest}/swing-common.jar"
+            manifest="${src}/net/java/sip/communicator/swing/swing.common.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/swing"
+                prefix="net/java/sip/communicator/swing"/>
         </jar>
     </target>
 

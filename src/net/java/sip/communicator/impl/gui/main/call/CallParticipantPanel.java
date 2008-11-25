@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -227,94 +228,9 @@ public class CallParticipantPanel
      *         <code>Component</code> at a time and, in the absence of such a
      *         <code>Component</code>, displays <code>noVideoComponent</code>
      */
-    private Container createVideoContainer(final Component noVideoComponent)
+    private Container createVideoContainer(Component noVideoComponent)
     {
-        final ContainerListener containerListener = new ContainerListener()
-        {
-
-            /*
-             * Since the videoContainer displays either noVideoComponent or a
-             * single visual Component which represents video, ensures the last
-             * Component added to the Container is the only Component it
-             * contains i.e. noVideoComponent goes away when the video is
-             * displayed and the video goes away when noVideoComponent is
-             * displayed.
-             */
-            public void componentAdded(ContainerEvent event)
-            {
-                Container container = event.getContainer();
-                Component local =
-                    ((VideoLayout) container.getLayout()).getLocal();
-                Component added = event.getChild();
-
-                if ((local != null) && (added == local))
-                    return;
-
-                Component[] components = container.getComponents();
-                boolean validate = false;
-
-                for (int i = 0; i < components.length; i++)
-                {
-                    Component component = components[i];
-
-                    if ((component != added) && (component != local))
-                    {
-                        container.remove(component);
-                        validate = true;
-                    }
-                }
-                if (validate)
-                    container.validate();
-            }
-
-            /*
-             * Displays noVideoComponent when there is no visual Component which
-             * represents video to be displayed.
-             */
-            public void componentRemoved(ContainerEvent event)
-            {
-                Container container = event.getContainer();
-
-                if ((container.getComponentCount() <= 0)
-                    || (((VideoLayout) container.getLayout()).getRemote() == null))
-                {
-                    container.add(noVideoComponent, VideoLayout.REMOTE);
-                    container.validate();
-                }
-            }
-        };
-        Container videoContainer = new TransparentPanel(new VideoLayout())
-        {
-
-            /*
-             * Ensures noVideoComponent is displayed even when the clients of
-             * the videoContainer invoke its #removeAll() to remove their
-             * previous visual Components representing video. Just adding
-             * noVideoComponent upon ContainerEvent#COMPONENT_REMOVED when there
-             * is no other Component left in the Container will cause an
-             * infinite loop because Container#removeAll() will detect that a
-             * new Component has been added while dispatching the event and will
-             * then try to remove the new Component.
-             */
-            public void removeAll()
-            {
-                removeContainerListener(containerListener);
-                try
-                {
-                    super.removeAll();
-                }
-                finally
-                {
-                    addContainerListener(containerListener);
-                    containerListener.componentRemoved(new ContainerEvent(this,
-                        ContainerEvent.COMPONENT_REMOVED, null));
-                }
-            }
-        };
-
-        videoContainer.addContainerListener(containerListener);
-        videoContainer.add(noVideoComponent, VideoLayout.REMOTE);
-        return videoContainer;
+        return new VideoContainer(noVideoComponent);
     }
 
     /**

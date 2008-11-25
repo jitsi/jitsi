@@ -6,14 +6,15 @@
  */
 package net.java.sip.communicator.impl.media;
 
-import org.osgi.framework.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.netaddr.*;
-import java.util.*;
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.fileaccess.*;
+import net.java.sip.communicator.service.gui.ConfigurationForm;
+import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
+import org.osgi.framework.*;
 
 /**
  * Invoke "Service Binder" to parse the service XML and register
@@ -25,7 +26,7 @@ import net.java.sip.communicator.service.fileaccess.*;
 public class MediaActivator
     implements BundleActivator
 {
-    private Logger logger = Logger.getLogger(MediaActivator.class.getName());
+    private final Logger logger = Logger.getLogger(MediaActivator.class.getName());
 
     private static MediaServiceImpl mediaServiceImpl = null;
 
@@ -34,6 +35,7 @@ public class MediaActivator
     private static NetworkAddressManagerService networkAddressManagerService
                                                               = null;
     private static FileAccessService    fileAccessService     = null;
+    private static ResourceManagementService resources;
 
     private ServiceRegistration mediaServiceRegistration      = null;
 
@@ -51,22 +53,21 @@ public class MediaActivator
         throws Exception
     {
         logger.debug("Started.");
-        this.bundleContext = context;
-        Hashtable hashtable = new Hashtable();
 
+        MediaActivator.bundleContext = context;
+
+        // MediaService
         mediaServiceImpl = new MediaServiceImpl();
-
-        //load all icq providers
         mediaServiceImpl.start();
 
-        //reg the icq account man.
-        mediaServiceRegistration = context.registerService(
-            MediaService.class.getName(),
-            mediaServiceImpl,
-            hashtable);
-
-
+        mediaServiceRegistration =
+            context.registerService(MediaService.class.getName(),
+                mediaServiceImpl, null);
         logger.debug("Media Service ... [REGISTERED]");
+
+        // MediaConfigurationForm
+        context.registerService(ConfigurationForm.class.getName(),
+            new MediaConfigurationForm(), null);
     }
 
     /**
@@ -132,6 +133,13 @@ public class MediaActivator
         return fileAccessService;
     }
 
+    public static ResourceManagementService getResources()
+    {
+        if (resources == null)
+            resources =
+                ResourceManagementServiceUtils.getService(bundleContext);
+        return resources;
+    }
 
     /**
      * Returns a reference to the bundle context that we were started with.

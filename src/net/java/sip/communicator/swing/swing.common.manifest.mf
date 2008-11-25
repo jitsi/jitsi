@@ -1,0 +1,6 @@
+Bundle-Name: Swing Common
+Bundle-Description: Common/generic Swing additions not specific to SIP Communicator
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: javax.swing
+Export-Package: net.java.sip.communicator.swing

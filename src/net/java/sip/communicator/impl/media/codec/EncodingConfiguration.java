@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.media.codec;
 
 import java.io.*;
@@ -25,7 +31,7 @@ public class EncodingConfiguration
     /**
      * SDP Codes of all video formats that JMF supports.
      */
-    private String[] availableVideoEncodings = new String[]
+    private final String[] availableVideoEncodings = new String[]
     { Integer.toString(Constants.H264_RTP_SDP),
     // javax.media.format.VideoFormat.H263_RTP
         Integer.toString(SdpConstants.H263),
@@ -37,7 +43,7 @@ public class EncodingConfiguration
     /**
      * SDP Codes of all audio formats that JMF supports.
      */
-    private String[] availableAudioEncodings = new String[]
+    private final String[] availableAudioEncodings = new String[]
     {
     // ILBC
         Integer.toString(97),
@@ -60,10 +66,10 @@ public class EncodingConfiguration
         // Integer.toString(SdpConstants.G729)
         };
 
-    private TreeSet<String> suportedVideoEncodings =
+    private final Set<String> suportedVideoEncodings =
         new TreeSet<String>(new EncodingComparator());
 
-    private TreeSet<String> suportedAudioEncodings =
+    private final Set<String> suportedAudioEncodings =
         new TreeSet<String>(new EncodingComparator());
 
     /**
@@ -73,13 +79,10 @@ public class EncodingConfiguration
      * would be decorelated and other components (such as the UI) should present
      * them separately.
      */
-    private final Hashtable<String, Integer> encodingPreferences =
+    private final Map<String, Integer> encodingPreferences =
         new Hashtable<String, Integer>();
 
-    /**
-    *
-    */
-    private static String[] customCodecs =
+    private static final String[] customCodecs =
         new String[]
         {
             FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
@@ -101,7 +104,7 @@ public class EncodingConfiguration
     /**
      * Custom Packages provided by Sip-Communicator
      */
-    private static String[] customPackages = new String[]
+    private static final String[] customPackages = new String[]
     { // datasource for low latency ALSA input
         "net.java.sip.communicator.impl", "net.sf.fmj" };
 
@@ -144,10 +147,8 @@ public class EncodingConfiguration
         List<String> sdpPreferences =
             confService.getPropertyNamesByPrefix(PROP_SDP_PREFERENCE, false);
 
-        Iterator<String> sdpPreferencesIter = sdpPreferences.iterator();
-        while (sdpPreferencesIter.hasNext())
+        for (String pName : sdpPreferences)
         {
-            String pName = sdpPreferencesIter.next();
             String prefStr = confService.getString(pName);
             String fmtName =
                 pName.substring(pName.lastIndexOf('.') + 1).replaceAll("sdp",
@@ -206,19 +207,16 @@ public class EncodingConfiguration
                 suportedVideoEncodings.remove(ac);
         }
     }
-    
+
     /**
      * Updates the codecs in the set according preferences in
      * encodingPreferences. If value is "0" the codec is disabled.
      */
     public String[] updateEncodings(List<String> encs)
     {
-        TreeSet<String> result = new TreeSet<String>(new EncodingComparator());
-        Iterator<String> iter = encs.iterator();
-        while (iter.hasNext())
-        {
-            String c = (String) iter.next();
-            
+        Set<String> result = new TreeSet<String>(new EncodingComparator());
+        for (String c : encs)
+        {            
             Integer pref1 = encodingPreferences.get(c);
             int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
 
@@ -277,6 +275,11 @@ public class EncodingConfiguration
             PROP_SDP_PREFERENCE + ".sdp" + encoding, priority);
 
         updateSupportedEncodings();
+    }
+
+    public int getPriority(String encoding)
+    {
+        return encodingPreferences.get(encoding);
     }
 
     /**
@@ -360,7 +363,7 @@ public class EncodingConfiguration
             // list is always short
             if (!currentPackagePrefix.contains(className))
             {
-                currentPackagePrefix.addElement(className);
+                currentPackagePrefix.add(className);
                 logger.debug("Adding package  : " + className);
             }
         }
@@ -426,6 +429,5 @@ public class EncodingConfiguration
         {
             return compareEncodingPreferences(s1, s2);
         }
-
     }
 }
