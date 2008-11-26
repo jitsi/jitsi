@@ -60,12 +60,12 @@ public class MediaControl
     /**
      * SDP Codes of all video formats that JMF supports for current datasource.
      */
-    private String[] supportedVideoEncodings;
+    private String[] supportedVideoEncodings = new String[0];
 
     /**
      * SDP Codes of all audio formats that JMF supports for current datasource.
      */
-    private String[] supportedAudioEncodings;
+    private String[] supportedAudioEncodings = new String[0];
 
     /**
      * The indicator which determines whether {@link #supportedAudioEncodings}
