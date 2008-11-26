@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
@@ -73,9 +72,9 @@ public class DialpadDialog
 
         this.bgPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        this.getContentPane().setLayout(new BorderLayout());
-
-        this.getContentPane().add(bgPanel, BorderLayout.CENTER);
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BorderLayout());
+        contentPane.add(bgPanel, BorderLayout.CENTER);
 
         this.bgPanel.add(dialPanel, BorderLayout.CENTER);
 

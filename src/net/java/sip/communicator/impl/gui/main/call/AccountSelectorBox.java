@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The AccountSelectorBox is located in the main application windwo under the
+ * The AccountSelectorBox is located in the main application window under the
  * field where the telephone number is written. It contains all accounts that
  * support telephony operation set and is meant to be used by user to select the
  * account, which he/she would like to use when calling. The selected account
@@ -36,13 +36,14 @@ public class AccountSelectorBox
     private static final Logger logger =
         Logger.getLogger(AccountSelectorBox.class);
 
-    private Hashtable accountsTable = new Hashtable();
+    private final Map<ProtocolProviderService, JMenuItem> accountsTable =
+        new Hashtable<ProtocolProviderService, JMenuItem>();
 
-    private SIPCommMenu menu = new SIPCommMenu();
+    private final SIPCommMenu menu = new SIPCommMenu();
 
     private ProtocolProviderService selectedProvider;
 
-    private MainCallPanel parentCallPanel;
+    private final MainCallPanel parentCallPanel;
 
     /**
      * Creates an instance of AccountSelectorBox.
@@ -59,7 +60,7 @@ public class AccountSelectorBox
     }
 
     /**
-     * Adds an account to this accoult selector box. The account is represented
+     * Adds an account to this account selector box. The account is represented
      * by its protocol provider.
      * 
      * @param pps the protocol provider for the added account
@@ -110,17 +111,13 @@ public class AccountSelectorBox
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
 
-        Enumeration i = accountsTable.keys();
-        while (i.hasMoreElements())
+        for (Map.Entry<ProtocolProviderService, JMenuItem> entry : accountsTable
+            .entrySet())
         {
-            ProtocolProviderService pps =
-                (ProtocolProviderService) i.nextElement();
-
-            if (accountsTable.get(pps).equals(menuItem))
+            if (entry.getValue().equals(menuItem))
             {
-
-                this.setSelected(pps, (ImageIcon) menuItem.getIcon());
-
+                this
+                    .setSelected(entry.getKey(), (ImageIcon) menuItem.getIcon());
                 return;
             }
         }
@@ -147,23 +144,19 @@ public class AccountSelectorBox
 
         if (presence != null)
         {
-
             statusImage =
                 ImageLoader.getBytesInImage(presence.getPresenceStatus()
                     .getStatusIcon());
         }
-        else if (pps.isRegistered())
+        else
         {
             statusImage =
                 ImageLoader.getBytesInImage(pps.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16));
-        }
-        else
-        {
-            statusImage =
-                LightGrayFilter.createDisabledImage(ImageLoader
-                    .getBytesInImage(pps.getProtocolIcon().getIcon(
-                        ProtocolIcon.ICON_SIZE_16x16)));
+            if (!pps.isRegistered())
+            {
+                statusImage = LightGrayFilter.createDisabledImage(statusImage);
+            }
         }
 
         int index = parentCallPanel.getMainFrame().getProviderIndex(pps);
@@ -201,7 +194,7 @@ public class AccountSelectorBox
      */
     public void updateAccountStatus(ProtocolProviderService pps)
     {
-        JMenuItem menuItem = (JMenuItem) accountsTable.get(pps);
+        JMenuItem menuItem = accountsTable.get(pps);
 
         Icon icon = new ImageIcon(createAccountStatusImage(pps));
 
@@ -241,15 +234,8 @@ public class AccountSelectorBox
     {
         this.selectedProvider = pps;
 
-        SelectedObject selectedObject = new SelectedObject(icon, pps);
-
-        this.menu.setSelected(selectedObject);
-
-        String tooltipText;
-
-        tooltipText = pps.getAccountID().getUserID();
-
-        this.menu.setToolTipText(tooltipText);
+        this.menu.setSelected(new SelectedObject(icon, pps));
+        this.menu.setToolTipText(pps.getAccountID().getUserID());
 
         this.parentCallPanel.setCallProvider(pps);
     }
@@ -306,15 +292,14 @@ public class AccountSelectorBox
      */
     public void removeAccount(ProtocolProviderService pps)
     {
-        JMenuItem accountItem = (JMenuItem) this.accountsTable.get(pps);
+        JMenuItem accountItem = this.accountsTable.get(pps);
 
         this.menu.remove(accountItem);
 
         this.accountsTable.remove(pps);
 
         if (selectedProvider == pps && accountsTable.size() > 0)
-            setSelected((ProtocolProviderService) accountsTable.keys()
-                .nextElement());
+            setSelected(accountsTable.keySet().iterator().next());
     }
 
     /**
@@ -324,17 +309,9 @@ public class AccountSelectorBox
      */
     private ProtocolProviderService findFirstRegisteredProvider()
     {
-        Enumeration e = this.accountsTable.keys();
-
-        while (e.hasMoreElements())
-        {
-            ProtocolProviderService pps =
-                (ProtocolProviderService) e.nextElement();
-
+        for (ProtocolProviderService pps : accountsTable.keySet())
             if (pps.isRegistered())
                 return pps;
-        }
-
         return null;
     }
 }

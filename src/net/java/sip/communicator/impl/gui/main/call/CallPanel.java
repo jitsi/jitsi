@@ -356,13 +356,9 @@ public class CallPanel
      */
     public CallParticipantPanel getParticipantPanel(CallParticipant participant)
     {
-        Iterator<Map.Entry<CallParticipant, CallParticipantPanel>> participants =
-            participantsPanels.entrySet().iterator();
-
-        while (participants.hasNext())
+        for (Map.Entry<CallParticipant, CallParticipantPanel> participantEntry : participantsPanels
+            .entrySet())
         {
-            Map.Entry<CallParticipant, CallParticipantPanel> participantEntry =
-                participants.next();
             CallParticipant entryParticipant = participantEntry.getKey();
 
             if ((entryParticipant != null)

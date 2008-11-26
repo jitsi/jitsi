@@ -32,9 +32,9 @@ public class CallDialog
 
     private static final String HANGUP_BUTTON = "HangupButton";
 
-    DialpadDialog dialpadDialog;
+    private DialpadDialog dialpadDialog;
 
-    private CallPanel callPanel;
+    private final CallPanel callPanel;
 
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
@@ -64,8 +64,9 @@ public class CallDialog
 
         dialButton.addActionListener(this);
 
-        this.getContentPane().add(callPanel, BorderLayout.CENTER);
-        this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+        Container contentPane = getContentPane();
+        contentPane.add(callPanel, BorderLayout.CENTER);
+        contentPane.add(buttonsPanel, BorderLayout.SOUTH);
 
         hangupButton.setName(HANGUP_BUTTON);
 

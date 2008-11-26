@@ -35,17 +35,7 @@ public class ReceivedCallDialog
 
     private static final String HANGUP_BUTTON = "HangupButton";
 
-    private Logger logger = Logger.getLogger(ReceivedCallDialog.class);
-
     private Call incomingCall;
-
-    /**
-     * Creates a <tt>ReceivedCallDialog</tt>
-     */
-    public ReceivedCallDialog()
-    {
-        super();
-    }
 
     /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
@@ -54,7 +44,7 @@ public class ReceivedCallDialog
      */
     public ReceivedCallDialog(Call call)
     {
-        this();
+        super();
 
         this.incomingCall = call;
 

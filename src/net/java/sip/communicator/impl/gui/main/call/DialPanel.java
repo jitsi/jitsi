@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -33,48 +34,6 @@ public class DialPanel
 {
     private Logger logger = Logger.getLogger(DialPanel.class);
 
-    private DialButton oneButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.ONE_DIAL_BUTTON));
-
-    private DialButton twoButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.TWO_DIAL_BUTTON));
-
-    private DialButton threeButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.THREE_DIAL_BUTTON));
-
-    private DialButton fourButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.FOUR_DIAL_BUTTON));
-
-    private DialButton fiveButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.FIVE_DIAL_BUTTON));
-
-    private DialButton sixButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.SIX_DIAL_BUTTON));
-
-    private DialButton sevenButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.SEVEN_DIAL_BUTTON));
-
-    private DialButton eightButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.EIGHT_DIAL_BUTTON));
-
-    private DialButton nineButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.NINE_DIAL_BUTTON));
-
-    private DialButton starButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.STAR_DIAL_BUTTON));
-
-    private DialButton zeroButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.ZERO_DIAL_BUTTON));
-
-    private DialButton diezButton = new DialButton(
-        ImageLoader.getImage(ImageLoader.DIEZ_DIAL_BUTTON));
-
-    private int hgap = GuiActivator.getResources().
-        getSettingsInt("dialPadHorizontalGap");
-
-    private int vgap = GuiActivator.getResources().
-        getSettingsInt("dialPadVerticalGap");
-
     /**
      * Handles press and hold zero button action.
      */
@@ -83,10 +42,13 @@ public class DialPanel
 
     private boolean isTypedPlus = false;
 
-    private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, hgap, vgap));
+    private final JPanel dialPadPanel =
+        new JPanel(new GridLayout(4, 3, GuiActivator.getResources()
+            .getSettingsInt("dialPadHorizontalGap"), GuiActivator
+            .getResources().getSettingsInt("dialPadVerticalGap")));
 
-    private LinkedList<CallParticipant> callParticipantsList
-        = new LinkedList<CallParticipant>();
+    private final java.util.List<CallParticipant> callParticipantsList =
+        new LinkedList<CallParticipant>();
 
     private MainCallPanel parentCallPanel;
 
@@ -139,72 +101,41 @@ public class DialPanel
 
         this.plusZeroTimer.setRepeats(false);
 
-        oneButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        twoButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        threeButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        fourButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        fiveButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        sixButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        sevenButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        eightButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        nineButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        zeroButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        diezButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        starButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
+        ImageID[] images =
+            new ImageID[]
+            { ImageLoader.ONE_DIAL_BUTTON, ImageLoader.TWO_DIAL_BUTTON,
+                ImageLoader.THREE_DIAL_BUTTON, ImageLoader.FOUR_DIAL_BUTTON,
+                ImageLoader.FIVE_DIAL_BUTTON, ImageLoader.SIX_DIAL_BUTTON,
+                ImageLoader.SEVEN_DIAL_BUTTON, ImageLoader.EIGHT_DIAL_BUTTON,
+                ImageLoader.NINE_DIAL_BUTTON, ImageLoader.STAR_DIAL_BUTTON,
+                ImageLoader.ZERO_DIAL_BUTTON, ImageLoader.DIEZ_DIAL_BUTTON };
+        String[] names =
+            new String[]
+            { "one", "two", "three", "four", "five", "six", "seven", "eight",
+                "nine", "star", "zero", "diez" };
+        final int buttonCount = images.length;
+        if (buttonCount != names.length)
+            throw new IllegalStateException("names");
+        Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
 
-        oneButton.setName("one");
-        twoButton.setName("two");
-        threeButton.setName("three");
-        fourButton.setName("four");
-        fiveButton.setName("five");
-        sixButton.setName("six");
-        sevenButton.setName("seven");
-        eightButton.setName("eight");
-        nineButton.setName("nine");
-        zeroButton.setName("zero");
-        diezButton.setName("diez");
-        starButton.setName("star");
-
-        oneButton.addMouseListener(this);
-        twoButton.addMouseListener(this);
-        threeButton.addMouseListener(this);
-        fourButton.addMouseListener(this);
-        fiveButton.addMouseListener(this);
-        sixButton.addMouseListener(this);
-        sevenButton.addMouseListener(this);
-        eightButton.addMouseListener(this);
-        nineButton.addMouseListener(this);
-        zeroButton.addMouseListener(this);
-        diezButton.addMouseListener(this);
-        starButton.addMouseListener(this);
-
-        oneButton.setOpaque(false);
-        twoButton.setOpaque(false);
-        threeButton.setOpaque(false);
-        fourButton.setOpaque(false);
-        fiveButton.setOpaque(false);
-        sixButton.setOpaque(false);
-        sevenButton.setOpaque(false);
-        eightButton.setOpaque(false);
-        nineButton.setOpaque(false);
-        zeroButton.setOpaque(false);
-        diezButton.setOpaque(false);
-        starButton.setOpaque(false);
-
-        dialPadPanel.add(oneButton);
-        dialPadPanel.add(twoButton);
-        dialPadPanel.add(threeButton);
-        dialPadPanel.add(fourButton);
-        dialPadPanel.add(fiveButton);
-        dialPadPanel.add(sixButton);
-        dialPadPanel.add(sevenButton);
-        dialPadPanel.add(eightButton);
-        dialPadPanel.add(nineButton);
-        dialPadPanel.add(starButton);
-        dialPadPanel.add(zeroButton);
-        dialPadPanel.add(diezButton);
+        for (int buttonIndex = 0; buttonIndex < buttonCount; buttonIndex++)
+            dialPadPanel.add(createDialButton(bgImage, images[buttonIndex],
+                names[buttonIndex]));
 
         this.add(dialPadPanel, BorderLayout.CENTER);
+    }
+
+    private JButton createDialButton(Image bgImage, ImageID iconImage,
+        String name)
+    {
+        JButton button =
+            new SIPCommButton(bgImage, ImageLoader.getImage(iconImage));
+
+        button.setAlignmentY(JButton.LEFT_ALIGNMENT);
+        button.setName(name);
+        button.setOpaque(false);
+        button.addMouseListener(this);
+        return button;
     }
 
     public void mouseClicked(MouseEvent e)
@@ -392,19 +323,6 @@ public class DialPanel
 
         if(dtmfTone != null)
             this.sendDtmfTone(dtmfTone);
-    }
-    
-    private class DialButton extends SIPCommButton
-    {
-        /**
-         * Creates an instance of <tt>MsgToolbarButton</tt>.
-         * @param iconImage The icon to display on this button.
-         */
-        public DialButton(Image iconImage)
-        {
-            super(  ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG),
-                    iconImage);
-        }
     }
 
     /**

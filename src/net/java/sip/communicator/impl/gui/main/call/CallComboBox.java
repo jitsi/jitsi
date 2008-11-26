@@ -30,7 +30,7 @@ public class CallComboBox
 {
     public final static int MAX_COMBO_SIZE = 10;
 
-    private MainCallPanel parentCallPanel;
+    private final MainCallPanel parentCallPanel;
 
     /**
      * Creates a <tt>CallComboBox</tt> by specifying the parent panel, where
@@ -68,10 +68,7 @@ public class CallComboBox
     {
         String item = ((CallComboEditor) this.getEditor()).getItem().toString();
 
-        if (item.length() > 0)
-            return false;
-        else
-            return true;
+        return (item.length() <= 0);
     }
 
     /**
@@ -113,9 +110,9 @@ public class CallComboBox
             ContactList clist =
                 parentCallPanel.getMainFrame().getContactListPanel()
                     .getContactList();
+            int selectedIndex = clist.getSelectedIndex();
 
-            clist.removeSelectionInterval(clist.getSelectedIndex(), clist
-                .getSelectedIndex());
+            clist.removeSelectionInterval(selectedIndex, selectedIndex);
 
             parentCallPanel.setCallButtonEnabled(true);
         }
@@ -125,12 +122,8 @@ public class CallComboBox
                 parentCallPanel.getMainFrame().getContactListPanel()
                     .getContactList().getSelectedValue();
 
-            boolean enabled = true;
-            if (o == null || !(o instanceof MetaContact))
-            {
-                // no contact can be called. call button not active
-                enabled = false;
-            }
+            // no contact can be called. call button not active
+            boolean enabled = (o instanceof MetaContact);
 
             parentCallPanel.setCallButtonEnabled(enabled);
 
