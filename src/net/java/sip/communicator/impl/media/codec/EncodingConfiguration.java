@@ -361,12 +361,12 @@ public class EncodingConfiguration
 
     public String[] getAvailableVideoEncodings()
     {
-        return availableAudioEncodings;
+        return availableVideoEncodings;
     }
 
     public String[] getAvailableAudioEncodings()
     {
-        return availableVideoEncodings;
+        return availableAudioEncodings;
     }
 
     public String[] getSupportedVideoEncodings()
