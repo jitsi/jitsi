@@ -158,7 +158,6 @@ public class MediaConfigurationPanel
         String key;
 
         final JTable table = new JTable();
-        table.setFillsViewportHeight(true);
         table.setShowGrid(false);
         table.setTableHeader(null);
  
