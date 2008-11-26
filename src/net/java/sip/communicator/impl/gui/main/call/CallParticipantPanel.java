@@ -13,7 +13,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -766,9 +765,12 @@ public class CallParticipantPanel
                         Point pointInContentPane =
                             SwingUtilities.convertPoint(component, event
                                 .getPoint(), contentPane);
+                        Rectangle hotSpotBounds = buttonBar.getBounds();
 
-                        buttonBar.setVisible(buttonBar.getBounds().contains(
-                            pointInContentPane));
+                        hotSpotBounds.x = 0;
+                        hotSpotBounds.width = contentPane.getWidth();
+                        buttonBar.setVisible(hotSpotBounds
+                            .contains(pointInContentPane));
                     }
                 }
             });
