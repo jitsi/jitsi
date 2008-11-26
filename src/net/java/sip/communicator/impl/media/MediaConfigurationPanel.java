@@ -254,8 +254,7 @@ public class MediaConfigurationPanel
                 else
                     return;
 
-                ((EncodingConfigurationTableModel) table.getModel()).move(table
-                    .getSelectedRow(), up);
+                move(table, up);
             }
         };
         upButton.addActionListener(buttonListener);
@@ -343,6 +342,14 @@ public class MediaConfigurationPanel
         default:
             throw new IllegalArgumentException("type");
         }
+    }
+
+    private void move(JTable table, boolean up)
+    {
+        int index =
+            ((EncodingConfigurationTableModel) table.getModel()).move(table
+                .getSelectedRow(), up);
+        table.getSelectionModel().setSelectionInterval(index, index);
     }
 
     private void showPreview(final Container previewContainer,

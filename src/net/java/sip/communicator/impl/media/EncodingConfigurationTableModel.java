@@ -133,15 +133,14 @@ public class EncodingConfigurationTableModel
         return (columnIndex == 0);
     }
 
-    public void move(int rowIndex, boolean up)
+    public int move(int rowIndex, boolean up)
     {
         if (up)
         {
             if (rowIndex <= 0)
                 throw new IllegalArgumentException("rowIndex");
 
-            move(rowIndex - 1, false);
-            return;
+            return move(rowIndex - 1, false) - 1;
         }
 
         if (rowIndex >= (getRowCount() - 1))
@@ -160,6 +159,7 @@ public class EncodingConfigurationTableModel
         encodings[nextRowIndex] = swap;
 
         fireTableRowsUpdated(rowIndex, nextRowIndex);
+        return nextRowIndex;
     }
 
     private void setPriorities(int[] priorities)
