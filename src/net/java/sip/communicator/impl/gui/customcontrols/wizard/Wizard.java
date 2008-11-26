@@ -5,18 +5,19 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols.wizard;
 
-import java.beans.*;
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.beans.*;
+import java.util.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * This class implements a basic wizard dialog, where the programmer can insert
@@ -120,7 +121,8 @@ public class Wizard
 
     private JButton cancelButton;
 
-    private Vector wizardListeners = new Vector();
+    private final java.util.List<WizardListener> wizardListeners =
+        new Vector<WizardListener>();
 
     /**
      * This method accepts a java.awt.Dialog object as the javax.swing.JDialog's
@@ -552,26 +554,22 @@ public class Wizard
     {
         synchronized (wizardListeners)
         {
-            if (wizardListeners.contains(l))
-                wizardListeners.remove(l);
+            wizardListeners.remove(l);
         }
     }
 
     private void fireWizardEvent(int eventCode)
     {
-        WizardEvent wizardEvent = new WizardEvent(this, eventCode);
-
-        Iterator listeners = null;
+        Iterable<WizardListener> listeners;
         synchronized (wizardListeners)
         {
-            listeners = new ArrayList(wizardListeners).iterator();
+            listeners = new ArrayList<WizardListener>(wizardListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            WizardListener l = (WizardListener) listeners.next();
+        WizardEvent wizardEvent = new WizardEvent(this, eventCode);
+
+        for (WizardListener l : listeners)
             l.wizardFinished(wizardEvent);
-        }
     }
 
     /**

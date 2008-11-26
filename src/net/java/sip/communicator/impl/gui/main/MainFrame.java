@@ -34,10 +34,9 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
-import org.jvnet.lafwidget.animation.*;
-import org.jvnet.lafwidget.utils.LafConstants.*;
 import org.osgi.framework.*;
 
 /**
@@ -76,7 +75,8 @@ public class MainFrame
 
     private JComponent quickMenu;
 
-    private LinkedHashMap protocolProviders = new LinkedHashMap();
+    private final HashMap<ProtocolProviderService, Integer> protocolProviders =
+        new LinkedHashMap<ProtocolProviderService, Integer>();
 
     private AccountStatusPanel accountStatusPanel;
 
@@ -368,9 +368,9 @@ public class MainFrame
      *
      * @return a set of all protocol providers.
      */
-    public Iterator getProtocolProviders()
+    public Iterator<ProtocolProviderService> getProtocolProviders()
     {
-        return ((LinkedHashMap)protocolProviders.clone()).keySet().iterator();
+        return ((Map<ProtocolProviderService, Integer>)protocolProviders.clone()).keySet().iterator();
     }
 
     /**
@@ -383,16 +383,11 @@ public class MainFrame
     public ProtocolProviderService getProtocolProviderForAccount(
             String accountName)
     {
-        Iterator i = this.protocolProviders.keySet().iterator();
-        while(i.hasNext()) {
-            ProtocolProviderService pps
-                = (ProtocolProviderService)i.next();
-
+        for (ProtocolProviderService pps : protocolProviders.keySet()) {
             if (pps.getAccountID().getUserID().equals(accountName)) {
                return pps;
             }
         }
-
         return null;
     }
 
@@ -428,12 +423,9 @@ public class MainFrame
      */
     public int getProviderIndex(ProtocolProviderService protocolProvider)
     {
-        Object o = protocolProviders.get(protocolProvider);
+        Integer o = protocolProviders.get(protocolProvider);
 
-        if(o != null) {
-            return ((Integer)o).intValue();
-        }
-        return 0;
+        return (o != null) ? o.intValue() : 0;
     }
 
     /**
@@ -807,23 +799,19 @@ public class MainFrame
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-
         int accountIndex = -1;
-        Iterator pproviders = protocolProviders.keySet().iterator();
-        ProtocolProviderService pps;
 
-        while(pproviders.hasNext()) {
-            pps = (ProtocolProviderService)pproviders.next();
+        for (ProtocolProviderService pps : protocolProviders.keySet())
+        {
+            if (pps.getProtocolDisplayName().equals(
+                protocolProvider.getProtocolDisplayName())
+                && !pps.equals(protocolProvider))
+            {
 
-            if(pps.getProtocolDisplayName().equals(
-                    protocolProvider.getProtocolDisplayName())
-                    && !pps.equals(protocolProvider)) {
+                int index = protocolProviders.get(pps).intValue();
 
-                int index  = ((Integer)protocolProviders.get(pps)).intValue();
-
-                if(accountIndex < index) {
+                if (accountIndex < index)
                     accountIndex = index;
-                }
             }
         }
         accountIndex++;
@@ -846,14 +834,10 @@ public class MainFrame
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        Iterator pproviders = protocolProviders.keySet().iterator();
         ProtocolProviderService currentProvider = null;
         int sameProtocolProvidersCount = 0;
 
-        while(pproviders.hasNext()) {
-            ProtocolProviderService pps
-                = (ProtocolProviderService)pproviders.next();
-
+        for (ProtocolProviderService pps : protocolProviders.keySet()) {
             if(pps.getProtocolDisplayName().equals(
                     removedProvider.getProtocolDisplayName())) {
 
@@ -868,15 +852,10 @@ public class MainFrame
         if(sameProtocolProvidersCount < 2 && currentProvider != null) {
             protocolProviders.put(currentProvider, new Integer(0));
 
-            List accounts = configService
+            List<String> accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
 
-            Iterator accountsIter = accounts.iterator();
-
-            while(accountsIter.hasNext()) {
-                String rootPropName
-                    = (String) accountsIter.next();
-
+            for (String rootPropName : accounts) {
                 String accountUID
                     = configService.getString(rootPropName);
 

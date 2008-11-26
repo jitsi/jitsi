@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.swing.*;
 
 public class AccountStatusPanel
     extends TransparentPanel
@@ -44,13 +45,9 @@ public class AccountStatusPanel
     private JLabel accountNameLabel
         = new JLabel(GuiActivator.getResources().getI18NString("accountMe"));
 
-    private MainFrame mainFrame;
-
     public AccountStatusPanel(MainFrame mainFrame)
     {
         super(new BorderLayout(10, 0));
-
-        this.mainFrame = mainFrame;
 
         statusComboBox = new GlobalStatusSelectorBox(mainFrame);
 

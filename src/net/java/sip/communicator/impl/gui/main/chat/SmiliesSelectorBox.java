@@ -3,7 +3,6 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
@@ -28,7 +27,7 @@ public class SmiliesSelectorBox
 {
     private ChatWritePanel chatWritePanel;
 
-    private ArrayList<Smiley> imageList;
+    private final Collection<Smiley> imageList;
 
     private int gridRowCount = 0;
 
@@ -45,7 +44,7 @@ public class SmiliesSelectorBox
      * 
      * @param imageList The pack of smiley icons.
      */
-    public SmiliesSelectorBox(ArrayList<Smiley> imageList,
+    public SmiliesSelectorBox(Collection<Smiley> imageList,
         ChatWritePanel writePanel)
     {
         this.imageList = imageList;
@@ -69,7 +68,6 @@ public class SmiliesSelectorBox
 
         for (Smiley smiley : imageList)
         {
-
             ImageIcon imageIcon =
                 new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
 

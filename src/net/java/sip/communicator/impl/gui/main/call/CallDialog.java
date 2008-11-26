@@ -17,7 +17,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The dialog created for a given call.
@@ -28,8 +28,6 @@ public class CallDialog
     extends SIPCommFrame
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(CallDialog.class);
-
     private static final String DIAL_BUTTON = "DialButton";
 
     private static final String HANGUP_BUTTON = "HangupButton";
@@ -108,17 +106,11 @@ public class CallDialog
             if (dialpadDialog == null)
             {
                 Call call = callPanel.getCall();
+                Iterator<CallParticipant> callParticipants =
+                    (call == null) ? new Vector<CallParticipant>().iterator()
+                        : callPanel.getCall().getCallParticipants();
 
-                if (call != null)
-                {
-                    dialpadDialog 
-                        = new DialpadDialog(
-                            callPanel.getCall().getCallParticipants());
-                }
-                else
-                {
-                    dialpadDialog = new DialpadDialog(new Vector().iterator());
-                }
+                dialpadDialog = new DialpadDialog(callParticipants);
             }
 
             if(!dialpadDialog.isVisible())

@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -81,7 +82,7 @@ public class SelectAccountPanel
      *            could select.
      */
     public SelectAccountPanel(NewContact newContact,
-        Iterator protocolProvidersList)
+        Iterator<ProtocolProviderService> protocolProvidersList)
     {
         super(new BorderLayout());
 
@@ -133,7 +134,7 @@ public class SelectAccountPanel
     /**
      * Initializes the accounts table.
      */
-    private void tableInit(Iterator protocolProvidersList)
+    private void tableInit(Iterator<ProtocolProviderService> protocolProvidersList)
     {
         accountsTable
             .setPreferredScrollableViewportSize(new Dimension(500, 70));
@@ -144,8 +145,7 @@ public class SelectAccountPanel
 
         while (protocolProvidersList.hasNext())
         {
-            ProtocolProviderService pps =
-                (ProtocolProviderService) protocolProvidersList.next();
+            ProtocolProviderService pps = protocolProvidersList.next();
 
             OperationSet opSet =
                 pps.getOperationSet(OperationSetPresence.class);

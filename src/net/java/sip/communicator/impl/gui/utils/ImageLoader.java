@@ -11,6 +11,7 @@ import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.List;
 
 import javax.imageio.*;
 import javax.imageio.stream.*;
@@ -1127,9 +1128,8 @@ public class ImageLoader {
      *
      * @return the ArrayList of all smilies.
      */
-    public static ArrayList getDefaultSmiliesPack() {
-
-        ArrayList defaultPackList = new ArrayList();
+    public static Collection<Smiley> getDefaultSmiliesPack() {
+        List<Smiley> defaultPackList = new ArrayList<Smiley>();
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY1, new String[] {
                 ";-(", ";(", ":'(", ":'-(", ":~-(", ":~(" }));
@@ -1176,16 +1176,12 @@ public class ImageLoader {
      * @return A Smiley object for a given smiley string.
      */
     public static Smiley getSmiley(String smileyString) {
-        ArrayList smiliesList = getDefaultSmiliesPack();
+        Collection<Smiley> smilies = getDefaultSmiliesPack();
 
-        for (int i = 0; i < smiliesList.size(); i++) {
-
-            Smiley smiley = (Smiley) smiliesList.get(i);
-
+        for (Smiley smiley : smilies) {
             String[] smileyStrings = smiley.getSmileyStrings();
 
             for (int j = 0; j < smileyStrings.length; j++) {
-
                 String srcString = smileyStrings[j];
 
                 if (srcString.equals(smileyString))

@@ -26,7 +26,6 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-
 public class CallManager
 {
     private static Logger logger = Logger.getLogger(CallManager.class.getName());
@@ -186,7 +185,7 @@ public class CallManager
      * @param contacts the list of contacts to call to
      */
     public static void createCall(  ProtocolProviderService protocolProvider,
-                                    Vector contacts)
+                                    List<Contact> contacts)
     {
         new CreateCallThread(protocolProvider, contacts).start();
     }
@@ -213,11 +212,11 @@ public class CallManager
     private static class CreateCallThread
         extends Thread
     {
-        Vector contacts;
+        List<Contact> contacts;
 
         String stringContact;
 
-        ProtocolProviderService protocolProvider;
+        final ProtocolProviderService protocolProvider;
 
         public CreateCallThread(ProtocolProviderService protocolProvider,
                                 String contact)
@@ -227,7 +226,7 @@ public class CallManager
         }
 
         public CreateCallThread(ProtocolProviderService protocolProvider,
-                                Vector contacts)
+                                List<Contact> contacts)
         {
             this.protocolProvider = protocolProvider;
             this.contacts = contacts;
@@ -248,7 +247,7 @@ public class CallManager
             {
                 if (contacts != null)
                 {
-                    Contact contact = (Contact) contacts.get(0);
+                    Contact contact = contacts.get(0);
 
                     telephonyOpSet.createCall(contact);
                 }
@@ -285,7 +284,7 @@ public class CallManager
     private static class AnswerCallThread
         extends Thread
     {
-        private Call call;
+        private final Call call;
 
         public AnswerCallThread(Call call)
         {
@@ -295,16 +294,13 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-
-            Iterator participants = call.getCallParticipants();
+            Iterator<CallParticipant> participants = call.getCallParticipants();
 
             while (participants.hasNext())
             {
-                CallParticipant participant = (CallParticipant) participants
-                    .next();
-
-                OperationSetBasicTelephony telephony
-                    = (OperationSetBasicTelephony) pps
+                CallParticipant participant = participants.next();
+                OperationSetBasicTelephony telephony =
+                    (OperationSetBasicTelephony) pps
                         .getOperationSet(OperationSetBasicTelephony.class);
 
                 try
@@ -326,7 +322,7 @@ public class CallManager
     private static class HangupCallThread
         extends Thread
     {
-        private Call call;
+        private final Call call;
 
         public HangupCallThread(Call call)
         {
@@ -336,16 +332,13 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-
-            Iterator participants = call.getCallParticipants();
+            Iterator<CallParticipant> participants = call.getCallParticipants();
 
             while (participants.hasNext())
             {
-                CallParticipant participant = (CallParticipant) participants
-                    .next();
-
-                OperationSetBasicTelephony telephony
-                    = (OperationSetBasicTelephony) pps
+                CallParticipant participant = participants.next();
+                OperationSetBasicTelephony telephony =
+                    (OperationSetBasicTelephony) pps
                         .getOperationSet(OperationSetBasicTelephony.class);
 
                 try

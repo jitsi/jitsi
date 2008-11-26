@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
@@ -13,8 +12,6 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
-
-import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -27,7 +24,10 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The panel containing the call field and button, serving to make calls.
@@ -138,7 +138,8 @@ public class MainCallPanel
                 Object[] selectedContacts = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValues();
 
-                Vector telephonyContacts = new Vector();
+                java.util.List<Contact> telephonyContacts =
+                    new Vector<Contact>();
 
                 for (int i = 0; i < selectedContacts.length; i++)
                 {

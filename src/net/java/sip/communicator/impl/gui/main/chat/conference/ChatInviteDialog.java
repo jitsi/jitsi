@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The invite dialog is the one shown when the user clicks on the conference
@@ -260,7 +261,8 @@ public class ChatInviteDialog
 
         if(button.equals(inviteButton))
         {
-            ArrayList selectedContactAddresses = new ArrayList();
+            java.util.List<String> selectedContactAddresses =
+                new ArrayList<String>();
 
             Enumeration selectedContacts
                 = selectedContactListModel.elements();

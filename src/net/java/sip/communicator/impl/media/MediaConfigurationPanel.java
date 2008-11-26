@@ -26,7 +26,7 @@ import org.osgi.framework.*;
  * @author Lubomir Marinov
  */
 public class MediaConfigurationPanel
-    extends JPanel
+    extends TransparentPanel
 {
     private static final int HGAP = 5;
 
@@ -115,7 +115,7 @@ public class MediaConfigurationPanel
         } else
             preview = null;
 
-        Container deviceContainer = new JPanel(new GridBagLayout());
+        Container deviceContainer = new TransparentPanel(new GridBagLayout());
         GridBagConstraints deviceConstraints = new GridBagConstraints();
         deviceConstraints.anchor = GridBagConstraints.NORTHWEST;
         deviceConstraints.gridx = 0;
@@ -137,7 +137,7 @@ public class MediaConfigurationPanel
         if (comboBoxListener != null)
             comboBoxListener.actionPerformed(null);
 
-        Container container = new JPanel(new GridBagLayout());
+        Container container = new TransparentPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
@@ -175,11 +175,11 @@ public class MediaConfigurationPanel
         final JButton downButton = new JButton(resources.getI18NString(key));
         downButton.setMnemonic(resources.getI18nMnemonic(key));
 
-        Container buttonBar = new JPanel(new GridLayout(0, 1));
+        Container buttonBar = new TransparentPanel(new GridLayout(0, 1));
         buttonBar.add(upButton);
         buttonBar.add(downButton);
 
-        Container container = new JPanel(new GridBagLayout());
+        Container container = new TransparentPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;

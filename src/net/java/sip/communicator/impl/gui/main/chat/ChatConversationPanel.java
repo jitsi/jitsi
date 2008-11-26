@@ -698,17 +698,14 @@ public class ChatConversationPanel
             endPlainTextTag = "";
         }
 
-        ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
+        Collection<Smiley> smilies = ImageLoader.getDefaultSmiliesPack();
 
         StringBuffer regexp = new StringBuffer();
 
         regexp.append("(?<!(alt='|alt=\"))(");
 
-        for (int i = 0; i < smiliesList.size(); i++)
+        for (Smiley smiley : smilies)
         {
-
-            Smiley smiley = (Smiley) smiliesList.get(i);
-
             String[] smileyStrings = smiley.getSmileyStrings();
 
             for (int j = 0; j < smileyStrings.length; j++)

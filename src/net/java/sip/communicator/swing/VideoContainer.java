@@ -9,13 +9,11 @@ package net.java.sip.communicator.swing;
 import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.*;
-
 /**
  * @author Lubomir Marinov
  */
 public class VideoContainer
-    extends JPanel
+    extends TransparentPanel
 {
     private final ContainerListener containerListener = new ContainerListener()
     {

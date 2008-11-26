@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The dialog containing a list of all chat rooms ever joined by the user and
@@ -29,8 +29,6 @@ public class ChatRoomListDialog
     extends SIPCommDialog
     implements  ActionListener
 {
-    private Logger logger = Logger.getLogger(ChatRoomListDialog.class);
-
     private static final String CREATE_CHAT_ROOM = "CreateChatRoom";
 
     private static final String JOIN_CHAT_ROOM = "JoinChatRoom";

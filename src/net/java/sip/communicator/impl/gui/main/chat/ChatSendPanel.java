@@ -11,10 +11,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>ChatSendPanel</tt> is the panel in the bottom of the chat. It
@@ -27,8 +26,6 @@ public class ChatSendPanel
     extends TransparentPanel
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(ChatSendPanel.class);
-
     private I18NString sendString = Messages.getI18NString("send");
 
     private JButton sendButton = new JButton(sendString.getText());

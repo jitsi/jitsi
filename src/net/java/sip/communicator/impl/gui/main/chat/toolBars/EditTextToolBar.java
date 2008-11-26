@@ -3,12 +3,10 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -19,7 +17,9 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+
 import say.swing.*;
 
 /**
@@ -446,23 +446,6 @@ public class EditTextToolBar
             "font-underline"); //$NON-NLS-1$
     }
 
-    /**
-     * Returns all supported local system font names.
-     * 
-     * @return an array containing all supported local system font names.
-     */
-    private String[] getSystemFontFamilies()
-    {
-        // Get all font family names
-        GraphicsEnvironment ge =
-            GraphicsEnvironment.getLocalGraphicsEnvironment();
-
-        return ge.getAvailableFontFamilyNames(Locale.getDefault());
-    }
-
-    /**
-     * 
-     */
     private class ColorLabel extends JLabel
     {
         public void paintComponent(Graphics g)
