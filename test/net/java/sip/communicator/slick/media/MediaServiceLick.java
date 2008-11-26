@@ -10,6 +10,7 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import junit.framework.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.util.*;
 
@@ -43,6 +44,16 @@ public class MediaServiceLick
         setName("MediaServiceLick");
         Hashtable properties = new Hashtable();
         properties.put("service.pid", getName());
+
+        // disable video support when testing
+        ServiceReference confReference
+            = bundleContext.getServiceReference(
+                ConfigurationService.class.getName());
+        ConfigurationService configurationService
+            = (ConfigurationService) bundleContext.getService(confReference);
+        configurationService.setProperty(
+            MediaService.DISABLE_VIDEO_SUPPORT_PROPERTY_NAME, 
+            Boolean.TRUE.toString());
 
         addTestSuite(TestMediaService.class);
         bundleContext.registerService(getClass().getName(), this, properties);
