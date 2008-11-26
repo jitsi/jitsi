@@ -12,7 +12,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
