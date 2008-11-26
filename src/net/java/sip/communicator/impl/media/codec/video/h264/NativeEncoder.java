@@ -430,7 +430,7 @@ public class NativeEncoder
 
             avcontext.flags |= AVCodecLibrary.CODEC_FLAG_LOOP_FILTER;
             avcontext.me_method = 1;
-            avcontext.me_subpel_quality = 5;
+            avcontext.me_subpel_quality = 1;//5;
             avcontext.me_range = 16;
             avcontext.me_cmp |= AVCodecContext.FF_CMP_CHROMA;
             avcontext.thread_count = 1;
@@ -463,6 +463,8 @@ public class NativeEncoder
             avpicture.data0 = rawFrameBuffer;        
             avpicture.data1 = avpicture.data0.share(size);
             avpicture.data2 = avpicture.data1.share(size/4);
+            
+            opened = true;
         }
     }
 
@@ -470,6 +472,7 @@ public class NativeEncoder
     {
         if (opened)
         {
+            opened = false;
             super.close();
 
             AVCODEC.avcodec_close(avcontext);

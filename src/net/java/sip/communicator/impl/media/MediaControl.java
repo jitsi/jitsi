@@ -133,6 +133,10 @@ public class MediaControl
         this.deviceConfiguration = deviceConfig;
         this.encodingConfiguration = encodingConfig;
 
+        // init the encodings settings
+        encodingConfig.initializeFormatPreferences();
+        encodingConfig.registerCustomPackages();
+
         String debugDataSourceURL
             = MediaActivator.getConfigurationService().getString(
                 DEBUG_DATA_SOURCE_URL_PROPERTY_NAME);
@@ -199,7 +203,7 @@ public class MediaControl
         if (videoDeviceInfo != null)
         {
             videoDataSource = createDataSource(videoDeviceInfo.getLocator());
-            
+
             // we will check video sizes and will set the most appropriate one
             selectVideoSize(videoDataSource);
 
@@ -317,6 +321,9 @@ public class MediaControl
     private void initProcessor(DataSource dataSource)
         throws MediaException
     {
+        // this is the second stage of initing encoding configs
+        encodingConfiguration.registerCustomCodecs();
+
         try
         {
             try

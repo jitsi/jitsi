@@ -120,7 +120,7 @@ public class EncodingConfiguration
      * various formats and assigns default ones to those that haven't been
      * mentioned.
      */
-    private void initializeFormatPreferences()
+    public void initializeFormatPreferences()
     {
         // first init default preferences
         // video
@@ -228,21 +228,6 @@ public class EncodingConfiguration
     }
 
     /**
-     * Initializes codecs and formats.
-     */
-    public void initialize()
-    {
-        // init configuration
-        initializeFormatPreferences();
-
-        // register our own datasources
-        registerCustomPackages();
-
-        // register our custom codecs
-        registerCustomCodecs();
-    }
-
-    /**
      * Sets <tt>pref</tt> as the preference associated with <tt>encoding</tt>.
      * Use this method for both audio and video encodings and don't worry if
      * preferences are equal since we rarely need to compare prefs of video
@@ -285,7 +270,7 @@ public class EncodingConfiguration
     /**
      * Register in JMF the custom codecs we provide
      */
-    private void registerCustomCodecs()
+    public void registerCustomCodecs()
     {
         // use a set to check if the codecs are already
         // registered in jmf.properties
@@ -350,7 +335,7 @@ public class EncodingConfiguration
     /**
      * Register in JMF the custom packages we provide
      */
-    private void registerCustomPackages()
+    public void registerCustomPackages()
     {
         Vector<String> currentPackagePrefix =
             PackageManager.getProtocolPrefixList();

@@ -406,7 +406,6 @@ public class MediaServiceImpl
                 try
                 {
                     deviceConfiguration.initialize();
-                    encodingConfiguration.initialize();
                     defaultMediaControl.
                         initialize(deviceConfiguration, encodingConfiguration);
                     sdpFactory = SdpFactory.getInstance();
