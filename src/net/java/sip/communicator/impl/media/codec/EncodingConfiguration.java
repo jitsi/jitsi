@@ -61,15 +61,15 @@ public class EncodingConfiguration
         Integer.toString(SdpConstants.PCMA), Integer.toString(110),
         // javax.media.format.AudioFormat.G728_RTP;
         Integer.toString(SdpConstants.G728)
-        // javax.media.format.AudioFormat.G729_RTP
+    // javax.media.format.AudioFormat.G729_RTP
         // g729 is not suppported by JMF
         // Integer.toString(SdpConstants.G729)
         };
 
-    private final Set<String> suportedVideoEncodings =
+    private final Set<String> supportedVideoEncodings =
         new TreeSet<String>(new EncodingComparator());
 
-    private final Set<String> suportedAudioEncodings =
+    private final Set<String> supportedAudioEncodings =
         new TreeSet<String>(new EncodingComparator());
 
     /**
@@ -189,9 +189,9 @@ public class EncodingConfiguration
             int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
 
             if (pref1IntValue > 0)
-                suportedAudioEncodings.add(ac);
+                supportedAudioEncodings.add(ac);
             else
-                suportedAudioEncodings.remove(ac);
+                supportedAudioEncodings.remove(ac);
         }
 
         for (int i = 0; i < availableVideoEncodings.length; i++)
@@ -202,9 +202,9 @@ public class EncodingConfiguration
             int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
 
             if (pref1IntValue > 0)
-                suportedVideoEncodings.add(ac);
+                supportedVideoEncodings.add(ac);
             else
-                suportedVideoEncodings.remove(ac);
+                supportedVideoEncodings.remove(ac);
         }
     }
 
@@ -216,7 +216,7 @@ public class EncodingConfiguration
     {
         Set<String> result = new TreeSet<String>(new EncodingComparator());
         for (String c : encs)
-        {            
+        {
             Integer pref1 = encodingPreferences.get(c);
             int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
 
@@ -224,7 +224,7 @@ public class EncodingConfiguration
                 result.add(c);
         }
 
-        return (String[])result.toArray();
+        return result.toArray(new String[result.size()]);
     }
 
     /**
@@ -386,12 +386,14 @@ public class EncodingConfiguration
 
     public String[] getSupportedVideoEncodings()
     {
-        return (String[]) suportedVideoEncodings.toArray();
+        return supportedVideoEncodings
+            .toArray(new String[supportedVideoEncodings.size()]);
     }
 
     public String[] getSupportedAudioEncodings()
     {
-        return (String[]) suportedAudioEncodings.toArray();
+        return supportedAudioEncodings
+            .toArray(new String[supportedAudioEncodings.size()]);
     }
 
     /**
@@ -419,7 +421,7 @@ public class EncodingConfiguration
     }
 
     /**
-     * Comaparator sorting the sets according the settings in 
+     * Comaparator sorting the sets according the settings in
      * encodingPreferences.
      */
     private class EncodingComparator
