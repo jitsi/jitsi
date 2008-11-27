@@ -33,7 +33,7 @@ import net.java.sip.communicator.util.*;
  */
 public class MediaControl
 {
-    private final Logger logger = Logger.getLogger(MediaControl.class);
+    private static final Logger logger = Logger.getLogger(MediaControl.class);
 
     /**
      * Our device configuration helper.
@@ -997,48 +997,92 @@ public class MediaControl
     }
 
     /**
-     * Selects the nearest size supported by the capture device,
-     * to make drivers scale the images.
+     * Selects the nearest size supported by the capture device, to make drivers
+     * scale the images.
      * 
-     * @param videoDS the video datasource
+     * @param videoDS the video <code>DataSource</code>
      */
     private void selectVideoSize(DataSource videoDS)
     {
-        FormatControl fControl = 
-            (FormatControl)videoDS.getControl(FormatControl.class.getName());
+        selectVideoSize(videoDS, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
+    }
 
-        if(fControl == null)
-            return;
+    public static Dimension selectVideoSize(DataSource videoDS,
+        final int preferredWidth, final int preferredHeight)
+    {
+        FormatControl formatControl =
+            (FormatControl) videoDS.getControl(FormatControl.class.getName());
 
-        // On MacOSX isight camera reports two sizes 640x480 and 320x240
-        // if we use the default size 352x288 we must use source format 640x480
-        // in this situation we suffer from high cpu usage as every frame is 
-        // scaled, so we use the non standard format 320x240.
-        String osName = System.getProperty("os.name");
-        if (osName.startsWith("Mac"))
+        if (formatControl == null)
+            return null;
+
+        Format[] formats = formatControl.getSupportedFormats();
+        final int count = formats.length;
+
+        if (count < 1)
+            return null;
+
+        Format selectedFormat = null;
+
+        if (count == 1)
+            selectedFormat = formats[0];
+        else
         {
-            Constants.VIDEO_WIDTH = 320;
-            Constants.VIDEO_HEIGHT = 240;
-        }
-
-        Format targetFormat = null;
-        double targetWidth = Constants.VIDEO_WIDTH;
-        
-        Format[] fs = fControl.getSupportedFormats();
-        for (int i = 0; i < fs.length; i++)
-        {
-            VideoFormat format = (VideoFormat)fs[i];
-
-            Dimension size = format.getSize();
-            if(size.getWidth() >= Constants.VIDEO_WIDTH
-                && size.getWidth() <= targetWidth)
+            class FormatInfo
             {
-                targetFormat = format;
+                public final VideoFormat format;
+
+                public final double difference;
+
+                public FormatInfo(VideoFormat format)
+                {
+                    this.format = format;
+
+                    Dimension size = format.getSize();
+
+                    int width = size.width;
+                    double xScale =
+                        (width == preferredWidth) ? 1
+                            : (preferredWidth / (double) width);
+
+                    int height = size.height;
+                    double yScale =
+                        (height == preferredHeight) ? 1 : preferredHeight
+                            / (double) height;
+
+                    difference = Math.abs(1 - Math.min(xScale, yScale));
+                }
+            }
+
+            FormatInfo[] infos = new FormatInfo[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                FormatInfo info =
+                    infos[i] = new FormatInfo((VideoFormat) formats[i]);
+
+                if (info.difference == 0)
+                {
+                    selectedFormat = info.format;
+                    break;
+                }
+            }
+            if (selectedFormat == null)
+            {
+                Arrays.sort(infos, new Comparator<FormatInfo>()
+                {
+                    public int compare(FormatInfo info0, FormatInfo info1)
+                    {
+                        return Double.compare(info0.difference,
+                            info1.difference);
+                    }
+                });
+                selectedFormat = infos[0].format;
             }
         }
 
-        if(targetFormat != null)
-            fControl.setFormat(targetFormat);
+        formatControl.setFormat(selectedFormat);
+        return ((VideoFormat) selectedFormat).getSize();
     }
 
     public DataSource createLocalVideoDataSource()

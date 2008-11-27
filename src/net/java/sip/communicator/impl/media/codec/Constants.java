@@ -28,6 +28,27 @@ public class Constants
      */
     public static int ILBC_MODE = 30;
 
-    public static int VIDEO_WIDTH = 352;
-    public static int VIDEO_HEIGHT = 288;
+    public static final int VIDEO_WIDTH;
+    public static final int VIDEO_HEIGHT;
+
+    static
+    {
+
+        /*
+         * On Mac OS X, the Apple iSight camera reports two sizes 640x480 and
+         * 320x240 if we use the default size 352x288 we must use source format
+         * 640x480 in this situation we suffer from high cpu usage as every
+         * frame is scaled, so we use the non standard format 320x240.
+         */
+        if (System.getProperty("os.name").startsWith("Mac"))
+        {
+            VIDEO_WIDTH = 320;
+            VIDEO_HEIGHT = 240;
+        }
+        else
+        {
+            VIDEO_WIDTH = 352;
+            VIDEO_HEIGHT = 288;
+        }
+    }
 }

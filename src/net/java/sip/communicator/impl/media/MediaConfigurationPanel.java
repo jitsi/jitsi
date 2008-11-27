@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.io.*;
 
 import javax.media.*;
+import javax.media.protocol.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -271,11 +272,34 @@ public class MediaConfigurationPanel
         if (device == null)
             return;
 
-        Player player = null;
+        DataSource dataSource = null;
         Exception exception = null;
         try
         {
-            player = Manager.createPlayer(device.getLocator());
+            dataSource = Manager.createDataSource(device.getLocator());
+        }
+        catch (IOException ex)
+        {
+            exception = ex;
+        }
+        catch (NoDataSourceException ex)
+        {
+            exception = ex;
+        }
+        if (exception != null)
+        {
+            logger.error("Failed to create preview for device " + device,
+                exception);
+            return;
+        }
+
+        Dimension size = videoContainer.getPreferredSize();
+        MediaControl.selectVideoSize(dataSource, size.width, size.height);
+
+        Player player = null;
+        try
+        {
+            player = Manager.createPlayer(dataSource);
         }
         catch (IOException ex)
         {
