@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.media;
 
@@ -76,67 +75,28 @@ public class MediaConfigurationPanel
     {
         final JComboBox comboBox = new JComboBox();
         comboBox.setEditable(false);
+        comboBox.setModel(new DeviceConfigurationComboBoxModel(mediaService
+            .getDeviceConfiguration(), type));
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
         label.setLabelFor(comboBox);
 
-        final JComponent preview;
-        ActionListener comboBoxListener = null;
-        if (type == DeviceConfigurationComboBoxModel.VIDEO)
-        {
-            JLabel noPreview =
-                new JLabel(MediaActivator.getResources().getI18NString(
-                    "MediaConfigurationPanel_noPreview"));
-            noPreview.setHorizontalAlignment(SwingConstants.CENTER);
-            noPreview.setVerticalAlignment(SwingConstants.CENTER);
+        Container firstContainer = new TransparentPanel(new GridBagLayout());
+        GridBagConstraints firstConstraints = new GridBagConstraints();
+        firstConstraints.anchor = GridBagConstraints.NORTHWEST;
+        firstConstraints.gridx = 0;
+        firstConstraints.gridy = 0;
+        firstConstraints.weightx = 0;
+        firstContainer.add(label, firstConstraints);
+        firstConstraints.gridx = 1;
+        firstConstraints.weightx = 1;
+        firstContainer.add(comboBox, firstConstraints);
 
-            preview = createVideoContainer(noPreview);
-            Dimension previewSize = new Dimension(150, 150);
-            preview.setMaximumSize(previewSize);
-            preview.setMinimumSize(previewSize);
-            preview.setPreferredSize(previewSize);
-
-            comboBoxListener = new ActionListener()
-            {
-                public void actionPerformed(ActionEvent event)
-                {
-                    Object selection = comboBox.getSelectedItem();
-                    CaptureDeviceInfo device = null;
-                    if (selection instanceof DeviceConfigurationComboBoxModel.CaptureDevice)
-                    {
-                        device =
-                            ((DeviceConfigurationComboBoxModel.CaptureDevice) selection).info;
-                    }
-
-                    createPreview(device, preview);
-                }
-            };
-            comboBox.addActionListener(comboBoxListener);
-        } else
-            preview = null;
-
-        Container deviceContainer = new TransparentPanel(new GridBagLayout());
-        GridBagConstraints deviceConstraints = new GridBagConstraints();
-        deviceConstraints.anchor = GridBagConstraints.NORTHWEST;
-        deviceConstraints.gridx = 0;
-        deviceConstraints.gridy = 0;
-        deviceConstraints.weightx = 0;
-        deviceContainer.add(label, deviceConstraints);
-        deviceConstraints.gridx = 1;
-        deviceConstraints.weightx = 1;
-        deviceContainer.add(comboBox, deviceConstraints);
-        if (preview != null)
-        {
-            deviceConstraints.gridx = 2;
-            deviceConstraints.weightx = 0;
-            deviceContainer.add(preview, deviceConstraints);
-        }
-
-        comboBox.setModel(new DeviceConfigurationComboBoxModel(mediaService
-            .getDeviceConfiguration(), type));
-        if (comboBoxListener != null)
-            comboBoxListener.actionPerformed(null);
+        Container secondContainer =
+            new TransparentPanel(new GridLayout(1, 0, HGAP, VGAP));
+        secondContainer.add(createPreview(type, comboBox));
+        secondContainer.add(createEncodingControls(type));
 
         Container container = new TransparentPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -145,11 +105,12 @@ public class MediaConfigurationPanel
         constraints.gridy = 0;
         constraints.weightx = 1;
         constraints.weighty = 0;
-        container.add(deviceContainer, constraints);
+        container.add(firstContainer, constraints);
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridy = 1;
         constraints.weighty = 1;
-        container.add(createEncodingControls(type), constraints);
+        container.add(secondContainer, constraints);
+
         return container;
     }
 
@@ -161,7 +122,7 @@ public class MediaConfigurationPanel
         final JTable table = new JTable();
         table.setShowGrid(false);
         table.setTableHeader(null);
- 
+
         key = "MediaConfigurationPanel_encodings";
         JLabel label = new JLabel(resources.getI18NString(key));
         label.setDisplayedMnemonic(resources.getI18nMnemonic(key));
@@ -324,6 +285,41 @@ public class MediaConfigurationPanel
             }
         });
         player.start();
+    }
+
+    private Component createPreview(int type, final JComboBox comboBox)
+    {
+        final JComponent preview;
+        if (type == DeviceConfigurationComboBoxModel.VIDEO)
+        {
+            JLabel noPreview =
+                new JLabel(MediaActivator.getResources().getI18NString(
+                    "MediaConfigurationPanel_noPreview"));
+            noPreview.setHorizontalAlignment(SwingConstants.CENTER);
+            noPreview.setVerticalAlignment(SwingConstants.CENTER);
+
+            preview = createVideoContainer(noPreview);
+
+            ActionListener comboBoxListener = new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
+                {
+                    Object selection = comboBox.getSelectedItem();
+                    CaptureDeviceInfo device = null;
+                    if (selection instanceof DeviceConfigurationComboBoxModel.CaptureDevice)
+                    {
+                        device =
+                            ((DeviceConfigurationComboBoxModel.CaptureDevice) selection).info;
+                    }
+
+                    createPreview(device, preview);
+                }
+            };
+            comboBox.addActionListener(comboBoxListener);
+            comboBoxListener.actionPerformed(null);
+        } else
+            preview = new TransparentPanel();
+        return preview;
     }
 
     private JComponent createVideoContainer(Component noVideoComponent)
