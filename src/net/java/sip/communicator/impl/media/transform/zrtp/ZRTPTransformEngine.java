@@ -1232,7 +1232,6 @@ public class ZRTPTransformEngine
      * @return the ZID data as byte array.
      */
     public byte[] getZid() {
-         //return ((zrtpEngine != null) ? zrtpEngine.getZid() : null);
-         return null;
+         return ((zrtpEngine != null) ? zrtpEngine.getZid() : null);
     }
 }
