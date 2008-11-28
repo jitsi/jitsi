@@ -4,10 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.login;
-
-import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -88,51 +85,31 @@ public class LoginManager
      */
     public void runLogin(MainFrame parent)
     {
-        Set set = GuiActivator.getProtocolProviderFactories().entrySet();
-        Iterator iter = set.iterator();
-
-        boolean hasRegisteredAccounts = false;
-
-        while (iter.hasNext())
+        for (ProtocolProviderFactory providerFactory : GuiActivator
+            .getProtocolProviderFactories().values())
         {
-            Map.Entry entry = (Map.Entry) iter.next();
-
-            ProtocolProviderFactory providerFactory
-                = (ProtocolProviderFactory) entry.getValue();
-
-            ArrayList accountsList = providerFactory.getRegisteredAccounts();
-
-            AccountID accountID;
             ServiceReference serRef;
             ProtocolProviderService protocolProvider;
 
-            for (int i = 0; i < accountsList.size(); i++)
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                accountID = (AccountID) accountsList.get(i);
-
-                boolean isHidden = 
-                    accountID.getAccountProperties()
-                        .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-                if(!isHidden)
-                    hasRegisteredAccounts = true;
-
                 serRef = providerFactory.getProviderForAccount(accountID);
 
-                protocolProvider = (ProtocolProviderService) GuiActivator
-                    .bundleContext.getService(serRef);
+                protocolProvider =
+                    (ProtocolProviderService) GuiActivator.bundleContext
+                        .getService(serRef);
 
                 protocolProvider.addRegistrationStateChangeListener(this);
 
                 this.mainFrame.addProtocolProvider(protocolProvider);
 
-                Object status = this.mainFrame
-                    .getProtocolProviderLastStatus(protocolProvider);
+                Object status =
+                    this.mainFrame
+                        .getProtocolProviderLastStatus(protocolProvider);
 
                 if (status == null
                     || status.equals(Constants.ONLINE_STATUS)
-                    || ((status instanceof PresenceStatus)
-                        && (((PresenceStatus) status)
+                    || ((status instanceof PresenceStatus) && (((PresenceStatus) status)
                         .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
                 {
                     this.login(protocolProvider);
@@ -396,9 +373,9 @@ public class LoginManager
     private class RegisterProvider
         extends Thread
     {
-        ProtocolProviderService protocolProvider;
+        private final ProtocolProviderService protocolProvider;
 
-        SecurityAuthority secAuth;
+        private final SecurityAuthority secAuth;
 
         RegisterProvider(ProtocolProviderService protocolProvider,
             SecurityAuthority secAuth)
@@ -419,99 +396,97 @@ public class LoginManager
             }
             catch (OperationFailedException ex)
             {
-                int errorCode = ex.getErrorCode();
-
-                String errorMessage = "";
-
-                if (errorCode == OperationFailedException.GENERAL_ERROR)
-                {
-                    logger.error("Provider could not be registered"
-                        + " due to the following general error: ", ex);
-
-                    errorMessage = Messages.getI18NString("loginGeneralError",
-                        new String[]{
-                        protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService()
-                        }).getText();
-
-                    new ErrorDialog(mainFrame,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        ex).showDialog();
-                }
-                else if (errorCode == OperationFailedException.INTERNAL_ERROR)
-                {
-                    logger.error("Provider could not be registered"
-                        + " due to the following internal error: ", ex);
-
-                    errorMessage = Messages.getI18NString("loginInternalError",
-                        new String[]{
-                        protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService()
-                        }).getText();
-
-                    new ErrorDialog(mainFrame,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        ex).showDialog();
-                }
-                else if (errorCode == OperationFailedException.NETWORK_FAILURE)
-                {
-                    logger.error("Provider could not be registered"
-                        + " due to a network failure: " + ex);
-
-                    errorMessage = Messages.getI18NString("loginNetworkError",
-                        new String[]{
-                        protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService()
-                        }).getText();
-
-                    int result = new MessageDialog(null,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        Messages.getI18NString("retry").getText(),
-                        false).showDialog();
-
-                    if (result == MessageDialog.OK_RETURN_CODE)
-                    {
-                        login(protocolProvider);
-                    }
-                }
-                else if (errorCode
-                        == OperationFailedException.INVALID_ACCOUNT_PROPERTIES)
-                {
-                    logger.error("Provider could not be registered"
-                        + " due to an invalid account property: ", ex);
-
-                    errorMessage = Messages.getI18NString("loginInvalidPropsError",
-                        new String[]{
-                        protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService()
-                        }).getText();
-
-                    new ErrorDialog(mainFrame,
-                        Messages.getI18NString("error").getText(),
-                        errorMessage,
-                        ex).showDialog();
-                }
-                else
-                {
-                    logger.error("Provider could not be registered.", ex);
-                }
+                handleOperationFailedException(ex);
             }
             catch (Throwable ex)
             {
                 logger.error("Failed to register protocol provider. ", ex);
 
-                new ErrorDialog(
-                    mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    Messages.getI18NString("loginGeneralError",
-                        new String[]{
-                        protocolProvider.getAccountID().getUserID(),
-                        protocolProvider.getAccountID().getService()
-                        }).getText())
-                    .showDialog();
+                AccountID accountID = protocolProvider.getAccountID();
+                new ErrorDialog(mainFrame, Messages.getI18NString("error")
+                    .getText(), Messages.getI18NString("loginGeneralError",
+                    new String[]
+                    { accountID.getUserID(), accountID.getService() })
+                    .getText()).showDialog();
+            }
+        }
+
+        private void handleOperationFailedException(OperationFailedException ex)
+        {
+            String errorMessage = "";
+
+            switch (ex.getErrorCode())
+            {
+            case OperationFailedException.GENERAL_ERROR:
+            {
+                logger.error("Provider could not be registered"
+                    + " due to the following general error: ", ex);
+
+                AccountID accountID = protocolProvider.getAccountID();
+                errorMessage =
+                    Messages.getI18NString("loginGeneralError", new String[]
+                    { accountID.getUserID(), accountID.getService() })
+                        .getText();
+
+                new ErrorDialog(mainFrame, Messages.getI18NString("error")
+                    .getText(), errorMessage, ex).showDialog();
+            }
+                break;
+            case OperationFailedException.INTERNAL_ERROR:
+            {
+                logger.error("Provider could not be registered"
+                    + " due to the following internal error: ", ex);
+
+                AccountID accountID = protocolProvider.getAccountID();
+                errorMessage =
+                    Messages.getI18NString("loginInternalError", new String[]
+                    { accountID.getUserID(), accountID.getService() })
+                        .getText();
+
+                new ErrorDialog(mainFrame, Messages.getI18NString("error")
+                    .getText(), errorMessage, ex).showDialog();
+            }
+                break;
+            case OperationFailedException.NETWORK_FAILURE:
+            {
+                logger.error("Provider could not be registered"
+                    + " due to a network failure: " + ex);
+
+                AccountID accountID = protocolProvider.getAccountID();
+                errorMessage =
+                    Messages.getI18NString("loginNetworkError", new String[]
+                    { accountID.getUserID(), accountID.getService() })
+                        .getText();
+
+                int result =
+                    new MessageDialog(null, Messages.getI18NString("error")
+                        .getText(), errorMessage, Messages.getI18NString(
+                        "retry").getText(), false).showDialog();
+
+                if (result == MessageDialog.OK_RETURN_CODE)
+                {
+                    login(protocolProvider);
+                }
+            }
+                break;
+            case OperationFailedException.INVALID_ACCOUNT_PROPERTIES:
+            {
+                logger.error("Provider could not be registered"
+                    + " due to an invalid account property: ", ex);
+
+                AccountID accountID = protocolProvider.getAccountID();
+                errorMessage =
+                    Messages.getI18NString("loginInvalidPropsError",
+                        new String[]
+                        { accountID.getUserID(), accountID.getService() })
+                        .getText();
+
+                new ErrorDialog(mainFrame, Messages.getI18NString("error")
+                    .getText(), errorMessage, ex).showDialog();
+            }
+                break;
+            default:
+                logger.error("Provider could not be registered.", ex);
             }
         }
     }

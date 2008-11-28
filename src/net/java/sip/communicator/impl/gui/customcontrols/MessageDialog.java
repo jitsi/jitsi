@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.*;
 
 import javax.swing.*;
 
@@ -70,8 +71,6 @@ public class MessageDialog
      * checked.
      */
     public static final int OK_DONT_ASK_CODE = 2;
-    
-    private Object lock = new Object();
 
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
@@ -222,21 +221,37 @@ public class MessageDialog
      */
     public int showDialog()
     {
-        this.pack();
-
-        this.setVisible(true);
-
-        synchronized (lock)
+        if (!SwingUtilities.isEventDispatchThread())
         {
+            final int[] returnCodes = new int[1];
+            Exception exception = null;
             try
             {
-                lock.wait();
+                SwingUtilities.invokeAndWait(new Runnable()
+                {
+                    public void run()
+                    {
+                        returnCodes[0] = showDialog();
+                    }
+                });
             }
-            catch (InterruptedException e)
+            catch (InterruptedException ex)
             {
-                e.printStackTrace();
+                exception = ex;
             }
+            catch (InvocationTargetException ex)
+            {
+                exception = ex;
+            }
+            if (exception != null)
+                throw new UndeclaredThrowableException(exception);
+            return returnCodes[0];
         }
+
+        pack();
+
+        setModal(true);
+        setVisible(true);
 
         return returnCode;
     }
@@ -263,11 +278,6 @@ public class MessageDialog
         else
         {
             this.returnCode = CANCEL_RETURN_CODE;
-        }
-
-        synchronized (lock)
-        {
-            lock.notify();
         }
 
         this.dispose();

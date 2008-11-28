@@ -86,7 +86,8 @@ public class MainFrame
         providerContactHandlers
             = new Hashtable<ProtocolProviderService, ContactEventHandler>();
 
-    private Hashtable nativePluginsTable = new Hashtable();
+    private final Map<PluginComponent, Component> nativePluginsTable =
+        new Hashtable<PluginComponent, Component>();
 
     private JPanel pluginPanelNorth = new JPanel();
     private JPanel pluginPanelSouth = new JPanel();
@@ -113,7 +114,22 @@ public class MainFrame
 
         menu = new MainMenu(this);
 
-        this.addWindowListener(new MainFrameWindowAdapter());
+        /*
+         * Before closing the application window saves the current size and
+         * position through the ConfigurationService.
+         */
+        this.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosed(WindowEvent event)
+            {
+                MainFrame.this.windowClosed(event);
+            }
+
+            public void windowClosing(WindowEvent event)
+            {
+                MainFrame.this.windowClosing(event);
+            }
+        });
 
         this.initTitleFont();
 
@@ -643,68 +659,6 @@ public class MainFrame
     }
 
     /**
-     * Before closing the application window saves the current size and position
-     * through the <tt>ConfigurationService</tt>.
-     */
-    public class MainFrameWindowAdapter extends WindowAdapter
-    {
-        public void windowClosing(WindowEvent e)
-        {
-            if(!GuiActivator.getUIService().getExitOnMainWindowClose())
-            {
-                new Thread()
-                {
-                    public void run()
-                    {
-                        if(ConfigurationManager.isQuitWarningShown())
-                        {
-                            MessageDialog dialog
-                                = new MessageDialog(
-                                    MainFrame.this,
-                                    Messages.getI18NString("close").getText(),
-                                    Messages.getI18NString("hideMainWindow")
-                                        .getText(),
-                                    false);
-
-                            int returnCode = dialog.showDialog();
-
-                            if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
-                            {
-                                ConfigurationManager
-                                    .setQuitWarningShown(false);
-                            }
-                        }
-                    }
-                }.start();
-
-                ConfigurationManager.setApplicationVisible(false);
-            }
-        }
-
-        public void windowClosed(WindowEvent e)
-        {
-            if(GuiActivator.getUIService().getExitOnMainWindowClose())
-            {
-                try
-                {
-                    GuiActivator.bundleContext.getBundle(0).stop();
-                }
-                catch (BundleException ex)
-                {
-                    logger.error("Failed to gently shutdown Felix", ex);
-                    System.exit(0);
-                }
-                //stopping a bundle doesn't leave the time to the felix thread to
-                //properly end all bundles and call their Activator.stop() methods.
-                //if this causes problems don't uncomment the following line but
-                //try and see why felix isn't exiting (suggesting: is it running
-                //in embedded mode?)
-                //System.exit(0);
-            }
-        }
-    }
-
-    /**
      * Returns the panel containing the ContactList.
      * @return ContactListPanel the panel containing the ContactList
      */
@@ -1178,8 +1132,7 @@ public class MainFrame
             {
                 if (nativePluginsTable.containsKey(pluginComponent))
                 {
-                    final Component c
-                        = (Component) nativePluginsTable.get(pluginComponent);
+                    final Component c = nativePluginsTable.get(pluginComponent);
 
                     final Object finalConstraints = constraints;
 
@@ -1273,27 +1226,23 @@ public class MainFrame
      */
     private void removeNativePlugins()
     {
-        Iterator pluginIterator = nativePluginsTable.entrySet().iterator();
-
         Object constraints;
-        while (pluginIterator.hasNext())
+        for (Map.Entry<PluginComponent, Component> entry : nativePluginsTable
+            .entrySet())
         {
-            Map.Entry<PluginComponent, Component> entry
-                = (Map.Entry<PluginComponent, Component>) pluginIterator.next();
+            PluginComponent pluginComponent = entry.getKey();
+            Component c = entry.getValue();
 
-            PluginComponent pluginComponent = (PluginComponent) entry.getKey();
-            Component c = (Component) entry.getValue();
-
-            constraints = UIServiceImpl
-                    .getBorderLayoutConstraintsFromContainer(
-                        pluginComponent.getConstraints());
+            constraints =
+                UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(pluginComponent
+                        .getConstraints());
 
             if (constraints == null)
                 constraints = BorderLayout.SOUTH;
 
-            this.removePluginComponent( c,
-                                        pluginComponent.getContainer(),
-                                        constraints);
+            this.removePluginComponent(c, pluginComponent.getContainer(),
+                constraints);
 
             this.getContentPane().repaint();
         }
@@ -1496,6 +1445,52 @@ public class MainFrame
      */
     public void setParams(Object[] windowParams) {}
 
+    protected void windowClosed(WindowEvent event)
+    {
+        if(GuiActivator.getUIService().getExitOnMainWindowClose())
+        {
+            try
+            {
+                GuiActivator.bundleContext.getBundle(0).stop();
+            }
+            catch (BundleException ex)
+            {
+                logger.error("Failed to gently shutdown Felix", ex);
+                System.exit(0);
+            }
+            //stopping a bundle doesn't leave the time to the felix thread to
+            //properly end all bundles and call their Activator.stop() methods.
+            //if this causes problems don't uncomment the following line but
+            //try and see why felix isn't exiting (suggesting: is it running
+            //in embedded mode?)
+            //System.exit(0);
+        }
+    }
+
+    protected void windowClosing(WindowEvent event)
+    {
+        if (!GuiActivator.getUIService().getExitOnMainWindowClose())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    if (ConfigurationManager.isQuitWarningShown())
+                    {
+                        MessageDialog dialog =
+                            new MessageDialog(null, Messages.getI18NString(
+                                "close").getText(), Messages.getI18NString(
+                                "hideMainWindow").getText(), false);
+
+                        if (dialog.showDialog() == MessageDialog.OK_DONT_ASK_CODE)
+                            ConfigurationManager.setQuitWarningShown(false);
+                    }
+                }
+            });
+
+            ConfigurationManager.setApplicationVisible(false);
+        }
+    }
 
     /**
      * Initializes the more actions panel.

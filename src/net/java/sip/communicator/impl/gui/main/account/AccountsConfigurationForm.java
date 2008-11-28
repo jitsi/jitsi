@@ -15,7 +15,6 @@ import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -59,7 +58,8 @@ public class AccountsConfigurationForm
 
     private JButton saveButton = new JButton(saveString.getText());
 
-    private Hashtable accounts = new Hashtable();
+    private final Map<ProtocolProviderService, AccountPanel> accounts =
+        new Hashtable<ProtocolProviderService, AccountPanel>();
 
     /**
      * Creates an instance of <tt>AccountsConfigurationForm</tt>.
@@ -102,30 +102,17 @@ public class AccountsConfigurationForm
         this.accountsPanel.setLayout(new BoxLayout(accountsPanel,
             BoxLayout.Y_AXIS));
 
-        Set set = GuiActivator.getProtocolProviderFactories().entrySet();
-        Iterator iter = set.iterator();
-
-        while (iter.hasNext())
+        for (ProtocolProviderFactory providerFactory : GuiActivator
+            .getProtocolProviderFactories().values())
         {
-            Map.Entry entry = (Map.Entry) iter.next();
-
-            ProtocolProviderFactory providerFactory =
-                (ProtocolProviderFactory) entry.getValue();
-
-            ArrayList accountsList = providerFactory.getRegisteredAccounts();
-
-            AccountID accountID;
             ServiceReference serRef;
             ProtocolProviderService protocolProvider;
 
-            for (int i = 0; i < accountsList.size(); i++)
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                accountID = (AccountID) accountsList.get(i);
-
                 boolean isHidden =
-                    (accountID.getAccountProperties()
-                        .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
-                        != null);
+                    (accountID.getAccountProperties().get(
+                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
 
                 if (isHidden)
                     continue;
@@ -295,24 +282,18 @@ public class AccountsConfigurationForm
                         String prefix =
                             "net.java.sip.communicator.impl.gui.accounts";
 
-                        List accounts =
+                        List<String> accounts =
                             configService
                                 .getPropertyNamesByPrefix(prefix, true);
 
-                        Iterator accountsIter = accounts.iterator();
-
-                        while (accountsIter.hasNext())
+                        for (String accountRootPropName : accounts)
                         {
-                            String accountRootPropName =
-                                (String) accountsIter.next();
-
                             String accountUID =
                                 configService.getString(accountRootPropName);
 
                             if (accountUID.equals(protocolProvider
                                 .getAccountID().getAccountUniqueID()))
                             {
-
                                 configService.setProperty(accountRootPropName,
                                     null);
                                 break;
@@ -371,7 +352,7 @@ public class AccountsConfigurationForm
     /**
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on on the
      * buttons. Shows the account registration wizard when user clicks on "New".
-     *
+     * 
      * @param evt the action event that has just occurred.
      */
     public void actionPerformed(ActionEvent evt)
@@ -387,15 +368,8 @@ public class AccountsConfigurationForm
         }
         else if (sourceButton.equals(saveButton))
         {
-            Enumeration accountPanels = accounts.elements();
-
-            while (accountPanels.hasMoreElements())
-            {
-                AccountPanel accountPanel
-                    = (AccountPanel) accountPanels.nextElement();
-
+            for (AccountPanel accountPanel : accounts.values())
                 accountPanel.save();
-            }
         }
     }
 

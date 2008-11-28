@@ -8,8 +8,6 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -62,7 +60,8 @@ public class GuiActivator implements BundleActivator
 
     private static KeybindingsService keybindingsService;
 
-    private static Map providerFactoriesMap = new Hashtable();
+    private static final Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+        new Hashtable<Object, ProtocolProviderFactory>();
 
     public  static boolean isStarted = false;
 
@@ -85,12 +84,12 @@ public class GuiActivator implements BundleActivator
 
         try {
             // Create the ui service
-            this.uiService = new UIServiceImpl();
+            uiService = new UIServiceImpl();
 
             logger.info("UI Service...[  STARTED ]");
 
             bundleContext.registerService(  UIService.class.getName(),
-                                            this.uiService, null);
+                                            uiService, null);
 
             logger.info("UI Service ...[REGISTERED]");
 
@@ -133,29 +132,35 @@ public class GuiActivator implements BundleActivator
     /**
      * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      * context.
+     * 
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
-     * context
+     *         context
      */
-    public static Map getProtocolProviderFactories() {
+    public static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
+    {
 
         ServiceReference[] serRefs = null;
-        try {
-            //get all registered provider factories
-            serRefs = bundleContext.getServiceReferences(
+        try
+        {
+            // get all registered provider factories
+            serRefs =
+                bundleContext.getServiceReferences(
                     ProtocolProviderFactory.class.getName(), null);
 
-        } catch (InvalidSyntaxException e) {
+        }
+        catch (InvalidSyntaxException e)
+        {
             logger.error("LoginManager : " + e);
         }
 
-        for (int i = 0; i < serRefs.length; i++) {
+        for (int i = 0; i < serRefs.length; i++)
+        {
 
-            ProtocolProviderFactory providerFactory
-                = (ProtocolProviderFactory) bundleContext
-                    .getService(serRefs[i]);
+            ProtocolProviderFactory providerFactory =
+                (ProtocolProviderFactory) bundleContext.getService(serRefs[i]);
 
-            providerFactoriesMap.put(serRefs[i].getProperty(
-                    ProtocolProviderFactory.PROTOCOL),
+            providerFactoriesMap
+                .put(serRefs[i].getProperty(ProtocolProviderFactory.PROTOCOL),
                     providerFactory);
         }
 
