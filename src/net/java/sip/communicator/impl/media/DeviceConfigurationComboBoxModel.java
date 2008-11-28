@@ -22,26 +22,28 @@ public class DeviceConfigurationComboBoxModel
 {
     public static class CaptureDevice
     {
+        public static boolean equals(CaptureDeviceInfo a, CaptureDeviceInfo b)
+        {
+            return (a == null) ? (b == null) : a.equals(b);
+        }
+
         public final CaptureDeviceInfo info;
 
         public CaptureDevice(CaptureDeviceInfo info)
         {
-            if (info == null)
-                throw new IllegalArgumentException("info");
-
             this.info = info;
         }
 
         public String toString()
         {
+            if (info == null)
+                return MediaActivator.getResources().getI18NString(
+                    "DeviceConfigurationComboBoxModel_noDevice");
             return info.getName();
         }
     }
 
     public static final int AUDIO = 1;
-
-    private static final CaptureDevice[] NO_CAPTURE_DEVICES =
-        new CaptureDevice[0];
 
     public static final int VIDEO = 2;
 
@@ -114,16 +116,12 @@ public class DeviceConfigurationComboBoxModel
         }
 
         final int deviceCount = infos.length;
-        if (deviceCount < 1)
-            devices = NO_CAPTURE_DEVICES;
-        else
+        devices = new CaptureDevice[deviceCount + 1];
+        for (int i = 0; i < deviceCount; i++)
         {
-            devices = new CaptureDevice[deviceCount];
-            for (int i = 0; i < deviceCount; i++)
-            {
-                devices[i] = new CaptureDevice(infos[i]);
-            }
+            devices[i] = new CaptureDevice(infos[i]);
         }
+        devices[deviceCount] = new CaptureDevice(null);
         return devices;
     }
 
@@ -152,10 +150,8 @@ public class DeviceConfigurationComboBoxModel
         for (int i = 0; i < devices.length; i++)
         {
             CaptureDevice device = devices[i];
-            if (device.info.equals(info))
-            {
+            if (CaptureDevice.equals(device.info, info))
                 return device;
-            }
         }
         return null;
     }

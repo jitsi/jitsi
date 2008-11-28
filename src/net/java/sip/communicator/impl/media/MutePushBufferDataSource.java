@@ -211,7 +211,7 @@ public class MutePushBufferDataSource
 
                 if (data != null)
                 {
-                    Class dataClass = data.getClass();
+                    Class<?> dataClass = data.getClass();
                     final int fromIndex = buffer.getOffset();
                     final int toIndex = fromIndex + buffer.getLength();
 

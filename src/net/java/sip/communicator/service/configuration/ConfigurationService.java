@@ -18,6 +18,7 @@ import net.java.sip.communicator.util.xml.*;
  * persistent configuration data.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public interface ConfigurationService
 {
@@ -146,6 +147,8 @@ public interface ConfigurationService
      * contained whitespaces only.
      */
     public String getString(String propertyName);
+
+    boolean getBoolean(String propertyName, boolean defaultValue);
 
     /**
      * Adds a PropertyChangeListener to the listener list. The listener is

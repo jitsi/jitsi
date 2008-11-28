@@ -186,6 +186,7 @@ public class MediaControl
 
         // audio device
         audioDeviceInfo = deviceConfiguration.getAudioCaptureDevice();
+        muteAudioDataSource = null;
         if (audioDeviceInfo != null)
         {
             audioDataSource = createDataSource(audioDeviceInfo.getLocator());
@@ -200,6 +201,7 @@ public class MediaControl
 
         // video device
         videoDeviceInfo = deviceConfiguration.getVideoCaptureDevice();
+        cloneableVideoDataSource = null;
         if (videoDeviceInfo != null)
         {
             videoDataSource = createDataSource(videoDeviceInfo.getLocator());
@@ -209,11 +211,7 @@ public class MediaControl
 
             DataSource cloneableVideoDataSource =
                 Manager.createCloneableDataSource(videoDataSource);
-            if (cloneableVideoDataSource == null)
-            {
-                this.cloneableVideoDataSource = null;
-            }
-            else
+            if (cloneableVideoDataSource != null)
             {
                 videoDataSource = cloneableVideoDataSource;
                 this.cloneableVideoDataSource =
@@ -242,23 +240,16 @@ public class MediaControl
                         + exc.getMessage());
             }
         }
+        else if (audioDataSource != null)
+            avDataSource = audioDataSource;
+        else if (videoDataSource != null)
+            avDataSource = videoDataSource;
         else
-        {
-            if (audioDataSource != null)
-            {
-                avDataSource = audioDataSource;
-            }
-            if (videoDataSource != null)
-            {
-                avDataSource = videoDataSource;
-            }
-        }
+            avDataSource = null;
 
         //avDataSource may be null (Bug report Vince Fourcade)
         if (avDataSource != null)
-        {
             initProcessor(avDataSource);
-        }
     }
 
     /**

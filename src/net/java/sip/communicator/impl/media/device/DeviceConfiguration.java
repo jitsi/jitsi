@@ -12,7 +12,7 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.media.*;
-import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -40,12 +40,18 @@ public class DeviceConfiguration
      * capture.
      */
     public static final String VIDEO_CAPTURE_DEVICE = "VIDEO_CAPTURE_DEVICE";
-    
+
     private static final String PROP_AUDIO_DEVICE =
         "net.java.sip.communicator.impl.media.audiodev";
 
+    private static final String PROP_AUDIO_DEVICE_IS_DISABLED =
+        "net.java.sip.communicator.impl.media.audiodevIsDisabled";
+
     private static final String PROP_VIDEO_DEVICE =
         "net.java.sip.communicator.impl.media.videodev";
+
+    private static final String PROP_VIDEO_DEVICE_IS_DISABLED =
+        "net.java.sip.communicator.impl.media.videodevIsDisabled";
 
     private static final CaptureDeviceInfo[] NO_CAPTURE_DEVICES =
         new CaptureDeviceInfo[0];
@@ -60,13 +66,13 @@ public class DeviceConfiguration
     /**
      * The device that we'll be using for video capture.
      */
-    private CaptureDeviceInfo videoCaptureDevice = null;
+    private CaptureDeviceInfo videoCaptureDevice;
 
     /**
     * Listeners that will be notified every time
     * a device has been changed.
     */
-    private Vector<PropertyChangeListener> propertyChangeListeners = 
+    private List<PropertyChangeListener> propertyChangeListeners = 
         new Vector<PropertyChangeListener>();
 
     /**
@@ -132,10 +138,14 @@ public class DeviceConfiguration
      */
     private void extractConfiguredCaptureDevices()
     {
+        ConfigurationService config = MediaActivator.getConfigurationService();
+
         logger.info("Scanning for configured Audio Devices.");
         CaptureDeviceInfo[] audioCaptureDevices =
             getAvailableAudioCaptureDevices();
-        if (audioCaptureDevices.length < 1)
+        if (config.getBoolean(PROP_AUDIO_DEVICE_IS_DISABLED, false))
+            audioCaptureDevice = null;
+        else if (audioCaptureDevices.length < 1)
         {
             logger.warn("No Audio Device was found.");
             audioCaptureDevice = null;
@@ -145,93 +155,75 @@ public class DeviceConfiguration
             logger.debug("Found " + audioCaptureDevices.length
                 + " capture devices: " + audioCaptureDevices);
 
-            String audioDevName = 
-                (String)MediaActivator.getConfigurationService().
-                    getProperty(PROP_AUDIO_DEVICE);
+            String audioDevName = config.getString(PROP_AUDIO_DEVICE);
 
             if(audioDevName == null)
                 audioCaptureDevice = audioCaptureDevices[0];
             else
             {
-                for (int i = 0; i < audioCaptureDevices.length; i++)
+                for (CaptureDeviceInfo captureDeviceInfo : audioCaptureDevices)
                 {
-                    CaptureDeviceInfo captureDeviceInfo =
-                        audioCaptureDevices[i];
-                    if(audioDevName.equals(captureDeviceInfo.getName()))
-                        audioCaptureDevice = captureDeviceInfo;
-                }
-            }
-            logger.info("Found " + audioCaptureDevice.getName()
-                + " as an audio capture device.");
-        }
-
-        logger.info("Scanning for configured Video Devices.");
-        Vector videoCaptureDevices =
-            CaptureDeviceManager
-                .getDeviceList(new VideoFormat(VideoFormat.RGB));
-        if (videoCaptureDevices.size() > 0)
-        {
-            String videoDevName = 
-                (String)MediaActivator.getConfigurationService().
-                    getProperty(PROP_VIDEO_DEVICE);
-
-            if(videoDevName == null)
-            {
-                videoCaptureDevice = 
-                    (CaptureDeviceInfo)videoCaptureDevices.get(0);
-            }
-            else
-            {
-                for (int i = 0; i < videoCaptureDevices.size(); i++)
-                {
-                    CaptureDeviceInfo captureDeviceInfo =
-                        (CaptureDeviceInfo) videoCaptureDevices.get(i);
-                    if(videoDevName.equals(captureDeviceInfo.getName()))
-                        videoCaptureDevice = captureDeviceInfo;
-                }
-            }
-
-            logger.info("Found " + videoCaptureDevice.getName()
-                + " as an RGB Video Device.");
-        }
-        // no RGB camera found. And what about YUV ?
-        else
-        {
-            videoCaptureDevices =
-                CaptureDeviceManager.getDeviceList(new VideoFormat(
-                    VideoFormat.YUV));
-
-            if (videoCaptureDevices.size() > 0)
-            {
-                String videoDevName = 
-                    (String)MediaActivator.getConfigurationService().
-                        getProperty(PROP_VIDEO_DEVICE);
-
-                if(videoDevName == null)
-                {
-                    videoCaptureDevice = 
-                        (CaptureDeviceInfo)videoCaptureDevices.get(0);
-                }
-                else
-                {
-                    for (int i = 0; i < videoCaptureDevices.size(); i++)
+                    if (audioDevName.equals(captureDeviceInfo.getName()))
                     {
-                        CaptureDeviceInfo captureDeviceInfo =
-                            (CaptureDeviceInfo) videoCaptureDevices.get(i);
-                        if(videoDevName.equals(captureDeviceInfo.getName()))
-                            videoCaptureDevice = captureDeviceInfo;
+                        audioCaptureDevice = captureDeviceInfo;
+                        break;
                     }
                 }
-
-                logger.info("Found " + videoCaptureDevice.getName()
-                    + " as an YUV Video Device.");
             }
-            else
+            if (audioCaptureDevice != null)
+                logger.info("Found " + audioCaptureDevice.getName()
+                    + " as an audio capture device.");
+        }
+
+        if (config.getBoolean(PROP_VIDEO_DEVICE_IS_DISABLED, false))
+            videoCaptureDevice = null;
+        else
+        {
+            logger.info("Scanning for configured Video Devices.");
+            videoCaptureDevice =
+                extractConfiguredVideoCaptureDevice(VideoFormat.RGB);
+            // no RGB camera found. And what about YUV ?
+            if (videoCaptureDevice == null)
             {
-                logger.info("No Video Device was found.");
-                videoCaptureDevice = null;
+                videoCaptureDevice =
+                    extractConfiguredVideoCaptureDevice(VideoFormat.YUV);
+                if (videoCaptureDevice == null)
+                    logger.info("No Video Device was found.");
             }
         }
+    }
+
+    private CaptureDeviceInfo extractConfiguredVideoCaptureDevice(String format)
+    {
+        List<CaptureDeviceInfo> videoCaptureDevices =
+            CaptureDeviceManager.getDeviceList(new VideoFormat(format));
+        CaptureDeviceInfo videoCaptureDevice = null;
+
+        if (videoCaptureDevices.size() > 0)
+        {
+            String videoDevName =
+                MediaActivator.getConfigurationService().getString(
+                    PROP_VIDEO_DEVICE);
+
+            if (videoDevName == null)
+                videoCaptureDevice = videoCaptureDevices.get(0);
+            else
+            {
+                for (CaptureDeviceInfo captureDeviceInfo : videoCaptureDevices)
+                {
+                    if (videoDevName.equals(captureDeviceInfo.getName()))
+                    {
+                        videoCaptureDevice = captureDeviceInfo;
+                        break;
+                    }
+                }
+            }
+
+            if (videoCaptureDevice != null)
+                logger.info("Found " + videoCaptureDevice.getName()
+                    + " as an RGB Video Device.");
+        }
+        return videoCaptureDevice;
     }
 
     /**
@@ -315,8 +307,13 @@ public class DeviceConfiguration
 
             videoCaptureDevice = device;
 
-            MediaActivator.getConfigurationService().
-                setProperty(PROP_VIDEO_DEVICE, device.getName());
+            ConfigurationService config =
+                MediaActivator.getConfigurationService();
+            config.setProperty(PROP_VIDEO_DEVICE_IS_DISABLED,
+                videoCaptureDevice == null);
+            if (videoCaptureDevice != null)
+                config.setProperty(PROP_VIDEO_DEVICE, videoCaptureDevice
+                    .getName());
 
             firePropertyChange(VIDEO_CAPTURE_DEVICE, oldDevice, device);
         }
@@ -338,8 +335,13 @@ public class DeviceConfiguration
 
             audioCaptureDevice = device;
 
-            MediaActivator.getConfigurationService().
-                setProperty(PROP_AUDIO_DEVICE, device.getName());
+            ConfigurationService config =
+                MediaActivator.getConfigurationService();
+            config.setProperty(PROP_AUDIO_DEVICE_IS_DISABLED,
+                audioCaptureDevice == null);
+            if (audioCaptureDevice != null)
+                config.setProperty(PROP_AUDIO_DEVICE, audioCaptureDevice
+                    .getName());
 
             firePropertyChange(AUDIO_CAPTURE_DEVICE, oldDevice, device);
         }
@@ -348,14 +350,10 @@ public class DeviceConfiguration
     protected void firePropertyChange(String property, Object oldValue,
         Object newValue)
     {
-        Iterator<PropertyChangeListener> iter = 
-            propertyChangeListeners.iterator();
-        while (iter.hasNext())
-        {
-            PropertyChangeListener pl = (PropertyChangeListener) iter.next();
-            pl.propertyChange(
-                new PropertyChangeEvent(this, property, oldValue, newValue));
-        }
+        PropertyChangeEvent event =
+            new PropertyChangeEvent(this, property, oldValue, newValue);
+        for (PropertyChangeListener listener : propertyChangeListeners)
+            listener.propertyChange(event);
     }
 
     /**

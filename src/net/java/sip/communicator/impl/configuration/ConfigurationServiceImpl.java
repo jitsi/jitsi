@@ -29,6 +29,7 @@ import net.java.sip.communicator.util.xml.*;
  *
  * @author Emil Ivov
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class ConfigurationServiceImpl
     implements ConfigurationService
@@ -1069,6 +1070,14 @@ public class ConfigurationServiceImpl
                     : null;
     }
 
+    public boolean getBoolean(String propertyName, boolean defaultValue)
+    {
+        String stringValue = getString(propertyName);
+
+        return (stringValue == null) ? defaultValue : Boolean
+            .parseBoolean(stringValue);
+    }
+
     /**
      * We use property references when we'd like to store system properties.
      * Simply storing System properties in our properties Map would not be
@@ -1108,9 +1117,8 @@ public class ConfigurationServiceImpl
     private Map cloneProperties()
     {
         //at the time I'm writing this method we're implementing the
-        //configuraiton service through the use of a hashtable. this may very
-        //well change one day so let's not be overy assumptious (can you
-        //actually say that?)
+        //configuration service through the use of a hashtable. this may very
+        //well change one day so let's not be presumptuous
         if(properties instanceof Hashtable)
             return (Map)((Hashtable)properties).clone();
         if(properties instanceof HashMap)
@@ -1158,15 +1166,11 @@ public class ConfigurationServiceImpl
      */
     private void debugPrintSystemProperties()
     {
-        if(logger.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
             Properties pValues = System.getProperties();
-            Iterator pNames = pValues.keySet().iterator();
-            while(pNames.hasNext())
-            {
-                String name = (String)pNames.next();
-                logger.debug(name + "=" + pValues.getProperty(name));
-            }
+            for (Map.Entry<Object, Object> entry : pValues.entrySet())
+                logger.debug(entry.getKey() + "=" + entry.getValue());
         }
     }
 
@@ -1197,21 +1201,16 @@ public class ConfigurationServiceImpl
 
                 Properties fileProps = new Properties();
 
-                fileProps.load(getClass().getClassLoader()
-                               .getSystemResourceAsStream(fileName));
+                fileProps.load(ClassLoader.getSystemResourceAsStream(fileName));
 
-                //now set all of this file's properties as system properties
-                Enumeration pNames = fileProps.propertyNames();
-
-                while(pNames.hasMoreElements())
-                {
-                    String pName = (String)pNames.nextElement();
-                    System.setProperty(pName, fileProps.getProperty(pName));
-                }
+                // now set all of this file's properties as system properties
+                for (Map.Entry<Object, Object> entry : fileProps.entrySet())
+                    System.setProperty((String) entry.getKey(), (String) entry
+                        .getValue());
             }
             catch (Exception ex)
             {
-                //this is an insignifficant method that should never affect
+                //this is an insignificant method that should never affect
                 //the rest of the application so we'll afford ourselves to
                 //kind of silence all possible exceptions (which would most
                 //often be IOExceptions). We will however log them in case

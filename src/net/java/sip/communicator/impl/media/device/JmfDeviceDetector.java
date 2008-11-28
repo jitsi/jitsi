@@ -155,22 +155,13 @@ public class JmfDeviceDetector
             logger.debug("No FMJ javasound detected: " + exc.getMessage());
         }
 
-        String disableVideoObj = (String) MediaActivator.
-            getConfigurationService().getProperty(
-                MediaServiceImpl.DISABLE_VIDEO_SUPPORT_PROPERTY_NAME);
-
-        // video is enabled by default
-        boolean disableVideo = false;
-        if (disableVideoObj != null) 
-        {
-            disableVideo = Boolean.valueOf(disableVideoObj)
-                .booleanValue();
-        }
-        
+        // video is enabled by default        
         // if video is disabled skip device detection
-        if(disableVideo)
+        if(MediaActivator.
+            getConfigurationService().getBoolean(
+                MediaServiceImpl.DISABLE_VIDEO_SUPPORT_PROPERTY_NAME, false))
             return;
-        
+
         // Try to configgure capture devices for any operating system.
         //those that do not apply will silently fail.
         logger.info("Looking for video capture devices");
