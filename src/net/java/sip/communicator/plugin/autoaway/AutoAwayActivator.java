@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.*;
@@ -30,6 +31,8 @@ public class AutoAwayActivator implements BundleActivator
 
     private static Thread thread = null;
     private static StatusUpdateThread runner = null;
+
+    private static ResourceManagementService resourceService;
 
     /**
      * Starts this bundle
@@ -175,5 +178,25 @@ public class AutoAwayActivator implements BundleActivator
                 .getServiceReference(ConfigurationService.class.getName());
 
         return (ConfigurationService) bundleContext.getService(confServiceRefs);
+    }
+
+    /**
+     * Gets the service giving access to all application resources.
+     * 
+     * @return the service giving access to all application resources.
+     */
+    static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            // retrieve a reference to the resource access service.
+            ServiceReference resourceServiceRefs = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            resourceService = (ResourceManagementService) bundleContext
+                .getService(resourceServiceRefs);
+        }
+
+        return resourceService;
     }
 }

@@ -18,9 +18,11 @@ public class Resources
 {
     private static ResourceManagementService resourcesService;
 
-    public static ImageID SIP_LOGO = new ImageID("protocolIconSip");
-    
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageSip");
+    public static ImageID SIP_LOGO
+        = new ImageID("service.protocol.sip.PROTOCOL_ICON");
+
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.sip.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

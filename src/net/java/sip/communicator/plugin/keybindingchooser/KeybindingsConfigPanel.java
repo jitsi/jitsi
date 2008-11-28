@@ -14,6 +14,7 @@ import javax.swing.*;
 
 import chooser.*;
 
+import net.java.sip.communicator.impl.keybindings.*;
 import net.java.sip.communicator.service.keybindings.*;
 
 /**
@@ -142,7 +143,8 @@ public class KeybindingsConfigPanel
         {
             // Converts to I18N strings for UI
             String actionInternal = newEntry.getAction();
-            String actionLabel = Resources.getString(actionInternal);
+            String actionLabel = KeybindingChooserActivator.getResources()
+                .getI18NString(actionInternal);
             this.actionLabels.put(actionLabel, actionInternal);
             newEntry.setAction(actionLabel);
 

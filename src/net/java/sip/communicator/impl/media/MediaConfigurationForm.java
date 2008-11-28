@@ -22,7 +22,7 @@ public class MediaConfigurationForm
     public byte[] getIcon()
     {
         return MediaActivator.getResources().getImageInBytes(
-            "MediaConfigurationForm_icon");
+            "plugin.mediaconfig.PLUGIN_ICON");
     }
 
     public int getIndex()

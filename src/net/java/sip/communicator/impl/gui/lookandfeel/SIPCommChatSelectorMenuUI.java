@@ -59,7 +59,8 @@ public class SIPCommChatSelectorMenuUI
 
         boolean isToolBarExtended
             = new Boolean(GuiActivator.getResources().
-                getSettingsString("isToolBarExteneded")).booleanValue();
+                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED"))
+                    .booleanValue();
 
         if (!isToolBarExtended)
         {

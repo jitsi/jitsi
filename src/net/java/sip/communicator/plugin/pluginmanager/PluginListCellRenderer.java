@@ -29,13 +29,13 @@ public class PluginListCellRenderer extends JPanel
      * The end color used to paint a gradient selected background.
      */
     private static final Color SELECTED_START_COLOR
-        = new Color(Resources.getColor("listSelectionColor"));
+        = new Color(Resources.getColor("service.gui.LIST_SELECTION_COLOR"));
 
     /**
      * The start color used to paint a gradient selected background.
      */
     private static final Color SELECTED_END_COLOR
-        = new Color(Resources.getColor("gradientLightColor"));
+        = new Color(Resources.getColor("service.gui.GRADIENT_LIGHT_COLOR"));
     
     private JPanel mainPanel = new JPanel(new BorderLayout());
     
@@ -144,21 +144,26 @@ public class PluginListCellRenderer extends JPanel
 
         return this;
     }
-    
+
     private ImageIcon getStateIcon(int state)
     {
         switch (state)
         {
             case Bundle.INSTALLED:
-                return Resources.getResources().getImage("installedStateIcon");
+                return Resources.getResources()
+                    .getImage("plugin.pluginmanager.INSTALLED_STATE");
             case Bundle.RESOLVED:
-                return Resources.getResources().getImage("deactivatedStateIcon");
+                return Resources.getResources()
+                    .getImage("plugin.pluginmanager.DEACTIVATED_STATE");
             case Bundle.STARTING:
-                return Resources.getResources().getImage("startingStateIcon");
+                return Resources.getResources()
+                    .getImage("plugin.pluginmanager.STARTING_STATE");
             case Bundle.ACTIVE:
-                return Resources.getResources().getImage("activeStateIcon");
+                return Resources.getResources()
+                    .getImage("plugin.pluginmanager.ACTIVATE_STATE");
             case Bundle.STOPPING:
-                return Resources.getResources().getImage("stoppingStateIcon");
+                return Resources.getResources()
+                    .getImage("plugin.pluginmanager.STOPPING_STATE");
         }
         return null;
     }

@@ -48,7 +48,7 @@ public class ContactListCellRenderer
 
     private final int rowTransparency =
         GuiActivator.getResources()
-            .getSettingsInt("contactListRowTransparency");
+            .getSettingsInt("impl.gui.CONTACT_LIST_TRANSPARENCY");
 
     private final Image msgReceivedImage =
         ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
@@ -69,13 +69,13 @@ public class ContactListCellRenderer
         super(new BorderLayout());
 
         int groupForegroundProperty = GuiActivator.getResources()
-            .getColor("contactListGroupForeground");
+            .getColor("service.gui.CONTACT_LIST_GROUP_FOREGROUND");
 
         if (groupForegroundProperty > -1)
             groupForegroundColor = new Color (groupForegroundProperty);
 
         int contactForegroundProperty = GuiActivator.getResources()
-                .getColor("contactListContactForeground");
+                .getColor("service.gui.CONTACT_LIST_CONTACT_FOREGROUND");
 
         if (contactForegroundProperty > -1)
             contactForegroundColor = new Color(contactForegroundProperty);
@@ -228,7 +228,7 @@ public class ContactListCellRenderer
         else if (index%2 > 0)
         {
             Color bgColor = new Color(GuiActivator.getResources()
-                    .getColor("contactListRowColor"), true);
+                    .getColor("service.gui.CONTACT_LIST_ROW"), true);
 
             g2.setColor(new Color(  bgColor.getRed(),
                                     bgColor.getGreen(),

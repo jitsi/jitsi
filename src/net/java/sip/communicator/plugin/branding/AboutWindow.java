@@ -20,7 +20,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 {
     private static final int DEFAULT_TEXT_INDENT
         = BrandingActivator.getResources()
-            .getSettingsInt("aboutWindowTextIndent");
+            .getSettingsInt("plugin.branding.ABOUT_TEXT_INDENT");
 
     public AboutWindow(Frame owner)
     {
@@ -28,10 +28,12 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
 
         ResourceManagementService resources = BrandingActivator.getResources();
 
+        String applicationName
+            = resources.getSettingsString("service.gui.APPLICATION_NAME");
+
         this.setTitle(
             resources.getI18NString("aboutWindowTitle",
-                new String[]{resources.
-                    getSettingsString("applicationName")}));
+                new String[]{applicationName}));
 
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -46,24 +48,24 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
                 .createEmptyBorder(15, 15, 15, 15));
         textPanel.setOpaque(false);
 
-        JLabel titleLabel =
-            new JLabel(resources.getSettingsString("applicationName"));
-        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
+        JLabel titleLabel = new JLabel(applicationName);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 28));
         titleLabel.setForeground(Constants.TITLE_COLOR);
         titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         JLabel versionLabel =
             new JLabel(" " + System.getProperty("sip-communicator.version"));
-        versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
+        versionLabel.setFont(versionLabel.getFont().deriveFont(Font.BOLD, 18));
         versionLabel.setForeground(Constants.TITLE_COLOR);
         versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        int logoAreaFontSize = resources.getSettingsInt("aboutLogoFontSize");
+        int logoAreaFontSize
+            = resources.getSettingsInt("plugin.branding.ABOUT_LOGO_FONT_SIZE");
 
         JTextArea logoArea =
             new JTextArea(resources.getI18NString("logoMessage"));
         logoArea.setFont(
-            Constants.FONT.deriveFont(Font.BOLD, logoAreaFontSize));
+            logoArea.getFont().deriveFont(Font.BOLD, logoAreaFontSize));
         logoArea.setForeground(Constants.TITLE_COLOR);
         logoArea.setOpaque(false);
         logoArea.setLineWrap(true);
@@ -99,7 +101,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         licenseArea.setPreferredSize(new Dimension(50, 20));
         licenseArea.setBorder(
             BorderFactory.createEmptyBorder(
-                resources.getSettingsInt("paragraphGap"),
+                resources.getSettingsInt("plugin.branding.ABOUT_PARAGRAPH_GAP"),
                 DEFAULT_TEXT_INDENT,
                 0, 0));
         licenseArea.setOpaque(false);
@@ -152,7 +154,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
             try
             {
                 bgImage = ImageIO.read(BrandingActivator.getResources().
-                    getImageURL("aboutWindowBg"));
+                    getImageURL("plugin.branding.ABOUT_WINDOW_BACKGROUND"));
             }
             catch (IOException e)
             {

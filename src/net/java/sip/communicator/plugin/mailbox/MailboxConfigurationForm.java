@@ -218,7 +218,7 @@ public class MailboxConfigurationForm
      */
     public byte[] getIcon()
     {
-        return Resources.getImageInBytes("mailboxIcon");
+        return Resources.getImageInBytes("plugin.mailbox.PLUGIN_ICON");
     }
 
     /**

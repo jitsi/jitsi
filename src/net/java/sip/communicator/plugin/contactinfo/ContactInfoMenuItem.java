@@ -25,7 +25,8 @@ public class ContactInfoMenuItem
 {
     private JMenuItem menuItem
         = new JMenuItem(Resources.getString("contactInfo"),
-                        new ImageIcon(Resources.getImage("contactInfoIcon")));
+            new ImageIcon(Resources.getImage(
+                "plugin.contactinfo.CONTACT_INFO_ICON")));
 
     private MetaContact metaContact;
 

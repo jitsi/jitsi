@@ -36,7 +36,7 @@ public class PluginManagerConfigForm
     public byte[] getIcon()
     {
         return Resources.getResources().getImageInBytes(
-            "pluginIconPluginManager");
+            "plugin.pluginmanager.PLUGIN_ICON");
     }
 
     /**

@@ -20,12 +20,14 @@ public class Resources
     /**
      * A constant pointing to the Google Talk protocol logo image.
      */
-    public static ImageID PROTOCOL_ICON = new ImageID("googletalkProtocolIcon");
+    public static ImageID PROTOCOL_ICON
+        = new ImageID("service.protocolgoogletalk.PROTOCOL_ICON");
 
     /**
      * A constant pointing to the Aim protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("googletalkPageImage");
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocolgoogletalk.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

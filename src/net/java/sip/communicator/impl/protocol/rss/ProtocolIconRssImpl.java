@@ -36,10 +36,10 @@ public class ProtocolIconRssImpl
     static 
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("protocolIconRss"));
+            getImageInBytes("service.protocol.rss.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("pageImageRss"));
+            getImageInBytes("service.protocol.rss.PROTOCOL_LARGE_ICON"));
     }
         
     /**

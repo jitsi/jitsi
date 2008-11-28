@@ -29,10 +29,10 @@ public class ProtocolIconMsnImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("protocolIconMsn"));
+            getImageInBytes("service.protocol.msn.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("pageImageMsn"));
+            getImageInBytes("service.protocol.msn.PROTOCOL_LARGE_ICON"));
     }
  
     /**

@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import java.io.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that enumerates all states that
@@ -31,7 +30,8 @@ public class DictStatusEnum
     public static final DictStatusEnum OFFLINE
         = new DictStatusEnum(
             0, "Offline",
-            DictActivator.getResources().getImageInBytes("dictOfflineIcon"));
+            DictActivator.getResources()
+                .getImageInBytes("service.protocol.dict.OFFLINE_STATUS_ICON"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -40,7 +40,8 @@ public class DictStatusEnum
     public static final DictStatusEnum ONLINE
         = new DictStatusEnum(
             65, "Online",
-            DictActivator.getResources().getImageInBytes("dictProtocolIcon"));
+            DictActivator.getResources()
+                .getImageInBytes("service.protocol.dict.PROTOCOL_ICON"));
 
     /**
      * Initialize the list of supported status states.

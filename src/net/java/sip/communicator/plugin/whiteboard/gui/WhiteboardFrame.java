@@ -328,26 +328,45 @@ public class WhiteboardFrame
     {
         setIconImage(Resources.getImage("sc_logo16x16").getImage());
 
-        selectionButton.setIcon(Resources.getImage("selectIcon"));
-        penButton.setIcon(Resources.getImage("penIcon"));
-        lineButton.setIcon(Resources.getImage("line2Icon"));
-        rectangleButton.setIcon(Resources.getImage("rectIcon"));
-        fillRectangleButton.setIcon(Resources.getImage("rectFIcon"));
-        circleButton.setIcon(Resources.getImage("circle2Icon"));
-        fillCircleButton.setIcon(Resources.getImage("circleFIcon"));
-        textButton.setIcon(Resources.getImage("text2Icon"));
-        colorChooserButton.setIcon(Resources.getImage("colorIcon"));
-        polylineButton.setIcon(Resources.getImage("polyLineIcon"));
-        polygonButton.setIcon(Resources.getImage("polyIcon"));
-        fillPolygonButton.setIcon(Resources.getImage("polyFIcon"));
-        imageButton.setIcon(Resources.getImage("imgIcon"));
-        modifButton.setIcon(Resources.getImage("modifIcon"));
+        selectionButton
+            .setIcon(Resources.getImage("plugin.whiteboard.SELECT_ICON"));
+        penButton
+            .setIcon(Resources.getImage("plugin.whiteboard.PEN_ICON"));
+        lineButton
+            .setIcon(Resources.getImage("plugin.whiteboard.LINE2_ICON"));
+        rectangleButton
+            .setIcon(Resources.getImage("plugin.whiteboard.RECT_ICON"));
+        fillRectangleButton
+            .setIcon(Resources.getImage("plugin.whiteboard.RECTF_ICON"));
+        circleButton
+            .setIcon(Resources.getImage("plugin.whiteboard.CIRCLE2_ICON"));
+        fillCircleButton
+            .setIcon(Resources.getImage("plugin.whiteboard.CIRCLEF_ICON"));
+        textButton
+            .setIcon(Resources.getImage("plugin.whiteboard.TEXT2_ICON"));
+        colorChooserButton
+            .setIcon(Resources.getImage("plugin.whiteboard.COLOR_ICON"));
+        polylineButton
+            .setIcon(Resources.getImage("plugin.whiteboard.POLY_LINE_ICON"));
+        polygonButton
+            .setIcon(Resources.getImage("plugin.whiteboard.POLY_ICON"));
+        fillPolygonButton
+            .setIcon(Resources.getImage("plugin.whiteboard.POLYF_ICON"));
+        imageButton
+            .setIcon(Resources.getImage("plugin.whiteboard.IMAGE_ICON"));
+        modifButton
+            .setIcon(Resources.getImage("plugin.whiteboard.MODIF_ICON"));
 
-        jButtonNew.setIcon(Resources.getImage("fileNewIcon"));
-        jButtonCopy.setIcon(Resources.getImage("editCopyIcon"));
-        jButtonPaste.setIcon(Resources.getImage("editPasteIcon"));
-        jButtonOpen.setIcon(Resources.getImage("fileImportIcon"));
-        jButtonSave.setIcon(Resources.getImage("fileSaveIcon"));
+        jButtonNew
+            .setIcon(Resources.getImage("plugin.whiteboard.FILE_NEW_ICON"));
+        jButtonCopy
+            .setIcon(Resources.getImage("plugin.whiteboard.EDIT_COPY_ICON"));
+        jButtonPaste
+            .setIcon(Resources.getImage("plugin.whiteboard.EDIT_PASTE_ICON"));
+        jButtonOpen
+            .setIcon(Resources.getImage("plugin.whiteboard.FILE_IMPORT_ICON"));
+        jButtonSave
+            .setIcon(Resources.getImage("plugin.whiteboard.FILE_SAVE_ICON"));
     }
 
     /**

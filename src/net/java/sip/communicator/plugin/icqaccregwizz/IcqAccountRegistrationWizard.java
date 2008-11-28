@@ -105,8 +105,8 @@ public class IcqAccountRegistrationWizard
         LinkedHashMap summaryTable = new LinkedHashMap();
 
         summaryTable.put(Resources.getString("uin"), registration.getUin());
-        summaryTable.put(Resources.getString("rememberPassword"), new Boolean(registration
-            .isRememberPassword()));
+        summaryTable.put(Resources.getString("rememberPassword"),
+                new Boolean(registration.isRememberPassword()));
 
         if(registration.isAdvancedSettingsEnabled())
         {

@@ -16,15 +16,17 @@ import javax.swing.*;
 
 public class WelcomeWindow extends JDialog
 {
+    private static final String APPLICATION_NAME
+        = BrandingActivator.getResources()
+            .getSettingsString("service.gui.APPLICATION_NAME");
+
     private static final int DEFAULT_TEXT_INDENT
         = BrandingActivator.getResources()
-            .getSettingsInt("splashScreenTextIndent");
+            .getSettingsInt("plugin.branding.SPLASH_SCREEN_TEXT_INDENT");
 
     private WindowBackground mainPanel = new WindowBackground();
 
-    private JLabel titleLabel
-        = new JLabel(BrandingActivator.getResources()
-                .getSettingsString("applicationName"));
+    private JLabel titleLabel = new JLabel(APPLICATION_NAME);
 
     private JLabel versionLabel = new JLabel(" "
             + System.getProperty("sip-communicator.version"));
@@ -47,9 +49,7 @@ public class WelcomeWindow extends JDialog
 
     public WelcomeWindow()
     {
-        this.setTitle(
-            BrandingActivator.getResources()
-                .getSettingsString("applicationName"));
+        this.setTitle(APPLICATION_NAME);
 
         this.setModal(false);
         this.setUndecorated(true);
@@ -62,19 +62,21 @@ public class WelcomeWindow extends JDialog
                 .setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
         this.textPanel.setOpaque(false);
 
-        this.titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 28));
+        this.titleLabel.setFont(
+            titleLabel.getFont().deriveFont(Font.BOLD, 28));
         this.titleLabel.setForeground(Constants.TITLE_COLOR);
         this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.versionLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
+        this.versionLabel.setFont(
+            versionLabel.getFont().deriveFont(Font.BOLD, 18));
         this.versionLabel.setForeground(Constants.TITLE_COLOR);
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         int logoAreaFontSize = BrandingActivator.getResources().
-            getSettingsInt("aboutLogoFontSize");
+            getSettingsInt("plugin.branding.ABOUT_LOGO_FONT_SIZE");
 
         this.logoArea.setFont(
-            Constants.FONT.deriveFont(Font.BOLD, logoAreaFontSize));
+            logoArea.getFont().deriveFont(Font.BOLD, logoAreaFontSize));
         this.logoArea.setForeground(Constants.TITLE_COLOR);
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
@@ -90,8 +92,9 @@ public class WelcomeWindow extends JDialog
             "welcomeMessage",
             new String[]{
                 Constants.TEXT_COLOR,
-                BrandingActivator.getResources().getSettingsString("applicationName"),
-                BrandingActivator.getResources().getSettingsString("applicationWebSite")
+                APPLICATION_NAME,
+                BrandingActivator.getResources()
+                    .getSettingsString("service.gui.APPLICATION_WEB_SITE")
                 }));
 
         this.rightsArea.setPreferredSize(new Dimension(50, 50));
@@ -212,7 +215,7 @@ public class WelcomeWindow extends JDialog
             {
                 image =
                     ImageIO.read(BrandingActivator.getResources().getImageURL(
-                        "splashScreenBg"));
+                        "plugin.branding.SPLASH_SCREEN_BACKGROUND"));
             }
             catch (IOException e)
             {

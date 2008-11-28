@@ -11,6 +11,8 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in
  * the SIP-Communicator's <tt>ContactList</tt>. It extends JPanel instead of
@@ -36,9 +38,13 @@ public class CallListCellRenderer
 
     private JLabel iconLabel = new JLabel();
 
-    private Icon incomingIcon = Resources.getImage("incomingCall");
+    private Icon incomingIcon
+        = ExtendedCallHistorySearchActivator.getResources()
+            .getImage("plugin.callhistorysearch.INCOMING_CALL");
 
-    private Icon outgoingIcon = Resources.getImage("outgoingCall");
+    private Icon outgoingIcon
+        = ExtendedCallHistorySearchActivator.getResources()
+            .getImage("plugin.callhistorysearch.OUTGOING_CALL");
 
     private boolean isSelected = false;
 
@@ -103,11 +109,15 @@ public class CallListCellRenderer
                 iconLabel.setIcon(outgoingIcon);
 
             this.nameLabel.setText(participant.getParticipantName());
-
-            this.timeLabel.setText(Resources.getString("at") + " "
+ 
+            this.timeLabel.setText(
+                ExtendedCallHistorySearchActivator.getResources()
+                    .getI18NString("at") + " "
                 + GuiUtils.formatTime(participant.getStartTime()));
 
-            this.durationLabel.setText(Resources.getString("duration") + " "
+            this.durationLabel.setText(
+                ExtendedCallHistorySearchActivator.getResources()
+                    .getI18NString("duration") + " "
                 + GuiUtils.formatTime(participant.getCallTime()));
 
             // this.nameLabel.setIcon(listModel

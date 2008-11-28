@@ -671,7 +671,8 @@ public class MessageHistoryServiceImpl
         // Check if the message history is enabled in the configuration
         // service, and if not do not register the service.
         String isMessageHistoryEnabledPropertyString =
-            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled";
+            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED";
+
         String isMessageHistoryEnabledString = configService.getString(
             isMessageHistoryEnabledPropertyString);
 
@@ -697,7 +698,7 @@ public class MessageHistoryServiceImpl
         msgHistoryPropListener = new MessageHistoryPropertyChangeListener();
 
         configService.addPropertyChangeListener(
-            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled",
+            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED",
             msgHistoryPropListener);
 
         logger.debug("Starting the msg history implementation.");

@@ -23,12 +23,14 @@ public class Resources
     /**
      * A constant pointing to the Jabber protocol logo image.
      */
-    public static ImageID PROTOCOL_ICON = new ImageID("protocolIconJabber");
+    public static ImageID PROTOCOL_ICON
+        = new ImageID("service.protocol.jabber.PROTOCOL_ICON");
 
     /**
      * A constant pointing to the Aim protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageJabber");
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.jabber.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

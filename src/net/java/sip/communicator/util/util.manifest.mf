@@ -18,6 +18,7 @@ Import-Package: org.osgi.framework,
  javax.swing.text,
  net.java.sip.communicator.util.xml,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.service.resources,
  javax.imageio
 Export-Package: net.java.sip.communicator.util.xml,
  net.java.sip.communicator.util,

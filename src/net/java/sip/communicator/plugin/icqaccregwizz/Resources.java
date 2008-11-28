@@ -18,9 +18,11 @@ public class Resources
 {
     private static ResourceManagementService resourcesService;
 
-    public static ImageID ICQ_LOGO = new ImageID("protocolIconIcq");
+    public static ImageID ICQ_LOGO
+        = new ImageID("service.protocol.icq.PROTOCOL_ICON");
 
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageIcq");
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.icq.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

@@ -55,7 +55,8 @@ public class FileMenu extends SIPCommMenu
         this.parentWindow = parentWindow;
 
         this.setForeground(new Color(
-            GuiActivator.getResources().getColor("chatMenuForeground")));
+            GuiActivator.getResources()
+                .getColor("service.gui.CHAT_MENU_FOREGROUND")));
 
         this.setMnemonic(Messages.getI18NString("file").getMnemonic());
 

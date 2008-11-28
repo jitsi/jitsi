@@ -739,7 +739,7 @@ public class UIServiceImpl
         ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
         UIManager.put("ToolTip.background",
             new Color(GuiActivator.getResources()
-                    .getColor("tooltipBackground")));
+                    .getColor("service.gui.TOOLTIP_BACKGROUND")));
         toolTipManager.setInitialDelay(500);
         toolTipManager.setDismissDelay(60000);
         toolTipManager.setEnabled(true);
@@ -808,7 +808,7 @@ public class UIServiceImpl
                 // default decoration.
                 boolean isDecorated =
                     new Boolean(GuiActivator.getResources()
-                        .getSettingsString("isLookAndFeelDecorated"))
+                        .getSettingsString("impl.gui.IS_LOOK_AND_FEEL_DECORATED"))
                         .booleanValue();
 
                 if (isDecorated)
@@ -824,6 +824,8 @@ public class UIServiceImpl
                 logger.error("The provided Look & Feel is not supported.",
                     e);
             }
+
+            this.initCustomFonts();
         }
     }
 
@@ -904,7 +906,7 @@ public class UIServiceImpl
     public void propertyChange(PropertyChangeEvent evt)
     {
         if (evt.getPropertyName().equals(
-            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled"))
+            "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED"))
         {
             String isTransparentString = (String) evt.getNewValue();
 
@@ -932,9 +934,35 @@ public class UIServiceImpl
             }
         }
         else if (evt.getPropertyName().equals(
-            "net.java.sip.communicator.impl.gui.windowTransparency"))
+            "impl.gui.WINDOW_TRANSPARENCY"))
         {
             mainFrame.repaint();
+        }
+    }
+    
+
+    /**
+     * Initialize main window font.
+     */
+    private void initCustomFonts()
+    {
+        JComponent layeredPane = mainFrame.getLayeredPane();
+
+        String fontName
+            = GuiActivator.getResources().getSettingsString(
+                "service.gui.FONT_NAME");
+
+        String titleFontSize
+            = GuiActivator.getResources().getSettingsString(
+                "service.gui.FONT_SIZE");
+
+        Font font = new Font(   fontName,
+                                Font.BOLD,
+                                new Integer(titleFontSize).intValue());
+
+        for (int i = 0; i < layeredPane.getComponentCount(); i++)
+        {
+            layeredPane.getComponent(i).setFont(font);
         }
     }
 }

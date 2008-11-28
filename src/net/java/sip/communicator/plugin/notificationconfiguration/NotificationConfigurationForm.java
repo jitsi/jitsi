@@ -38,7 +38,7 @@ public class NotificationConfigurationForm
      */
     public byte[] getIcon()
     {
-        return Resources.getImageInBytes("notificationIcon");
+        return Resources.getImageInBytes("plugin.notificationconfig.PLUGIN_ICON");
     }
 
     public int getIndex()

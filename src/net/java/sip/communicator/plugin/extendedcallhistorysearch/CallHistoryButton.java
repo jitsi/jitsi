@@ -19,8 +19,8 @@ import net.java.sip.communicator.service.gui.*;
 public class CallHistoryButton
     implements FavoritesButton
 {
-    byte[] buttonIcon = Resources.getResources()
-        .getImageInBytes("QUICK_MENU_CALL_HISTORY_ICON");
+    byte[] buttonIcon = ExtendedCallHistorySearchActivator.getResources()
+        .getImageInBytes("plugin.callhistorysearch.HISTORY_BUTTON");
 
     public void actionPerformed()
     {
@@ -40,11 +40,13 @@ public class CallHistoryButton
 
     public byte[] getImage()
     {
-        return buttonIcon;
+        return ExtendedCallHistorySearchActivator.getResources()
+        .getImageInBytes("plugin.callhistorysearch.HISTORY_BUTTON");
     }
 
     public String getText()
     {
-        return Resources.getString("history");
+        return ExtendedCallHistorySearchActivator.getResources()
+            .getI18NString("history");
     }
 }

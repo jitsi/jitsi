@@ -35,7 +35,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
     private static final int TAB_OVERLAP
         = new Integer(GuiActivator.getResources().
-            getSettingsString("tabOverlap")).intValue();
+            getSettingsString("impl.gui.TAB_OVERLAP")).intValue();
 
     private static final int PREFERRED_WIDTH = 150;
 

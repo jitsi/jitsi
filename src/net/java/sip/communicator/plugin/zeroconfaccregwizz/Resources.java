@@ -18,11 +18,13 @@ import net.java.sip.communicator.service.resources.*;
 public class Resources
 {
     private static ResourceManagementService resourcesService;
-    
-    public static ImageID ZEROCONF_LOGO = new ImageID("protocolIconZeroconf");
-    
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageZeroconf");
-    
+
+    public static ImageID ZEROCONF_LOGO
+        = new ImageID("service.protocol.zeroconf.PROTOCOL_ICON");
+
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.zeroconf.PROTOCOL_LARGE_ICON");
+
     /**
      * Returns an internationalized string corresponding to the given key.
      * @param key The key of the string.

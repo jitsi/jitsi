@@ -18,7 +18,6 @@ import javax.swing.undo.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -100,9 +99,9 @@ public class ChatWritePanel
             GuiActivator.getConfigurationService();
 
         String messageCommandProperty = 
-            "net.java.sip.communicator.impl.gui.sendMessageCommand";
+            "service.gui.SEND_MESSAGE_COMMAND";
         String messageCommand = configService.getString(messageCommandProperty);
-        
+
         if(messageCommand == null)
             messageCommand = 
                 GuiActivator.getResources().

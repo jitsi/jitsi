@@ -8,8 +8,8 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>GuiCallParticipantRecord</tt> is meant to be used in the call history
@@ -45,25 +45,25 @@ public class GuiCallParticipantRecord
         
         this.callDuration = callDuration;
     }
-    
+
     public GuiCallParticipantRecord(CallParticipantRecord participantRecord,
             String direction)
-    {   
+    {
         this.direction = direction;
-        
+
         this.participantName = participantRecord.getParticipantAddress();
-        
+
         this.startTime = participantRecord.getStartTime();
-        
+
         this.callDuration = GuiUtils.substractDates(
                 participantRecord.getEndTime(), startTime);
     }
-    
+
     public String getDirection()
     {
         return direction;
     }
-    
+
     /**
      * Returns the duration of the contained participant call.
      * 

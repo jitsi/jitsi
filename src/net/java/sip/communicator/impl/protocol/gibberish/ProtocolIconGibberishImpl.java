@@ -34,11 +34,11 @@ public class ProtocolIconGibberishImpl
      */
     private static Hashtable iconsTable = new Hashtable();
     static {
-        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("gibberishOnlineIcon"));
+        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+            getImageInBytes("service.protocol.gibberish.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("gibberish64x64Icon"));
+            getImageInBytes("service.protocol.gibberish.PROTOCOL_LARGE_ICON"));
     }
         
     /**

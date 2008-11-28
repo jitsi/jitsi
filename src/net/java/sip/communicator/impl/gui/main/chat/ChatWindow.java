@@ -115,7 +115,8 @@ public class ChatWindow
 
         boolean isToolBarExtended
             = new Boolean(GuiActivator.getResources().
-                getSettingsString("isToolBarExteneded")).booleanValue();
+                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED"))
+                    .booleanValue();
 
         if (isToolBarExtended)
             mainToolBar = new ExtendedMainToolBar(this);
@@ -144,10 +145,10 @@ public class ChatWindow
 
         this.addWindowListener(new ChatWindowAdapter());
 
-        int width
-            = GuiActivator.getResources().getSettingsInt("chatWindowWidth");
-        int height
-            = GuiActivator.getResources().getSettingsInt("chatWindowHeight");
+        int width = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.CHAT_WINDOW_WIDTH");
+        int height = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.CHAT_WINDOW_HEIGHT");
 
         this.setSize(width, height);
     }
@@ -858,10 +859,11 @@ public class ChatWindow
          */
         public LogoBar()
         {
-            int width
-                = GuiActivator.getResources().getSettingsInt("logoBarWidth");
-            int height
-                = GuiActivator.getResources().getSettingsInt("logoBarHeight");
+            int width = GuiActivator.getResources()
+                .getSettingsInt("impl.gui.LOGO_BAR_WIDTH");
+
+            int height = GuiActivator.getResources()
+                .getSettingsInt("impl.gui.LOGO_BAR_HEIGHT");
 
             this.setMinimumSize(new Dimension(width, height));
             this.setPreferredSize(new Dimension(width, height));
@@ -990,7 +992,8 @@ public class ChatWindow
                                                                 10,
                                                                 10);
 
-            this.setIconImage(contactPhotoIcon.getImage());
+            if (contactPhotoIcon != null)
+                this.setIconImage(contactPhotoIcon.getImage());
         }
         else
         {

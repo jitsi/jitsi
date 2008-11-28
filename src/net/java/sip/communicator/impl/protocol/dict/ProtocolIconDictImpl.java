@@ -23,13 +23,16 @@ public class ProtocolIconDictImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable<String,byte[]> iconsTable = new Hashtable<String,byte[]>();
+    private static Hashtable<String,byte[]> iconsTable
+        = new Hashtable<String,byte[]>();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            DictActivator.getResources().getImageInBytes("dictProtocolIcon"));
+            DictActivator.getResources()
+                .getImageInBytes("service.protocol.dict.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-                DictActivator.getResources().getImageInBytes("dict64x64Icon"));
+                DictActivator.getResources()
+                    .getImageInBytes("service.protocol.dict.PROTOCOL_LARGE_ICON"));
     }
 
     /**

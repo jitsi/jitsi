@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatSendPanel</tt> is the panel in the bottom of the chat. It

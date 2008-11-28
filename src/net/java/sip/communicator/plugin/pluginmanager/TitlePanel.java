@@ -24,7 +24,7 @@ public class TitlePanel extends JPanel
      * A color between blue and gray used to paint some borders.
      */
     public static final Color BORDER_COLOR
-        = new Color(Resources.getColor("borderColor"));
+        = new Color(Resources.getColor("service.gui.BORDER_COLOR"));
 
     /**
      * The size of the gradient used for painting the background.
@@ -35,13 +35,13 @@ public class TitlePanel extends JPanel
      * The start color used to paint a gradient mouse over background.
      */
     private static final Color GRADIENT_DARK_COLOR
-        = new Color(Resources.getColor("gradientDarkColor"));
+        = new Color(Resources.getColor("service.gui.GRADIENT_DARK_COLOR"));
 
     /**
      * The end color used to paint a gradient mouse over background.
      */
     private static final Color GRADIENT_LIGHT_COLOR
-        = new Color(Resources.getColor("gradientLightColor"));
+        = new Color(Resources.getColor("service.gui.GRADIENT_LIGHT_COLOR"));
 
     private JLabel titleLabel = new JLabel();
 

@@ -31,9 +31,9 @@ public class IrcStatusEnum
      */
     public static final IrcStatusEnum OFFLINE
         = new IrcStatusEnum(
-            0
-            , "Offline"
-            , getImageInBytes("ircOfflineIcon"));
+            0,
+            "Offline",
+            getImageInBytes("service.protocol.irc.OFFLINE_STATUS_ICON"));
 
     /**
      * The Away status. Indicates that the user has connectivity but might
@@ -41,9 +41,9 @@ public class IrcStatusEnum
      */
     public static final IrcStatusEnum AWAY
         = new IrcStatusEnum(
-            40
-            , "Away"
-            , getImageInBytes("ircAwayIcon"));
+            40,
+            "Away",
+            getImageInBytes("service.protocol.irc.AWAY_STATUS_ICON"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -51,9 +51,9 @@ public class IrcStatusEnum
      */
     public static final IrcStatusEnum ONLINE
         = new IrcStatusEnum(
-            65
-            , "Online"
-            , getImageInBytes("protocolIconIrc"));
+            65,
+            "Online",
+            getImageInBytes("service.protocol.irc.PROTOCOL_ICON"));
 
     /**
      * Initialize the list of supported status states.

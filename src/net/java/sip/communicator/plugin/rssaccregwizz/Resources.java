@@ -21,12 +21,14 @@ public class Resources
     /**
      * A constant pointing to the RSS protocol logo image.
      */
-    public static ImageID RSS_LOGO = new ImageID("protocolIconRss");
+    public static ImageID RSS_LOGO
+        = new ImageID("service.protocol.rss.PROTOCOL_ICON");
 
     /**
      * A constant pointing to the RSS protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageRss");
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.rss.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

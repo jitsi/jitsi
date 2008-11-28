@@ -32,7 +32,8 @@ public class KeybindingsConfigForm
      */
     public String getTitle()
     {
-        return Resources.getString("keybindings");
+        return KeybindingChooserActivator.getResources()
+            .getI18NString("keybindings");
     }
 
     /**
@@ -41,7 +42,8 @@ public class KeybindingsConfigForm
      */
     public byte[] getIcon()
     {
-        return Resources.getImageInBytes("keybindingPluginIcon");
+        return KeybindingChooserActivator.getResources()
+            .getImageInBytes("plugin.keybinding.PLUGIN_ICON");
     }
 
     /**

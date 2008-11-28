@@ -92,13 +92,15 @@ public class ExtendedMainToolBar
         ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON));
 
     private static int DEFAULT_BUTTON_HEIGHT
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
+        = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_TOOLBAR_BUTTON_HEIGHT");
 
     private static int DEFAULT_BUTTON_WIDTH
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
+        = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_TOOLBAR_BUTTON_WIDTH");
 
     private ChatWindow messageWindow;
-    
+
     private Contact currentChatContact = null;
 
     /**

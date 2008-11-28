@@ -309,7 +309,8 @@ public class JabberServerChooserDialog
                 
                 // Create the builder and parse the file
                 serverComments = factory.newDocumentBuilder()
-                    .parse(Resources.getPropertyInputStream("commentsFile"));
+                    .parse(Resources.getPropertyInputStream(
+                        "plugin.jabberaccregwizz.SERVER_COMMENTS"));
             }
             catch (SAXException e)
             {

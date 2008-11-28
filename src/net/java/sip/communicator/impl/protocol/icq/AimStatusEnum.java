@@ -29,7 +29,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum ONLINE
         = new AimStatusEnum(65, "Online",
-                getImageInBytes("protocolIconAim"));
+                getImageInBytes("service.protocol.aim.PROTOCOL_ICON"));
 
     /**
      * The Invisible AIM status. Indicates that the user has connectivity even
@@ -38,7 +38,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum INVISIBLE
         = new AimStatusEnum(45, "Invisible",
-                getImageInBytes("aimInvisibleIcon"));
+                getImageInBytes("service.protocol.aim.INVISIBLE_STATUS_ICON"));
 
     /**
      * The Away AIM status. Indicates that the user has connectivity but might
@@ -46,7 +46,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum AWAY
         = new AimStatusEnum(40, "Away",
-                getImageInBytes("aimAwayIcon"));
+                getImageInBytes("service.protocol.aim.AWAY_STATUS_ICON"));
 
     /**
      * The Offline AIM status. Indicates the user does not seem to be connected
@@ -54,7 +54,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum OFFLINE
         = new AimStatusEnum(0, "Offline",
-                getImageInBytes("aimOfflineIcon"));
+                getImageInBytes("service.protocol.aim.OFFLINE_STATUS_ICON"));
 
     /**
      * The minimal set of states that any AIM implementation must support.

@@ -98,10 +98,11 @@ public class InitialAccountRegistrationFrame
         this.getRootPane().setDefaultButton(signinButton);
 
         this.initAccountWizards();
-        
+
         // Create the default group
-        String groupName = Resources.getApplicationProperty("defaultGroupName");
-        
+        String groupName
+            = Resources.getApplicationProperty("impl.gui.DEFAULT_GROUP_NAME");
+
         if(groupName != null && groupName.length() > 0)
         {
             MetaContactListService contactList =
@@ -126,7 +127,8 @@ public class InitialAccountRegistrationFrame
 
     private void initAccountWizards()
     {
-        String simpleWizards = Resources.getLoginProperty("simpleWizards");
+        String simpleWizards
+            = Resources.getLoginProperty("plugin.simpleaccreg.PROTOCOL_ORDER");
 
         StringTokenizer tokenizer = new StringTokenizer(simpleWizards, "|");
 
@@ -421,7 +423,7 @@ public class InitialAccountRegistrationFrame
             return;
 
         String preferredWizardName
-            = Resources.getLoginProperty("preferredAccountWizard");
+            = Resources.getLoginProperty("impl.gui.PREFERRED_ACCOUNT_WIZARD");
 
         AccountRegistrationPanel accountPanel;
 

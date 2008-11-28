@@ -11,7 +11,6 @@ import java.util.*;
 
 import org.osgi.framework.*;
 
-import net.java.sip.communicator.impl.protocol.rss.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -35,10 +34,10 @@ public class ProtocolIconYahooImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("protocolIconYahoo"));
+            getImageInBytes("service.protocol.yahoo.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("pageImageYahoo"));
+            getImageInBytes("service.protocol.yahoo.PROTOCOL_LARGE_IMAGE"));
     }
  
     /**

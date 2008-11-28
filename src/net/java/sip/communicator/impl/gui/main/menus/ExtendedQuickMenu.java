@@ -84,10 +84,12 @@ public class ExtendedQuickMenu
         ImageLoader.getImage(ImageLoader.QUICK_MENU_CREATE_GROUP_ICON));
 
     private static int DEFAULT_BUTTON_HEIGHT
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonHeight");
+        = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_TOOLBAR_BUTTON_HEIGHT");
 
     private static int DEFAULT_BUTTON_WIDTH
-        = GuiActivator.getResources().getSettingsInt("mainToolbarButtonWidth");
+        = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_TOOLBAR_BUTTON_WIDTH");
 
     private MoreButton moreButton = new MoreButton();
 

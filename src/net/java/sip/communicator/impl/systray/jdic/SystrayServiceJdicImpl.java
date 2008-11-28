@@ -147,28 +147,38 @@ public class SystrayServiceJdicImpl
         // background.
         if (osName.startsWith("Windows"))
         {
-            logoIcon = Resources.getImage("trayIconWindows");
-            logoIconOffline = Resources.getImage("trayIconWindowsOffline");
-            logoIconAway = Resources.getImage("trayIconWindowsAway");
-            logoIconFFC = Resources.getImage("trayIconWindowsFFC");
-            envelopeIcon = Resources.getImage("messageIconWindows");
+            logoIcon
+                = Resources.getImage("service.systray.TRAY_ICON_WINDOWS");
+            logoIconOffline
+                = Resources.getImage("service.systray.TRAY_ICON_WINDOWS_OFFLINE");
+            logoIconAway
+                = Resources.getImage("service.systray.TRAY_ICON_WINDOWS_AWAY");
+            logoIconFFC
+                = Resources.getImage("service.systray.TRAY_ICON_WINDOWS_FFC");
+            envelopeIcon
+                = Resources.getImage("service.systray.MESSAGE_ICON_WINDOWS");
         }
+
         // If we're running under MacOSX, we use a special black and
         // white icons without background.
         else if (osName.startsWith("Mac OS X"))
         {
-            logoIcon = Resources.getImage("trayIconMacOSX");
-            logoIconWhite = Resources.getImage("trayIconMacOSXWhite");
-            envelopeIcon = Resources.getImage("messageIconMacOSX");
-            envelopeIconWhite = Resources.getImage("messageIconMacOSXWhite");
+            logoIcon
+                = Resources.getImage("service.systray.TRAY_ICON_MACOSX");
+            logoIconWhite
+                = Resources.getImage("service.systray.TRAY_ICON_MACOSX_WHITE");
+            envelopeIcon
+                = Resources.getImage("service.systray.MESSAGE_ICON_MACOSX");
+            envelopeIconWhite
+                = Resources.getImage("service.systray.MESSAGE_ICON_MACOSX_WHITE");
         }
         else
         {
-            logoIcon = Resources.getImage("trayIcon");
-            logoIconOffline = Resources.getImage("trayIconOffline");
-            logoIconAway = Resources.getImage("trayIconAway");
-            logoIconFFC = Resources.getImage("trayIconFFC");
-            envelopeIcon = Resources.getImage("messageIcon");
+            logoIcon = Resources.getImage("service.systray.TRAY_ICON");
+            logoIconOffline = Resources.getImage("service.systray.TRAY_ICON_OFFLINE");
+            logoIconAway = Resources.getImage("service.systray.TRAY_ICON_AWAY");
+            logoIconFFC = Resources.getImage("service.systray.TRAY_ICON_FFC");
+            envelopeIcon = Resources.getImage("service.systray.MESSAGE_ICON");
         }
 
         if (!osName.startsWith("Mac OS X"))
@@ -180,18 +190,22 @@ public class SystrayServiceJdicImpl
         else
             currentIcon = logoIcon;
 
-        trayIcon = new TrayIcon(currentIcon,
-                                Resources.getApplicationString("applicationName"),
-                                menu);
+        trayIcon = new TrayIcon(
+            currentIcon,
+            Resources.getApplicationString("service.gui.APPLICATION_NAME"),
+            menu);
 
         trayIcon.setIconAutoSize(true);
 
         if (osName.startsWith("Mac OS X"))
         {
             // init dock Icons
-            dockIconOffline = Resources.getImageURL("dockIconOffline");
-            dockIconAway = Resources.getImageURL("dockIconAway");
-            dockIconFFC = Resources.getImageURL("dockIconFFC");
+            dockIconOffline
+                = Resources.getImageURL("service.systray.DOCK_ICON_OFFLINE");
+            dockIconAway
+                = Resources.getImageURL("service.systray.DOCK_ICON_AWAY");
+            dockIconFFC
+                = Resources.getImageURL("service.systray.DOCK_ICON_FFC");
         }
 
         //Show/hide the contact list when user clicks on the systray.

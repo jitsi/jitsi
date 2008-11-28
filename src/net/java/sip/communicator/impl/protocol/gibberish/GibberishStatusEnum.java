@@ -29,9 +29,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum OFFLINE
         = new GibberishStatusEnum(
-            0
-            , "Offline"
-            , getImageInBytes("gibberishOfflineIcon"));
+            0,
+            "Offline",
+            getImageInBytes("service.protocol.gibberish.OFFLINE_STATUS_ICON"));
 
     /**
      * An Occupied status. Indicates that the user has connectivity and
@@ -39,9 +39,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum OCCUPIED
         = new GibberishStatusEnum(
-            20
-            , "Occupied"
-            , getImageInBytes("gibberishOccupiedIcon"));
+            20,
+            "Occupied",
+            getImageInBytes("service.protocol.gibberish.OCCUPIED_STATUS_ICON"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -51,7 +51,7 @@ public class GibberishStatusEnum
         = new GibberishStatusEnum(
             30,
             "Do Not Disturb",
-            getImageInBytes("gibberishDndIcon"));
+            getImageInBytes("service.protocol.gibberish.DND_STATUS_ICON"));
 
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -61,9 +61,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum NOT_AVAILABLE
         = new GibberishStatusEnum(
-            35
-            , "Not Available"
-            , getImageInBytes("gibberishNaIcon"));
+            35,
+            "Not Available",
+            getImageInBytes("service.protocol.gibberish.NA_STATUS_ICON"));
 
     /**
      * The Away status. Indicates that the user has connectivity but might
@@ -71,9 +71,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum AWAY
         = new GibberishStatusEnum(
-            40
-            , "Away"
-            , getImageInBytes("gibberishAwayIcon"));
+            40,
+            "Away",
+            getImageInBytes("service.protocol.gibberish.AWAY_STATUS_ICON"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -82,9 +82,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum INVISIBLE
         = new GibberishStatusEnum(
-            45
-            , "Invisible"
-            , getImageInBytes("gibberishInvisibleIcon"));
+            45,
+            "Invisible",
+            getImageInBytes("service.protocol.gibberish.INVISIBLE_STATUS_ICON"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -92,9 +92,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum ONLINE
         = new GibberishStatusEnum(
-            65
-            , "Online"
-            , getImageInBytes("gibberishOnlineIcon"));
+            65,
+            "Online",
+            getImageInBytes("service.protocol.gibberish.ONLINE_STATUS_ICON"));
 
     /**
      * The Free For Chat status. Indicates that the user is eager to
@@ -102,9 +102,9 @@ public class GibberishStatusEnum
      */
     public static final GibberishStatusEnum FREE_FOR_CHAT
         = new GibberishStatusEnum(
-            85
-            , "Free For Chat"
-            , getImageInBytes("gibberishFfcIcon"));
+            85,
+            "Free For Chat",
+            getImageInBytes("service.protocol.gibberish.FFC_STATUS_ICON"));
 
     /**
      * Initialize the list of supported status states.

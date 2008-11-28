@@ -405,17 +405,17 @@ public abstract class SIPCommFrame
     private class MainContentPane extends JPanel
     {
         String isColorBgEnabledProp
-            = "net.java.sip.communicator.impl.gui.isWindowColorBackgroundEnabled";
+            = "impl.gui.IS_WINDOW_COLOR_BACKGROUND_ENABLED";
 
         boolean isColorBgEnabled = new Boolean(
             GuiActivator.getResources().getSettingsString(isColorBgEnabledProp))
                 .booleanValue();
 
         Color bgStartColor = new Color(GuiActivator.getResources()
-            .getColor("mainBackgroundStartColor"));
+            .getColor("service.gui.MAIN_BACKGROUND"));
 
         Color bgEndColor = new Color(GuiActivator.getResources()
-            .getColor("mainBackgroundEndColor"));
+            .getColor("service.gui.MAIN_BACKGROUND_GRADIENT"));
 
         GeneralPath headerBackground = new GeneralPath();
 
@@ -423,12 +423,8 @@ public abstract class SIPCommFrame
         {
             super(new BorderLayout());
 
-            this.setBackground(new Color(
-                GuiActivator.getResources()
-                .getColor("mainBackground")));
-
             int borderSize = GuiActivator.getResources()
-                .getSettingsInt("mainWindowBorderSize");
+                .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
 
             if (isColorBgEnabled)
             {
@@ -460,25 +456,13 @@ public abstract class SIPCommFrame
                 80,
                 bgEndColor);
 
-            GradientPaint borderShadow = new GradientPaint(0, 0,
-                new Color(255, 255, 255, 200),
-                this.getWidth(),
-                this.getHeight(),
-                new Color(0, 0, 0, 150));
-
-            g2.setPaint(borderShadow);
-            g2.fillRoundRect(3, 3,
-                this.getWidth() - 6,
-                this.getHeight() - 6,
-                10, 10);
-
             g2.setPaint(bgGradientColor);
-            g2.fillRoundRect(5, 5, this.getWidth() - 10, 80, 10, 10);
+            g2.fillRect(0, 0, this.getWidth(), 80);
 
             g2.setColor(bgEndColor);
-            g2.fillRoundRect(5, 80,
-                    this.getWidth() - 10,
-                    this.getHeight() - 85, 10, 10);
+            g2.fillRect(0, 78,
+                    this.getWidth(),
+                    this.getHeight());
 
             GradientPaint curveShadow = new GradientPaint(0, 0,
                 new Color(255, 255, 255, 150),

@@ -33,10 +33,10 @@ public class ProtocolIconIcqImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("protocolIconIcq"));
+            getImageInBytes("service.protocol.icq.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("pageImageIcq"));
+            getImageInBytes("service.protocol.icq.PROTOCOL_LARGE_ICON"));
     }
  
     /**

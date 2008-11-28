@@ -32,7 +32,7 @@ public class SIPCommDefaultTheme
      */
     private static final ColorUIResource PRIMARY_CONTROL_DARK_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
-            getColor("primaryControlDarkShadow"));
+            getColor("service.gui.PRIMARY_CONTROL_DARK_SHADOW"));
 
     /**
      * Used for desktop color, menu selected background, focus color, slider
@@ -41,7 +41,7 @@ public class SIPCommDefaultTheme
      */
     private static final ColorUIResource PRIMARY_CONTROL_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
-            getColor("primaryControlShadow"));
+            getColor("service.gui.PRIMARY_CONTROL_SHADOW"));
 
     /**
      * Used for progress bar border, tooltip border inactive, tooltip foreground
@@ -49,11 +49,11 @@ public class SIPCommDefaultTheme
      */
     private static final ColorUIResource CONTROL_DARK_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
-            getColor("controlDarkShadow"));
+            getColor("service.gui.CONTROL_DARK_SHADOW"));
 
     private static final ColorUIResource CONTROL_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
-            getColor("controlShadow"));
+            getColor("service.gui.CONTROL_SHADOW"));
 
     /**
      * Used for window title inactive background, menu background, tooltip
@@ -62,7 +62,7 @@ public class SIPCommDefaultTheme
      */
     private static final ColorUIResource CONTROL_COLOR =
         new ColorUIResource(GuiActivator.getResources().
-            getColor("controlColor"));
+            getColor("service.gui.colors.CONTROL"));
 
     /**
      * Used for text hightlight color, window title background, scroll bar thumb
@@ -71,76 +71,76 @@ public class SIPCommDefaultTheme
      */
     private static final ColorUIResource PRIMARY_CONTROL_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("primaryControlColor"));
+            getColor("service.gui.PRIMARY_COLOR_CONTROL"));
 
     // Used to paint a gradient for a check box or a radio button.
     private static final ColorUIResource BUTTON_GRADIENT_DARK_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("buttonGradientDark"));
+            getColor("service.gui.BUTTON_GRADIENT_DARK"));
 
     private static final ColorUIResource BUTTON_GRADIENT_LIGHT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("buttonGradientLight"));
+            getColor("service.gui.BUTTON_GRADIENT_LIGHT"));
 
     private static final ColorUIResource SLIDER_GRADIENT_DARK_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("sliderGradientDark"));
+            getColor("service.gui.SLIDER_GRADIENT_DARK"));
 
     private static final ColorUIResource SLIDER_GRADIENT_LIGHT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("sliderGradientLight"));
+            getColor("service.gui.SLIDER_GRADIENT_LIGHT"));
 
     private static final ColorUIResource SELECTION_FOREGROUND
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("selectionForeground"));
+            getColor("service.gui.SELECTION_FOREGROUND"));
 
     private static final ColorUIResource SELECTION_BACKGROUND
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("selectionBackground"));
+            getColor("service.gui.SELECTION_BACKGROUND"));
 
     private static final ColorUIResource SPLIT_PANE_DEVIDER_FOCUS_COLOR
         = new ColorUIResource(GuiActivator.getResources()
-            .getColor("splitPaneDeviderFocused"));
+            .getColor("service.gui.SPLIT_PANE_DIVIDER_FOCUSED"));
 
     private static final ColorUIResource TABBED_PANE_HIGHLIGHT_COLOR
         = new ColorUIResource(GuiActivator.getResources()
-            .getColor("tabbedPaneBorderHighlight"));
+            .getColor("service.gui.TABBED_PANE_BORDER_HIGHLIGHT"));
 
     private static final ColorUIResource TABLE_GRID_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("tableGrid"));
+            getColor("service.gui.TABLE_GRID"));
 
     private static final ColorUIResource SCROLL_BAR_TRACK_HIGHLIGHT
         = new ColorUIResource(GuiActivator.getResources()
-            .getColor("scrollBarTrackHighlight"));
+            .getColor("service.gui.SCROLLBAR_TRACK_LIGHT"));
 
     private static final ColorUIResource SCROLL_BAR_DARK_SHADOW
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("scrollBarDarkShadow"));
+            getColor("service.gui.SCROLLBAR_DARK_SHADOW"));
 
     private static final ColorUIResource DESKTOP_BACKGROUND_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("desktopBackgroundColor"));
+            getColor("service.gui.DESKTOP_BACKGROUND"));
 
     private static final ColorUIResource CONTROL_TEXT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("textColor"));
+            getColor("service.gui.TEXT"));
 
     private static final ColorUIResource INACTIVE_CONTROL_TEXT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
-            getColor("inactiveTextColor"));
+            getColor("service.gui.INACTIVE_TEXT"));
 
     private static final ColorUIResource MENU_DISABLED_FOREGROUND
         = new ColorUIResource(GuiActivator.getResources()
-            .getColor("menuDisabledForeground"));
+            .getColor("service.gui.MENU_DISABLED_FOREGROUND"));
 
     private static final ColorUIResource TAB_TITLE_HIGHLIGHT
         = new ColorUIResource(GuiActivator.getResources()
-            .getColor("tabTitleHighlight"));
+            .getColor("service.gui.TAB_TITLE_HIGHLIGHT"));
 
     private static final ColorUIResource TAB_TITLE
         = new ColorUIResource(GuiActivator.getResources()
-            .getColor("tabTitle"));
+            .getColor("service.gui.TAB_TITLE"));
 
     private static final FontUIResource BASIC_FONT
         = new FontUIResource(Constants.FONT);

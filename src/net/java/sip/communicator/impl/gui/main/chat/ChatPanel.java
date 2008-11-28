@@ -756,7 +756,7 @@ public class ChatPanel
 
         String greyHistoryProperty
             = GuiActivator.getResources()
-                .getSettingsString("hiddenProtocolGreyHistoryDisabled");
+                .getSettingsString("impl.gui.GREY_HISTORY_ENABLED");
 
         if (greyHistoryProperty != null)
             isGreyHistoryDisabled

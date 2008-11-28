@@ -33,10 +33,10 @@ public class ProtocolIconAimImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("protocolIconAim"));
+            getImageInBytes("service.protocol.aim.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("pageImageAim"));
+            getImageInBytes("service.protocol.aim.PROTOCOL_LARGE_ICON"));
     }
  
     /**

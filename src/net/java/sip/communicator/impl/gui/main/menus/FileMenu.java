@@ -82,7 +82,7 @@ public class FileMenu
         this.setOpaque(false);
 
         this.setForeground(
-            new Color(GuiActivator.getResources().getColor("mainMenuForeground")));
+            new Color(GuiActivator.getResources().getColor("service.gui.MAIN_MENU_FOREGROUND")));
 
         this.parentWindow = parentWindow;
 

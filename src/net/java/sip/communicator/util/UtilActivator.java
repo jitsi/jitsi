@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.util;
 
+import net.java.sip.communicator.plugin.extendedcallhistorysearch.*;
+import net.java.sip.communicator.service.resources.*;
+
 import org.osgi.framework.*;
-import java.lang.Thread.*;
 
 /**
  * The only raison d'etre for this Activator is so that it would set a global
@@ -23,6 +25,11 @@ public class UtilActivator
 {
     private static final Logger logger
         = Logger.getLogger(UtilActivator.class);
+
+    private static ResourceManagementService resourceService;
+
+    private static BundleContext bundleContext;
+
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
      *
@@ -37,6 +44,8 @@ public class UtilActivator
         throws Exception
     {
         logger.trace("Setting default uncaught exception handler.");
+
+        bundleContext = context;
 
         Thread.setDefaultUncaughtExceptionHandler(this);
         Thread.currentThread().setDefaultUncaughtExceptionHandler(this);
@@ -75,5 +84,19 @@ public class UtilActivator
         throws Exception
     {
 
+    }
+
+    /**
+     * Returns the service giving access to all application resources.
+     * 
+     * @return the service giving access to all application resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+            resourceService =
+                ResourceManagementServiceUtils.getService(bundleContext);
+
+        return resourceService;
     }
 }

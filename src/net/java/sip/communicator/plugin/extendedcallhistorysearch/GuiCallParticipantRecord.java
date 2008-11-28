@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.extendedcallhistorysearch;
 import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>GuiCallParticipantRecord</tt> is meant to be used in the call history

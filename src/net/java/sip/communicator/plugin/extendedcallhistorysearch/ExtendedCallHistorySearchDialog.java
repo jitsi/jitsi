@@ -14,6 +14,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.util.*;
 
 import com.toedter.calendar.*;
 
@@ -41,31 +42,40 @@ public class ExtendedCallHistorySearchDialog
     private JPanel callListResultPanel = new JPanel(new BorderLayout());
 
     /* BUTTON */
-    private JButton searchButton = new JButton(Resources.getString("search"),
-        Resources.getImage("searchIcon"));
+    private JButton searchButton = new JButton(
+        ExtendedCallHistorySearchActivator.getResources()
+            .getI18NString("search"),
+        ExtendedCallHistorySearchActivator.getResources()
+            .getImage("plugin.callhistorysearch.SEARCH_ICON"));
 
     /* TEXT FIELD */
     private JTextField contactNameField = new JTextField();
 
     /* LABEL */
-    private JLabel contactNameLabel = new JLabel(Resources
-        .getString("contactName") + ": ");
+    private JLabel contactNameLabel = new JLabel(
+        ExtendedCallHistorySearchActivator.getResources()
+            .getI18NString("contactName") + ": ");
 
     private JLabel sinceDateLabel
-        = new JLabel(Resources.getString("since") + ": ");
+        = new JLabel(ExtendedCallHistorySearchActivator.getResources()
+                .getI18NString("since") + ": ");
 
     private JLabel untilDateLabel
-        = new JLabel(Resources.getString("until") + ": ");
+        = new JLabel(ExtendedCallHistorySearchActivator.getResources()
+                .getI18NString("until") + ": ");
 
     private JLabel callTypeLabel
-        = new JLabel(Resources.getString("callType") + ": ");
+        = new JLabel(ExtendedCallHistorySearchActivator.getResources()
+                .getI18NString("callType") + ": ");
 
     /* CHECKBOX */
-    private JCheckBox inCheckBox = new JCheckBox(Resources
-        .getString("incoming"), true);
+    private JCheckBox inCheckBox = new JCheckBox(
+        ExtendedCallHistorySearchActivator.getResources()
+            .getI18NString("incoming"), true);
 
-    private JCheckBox outCheckBox = new JCheckBox(Resources
-        .getString("outgoing"), true);
+    private JCheckBox outCheckBox = new JCheckBox(
+        ExtendedCallHistorySearchActivator.getResources()
+            .getI18NString("outgoing"), true);
 
     /* SCROLL PANE */
     private JScrollPane scrollPane = new JScrollPane();
@@ -99,7 +109,8 @@ public class ExtendedCallHistorySearchDialog
     {
         this.mainPanel.setPreferredSize(new Dimension(650, 550));
 
-        this.setTitle(Resources.getString("advancedCallHistorySearch"));
+        this.setTitle(ExtendedCallHistorySearchActivator.getResources()
+                .getI18NString("advancedCallHistorySearch"));
 
         this.initPanels();
 
@@ -327,7 +338,8 @@ public class ExtendedCallHistorySearchDialog
         if (GuiUtils.compareDates(date, new Date(currentDate)) == 0)
         {
 
-            resultString = Resources.getString("today");
+            resultString = ExtendedCallHistorySearchActivator.getResources()
+                .getI18NString("today");
         }
         else
         {
@@ -472,6 +484,7 @@ public class ExtendedCallHistorySearchDialog
         }
 
         if (callList.getModel().getSize() > 0)
-            callList.addItem(Resources.getString("olderCalls") + "...");
+            callList.addItem(ExtendedCallHistorySearchActivator.getResources()
+                    .getI18NString("olderCalls") + "...");
     }
 }

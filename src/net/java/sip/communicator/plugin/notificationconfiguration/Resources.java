@@ -44,22 +44,6 @@ public class Resources
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static ImageIcon getImage(String imageID)
-    {
-        URL imageURL = 
-            getResources().getImageURL(imageID);
-
-        if(imageURL == null)
-            return null;
-
-        return new ImageIcon(imageURL);
-    }
-    
-    /**
-     * Loads an image from a given image identifier.
-     * @param imageID The identifier of the image.
-     * @return The image for the given identifier.
-     */
     public static byte[] getImageInBytes(String imageID)
     {
         return getResources().getImageInBytes(imageID);

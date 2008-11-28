@@ -21,12 +21,14 @@ public class Resources
     /**
      * A constant pointing to the Gibberish protocol logo icon.
      */
-    public static ImageID GIBBERISH_LOGO = new ImageID("protocolIconGibberish");
+    public static ImageID GIBBERISH_LOGO
+        = new ImageID("service.protocol.gibberish.PROTOCOL_ICON");
 
     /**
      * A constant pointing to the Gibberish protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageGibberish");
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.gibberish.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

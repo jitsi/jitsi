@@ -18,9 +18,11 @@ public class Resources
 {
     private static ResourceManagementService resourcesService;
 
-    public static ImageID YAHOO_LOGO = new ImageID("protocolIconYahoo");
-    
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageYahoo");
+    public static ImageID YAHOO_LOGO
+        = new ImageID("service.protocol.yahoo.PROTOCOL_ICON");
+
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.yahoo.PROTOCOL_LARGE_IMAGE");
 
     /**
      * Returns an internationalized string corresponding to the given key.

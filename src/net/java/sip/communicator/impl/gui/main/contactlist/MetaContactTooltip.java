@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The tooltip shown over a contact in the contact list.

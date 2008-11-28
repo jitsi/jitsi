@@ -27,15 +27,16 @@ public class SSHStatusEnum
 {
     private static final Logger logger
             = Logger.getLogger(SSHStatusEnum.class);
-    
+
     /**
      * Indicates an Offline status or status with 0 connectivity.
      */
     public static final SSHStatusEnum OFFLINE
             = new SSHStatusEnum(
-            0
-            , "Offline"
-            , ProtocolIconSSHImpl.getImageInBytes("sshOfflineIcon"));
+            0,
+            "Offline",
+            ProtocolIconSSHImpl
+                .getImageInBytes("service.protocol.ssh.OFFLINE_STATUS_ICON"));
     
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -45,9 +46,10 @@ public class SSHStatusEnum
      */
     public static final SSHStatusEnum NOT_AVAILABLE
             = new SSHStatusEnum(
-            35
-            , "Not Available"
-            , ProtocolIconSSHImpl.getImageInBytes("sshNaIcon"));
+            35,
+            "Not Available",
+            ProtocolIconSSHImpl
+                .getImageInBytes("service.protocol.ssh.NA_STATUS_ICON"));
     
     /**
      * The Connecting status. Indicate that the user is connecting to remote
@@ -55,19 +57,21 @@ public class SSHStatusEnum
      */
     public static final SSHStatusEnum CONNECTING
             = new SSHStatusEnum(
-            55
-            , "Connecting"
-            , ProtocolIconSSHImpl.getImageInBytes("sshConnectingIcon"));
-   
+            55,
+            "Connecting",
+            ProtocolIconSSHImpl
+                .getImageInBytes("service.protocol.ssh.CONNECTING_ICON"));
+    
     /**
      * The Online status. Indicate that the user is able and willing to
      * communicate.
      */
     public static final SSHStatusEnum ONLINE
             = new SSHStatusEnum(
-            65
-            , "Online"
-            , ProtocolIconSSHImpl.getImageInBytes("protocolIconSsh"));
+            65,
+            "Online",
+            ProtocolIconSSHImpl
+                .getImageInBytes("service.protocol.ssh.PROTOCOL_ICON"));
 
 
     /**
@@ -76,9 +80,10 @@ public class SSHStatusEnum
      */
     public static final SSHStatusEnum CONNECTED
             = new SSHStatusEnum(
-            70
-            , "Connecting"
-            , ProtocolIconSSHImpl.getImageInBytes("sshConnectedIcon"));
+            70,
+            "Connecting",
+            ProtocolIconSSHImpl
+                .getImageInBytes("service.protocol.ssh.CONNECTED_ICON"));
     
     /**
      * The File Transfer status. Indicate that the user is transfering a file
@@ -86,9 +91,10 @@ public class SSHStatusEnum
      */
     public static final SSHStatusEnum FILE_TRANSFER
             = new SSHStatusEnum(
-            75
-            , "Transfering File"
-            , ProtocolIconSSHImpl.getImageInBytes("sshFileTransferIcon"));
+            75,
+            "Transfering File",
+            ProtocolIconSSHImpl
+                .getImageInBytes("service.protocol.ssh.FILE_TRANSFER_ICON"));
     
     /**
      * Initialize the list of supported status states.

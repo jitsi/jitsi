@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -25,6 +26,8 @@ public class ExtendedCallHistorySearchActivator
 {
     private Logger logger
         = Logger.getLogger(ExtendedCallHistorySearchActivator.class);
+
+    private static ResourceManagementService resourceService;
 
     static BundleContext context;
 
@@ -70,4 +73,12 @@ public class ExtendedCallHistorySearchActivator
         return callHistoryService;
     }
 
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+            resourceService =
+                ResourceManagementServiceUtils
+                    .getService(ExtendedCallHistorySearchActivator.context);
+        return resourceService;
+    }
 }

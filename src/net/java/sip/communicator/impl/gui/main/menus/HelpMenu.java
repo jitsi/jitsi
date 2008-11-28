@@ -55,7 +55,7 @@ public class HelpMenu
 
         this.setForeground(
             new Color(GuiActivator.getResources().
-                getColor("mainMenuForeground")));
+                getColor("service.gui.MAIN_MENU_FOREGROUND")));
 
         this.initPluginComponents();
     }

@@ -19,9 +19,11 @@ public class Resources
 {
     private static ResourceManagementService resourcesService;
 
-    public static ImageID DICT_LOGO = new ImageID("protocolIconDict");
+    public static ImageID DICT_LOGO
+        = new ImageID("service.protocol.dict.PROTOCOL_ICON");
 
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageDict");
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.dict.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

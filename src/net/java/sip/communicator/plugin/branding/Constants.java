@@ -30,14 +30,15 @@ public class Constants
      * Dark blue color used in the about window and the splash screen.
      */
     public static final Color TITLE_COLOR
-        = new Color(
-            BrandingActivator.getResources().getColor("splashScreenTitleColor"));
+        = new Color(BrandingActivator.getResources()
+                .getColor("service.gui.SPLASH_SCREEN_TITLE_COLOR"));
 
     /**
      * Text color used in the about window and the splash screen.
      */
     public static final String TEXT_COLOR
-        = BrandingActivator.getResources().getColorString("splashScreenTextColor");
+        = BrandingActivator.getResources()
+            .getColorString("service.gui.SPLASH_SCREEN_TEXT_COLOR");
 
 
     /*
@@ -47,14 +48,6 @@ public class Constants
      */
 
     /**
-     * The default <tt>Font</tt> object used through this ui implementation.
-     */
-    public static final Font FONT
-        = new Font( BrandingActivator.getResources().getSettingsString("fontName"),
-                Font.PLAIN,
-                BrandingActivator.getResources().getSettingsInt("fontSize"));
-
-    /**
      * Temporary method to load the css style used in the chat window.
      * 
      * @param style
@@ -62,14 +55,15 @@ public class Constants
     public static void loadSimpleStyle(StyleSheet style)
     {
         InputStream is = BrandingActivator.getResources().
-            getSettingsInputStream("textStyle");
+            getSettingsInputStream("service.gui.HTML_TEXT_STYLE");
 
         Reader r = new BufferedReader(new InputStreamReader(is));
         try
         {
             style.loadRules(r, null);
             r.close();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
         }
     }

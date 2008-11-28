@@ -30,10 +30,12 @@ public class ActionMenuPanel
     private Logger logger = Logger.getLogger(ActionMenuPanel.class);
 
     private Color baseStartColor = new Color(
-        GuiActivator.getResources().getColor("actionPanelBgStartColor"));
+        GuiActivator.getResources().getColor(
+            "service.gui.FAVORITES_PANEL_BACKGROUND"));
 
     private Color baseEndColor = new Color(
-        GuiActivator.getResources().getColor("actionPanelBgEndColor"));
+        GuiActivator.getResources().getColor(
+            "service.gui.FAVORITES_PANEL_BACKGROUND_GRADIENT"));
 
     private Color startBgColor = new Color( baseStartColor.getRed(),
                                             baseStartColor.getGreen(),

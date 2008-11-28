@@ -38,7 +38,7 @@ public class SCScrollPane
         this.getVerticalScrollBar().setUnitIncrement(30);
 
         String windowImageBackgroundProperty
-            = "net.java.sip.communicator.impl.gui.isWindowImageBackgroundEnabled";
+            = "impl.gui.IS_WINDOW_BACKGROUND_ENABLED";
 
         isWindowImageBgEnabled = new Boolean(GuiActivator.getResources()
             .getSettingsString(windowImageBackgroundProperty)).booleanValue();
@@ -50,7 +50,7 @@ public class SCScrollPane
     private void initBackgroundImage()
     {
         isTextureBackground = new Boolean(GuiActivator.getResources()
-            .getSettingsString("isTextureBackground")).booleanValue();
+            .getSettingsString("impl.gui.IS_TEXTURE_BACKGROUND")).booleanValue();
 
         bgImage = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
 

@@ -111,7 +111,7 @@ public class NewAccountDialog
     {
         // check for preferred wizard
         String prefWName = GuiActivator.getResources().
-            getSettingsString("preferredAccountWizard");
+            getSettingsString("impl.gui.PREFERRED_ACCOUNT_WIZARD");
         if(prefWName != null && prefWName.length() > 0)
             preferredWizardName = prefWName;
 

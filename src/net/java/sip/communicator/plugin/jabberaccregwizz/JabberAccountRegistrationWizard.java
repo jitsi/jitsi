@@ -15,8 +15,6 @@ import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.*;
 
-import com.jcraft.jsch.*;
-
 /**
  * The <tt>JabberAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the Jabber protocol. It should allow

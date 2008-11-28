@@ -40,7 +40,8 @@ public class AboutWindow
 
         this.versionLabel.setFont(Constants.FONT.deriveFont(12));
         this.versionLabel.setForeground(new Color(
-            GuiActivator.getResources().getColor("splashScreenTitleColor")));
+            GuiActivator.getResources()
+                .getColor("service.gui.SPLASH_SCREEN_TITLE_COLOR")));
         this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         this.mainPanel.add(versionLabel);

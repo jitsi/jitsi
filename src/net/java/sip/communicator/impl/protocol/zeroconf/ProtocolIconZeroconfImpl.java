@@ -37,10 +37,10 @@ public class ProtocolIconZeroconfImpl
     static 
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("zeroconfOnlineIcon"));
+            getImageInBytes("service.protocol.zeroconf.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("pageImageZeroconf"));
+            getImageInBytes("service.protocol.zeroconf.PROTOCOL_LARGE_ICON"));
     }
         
     /**

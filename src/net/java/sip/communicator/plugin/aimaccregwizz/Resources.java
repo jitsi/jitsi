@@ -21,12 +21,14 @@ public class Resources
     /**
      * A constant pointing to the Aim protocol logo image.
      */
-    public static ImageID AIM_LOGO = new ImageID("protocolIconAim");
+    public static ImageID AIM_LOGO
+        = new ImageID("service.protocol.aim.PROTOCOL_ICON");
 
     /**
      * A constant pointing to the Aim protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageAim");
+    public static ImageID PAGE_IMAGE 
+        = new ImageID("service.protocol.aim.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

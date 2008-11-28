@@ -29,9 +29,10 @@ public class ZeroconfStatusEnum
      */
     public static final ZeroconfStatusEnum OFFLINE
         = new ZeroconfStatusEnum(
-            0
-            , "Offline"
-            , ProtocolIconZeroconfImpl.getImageInBytes("zeroconfOfflineIcon"));
+            0,
+            "Offline",
+            ProtocolIconZeroconfImpl.getImageInBytes(
+                "service.protocol.zeroconf.OFFLINE_STATUS_ICON"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -39,9 +40,10 @@ public class ZeroconfStatusEnum
      */
     public static final ZeroconfStatusEnum DO_NOT_DISTURB
         = new ZeroconfStatusEnum(
-            30
-            ,"Do Not Disturb",//, "Do Not Disturb",
-            ProtocolIconZeroconfImpl.getImageInBytes("zeroconfDndIcon"));
+            30,
+            "Do Not Disturb",//, "Do Not Disturb",
+            ProtocolIconZeroconfImpl.getImageInBytes(
+                "service.protocol.zeroconf.DND_STATUS_ICON"));
 
     /**
      * The Invisible status. Indicates that the user has connectivity even
@@ -50,9 +52,10 @@ public class ZeroconfStatusEnum
      */
     public static final ZeroconfStatusEnum INVISIBLE
         = new ZeroconfStatusEnum(
-            45
-            , "Invisible"
-            , ProtocolIconZeroconfImpl.getImageInBytes("zeroconfInvisibleIcon"));
+            45,
+            "Invisible",
+            ProtocolIconZeroconfImpl.getImageInBytes(
+                "service.protocol.zeroconf.INVISIBLE_STATUS_ICON"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -60,9 +63,10 @@ public class ZeroconfStatusEnum
      */
     public static final ZeroconfStatusEnum ONLINE
         = new ZeroconfStatusEnum(
-            65
-            ,"Available"//, "Online"
-            , ProtocolIconZeroconfImpl.getImageInBytes("zeroconfOnlineIcon"));
+            65,
+            "Available",//, "Online"
+            ProtocolIconZeroconfImpl.getImageInBytes(
+                "service.protocol.zeroconf.ONLINE_STATUS_ICON"));
 
 
     /**

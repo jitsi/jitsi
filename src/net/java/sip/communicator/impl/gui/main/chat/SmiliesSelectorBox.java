@@ -160,7 +160,7 @@ public class SmiliesSelectorBox
         this.selectorBox.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.selectorBox.setHorizontalTextPosition(SwingConstants.CENTER);
         this.selectorBox.setForeground(new Color(GuiActivator.getResources()
-            .getColor("chatMenuForeground")));
+            .getColor("service.gui.CHAT_MENU_FOREGROUND")));
     }
 
     /**

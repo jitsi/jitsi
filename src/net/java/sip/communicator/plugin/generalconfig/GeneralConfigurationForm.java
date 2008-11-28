@@ -316,7 +316,7 @@ public class GeneralConfigurationForm
 
     public byte[] getIcon()
     {
-        return Resources.getImage("pluginIconGeneralConfig");
+        return Resources.getImage("plugin.generalconfig.PLUGIN_ICON");
     }
 
     public String getTitle()
@@ -338,9 +338,10 @@ public class GeneralConfigurationForm
             try 
             {
                 String workingDir = new File(".").getCanonicalPath();
-                
-                String appName = 
-                        Resources.getSettingsString("applicationName");
+
+                String appName
+                    = Resources.getSettingsString("service.gui.APPLICATION_NAME");
+
                 ShellLink shortcut = new ShellLink(ShellLink.STARTUP, appName);
                 shortcut.setUserType(ShellLink.CURRENT_USER);
                 shortcut.setDescription(

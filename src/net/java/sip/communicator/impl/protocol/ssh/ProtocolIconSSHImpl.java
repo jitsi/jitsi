@@ -36,10 +36,10 @@ public class ProtocolIconSSHImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("protocolIconSsh"));
+            getImageInBytes("service.protocol.ssh.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("pageImageSsh"));
+            getImageInBytes("service.protocol.ssh.PROTOCOL_LARGE_ICON"));
     }
         
     /**

@@ -67,7 +67,7 @@ public class ConfigurationManager
 
         // Load the "auPopupNewMessage" property.
         String autoPopupProperty = 
-            "net.java.sip.communicator.impl.gui.autoPopupNewMessage";
+            "service.gui.AUTO_POPUP_NEW_MESSAGE";
 
         String autoPopup = configService.getString(autoPopupProperty);
         
@@ -80,7 +80,7 @@ public class ConfigurationManager
 
         // Load the "sendMessageCommand" property.
         String messageCommandProperty = 
-            "net.java.sip.communicator.impl.gui.sendMessageCommand";
+            "service.gui.SEND_MESSAGE_COMMAND";
         String messageCommand = configService.getString(messageCommandProperty);
         
         if(messageCommand == null)
@@ -129,7 +129,7 @@ public class ConfigurationManager
 
         // Load the "sendTypingNotifications" property.
         String isSendTypingNotifProperty = 
-            "net.java.sip.communicator.impl.gui.sendTypingNotifications";
+            "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED";
         String isSendTypingNotif = 
             configService.getString(isSendTypingNotifProperty);
         
@@ -159,7 +159,7 @@ public class ConfigurationManager
 
         // Load the "isMultiChatWindowEnabled" property.
         String isMultiChatWindowEnabledStringProperty
-            = "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled";
+            = "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED";
         
         String isMultiChatWindowEnabledString
             = configService.getString(isMultiChatWindowEnabledStringProperty);
@@ -192,7 +192,7 @@ public class ConfigurationManager
         
         // Load the "isHistoryShown" property.
         String isHistoryShownStringProperty = 
-            "net.java.sip.communicator.impl.gui.isMessageHistoryShown";
+            "service.gui.IS_MESSAGE_HISTORY_SHOWN";
         
         String isHistoryShownString
             = configService.getString(isHistoryShownStringProperty);
@@ -212,7 +212,7 @@ public class ConfigurationManager
         
         // Load the "chatHistorySize" property.
         String chatHistorySizeStringProperty =
-            "net.java.sip.communicator.impl.gui.messageHistorySize";
+            "service.gui.MESSAGE_HISTORY_SIZE";
         String chatHistorySizeString
             = configService.getString(chatHistorySizeStringProperty);
         
@@ -231,7 +231,7 @@ public class ConfigurationManager
 
         // Load the "isTransparentWindowEnabled" property.
         String isTransparentWindowEnabledProperty =
-            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled";
+            "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED";
 
         String isTransparentWindowEnabledString
             = configService.getString(isTransparentWindowEnabledProperty);
@@ -250,7 +250,7 @@ public class ConfigurationManager
 
         // Load the "windowTransparency" property.
         String windowTransparencyProperty =
-            "net.java.sip.communicator.impl.gui.windowTransparency";
+            "impl.gui.WINDOW_TRANSPARENCY";
 
         String windowTransparencyString
             = configService.getString(windowTransparencyProperty);
@@ -269,7 +269,7 @@ public class ConfigurationManager
 
         // Load the "isWindowDecorated" property.
         String isWindowDecoratedProperty
-            = "net.java.sip.communicator.impl.gui.isWindowDecorated";
+            = "impl.gui.IS_WINDOW_DECORATED";
 
         String isWindowDecoratedString
             = configService.getString(isWindowDecoratedProperty);
@@ -598,7 +598,7 @@ public class ConfigurationManager
         isTransparentWindowEnabled = isTransparent;
 
         configService.setProperty(
-                "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled",
+                "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED",
                 Boolean.toString(isTransparentWindowEnabled));
     }
 
@@ -881,7 +881,7 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.gui.addcontact.lastContactParent"))
                 lastContactParent = (String)evt.getNewValue();
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.autoPopupNewMessage"))
+                "service.gui.AUTO_POPUP_NEW_MESSAGE"))
             {
                 String autoPopupString = (String) evt.getNewValue();
                 
@@ -889,7 +889,7 @@ public class ConfigurationManager
                     = new Boolean(autoPopupString).booleanValue();
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.sendMessageCommand"))
+                "service.gui.SEND_MESSAGE_COMMAND"))
             {
                 sendMessageCommand
                     = (String) evt.getNewValue();
@@ -927,7 +927,7 @@ public class ConfigurationManager
                     = new Boolean(showQuitWarningString).booleanValue();
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.sendTypingNotifications"))
+                "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED"))
             {
                 String sendTypingNorifString = (String) evt.getNewValue();
                 
@@ -943,7 +943,7 @@ public class ConfigurationManager
                     = new Boolean(moveContactConfirmString).booleanValue();
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled"))
+                "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED"))
             {
                 String multiChatWindowString = (String) evt.getNewValue();
                 
@@ -959,7 +959,7 @@ public class ConfigurationManager
                     = new Boolean(historyLoggingString).booleanValue();
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.isMessageHistoryShown"))
+                "service.gui.IS_MESSAGE_HISTORY_SHOWN"))
             {
                 String historyShownString = (String) evt.getNewValue();
                 
@@ -967,7 +967,7 @@ public class ConfigurationManager
                     = new Boolean(historyShownString).booleanValue();
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.messageHistorySize"))
+                "service.gui.MESSAGE_HISTORY_SIZE"))
             {
                 String chatHistorySizeString = (String) evt.getNewValue();
                 
@@ -975,7 +975,7 @@ public class ConfigurationManager
                     = new Integer(chatHistorySizeString).intValue();
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled"))
+                "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED"))
             {
                 String isTransparentString = (String) evt.getNewValue();
 
@@ -983,7 +983,7 @@ public class ConfigurationManager
                     = new Boolean(isTransparentString).booleanValue();
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.windowTransparency"))
+                "impl.gui.WINDOW_TRANSPARENCY"))
             {
                 String windowTransparencyString = (String) evt.getNewValue();
 

@@ -5,13 +5,12 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.plugin.extendedcallhistorysearch;
+package net.java.sip.communicator.util;
 
 import java.awt.*;
 import java.util.*;
 
 import javax.swing.*;
-
 
 /**
  * The <tt>StringUtils</tt> class is used through this ui implementation for
@@ -42,7 +41,7 @@ public class GuiUtils {
      */
     public static int getStringWidth(Component c, String text) {
         return SwingUtilities.computeStringWidth(c
-                .getFontMetrics(Constants.FONT), text);
+                .getFontMetrics(c.getFont()), text);
     }
     
     /**
@@ -147,7 +146,32 @@ public class GuiUtils {
         
         return c1.getTime();
     }
-    
+
+    /**
+     * Requests the focus in the given <tt>component</tt>. The actual request
+     * focus is called from a separate thread with the help
+     * SwingUtilities.invokeLater().
+     * 
+     * @param component the component which requests the focus.
+     */
+    public static void requestFocus(final Component component)
+    {
+        new Thread()
+        {
+            public void run()
+            {
+                SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            component.requestFocus();
+                        }
+                    });
+            }
+        }.start();
+    }
+
     /**
      * Replaces the month with its abbreviation.
      * @param month Value from 1 to 12, which indicates the month.
@@ -157,30 +181,42 @@ public class GuiUtils {
     {
         String monthString = "";
         if(month == 1)
-            monthString = Resources.getString("january");
+            monthString
+                = UtilActivator.getResources().getI18NString("january");
         else if(month == 2)
-            monthString = Resources.getString("february");
+            monthString
+                = UtilActivator.getResources().getI18NString("february");
         else if(month == 3)
-            monthString = Resources.getString("march");
+            monthString
+                = UtilActivator.getResources().getI18NString("march");
         else if(month == 4)
-            monthString = Resources.getString("april");
+            monthString
+                = UtilActivator.getResources().getI18NString("april");
         else if(month == 5)
-            monthString = Resources.getString("may");
+            monthString
+                = UtilActivator.getResources().getI18NString("may");
         else if(month == 6)
-            monthString = Resources.getString("june");
+            monthString
+                = UtilActivator.getResources().getI18NString("june");
         else if(month == 7)
-            monthString = Resources.getString("july");
+            monthString
+                = UtilActivator.getResources().getI18NString("july");
         else if(month == 8)
-            monthString = Resources.getString("august");
+            monthString
+                = UtilActivator.getResources().getI18NString("august");
         else if(month == 9)
-            monthString = Resources.getString("september");
+            monthString
+                = UtilActivator.getResources().getI18NString("september");
         else if(month == 10)
-            monthString = Resources.getString("october");
+            monthString
+                = UtilActivator.getResources().getI18NString("october");
         else if(month == 11)
-            monthString = Resources.getString("november");
+            monthString
+                = UtilActivator.getResources().getI18NString("november");
         else if(month == 12)
-            monthString = Resources.getString("december");
-        
+            monthString
+                = UtilActivator.getResources().getI18NString("december");
+
         return monthString;
     }
     

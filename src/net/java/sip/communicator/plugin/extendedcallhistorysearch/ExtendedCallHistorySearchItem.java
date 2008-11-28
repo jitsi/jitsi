@@ -28,7 +28,10 @@ public class ExtendedCallHistorySearchItem
                 PluginComponent
 {
     private JMenuItem historyMenuItem
-        = new JMenuItem(Resources.getString("advancedCallHistorySearch"));
+        = new JMenuItem(ExtendedCallHistorySearchActivator.getResources()
+                .getI18NString("advancedCallHistorySearch"),
+            ExtendedCallHistorySearchActivator.getResources()
+                .getImage("plugin.callhistorysearch.HISTORY_MENU_ICON"));
 
     private ExtendedCallHistorySearchDialog callHistorySearchDialog = null;
 
@@ -38,7 +41,8 @@ public class ExtendedCallHistorySearchItem
     public ExtendedCallHistorySearchItem()
     {
         this.historyMenuItem.setMnemonic(
-            Resources.getMnemonic("advancedCallHistorySearch"));
+            ExtendedCallHistorySearchActivator.getResources()
+                .getI18nMnemonic("advancedCallHistorySearch"));
         this.historyMenuItem.addActionListener(this);
     }
  

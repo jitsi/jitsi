@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.irc;
 import java.io.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -36,10 +35,10 @@ public class ProtocolIconIrcImpl
     private static Hashtable iconsTable = new Hashtable();
     static {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("protocolIconIrc"));
+            getImageInBytes("service.protocol.irc.PROTOCOL_ICON"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("irc64x64Icon"));
+            getImageInBytes("service.protocol.irc.PROTOCOL_LARGE_ICON"));
     }
  
     /**

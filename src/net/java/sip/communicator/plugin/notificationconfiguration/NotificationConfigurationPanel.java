@@ -102,11 +102,14 @@ public class NotificationConfigurationPanel
         constraints.fill = GridBagConstraints.BOTH;
 
         JLabel icon1 =
-            new JLabel(new ImageIcon(Resources.getImageInBytes("progIcon")));
+            new JLabel(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.PROG_ICON")));
         JLabel icon2 =
-            new JLabel(new ImageIcon(Resources.getImageInBytes("popupIcon")));
+            new JLabel(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.POPUP_ICON")));
         JLabel icon3 =
-            new JLabel(new ImageIcon(Resources.getImageInBytes("soundIcon")));
+            new JLabel(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.SOUND_ICON")));
         Object column[] =
             { "Status", icon1, icon2, icon3, "Event" };
         notificationList = new ListMulti(column, columnToolTips);
@@ -140,7 +143,8 @@ public class NotificationConfigurationPanel
         playSoundCheckBox = new JCheckBox(Resources.getString("playsound"));
         playSoundCheckBox.addItemListener(this);
         playSoundButton = new JButton(
-                new ImageIcon(Resources.getImageInBytes("playIcon")));
+                new ImageIcon(Resources.getImageInBytes(
+                    "plugin.notificationconfig.PLAY_ICON")));
         playSoundButton.setMinimumSize(new Dimension(50,30));
         playSoundButton.setPreferredSize(new Dimension(50,30));
         playSoundButton.addActionListener(this);
@@ -149,7 +153,8 @@ public class NotificationConfigurationPanel
         soundFileTextField.setPreferredSize(new Dimension(250,30));
         soundFileTextField.getDocument().addDocumentListener(this);
         soundFileChooser = new JButton(
-                new ImageIcon(Resources.getImageInBytes("foldericon")));
+                new ImageIcon(Resources.getImageInBytes(
+                    "plugin.notificationconfig.FOLDER_ICON")));
         soundFileChooser.setMinimumSize(new Dimension(30,30));
         soundFileChooser.setPreferredSize(new Dimension(30,30));
         soundFileChooser.addActionListener(this);
@@ -160,7 +165,8 @@ public class NotificationConfigurationPanel
         programFileTextField.setPreferredSize(new Dimension(250,30));
         programFileTextField.getDocument().addDocumentListener(this);
         programFileChooser = new JButton(
-                new ImageIcon(Resources.getImageInBytes("foldericon")));
+                new ImageIcon(Resources.getImageInBytes(
+                    "plugin.notificationconfig.FOLDER_ICON")));
         programFileChooser.setMinimumSize(new Dimension(30,30));
         programFileChooser.setPreferredSize(new Dimension(30,30));
         programFileChooser.addActionListener(this);

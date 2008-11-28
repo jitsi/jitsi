@@ -43,9 +43,11 @@ public class DialPanel
     private boolean isTypedPlus = false;
 
     private final JPanel dialPadPanel =
-        new JPanel(new GridLayout(4, 3, GuiActivator.getResources()
-            .getSettingsInt("dialPadHorizontalGap"), GuiActivator
-            .getResources().getSettingsInt("dialPadVerticalGap")));
+        new JPanel(new GridLayout(4, 3,
+            GuiActivator.getResources()
+                .getSettingsInt("impl.gui.DIAL_PAD_HORIZONTAL_GAP"),
+            GuiActivator.getResources()
+                .getSettingsInt("impl.gui.DIAL_PAD_VERTICAL_GAP")));
 
     private final java.util.List<CallParticipant> callParticipantsList =
         new LinkedList<CallParticipant>();
@@ -94,8 +96,11 @@ public class DialPanel
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        int width = GuiActivator.getResources().getSettingsInt("dialPadWidth");
-        int height = GuiActivator.getResources().getSettingsInt("dialPadHeight");
+        int width = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.DIAL_PAD_WIDTH");
+
+        int height = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.DIAL_PAD_HEIGHT");
 
         this.dialPadPanel.setPreferredSize(new Dimension(width, height));
 
@@ -336,7 +341,7 @@ public class DialPanel
         Graphics2D g2 = (Graphics2D) g;
 
         boolean isTextureBackground = new Boolean(GuiActivator.getResources()
-            .getSettingsString("isTextureBackground")).booleanValue();
+            .getSettingsString("impl.gui.IS_TEXTURE_BACKGROUND")).booleanValue();
 
         BufferedImage bgImage
             = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);

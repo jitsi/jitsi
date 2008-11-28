@@ -139,8 +139,9 @@ public class MainFrame
 
         this.setTitle(applicationName);
 
-        this.mainPanel.setBackground(new Color(resources
-            .getColor("mainWindowBackground")));
+        this.mainPanel.setBackground(new Color(
+                GuiActivator.getResources()
+                    .getColor("service.gui.MAIN_WINDOW_BACKGROUND")));
 
         this.init();
 
@@ -167,7 +168,7 @@ public class MainFrame
 
         String isToolbarExtendedString
             = GuiActivator.getResources().
-                getSettingsString("isToolBarExteneded");
+                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED");
 
         boolean isToolBarExtended
             = new Boolean(isToolbarExtendedString).booleanValue();
@@ -215,18 +216,19 @@ public class MainFrame
      */
     public void initBounds()
     {
-        ResourceManagementService resources = GuiActivator.getResources();
-        int width
-            = resources.getSettingsInt("mainWindowWidth");
-        int height
-            = resources.getSettingsInt("mainWindowHeight");
+        int width = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_WINDOW_WIDTH");
 
-        int minWidth
-            = resources.getSettingsInt("minMainWindowWidth");
-        int minHeight
-            = resources.getSettingsInt("minMainWindowHeight");
+        int height = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_WINDOW_HEIGHT");
 
-        this.setMinimumSize(new Dimension(minWidth, minHeight));
+        int minWidth = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_WINDOW_MIN_WIDTH");
+
+        int minHeight = GuiActivator.getResources()
+            .getSettingsInt("impl.gui.MAIN_WINDOW_MIN_HEIGHT");
+
+        this.getContentPane().setMinimumSize(new Dimension(minWidth, minHeight));
 
         this.setSize(width, height);
 
@@ -242,8 +244,11 @@ public class MainFrame
         JComponent layeredPane = this.getLayeredPane();
 
         ResourceManagementService resources = GuiActivator.getResources();
-        String fontName = resources.getSettingsString("fontName");
-        String titleFontSize = resources.getSettingsString("titleFontSize");
+        String fontName
+            = resources.getSettingsString("service.gui.FONT_NAME");
+
+        String titleFontSize
+            = resources.getSettingsString("service.gui.FONT_SIZE");
 
         Font font = new Font(   fontName,
                                 Font.BOLD,
@@ -1155,9 +1160,10 @@ public class MainFrame
          */
         public LogoBar()
         {
-            ResourceManagementService resources = GuiActivator.getResources();
-            int width = resources.getSettingsInt("logoBarWidth");
-            int height = resources.getSettingsInt("logoBarHeight");
+            int width = GuiActivator.getResources()
+                .getSettingsInt("impl.gui.LOGO_BAR_WIDTH");
+            int height = GuiActivator.getResources()
+                .getSettingsInt("impl.gui.LOGO_BAR_HEIGHT");
             Dimension size = new Dimension(width, height);
 
             this.setMinimumSize(size);

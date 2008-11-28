@@ -60,7 +60,8 @@ public class EditMenu extends SIPCommMenu
         this.chatWindow = chatWindow;
 
         this.setForeground(new Color(
-            GuiActivator.getResources().getColor("chatMenuForeground")));
+            GuiActivator.getResources()
+                .getColor("service.gui.CHAT_MENU_FOREGROUND")));
 
         this.cutMenuItem.setName("cut");
         this.copyMenuItem.setName("copy");

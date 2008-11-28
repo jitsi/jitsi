@@ -45,7 +45,7 @@ public class ConfigurationManager
     {
         // Load the "auPopupNewMessage" property.
         String autoPopupProperty = 
-            "net.java.sip.communicator.impl.gui.autoPopupNewMessage";
+            "service.gui.AUTO_POPUP_NEW_MESSAGE";
         
         String autoPopup = configService.getString(autoPopupProperty);
 
@@ -57,7 +57,7 @@ public class ConfigurationManager
 
         // Load the "sendMessageCommand" property.
         String messageCommandProperty = 
-            "net.java.sip.communicator.impl.gui.sendMessageCommand";
+            "service.gui.SEND_MESSAGE_COMMAND";
         String messageCommand = configService.getString(messageCommandProperty);
         
         if(messageCommand == null)
@@ -71,7 +71,7 @@ public class ConfigurationManager
 
         // Load the "sendTypingNotifications" property.
         String isSendTypingNotifProperty = 
-            "net.java.sip.communicator.impl.gui.sendTypingNotifications";
+            "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED";
         String isSendTypingNotif = 
             configService.getString(isSendTypingNotifProperty);
         
@@ -87,7 +87,7 @@ public class ConfigurationManager
 
         // Load the "isMultiChatWindowEnabled" property.
         String isMultiChatWindowEnabledStringProperty
-            = "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled";
+            = "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED";
         
         String isMultiChatWindowEnabledString
             = configService.getString(isMultiChatWindowEnabledStringProperty);
@@ -107,7 +107,7 @@ public class ConfigurationManager
         
         // Load the "isHistoryLoggingEnabled" property.
         String isHistoryLoggingEnabledPropertyString =
-            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled";
+            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED";
         
         String isHistoryLoggingEnabledString
             = configService.getString(
@@ -128,7 +128,7 @@ public class ConfigurationManager
         
         // Load the "isHistoryShown" property.
         String isHistoryShownStringProperty = 
-            "net.java.sip.communicator.impl.gui.isMessageHistoryShown";
+            "service.gui.IS_MESSAGE_HISTORY_SHOWN";
         
         String isHistoryShownString
             = configService.getString(isHistoryShownStringProperty);
@@ -147,7 +147,7 @@ public class ConfigurationManager
 
         // Load the "chatHistorySize" property.
         String chatHistorySizeStringProperty =
-            "net.java.sip.communicator.impl.gui.messageHistorySize";
+            "service.gui.MESSAGE_HISTORY_SIZE";
         String chatHistorySizeString
             = configService.getString(chatHistorySizeStringProperty);
 
@@ -165,7 +165,7 @@ public class ConfigurationManager
 
         // Load the "isTransparentWindowEnabled" property.
         String isTransparentWindowEnabledProperty =
-            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled";
+            "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED";
 
         String isTransparentWindowEnabledString
             = configService.getString(isTransparentWindowEnabledProperty);
@@ -183,7 +183,7 @@ public class ConfigurationManager
 
         // Load the "windowTransparency" property.
         String windowTransparencyProperty =
-            "net.java.sip.communicator.impl.gui.windowTransparency";
+            "impl.gui.WINDOW_TRANSPARENCY";
 
         String windowTransparencyString
             = configService.getString(windowTransparencyProperty);
@@ -302,7 +302,7 @@ public class ConfigurationManager
             isTransparentWindowEnabled;
 
         configService.setProperty(
-            "net.java.sip.communicator.impl.gui.isTransparentWindowEnabled",
+            "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED",
             new Boolean(isTransparentWindowEnabled).toString());
     }
 
@@ -321,7 +321,7 @@ public class ConfigurationManager
         ConfigurationManager.windowTransparency = windowTransparency;
 
         configService.setProperty(
-            "net.java.sip.communicator.impl.gui.windowTransparency",
+            "impl.gui.WINDOW_TRANSPARENCY",
             new Integer(windowTransparency).toString());
     }
 
@@ -337,11 +337,11 @@ public class ConfigurationManager
 
         if(autoPopupNewMessage)
             configService.setProperty(
-                    "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
+                    "service.gui.AUTO_POPUP_NEW_MESSAGE",
                     "yes");
         else
             configService.setProperty(
-                    "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
+                    "service.gui.AUTO_POPUP_NEW_MESSAGE",
                     "no");
     }
 
@@ -357,7 +357,7 @@ public class ConfigurationManager
         isSendTypingNotifications = isSendTypingNotif;
 
         configService.setProperty(
-                "net.java.sip.communicator.impl.gui.sendTypingNotifications",
+                "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED",
                 Boolean.toString(isSendTypingNotif));
     }
 
@@ -373,7 +373,7 @@ public class ConfigurationManager
         sendMessageCommand = newMessageCommand;
 
         configService.setProperty(
-                "net.java.sip.communicator.impl.gui.sendMessageCommand",
+                "service.gui.SEND_MESSAGE_COMMAND",
                 newMessageCommand);
     }
 
@@ -390,7 +390,7 @@ public class ConfigurationManager
         ConfigurationManager.isHistoryLoggingEnabled = isMultiChatWindowEnabled;
 
         configService.setProperty(
-            "net.java.sip.communicator.impl.gui.isMultiChatWindowEnabled",
+            "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED",
             Boolean.toString(isMultiChatWindowEnabled));
     }
 
@@ -423,7 +423,7 @@ public class ConfigurationManager
         ConfigurationManager.isHistoryShown = isHistoryShown;
         
         configService.setProperty(
-            "net.java.sip.communicator.impl.gui.isMessageHistoryShown",
+            "service.gui.IS_MESSAGE_HISTORY_SHOWN",
             Boolean.toString(isHistoryShown));
     }
     
@@ -439,7 +439,7 @@ public class ConfigurationManager
         ConfigurationManager.chatHistorySize = historySize;
         
         configService.setProperty(
-            "net.java.sip.communicator.impl.gui.messageHistorySize",
+            "service.gui.MESSAGE_HISTORY_SIZE",
             Integer.toString(chatHistorySize));
     }
 }

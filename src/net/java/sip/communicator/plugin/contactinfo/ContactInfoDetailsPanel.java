@@ -187,7 +187,7 @@ public class ContactInfoDetailsPanel
         }
         else
             scaledImage = ImageUtils.getScaledRoundedImage(
-                Resources.getImage("contactInfoDefaultPersonIcon"),
+                Resources.getImage("service.gui.DEFAULT_USER_PHOTO"),
                 AVATAR_AREA_WIDTH,
                 AVATAR_AREA_HEIGHT
                 );

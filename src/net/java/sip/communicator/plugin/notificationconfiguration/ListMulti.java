@@ -105,15 +105,15 @@ class MyTableRenderer extends DefaultTableCellRenderer
         {
             if(((String)value).equals("enable") == true)
             {
-                setIcon(new ImageIcon(
-                        Resources.getImageInBytes("activatedIcon")));
+                setIcon(new ImageIcon(Resources.getImageInBytes(
+                    "plugin.notificationconfig.ACTIVATED_ICON")));
                 setText(null);
                 setHorizontalAlignment(SwingConstants.CENTER);
             }
             else
             {
-                setIcon(new ImageIcon(
-                        Resources.getImageInBytes("desactivatedIcon")));
+                setIcon(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.DEACTIVATED_ICON")));
                 setText(null);
                 setHorizontalAlignment(SwingConstants.CENTER);
             }
@@ -122,7 +122,8 @@ class MyTableRenderer extends DefaultTableCellRenderer
         {
             if(((String)value).equals("Yes") == true)
             {
-                setIcon(new ImageIcon(Resources.getImageInBytes("progIcon")));
+                setIcon(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.PROG_ICON")));
                 setText(null);
                 setHorizontalAlignment(SwingConstants.CENTER);
             }
@@ -136,7 +137,8 @@ class MyTableRenderer extends DefaultTableCellRenderer
         {
             if(((String)value).equals("Yes") == true)
             {
-                setIcon(new ImageIcon(Resources.getImageInBytes("popupIcon")));
+                setIcon(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.POPUP_ICON")));
                 setText(null);
                 setHorizontalAlignment(SwingConstants.CENTER);
             }
@@ -150,7 +152,8 @@ class MyTableRenderer extends DefaultTableCellRenderer
         {
             if(((String)value).equals("Yes") == true)
             {
-                setIcon(new ImageIcon(Resources.getImageInBytes("soundIcon")));
+                setIcon(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.SOUND_ICON")));
                 setText(null);
                 setHorizontalAlignment(SwingConstants.CENTER);
             }

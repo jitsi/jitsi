@@ -25,9 +25,11 @@ public class Resources
 {
     private static ResourceManagementService resourcesService;
 
-    public static ImageID SSH_LOGO = new ImageID("protocolIconSsh");
-    
-    public static ImageID PAGE_IMAGE = new ImageID("pageImageSsh");
+    public static ImageID SSH_LOGO
+        = new ImageID("service.protocol.ssh.PROTOCOL_ICON");
+
+    public static ImageID PAGE_IMAGE
+        = new ImageID("service.protocol.ssh.PROTOCOL_LARGE_ICON");
 
     /**
      * Returns an internationalized string corresponding to the given key.

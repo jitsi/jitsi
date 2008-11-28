@@ -29,9 +29,9 @@ public class RssStatusEnum
      */
     public static final RssStatusEnum OFFLINE
         = new RssStatusEnum(
-            0
-            , "Offline"
-            , getImageInBytes("rssOfflineIcon"));
+            0,
+            "Offline",
+            getImageInBytes("service.protocol.rss.OFFLINE_STATUS_ICON"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -39,9 +39,9 @@ public class RssStatusEnum
      */
     public static final RssStatusEnum ONLINE
         = new RssStatusEnum(
-            65
-            , "Online"
-            , getImageInBytes("protocolIconRss"));
+            65,
+            "Online",
+            getImageInBytes("service.protocol.rss.PROTOCOL_ICON"));
 
     /**
      * Initialize the list of supported status states.
