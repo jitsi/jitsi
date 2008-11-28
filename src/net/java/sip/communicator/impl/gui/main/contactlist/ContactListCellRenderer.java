@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
@@ -29,34 +28,32 @@ public class ContactListCellRenderer
     extends JPanel
     implements ListCellRenderer
 {
-    private Logger logger = Logger.getLogger(ContactListCellRenderer.class);
-
     private static final int AVATAR_HEIGHT = 30;
 
     private static final int AVATAR_WIDTH = 30;
 
-    private ImageIcon openedGroupIcon = new ImageIcon(ImageLoader
-        .getImage(ImageLoader.DOWN_ARROW_ICON));
+    private final ImageIcon openedGroupIcon =
+        new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
 
-    private ImageIcon closedGroupIcon = new ImageIcon(ImageLoader
-        .getImage(ImageLoader.RIGHT_ARROW_ICON));
+    private final ImageIcon closedGroupIcon =
+        new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
 
     private Color groupForegroundColor;
 
     protected Color contactForegroundColor;
 
-    protected JLabel nameLabel = new JLabel();
+    protected final JLabel nameLabel = new JLabel();
 
-    protected JLabel photoLabel = new JLabel();
+    protected final JLabel photoLabel = new JLabel();
 
-    private int rowTransparency
-        = GuiActivator.getResources()
+    private final int rowTransparency =
+        GuiActivator.getResources()
             .getSettingsInt("contactListRowTransparency");
 
-    private Image msgReceivedImage
-        = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
+    private final Image msgReceivedImage =
+        ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
 
-    protected ImageIcon statusIcon = new ImageIcon();
+    protected final ImageIcon statusIcon = new ImageIcon();
 
     protected boolean isSelected = false;
 
@@ -158,14 +155,13 @@ public class ContactListCellRenderer
                     this.photoLabel.setIcon(roundedAvatar);
             }
 
-            // We should set the bounds of the cell explicitely in order to
+            // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
-            this.setBounds(0, 0, list.getWidth() - 2, 30);
+            final int listWidth = list.getWidth();
+            this.setBounds(0, 0, listWidth - 2, 30);
 
-            this.nameLabel.setBounds(
-                    0, 0, list.getWidth() - 28, 17);
-            this.photoLabel.setBounds(
-                list.getWidth() - 28, 0, 25, 30);
+            this.nameLabel.setBounds(0, 0, listWidth - 28, 17);
+            this.photoLabel.setBounds(listWidth - 28, 0, 25, 30);
 
             this.isLeaf = true;
         }
@@ -185,7 +181,7 @@ public class ContactListCellRenderer
 
             this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 2));
 
-            // We should set the bounds of the cell explicitely in order to
+            // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
 
@@ -219,18 +215,15 @@ public class ContactListCellRenderer
 
         if (!this.isLeaf)
         {
-            GradientPaint p = new GradientPaint(0,
-                0,
-                Constants.CONTACT_LIST_GROUP_BG_COLOR,
-                this.getWidth() - 5,
-                0,
-                Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR);
+            final int width = getWidth();
+            GradientPaint p =
+                new GradientPaint(0, 0, Constants.CONTACT_LIST_GROUP_BG_COLOR,
+                    width - 5, 0,
+                    Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR);
 
             g2.setPaint(p);
 
-            g2.fillRoundRect(   1, 1,
-                                this.getWidth() - 2, this.getHeight() - 1,
-                                10, 10);
+            g2.fillRoundRect(1, 1, width - 2, this.getHeight() - 1, 10, 10);
         }
         else if (index%2 > 0)
         {

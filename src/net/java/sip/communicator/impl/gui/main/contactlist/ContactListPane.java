@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
@@ -46,22 +45,20 @@ public class ContactListPane
                 ContactListListener,
                 PluginComponentListener
 {
-    private MainFrame mainFrame;
+    private final MainFrame mainFrame;
 
     private ContactList contactList;
 
-    private TypingTimer typingTimer = new TypingTimer();
+    private final TypingTimer typingTimer = new TypingTimer();
 
     private CommonRightButtonMenu commonRightButtonMenu;
 
-    private Logger logger = Logger.getLogger(ContactListPane.class);
+    private final Logger logger = Logger.getLogger(ContactListPane.class);
 
-    private ActionMenuGlassPane contactListPanel;
-
-    private ChatWindowManager chatWindowManager;
+    private final ChatWindowManager chatWindowManager;
 
     /**
-     * Pseudo timer used to delay multiples typings notifications before
+     * Pseudo timer used to delay multiple typings notifications before
      * receiving the message.
      * 
      * Time to live : 1 minute
@@ -221,7 +218,7 @@ public class ContactListPane
      * otherwise the existing chat window is made visible and focused.
      *
      * In mode "Group messages in one chat window" a JTabbedPane is used to show
-     * chats for different contacts in ona window. A new tab is opened for the
+     * chats for different contacts in one window. A new tab is opened for the
      * given <tt>MetaContact</tt> if there's no opened tab for it, otherwise
      * the existing chat tab is selected and focused.
      *
@@ -684,7 +681,7 @@ public class ContactListPane
 
     private void initPluginComponents()
     {
-     // Search for plugin components registered through the OSGI bundle
+        // Search for plugin components registered through the OSGI bundle
         // context.
         ServiceReference[] serRefs = null;
 
@@ -708,10 +705,12 @@ public class ContactListPane
             for (int i = 0; i < serRefs.length; i ++)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                    .bundleContext
+                        .getService(serRefs[i]);
 
-                    Object selectedValue = mainFrame.getContactListPanel()
-                    .getContactList().getSelectedValue();
+                Object selectedValue =
+                    mainFrame.getContactListPanel().getContactList()
+                        .getSelectedValue();
 
                 if(selectedValue instanceof MetaContact)
                 {
@@ -723,12 +722,13 @@ public class ContactListPane
                         .setCurrentContactGroup((MetaContactGroup)selectedValue);
                 }
 
+                String pluginConstraints = component.getConstraints();
                 Object constraints = null;
 
-                if (component.getConstraints() != null)
-                    constraints = UIServiceImpl
-                        .getBorderLayoutConstraintsFromContainer(
-                            component.getConstraints());
+                if (pluginConstraints != null)
+                    constraints =
+                        UIServiceImpl
+                            .getBorderLayoutConstraintsFromContainer(pluginConstraints);
                 else
                     constraints = BorderLayout.SOUTH;
 

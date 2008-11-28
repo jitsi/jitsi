@@ -152,22 +152,19 @@ public class ActionMenuPanel
 
         AntialiasingManager.activateAntialiasing(g2);
 
-        GradientPaint p = new GradientPaint(this.getWidth()/2, 0,
-                                            startBgColor,
-                                            this.getWidth()/2, this.getHeight(),
-                                            endBgColor);
+        int width = getWidth();
+        int height = getHeight();
+        GradientPaint p =
+            new GradientPaint(width / 2, 0, startBgColor, width / 2, height,
+                endBgColor);
 
         FadeTracker fadeTracker = FadeTracker.getInstance();
 
         g2.setPaint(p);
-        g2.fillRoundRect(0, 0,
-            this.getWidth() - 1,
-            this.getHeight() - 1, 15, 15);
+        g2.fillRoundRect(0, 0, width - 1, height - 1, 15, 15);
 
         g2.setColor(baseStartColor);
-        g2.drawRoundRect(0, 0,
-            this.getWidth() - 1,
-            this.getHeight() - 1, 15, 15);
+        g2.drawRoundRect(0, 0, width - 1, height - 1, 15, 15);
     }
 
     public void actionPerformed(ActionEvent e)

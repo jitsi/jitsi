@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
@@ -23,16 +22,12 @@ public class MetaContactTooltip
     extends JToolTip
 {
     private static final int textRowHeight = 25;
- 
-    private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 
-    private JLabel imageLabel = new JLabel();
+    private final JLabel imageLabel = new JLabel();
 
-    private JLabel titleLabel = new JLabel();
+    private final JLabel titleLabel = new JLabel();
 
-    private JPanel centerPanel = new JPanel(new BorderLayout());
-
-    private JPanel protocolContactsPanel = new JPanel();
+    private final JPanel protocolContactsPanel = new JPanel();
 
     private int textWidth;
 
@@ -46,6 +41,9 @@ public class MetaContactTooltip
         this.setUI(new ImageToolTipUI());
 
         this.setLayout(new BorderLayout());
+
+        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        JPanel centerPanel = new JPanel(new BorderLayout());
 
         mainPanel.setOpaque(false);
         centerPanel.setOpaque(false);
@@ -137,15 +135,16 @@ public class MetaContactTooltip
          */
         public Dimension getPreferredSize(JComponent c)
         {
+            Icon icon = imageLabel.getIcon();
             int width = 0;
-            if (imageLabel.getIcon() != null)
-                width += imageLabel.getIcon().getIconWidth();
+            if (icon != null)
+                width += icon.getIconWidth();
 
             width += textWidth;
 
             int imageHeight = 0;
-            if (imageLabel.getIcon() != null)
-                imageHeight = imageLabel.getIcon().getIconHeight();
+            if (icon != null)
+                imageHeight = icon.getIconHeight();
 
             int height = imageHeight > textHeight ?
                 imageHeight : textHeight;
