@@ -94,6 +94,7 @@ public class EncodingConfiguration
             FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
                 : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
             "net.java.sip.communicator.impl.media.codec.video.h264.NativeEncoder",
+            "net.java.sip.communicator.impl.media.codec.video.h264.Packetizer",
             "net.java.sip.communicator.impl.media.codec.video.h264.NativeDecoder",
             "net.java.sip.communicator.impl.media.codec.video.ImageScaler",
             "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
