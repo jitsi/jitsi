@@ -13,14 +13,12 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Manages chat windows and panels.
@@ -29,11 +27,10 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatWindowManager
 {
-    private Logger logger = Logger.getLogger(ChatWindowManager.class);
+    private final java.util.List<ChatPanel> chatPanels =
+        new ArrayList<ChatPanel>();
 
-    private ArrayList chatPanels = new ArrayList();
-
-    private Object syncChat = new Object();
+    private final Object syncChat = new Object();
 
     /**
      * Opens a the specified chatPanel and brings it to the front if so
@@ -153,11 +150,8 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
-            while(chatPanelsIter.hasNext())
+            for (ChatPanel chatPanel : chatPanels)
             {
-                ChatPanel chatPanel = chatPanelsIter.next();
-
                 ChatSession chatSession = chatPanel.getChatSession();
 
                 Object descriptor = chatSession.getDescriptor();
@@ -206,7 +200,7 @@ public class ChatWindowManager
                     }
                 }
                 else if (System.currentTimeMillis() - chatWindow
-                    .getLastIncomingMsgTimestamp(chatPanel).getTime() < 2 * 1000)
+                    .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
                 {
                     SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                         .getI18NString("closeChatAfterNewMsg").getText());
@@ -249,7 +243,7 @@ public class ChatWindowManager
                 }
             }
             else if (System.currentTimeMillis() - chatWindow
-                .getLastIncomingMsgTimestamp(chatPanel).getTime() < 2 * 1000)
+                .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
             {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                     .getI18NString("closeChatAfterNewMsg").getText());
@@ -352,7 +346,7 @@ public class ChatWindowManager
     {
         ChatPanel selectedChat = null;
 
-        Iterator chatPanelsIter = chatPanels.iterator();
+        Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
 
         synchronized (syncChat)
         {
@@ -360,8 +354,7 @@ public class ChatWindowManager
             {
                 if (chatPanelsIter.hasNext())
                 {
-                    ChatPanel firstChatPanel
-                        = (ChatPanel) chatPanelsIter.next();
+                    ChatPanel firstChatPanel = chatPanelsIter.next();
 
                     selectedChat
                         = firstChatPanel.getChatWindow().getCurrentChatPanel();
@@ -371,7 +364,7 @@ public class ChatWindowManager
             {
                 while (chatPanelsIter.hasNext())
                 {
-                    ChatPanel chatPanel = (ChatPanel) chatPanelsIter.next();
+                    ChatPanel chatPanel = chatPanelsIter.next();
 
                     if (chatPanel.getChatWindow().isFocusOwner())
                         selectedChat = chatPanel;
@@ -512,11 +505,11 @@ public class ChatWindowManager
                 && (!defaultIM.isOfflineMessagingSupported()
                         || !defaultProvider.isRegistered()))
         {
-            Iterator protoContacts = metaContact.getContacts();
+            Iterator<Contact> protoContacts = metaContact.getContacts();
 
             while(protoContacts.hasNext())
             {
-                Contact contact = (Contact) protoContacts.next();
+                Contact contact = protoContacts.next();
 
                 protoContactProvider = contact.getProtocolProvider();
 
@@ -695,12 +688,8 @@ public class ChatWindowManager
      */
     private ChatSession findChatSessionForDescriptor(Object descriptor)
     {
-        Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
-
-        while (chatPanelsIter.hasNext())
+        for (ChatPanel chatPanel : chatPanels)
         {
-            ChatPanel chatPanel = chatPanelsIter.next();
-
             ChatSession chatSession = chatPanel.getChatSession();
 
             if (chatSession.getDescriptor().equals(descriptor))
@@ -736,12 +725,8 @@ public class ChatWindowManager
      */
     private ChatPanel getChat(ChatSession chatSession)
     {
-        Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
-
-        while (chatPanelsIter.hasNext())
+        for (ChatPanel chatPanel : chatPanels)
         {
-            ChatPanel chatPanel = chatPanelsIter.next();
-
             if (chatSession.equals(chatPanel.getChatSession()))
                 return chatPanel; 
         }
@@ -754,14 +739,8 @@ public class ChatWindowManager
      */
     private void disposeChatWindow(ChatWindow chatWindow)
     {
-        Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
-
-        while (chatPanelsIter.hasNext())
-        {
-            ChatPanel chatPanel = chatPanelsIter.next();
-
+        for (ChatPanel chatPanel : chatPanels)
             chatPanel.dispose();
-        }
 
         synchronized (chatPanels)
         {

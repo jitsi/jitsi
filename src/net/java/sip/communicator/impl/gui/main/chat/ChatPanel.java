@@ -50,12 +50,11 @@ public class ChatPanel
                 Chat,
                 ChatConversationContainer
 {
-    private static final Logger logger = Logger
-        .getLogger(ChatPanel.class.getName());
+    private static final Logger logger = Logger.getLogger(ChatPanel.class);
 
-    private JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    private final JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    private JCheckBox sendSmsCheckBox = new JCheckBox(
+    private final JCheckBox sendSmsCheckBox = new JCheckBox(
         Messages.getI18NString("sendAsSms").getText());
 
     private JSplitPane topSplitPane;
@@ -64,15 +63,15 @@ public class ChatPanel
 
     private JLabel sendViaLabel;
 
-    private ChatConversationPanel conversationPanel;
+    private final ChatConversationPanel conversationPanel;
 
-    private ChatWritePanel writeMessagePanel;
+    private final ChatWritePanel writeMessagePanel;
 
     private ChatRoomMemberListPanel chatContactListPanel;
 
-    private ChatSendPanel sendPanel;
+    private final ChatSendPanel sendPanel;
 
-    private ChatWindow chatWindow;
+    private final ChatWindow chatWindow;
 
     private ChatRoomSubjectPanel subjectPanel;
 
@@ -96,7 +95,8 @@ public class ChatPanel
 
     private Date lastHistoryMsgTimestamp;
 
-    private Vector focusListeners = new Vector();
+    private final java.util.List<ChatFocusListener> focusListeners =
+        new Vector<ChatFocusListener>();
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -146,11 +146,11 @@ public class ChatPanel
                 this.repaint();
             }
 
-            if (chatContactListPanel != null)
-                topSplitPane.remove(chatContactListPanel);
-
             if (topSplitPane != null)
             {
+                if (chatContactListPanel != null)
+                    topSplitPane.remove(chatContactListPanel);
+
                 this.messagePane.remove(topSplitPane);
             }
 
@@ -962,7 +962,7 @@ public class ChatPanel
 
     private class SmsMessageListener implements MessageListener
     {
-        private ChatTransport chatTransport;
+        private final ChatTransport chatTransport;
 
         public SmsMessageListener(ChatTransport chatTransport)
         {
@@ -1178,11 +1178,12 @@ public class ChatPanel
             chatContactListPanel.renameContact(chatContact);
         }
 
-        getChatWindow().setTabTitle(this, name);
+        ChatWindow chatWindow = getChatWindow();
+        chatWindow.setTabTitle(this, name);
 
-        if( getChatWindow().getCurrentChatPanel() == this)
+        if (chatWindow.getCurrentChatPanel() == this)
         {
-            getChatWindow().setTitle(name);
+            chatWindow.setTitle(name);
         }
     }
 
@@ -1378,7 +1379,8 @@ public class ChatPanel
     {
         synchronized (focusListeners)
         {
-            focusListeners.add(listener);
+            if (!focusListeners.contains(listener))
+                focusListeners.add(listener);
         }
     }
 
@@ -1486,17 +1488,14 @@ public class ChatPanel
 
         logger.trace("Will dispatch the following chat event: " + evt);
 
-        Iterator listeners = null;
+        Iterable<ChatFocusListener> listeners;
         synchronized (focusListeners)
         {
-            listeners = new ArrayList(focusListeners).iterator();
+            listeners = new ArrayList<ChatFocusListener>(focusListeners);
         }
 
-        while (listeners.hasNext())
+        for (ChatFocusListener listener : listeners)
         {
-            ChatFocusListener listener
-                = (ChatFocusListener) listeners.next();
-
             switch (evt.getEventID())
             {
             case ChatFocusEvent.FOCUS_GAINED:

@@ -25,7 +25,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -48,26 +47,27 @@ public class ChatWindow
     implements  ExportedWindow,
                 PluginComponentListener
 {
-    private Logger logger = Logger.getLogger(ChatWindow.class.getName());
+    private final Logger logger = Logger.getLogger(ChatWindow.class);
 
     private SIPCommTabbedPane chatTabbedPane = null;
 
     private int chatCount = 0;
 
-    private Vector chatChangeListeners = new Vector();
+    private final java.util.List<ChatChangeListener> chatChangeListeners =
+        new Vector<ChatChangeListener>();
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private final JPanel mainPanel = new JPanel(new BorderLayout());
 
-    private JPanel northPanel = new JPanel(new BorderLayout());
+    private final JPanel northPanel = new JPanel(new BorderLayout());
 
-    private JPanel statusBarPanel = new JPanel(new BorderLayout());
+    private final JPanel statusBarPanel = new JPanel(new BorderLayout());
 
-    private JPanel pluginPanelNorth = new JPanel();
-    private JPanel pluginPanelSouth = new JPanel();
-    private JPanel pluginPanelWest = new JPanel();
-    private JPanel pluginPanelEast = new JPanel();
+    private final JPanel pluginPanelNorth = new JPanel();
+    private final JPanel pluginPanelSouth = new JPanel();
+    private final JPanel pluginPanelWest = new JPanel();
+    private final JPanel pluginPanelEast = new JPanel();
 
-    private ContactPhotoPanel contactPhotoPanel = new ContactPhotoPanel();
+    private final ContactPhotoPanel contactPhotoPanel = new ContactPhotoPanel();
 
     private MessageWindowMenuBar menuBar;
 
@@ -232,8 +232,9 @@ public class ChatWindow
     private void addChatTab(ChatPanel chatPanel)
     {
         String chatName = chatPanel.getChatSession().getChatName();
+        ChatPanel currentChatPanel = getCurrentChatPanel();
 
-        if (getCurrentChatPanel() == null)
+        if (currentChatPanel == null)
         {
             this.mainPanel.add(chatPanel, BorderLayout.CENTER);
         }
@@ -241,18 +242,15 @@ public class ChatWindow
         {
             if (getChatTabCount() == 0)
             {
-                ChatPanel firstChatPanel = getCurrentChatPanel();
+                ChatPanel firstChatPanel = currentChatPanel;
+                ChatSession chatSession = firstChatPanel.getChatSession();
 
                 // Add first two tabs to the tabbed pane.
-                chatTabbedPane.addTab(
-                    firstChatPanel.getChatSession().getChatName(),
-                    firstChatPanel.getChatSession().getChatStatusIcon(),
-                    firstChatPanel);
+                chatTabbedPane.addTab(chatSession.getChatName(), chatSession
+                    .getChatStatusIcon(), firstChatPanel);
 
-                chatTabbedPane.addTab(
-                    chatName,
-                    firstChatPanel.getChatSession().getChatStatusIcon(),
-                    chatPanel);
+                chatTabbedPane.addTab(chatName,
+                    chatSession.getChatStatusIcon(), chatPanel);
 
                 // When added to the tabbed pane, the first chat panel should
                 // rest the selected component.
@@ -603,7 +601,7 @@ public class ChatWindow
      *
      * @return The time of the last received message.
      */
-    public Date getLastIncomingMsgTimestamp(ChatPanel chatPanel)
+    public long getLastIncomingMsgTimestamp(ChatPanel chatPanel)
     {
         return chatPanel.getChatConversationPanel()
             .getLastIncomingMsgTimestamp();
@@ -636,19 +634,18 @@ public class ChatWindow
 
         if(isEscaped)
         {
-            ChatRightButtonMenu chatRightMenu = getCurrentChatPanel()
-                .getChatConversationPanel().getRightButtonMenu();
+            ChatRightButtonMenu chatRightMenu =
+                chatPanel.getChatConversationPanel().getRightButtonMenu();
+            ChatWritePanel chatWritePanel = chatPanel.getChatWritePanel();
+            WritePanelRightButtonMenu writePanelRightMenu =
+                chatWritePanel.getRightButtonMenu();
 
-            WritePanelRightButtonMenu writePanelRightMenu = getCurrentChatPanel()
-                .getChatWritePanel().getRightButtonMenu();
+            SIPCommMenu selectedMenu = menuBar.getSelectedMenu();
+            // SIPCommMenu contactMenu = getCurrentChatPanel()
+            // .getProtoContactSelectorBox().getMenu();
 
-            SIPCommMenu selectedMenu
-                = menuBar.getSelectedMenu();
-            //SIPCommMenu contactMenu = getCurrentChatPanel()
-            //    .getProtoContactSelectorBox().getMenu();
-
-            MenuSelectionManager menuSelectionManager
-                = MenuSelectionManager.defaultManager();
+            MenuSelectionManager menuSelectionManager =
+                MenuSelectionManager.defaultManager();
 
             if (chatRightMenu.isVisible())
             {
@@ -659,15 +656,14 @@ public class ChatWindow
                 writePanelRightMenu.setVisible(false);
             }
             else if (selectedMenu != null
-                || getCurrentChatPanel().getChatWritePanel()
-                    .getEditTextToolBar().hasSelectedMenus())
-            {   
+                || chatWritePanel.getEditTextToolBar().hasSelectedMenus())
+            {
                 menuSelectionManager.clearSelectedPath();
             }
             else
             {
-                GuiActivator.getUIService().getChatWindowManager()
-                    .closeChat(chatPanel);
+                GuiActivator.getUIService().getChatWindowManager().closeChat(
+                    chatPanel);
             }
         }
         else 
@@ -833,7 +829,8 @@ public class ChatWindow
     {
         synchronized (chatChangeListeners)
         {
-            chatChangeListeners.add(listener);
+            if (!chatChangeListeners.contains(listener))
+                chatChangeListeners.add(listener);
         }
     }
     
@@ -850,7 +847,7 @@ public class ChatWindow
      * contain the application logo.
      */
     private class LogoBar
-    extends JPanel
+        extends JPanel
     {
         private TexturePaint texture;
         
@@ -1007,9 +1004,9 @@ public class ChatWindow
      */
     private class ContactPhotoPanel extends JLayeredPane
     {
-        private FramedImage photoLabel
-            = new FramedImage(ChatContact.AVATAR_ICON_WIDTH,
-                              ChatContact.AVATAR_ICON_HEIGHT);
+        private final FramedImage photoLabel =
+            new FramedImage(ChatContact.AVATAR_ICON_WIDTH,
+                ChatContact.AVATAR_ICON_HEIGHT);
 
         private JLabel addContactButton = new JLabel(
             new ImageIcon(ImageLoader.getImage(

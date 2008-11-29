@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The <tt>ChatSendPanel</tt> is the panel in the bottom of the chat. It
  * contains the send button, the status panel, where typing notifications are
- * shown and the selector box, where the protocol specific contact is choosen.
+ * shown and the selector box, where the protocol specific contact is chosen.
  *
  * @author Yana Stamcheva
  */
@@ -27,19 +27,17 @@ public class ChatSendPanel
     extends TransparentPanel
     implements ActionListener
 {
-    private I18NString sendString = Messages.getI18NString("send");
+    private final JButton sendButton;
 
-    private JButton sendButton = new JButton(sendString.getText());
-
-    private TransparentPanel statusPanel
+    private final TransparentPanel statusPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
 
-    private TransparentPanel sendPanel
+    private final TransparentPanel sendPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private JLabel statusLabel = new JLabel();
+    private final JLabel statusLabel = new JLabel();
 
-    private ChatPanel chatPanel;
+    private final ChatPanel chatPanel;
 
     /**
      * Creates an instance of <tt>ChatSendPanel</tt>.
@@ -49,6 +47,9 @@ public class ChatSendPanel
     public ChatSendPanel(ChatPanel chatPanel)
     {
         super(new BorderLayout(5, 0));
+
+        I18NString sendString = Messages.getI18NString("send");
+        sendButton = new JButton(sendString.getText());
 
         this.chatPanel = chatPanel;
 
@@ -92,18 +93,19 @@ public class ChatSendPanel
     {
         int stringWidth = GuiUtils.getStringWidth(statusLabel, statusMessage);
 
-        int dot3 = GuiUtils.getStringWidth(statusLabel, "... ");
+        final int dot3 = GuiUtils.getStringWidth(statusLabel, "... ");
 
         // first, we avoid to loop if it is useless.
-        if (dot3 >= statusPanel.getWidth())
+        final int statusPanelWidth = statusPanel.getWidth();
+        if (dot3 >= statusPanelWidth)
         {
             if (stringWidth > dot3)
                 statusMessage = "...";
         }
         else
         {
-            while ((stringWidth > (statusPanel.getWidth() - dot3))
-                    && (statusMessage != "..."))
+            while ((stringWidth > (statusPanelWidth - dot3))
+                    && !statusMessage.equals("..."))
             {
                 if (statusMessage.endsWith("..."))
                 {
@@ -180,5 +182,4 @@ public class ChatSendPanel
     {
         return sendButton;
     }
-
 }

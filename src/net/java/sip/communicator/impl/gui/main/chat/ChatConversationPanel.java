@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
@@ -42,32 +41,26 @@ public class ChatConversationPanel
                 MouseListener,
                 ClipboardOwner
 {
-    private static final Logger LOGGER = Logger
-            .getLogger(ChatConversationPanel.class.getName());
+    private static final Logger logger =
+        Logger.getLogger(ChatConversationPanel.class);
 
-    private JEditorPane chatEditorPane = new JEditorPane();
+    private final JEditorPane chatEditorPane = new JEditorPane();
 
-    private HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
+    private final HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
 
     private HTMLDocument document;
 
-    private ChatConversationContainer chatContainer;
+    private final ChatConversationContainer chatContainer;
 
-    private ChatRightButtonMenu rightButtonMenu;
+    private final ChatRightButtonMenu rightButtonMenu;
 
     private String currentHref;
 
-    private I18NString copyLinkString = Messages.getI18NString("copyLink");
+    private final JMenuItem copyLinkItem;
 
-    private I18NString openLinkString = Messages.getI18NString("openInBrowser");
+    private final JMenuItem openLinkItem;
 
-    private JMenuItem copyLinkItem = new JMenuItem(copyLinkString.getText(),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
-
-    private JMenuItem openLinkItem = new JMenuItem(openLinkString.getText(),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.BROWSER_ICON)));
-
-    private JSeparator copyLinkSeparator = new JSeparator();
+    private final JSeparator copyLinkSeparator = new JSeparator();
 
     /*
      * Tooltip on hyperlinks - JDK 1.5+
@@ -79,9 +72,9 @@ public class ChatConversationPanel
      * private final int hrefPopupMaxWidth = 300; private final int
      * hrefPopupInitialHeight = 20;
      */
-	private Date lastIncomingMsgTimestamp = new Date(0);
+	private long lastIncomingMsgTimestamp;
 
-    private boolean isHistory = false;
+    private final boolean isHistory;
 
     public static final String HTML_CONTENT_TYPE = "text/html";
 
@@ -94,12 +87,9 @@ public class ChatConversationPanel
      */
     public ChatConversationPanel(ChatConversationContainer chatContainer)
     {
-        super();
-
         this.chatContainer = chatContainer;
 
-        if (chatContainer instanceof HistoryWindow)
-            isHistory = true;
+        isHistory = (chatContainer instanceof HistoryWindow);
 
         this.rightButtonMenu = new ChatRightButtonMenu(this);
 
@@ -128,6 +118,10 @@ public class ChatConversationPanel
 
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 
+        I18NString copyLinkString = Messages.getI18NString("copyLink");
+        copyLinkItem =
+            new JMenuItem(copyLinkString.getText(), new ImageIcon(ImageLoader
+                .getImage(ImageLoader.COPY_ICON)));
         copyLinkItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -140,7 +134,11 @@ public class ChatConversationPanel
                     ChatConversationPanel.this);
             }
         });
-        
+
+        I18NString openLinkString = Messages.getI18NString("openInBrowser");
+        openLinkItem =
+            new JMenuItem(openLinkString.getText(), new ImageIcon(ImageLoader
+                .getImage(ImageLoader.BROWSER_ICON)));
         openLinkItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -178,11 +176,11 @@ public class ChatConversationPanel
         }
         catch (BadLocationException e)
         {
-            LOGGER.error("Insert in the HTMLDocument failed.", e);
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
         catch (IOException e)
         {
-            LOGGER.error("Insert in the HTMLDocument failed.", e);
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
     }
 
@@ -238,8 +236,7 @@ public class ChatConversationPanel
 
         if (messageType.equals(Constants.INCOMING_MESSAGE))
         {   
-            this.lastIncomingMsgTimestamp
-                = new Date(System.currentTimeMillis());
+            this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
             chatString      = "<h2 identifier=\""
                             + msgHeaderID
@@ -401,11 +398,11 @@ public class ChatConversationPanel
         }
         catch (BadLocationException e)
         {
-            LOGGER.error("Insert in the HTMLDocument failed.", e);
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
         catch (IOException e)
         {
-            LOGGER.error("Insert in the HTMLDocument failed.", e);
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
 
         if (!isHistory)
@@ -431,11 +428,11 @@ public class ChatConversationPanel
         }
         catch (BadLocationException e)
         {
-            LOGGER.error("Insert in the HTMLDocument failed.", e);
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
         catch (IOException e)
         {
-            LOGGER.error("Insert in the HTMLDocument failed.", e);
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
 
         if (!isHistory)
@@ -514,7 +511,7 @@ public class ChatConversationPanel
             }
             catch (BadLocationException e)
             {
-                LOGGER.error("Error removing messages from chat: ", e);
+                logger.error("Error removing messages from chat: ", e);
             }
         }
     }
@@ -796,7 +793,7 @@ public class ChatConversationPanel
      * 
      * @return The time of the last received message.
      */
-    public Date getLastIncomingMsgTimestamp()
+    public long getLastIncomingMsgTimestamp()
     {
         return lastIncomingMsgTimestamp;
     }
