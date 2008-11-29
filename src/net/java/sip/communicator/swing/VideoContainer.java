@@ -62,7 +62,7 @@ public class VideoContainer
             if ((container.getComponentCount() <= 0)
                 || (((VideoLayout) container.getLayout()).getRemote() == null))
             {
-                container.add(noVideoComponent, VideoLayout.REMOTE);
+                container.add(noVideoComponent, VideoLayout.CENTER_REMOTE);
                 container.validate();
             }
         }
@@ -77,12 +77,13 @@ public class VideoContainer
         this.noVideoComponent = noVideoComponent;
 
         addContainerListener(containerListener);
-        add(noVideoComponent, VideoLayout.REMOTE);
+        add(this.noVideoComponent, VideoLayout.CENTER_REMOTE);
+        validate();
     }
 
     public Component add(Component comp)
     {
-        add(comp, VideoLayout.REMOTE);
+        add(comp, VideoLayout.CENTER_REMOTE);
         return comp;
     }
 

@@ -88,11 +88,16 @@ public class FitLayout
      */
     public void layoutContainer(Container parent)
     {
+        layoutContainer(parent, Component.CENTER_ALIGNMENT);
+    }
+
+    protected void layoutContainer(Container parent, float componentAlignmentX)
+    {
         Component component = getComponent(parent);
 
         if (component != null)
             layoutComponent(component, new Rectangle(parent.getSize()),
-                Component.CENTER_ALIGNMENT, Component.CENTER_ALIGNMENT);
+                componentAlignmentX, Component.CENTER_ALIGNMENT);
     }
 
     /*

@@ -45,28 +45,18 @@ public class CallPanel
         this.mainPanel.setBorder(BorderFactory
             .createEmptyBorder(5, 5, 5, 5));
 
-        this.mainPanel.setLayout(new BorderLayout());
-
         this.setViewportView(mainPanel);
 
         int contactsCount = call.getCallParticipantsCount();
 
+        mainPanel.setLayout(new GridLayout(0, (contactsCount < 2) ? 1 : 2));
+
         if (contactsCount > 0)
         {
             CallParticipant participant =
-                (CallParticipant) call.getCallParticipants().next();
+                call.getCallParticipants().next();
 
             this.title = participant.getDisplayName();
-
-            if (contactsCount < 2)
-            {
-                this.mainPanel.setLayout(new BorderLayout());
-            }
-            else
-            {
-                int rows = contactsCount / 2 + contactsCount % 2;
-                this.mainPanel.setLayout(new GridLayout(rows, 2));
-            }
         }
 
         this.setCall(call, callType);

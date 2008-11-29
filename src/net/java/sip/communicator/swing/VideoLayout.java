@@ -13,22 +13,34 @@ import java.awt.*;
  */
 public class VideoLayout extends FitLayout
 {
+    public static final String CENTER_REMOTE = "CENTER_REMOTE";
+
+    public static final String EAST_REMOTE = "EAST_REMOTE";
+
     public static final String LOCAL = "LOCAL";
 
-    private static final float LOCAL_TO_REMOTE_RATIO = 0.25f;
-
-    public static final String REMOTE = "REMOTE";
+    private static final float LOCAL_TO_REMOTE_RATIO = 0.30f;
 
     private Component local;
 
     private Component remote;
 
+    private float remoteAlignmentX = Component.CENTER_ALIGNMENT;
+
     public void addLayoutComponent(String name, Component comp)
     {
         super.addLayoutComponent(name, comp);
 
-        if ((name == null) || name.equals(REMOTE))
+        if ((name == null) || name.equals(CENTER_REMOTE))
+        {
             remote = comp;
+            remoteAlignmentX = Component.CENTER_ALIGNMENT;
+        }
+        else if (name.equals(EAST_REMOTE))
+        {
+            remote = comp;
+            remoteAlignmentX = Component.RIGHT_ALIGNMENT;
+        }
         else if (name.equals(LOCAL))
             local = comp;
     }
@@ -50,9 +62,11 @@ public class VideoLayout extends FitLayout
 
     public void layoutContainer(Container parent)
     {
-        super.layoutContainer(parent);
-
         Component local = getLocal();
+
+        super.layoutContainer(parent,
+            (local == null) ? Component.CENTER_ALIGNMENT : remoteAlignmentX);
+
         if (local != null)
         {
             Dimension parentSize = parent.getSize();

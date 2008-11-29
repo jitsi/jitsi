@@ -85,38 +85,45 @@ public class CallParticipantPanel
         Component statusBar = createStatusBar();
 
         /* Lay out the main Components of the UI. */
-        GridBagLayout layout = new GridBagLayout();
-        setLayout(layout);
+        setLayout(new GridBagLayout());
 
+        GridBagConstraints constraints = new GridBagConstraints();
         if (center != null)
         {
-            GridBagConstraints constraints = new GridBagConstraints();
+
+            /*
+             * Don't let the center dictate the preferred size because it may
+             * display large videos. Otherwise, the large video will make this
+             * panel expand and then the panel's container will show scroll
+             * bars.
+             */
+            center.setPreferredSize(new Dimension(1, 1));
+
             constraints.fill = GridBagConstraints.BOTH;
             constraints.gridx = 0;
             constraints.weightx = 1;
             constraints.weighty = 1;
 
-            layout.setConstraints(center, constraints);
-            add(center);
+            add(center, constraints);
         }
         if (buttonBar != null)
         {
-            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.fill = GridBagConstraints.NONE;
             constraints.gridx = 0;
+            constraints.weightx = 0;
+            constraints.weighty = 0;
 
-            layout.setConstraints(buttonBar, constraints);
-            add(buttonBar);
+            add(buttonBar, constraints);
         }
         if (statusBar != null)
         {
-            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.fill = GridBagConstraints.NONE;
             constraints.gridx = 0;
+            constraints.weightx = 0;
+            constraints.weighty = 0;
 
-            layout.setConstraints(statusBar, constraints);
-            add(statusBar);
+            add(statusBar, constraints);
         }
-
-        setPreferredSize(new Dimension(130, 150));
 
         this.timer = new Timer(1000, new CallTimerListener());
         this.timer.setRepeats(true);
@@ -340,7 +347,6 @@ public class CallParticipantPanel
                 secureLabel.setBorder(BorderFactory
                     .createLineBorder(Color.BLUE));
                 secureLabel.setName("secureLabel");
-                secureLabel.setPreferredSize(new Dimension(110, 50));
                 secureLabel.setToolTipText(Messages.getI18NString(
                     "defaultSASMessage").getText());
 
@@ -573,9 +579,18 @@ public class CallParticipantPanel
                     ((videos == null) || (videos.length < 1)) ? null
                         : videos[0];
                 if (video != null)
-                    videoContainer.add(video, VideoLayout.REMOTE, zOrder++);
+                    videoContainer
+                        .add(video, VideoLayout.EAST_REMOTE, zOrder++);
 
                 videoContainer.validate();
+
+                /*
+                 * Without explicit repainting, the remote visual Component will
+                 * not stay small after entering fullscreen, the Component shown
+                 * when there's no video will show be shown beneath the video
+                 * Component though the former has already been removed...
+                 */
+                videoContainer.repaint();
             }
         }
     }
