@@ -79,7 +79,7 @@ public class CallSessionImpl
                    , SendStreamListener
                    , SessionListener
                    , ControllerListener
-                   , SecureEventListener
+//                   , SecureEventListener
 
 {
     private static final Logger logger
@@ -163,7 +163,7 @@ public class CallSessionImpl
     * Toggles default (from the call start) activation
     * of secure communication
     */
-    private boolean usingSRTP = false;
+    private boolean usingSRTP = true;
 
     /**
      * Vector used to hold references of the various key management solutions
@@ -2077,9 +2077,9 @@ public class CallSessionImpl
 
                 ZRTPTransformEngine engine
                     = (ZRTPTransformEngine)transConnector.getEngine();
+                engine.setUserCallback(new SCCallback(this));
+
                 // Case 1: user toggled secure communication prior to the call
-                // Note that this is not possible now as the "secure" button is
-                // in the call panel that appears once the call has started
                 if (usingSRTP)
                 {
                     if (!engine.initialize("GNUZRTP4J.zid"))
@@ -2751,35 +2751,52 @@ public class CallSessionImpl
         if (source != OperationSetSecureTelephony.
                     SecureStatusChangeSource.SECURE_STATUS_REVERTED)
         {
-            fireSecureStatusChanged(activator, source);
-        }
+            SecureEvent secureEvent = null;
+            if (activator)
+            {
+                 secureEvent = new SecureEvent(this, SecureEvent.SECURE_COMMUNICATION,
+                                           source);
+            }
+            else
+            {
+                 secureEvent =  new SecureEvent(this, SecureEvent.UNSECURE_COMMUNICATION,
+                                           source);
+            }
+            if (selectedKeyProviderAlgorithm.getProviderType() ==
+                KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
+            {
+                zrtpChangeStatus(this.audioRtpManager, secureEvent);
 
+                /* TODO: Video securing related code
+                 *
+                 * We disable for the moment the video securing due to (yet)
+                 * unsuported multistream mode in ZRTP4J; This can be re-enabled and
+                 * attempted as is implemented, using a separate instance of ZRTP
+                 * engine which will attempt securing through DH mode; This might
+                 * result in some unexpected behavior at the GUI level, but in
+                 * theory should work; However, due to incomplete standard
+                 * compliance and potential problems mentioned we leave it disabled;
+                 * To enable just check the other "Video securing related code"
+                 * sections in this source
+                 *
+                 * Uncomment the next line as part of enabling video securing
+                 */
+                //zrtpChangeStatus(this.videoRtpManager, secureEvent);
+            }
+        }
     }
 
-    /**
-     * Fire the event of change in security status
-     *
-     * @param activator type of change - enable/disable communication security
-     * @param source the source of changing the secure status (local or remote)
-     */
-    private synchronized void fireSecureStatusChanged(
-                boolean activator,
-                OperationSetSecureTelephony.SecureStatusChangeSource source)
-    {
-         if (activator)
-         {
-              this.secureStatusChanged(
-                        new SecureEvent(this,
-                                        SecureEvent.SECURE_COMMUNICATION,
-                                        source));
-         }
-         else
-         {
-              this.secureStatusChanged(
-                        new SecureEvent(this,
-                                        SecureEvent.UNSECURE_COMMUNICATION,
-                                        source));
-         }
+    public boolean setZrtpSASVerification(boolean verified) {
+        TransformConnector transConnector = this.transConnectors
+                .get(audioRtpManager);
+        ZRTPTransformEngine engine = (ZRTPTransformEngine) transConnector
+                .getEngine();
+        if (verified) {
+            engine.SASVerified();
+        } else {
+            engine.resetSASVerified();
+        }
+        return true;
     }
 
     /**
@@ -2823,62 +2840,7 @@ public class CallSessionImpl
                                 ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
                     }
                 }
-                else
-                {
-                    logger.trace("GoSecure call event processing");
-
-                    // This point isn't reached if GoClear is not enabled
-                    SCCallback cb = engine.getUserCallback();
-                    cb.setGCGSByPeerFlag(false);
-                    engine.requestGoSecure();
-                }
             }
-            else
-            {
-                // At this moment this attempts a GoClear request but
-                // fails due to GoClear code disabled (failing doesn't result
-                // in error, only in a warning tooltip set on the button, and
-                // a change of it's internal state to prevent further attempts)
-                // to re-enable GoClear uncomment the specific code parts in
-                // ZRTP4J
-                logger.trace("GoClear call event processing");
-
-                SCCallback cb = engine.getUserCallback();
-                cb.setGCGSByPeerFlag(false);
-                engine.requestGoClear();
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see net.java.sip.communicator.impl.media.SecureEventListener
-     * #secureStatusChanged(net.java.sip.communicator.impl.media.SecureEvent)
-     */
-    public void secureStatusChanged(SecureEvent secureEvent)
-    {
-        // If the current selected key management solution type is ZRTP
-        // act accordingly
-        if (selectedKeyProviderAlgorithm.getProviderType() ==
-            KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
-        {
-            zrtpChangeStatus(this.audioRtpManager, secureEvent);
-
-            /* TODO: Video securing related code
-             *
-             * We disable for the moment the video securing due to (yet)
-             * unsuported multistream mode in ZRTP4J; This can be re-enabled and
-             * attempted as is implemented, using a separate instance of ZRTP
-             * engine which will attempt securing through DH mode; This might
-             * result in some unexpected behavior at the GUI level, but in
-             * theory should work; However, due to incomplete standard
-             * compliance and potential problems mentioned we leave it disabled;
-             * To enable just check the other "Video securing related code"
-             * sections in this source
-             *
-             * Uncomment the next line as part of enabling video securing
-             */
-            //zrtpChangeStatus(this.videoRtpManager, secureEvent);
         }
     }
 

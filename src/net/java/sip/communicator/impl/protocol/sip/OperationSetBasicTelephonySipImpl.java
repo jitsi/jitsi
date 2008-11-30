@@ -19,6 +19,7 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationSetSecureTelephony.SecureStatusChangeSource;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -3065,21 +3066,36 @@ public class OperationSetBasicTelephonySipImpl
      * @see net.java.sip.communicator.service.protocol.OperationSetSecureTelephony#setSecure(net.java.sip.communicator.service.protocol.CallParticipant, boolean, net.java.sip.communicator.service.protocol.OperationSetSecureTelephony.SecureStatusChangeSource)
      */
     public void setSecure(CallParticipant participant, boolean secure,
-                           SecureStatusChangeSource source)
-    {
-        ((CallSipImpl) participant.getCall()).getMediaCallSession().
-                setSecureCommunicationStatus(secure, source);
+            SecureStatusChangeSource source) {
+        CallSession cs = ((CallSipImpl) participant.getCall())
+                .getMediaCallSession();
+        if (cs != null)
+            cs.setSecureCommunicationStatus(secure, source);
     }
 
     /*
      * (non-Javadoc)
      * @see net.java.sip.communicator.service.protocol.OperationSetSecureTelephony#isSecure(net.java.sip.communicator.service.protocol.CallParticipant)
      */
-    public boolean isSecure(CallParticipant participant)
-    {
-        return ((CallSipImpl) participant.getCall()).getMediaCallSession().
-                getSecureCommunicationStatus();
+    public boolean isSecure(CallParticipant participant) {
+        CallSession cs = ((CallSipImpl) participant.getCall())
+                .getMediaCallSession();
+        if (cs != null)
+            return cs.getSecureCommunicationStatus();
+        else
+            return false;
     }
+
+    public boolean setSasVerified(CallParticipant participant, boolean verified) {
+
+        CallSession cs = ((CallSipImpl) participant.getCall())
+                .getMediaCallSession();
+        if (cs != null)
+            return cs.setZrtpSASVerification(verified);
+        else
+            return false;
+    }
+
 
     /**
      * Transfers (in the sense of call transfer) a specific

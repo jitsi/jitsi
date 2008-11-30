@@ -29,7 +29,7 @@ public class SecureButton
     {
         super(new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
         this.callParticipant = callParticipant;
-        this.addActionListener(this);
+//        this.addActionListener(this);
     }
 
     public void actionPerformed(ActionEvent evt)

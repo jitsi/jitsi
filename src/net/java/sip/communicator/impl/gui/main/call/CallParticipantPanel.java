@@ -60,7 +60,10 @@ public class CallParticipantPanel
     private OperationSetVideoTelephony videoTelephony;
 
     private Component localVideo;
-
+    
+    private SecureButton secureButton;
+    private Container namePanel;
+    private ZrtpPanel zrtpPanel = null;
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      * 
@@ -258,14 +261,17 @@ public class CallParticipantPanel
         stateLabel.setText(callParticipant.getState().getStateString());
 
         // secureLabel
-        Component secureLabel = createSecureCallLabel();
+//        Component secureLabel = createSecureCallLabel();
+//        zrtpPanel = createZrtpPanel();
 
-        Container namePanel = new TransparentPanel(new GridLayout(0, 1));
+        namePanel = new TransparentPanel(new GridLayout(0, 1));
         namePanel.add(nameLabel);
         namePanel.add(stateLabel);
         namePanel.add(timeLabel);
-        if (secureLabel != null)
-            namePanel.add(secureLabel);
+//        if (secureLabel != null)
+//            namePanel.add(secureLabel);
+        if (zrtpPanel != null)
+            namePanel.add(zrtpPanel);
         return namePanel;
     }
 
@@ -315,46 +321,40 @@ public class CallParticipantPanel
 
             if (secure != null)
             {
-                SecureButton secureButton = new SecureButton(callParticipant);
+                secureButton = new SecureButton(callParticipant);
 
                 secureButton.setActionCommand("startSecureMode");
                 secureButton.setName("secureButton");
                 secureButton.setToolTipText(Messages.getI18NString(
                     "toggleOnSecurity").getText());
-
-                call
-                    .addSecureGUIComponent(secureButton.getName(), secureButton);
                 return secureButton;
             }
         }
         return null;
     }
 
-    private Component createSecureCallLabel()
-    {
+    public void changeSecureCallButton(boolean onOff) {
+        secureButton.updateSecureButton(onOff);
+    }
+
+    public void changeZrtpPanel(SecurityGUIEventZrtp securityEvent) {
         Call call = callParticipant.getCall();
 
-        if (call != null)
-        {
-            OperationSetSecureTelephony secure =
-                (OperationSetSecureTelephony) call.getProtocolProvider()
-                    .getOperationSet(OperationSetSecureTelephony.class);
-
-            if (secure != null)
-            {
-                JLabel secureLabel = new JLabel("Not in call", JLabel.CENTER);
-
-                secureLabel.setBorder(BorderFactory
-                    .createLineBorder(Color.BLUE));
-                secureLabel.setName("secureLabel");
-                secureLabel.setToolTipText(Messages.getI18NString(
-                    "defaultSASMessage").getText());
-
-                call.addSecureGUIComponent(secureLabel.getName(), secureLabel);
-                return secureLabel;
+        if (call != null) {
+            OperationSetSecureTelephony secure = (OperationSetSecureTelephony) call
+                    .getProtocolProvider().getOperationSet(
+                            OperationSetSecureTelephony.class);
+            if (secure != null) {
+                if (zrtpPanel == null) {
+                    zrtpPanel = new ZrtpPanel();
+                    zrtpPanel.setName("zrtpPanel");
+                    zrtpPanel.addComponentsToPane();
+                    namePanel.add(zrtpPanel);
+                }
+                zrtpPanel.refreshStates(securityEvent);
+                this.revalidate();
             }
         }
-        return null;
     }
 
     /**

@@ -40,6 +40,17 @@ public interface OperationSetSecureTelephony
     public boolean isSecure(CallParticipant participant);
 
     /**
+     * Sets the SAS verifications state of the call session in which a specific participant
+     * is involved
+     *
+     * @param participant the participant who toggled (or for whom is remotely
+     *        toggled) the SAS verfied flag
+     * @param verified the new SAS verification status
+     * @param source the source who generated the call change
+     */
+    public boolean setSasVerified(CallParticipant participant, boolean verified);
+
+    /**
      * Use this to indicate the source of setting the secure status
      * of the communication as being the local or remote peer or reverted by
      * local

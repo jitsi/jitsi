@@ -162,9 +162,6 @@ public class TransformManager
         //stream has it's own connector
         engine.setConnector(connector);     
         
-        //for adding multistream support also the SCCallback should be instantiates
-        //only once as a static variable of this class and passed to the engine
-        engine.setUserCallback(new SCCallback(callSession));
         engine.setCryptoProvider(cp);
         
         return connector;  

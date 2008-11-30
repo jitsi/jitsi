@@ -449,6 +449,17 @@ public class ImageLoader {
         new ImageID("service.gui.buttons.SECURE_BUTTON_OFF");
 
     /**
+     * The security button: encryted and SAS verified, encrypted only, security off.
+     */
+    public static final ImageID ENCR_VERIFIED = new ImageID(
+            "service.gui.buttons.ENCR_VERIFIED");
+
+    public static final ImageID ENCR = new ImageID("service.gui.buttons.ENCR");
+
+    public static final ImageID ENCR_DISABLED = new ImageID(
+            "service.gui.buttons.ENCR_DISABLED");
+
+    /**
      * The button icon of the Enter Full Screen command. The icon shown in the
      * CallParticipant panel.
      */

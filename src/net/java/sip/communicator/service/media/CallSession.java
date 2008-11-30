@@ -219,6 +219,13 @@ public interface CallSession
     public boolean getSecureCommunicationStatus();
 
     /**
+     * Sets the SAS verification
+     *
+     * @return True if SAS functions were called in ZrtpEngine  
+     */
+    public boolean setZrtpSASVerification(boolean verified);
+
+    /**
      * Gets the call associated with this session
      *
      * @return the call associated with this session

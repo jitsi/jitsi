@@ -14,6 +14,7 @@ import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.media.keyshare.KeyProviderAlgorithm;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.swing.*;
@@ -28,7 +29,7 @@ import net.java.sip.communicator.swing.*;
  */
 public class CallPanel
     extends SCScrollPane
-    implements CallChangeListener, CallParticipantListener
+    implements CallChangeListener, CallParticipantListener, SecurityGUIListener
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
 
@@ -247,6 +248,17 @@ public class CallPanel
     {
     }
 
+    public void securityStatusChanged(SecurityGUIEvent securityEvent) {
+        CallParticipant part = (CallParticipant)securityEvent.getSource();
+        CallParticipantPanel panel = getParticipantPanel(part);
+        
+        if (securityEvent.getEventID() == SecurityGUIEvent.SECURITY_ENABLED) {
+           panel.changeSecureCallButton(true);
+        }
+        if (securityEvent.getProvider() == SecurityGUIEvent.ZRTP) {
+            panel.changeZrtpPanel((SecurityGUIEventZrtp)securityEvent);
+        }
+    }
     /**
      * Returns the call for this call panel.
      * 
@@ -268,6 +280,7 @@ public class CallPanel
         this.call = call;
 
         this.call.addCallChangeListener(this);
+        this.call.addSecurityGUIListener("zrtp", this);
 
         // Remove all previously added participant panels, because they do not
         // correspond to real participants.

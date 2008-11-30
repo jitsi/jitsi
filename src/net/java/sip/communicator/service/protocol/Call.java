@@ -47,7 +47,7 @@ public abstract class Call
      * be needed inside specific layers of the call securing, depending on the
      * securing algorithm used
      */
-    private Hashtable secureGUIComponents;
+    private Hashtable<Object, SecurityGUIListener> securityGUIListeners;
 
     /**
      * Creates a new Call instance.
@@ -258,14 +258,14 @@ public abstract class Call
      *
      * @param key a key used by a securing algorithm implementation
      *               to identify the GUI item needed
-     * @param value the GUI object
+     * @param the GUI listener
      */
-    public void addSecureGUIComponent(Object key, Object value)
+    public void addSecurityGUIListener(Object key, SecurityGUIListener value)
     {
-        if (secureGUIComponents == null)
-            secureGUIComponents = new Hashtable();
+        if (securityGUIListeners == null)
+            securityGUIListeners = new Hashtable<Object, SecurityGUIListener>();
 
-        secureGUIComponents.put(key, value);
+        securityGUIListeners.put(key, value);
     }
 
     /**
@@ -276,13 +276,13 @@ public abstract class Call
      *
      * @param key a key used by a securing algorithm implementation
      *               to identify the GUI item needed
-     * @return the GUI object
+     * @return the GUI listener
      */
-    public Object getSecureGUIComponent(Object key)
+    public SecurityGUIListener getSecurityGUIListener(Object key)
     {
-        if (secureGUIComponents == null)
+        if (securityGUIListeners == null)
             return null;
         else
-            return secureGUIComponents.get(key);
+            return securityGUIListeners.get(key);
     }
 }
