@@ -27,22 +27,22 @@ import net.java.sip.communicator.util.xml.XMLUtils;
  * The class handles read / write operations over the file where a persistent
  * copy of the meta contact list is stored.
  * <p>
- * The load / resolve strategy that we use when storing contact lists is
- * roughly the following:
+ * The load / resolve strategy that we use when storing contact lists is roughly
+ * the following:
  * <p>
  * 1) The MetaContactListService is started. <br>
- * 2) If no file exists for the meta contact list, create one.
- * 3) We receive an OSGI event telling us that a new ProtocolProviderService
- *    is registered or we simply retrieve one that was already in the bundle
- * 4) We look through the contact list file and load groups and contacts
- *    belonging to this new provider. Unresolved proto groups and contacts
- *    will be created for every one of them.
+ * 2) If no file exists for the meta contact list, create one. 3) We receive an
+ * OSGI event telling us that a new ProtocolProviderService is registered or we
+ * simply retrieve one that was already in the bundle 4) We look through the
+ * contact list file and load groups and contacts belonging to this new
+ * provider. Unresolved proto groups and contacts will be created for every one
+ * of them.
  * <p>
- *
+ * 
  * @author Emil Ivov
  */
 public class MclStorageManager
-        implements MetaContactListListener
+    implements MetaContactListListener
 {
     private static final Logger logger =
         Logger.getLogger(MclStorageManager.class.getName());
@@ -63,11 +63,11 @@ public class MclStorageManager
     /**
      * A currently valid reference to the OSGI bundle context,
      */
-    private BundleContext     bundleContext = null;
+    private BundleContext bundleContext = null;
 
     /**
-     * The file access service that we'll be using in order to obtain a reference
-     * to the contact list file.
+     * The file access service that we'll be using in order to obtain a
+     * reference to the contact list file.
      */
     private FileAccessService faService = null;
 
@@ -99,7 +99,8 @@ public class MclStorageManager
     private FailSafeTransaction contactlistTrans = null;
 
     /**
-     * A reference to the MetaContactListServiceImpl that created and started us.
+     * A reference to the MetaContactListServiceImpl that created and started
+     * us.
      */
     private MetaContactListServiceImpl mclServiceImpl = null;
 
@@ -153,11 +154,11 @@ public class MclStorageManager
     private static final String UID_ATTR_NAME = "uid";
 
     /**
-     * The name of the XML attribute that contains unique identifiers for
-     * parent contact groups.
+     * The name of the XML attribute that contains unique identifiers for parent
+     * contact groups.
      */
-    private static final String PARENT_PROTO_GROUP_UID_ATTR_NAME
-        = "parent-proto-group-uid";
+    private static final String PARENT_PROTO_GROUP_UID_ATTR_NAME =
+        "parent-proto-group-uid";
 
     /**
      * The name of the XML attribute that contains account identifers indicating
@@ -173,14 +174,13 @@ public class MclStorageManager
     /**
      * The name of the XML node that contains meta contact display names.
      */
-    private static final String META_CONTACT_DISPLAY_NAME_NODE_NAME
-        = "display-name";
+    private static final String META_CONTACT_DISPLAY_NAME_NODE_NAME =
+        "display-name";
 
     /**
      * The name of the XML node that contains meta contact detail.
      */
-    private static final String META_CONTACT_DETAIL_NAME_NODE_NAME
-        = "detail";
+    private static final String META_CONTACT_DETAIL_NAME_NODE_NAME = "detail";
 
     /**
      * The name of the XML attribute that contains detail name.
@@ -204,14 +204,14 @@ public class MclStorageManager
 
     /**
      * The name of the XML node that contains information that contacts or
-     * groups returned as persistent and that should be used when restoring
-     * a contact or a group.
+     * groups returned as persistent and that should be used when restoring a
+     * contact or a group.
      */
     private static final String PERSISTENT_DATA_NODE_NAME = "persistent-data";
 
     /**
-     * The name of the XML node that contains all meta contact nodes inside
-     * a group
+     * The name of the XML node that contains all meta contact nodes inside a
+     * group
      */
     private static final String CHILD_CONTACTS_NODE_NAME = "child-contacts";
 
@@ -225,9 +225,9 @@ public class MclStorageManager
      * Determines whether the storage manager has been properly started or in
      * other words that it has successfully found and read the xml contact list
      * file.
-     *
-     * @return true if the storage manager has been successfully initialized
-     * and false otherwise.
+     * 
+     * @return true if the storage manager has been successfully initialized and
+     *         false otherwise.
      */
     boolean isStarted()
     {
@@ -237,99 +237,105 @@ public class MclStorageManager
     /**
      * Prepares the storage manager for shutdown.
      */
-    public void stop ()
+    public void stop()
     {
         logger.trace("Stopping the MCL XML storage manager.");
         this.started = false;
-        synchronized(contactListRWLock)
+        synchronized (contactListRWLock)
         {
-            MclStorageManager.contactListRWLock.notifyAll();
+            contactListRWLock.notifyAll();
         }
     }
-
 
     /**
      * Initializes the storage manager and makes it do initial load and parsing
      * of the contact list file.
-     *
+     * 
      * @param bc a reference to the currently valid OSGI <tt>BundleContext</tt>
      * @param mclServiceImpl a reference to the currently valid instance of the
-     * <tt>MetaContactListServiceImpl</tt> that we could use to pass parsed
-     * contacts and contact groups.
+     *            <tt>MetaContactListServiceImpl</tt> that we could use to pass
+     *            parsed contacts and contact groups.
      * @throws IOException if the contact list file specified file does not
-     * exist and could not be created.
+     *             exist and could not be created.
      * @throws XMLException if there is a problem with the file syntax.
      */
-    void start(BundleContext bc,
-               MetaContactListServiceImpl mclServiceImpl)
-        throws IOException, XMLException
+    void start(BundleContext bc, MetaContactListServiceImpl mclServiceImpl)
+        throws IOException,
+        XMLException
     {
         bundleContext = bc;
 
-        //retrieve a reference to the file access service.
-        ServiceReference faServiceReference = bundleContext.getServiceReference(
-            FileAccessService.class.getName());
+        // retrieve a reference to the file access service.
+        ServiceReference faServiceReference =
+            bundleContext
+                .getServiceReference(FileAccessService.class.getName());
 
-        faService = (FileAccessService) bundleContext
-            .getService(faServiceReference);
+        faService =
+            (FileAccessService) bundleContext.getService(faServiceReference);
 
-        //retrieve a reference to the file access service.
-        ServiceReference confServiceRefs = bundleContext.getServiceReference(
-            ConfigurationService.class.getName());
+        // retrieve a reference to the file access service.
+        ServiceReference confServiceRefs =
+            bundleContext.getServiceReference(ConfigurationService.class
+                .getName());
 
-        configurationService = (ConfigurationService) bundleContext
-            .getService(confServiceRefs);
+        configurationService =
+            (ConfigurationService) bundleContext.getService(confServiceRefs);
 
         String fileName = configurationService.getString(FILE_NAME_PROPERTY);
 
-        if( fileName == null )
+        if (fileName == null)
         {
             fileName = System.getProperty(FILE_NAME_PROPERTY);
-            if( fileName == null )
+            if (fileName == null)
                 fileName = DEFAULT_FILE_NAME;
         }
-        //get a reference to the contact list file.
-        try{
-            contactlistFile  = faService.getPrivatePersistentFile(fileName);
+        // get a reference to the contact list file.
+        try
+        {
+            contactlistFile = faService.getPrivatePersistentFile(fileName);
 
-            if(!contactlistFile.exists())
-                if(!contactlistFile.createNewFile())
+            if (!contactlistFile.exists())
+                if (!contactlistFile.createNewFile())
                     throw new IOException("Failed to create file"
-                                          + contactlistFile.getAbsolutePath());
+                        + contactlistFile.getAbsolutePath());
         }
         catch (Exception ex)
         {
-            logger.error("Failed to get a reference to the contact list file."
-                         , ex);
+            logger.error("Failed to get a reference to the contact list file.",
+                ex);
             throw new IOException("Failed to get a reference to the contact "
-                                  +"list file="+fileName
-                                  +". error was:" + ex.getMessage());
+                + "list file=" + fileName + ". error was:" + ex.getMessage());
         }
 
         // create the failsafe transaction and restore the file if needed
-        try {
-            contactlistTrans = faService.createFailSafeTransaction(
-                                            this.contactlistFile);
+        try
+        {
+            contactlistTrans =
+                faService.createFailSafeTransaction(this.contactlistFile);
             contactlistTrans.restoreFile();
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e)
+        {
             logger.error("the contactlist file is null", e);
-        } catch (IllegalStateException e) {
+        }
+        catch (IllegalStateException e)
+        {
             logger.error("The contactlist file can't be found", e);
         }
 
         try
         {
-            //load the contact list
+            // load the contact list
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            if(contactlistFile.length() == 0)
+            if (contactlistFile.length() == 0)
             {
-                //if the contact list does not exist - create it.
+                // if the contact list does not exist - create it.
                 contactListDocument = builder.newDocument();
                 initVirginDocument(mclServiceImpl, contactListDocument);
 
-                //write the contact list so that it is there for the parser
+                // write the contact list so that it is there for the parser
                 storeContactList0();
             }
             else
@@ -343,21 +349,21 @@ public class MclStorageManager
                     logger.error("Error parsing configuration file", ex);
                     logger.error("Creating replacement file");
 
-                    //re-create and re-init the new document
+                    // re-create and re-init the new document
                     contactlistFile.delete();
                     contactlistFile.createNewFile();
                     contactListDocument = builder.newDocument();
                     initVirginDocument(mclServiceImpl, contactListDocument);
 
-                    //write the contact list so that it is there for the parser
+                    // write the contact list so that it is there for the parser
                     storeContactList0();
                 }
             }
         }
         catch (ParserConfigurationException ex)
         {
-            //it is not highly probable that this might happen - so lets just
-            //log it.
+            // it is not highly probable that this might happen - so lets just
+            // log it.
             logger.error("Error finding configuration for default parsers", ex);
         }
 
@@ -369,53 +375,60 @@ public class MclStorageManager
 
     /**
      * Stores the contact list in its current state.
+     * 
      * @throws IOException if writing fails.
      */
     private void scheduleContactListStorage() throws IOException
     {
-        synchronized(MclStorageManager.contactListRWLock)
+        synchronized (contactListRWLock)
         {
             if (!isStarted())
                 return;
 
             this.isModified = true;
-            MclStorageManager.contactListRWLock.notifyAll();
+            contactListRWLock.notifyAll();
         }
     }
 
     /**
      * Writes the contact list on the hard disk.
+     * 
      * @throws IOException in case writing fails.
      */
     private void storeContactList0() throws IOException
     {
         logger.trace("storing contact list. because is started =="
-                     + isStarted());
+            + isStarted());
         logger.trace("storing contact list. because is modified =="
-                     + isModified);
-        if(isStarted())
+            + isModified);
+        if (isStarted())
         {
             // begin a new transaction
-            try {
+            try
+            {
                 contactlistTrans.beginTransaction();
-            } catch (IllegalStateException e) {
+            }
+            catch (IllegalStateException e)
+            {
                 logger.error("the contactlist file is missing", e);
             }
 
             // really write the modification
             OutputStream stream = new FileOutputStream(contactlistFile);
-            XMLUtils.indentedWriteXML(contactListDocument,
-                                      stream);
+            XMLUtils.indentedWriteXML(contactListDocument, stream);
             stream.close();
 
             // commit the changes
-            try {
+            try
+            {
                 contactlistTrans.commit();
-            } catch (IllegalStateException e) {
+            }
+            catch (IllegalStateException e)
+            {
                 logger.error("the contactlist file is missing", e);
             }
-            }
-            }
+        }
+    }
 
     /**
      * Launches a separate thread that waits on the contact list rw lock and
@@ -432,7 +445,7 @@ public class MclStorageManager
                 {
                     synchronized (contactListRWLock)
                     {
-                        while(isStarted())
+                        while (isStarted())
                         {
                             contactListRWLock.wait(5000);
                             if (isModified)
@@ -460,6 +473,7 @@ public class MclStorageManager
 
     /**
      * Returns the object that we use to lock when writing the contact list.
+     * 
      * @return the object that we use to lock when writing the contact list.
      */
     public Object getContactListRWLock()
@@ -472,66 +486,72 @@ public class MclStorageManager
      */
     public void storeContactListAndStopStorageManager()
     {
-
-        synchronized(getContactListRWLock())
+        Object contactListRWLock = getContactListRWLock();
+        synchronized (contactListRWLock)
         {
             if (!isStarted())
                 return;
 
             started = false;
 
-            //make sure everyone gets released after we finish.
-            getContactListRWLock().notifyAll();
+            // make sure everyone gets released after we finish.
+            contactListRWLock.notifyAll();
 
-            //write the contact list ourselves before we go out..
+            // write the contact list ourselves before we go out..
             try
             {
                 storeContactList0();
             }
             catch (IOException ex)
             {
-                logger.debug("Failed to store contact list before stopping", ex);
+                logger
+                    .debug("Failed to store contact list before stopping", ex);
             }
         }
     }
 
     /**
-     * update persistent data in the dom object model
-     * for the given metacontact and its contacts
-     *
+     * update persistent data in the dom object model for the given metacontact
+     * and its contacts
+     * 
      * @param metaContact MetaContact target meta contact
      */
     private void updatePersistentDataForMetaContact(MetaContact metaContact)
     {
-        Element metaContactNode =
-                    findMetaContactNode(metaContact.getMetaUID());
+        Element metaContactNode = findMetaContactNode(metaContact.getMetaUID());
 
         Iterator<Contact> iter = metaContact.getContacts();
         while (iter.hasNext())
         {
             Contact item = iter.next();
+            String persistentData = item.getPersistentData();
 
-            if(item.getPersistentData() != null)
+            /*
+             * TODO If persistentData is null and persistentDataNode exists and
+             * contains non-null text, will persistentDataNode be left without
+             * updating?
+             */
+            if (persistentData != null)
             {
-                Element currentNode = XMLUtils.locateElement(
-                    metaContactNode
-                    , PROTO_CONTACT_NODE_NAME
-                    , PROTO_CONTACT_ADDRESS_ATTR_NAME
-                    , item.getAddress());
+                Element currentNode =
+                    XMLUtils.locateElement(metaContactNode,
+                        PROTO_CONTACT_NODE_NAME,
+                        PROTO_CONTACT_ADDRESS_ATTR_NAME, item.getAddress());
 
-                Element persistentDataNode = XMLUtils.findChild(
-                    currentNode, PERSISTENT_DATA_NODE_NAME);
+                Element persistentDataNode =
+                    XMLUtils.findChild(currentNode, PERSISTENT_DATA_NODE_NAME);
 
                 // if node does not exist - create it
                 if (persistentDataNode == null)
                 {
-                    persistentDataNode = contactListDocument.createElement(
-                        PERSISTENT_DATA_NODE_NAME);
+                    persistentDataNode =
+                        contactListDocument
+                            .createElement(PERSISTENT_DATA_NODE_NAME);
 
                     currentNode.appendChild(persistentDataNode);
                 }
 
-                XMLUtils.setText(persistentDataNode, item.getPersistentData());
+                XMLUtils.setText(persistentDataNode, persistentData);
             }
         }
     }
@@ -539,59 +559,59 @@ public class MclStorageManager
     /**
      * Fills the document with the tags necessary for it to be filled properly
      * as the meta contact list evolves.
-     *
+     * 
      * @param mclServiceImpl the meta contact list service to use when
-     * initializing the document.
+     *            initializing the document.
      * @param contactListDocument the document to init.
      */
     private void initVirginDocument(MetaContactListServiceImpl mclServiceImpl,
-                                    Document contactListDocument)
+        Document contactListDocument)
     {
         Element root = contactListDocument.createElement(DOCUMENT_ROOT_NAME);
 
         contactListDocument.appendChild(root);
 
-        //create the rootGroup
-        Element rootGroup = createMetaContactGroupNode(mclServiceImpl.getRoot());
+        // create the rootGroup
+        Element rootGroup =
+            createMetaContactGroupNode(mclServiceImpl.getRoot());
 
         root.appendChild(rootGroup);
     }
 
     /**
-     * Parses the contact list
-     * file and calls corresponding "add" methods
+     * Parses the contact list file and calls corresponding "add" methods
      * belonging to <tt>mclServiceImpl</tt> for every meta contact and meta
-     * contact group stored in the (conteactlist.xml) file that correspond to a
+     * contact group stored in the (contactlist.xml) file that correspond to a
      * provider caring the specified <tt>accountID</tt>.
-     *
+     * 
      * @param accountID the identifier of the account whose contacts we're
-     * interested in.
+     *            interested in.
      * @throws XMLException if a problem occurs while parsing contact list
-     * contents.
+     *             contents.
      */
-    void extractContactsForAccount(String accountID)
-        throws XMLException
+    void extractContactsForAccount(String accountID) throws XMLException
     {
-        if(!isStarted())
+        if (!isStarted())
             return;
 
-        //we don't want to receive meta contact events triggerred by ourselves
-        //so we stop listening. it is possible but very unlikely that other
-        //events, not triggerred by us are received while we're off the channel
-        //but that would be a very bizzare case ..... I guess we got to live
-        //with the risk.
+        // we don't want to receive meta contact events triggerred by ourselves
+        // so we stop listening. it is possible but very unlikely that other
+        // events, not triggerred by us are received while we're off the channel
+        // but that would be a very bizzare case ..... I guess we got to live
+        // with the risk.
         this.mclServiceImpl.removeMetaContactListListener(this);
 
         try
         {
-            Element root = findMetaContactGroupNode(
-                mclServiceImpl.getRoot().getMetaUID());
+            Element root =
+                findMetaContactGroupNode(mclServiceImpl.getRoot().getMetaUID());
 
-            if(root == null)
+            if (root == null)
             {
                 // If there is no root, there is definitely something wrong
                 // really broken file will create it again
-                logger.fatal("The contactlist file is recreated cause its broken");
+                logger
+                    .fatal("The contactlist file is recreated cause its broken");
 
                 DocumentBuilderFactory factory =
                     DocumentBuilderFactory.newInstance();
@@ -600,89 +620,88 @@ public class MclStorageManager
 
                 initVirginDocument(mclServiceImpl, contactListDocument);
 
-                //write the contact list so that it is there for the parser
+                // write the contact list so that it is there for the parser
                 storeContactList0();
             }
             else
             {
                 // if there is root lets parse it
-                //parse the group node and extract all its child groups and contacts
-                processGroupXmlNode(mclServiceImpl, accountID, root
-                                , null, null);
+                // parse the group node and extract all its child groups and
+                // contacts
+                processGroupXmlNode(mclServiceImpl, accountID, root, null, null);
 
-                //now save the contact list in case it has changed
+                // now save the contact list in case it has changed
                 scheduleContactListStorage();
             }
 
-        }catch(Throwable exc)
+        }
+        catch (Throwable exc)
         {
             // catch everything because we MUST NOT disturb the thread
-            //initializing the meta CL for a new provider with null point
-            //exceptions or others of the sort
+            // initializing the meta CL for a new provider with null point
+            // exceptions or others of the sort
             throw new XMLException("Failed to extract contacts for account "
-                                   +accountID, exc);
+                + accountID, exc);
         }
         finally
         {
-            //now that we're done updating the contact list we can start listening
-            //again
+            // now that we're done updating the contact list we can start
+            // listening
+            // again
             this.mclServiceImpl.addMetaContactListListener(this);
         }
     }
 
     /**
-     * Parses <tt>groupNode</tt> and all of its subnodes, creating
-     * corresponding instances through <tt>mclServiceImpl</tt> as children of
+     * Parses <tt>groupNode</tt> and all of its subnodes, creating corresponding
+     * instances through <tt>mclServiceImpl</tt> as children of
      * <tt>parentGroup</tt>
-     *
+     * 
      * @param mclServiceImpl the <tt>MetaContactListServiceImpl</tt> for
-     * creating new contacts and groups.
+     *            creating new contacts and groups.
      * @param accountID a String identifier of the account whose contacts we're
-     * interested in.
+     *            interested in.
      * @param groupNode the XML <tt>Element</tt> that points to the group we're
-     * currently parsing.
+     *            currently parsing.
      * @param parentGroup the <tt>MetaContactGroupImpl</tt> where we should be
-     * creating children.
-     * @param parentProtoGroups a Map containing all proto groups that could
-     * be parents of any groups parsed from the specified groupNode. The map
-     * binds UIDs to group references and may be null for top level groups.
+     *            creating children.
+     * @param parentProtoGroups a Map containing all proto groups that could be
+     *            parents of any groups parsed from the specified groupNode. The
+     *            map binds UIDs to group references and may be null for top
+     *            level groups.
      */
-    private void processGroupXmlNode(
-        MetaContactListServiceImpl mclServiceImpl,
-        String accountID,
-        Element groupNode,
-        MetaContactGroup parentGroup,
+    private void processGroupXmlNode(MetaContactListServiceImpl mclServiceImpl,
+        String accountID, Element groupNode, MetaContactGroup parentGroup,
         Map<String, ContactGroup> parentProtoGroups)
     {
-        //first resolve the group itself.(unless this is the meta contact list
-        //root which is already resolved)
+        // first resolve the group itself.(unless this is the meta contact list
+        // root which is already resolved)
         MetaContactGroupImpl currentMetaGroup = null;
 
-        //in this map we store all proto groups that we find in this meta group
-        //(unless this is the MCL root)in order to pass them as parent
-        //references to any subgroups.
-        Map<String, ContactGroup> protoGroupsMap
-                                    = new Hashtable<String, ContactGroup>();
+        // in this map we store all proto groups that we find in this meta group
+        // (unless this is the MCL root)in order to pass them as parent
+        // references to any subgroups.
+        Map<String, ContactGroup> protoGroupsMap =
+            new Hashtable<String, ContactGroup>();
 
-        if(parentGroup == null)
+        if (parentGroup == null)
         {
             currentMetaGroup = mclServiceImpl.rootMetaGroup;
         }
         else
         {
-            String groupMetaUID = XMLUtils.getAttribute(
-                groupNode, GROUP_UID_ATTR_NAME);
-            String groupDisplayName = XMLUtils.getAttribute(
-                groupNode, GROUP_NAME_ATTR_NAME);
+            String groupMetaUID =
+                XMLUtils.getAttribute(groupNode, GROUP_UID_ATTR_NAME);
+            String groupDisplayName =
+                XMLUtils.getAttribute(groupNode, GROUP_NAME_ATTR_NAME);
 
-            //create the meta group
-            currentMetaGroup = mclServiceImpl
-                .loadStoredMetaContactGroup(parentGroup
-                                            , groupMetaUID
-                                            , groupDisplayName);
-            //extract and load one by one all proto groups in this meta group.
-            Node protoGroupsNode = XMLUtils.findChild(
-                groupNode, PROTO_GROUPS_NODE_NAME);
+            // create the meta group
+            currentMetaGroup =
+                mclServiceImpl.loadStoredMetaContactGroup(parentGroup,
+                    groupMetaUID, groupDisplayName);
+            // extract and load one by one all proto groups in this meta group.
+            Node protoGroupsNode =
+                XMLUtils.findChild(groupNode, PROTO_GROUPS_NODE_NAME);
 
             NodeList protoGroups = protoGroupsNode.getChildNodes();
 
@@ -693,21 +712,23 @@ public class MclStorageManager
                 if (currentProtoGroupNode.getNodeType() != Node.ELEMENT_NODE)
                     continue;
 
-                String groupAccountID = XMLUtils.getAttribute(
-                    currentProtoGroupNode, ACCOUNT_ID_ATTR_NAME);
+                String groupAccountID =
+                    XMLUtils.getAttribute(currentProtoGroupNode,
+                        ACCOUNT_ID_ATTR_NAME);
 
                 if (!accountID.equals(groupAccountID))
                     continue;
 
-                String protoGroupUID = XMLUtils.getAttribute(
-                    currentProtoGroupNode, UID_ATTR_NAME);
+                String protoGroupUID =
+                    XMLUtils.getAttribute(currentProtoGroupNode, UID_ATTR_NAME);
 
-                String parentProtoGroupUID = XMLUtils.getAttribute(
-                    currentProtoGroupNode, PARENT_PROTO_GROUP_UID_ATTR_NAME);
+                String parentProtoGroupUID =
+                    XMLUtils.getAttribute(currentProtoGroupNode,
+                        PARENT_PROTO_GROUP_UID_ATTR_NAME);
 
-                Element persistentDataNode = XMLUtils.findChild(
-                    (Element) currentProtoGroupNode
-                    , PERSISTENT_DATA_NODE_NAME);
+                Element persistentDataNode =
+                    XMLUtils.findChild((Element) currentProtoGroupNode,
+                        PERSISTENT_DATA_NODE_NAME);
 
                 String persistentData = "";
 
@@ -716,44 +737,42 @@ public class MclStorageManager
                     persistentData = XMLUtils.getText(persistentDataNode);
                 }
 
-                //try to find the parent proto group for the one we're currently
-                //parsing.
+                // try to find the parent proto group for the one we're
+                // currently
+                // parsing.
                 ContactGroup parentProtoGroup = null;
                 if (parentProtoGroups != null && parentProtoGroups.size() > 0)
-                    parentProtoGroup = (ContactGroup) parentProtoGroups
-                        .get(parentProtoGroupUID);
+                    parentProtoGroup =
+                        parentProtoGroups.get(parentProtoGroupUID);
 
-                //create the proto group
-                ContactGroup newProtoGroup = mclServiceImpl.
-                    loadStoredContactGroup
-                    (currentMetaGroup, protoGroupUID, parentProtoGroup
-                     , persistentData, accountID);
+                // create the proto group
+                ContactGroup newProtoGroup =
+                    mclServiceImpl.loadStoredContactGroup(currentMetaGroup,
+                        protoGroupUID, parentProtoGroup, persistentData,
+                        accountID);
 
                 protoGroupsMap.put(protoGroupUID, newProtoGroup);
             }
 
-            //if this is not the meta contact list root and if it doesn't
-            //contain proto groups of the account we're currently loading then
-            //we don't need to recurese it since it cound contain any child
-            //contacts of the same account.
+            // if this is not the meta contact list root and if it doesn't
+            // contain proto groups of the account we're currently loading then
+            // we don't need to recurese it since it cound contain any child
+            // contacts of the same account.
             if (protoGroupsMap.size() == 0)
                 return;
         }
 
+        // we have parsed groups now go over the children
+        Node childContactsNode =
+            XMLUtils.findChild(groupNode, CHILD_CONTACTS_NODE_NAME);
 
-        //we have parsed groups now go over the children
-        Node childContactsNode = XMLUtils.findChild(
-                                        groupNode, CHILD_CONTACTS_NODE_NAME);
+        NodeList childContacts =
+            (childContactsNode == null) ? null : childContactsNode
+                .getChildNodes();
 
-        NodeList childContacts = (childContactsNode == null)
-            ? null
-            : childContactsNode.getChildNodes();
-
-        //go over every meta contact, extract its details and its encapsulated
-        //proto contacts
-        for(int i = 0
-            ; childContacts != null && i < childContacts.getLength()
-            ; i++)
+        // go over every meta contact, extract its details and its encapsulated
+        // proto contacts
+        for (int i = 0; childContacts != null && i < childContacts.getLength(); i++)
         {
             Node currentMetaContactNode = childContacts.item(i);
 
@@ -762,108 +781,104 @@ public class MclStorageManager
 
             try
             {
-                String uid = XMLUtils.getAttribute(currentMetaContactNode
-                    , UID_ATTR_NAME);
+                String uid =
+                    XMLUtils
+                        .getAttribute(currentMetaContactNode, UID_ATTR_NAME);
 
-                Element displayNameNode = XMLUtils.findChild(
-                    (Element) currentMetaContactNode
-                    , META_CONTACT_DISPLAY_NAME_NODE_NAME);
+                Element displayNameNode =
+                    XMLUtils.findChild((Element) currentMetaContactNode,
+                        META_CONTACT_DISPLAY_NAME_NODE_NAME);
 
                 String displayName = XMLUtils.getText(displayNameNode);
 
-                //extract a map of all encapsulated proto contacts
-                List<MclStorageManager.StoredProtoContactDescriptor>
-                    protoContacts = extractProtoContacts(
-                                             (Element) currentMetaContactNode
-                                           , accountID
-                                           , protoGroupsMap);
+                // extract a map of all encapsulated proto contacts
+                List<MclStorageManager.StoredProtoContactDescriptor> protoContacts =
+                    extractProtoContacts((Element) currentMetaContactNode,
+                        accountID, protoGroupsMap);
 
-                //if the size of the map is 0 then the meta contact does not
-                //contain any contacts matching the currently parsed account id.
+                // if the size of the map is 0 then the meta contact does not
+                // contain any contacts matching the currently parsed account
+                // id.
                 if (protoContacts.size() < 1)
                     continue;
 
                 // Extract contact details.
-                Hashtable<String, List<String>> details
-                                    = new Hashtable<String, List<String>>();
+                Hashtable<String, List<String>> details =
+                    new Hashtable<String, List<String>>();
                 try
                 {
-                    List detailsNodes = XMLUtils.findChildren(
-                        (Element) currentMetaContactNode
-                        , META_CONTACT_DETAIL_NAME_NODE_NAME);
-                    for (int j = 0; j < detailsNodes.size(); j++)
+                    List<Element> detailsNodes =
+                        XMLUtils.findChildren((Element) currentMetaContactNode,
+                            META_CONTACT_DETAIL_NAME_NODE_NAME);
+                    for (Element e : detailsNodes)
                     {
-                        Element e = (Element)detailsNodes.get(j);
                         String name = e.getAttribute(DETAIL_NAME_ATTR_NAME);
                         String value = e.getAttribute(DETAIL_VALUE_ATTR_NAME);
 
-                        Object detailsObj = details.get(name);
-                        if(detailsObj == null)
+                        List<String> detailsObj = details.get(name);
+                        if (detailsObj == null)
                         {
-                            ArrayList<String> ds = new ArrayList<String>();
+                            List<String> ds = new ArrayList<String>();
                             ds.add(value);
                             details.put(name, ds);
                         }
                         else
-                            ((List)detailsObj).add(value);
+                            detailsObj.add(value);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // catch any exception from loading contacts
                     // that will prevent loading the contact
-                    logger.error("Cannot load details for contact node " +
-                            currentMetaContactNode, ex);
+                    logger.error("Cannot load details for contact node "
+                        + currentMetaContactNode, ex);
                 }
 
-                //pass the parsed proto contacts to the mcl service
-                mclServiceImpl.loadStoredMetaContact(
-                    currentMetaGroup, uid, displayName, details, protoContacts,
-                    accountID);
+                // pass the parsed proto contacts to the mcl service
+                mclServiceImpl.loadStoredMetaContact(currentMetaGroup, uid,
+                    displayName, details, protoContacts, accountID);
             }
-            catch(Throwable thr)
+            catch (Throwable thr)
             {
-                //if we fail parsing a meta contact, we should remove it so that
-                //it stops causing trouble, and let other meta contacts load.
+                // if we fail parsing a meta contact, we should remove it so
+                // that
+                // it stops causing trouble, and let other meta contacts load.
                 logger.warn("Failed to parse meta contact "
-                            + currentMetaContactNode
-                            + ". Will remove and continue with other contacts"
-                            , thr);
+                    + currentMetaContactNode
+                    + ". Will remove and continue with other contacts", thr);
 
-                //remove the node so that it doesn't cause us problems again
+                // remove the node so that it doesn't cause us problems again
                 if (currentMetaContactNode != null
                     && currentMetaContactNode.getParentNode() != null)
                 {
                     try
                     {
-                        currentMetaContactNode.getParentNode()
-                            .removeChild(currentMetaContactNode);
+                        currentMetaContactNode.getParentNode().removeChild(
+                            currentMetaContactNode);
                     }
-                    catch(Throwable throwable)
+                    catch (Throwable throwable)
                     {
-                        //hmm, failed to remove the faulty node. we must be
-                        //in some kind of serious troble (but i don't see
-                        //what we can do about it)
+                        // hmm, failed to remove the faulty node. we must be
+                        // in some kind of serious troble (but i don't see
+                        // what we can do about it)
                         logger.error("Failed to remove meta contact node "
-                                     + currentMetaContactNode
-                                     , throwable);
+                            + currentMetaContactNode, throwable);
                     }
                 }
 
             }
         }
 
-        //now, last thing that's left to do - go over all subgroups if any
-        Node subgroupsNode = XMLUtils.findChild(
-                                               groupNode, SUBGROUPS_NODE_NAME);
+        // now, last thing that's left to do - go over all subgroups if any
+        Node subgroupsNode = XMLUtils.findChild(groupNode, SUBGROUPS_NODE_NAME);
 
-        if(subgroupsNode == null)
+        if (subgroupsNode == null)
             return;
 
         NodeList subgroups = subgroupsNode.getChildNodes();
 
-        //recurse for every sub meta group
-        for(int i = 0; i < subgroups.getLength(); i++)
+        // recurse for every sub meta group
+        for (int i = 0; i < subgroups.getLength(); i++)
         {
             Node currentGroupNode = subgroups.item(i);
 
@@ -873,38 +888,33 @@ public class MclStorageManager
 
             try
             {
-                processGroupXmlNode(mclServiceImpl
-                                    , accountID
-                                    , (Element) currentGroupNode
-                                    , currentMetaGroup
-                                    , protoGroupsMap);
+                processGroupXmlNode(mclServiceImpl, accountID,
+                    (Element) currentGroupNode, currentMetaGroup,
+                    protoGroupsMap);
             }
-            catch(Throwable throwable)
+            catch (Throwable throwable)
             {
-                //catch everything and bravely continue with remaining groups
-                //and contacts
-                logger.error("Failed to process group node "
-                             + currentGroupNode
-                             + ". Removing."
-                             , throwable);
+                // catch everything and bravely continue with remaining groups
+                // and contacts
+                logger.error("Failed to process group node " + currentGroupNode
+                    + ". Removing.", throwable);
 
-                //remove the node so that it doesn't cause us problems again
+                // remove the node so that it doesn't cause us problems again
                 if (currentGroupNode != null
                     && currentGroupNode.getParentNode() != null)
                 {
                     try
                     {
-                        currentGroupNode.getParentNode()
-                            .removeChild(currentGroupNode);
+                        currentGroupNode.getParentNode().removeChild(
+                            currentGroupNode);
                     }
-                    catch(Throwable thr)
+                    catch (Throwable thr)
                     {
-                        //hmm, failed to remove the faulty node. we must be
-                        //in some kind of serious troble (but i don't see
-                        //what we can do about it)
+                        // hmm, failed to remove the faulty node. we must be
+                        // in some kind of serious troble (but i don't see
+                        // what we can do about it)
                         logger.error("Failed to remove group node "
-                                     + currentGroupNode
-                                     , thr);
+                            + currentGroupNode, thr);
                     }
                 }
             }
@@ -915,29 +925,31 @@ public class MclStorageManager
      * Returns all proto contacts that are encapsulated inside the meta contact
      * represented by <tt>metaContactNode</tt> and that originate from the
      * account with id - <tt>accountID</tt>. The returned list contains contact
-     * contact descriptors as elements. In case the meta contact does
-     * not contain proto contacts originating from the specified account, an
-     * empty list is returned.
+     * contact descriptors as elements. In case the meta contact does not
+     * contain proto contacts originating from the specified account, an empty
+     * list is returned.
      * <p>
+     * 
      * @param metaContactNode the Element whose proto contacts we'd like to
-     * extract.
-     * @param accountID the id of the account whose contacts we're interested in.
+     *            extract.
+     * @param accountID the id of the account whose contacts we're interested
+     *            in.
      * @param protoGroups a map binding proto group UIDs to protogroups, that
-     * the method could use i   n order to fill in the corresponding field in the
-     * contact descriptors.
+     *            the method could use i n order to fill in the corresponding
+     *            field in the contact descriptors.
      * @return a java.util.List containing contact descriptors.
      */
-    private List<MclStorageManager.StoredProtoContactDescriptor>
-                 extractProtoContacts(Element metaContactNode,
-                                      String accountID,
-                                      Map protoGroups)
+    private List<MclStorageManager.StoredProtoContactDescriptor> extractProtoContacts(
+        Element metaContactNode, String accountID,
+        Map<String, ContactGroup> protoGroups)
     {
-        List protoContacts = new LinkedList();
+        List<StoredProtoContactDescriptor> protoContacts =
+            new LinkedList<StoredProtoContactDescriptor>();
 
         NodeList children = metaContactNode.getChildNodes();
-        List duplicates = new LinkedList();
+        List<Node> duplicates = new LinkedList<Node>();
 
-        for (int i = 0; i < children.getLength(); i ++)
+        for (int i = 0; i < children.getLength(); i++)
         {
             Node currentNode = children.item(i);
 
@@ -945,41 +957,42 @@ public class MclStorageManager
                 || !currentNode.getNodeName().equals(PROTO_CONTACT_NODE_NAME))
                 continue;
 
-            String contactAccountID = XMLUtils.getAttribute(
-                currentNode, ACCOUNT_ID_ATTR_NAME);
+            String contactAccountID =
+                XMLUtils.getAttribute(currentNode, ACCOUNT_ID_ATTR_NAME);
 
             if (!accountID.equals(contactAccountID))
                 continue;
 
-            String contactAddress = XMLUtils.getAttribute(
-                currentNode, PROTO_CONTACT_ADDRESS_ATTR_NAME);
+            String contactAddress =
+                XMLUtils.getAttribute(currentNode,
+                    PROTO_CONTACT_ADDRESS_ATTR_NAME);
 
-            if (StoredProtoContactDescriptor.findContactInList(
-                    contactAddress, protoContacts) != null)
+            if (StoredProtoContactDescriptor.findContactInList(contactAddress,
+                protoContacts) != null)
             {
-                //this is a duplicate. mark for removal and continue
+                // this is a duplicate. mark for removal and continue
                 duplicates.add(currentNode);
                 continue;
             }
 
-            String protoGroupUID = XMLUtils.getAttribute(
-                                       currentNode, PARENT_PROTO_GROUP_UID_ATTR_NAME);
-            Element persistentDataNode = XMLUtils.findChild(
-                (Element)currentNode, PERSISTENT_DATA_NODE_NAME);
+            String protoGroupUID =
+                XMLUtils.getAttribute(currentNode,
+                    PARENT_PROTO_GROUP_UID_ATTR_NAME);
+            Element persistentDataNode =
+                XMLUtils.findChild((Element) currentNode,
+                    PERSISTENT_DATA_NODE_NAME);
 
-            String persistentData = XMLUtils.getText(persistentDataNode);
+            String persistentData =
+                (persistentDataNode == null) ? "" : XMLUtils
+                    .getText(persistentDataNode);
 
-            protoContacts.add( new StoredProtoContactDescriptor(
-                contactAddress
-                , persistentData
-                , (ContactGroup)protoGroups.get(protoGroupUID)));
+            protoContacts.add(new StoredProtoContactDescriptor(contactAddress,
+                persistentData, protoGroups.get(protoGroupUID)));
         }
 
-        //remove all duplicates
-        Iterator duplicatesIter = duplicates.iterator();
-        while(duplicatesIter.hasNext())
+        // remove all duplicates
+        for (Node node : duplicates)
         {
-            Node node = (Node)duplicatesIter.next();
             metaContactNode.removeChild(node);
         }
         return protoContacts;
@@ -987,103 +1000,107 @@ public class MclStorageManager
 
     /**
      * Creates a node element corresponding to <tt>protoContact</tt>.
-     *
+     * 
      * @param protoContact the Contact whose element we'd like to create
      * @return a XML Element corresponding to <tt>protoContact</tt>.
      */
     private Element createProtoContactNode(Contact protoContact)
     {
-        Element protoContactElement = contactListDocument.createElement(
-                                            PROTO_CONTACT_NODE_NAME);
+        Element protoContactElement =
+            contactListDocument.createElement(PROTO_CONTACT_NODE_NAME);
 
-        //set attributes
-        protoContactElement.setAttribute(PROTO_CONTACT_ADDRESS_ATTR_NAME
-                                         , protoContact.getAddress());
+        // set attributes
+        protoContactElement.setAttribute(PROTO_CONTACT_ADDRESS_ATTR_NAME,
+            protoContact.getAddress());
 
-        protoContactElement.setAttribute(
-            ACCOUNT_ID_ATTR_NAME
-            , protoContact.getProtocolProvider().getAccountID().getAccountUniqueID());
+        protoContactElement.setAttribute(ACCOUNT_ID_ATTR_NAME, protoContact
+            .getProtocolProvider().getAccountID().getAccountUniqueID());
 
-        protoContactElement.setAttribute(
-            PARENT_PROTO_GROUP_UID_ATTR_NAME
-            , protoContact.getParentContactGroup().getUID());
+        protoContactElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME,
+            protoContact.getParentContactGroup().getUID());
 
-        //append persistent data child node
-        Element persDataNode = contactListDocument.createElement(
-                PERSISTENT_DATA_NODE_NAME);
+        // append persistent data child node
+        String persistentData = protoContact.getPersistentData();
+        if ((persistentData != null) && (persistentData.length() != 0))
+        {
+            Element persDataNode =
+                contactListDocument.createElement(PERSISTENT_DATA_NODE_NAME);
 
-        XMLUtils.setText(persDataNode, protoContact.getPersistentData());
+            XMLUtils.setText(persDataNode, persistentData);
 
-        protoContactElement.appendChild(persDataNode);
+            protoContactElement.appendChild(persDataNode);
+        }
 
         return protoContactElement;
     }
 
     /**
      * Creates a node element corresponding to <tt>protoGroup</tt>.
-     *
+     * 
      * @param protoGroup the ContactGroup whose element we'd like to create
      * @return a XML Element corresponding to <tt>protoGroup</tt>.
      */
     private Element createProtoContactGroupNode(ContactGroup protoGroup)
     {
-        Element protoGroupElement = contactListDocument.createElement(
-                                            PROTO_GROUP_NODE_NAME);
+        Element protoGroupElement =
+            contactListDocument.createElement(PROTO_GROUP_NODE_NAME);
 
-        //set attributes
+        // set attributes
         protoGroupElement.setAttribute(UID_ATTR_NAME, protoGroup.getUID());
 
-        protoGroupElement.setAttribute(
-            ACCOUNT_ID_ATTR_NAME
-            , protoGroup.getProtocolProvider().getAccountID().getAccountUniqueID());
+        protoGroupElement.setAttribute(ACCOUNT_ID_ATTR_NAME, protoGroup
+            .getProtocolProvider().getAccountID().getAccountUniqueID());
 
-        protoGroupElement.setAttribute(
-            PARENT_PROTO_GROUP_UID_ATTR_NAME
-            , protoGroup.getParentContactGroup().getUID());
+        protoGroupElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME,
+            protoGroup.getParentContactGroup().getUID());
 
-        //append persistent data child node
-        Element persDataNode = contactListDocument.createElement(
-                PERSISTENT_DATA_NODE_NAME);
+        // append persistent data child node
+        String persistentData = protoGroup.getPersistentData();
+        if ((persistentData != null) && (persistentData.length() != 0))
+        {
+            Element persDataNode =
+                contactListDocument.createElement(PERSISTENT_DATA_NODE_NAME);
 
-        XMLUtils.setText(persDataNode, protoGroup.getPersistentData());
+            XMLUtils.setText(persDataNode, persistentData);
 
-        protoGroupElement.appendChild(persDataNode);
+            protoGroupElement.appendChild(persDataNode);
+        }
 
         return protoGroupElement;
     }
 
-
     /**
-     * Creates a meta contact node element corresponding to <tt>metaContact</tt>.
-     *
-     *
+     * Creates a meta contact node element corresponding to <tt>metaContact</tt>
+     * .
+     * 
+     * 
      * @param metaContact the MetaContact that the new node is about
      * @return the XML Element containing the persistent version of
-     * <tt>metaContact</tt>
+     *         <tt>metaContact</tt>
      */
     private Element createMetaContactNode(MetaContact metaContact)
     {
-        Element metaContactElement
-            = this.contactListDocument.createElement(META_CONTACT_NODE_NAME);
+        Element metaContactElement =
+            this.contactListDocument.createElement(META_CONTACT_NODE_NAME);
 
-        metaContactElement.setAttribute(UID_ATTR_NAME
-                                        , metaContact.getMetaUID());
+        metaContactElement
+            .setAttribute(UID_ATTR_NAME, metaContact.getMetaUID());
 
-        //create the display name node
-        Element displayNameNode = contactListDocument.createElement(
-                            META_CONTACT_DISPLAY_NAME_NODE_NAME);
+        // create the display name node
+        Element displayNameNode =
+            contactListDocument
+                .createElement(META_CONTACT_DISPLAY_NAME_NODE_NAME);
 
         displayNameNode.appendChild(contactListDocument
-                                    .createTextNode(
-                                        metaContact.getDisplayName()));
+            .createTextNode(metaContact.getDisplayName()));
 
         metaContactElement.appendChild(displayNameNode);
 
-        Iterator contacts = metaContact.getContacts();
+        Iterator<Contact> contacts = metaContact.getContacts();
 
-        while(contacts.hasNext())
+        while (contacts.hasNext())
         {
-            Contact contact = (Contact)contacts.next();
+            Contact contact = contacts.next();
             Element contactElement = createProtoContactNode(contact);
             metaContactElement.appendChild(contactElement);
         }
@@ -1094,67 +1111,66 @@ public class MclStorageManager
     /**
      * Creates a meta contact group node element corresponding to
      * <tt>metaGroup</tt>.
-     *
+     * 
      * @param metaGroup the MetaContactGroup that the new node is about
      * @return the XML Element containing the persistent version of
-     * <tt>metaGroup</tt>
+     *         <tt>metaGroup</tt>
      */
     private Element createMetaContactGroupNode(MetaContactGroup metaGroup)
     {
-        Element metaGroupElement
-            = this.contactListDocument.createElement(GROUP_NODE_NAME);
+        Element metaGroupElement =
+            this.contactListDocument.createElement(GROUP_NODE_NAME);
 
-        metaGroupElement.setAttribute(    GROUP_NAME_ATTR_NAME
-                                        , metaGroup.getGroupName());
+        metaGroupElement.setAttribute(GROUP_NAME_ATTR_NAME, metaGroup
+            .getGroupName());
 
-        metaGroupElement.setAttribute(    UID_ATTR_NAME
-                                        , metaGroup.getMetaUID());
+        metaGroupElement.setAttribute(UID_ATTR_NAME, metaGroup.getMetaUID());
 
-        //create and fill the proto groups node
-        Element protoGroupsElement
-            = this.contactListDocument.createElement(PROTO_GROUPS_NODE_NAME);
+        // create and fill the proto groups node
+        Element protoGroupsElement =
+            this.contactListDocument.createElement(PROTO_GROUPS_NODE_NAME);
         metaGroupElement.appendChild(protoGroupsElement);
 
-        Iterator protoGroups = metaGroup.getContactGroups();
+        Iterator<ContactGroup> protoGroups = metaGroup.getContactGroups();
 
         while (protoGroups.hasNext())
         {
-            ContactGroup group = (ContactGroup)protoGroups.next();
+            ContactGroup group = protoGroups.next();
 
-            //ignore if the proto group is not persistent:
-            if(!group.isPersistent())
+            // ignore if the proto group is not persistent:
+            if (!group.isPersistent())
                 continue;
 
             Element protoGroupEl = createProtoContactGroupNode(group);
             protoGroupsElement.appendChild(protoGroupEl);
         }
 
-        //create and fill the sub groups node
+        // create and fill the sub groups node
 
-        Element subgroupsElement
-            = this.contactListDocument.createElement(SUBGROUPS_NODE_NAME);
+        Element subgroupsElement =
+            this.contactListDocument.createElement(SUBGROUPS_NODE_NAME);
         metaGroupElement.appendChild(subgroupsElement);
 
         Iterator subroups = metaGroup.getSubgroups();
 
         while (subroups.hasNext())
         {
-            MetaContactGroup subgroup = (MetaContactGroup)subroups.next();
+            MetaContactGroup subgroup = (MetaContactGroup) subroups.next();
             Element subgroupEl = createMetaContactGroupNode(subgroup);
             subgroupsElement.appendChild(subgroupEl);
         }
 
-        //create and fill child contacts node
+        // create and fill child contacts node
 
-        Element childContactsElement
-            = this.contactListDocument.createElement(CHILD_CONTACTS_NODE_NAME);
+        Element childContactsElement =
+            this.contactListDocument.createElement(CHILD_CONTACTS_NODE_NAME);
         metaGroupElement.appendChild(childContactsElement);
 
         Iterator childContacts = metaGroup.getChildContacts();
 
         while (childContacts.hasNext())
         {
-            MetaContact metaContact = (MetaContact)childContacts.next();
+            MetaContact metaContact = (MetaContact) childContacts.next();
             Element metaContactEl = createMetaContactNode(metaContact);
             childContactsElement.appendChild(metaContactEl);
         }
@@ -1162,79 +1178,85 @@ public class MclStorageManager
         return metaGroupElement;
     }
 
-
     /**
-     * Indicates that a MetaContact has been successfully added
-     * to the MetaContact list.
+     * Indicates that a MetaContact has been successfully added to the
+     * MetaContact list.
+     * 
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactAdded(MetaContactEvent evt)
     {
-        Element parentGroupNode = findMetaContactGroupNode(
-            evt.getParentGroup().getMetaUID());
+        Element parentGroupNode =
+            findMetaContactGroupNode(evt.getParentGroup().getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal
-        //err for now and that's all.
+        // not sure what to do in case of null. we'll be logging an internal
+        // err for now and that's all.
         if (parentGroupNode == null)
         {
             logger.error("Couldn't find parent of a newly added contact: "
-                         + evt.getSourceMetaContact());
+                + evt.getSourceMetaContact());
             return;
         }
 
-        parentGroupNode = XMLUtils.findChild(
-            parentGroupNode, CHILD_CONTACTS_NODE_NAME);
+        parentGroupNode =
+            XMLUtils.findChild(parentGroupNode, CHILD_CONTACTS_NODE_NAME);
 
-        Element metaContactElement
-            = createMetaContactNode(evt.getSourceMetaContact());
+        Element metaContactElement =
+            createMetaContactNode(evt.getSourceMetaContact());
 
         parentGroupNode.appendChild(metaContactElement);
 
-        try{
+        try
+        {
             scheduleContactListStorage();
         }
-        catch (IOException ex){
-            /**given we're being invoked from an event dispatch thread that was
-            probably triggered by a net operation - we could not do much.
-            so ... log and @todo one day we'll have a global error  dispatcher */
+        catch (IOException ex)
+        {
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after adding contact "
-                         + evt.getSourceMetaContact(), ex);
+                + evt.getSourceMetaContact(), ex);
         }
     }
 
     /**
      * Creates XML nodes for the source metacontact group, its child meta
-     * contacts and associated protogroups and adds them to the xml contact list.
+     * contacts and associated protogroups and adds them to the xml contact
+     * list.
+     * 
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
     {
-        //if the group was created as an encapsulator of a non persistent proto
-        //group then we'll ignore it.
+        // if the group was created as an encapsulator of a non persistent proto
+        // group then we'll ignore it.
         if (evt.getSourceProtoGroup() != null
             && !evt.getSourceProtoGroup().isPersistent())
             return;
 
-        MetaContactGroup parentGroup = evt.getSourceMetaContactGroup()
-            .getParentMetaContactGroup();
+        MetaContactGroup parentGroup =
+            evt.getSourceMetaContactGroup().getParentMetaContactGroup();
 
-        Element parentGroupNode
-            = findMetaContactGroupNode(parentGroup.getMetaUID());
+        Element parentGroupNode =
+            findMetaContactGroupNode(parentGroup.getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal
-        //err for now and that's all.
+        // not sure what to do in case of null. we'll be logging an internal
+        // err for now and that's all.
         if (parentGroupNode == null)
         {
             logger.error("Couldn't find parent of a newly added group: "
-                         + parentGroup);
+                + parentGroup);
             return;
         }
 
-        Element newGroupElement
-            = createMetaContactGroupNode(evt.getSourceMetaContactGroup());
+        Element newGroupElement =
+            createMetaContactGroupNode(evt.getSourceMetaContactGroup());
 
-        Element subgroupsNode
-            = XMLUtils.findChild(parentGroupNode, SUBGROUPS_NODE_NAME);
+        Element subgroupsNode =
+            XMLUtils.findChild(parentGroupNode, SUBGROUPS_NODE_NAME);
 
         subgroupsNode.appendChild(newGroupElement);
 
@@ -1244,94 +1266,106 @@ public class MclStorageManager
         }
         catch (IOException ex)
         {
-            /**given we're being invoked from an event dispatch thread that was
-                 probably triggered by a net operation - we could not do much.
-             so ... log and @todo one day we'll have a global error  dispatcher */
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after adding contact "
-                         + evt.getSourceMetaContactGroup(), ex);
+                + evt.getSourceMetaContactGroup(), ex);
         }
     }
 
     /**
      * Removes the corresponding node from the xml document.
+     * 
      * @param evt the MetaContactGroupEvent containing the corresponding contact
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt)
     {
-        Element metaContactGroupNode = findMetaContactGroupNode(
-            evt.getSourceMetaContactGroup().getMetaUID());
+        Element metaContactGroupNode =
+            findMetaContactGroupNode(evt.getSourceMetaContactGroup()
+                .getMetaUID());
 
-        //not sure what to do in case of null. we'll be loggin an internal err
-        //for now and that's all.
-        if(metaContactGroupNode == null)
+        // not sure what to do in case of null. we'll be loggin an internal err
+        // for now and that's all.
+        if (metaContactGroupNode == null)
         {
             logger.error("Save after removing an MN group. Groupt not found: "
-                         + evt.getSourceMetaContactGroup());
+                + evt.getSourceMetaContactGroup());
             return;
         }
 
-        //remove the meta contact node.
+        // remove the meta contact node.
         metaContactGroupNode.getParentNode().removeChild(metaContactGroupNode);
 
-        try{
+        try
+        {
             scheduleContactListStorage();
         }
-        catch (IOException ex){
-            /**given we're being invoked from an event dispatch thread that was
-            probably triggered by a net operation - we could not do much.
-            so ... log and @todo one day we'll have a global error  dispatcher */
+        catch (IOException ex)
+        {
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after removing group "
-                         + evt.getSourceMetaContactGroup(), ex);
+                + evt.getSourceMetaContactGroup(), ex);
         }
     }
-
 
     /**
      * Moves the corresponding node from its old parent to the node
      * corresponding to the new parent meta group.
+     * 
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactMoved(MetaContactMovedEvent evt)
     {
-        Element metaContactNode
-            = findMetaContactNode(evt.getSourceMetaContact().getMetaUID());
-        Element newParentNode
-            = findMetaContactGroupNode(evt.getNewParent().getMetaUID());
+        Element metaContactNode =
+            findMetaContactNode(evt.getSourceMetaContact().getMetaUID());
+        Element newParentNode =
+            findMetaContactGroupNode(evt.getNewParent().getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal err
-        //for now and that's all.
-        if(metaContactNode == null)
+        // not sure what to do in case of null. we'll be logging an internal err
+        // for now and that's all.
+        if (metaContactNode == null)
         {
             logger.error("Save after metacontact moved. Contact not found: "
-                         + evt.getSourceMetaContact());
+                + evt.getSourceMetaContact());
             return;
         }
-        if(newParentNode == null)
+        if (newParentNode == null)
         {
             logger.error("Save after metacontact moved. new parent not found: "
-                         + evt.getNewParent());
+                + evt.getNewParent());
             return;
         }
 
-        //move the meta contact
+        // move the meta contact
         metaContactNode.getParentNode().removeChild(metaContactNode);
 
         updateParentsForMetaContactNode(metaContactNode, evt.getNewParent());
 
-        Element childContacts = XMLUtils.findChild(  newParentNode
-                                                   , CHILD_CONTACTS_NODE_NAME);
+        Element childContacts =
+            XMLUtils.findChild(newParentNode, CHILD_CONTACTS_NODE_NAME);
 
         childContacts.appendChild(metaContactNode);
 
-        try{
+        try
+        {
             scheduleContactListStorage();
         }
-        catch (IOException ex){
-            /**given we're being invoked from an event dispatch thread that was
-            probably triggered by a net operation - we could not do much.
-            so ... log and @todo one day we'll have a global error  dispatcher */
+        catch (IOException ex)
+        {
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after moving "
-                         + evt.getSourceMetaContact(), ex);
+                + evt.getSourceMetaContact(), ex);
         }
 
     }
@@ -1341,14 +1375,14 @@ public class MclStorageManager
      * updates theirs parent proto group uid-s to point to the first contact
      * group that is encapsulated by the newParent meta group and that belongs
      * to the same account as the contact itself.
-     *
+     * 
      * @param metaContactNode the meta contact node whose child contacts we're
-     * to update.
+     *            to update.
      * @param newParent a reference to the <tt>MetaContactGroup</tt> where
-     * metaContactNode was moved.
+     *            metaContactNode was moved.
      */
     private void updateParentsForMetaContactNode(Element metaContactNode,
-                                                 MetaContactGroup newParent)
+        MetaContactGroup newParent)
     {
         NodeList children = metaContactNode.getChildNodes();
 
@@ -1360,118 +1394,126 @@ public class MclStorageManager
                 || !currentNode.getNodeName().equals(PROTO_CONTACT_NODE_NAME))
                 continue;
 
-            Element contactElement = (Element)currentNode;
+            Element contactElement = (Element) currentNode;
 
-            String attribute = contactElement
-                .getAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME);
+            String attribute =
+                contactElement.getAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME);
 
-            if( attribute == null || attribute.trim().length() == 0)
+            if (attribute == null || attribute.trim().length() == 0)
                 continue;
 
             String contactAccountID =
                 contactElement.getAttribute(ACCOUNT_ID_ATTR_NAME);
 
-            //find the first protogroup originating from the same account as
-            //the one that the current contact belongs to.
-            Iterator possibleParents = newParent
-                .getContactGroupsForAccountID(contactAccountID);
+            // find the first protogroup originating from the same account as
+            // the one that the current contact belongs to.
+            Iterator<ContactGroup> possibleParents =
+                newParent.getContactGroupsForAccountID(contactAccountID);
 
-            String newParentUID = ((ContactGroup)possibleParents.next())
-                .getUID();
+            String newParentUID = possibleParents.next().getUID();
 
-            contactElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME
-                                        , newParentUID);
+            contactElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME,
+                newParentUID);
         }
     }
 
     /**
      * Removes the corresponding node from the xml document.
+     * 
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactRemoved(MetaContactEvent evt)
     {
-        Element metaContactNode = findMetaContactNode(
-            evt.getSourceMetaContact().getMetaUID());
+        Element metaContactNode =
+            findMetaContactNode(evt.getSourceMetaContact().getMetaUID());
 
-        //not sure what to do in case of null. we'll be loggin an internal err
-        //for now and that's all.
-        if(metaContactNode == null)
+        // not sure what to do in case of null. we'll be loggin an internal err
+        // for now and that's all.
+        if (metaContactNode == null)
         {
             logger.error("Save after metacontact removed. Contact not found: "
-                         + evt.getSourceMetaContact());
+                + evt.getSourceMetaContact());
             return;
         }
 
-        //remove the meta contact node.
+        // remove the meta contact node.
         metaContactNode.getParentNode().removeChild(metaContactNode);
 
-        try{
+        try
+        {
             scheduleContactListStorage();
         }
-        catch (IOException ex){
-            /**given we're being invoked from an event dispatch thread that was
-            probably triggered by a net operation - we could not do much.
-            so ... log and @todo one day we'll have a global error  dispatcher */
+        catch (IOException ex)
+        {
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after removing "
-                         + evt.getSourceMetaContact(), ex);
+                + evt.getSourceMetaContact(), ex);
         }
     }
 
     /**
      * Changes the display name attribute of the specified meta contact node.
+     * 
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt)
     {
-        Element metaContactNode = findMetaContactNode(
-            evt.getSourceMetaContact().getMetaUID());
+        Element metaContactNode =
+            findMetaContactNode(evt.getSourceMetaContact().getMetaUID());
 
-        //not sure what to do in case of null. we'll be loggin an internal err
-        //for now and that's all.
-        if(metaContactNode == null)
+        // not sure what to do in case of null. we'll be loggin an internal err
+        // for now and that's all.
+        if (metaContactNode == null)
         {
             logger.error("Save after renam failed. Contact not found: "
-                         + evt.getSourceMetaContact());
+                + evt.getSourceMetaContact());
             return;
         }
 
-        Element displayNameNode = XMLUtils.findChild(
-                metaContactNode
-                , META_CONTACT_DISPLAY_NAME_NODE_NAME);
+        Element displayNameNode =
+            XMLUtils.findChild(metaContactNode,
+                META_CONTACT_DISPLAY_NAME_NODE_NAME);
 
         XMLUtils.setText(displayNameNode, evt.getNewDisplayName());
 
         updatePersistentDataForMetaContact(evt.getSourceMetaContact());
 
-        try{
+        try
+        {
             scheduleContactListStorage();
         }
-        catch (IOException ex){
-            /**given we're being invoked from an event dispatch thread that was
-            probably triggered by a net operation - we could not do much.
-            so ... log and @todo one day we'll have a global error  dispatcher */
+        catch (IOException ex)
+        {
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after rename of "
-                         + evt.getSourceMetaContact(), ex);
+                + evt.getSourceMetaContact(), ex);
         }
     }
 
     /**
      * Updates the data stored for the contact that caused this event.
-     *
+     * 
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void protoContactModified(ProtoContactEvent evt)
     {
-        Element metaContactNode = findMetaContactNode(
-                            evt.getParent().getMetaUID());
+        Element metaContactNode =
+            findMetaContactNode(evt.getParent().getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal err
-        //for now and that's all.
-        if(metaContactNode == null)
+        // not sure what to do in case of null. we'll be logging an internal err
+        // for now and that's all.
+        if (metaContactNode == null)
         {
             logger.error("Save after proto contact modification failed. "
-                            +"Contact not found: "
-                            + evt.getParent());
+                + "Contact not found: " + evt.getParent());
             return;
         }
 
@@ -1480,35 +1522,41 @@ public class MclStorageManager
         // i don't think we could do anything else in addition to updating the
         // persistent data.
 
-        try{
+        try
+        {
             scheduleContactListStorage();
         }
-        catch (IOException ex){
-            /**given we're being invoked from an event dispatch thread that was
-            probably triggered by a net operation - we could not do much.
-            so ... log and @todo one day we'll have a global error  dispatcher */
-            logger.error("Writing CL failed after rename of "
-                         + evt.getParent(), ex);
+        catch (IOException ex)
+        {
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
+            logger.error(
+                "Writing CL failed after rename of " + evt.getParent(), ex);
         }
     }
 
     /**
      * Indicates that a MetaContact has been modified.
-     * @param evt the MetaContactModifiedEvent containing the corresponding contact
+     * 
+     * @param evt the MetaContactModifiedEvent containing the corresponding
+     *            contact
      */
     public void metaContactModified(MetaContactModifiedEvent evt)
     {
         String name = evt.getModificationName();
 
-        Element metaContactNode = findMetaContactNode(
-            evt.getSourceMetaContact().getMetaUID());
+        Element metaContactNode =
+            findMetaContactNode(evt.getSourceMetaContact().getMetaUID());
 
-        //not sure what to do in case of null. we'll be loggin an internal err
-        //for now and that's all.
-        if(metaContactNode == null)
+        // not sure what to do in case of null. we'll be loggin an internal err
+        // for now and that's all.
+        if (metaContactNode == null)
         {
             logger.error("Save after renam failed. Contact not found: "
-                         + evt.getSourceMetaContact());
+                + evt.getSourceMetaContact());
             return;
         }
 
@@ -1517,76 +1565,72 @@ public class MclStorageManager
 
         boolean isChanged = false;
 
-        if(oldValue == null && newValue != null)
+        if (oldValue == null && newValue != null)
         {
             // indicates add
 
-            if(!(newValue instanceof String))
+            if (!(newValue instanceof String))
                 return;
 
-            Element detailElement = contactListDocument.createElement(
-                        META_CONTACT_DETAIL_NAME_NODE_NAME);
+            Element detailElement =
+                contactListDocument
+                    .createElement(META_CONTACT_DETAIL_NAME_NODE_NAME);
 
             detailElement.setAttribute(DETAIL_NAME_ATTR_NAME, name);
             detailElement.setAttribute(DETAIL_VALUE_ATTR_NAME,
-                    (String)newValue);
+                (String) newValue);
 
             metaContactNode.appendChild(detailElement);
             isChanged = true;
         }
-        else if(oldValue != null && newValue == null)
+        else if (oldValue != null && newValue == null)
         {
             // indicates remove
-            if(oldValue instanceof List)
+            if (oldValue instanceof List)
             {
-                List valuesToRemove = (List)oldValue;
+                List valuesToRemove = (List) oldValue;
                 // indicates removing multiple values at one time
-                List nodes = XMLUtils.locateElements(
-                    metaContactNode
-                    , META_CONTACT_DETAIL_NAME_NODE_NAME
-                    , DETAIL_NAME_ATTR_NAME
-                    , name);
+                List<Element> nodes =
+                    XMLUtils.locateElements(metaContactNode,
+                        META_CONTACT_DETAIL_NAME_NODE_NAME,
+                        DETAIL_NAME_ATTR_NAME, name);
 
-                ArrayList nodesToRemove = new ArrayList();
-                for (int i = 0; i < nodes.size(); i++)
+                List<Element> nodesToRemove = new ArrayList<Element>();
+                for (Element e : nodes)
                 {
-                    Element e = (Element)nodes.get(i);
-                    if(valuesToRemove.contains(
-                            e.getAttribute(DETAIL_VALUE_ATTR_NAME)))
+                    if (valuesToRemove.contains(e
+                        .getAttribute(DETAIL_VALUE_ATTR_NAME)))
                     {
                         nodesToRemove.add(e);
                     }
                 }
 
-                for (int i = 0; i < nodesToRemove.size(); i++)
+                for (Element e : nodesToRemove)
                 {
-                    Element e = (Element)nodesToRemove.get(i);
                     metaContactNode.removeChild(e);
                 }
-                if(nodesToRemove.size() > 0)
+                if (nodesToRemove.size() > 0)
                     isChanged = true;
             }
-            else if(oldValue instanceof String)
+            else if (oldValue instanceof String)
             {
                 // removing one value only
-                List nodes = XMLUtils.locateElements(
-                    metaContactNode
-                    , META_CONTACT_DETAIL_NAME_NODE_NAME
-                    , DETAIL_NAME_ATTR_NAME
-                    , name);
+                List<Element> nodes =
+                    XMLUtils.locateElements(metaContactNode,
+                        META_CONTACT_DETAIL_NAME_NODE_NAME,
+                        DETAIL_NAME_ATTR_NAME, name);
 
                 Element elementToRemove = null;
-                for (int i = 0; i < nodes.size(); i++)
+                for (Element e : nodes)
                 {
-                    Element e = (Element)nodes.get(i);
-                    if(e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
+                    if (e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
                     {
                         elementToRemove = e;
                         break;
                     }
                 }
 
-                if(elementToRemove == null)
+                if (elementToRemove == null)
                     return;
 
                 metaContactNode.removeChild(elementToRemove);
@@ -1594,73 +1638,75 @@ public class MclStorageManager
                 isChanged = true;
             }
         }
-        else if(oldValue != null && newValue != null)
+        else if (oldValue != null && newValue != null)
         {
             // indicates change
-            List nodes = XMLUtils.locateElements(
-                metaContactNode
-                , META_CONTACT_DETAIL_NAME_NODE_NAME
-                , DETAIL_NAME_ATTR_NAME
-                , name);
+            List<Element> nodes =
+                XMLUtils.locateElements(metaContactNode,
+                    META_CONTACT_DETAIL_NAME_NODE_NAME, DETAIL_NAME_ATTR_NAME,
+                    name);
 
             Element changedElement = null;
-            for (int i = 0; i < nodes.size(); i++)
+            for (Element e : nodes)
             {
-                Element e = (Element)nodes.get(i);
-                if(e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
+                if (e.getAttribute(DETAIL_VALUE_ATTR_NAME).equals(oldValue))
                 {
                     changedElement = e;
                     break;
                 }
             }
 
-            if(changedElement == null)
+            if (changedElement == null)
                 return;
 
             changedElement.setAttribute(DETAIL_VALUE_ATTR_NAME,
-                    (String)newValue);
+                (String) newValue);
 
             isChanged = true;
         }
 
-        if(!isChanged)
+        if (!isChanged)
             return;
 
-        try{
+        try
+        {
             scheduleContactListStorage();
         }
-        catch (IOException ex){
-            /**given we're being invoked from an event dispatch thread that was
-            probably triggered by a net operation - we could not do much.
-            so ... log and @todo one day we'll have a global error  dispatcher */
+        catch (IOException ex)
+        {
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after rename of "
-                         + evt.getSourceMetaContact(), ex);
+                + evt.getSourceMetaContact(), ex);
         }
     }
 
     /**
      * Removes the corresponding node from the xml contact list.
-     *
+     * 
      * @param evt a reference to the corresponding <tt>ProtoContactEvent</tt>
      */
     public void protoContactRemoved(ProtoContactEvent evt)
     {
-        Element oldMcNode = findMetaContactNode(evt.getOldParent().getMetaUID());
+        Element oldMcNode =
+            findMetaContactNode(evt.getOldParent().getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal err
-        //for now and that's all.
+        // not sure what to do in case of null. we'll be logging an internal err
+        // for now and that's all.
         if (oldMcNode == null)
         {
             logger.error("Failed to find meta contact (old parent): "
-                         + oldMcNode);
+                + oldMcNode);
             return;
         }
 
-        Element protoNode = XMLUtils.locateElement(
-            oldMcNode
-            , PROTO_CONTACT_NODE_NAME
-            , PROTO_CONTACT_ADDRESS_ATTR_NAME
-            , evt.getProtoContact().getAddress());
+        Element protoNode =
+            XMLUtils.locateElement(oldMcNode, PROTO_CONTACT_NODE_NAME,
+                PROTO_CONTACT_ADDRESS_ATTR_NAME, evt.getProtoContact()
+                    .getAddress());
 
         protoNode.getParentNode().removeChild(protoNode);
 
@@ -1670,85 +1716,89 @@ public class MclStorageManager
         }
         catch (IOException ex)
         {
-            /**given we're being invoked from an event dispatch thread that was
-                 probably triggered by a net operation - we could not do much.
-             so ... log and @todo one day we'll have a global error  dispatcher */
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after removing proto contact "
-                         + evt.getProtoContact(), ex);
+                + evt.getProtoContact(), ex);
         }
     }
 
-
     /**
      * We simply ignore - we're not interested in this kind of events.
+     * 
      * @param evt the <tt>MetaContactGroupEvent</tt> containing details of this
-     * event.
+     *            event.
      */
     public void childContactsReordered(MetaContactGroupEvent evt)
     {
-        //ignore - not interested in such kind of events
+        // ignore - not interested in such kind of events
     }
 
     /**
      * Determines the exact type of the change and acts accordingly by either
      * updating group name or .
-     *
+     * 
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt)
     {
-        Element mcGroupNode = findMetaContactGroupNode(
-            evt.getSourceMetaContactGroup().getMetaUID());
+        Element mcGroupNode =
+            findMetaContactGroupNode(evt.getSourceMetaContactGroup()
+                .getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal err
-        //for now and that's all.
+        // not sure what to do in case of null. we'll be logging an internal err
+        // for now and that's all.
         if (mcGroupNode == null)
         {
             logger.error("Failed to find meta contact group: "
-                         + evt.getSourceMetaContactGroup()  );
+                + evt.getSourceMetaContactGroup());
             return;
         }
 
         switch (evt.getEventID())
         {
-            case MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP:
-            case MetaContactGroupEvent.CONTACT_GROUP_ADDED_TO_META_GROUP:
-                //the fact that a contact group was added or removed to a
-                //meta group may imply substantial changes in the child contacts
-                //and the layout of any possible subgroups, so
-                //to make things simple, we'll remove the existing meta contact
-                //group node and re-create it according to its current state.
-                Element parentNode = (Element)mcGroupNode.getParentNode();
+        case MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP:
+        case MetaContactGroupEvent.CONTACT_GROUP_ADDED_TO_META_GROUP:
+            // the fact that a contact group was added or removed to a
+            // meta group may imply substantial changes in the child contacts
+            // and the layout of any possible subgroups, so
+            // to make things simple, we'll remove the existing meta contact
+            // group node and re-create it according to its current state.
+            Element parentNode = (Element) mcGroupNode.getParentNode();
 
-                parentNode.removeChild(mcGroupNode);
+            parentNode.removeChild(mcGroupNode);
 
-                Element newGroupElement = createMetaContactGroupNode(
-                    evt.getSourceMetaContactGroup());
+            Element newGroupElement =
+                createMetaContactGroupNode(evt.getSourceMetaContactGroup());
 
-                parentNode.appendChild(newGroupElement);
+            parentNode.appendChild(newGroupElement);
 
-                try
-                {
-                    scheduleContactListStorage();
-                }
-                catch (IOException ex)
-                {
-                    /**given we're being invoked from an event dispatch thread
-                     * that was probably triggered by a net operation - we
-                     * could not do much. so ... log and @todo one day we'll
-                     * have a global error dispatcher */
-                    logger.error("Writing CL failed after adding contact "
-                                 + evt.getSourceMetaContactGroup(), ex);
-                }
-                break;
-            case MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED:
-                mcGroupNode.setAttribute(
-                    GROUP_NAME_ATTR_NAME
-                    , evt.getSourceMetaContactGroup().getGroupName());
-                break;
-            case MetaContactGroupEvent.CONTACT_GROUP_RENAMED_IN_META_GROUP:
-                //proto group names are not stored so ignore.
-                break;
+            try
+            {
+                scheduleContactListStorage();
+            }
+            catch (IOException ex)
+            {
+                /**
+                 * given we're being invoked from an event dispatch thread that
+                 * was probably triggered by a net operation - we could not do
+                 * much. so ... log and @todo one day we'll have a global error
+                 * dispatcher
+                 */
+                logger.error("Writing CL failed after adding contact "
+                    + evt.getSourceMetaContactGroup(), ex);
+            }
+            break;
+        case MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED:
+            mcGroupNode.setAttribute(GROUP_NAME_ATTR_NAME, evt
+                .getSourceMetaContactGroup().getGroupName());
+            break;
+        case MetaContactGroupEvent.CONTACT_GROUP_RENAMED_IN_META_GROUP:
+            // proto group names are not stored so ignore.
+            break;
         }
 
         try
@@ -1757,11 +1807,13 @@ public class MclStorageManager
         }
         catch (IOException ex)
         {
-            /**given we're being invoked from an event dispatch thread that was
-                 probably triggered by a net operation - we could not do much.
-             so ... log and @todo one day we'll have a global error  dispatcher */
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after removing proto group "
-                         + evt.getSourceProtoGroup().getGroupName(), ex);
+                + evt.getSourceProtoGroup().getGroupName(), ex);
         }
 
     }
@@ -1770,19 +1822,18 @@ public class MclStorageManager
      * Indicates that a protocol specific <tt>Contact</tt> instance has been
      * added to the list of protocol specific buddies in this
      * <tt>MetaContact</tt>
-     * @param evt a reference to the corresponding
-     * <tt>ProtoContactEvent</tt>
+     * 
+     * @param evt a reference to the corresponding <tt>ProtoContactEvent</tt>
      */
     public void protoContactAdded(ProtoContactEvent evt)
     {
         Element mcNode = findMetaContactNode(evt.getParent().getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal err
-        //for now and that's all.
+        // not sure what to do in case of null. we'll be logging an internal err
+        // for now and that's all.
         if (mcNode == null)
         {
-            logger.error("Failed to find meta contact: "
-                         + evt.getParent());
+            logger.error("Failed to find meta contact: " + evt.getParent());
             return;
         }
 
@@ -1796,11 +1847,13 @@ public class MclStorageManager
         }
         catch (IOException ex)
         {
-            /**given we're being invoked from an event dispatch thread that was
-                 probably triggered by a net operation - we could not do much.
-             so ... log and @todo one day we'll have a global error  dispatcher */
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after adding proto contact "
-                         + evt.getProtoContact(), ex);
+                + evt.getProtoContact(), ex);
         }
 
     }
@@ -1808,41 +1861,42 @@ public class MclStorageManager
     /**
      * Indicates that a protocol specific <tt>Contact</tt> instance has been
      * moved from within one <tt>MetaContact</tt> to another.
+     * 
      * @param evt a reference to the <tt>ProtoContactMovedEvent</tt> instance.
      */
     public void protoContactMoved(ProtoContactEvent evt)
     {
-        Element newMcNode = findMetaContactNode(evt.getNewParent().getMetaUID());
-        Element oldMcNode = findMetaContactNode(evt.getOldParent().getMetaUID());
+        Element newMcNode =
+            findMetaContactNode(evt.getNewParent().getMetaUID());
+        Element oldMcNode =
+            findMetaContactNode(evt.getOldParent().getMetaUID());
 
-        //not sure what to do in case of null. we'll be logging an internal err
-        //for now and that's all.
+        // not sure what to do in case of null. we'll be logging an internal err
+        // for now and that's all.
         if (oldMcNode == null)
         {
             logger.error("Failed to find meta contact (old parent): "
-                         + oldMcNode);
+                + oldMcNode);
             return;
         }
 
         if (newMcNode == null)
         {
             logger.error("Failed to find meta contact (old parent): "
-                         + newMcNode);
+                + newMcNode);
             return;
         }
 
-        Element protoNode = XMLUtils.locateElement(
-            oldMcNode
-            , PROTO_CONTACT_NODE_NAME
-            , PROTO_CONTACT_ADDRESS_ATTR_NAME
-            , evt.getProtoContact().getAddress());
+        Element protoNode =
+            XMLUtils.locateElement(oldMcNode, PROTO_CONTACT_NODE_NAME,
+                PROTO_CONTACT_ADDRESS_ATTR_NAME, evt.getProtoContact()
+                    .getAddress());
 
         protoNode.getParentNode().removeChild(protoNode);
 
-        //update parent attr and append the contact to its new parent node.
-        protoNode.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME
-                              , evt.getProtoContact()
-                                    .getParentContactGroup().getUID());
+        // update parent attr and append the contact to its new parent node.
+        protoNode.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME, evt
+            .getProtoContact().getParentContactGroup().getUID());
         newMcNode.appendChild(protoNode);
 
         try
@@ -1851,50 +1905,50 @@ public class MclStorageManager
         }
         catch (IOException ex)
         {
-            /**given we're being invoked from an event dispatch thread that was
-                 probably triggered by a net operation - we could not do much.
-             so ... log and @todo one day we'll have a global error  dispatcher */
+            /**
+             * given we're being invoked from an event dispatch thread that was
+             * probably triggered by a net operation - we could not do much. so
+             * ... log and @todo one day we'll have a global error dispatcher
+             */
             logger.error("Writing CL failed after moving proto contact "
-                         + evt.getProtoContact(), ex);
+                + evt.getProtoContact(), ex);
         }
     }
 
     /**
-     * Returns the node corresponding to the meta contact with the specified
-     * uid or null if no such node was found.
+     * Returns the node corresponding to the meta contact with the specified uid
+     * or null if no such node was found.
+     * 
      * @param metaContactUID the UID String of the meta contact whose node we
-     * are looking for.
-     * @return the node corresponding to the meta contact with the specified
-     * UID or null if no such contact was found in the meta contact
-     * list file.
+     *            are looking for.
+     * @return the node corresponding to the meta contact with the specified UID
+     *         or null if no such contact was found in the meta contact list
+     *         file.
      */
     private Element findMetaContactNode(String metaContactUID)
     {
-        Element root = (Element)contactListDocument.getFirstChild();
+        Element root = (Element) contactListDocument.getFirstChild();
 
-        return XMLUtils.locateElement(  root
-                                      , META_CONTACT_NODE_NAME
-                                      , UID_ATTR_NAME
-                                      , metaContactUID);
+        return XMLUtils.locateElement(root, META_CONTACT_NODE_NAME,
+            UID_ATTR_NAME, metaContactUID);
     }
 
     /**
-     * Returns the node corresponding to the meta contact with the specified
-     * uid or null if no such node was found.
+     * Returns the node corresponding to the meta contact with the specified uid
+     * or null if no such node was found.
+     * 
      * @param metaContactGroupUID the UID String of the meta contact whose node
-     * we are looking for.
+     *            we are looking for.
      * @return the node corresponding to the meta contact group with the
-     * specified UID or null if no such group was found in the meta contact
-     * list file.
+     *         specified UID or null if no such group was found in the meta
+     *         contact list file.
      */
     private Element findMetaContactGroupNode(String metaContactGroupUID)
     {
-        Element root = (Element)contactListDocument.getFirstChild();
+        Element root = (Element) contactListDocument.getFirstChild();
 
-        return XMLUtils.locateElement(  root
-                                      , GROUP_NODE_NAME
-                                      , UID_ATTR_NAME
-                                      , metaContactGroupUID);
+        return XMLUtils.locateElement(root, GROUP_NODE_NAME, UID_ATTR_NAME,
+            metaContactGroupUID);
     }
 
     /**
@@ -1906,18 +1960,19 @@ public class MclStorageManager
     }
 
     /**
-     * Contains details parsed out of the contact list xml file, necessary
-     * for creating unresolved contacts.
+     * Contains details parsed out of the contact list xml file, necessary for
+     * creating unresolved contacts.
      */
     static class StoredProtoContactDescriptor
     {
         String contactAddress = null;
+
         String persistentData = null;
+
         ContactGroup parentProtoGroup = null;
 
-        StoredProtoContactDescriptor( String contactAddress,
-                                      String persistentData,
-                                      ContactGroup parentProtoGroup)
+        StoredProtoContactDescriptor(String contactAddress,
+            String persistentData, ContactGroup parentProtoGroup)
         {
             this.contactAddress = contactAddress;
             this.persistentData = persistentData;
@@ -1926,51 +1981,45 @@ public class MclStorageManager
 
         /**
          * Returns a string representation of the descriptor.
-         *
-         * @return  a string representation of the descriptor.
+         * 
+         * @return a string representation of the descriptor.
          */
         public String toString()
         {
 
             return "StoredProtocoContactDescriptor[ "
-                + " contactAddress=" + contactAddress
-                + " persistenData=" + persistentData
+                + " contactAddress="
+                + contactAddress
+                + " persistenData="
+                + persistentData
                 + " parentProtoGroup="
-                +  (( parentProtoGroup == null )
-                        ? ""
-                        : parentProtoGroup.getGroupName())
-                + "]";
+                + ((parentProtoGroup == null) ? "" : parentProtoGroup
+                    .getGroupName()) + "]";
         }
 
         /**
          * Utility method that allows us to verify whether a ContactDescriptor
          * corresponding to a particular contact is already in a descriptor list
          * and thus eliminate duplicates.
-         *
-         * @param contactAddress the address of the contact whose descriptor
-         * we are looking for.
+         * 
+         * @param contactAddress the address of the contact whose descriptor we
+         *            are looking for.
          * @param list the <tt>List</tt> of
-         * <tt>StoredProtoContactDescriptor</tt> that we are supposed to search
-         * for <tt>contactAddress</tt>
+         *            <tt>StoredProtoContactDescriptor</tt> that we are supposed
+         *            to search for <tt>contactAddress</tt>
          * @return a <tt>StoredProtoContactDescriptor</tt> corresponding to
-         * <tt>contactAddress</tt> or <tt>null</tt> if no such descriptor
-         * exists.
+         *         <tt>contactAddress</tt> or <tt>null</tt> if no such
+         *         descriptor exists.
          */
         private static StoredProtoContactDescriptor findContactInList(
-                                                        String contactAddress,
-                                                        List list)
+            String contactAddress, List<StoredProtoContactDescriptor> list)
         {
             if (list == null || list.size() == 0)
                 return null;
 
-            Iterator iter = list.iterator();
-
-            while(iter.hasNext())
+            for (StoredProtoContactDescriptor desc : list)
             {
-                StoredProtoContactDescriptor desc
-                    = (StoredProtoContactDescriptor)iter.next();
-
-                if(desc.contactAddress.equals(contactAddress))
+                if (desc.contactAddress.equals(contactAddress))
                     return desc;
             }
 

@@ -6,14 +6,15 @@
  */
 package net.java.sip.communicator.util.xml;
 
-
 import java.io.*;
 import java.util.*;
+
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 
 import org.w3c.dom.*;
+
 import net.java.sip.communicator.util.*;
 
 /**
@@ -25,7 +26,6 @@ import net.java.sip.communicator.util.*;
 public class XMLUtils
 {
     private static Logger logger = Logger.getLogger(XMLUtils.class);
-    private static final String lSep = System.getProperty("line.separator");
 
     /**
      * Extracts from node the attribute with the specified name.
@@ -394,29 +394,33 @@ public class XMLUtils
     }
     
     /**
-     * Returns the children elements with the specified tagName for the specified
-     * parent element.
+     * Returns the children elements with the specified tagName for the
+     * specified parent element.
+     * 
      * @param parent The parent whose children we're looking for.
      * @param tagName the name of the child to find
-     * @return List of the children with the specified name 
+     * @return List of the children with the specified name
      * @throws NullPointerException if parent or tagName are null
      */
-    public static List findChildren(Element parent, String tagName)
+    public static List<Element> findChildren(Element parent, String tagName)
     {
-        if(parent == null || tagName == null)
+        if (parent == null || tagName == null)
             throw new NullPointerException("Parent or tagname were null! "
                 + "parent = " + parent + "; tagName = " + tagName);
 
-        ArrayList result = new ArrayList();
+        List<Element> result = new ArrayList<Element>();
         NodeList nodes = parent.getChildNodes();
         Node node;
         int len = nodes.getLength();
-        for(int i = 0; i < len; i++)
+        for (int i = 0; i < len; i++)
         {
             node = nodes.item(i);
-            if(node.getNodeType() == Node.ELEMENT_NODE
-               && ((Element)node).getNodeName().equals(tagName))
-                result.add(node);
+            if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element element = (Element) node;
+                if (element.getNodeName().equals(tagName))
+                    result.add(element);
+            }
         }
 
         return result;
@@ -472,50 +476,49 @@ public class XMLUtils
     }
     
     /**
-     * Looks through all child elements of the specified root (recursively)
-     * and returns the elements that corresponds to all parameters.
-     *
+     * Looks through all child elements of the specified root (recursively) and
+     * returns the elements that corresponds to all parameters.
+     * 
      * @param root the Element where the search should begin
      * @param tagName the name of the node we're looking for
      * @param keyAttributeName the name of an attribute that the node has to
-     * have
+     *            have
      * @param keyAttributeValue the value that attribute must have
      * @return list of Elements in the tree under root that match the specified
-     * paameters.
+     *         parameters.
      * @throws NullPointerException if any of the arguments is null.
      */
-    public static List locateElements(Element root,
-                                        String tagName,
-                                        String keyAttributeName,
-                                        String keyAttributeValue)
+    public static List<Element> locateElements(Element root, String tagName,
+        String keyAttributeName, String keyAttributeValue)
     {
-        ArrayList result = new ArrayList();
+        List<Element> result = new ArrayList<Element>();
         NodeList nodes = root.getChildNodes();
         Node node;
         int len = nodes.getLength();
-        for(int i = 0; i < len; i++)
+        for (int i = 0; i < len; i++)
         {
             node = nodes.item(i);
-            if(node.getNodeType() != Node.ELEMENT_NODE)
+            if (node.getNodeType() != Node.ELEMENT_NODE)
                 continue;
 
             // is this the node we're looking for?
-            if(node.getNodeName().equals(tagName))
+            if (node.getNodeName().equals(tagName))
             {
-                String attr = ((Element)node).getAttribute(keyAttributeName);
+                Element element = (Element) node;
+                String attr = element.getAttribute(keyAttributeName);
 
-                if(    attr!= null
-                    && attr.equals(keyAttributeValue))
-                    result.add(node);
+                if (attr != null && attr.equals(keyAttributeValue))
+                    result.add(element);
             }
 
-            //look inside.
-            
-            List childs = locateElements( (Element) node, tagName
-                          , keyAttributeName, keyAttributeValue);
+            // look inside.
+
+            List<Element> childs =
+                locateElements((Element) node, tagName, keyAttributeName,
+                    keyAttributeValue);
 
             if (childs != null)
-                 result.addAll(childs);
+                result.addAll(childs);
 
         }
 
