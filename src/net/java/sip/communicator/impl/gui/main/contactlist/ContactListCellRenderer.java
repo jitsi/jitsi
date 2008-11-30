@@ -205,13 +205,26 @@ public class ContactListCellRenderer
      * Paint a background for all groups and a round blue border and background
      * when a cell is selected. 
      */
-    public void paintComponent(Graphics g)
+    protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        g = g.create();
+        try
+        {
+            internalPaintComponent(g);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
 
-        AntialiasingManager.activateAntialiasing(g2);
+    private void internalPaintComponent(Graphics g)
+    {
+        AntialiasingManager.activateAntialiasing(g);
+
+        Graphics2D g2 = (Graphics2D) g;
 
         if (!this.isLeaf)
         {

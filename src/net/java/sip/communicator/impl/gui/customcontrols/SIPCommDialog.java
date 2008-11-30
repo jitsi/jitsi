@@ -406,10 +406,23 @@ public abstract class SIPCommDialog extends JDialog
             }
         }
 
-        public void paintComponent(Graphics g)
+        protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);
 
+            g = g.create();
+            try
+            {
+                internalPaintComponent(g);
+            }
+            finally
+            {
+                g.dispose();
+            }
+        }
+
+        private void internalPaintComponent(Graphics g)
+        {
             // If the custom color window background is not enabled we have
             // nothing to do here.
             if (!isColorBgEnabled)

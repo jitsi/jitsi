@@ -450,11 +450,19 @@ public class EditTextToolBar
     {
         public void paintComponent(Graphics g)
         {
-            AntialiasingManager.activateAntialiasing(g);
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
 
-            g.setColor(this.getBackground());
+                g.setColor(this.getBackground());
 
-            g.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                g.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 

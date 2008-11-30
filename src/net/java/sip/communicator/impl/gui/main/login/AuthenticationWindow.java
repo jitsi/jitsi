@@ -281,16 +281,24 @@ public class AuthenticationWindow
         {
             super.paintComponent(g);
 
-            AntialiasingManager.activateAntialiasing(g);
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
 
-            Graphics2D g2 = (Graphics2D) g;
+                Graphics2D g2 = (Graphics2D) g;
 
-            if(bgImage != null)
-                g2.drawImage(bgImage, 30, 30, null);
+                if (bgImage != null)
+                    g2.drawImage(bgImage, 30, 30, null);
 
-            g2.drawImage(ImageLoader.getImage(
-                    ImageLoader.AUTH_WINDOW_BACKGROUND),
-                    0, 0, this.getWidth(), this.getHeight(), null);
+                g2.drawImage(ImageLoader
+                    .getImage(ImageLoader.AUTH_WINDOW_BACKGROUND), 0, 0, this
+                    .getWidth(), this.getHeight(), null);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 

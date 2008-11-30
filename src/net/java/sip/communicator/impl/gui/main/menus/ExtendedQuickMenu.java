@@ -490,9 +490,24 @@ public class ExtendedQuickMenu
 
         public void paintComponent(Graphics g)
         {
-            Graphics2D g2 = (Graphics2D) g;
+            Graphics t = g.create();
+            try
+            {
+                internalPaintComponent(t);
+            }
+            finally
+            {
+                t.dispose();
+            }
 
-            AntialiasingManager.activateAntialiasing(g2);
+            super.paintComponent(g);
+        }
+
+        private void internalPaintComponent(Graphics g)
+        {
+            AntialiasingManager.activateAntialiasing(g);
+
+            Graphics2D g2 = (Graphics2D) g;
 
             Color color = null;
 
@@ -519,8 +534,6 @@ public class ExtendedQuickMenu
 
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 2, 8, 8);
             }
-
-            super.paintComponent(g2);
         }
         
         public Action getAction()

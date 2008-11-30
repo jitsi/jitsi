@@ -38,12 +38,11 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class TransparentBackground extends JComponent {
-
     private BufferedImage background;
 
     private Robot robot;
 
-    private Window window;
+    private final Window window;
 
     /**
      * Creates an instance of <tt>TransparentBackground</tt> by specifying
@@ -77,7 +76,6 @@ public class TransparentBackground extends JComponent {
      * @param y The y coordinate.
      */
     public void updateBackground(int x, int y) {
-
         this.background = robot.createScreenCapture(new Rectangle(x, y, x
                 + this.window.getWidth(), y + this.window.getHeight()));
 
@@ -87,20 +85,30 @@ public class TransparentBackground extends JComponent {
      * Overrides the <code>paintComponent</code> method in <tt>JComponent</tt>
      * to paint the screen capture image as a background of this component.
      */
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g)
+    {
+        g = g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
 
-        AntialiasingManager.activateAntialiasing(g);
+            Graphics2D g2 = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
 
-        Graphics2D g2 = (Graphics2D) g;
+            g2.drawImage(this.background, 0, 0, null);
 
-        g2.drawImage(this.background, 0, 0, null);
+            g2.setColor(new Color(255, 255, 255, 180));
 
-        g2.setColor(new Color(255, 255, 255, 180));
+            g2.fillRoundRect(0, 0, width, height, 10, 10);
 
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+            g2.setColor(Constants.BORDER_COLOR);
 
-        g2.setColor(Constants.BORDER_COLOR);
-
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+            g2.drawRoundRect(0, 0, width - 1, height - 1, 10, 10);
+        }
+        finally
+        {
+            g.dispose();
+        }
     }
 }

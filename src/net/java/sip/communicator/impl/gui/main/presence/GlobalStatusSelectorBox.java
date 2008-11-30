@@ -769,8 +769,18 @@ public class GlobalStatusSelectorBox
     {
         super.paintComponent(g);
 
-        g.drawImage(arrowImage,
-            this.getWidth() - arrowImage.getWidth(null) - IMAGE_INDENT,
-            (this.getHeight() - arrowImage.getHeight(null))/2, null);
+        g = g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
+
+            g.drawImage(arrowImage, this.getWidth() - arrowImage.getWidth(null)
+                - IMAGE_INDENT,
+                (this.getHeight() - arrowImage.getHeight(null)) / 2, null);
+        }
+        finally
+        {
+            g.dispose();
+        }
     }
 }

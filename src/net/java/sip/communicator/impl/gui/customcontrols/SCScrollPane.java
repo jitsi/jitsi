@@ -90,46 +90,48 @@ public class SCScrollPane
         {
             super.paintComponent(g);
 
-            Graphics2D g2 = (Graphics2D) g;
-
-            AntialiasingManager.activateAntialiasing(g2);
-
-            g2.setColor(Color.WHITE);
-
-            g2.fillRoundRect(0, 0,
-                    this.getWidth() - 1,
-                    this.getHeight() - 1,
-                    15, 15);
-
-            g2.setColor(Color.GRAY);
-
-            g2.drawRoundRect(0, 0,
-                this.getWidth() - 1,
-                this.getHeight() - 1, 15, 15);
-
-            // paint the image
-            if (isWindowImageBgEnabled && bgImage != null)
+            g = g.create();
+            try
             {
-                if (isTextureBackground)
-                {
-                    g2.setPaint(texture);
+                AntialiasingManager.activateAntialiasing(g);
 
-                    g2.fillRect(0, 0, this.getWidth(), this.getHeight());
-                }
-                else
+                Graphics2D g2 = (Graphics2D) g;
+                int width = getWidth();
+                int height = getHeight();
+
+                g2.setColor(Color.WHITE);
+
+                g2.fillRoundRect(0, 0, width - 1, height - 1, 15, 15);
+
+                g2.setColor(Color.GRAY);
+
+                g2.drawRoundRect(0, 0, width - 1, height - 1, 15, 15);
+
+                // paint the image
+                if (isWindowImageBgEnabled && bgImage != null)
                 {
-                    g.setColor(new Color(
-                        GuiActivator.getResources()
+                    if (isTextureBackground)
+                    {
+                        g2.setPaint(texture);
+
+                        g2.fillRect(0, 0, width, height);
+                    }
+                    else
+                    {
+                        g.setColor(new Color(GuiActivator.getResources()
                             .getColor("contactListBackground")));
 
-                    // paint the background with the choosen color
-                    g.fillRect(0, 0, getWidth(), getHeight());
+                        // paint the background with the choosen color
+                        g.fillRect(0, 0, width, height);
 
-                    g2.drawImage(bgImage,
-                            this.getWidth() - bgImage.getWidth(),
-                            this.getHeight() - bgImage.getHeight(),
-                            this);
+                        g2.drawImage(bgImage, width - bgImage.getWidth(),
+                            height - bgImage.getHeight(), this);
+                    }
                 }
+            }
+            finally
+            {
+                g.dispose();
             }
         }
     }

@@ -57,19 +57,28 @@ public class DatesListRenderer
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        g = g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
 
-        AntialiasingManager.activateAntialiasing(g2);
-        
-        if (this.isSelected) {
+            Graphics2D g2 = (Graphics2D) g;
 
-            g2.setColor(Constants.SELECTED_COLOR);
-            g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 7, 7);
+            if (this.isSelected)
+            {
 
-            g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
-            g2.setStroke(new BasicStroke(1.5f));
-            g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
-                    7, 7);
+                g2.setColor(Constants.SELECTED_COLOR);
+                g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 7, 7);
+
+                g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(0, 0, this.getWidth() - 1,
+                    this.getHeight() - 1, 7, 7);
+            }
+        }
+        finally
+        {
+            g.dispose();
         }
     }   
 }

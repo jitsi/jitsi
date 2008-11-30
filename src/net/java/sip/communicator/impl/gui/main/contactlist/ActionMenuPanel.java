@@ -150,23 +150,31 @@ public class ActionMenuPanel
     {
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        g = g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
 
-        AntialiasingManager.activateAntialiasing(g2);
+            Graphics2D g2 = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
 
-        int width = getWidth();
-        int height = getHeight();
-        GradientPaint p =
-            new GradientPaint(width / 2, 0, startBgColor, width / 2, height,
-                endBgColor);
+            GradientPaint p =
+                new GradientPaint(width / 2, 0, startBgColor, width / 2,
+                    height, endBgColor);
 
-        FadeTracker fadeTracker = FadeTracker.getInstance();
+            FadeTracker fadeTracker = FadeTracker.getInstance();
 
-        g2.setPaint(p);
-        g2.fillRoundRect(0, 0, width - 1, height - 1, 15, 15);
+            g2.setPaint(p);
+            g2.fillRoundRect(0, 0, width - 1, height - 1, 15, 15);
 
-        g2.setColor(baseStartColor);
-        g2.drawRoundRect(0, 0, width - 1, height - 1, 15, 15);
+            g2.setColor(baseStartColor);
+            g2.drawRoundRect(0, 0, width - 1, height - 1, 15, 15);
+        }
+        finally
+        {
+            g.dispose();
+        }
     }
 
     public void actionPerformed(ActionEvent e)

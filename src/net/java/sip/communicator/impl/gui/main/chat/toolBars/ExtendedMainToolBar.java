@@ -352,6 +352,21 @@ public class ExtendedMainToolBar
 
         public void paintComponent(Graphics g)
         {
+            Graphics t = g.create();
+            try
+            {
+                internalPaintComponent(t);
+            }
+            finally
+            {
+                t.dispose();
+            }
+
+            super.paintComponent(g);
+        }
+
+        private void internalPaintComponent(Graphics g)
+        {
             Graphics2D g2 = (Graphics2D) g;
 
             AntialiasingManager.activateAntialiasing(g2);
@@ -381,8 +396,6 @@ public class ExtendedMainToolBar
 
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 2, 8, 8);
             }
-
-            super.paintComponent(g2);
         }
 
         public Action getAction()

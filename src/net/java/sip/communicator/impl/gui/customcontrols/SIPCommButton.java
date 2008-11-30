@@ -82,13 +82,26 @@ public class SIPCommButton
     }
 
     /**
-     * Overrides the <code>paintComponent</code> method of <tt>JButton</tt>
-     * to paint the button background and icon, and all additional effects
-     * of this configururable button.
+     * Overrides the <code>paintComponent</code> method of <tt>JButton</tt> to
+     * paint the button background and icon, and all additional effects of this
+     * configurable button.
      * 
      * @param g The Graphics object.
      */
-    public void paintComponent(Graphics g)
+    protected void paintComponent(Graphics g)
+    {
+        g = g.create();
+        try
+        {
+            internalPaintComponent(g);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
+
+    private void internalPaintComponent(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);
 

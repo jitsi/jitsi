@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -18,7 +19,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class ExtListCellRenderer extends JPanel
     implements ListCellRenderer {
 
-    private JLabel label = new JLabel();
+    private final JLabel label = new JLabel();
     private boolean isSelected;
     
     public ExtListCellRenderer() {
@@ -41,22 +42,32 @@ public class ExtListCellRenderer extends JPanel
     /**
      * Paint a round background for all selected cells.
      */
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        g = g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
 
-        AntialiasingManager.activateAntialiasing(g2);
-        
-        if (this.isSelected) {
+            if (this.isSelected)
+            {
+                Graphics2D g2 = (Graphics2D) g;
+                int width = getWidth();
+                int height = getHeight();
 
-            g2.setColor(Constants.SELECTED_COLOR);
-            g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 7, 7);
+                g2.setColor(Constants.SELECTED_COLOR);
+                g2.fillRoundRect(0, 0, width, height, 7, 7);
 
-            g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
-            g2.setStroke(new BasicStroke(1.5f));
-            g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
-                    7, 7);
+                g2.setColor(Constants.LIST_SELECTION_BORDER_COLOR);
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(0, 0, width - 1, height - 1, 7, 7);
+            }
         }
-    }   
+        finally
+        {
+            g.dispose();
+        }
+    }
 }

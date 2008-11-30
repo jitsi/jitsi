@@ -11,8 +11,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
-
 /**
  * The <tt>SIPCommMenu</tt> is very similar to a JComboBox. The main
  * component here is a JLabel only with an icon. When user clicks on the icon a
@@ -134,10 +132,8 @@ public class SIPCommMenu
      */
     public void paintComponent(Graphics g)
     {
-        Graphics2D g2 = (Graphics2D) g;
+        // AntialiasingManager.activateAntialiasing(g);
 
-        AntialiasingManager.activateAntialiasing(g2);
-
-        super.paintComponent(g2);
+        super.paintComponent(g);
     }
 }

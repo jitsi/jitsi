@@ -145,6 +145,19 @@ public class ChatRoomsListCellRenderer extends JPanel
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        g = g.create();
+        try
+        {
+            internalPaintComponent(g);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
+
+    private void internalPaintComponent(Graphics g)
+    {
         Graphics2D g2 = (Graphics2D) g;
 
         AntialiasingManager.activateAntialiasing(g2);

@@ -131,17 +131,25 @@ public class ChatSendPanel
      */
     public void paint(Graphics g)
     {
-        AntialiasingManager.activateAntialiasing(g);
-
         super.paint(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        g = g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
 
-        g2.setColor(Constants.GRADIENT_DARK_COLOR);
-        g2.setStroke(new BasicStroke(1f));
+            Graphics2D g2 = (Graphics2D) g;
 
-        g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
-            this.statusPanel.getHeight() - 2, 8, 8);
+            g2.setColor(Constants.GRADIENT_DARK_COLOR);
+            g2.setStroke(new BasicStroke(1f));
+
+            g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
+                this.statusPanel.getHeight() - 2, 8, 8);
+        }
+        finally
+        {
+            g.dispose();
+        }
     }
 
     /**

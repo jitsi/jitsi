@@ -4,10 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -79,6 +79,19 @@ public class SIPCommToggleButton
     
     public void paintComponent(Graphics g)
     {
+        g = g.create();
+        try
+        {
+            internalPaintComponent(g);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
+
+    private void internalPaintComponent(Graphics g)
+    {
         AntialiasingManager.activateAntialiasing(g);
 
         if (this.bgImage != null)
@@ -129,7 +142,6 @@ public class SIPCommToggleButton
                                 .getHeight(null)) / 2, this);
             }
         }
-
     }
 
     /**

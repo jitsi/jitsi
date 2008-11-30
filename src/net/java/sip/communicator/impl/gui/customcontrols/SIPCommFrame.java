@@ -440,6 +440,19 @@ public abstract class SIPCommFrame
         {
             super.paintComponent(g);
 
+            g = g.create();
+            try
+            {
+                internalPaintComponent(g);
+            }
+            finally
+            {
+                g.dispose();
+            }
+        }
+
+        private void internalPaintComponent(Graphics g)
+        {
             // If the custom color window background is not enabled we have
             // nothing to do here.
             if (!isColorBgEnabled)
