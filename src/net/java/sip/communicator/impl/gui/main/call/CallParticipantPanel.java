@@ -150,13 +150,15 @@ public class CallParticipantPanel
                 createEnterFullScreenButton() };
         Dimension preferredButtonSize = new Dimension(24, 24);
 
-        return createButtonBar(buttons, preferredButtonSize);
+        return createButtonBar(false, buttons, preferredButtonSize);
     }
 
-    private Component createButtonBar(Component[] buttons,
+    private Component createButtonBar(boolean heavyweight, Component[] buttons,
         Dimension preferredButtonSize)
     {
-        Container buttonBar = new TransparentPanel(new GridLayout(1, 0));
+        Container buttonBar =
+            heavyweight ? new Container() : new TransparentPanel();
+        buttonBar.setLayout(new GridLayout(1, 0));
 
         for (int buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++)
         {
@@ -745,7 +747,7 @@ public class CallParticipantPanel
                 createExitFullScreenButton() };
         Dimension preferredButtonSize = new Dimension(36, 36);
 
-        return createButtonBar(buttons, preferredButtonSize);
+        return createButtonBar(true, buttons, preferredButtonSize);
     }
 
     private void enterFullScreen()
@@ -762,42 +764,36 @@ public class CallParticipantPanel
         // Lay out the main Components of the UI.
         final Container contentPane = frame.getContentPane();
         contentPane.setLayout(new FullScreenLayout(false));
+        if (buttonBar != null)
+            contentPane.add(buttonBar, FullScreenLayout.SOUTH);
         if (center != null)
             contentPane.add(center, FullScreenLayout.CENTER);
-        if (buttonBar != null)
-        {
-            contentPane.add(buttonBar, FullScreenLayout.SOUTH);
-
-            buttonBar.setVisible(false);
-            addMouseMotionListener(contentPane, new MouseMotionAdapter()
-            {
-                public void mouseMoved(MouseEvent event)
-                {
-                    Component component = event.getComponent();
-
-                    if ((component != null) && !component.equals(buttonBar))
-                    {
-                        Point pointInContentPane =
-                            SwingUtilities.convertPoint(component, event
-                                .getPoint(), contentPane);
-                        Rectangle hotSpotBounds = buttonBar.getBounds();
-
-                        hotSpotBounds.x = 0;
-                        hotSpotBounds.width = contentPane.getWidth();
-                        buttonBar.setVisible(hotSpotBounds
-                            .contains(pointInContentPane));
-                    }
-                }
-            });
-        }
 
         // Full-screen windows usually have black backgrounds.
         Color background = Color.black;
         contentPane.setBackground(background);
         setBackground(center, background);
 
-        addKeyListener(frame, new KeyAdapter()
+        class FullScreenListener
+            implements ContainerListener, KeyListener, MouseMotionListener,
+            WindowStateListener
         {
+            public void componentAdded(ContainerEvent event)
+            {
+                Component child = event.getChild();
+
+                child.addKeyListener(this);
+                child.addMouseMotionListener(this);
+            }
+
+            public void componentRemoved(ContainerEvent event)
+            {
+                Component child = event.getChild();
+
+                child.removeMouseMotionListener(this);
+                child.removeKeyListener(this);
+            }
+
             public void keyPressed(KeyEvent event)
             {
                 if (!event.isConsumed()
@@ -807,9 +803,41 @@ public class CallParticipantPanel
                     exitFullScreen(frame);
                 }
             }
-        });
-        frame.addWindowStateListener(new WindowStateListener()
-        {
+
+            public void keyReleased(KeyEvent event)
+            {
+            }
+
+            public void keyTyped(KeyEvent event)
+            {
+            }
+
+            public void mouseDragged(MouseEvent event)
+            {
+            }
+
+            public void mouseMoved(MouseEvent event)
+            {
+                Component component = event.getComponent();
+
+                if ((buttonBar != null) && (component != null)
+                    && !component.equals(buttonBar))
+                {
+                    Point pointInContentPane =
+                        SwingUtilities.convertPoint(component, event
+                            .getPoint(), contentPane);
+                    Rectangle hotSpotBounds = buttonBar.getBounds();
+
+                    hotSpotBounds.x = 0;
+                    hotSpotBounds.width = contentPane.getWidth();
+
+                    boolean visible =
+                        hotSpotBounds.contains(pointInContentPane);
+
+                    buttonBar.setVisible(visible);
+                }
+            }
+
             public void windowStateChanged(WindowEvent event)
             {
                 switch (event.getID())
@@ -822,7 +850,23 @@ public class CallParticipantPanel
                     break;
                 }
             }
-        });
+        }
+        FullScreenListener listener = new FullScreenListener();
+
+        // Display the buttonBar when the mouse moves.
+        if (buttonBar != null)
+        {
+            buttonBar.setVisible(false);
+            addMouseMotionListener(contentPane, listener);
+        }
+        // Exit on Escape.
+        addKeyListener(frame, listener);
+        // Activate the above features for the local and remote videos.
+        if (center instanceof Container)
+            ((Container) center).addContainerListener(listener);
+        // Exit when the "full screen" looses its focus.
+        frame.addWindowStateListener(listener);
+
         getGraphicsConfiguration().getDevice().setFullScreenWindow(frame);
     }
 

@@ -289,7 +289,7 @@ public class MediaConfigurationPanel
 
     private Component createPreview(int type, final JComboBox comboBox)
     {
-        final JComponent preview;
+        final Container preview;
         if (type == DeviceConfigurationComboBoxModel.VIDEO)
         {
             JLabel noPreview =
@@ -322,7 +322,7 @@ public class MediaConfigurationPanel
         return preview;
     }
 
-    private JComponent createVideoContainer(Component noVideoComponent)
+    private Container createVideoContainer(Component noVideoComponent)
     {
         return new VideoContainer(noVideoComponent);
     }

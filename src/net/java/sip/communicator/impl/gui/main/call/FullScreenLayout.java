@@ -8,6 +8,9 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 
+/**
+ * @author Lubomir Marinov
+ */
 public class FullScreenLayout implements LayoutManager
 {
     public static final String CENTER = "CENTER";

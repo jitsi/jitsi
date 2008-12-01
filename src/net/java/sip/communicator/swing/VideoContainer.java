@@ -72,7 +72,7 @@ public class VideoContainer
 
     public VideoContainer(Component noVideoComponent)
     {
-        super(new VideoLayout());
+        setLayout(new VideoLayout());
 
         this.noVideoComponent = noVideoComponent;
 
