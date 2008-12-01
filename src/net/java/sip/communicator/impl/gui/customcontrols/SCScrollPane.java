@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
@@ -18,51 +17,14 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class SCScrollPane
     extends JScrollPane
 {
-    private BufferedImage bgImage;
-
-    private TexturePaint texture;
-
-    private boolean isTextureBackground;
-
-    boolean isWindowImageBgEnabled;
-
     public SCScrollPane()
     {
-        super();
-
         this.setBorder(null);
         this.setOpaque(false);
 
         this.setViewport(new SCViewport());
 
         this.getVerticalScrollBar().setUnitIncrement(30);
-
-        String windowImageBackgroundProperty
-            = "impl.gui.IS_WINDOW_BACKGROUND_ENABLED";
-
-        isWindowImageBgEnabled = new Boolean(GuiActivator.getResources()
-            .getSettingsString(windowImageBackgroundProperty)).booleanValue();
-
-        if (isWindowImageBgEnabled)
-            this.initBackgroundImage();
-    }
-
-    private void initBackgroundImage()
-    {
-        isTextureBackground = new Boolean(GuiActivator.getResources()
-            .getSettingsString("impl.gui.IS_TEXTURE_BACKGROUND")).booleanValue();
-
-        bgImage = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
-
-        if (isTextureBackground)
-        {
-            Rectangle rect
-                = new Rectangle(0, 0,
-                            bgImage.getWidth(null),
-                            bgImage.getHeight(null));
-
-            texture = new TexturePaint(bgImage, rect);
-        }
     }
 
     /**
@@ -78,12 +40,53 @@ public class SCScrollPane
         super.setViewportView(view);
     }
 
-    private class SCViewport extends JViewport
+    private static class SCViewport
+        extends JViewport
     {
+        private final BufferedImage bgImage;
+
+        private final Color color;
+
+        private final TexturePaint texture;
+
         public SCViewport()
         {
             this.setOpaque(false);
             this.setBorder(null);
+
+            if (getSettingsBoolean("impl.gui.IS_WINDOW_BACKGROUND_ENABLED"))
+            {
+                bgImage =
+                    ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
+
+                if (getSettingsBoolean("impl.gui.IS_TEXTURE_BACKGROUND")
+                    && (bgImage != null))
+                {
+                    texture =
+                        new TexturePaint(bgImage, new Rectangle(0, 0, bgImage
+                            .getWidth(null), bgImage.getHeight(null)));
+                    color = null;
+                }
+                else
+                {
+                    texture = null;
+                    color =
+                        new Color(GuiActivator.getResources().getColor(
+                            "contactListBackground"));
+                }
+            }
+            else
+            {
+                bgImage = null;
+                texture = null;
+                color = null;
+            }
+        }
+
+        private boolean getSettingsBoolean(String key)
+        {
+            return new Boolean(GuiActivator.getResources().getSettingsString(
+                key)).booleanValue();
         }
 
         public void paintComponent(Graphics g)
@@ -108,9 +111,9 @@ public class SCScrollPane
                 g2.drawRoundRect(0, 0, width - 1, height - 1, 15, 15);
 
                 // paint the image
-                if (isWindowImageBgEnabled && bgImage != null)
+                if (bgImage != null)
                 {
-                    if (isTextureBackground)
+                    if (texture != null)
                     {
                         g2.setPaint(texture);
 
@@ -118,10 +121,9 @@ public class SCScrollPane
                     }
                     else
                     {
-                        g.setColor(new Color(GuiActivator.getResources()
-                            .getColor("contactListBackground")));
+                        g.setColor(color);
 
-                        // paint the background with the choosen color
+                        // paint the background with the chosen color
                         g.fillRect(0, 0, width, height);
 
                         g2.drawImage(bgImage, width - bgImage.getWidth(),

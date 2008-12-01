@@ -15,13 +15,14 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A custom frame that remembers its size and location and could have a
- * semi transparent background.
+ * A custom frame that remembers its size and location and could have a semi
+ * transparent background.
  * 
  * @author Yana Stamcheva
  */
@@ -29,45 +30,39 @@ public abstract class SIPCommFrame
     extends JFrame
     implements Observer
 {
-    private Logger logger = Logger.getLogger(SIPCommFrame.class);
+    private final Logger logger = Logger.getLogger(SIPCommFrame.class);
 
-    ActionMap amap;
-    InputMap imap;
-    KeybindingSet bindings = null;
+    private final ActionMap amap;
+
+    private final InputMap imap;
+
+    private KeybindingSet bindings = null;
 
     public SIPCommFrame()
     {
-        this.init();
-    }
-
-    /**
-     * Initializes this frame.
-     */
-    private void init()
-    {
         this.setContentPane(new MainContentPane());
 
-        this.setIconImage(
-            ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
+        Image scLogo = ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO);
+        this.setIconImage(scLogo);
 
         // In order to have the same icon when using option panes
-        JOptionPane.getRootFrame().setIconImage(
-                ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
+        JOptionPane.getRootFrame().setIconImage(scLogo);
 
         this.addWindowListener(new FrameWindowAdapter());
 
-        amap = this.getRootPane().getActionMap();
-
+        JRootPane rootPane = getRootPane();
+        amap = rootPane.getActionMap();
         amap.put("close", new CloseAction());
 
-        imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        imap =
+            rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     /**
      * The action invoked when user presses Escape key.
      */
-    private class CloseAction extends AbstractAction
+    private class CloseAction
+        extends AbstractAction
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -75,7 +70,7 @@ public abstract class SIPCommFrame
             close(true);
         }
     }
-    
+
     /**
      * Sets the input map to utilize a given category of keybindings. The frame
      * is updated to reflect the new bindings when they change. This replaces
@@ -104,14 +99,15 @@ public abstract class SIPCommFrame
 
         this.bindings.addObserver(this);
     }
-    
+
     /**
-    * Bindings the string representation for a keybinding to the action that
-    * will be executed.
-    * @param binding string representation of action used by input map
-    * @param action the action which will be executed when user presses the
-    *            given key combination
-    */
+     * Bindings the string representation for a keybinding to the action that
+     * will be executed.
+     * 
+     * @param binding string representation of action used by input map
+     * @param action the action which will be executed when user presses the
+     *            given key combination
+     */
     protected void addKeybindingAction(String binding, Action action)
     {
         amap.put(binding, action);
@@ -121,7 +117,8 @@ public abstract class SIPCommFrame
      * Before closing the application window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
      */
-    public class FrameWindowAdapter extends WindowAdapter
+    public class FrameWindowAdapter
+        extends WindowAdapter
     {
         public void windowClosing(WindowEvent e)
         {
@@ -137,33 +134,27 @@ public abstract class SIPCommFrame
      */
     private void saveSizeAndLocation()
     {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
+        ConfigurationService configService =
+            GuiActivator.getConfigurationService();
 
         String className = this.getClass().getName();
 
         try
         {
-            configService.setProperty(
-                className + ".width",
-                new Integer(getWidth()));
+            configService.setProperty(className + ".width", new Integer(
+                getWidth()));
 
-            configService.setProperty(
-                className + ".height",
-                new Integer(getHeight()));
+            configService.setProperty(className + ".height", new Integer(
+                getHeight()));
 
-            configService.setProperty(
-                className + ".x",
-                new Integer(getX()));
+            configService.setProperty(className + ".x", new Integer(getX()));
 
-            configService.setProperty(
-                className + ".y",
-                new Integer(getY()));
+            configService.setProperty(className + ".y", new Integer(getY()));
         }
         catch (PropertyVetoException e1)
         {
             logger.error("The proposed property change "
-                    + "represents an unacceptable value");
+                + "represents an unacceptable value");
         }
     }
 
@@ -172,76 +163,71 @@ public abstract class SIPCommFrame
      */
     public void setSizeAndLocation()
     {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
+        ConfigurationService configService =
+            GuiActivator.getConfigurationService();
 
         String className = this.getClass().getName();
 
-        String widthString = configService.getString(
-            className + ".width");
+        String widthString = configService.getString(className + ".width");
 
-        String heightString = configService.getString(
-            className + ".height");
+        String heightString = configService.getString(className + ".height");
 
-        String xString = configService.getString(
-            className + ".x");
+        String xString = configService.getString(className + ".x");
 
-        String yString = configService.getString(
-            className + ".y");
+        String yString = configService.getString(className + ".y");
 
         int width = 0;
         int height = 0;
 
-        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
-        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-
-        if(widthString != null && heightString != null)
+        if (widthString != null && heightString != null)
         {
             width = new Integer(widthString).intValue();
             height = new Integer(heightString).intValue();
 
-            if(width > 0 && height > 0
-                && width <= screenWidth && height <= screenHeight)
-                this.setSize(width, height);
+            if (width > 0 && height > 0)
+            {
+                Dimension screenSize =
+                    Toolkit.getDefaultToolkit().getScreenSize();
+                if (width <= screenSize.width && height <= screenSize.height)
+                    this.setSize(width, height);
+            }
         }
 
         int x = 0;
         int y = 0;
 
-        if(xString != null && yString != null)
+        if (xString != null && yString != null)
         {
             x = new Integer(xString).intValue();
             y = new Integer(yString).intValue();
 
             this.setLocation(x, y);
-        } else
+        }
+        else
         {
             this.setCenterLocation();
         }
     }
-    
+
     /**
      * Positions this window in the center of the screen.
      */
     private void setCenterLocation()
     {
-        this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - this.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - this.getHeight()/2
-                );
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(screenSize.width / 2 - this.getWidth() / 2,
+            screenSize.height / 2 - this.getHeight() / 2);
     }
 
     /**
-     * Checks whether the current component will 
-     * exceeds the screen size and if it do will set a default size 
+     * Checks whether the current component will exceeds the screen size and if
+     * it do will set a default size
      */
     private void ensureOnScreenLocationAndSize()
     {
         int x = this.getX();
         int y = this.getY();
-        
+
         int width = this.getWidth();
         int height = this.getHeight();
 
@@ -261,14 +247,16 @@ public abstract class SIPCommFrame
                 // window is too far to the left
                 // move it to the right
                 x = virtualBounds.x + borderDistance;
-            } else if (x > virtualBounds.x)
+            }
+            else if (x > virtualBounds.x)
             {
                 // window is too far to the right
                 // can only occour, when screen resolution is
                 // changed or displayed are disconnected
 
                 // move the window in the bounds to the very right
-                x = virtualBounds.x + virtualBounds.width - width
+                x =
+                    virtualBounds.x + virtualBounds.width - width
                         - borderDistance;
                 if (x < virtualBounds.x + borderDistance)
                 {
@@ -282,14 +270,16 @@ public abstract class SIPCommFrame
                 // window is too far to the top
                 // move it to the bottom
                 y = virtualBounds.y + borderDistance;
-            } else if (y > virtualBounds.y)
+            }
+            else if (y > virtualBounds.y)
             {
                 // window is too far to the bottom
                 // can only occour, when screen resolution is
                 // changed or displayed are disconnected
 
                 // move the window in the bounds to the very bottom
-                y = virtualBounds.y + virtualBounds.height - height
+                y =
+                    virtualBounds.y + virtualBounds.height - height
                         - borderDistance;
                 if (y < virtualBounds.y + borderDistance)
                 {
@@ -310,7 +300,8 @@ public abstract class SIPCommFrame
 
                 // calculate a new horizontal position
                 // move the whole window to the left
-                x = virtualBounds.x + virtualBounds.width - width
+                x =
+                    virtualBounds.x + virtualBounds.width - width
                         - borderDistance;
                 if (x < virtualBounds.x + borderDistance)
                 {
@@ -327,7 +318,8 @@ public abstract class SIPCommFrame
 
                 // calculate a new vertical position
                 // move the whole window to the top
-                y = virtualBounds.y + virtualBounds.height - height
+                y =
+                    virtualBounds.y + virtualBounds.height - height
                         - borderDistance;
                 if (y < virtualBounds.y + borderDistance)
                 {
@@ -342,7 +334,7 @@ public abstract class SIPCommFrame
             this.setLocation(x, y);
         }
     }
-    
+
     /**
      * Overwrites the setVisible method in order to set the size and the
      * position of this window before showing it.
@@ -358,7 +350,7 @@ public abstract class SIPCommFrame
 
         super.setVisible(isVisible);
     }
-    
+
     /**
      * Overwrites the dispose method in order to save the size and the position
      * of this window before closing it.
@@ -373,7 +365,7 @@ public abstract class SIPCommFrame
          */
         if (bindings != null)
             bindings.deleteObserver(this);
-        
+
         super.dispose();
     }
 
@@ -402,43 +394,54 @@ public abstract class SIPCommFrame
         }
     }
 
-    private class MainContentPane extends JPanel
+    private static class MainContentPane
+        extends JPanel
     {
-        String isColorBgEnabledProp
-            = "impl.gui.IS_WINDOW_COLOR_BACKGROUND_ENABLED";
+        private final boolean isColorBgEnabled;
 
-        boolean isColorBgEnabled = new Boolean(
-            GuiActivator.getResources().getSettingsString(isColorBgEnabledProp))
-                .booleanValue();
+        private final Color bgStartColor;
 
-        Color bgStartColor = new Color(GuiActivator.getResources()
-            .getColor("service.gui.MAIN_BACKGROUND"));
-
-        Color bgEndColor = new Color(GuiActivator.getResources()
-            .getColor("service.gui.MAIN_BACKGROUND_GRADIENT"));
-
-        GeneralPath headerBackground = new GeneralPath();
+        private final Color bgEndColor;
 
         public MainContentPane()
         {
             super(new BorderLayout());
 
-            int borderSize = GuiActivator.getResources()
-                .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
+            ResourceManagementService resources = GuiActivator.getResources();
 
+            isColorBgEnabled =
+                new Boolean(resources.getSettingsString(
+                    "impl.gui.IS_WINDOW_COLOR_BACKGROUND_ENABLED"))
+                    .booleanValue();
             if (isColorBgEnabled)
             {
-                this.setBorder(BorderFactory
-                    .createEmptyBorder( borderSize,
-                                        borderSize,
-                                        borderSize,
-                                        borderSize));
+                bgStartColor =
+                    new Color(resources.getColor("service.gui.MAIN_BACKGROUND"));
+                bgEndColor =
+                    new Color(resources
+                        .getColor("service.gui.MAIN_BACKGROUND_GRADIENT"));
+
+                int borderSize =
+                    resources
+                        .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
+                this.setBorder(BorderFactory.createEmptyBorder(borderSize,
+                    borderSize, borderSize, borderSize));
+            }
+            else
+            {
+                bgStartColor = null;
+                bgEndColor = null;
             }
         }
 
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
+
+            // If the custom color window background is not enabled we have
+            // nothing to do here.
+            if (!isColorBgEnabled)
+                return;
 
             g = g.create();
             try
@@ -453,56 +456,42 @@ public abstract class SIPCommFrame
 
         private void internalPaintComponent(Graphics g)
         {
-            // If the custom color window background is not enabled we have
-            // nothing to do here.
-            if (!isColorBgEnabled)
-                return;
+            AntialiasingManager.activateAntialiasing(g);
 
             Graphics2D g2 = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
 
-            AntialiasingManager.activateAntialiasing(g2);
-
-            GradientPaint bgGradientColor
-                = new GradientPaint(this.getWidth()/2, 0,
-                bgStartColor,
-                this.getWidth()/2,
-                80,
-                bgEndColor);
+            GradientPaint bgGradientColor =
+                new GradientPaint(width / 2, 0, bgStartColor, width / 2, 80,
+                    bgEndColor);
 
             g2.setPaint(bgGradientColor);
-            g2.fillRect(0, 0, this.getWidth(), 80);
+            g2.fillRect(0, 0, width, 80);
 
             g2.setColor(bgEndColor);
-            g2.fillRect(0, 78,
-                    this.getWidth(),
-                    this.getHeight());
+            g2.fillRect(0, 78, width, height);
 
-            GradientPaint curveShadow = new GradientPaint(0, 0,
-                new Color(255, 255, 255, 150),
-                this.getWidth(),
-                this.getHeight(),
-                new Color(255, 255, 255, 50));
+            GradientPaint curveShadow =
+                new GradientPaint(0, 0, new Color(255, 255, 255, 150), width,
+                    height, new Color(255, 255, 255, 50));
 
             g2.setPaint(curveShadow);
             g2.setStroke(new BasicStroke(1f));
-            CubicCurve2D curve1 = new CubicCurve2D.Float(
-                50, -1, 250, 30, 50, 150, 0, 300);
+            CubicCurve2D curve1 =
+                new CubicCurve2D.Float(50, -1, 250, 30, 50, 150, 0, 300);
 
             g2.draw(curve1);
 
-            CubicCurve2D curve2 = new CubicCurve2D.Float(
-                this.getWidth() - 20, 0,
-                this.getWidth(), 100,
-                this.getWidth()/2, 100,
-                0, 150);
+            CubicCurve2D curve2 =
+                new CubicCurve2D.Float(width - 20, 0, width, 100, width / 2,
+                    100, 0, 150);
 
             g2.draw(curve2);
 
-            CubicCurve2D curve3 = new CubicCurve2D.Float(
-                0, 90,
-                this.getWidth()/3, 60,
-                2*this.getWidth()/3, 60,
-                this.getWidth(), 90);
+            CubicCurve2D curve3 =
+                new CubicCurve2D.Float(0, 90, width / 3, 60, 2 * width / 3, 60,
+                    width, 90);
 
             g2.draw(curve3);
         }
@@ -510,7 +499,7 @@ public abstract class SIPCommFrame
 
     /**
      * All functions implemented in this method will be invoked when user
-     * presses the Escape key. 
+     * presses the Escape key.
      */
     protected abstract void close(boolean isEscaped);
 }
