@@ -94,6 +94,8 @@ public class Packetizer
         if (!(in instanceof VideoFormat) || null == matches(in, inputFormats))
             return null;
 
+        inputFormat = in;
+
         return in;
     }
 
