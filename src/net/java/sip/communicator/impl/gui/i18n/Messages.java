@@ -63,6 +63,9 @@ public class Messages {
         try {
             resourceString = GuiActivator.getResources().getI18NString(key);
             
+            // Escape the single quote
+            resourceString = resourceString.replaceAll("'", "''");
+            
             char mnemonicIndex = GuiActivator.getResources().getI18nMnemonic(key);
             
             resourceString = MessageFormat.format(
