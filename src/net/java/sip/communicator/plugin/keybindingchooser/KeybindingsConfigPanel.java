@@ -14,8 +14,8 @@ import javax.swing.*;
 
 import chooser.*;
 
-import net.java.sip.communicator.impl.keybindings.*;
 import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added to the settings
@@ -25,11 +25,11 @@ import net.java.sip.communicator.service.keybindings.*;
  * @author Lubomir Marinov
  */
 public class KeybindingsConfigPanel
-    extends JPanel
+    extends TransparentPanel
 {
     private static final long serialVersionUID = 0;
 
-    private HashMap<KeybindingSet, SIPChooser> choosers =
+    private final HashMap<KeybindingSet, SIPChooser> choosers =
         new HashMap<KeybindingSet, SIPChooser>();
 
     public KeybindingsConfigPanel(KeybindingsService service)
@@ -60,7 +60,7 @@ public class KeybindingsConfigPanel
             SIPChooser newChooser = new SIPChooser();
             newChooser.putAllBindings(bindingSet.getBindings());
 
-            JPanel chooserWrapper = new JPanel(new BorderLayout());
+            JPanel chooserWrapper = new TransparentPanel(new BorderLayout());
             chooserWrapper.add(newChooser, BorderLayout.NORTH);
             JScrollPane scroller = new JScrollPane(chooserWrapper);
 
@@ -84,7 +84,8 @@ public class KeybindingsConfigPanel
             }
         });
 
-        JPanel bottomWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel bottomWrapper =
+            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomWrapper.add(apply);
         add(bottomWrapper, BorderLayout.SOUTH);
     }
@@ -152,7 +153,8 @@ public class KeybindingsConfigPanel
             newEntry.removeAll();
             newEntry.setLayout(new BorderLayout());
 
-            JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            JPanel left =
+                new TransparentPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             left.add(newEntry.getField(BindingEntry.Field.INDENT));
             left.add(newEntry.getField(BindingEntry.Field.ACTION));
             newEntry.add(left, BorderLayout.WEST);

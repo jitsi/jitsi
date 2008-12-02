@@ -13,7 +13,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
- * 
  * @author Yana Stamcheva
  */
 public class ExtListCellRenderer extends JPanel

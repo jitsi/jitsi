@@ -12,16 +12,18 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.swing.*;
+
 import org.osgi.framework.*;
 
 public class PluginManagerPanel
-    extends JPanel
+    extends TransparentPanel
 {
-    private JTable pluginTable = new JTable();
+    private final JTable pluginTable = new JTable();
 
-    private PluginTableModel tableModel = new PluginTableModel();
+    private final PluginTableModel tableModel = new PluginTableModel();
 
-    private ManageButtonsPanel buttonsPanel;
+    private final ManageButtonsPanel buttonsPanel;
 
     public PluginManagerPanel()
     {

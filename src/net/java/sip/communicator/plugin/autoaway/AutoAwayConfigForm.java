@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.autoaway;
 
 import java.awt.*;
+import java.awt.Container;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the user interface
@@ -22,10 +24,9 @@ import net.java.sip.communicator.service.gui.*;
  * @author Damien Roth
  */
 public class AutoAwayConfigForm
-    extends JPanel
+    extends TransparentPanel
     implements ConfigurationForm
 {
-    private JPanel mainPanel;	
     private JCheckBox enable;
     private JSpinner timer;
 
@@ -36,10 +37,7 @@ public class AutoAwayConfigForm
     {
         super(new BorderLayout(10, 10));
 
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-
-        init();
+        Component mainPanel = init();
         initValues();
 
         this.add(mainPanel);
@@ -48,9 +46,9 @@ public class AutoAwayConfigForm
     /**
      * Init the widgets
      */
-    private void init()
+    private Component init()
     {
-        JPanel autoStatusPanel = new JPanel(new BorderLayout());
+        JPanel autoStatusPanel = new TransparentPanel(new BorderLayout());
 
         // Title : automatic status
         JLabel autoStatusLabel 
@@ -61,7 +59,7 @@ public class AutoAwayConfigForm
         Font bold = autoStatusLabel.getFont().deriveFont(Font.BOLD);
         autoStatusLabel.setFont(bold);
 
-        JPanel fieldsPanel = new JPanel(new BorderLayout(5, 5));
+        JPanel fieldsPanel = new TransparentPanel(new BorderLayout(5, 5));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 0, 0));
 
         enable = new JCheckBox(AutoAwayActivator.getResources()
@@ -78,7 +76,8 @@ public class AutoAwayConfigForm
         });
 
 
-        JPanel timerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel timerPanel =
+            new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
         // Texte
         timerPanel.add(new JLabel(
                 AutoAwayActivator.getResources().getI18NString("awayMinutes")));
@@ -98,7 +97,9 @@ public class AutoAwayConfigForm
         autoStatusPanel.add(autoStatusLabel, BorderLayout.NORTH);
         autoStatusPanel.add(fieldsPanel, BorderLayout.CENTER);
 
+        Container mainPanel = new TransparentPanel(new BorderLayout());
         mainPanel.add(autoStatusPanel, BorderLayout.NORTH);
+        return mainPanel;
     }
 
     /**

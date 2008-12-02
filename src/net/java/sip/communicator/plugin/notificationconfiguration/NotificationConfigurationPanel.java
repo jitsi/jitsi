@@ -19,6 +19,7 @@ import javax.swing.event.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.notification.event.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -29,7 +30,7 @@ import net.java.sip.communicator.util.*;
  * @author Alexandre Maillard
  */
 public class NotificationConfigurationPanel
-    extends JPanel
+    extends TransparentPanel
     implements ActionListener,
                ItemListener,
                DocumentListener,
@@ -83,11 +84,11 @@ public class NotificationConfigurationPanel
     {
         super();
 
-        JPanel actions = new JPanel();
+        JPanel actions = new TransparentPanel();
         GridBagLayout actionsLayout = new GridBagLayout();
-        JPanel applyPanel = new JPanel();
+        JPanel applyPanel = new TransparentPanel();
         GridBagLayout gridLayoutGlobal = new GridBagLayout();
-        JPanel quickControl = new JPanel();
+        JPanel quickControl = new TransparentPanel();
         String[] textComboBox =
             { "Sounds", "Program Execution", "Messages Popup" };
 
@@ -127,7 +128,7 @@ public class NotificationConfigurationPanel
                 Resources.getString("actions"));
         actions.setBorder(title1);
 
-        JPanel activateDescactivatePanel = new JPanel();
+        JPanel activateDescactivatePanel = new TransparentPanel();
         FlowLayout layoutADP = new FlowLayout(FlowLayout.CENTER);
         layoutADP.setHgap(75);
         activateDescactivatePanel.setLayout(layoutADP);

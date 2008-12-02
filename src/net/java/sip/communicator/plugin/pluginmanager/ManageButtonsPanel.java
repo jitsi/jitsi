@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.pluginmanager;
 
 import java.awt.*;
@@ -14,6 +13,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -24,7 +24,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class ManageButtonsPanel
-    extends JPanel
+    extends TransparentPanel
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(ManageButtonsPanel.class);
@@ -46,7 +46,8 @@ public class ManageButtonsPanel
     private JCheckBox showSysBundlesCheckBox = new JCheckBox(
             Resources.getString("showSystemBundles"));
 
-    private JPanel buttonsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
+    private JPanel buttonsPanel =
+        new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
     private JTable pluginTable;
 
