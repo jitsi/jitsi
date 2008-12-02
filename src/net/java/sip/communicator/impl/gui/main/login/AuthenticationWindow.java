@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 /**
  * The <tt>LoginWindow</tt> is the window where the user should type his
  * user identifier and password to login.
@@ -49,13 +50,17 @@ public class AuthenticationWindow
 
     private JButton cancelButton = new JButton(cancelString.getText());
 
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
+    private TransparentPanel labelsPanel
+        = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-    private JPanel textFieldsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
+    private TransparentPanel textFieldsPanel
+        = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    private TransparentPanel mainPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private TransparentPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JCheckBox rememberPassCheckBox
         = new JCheckBox(Messages.getI18NString("rememberPassword").getText());
@@ -265,7 +270,7 @@ public class AuthenticationWindow
      * the <code>paintComponent</code> method to provide a custom background
      * image for this window.
      */
-    private class LoginWindowBackground extends JPanel
+    private class LoginWindowBackground extends TransparentPanel
     {
         private Image bgImage;
         public LoginWindowBackground(Image bgImage)
@@ -282,23 +287,13 @@ public class AuthenticationWindow
             super.paintComponent(g);
 
             g = g.create();
-            try
-            {
-                AntialiasingManager.activateAntialiasing(g);
 
-                Graphics2D g2 = (Graphics2D) g;
+            AntialiasingManager.activateAntialiasing(g);
 
-                if (bgImage != null)
-                    g2.drawImage(bgImage, 30, 30, null);
+            Graphics2D g2 = (Graphics2D) g;
 
-                g2.drawImage(ImageLoader
-                    .getImage(ImageLoader.AUTH_WINDOW_BACKGROUND), 0, 0, this
-                    .getWidth(), this.getHeight(), null);
-            }
-            finally
-            {
-                g.dispose();
-            }
+            if (bgImage != null)
+                g2.drawImage(bgImage, 30, 30, null);
         }
     }
 
