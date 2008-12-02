@@ -135,7 +135,8 @@ public class MainFrame
         this.initTitleFont();
 
         ResourceManagementService resources = GuiActivator.getResources();
-        String applicationName = resources.getSettingsString("applicationName");
+        String applicationName
+            = resources.getSettingsString("service.gui.APPLICATION_NAME");
 
         this.setTitle(applicationName);
 
