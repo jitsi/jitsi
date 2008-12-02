@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.media.transform.zrtp;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.media.CallSessionImpl;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
@@ -36,7 +37,17 @@ public class SCCallback
     private SecurityGUIListener guiListener = null;
     
     private CallParticipant participant;
+    
+    /*
+     * Is this a ZRTP DH (Master) session?
+     */
+    private boolean dhSession = false;
 
+    /*
+     * Type of session. See class SecurityGUIEventZrtp which types are
+     * supported.
+     */
+    private String sessionType = null;
     /**
      * The class constructor.
      */
@@ -57,7 +68,8 @@ public class SCCallback
                 SecurityGUIEvent.NONE,
                 SecurityGUIEvent.SECURITY_ENABLED);
         
-        logger.info("initialize SCCallback");
+        if (logger.isInfoEnabled())
+            logger.info(sessionType +": initialize SCCallback");
 
         fireStateChangedEvent(evt);
     }
@@ -73,16 +85,41 @@ public class SCCallback
         }
         
     }
+    
+    /**
+     * Set the type of this session.
+     * 
+     * @param type
+     */
+    public void setType(String type) {
+        sessionType = type;
+    }
+    
+    /**
+     * Set the DH session flag.
+     * 
+     * @param yesNo
+     */
+    public void setDHSession(boolean yesNo) {
+        dhSession = yesNo;
+    }
+    
+    /*
+     * The following methods implement the ZrtpUserCallback interface
+     */
+    
     /*
      * (non-Javadoc)
      * @see gnu.java.zrtp.ZrtpUserCallback#secureOn(java.lang.String)
      */
     public void secureOn(String cipher)
     {
-        logger.info("Cipher: " + cipher);
+        if (logger.isInfoEnabled())
+            logger.info(sessionType + ": cipher enabled: " + cipher);
+        
         HashMap<String, Object> state = new HashMap<String, Object>(3);
         
-        state.put(SecurityGUIEventZrtp.SESSION_TYPE, SecurityGUIEventZrtp.AUDIO);
+        state.put(SecurityGUIEventZrtp.SESSION_TYPE, sessionType);
         state.put(SecurityGUIEventZrtp.SECURITY_CHANGE, Boolean.TRUE);
         state.put(SecurityGUIEventZrtp.CIPHER, cipher);
 
@@ -96,7 +133,9 @@ public class SCCallback
      */
     public void showSAS(String sas, boolean verified)
     {
-        logger.info("SAS: " + sas);
+        if (logger.isInfoEnabled())
+            logger.info(sessionType + ": SAS is: " + sas);
+        
         HashMap<String, Object> state = new HashMap<String, Object>(3);
         
         state.put(SecurityGUIEventZrtp.SESSION_TYPE, SecurityGUIEventZrtp.AUDIO);
@@ -118,11 +157,33 @@ public class SCCallback
      *                              gnu.java.zrtp.ZrtpCodes.MessageSeverity,
      *                              java.util.EnumSet)
      */
-    public void showMessage(ZrtpCodes.MessageSeverity sev, EnumSet<?> subCode)
-    {
+    public void showMessage(ZrtpCodes.MessageSeverity sev, EnumSet<?> subCode) {
+
+        ZrtpCodes.InfoCodes inf;
+        int multiStreams = 0;
+
         Iterator<?> ii = subCode.iterator();
         Object msgCode = ii.next();
-        logger.info("Show message sub code: " + msgCode);
+
+        if (sev == ZrtpCodes.MessageSeverity.Info) {
+            if (msgCode instanceof ZrtpCodes.InfoCodes) {
+                inf = (ZrtpCodes.InfoCodes) msgCode;
+
+                // If the ZRTP Master session (DH mode) signals "security on"
+                // then start multi-stream sessions.
+                if (dhSession && inf == ZrtpCodes.InfoCodes.InfoSecureStateOn) {
+                    multiStreams = ((CallSessionImpl) callSession)
+                            .startZrtpMultiStreams();
+                }
+            }
+        }
+
+        if (logger.isInfoEnabled()) {
+            logger.info(sessionType + ": " + "ZRTP message: severity: " + sev
+                    + ", sub code: " + msgCode + ", DH session: " + dhSession
+                    + ", multi: " + multiStreams);
+        }
+
     }
 
     /*
@@ -136,7 +197,9 @@ public class SCCallback
     {
         Iterator<?> ii = subCode.iterator();
         Object msgCode = ii.next();
-        logger.warn("Negotiation failed sub code: " + msgCode);
+
+        if (logger.isInfoEnabled())
+            logger.warn(sessionType + ": ZRTP key negotiation failed, sub code: " + msgCode);
     }
 
     /*
@@ -145,7 +208,8 @@ public class SCCallback
      */
     public void secureOff()
     {
-        logger.info("Security off");
+        if (logger.isInfoEnabled())
+            logger.info(sessionType + ": Security off");
 
         HashMap<String, Object> state = new HashMap<String, Object>(2);
         
@@ -162,7 +226,8 @@ public class SCCallback
      */
     public void zrtpNotSuppOther()
     {
-        logger.info("ZRTP not supported");
+        if (logger.isInfoEnabled())
+            logger.info(sessionType + ": Other party does not support ZRTP key negotiation protocol, no secure calls possible");
     }
 
     /*
@@ -171,6 +236,7 @@ public class SCCallback
      */
     public void confirmGoClear()
     {
-        logger.info("GoClear confirmation requested");
+        if (logger.isInfoEnabled())
+            logger.info(sessionType + ": GoClear confirmation requested");
     }
 }

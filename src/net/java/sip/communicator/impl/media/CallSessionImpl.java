@@ -243,7 +243,7 @@ public class CallSessionImpl
     };
 
     /**
-     * Additional info codes for ZRTP4J.
+     * Additional info codes for and data to support ZRTP4J.
      * These could be added to the library. However they are specific for this
      * implementation, needing them for various GUI changes.
      */
@@ -254,6 +254,14 @@ public class CallSessionImpl
         ZRTPEngineInitFailure;
     }
 
+    /**
+     * Holds the "Master" ZRTP session.
+     * 
+     * This session must be started first and must have negotiated the key material
+     * before any other media session to the same client can be started. See the
+     * ZRTP specification, topic multi-streaming mode.  
+     */
+    private TransformConnector zrtpDHSession = null;
     /**
      * JMF stores CUSTOM_CODEC_FORMATS statically, so they only need to be
      * registered once. FMJ does this dynamically (per instance), so it needs
@@ -509,12 +517,8 @@ public class CallSessionImpl
         }
 
         //remove targets
-        if (selectedKeyProviderAlgorithm != null
-            /* TODO: Video securing related code
-             * remove the next condition as part of enabling video securing
-             * (see comments in secureStatusChanged method for more info)
-             */
-            && rtpManager.equals(audioRtpManager))
+        if (selectedKeyProviderAlgorithm != null && selectedKeyProviderAlgorithm.getProviderType()
+                == KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
         {
             TransformConnector transConnector =
                 this.transConnectors.get(rtpManager);
@@ -523,10 +527,8 @@ public class CallSessionImpl
             {
                 ZRTPTransformEngine engine
                         = (ZRTPTransformEngine)transConnector.getEngine();
-
-                engine.sendInfo(
-                    ZrtpCodes.MessageSeverity.Info,
-                    EnumSet.of(ZRTPCustomInfoCodes.ZRTPDisabledByCallEnd));
+                engine.stopZrtp();
+                engine.cleanup();
 
                 transConnector.removeTargets();
             }
@@ -1257,13 +1259,7 @@ public class CallSessionImpl
 
                 try
                 {
-                    if (selectedKeyProviderAlgorithm != null
-                        /* TODO: Video securing related code
-                         * remove the next condition as part of enabling video
-                         * securing (see comments in secureStatusChanged method
-                         * for more info)
-                         */
-                         && rtpManager.equals(audioRtpManager))
+                    if (selectedKeyProviderAlgorithm != null)
                     {
                         TransformConnector transConnector =
                             this.transConnectors.get(rtpManager);
@@ -2050,26 +2046,40 @@ public class CallSessionImpl
             // Selected key management type == ZRTP branch
             if (selectedKeyProviderAlgorithm != null &&
                 selectedKeyProviderAlgorithm.getProviderType()
-                    == KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER
-                /* TODO: Video securing related code
-                 * remove the next condition as part of enabling video securing
-                 * (see comments in secureStatusChanged method for more info)
-                 */
-                && rtpManager.equals(audioRtpManager))
+                    == KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
             {
-                // Set a ZRTP connector to use for communication
-                TransformConnector transConnector = null;
-
                 TransformManager.initializeProviders();
 
                 // The connector is created based also on the crypto services
                 // The crypto provider solution should be queried somehow
                 // or taken from a resources file
-                transConnector = TransformManager.createZRTPConnector(
+                TransformConnector transConnector = TransformManager.createZRTPConnector(
                                             bindAddress, "BouncyCastle", this);
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
 
+                SCCallback callback = new SCCallback(this);
+                boolean zrtpAutoStart = false;
+                
+                // Decide if this will become the ZRTP Master session: 
+                // - Statement: audio media session will be started before video media session
+                // - if no other audio session was started before then this will become
+                //   ZRTP Master session
+                // - only the ZRTP master sessions start in "aut-sensing" mode to
+                //   immedialtely catch ZRTP communication fro other client
+                // - after the master session has completed key negotiations it will
+                //   start other media sessions (see SCCallback)
+                if (rtpManager.equals(audioRtpManager)) {
+                    if (zrtpDHSession == null) {
+                        zrtpDHSession = transConnector;
+                        zrtpAutoStart = true;
+                        callback.setDHSession(true);
+                    }
+                    callback.setType(SecurityGUIEventZrtp.AUDIO);
+                }
+                else if (rtpManager.equals(videoRtpManager)) {
+                    callback.setType(SecurityGUIEventZrtp.VIDEO);
+                }
                 // ZRTP engine initialization
                 // TODO: 1. must query/randomize/find a method for the zid file
                 //          name
@@ -2077,12 +2087,12 @@ public class CallSessionImpl
 
                 ZRTPTransformEngine engine
                     = (ZRTPTransformEngine)transConnector.getEngine();
-                engine.setUserCallback(new SCCallback(this));
+                engine.setUserCallback(callback);
 
                 // Case 1: user toggled secure communication prior to the call
                 if (usingSRTP)
                 {
-                    if (!engine.initialize("GNUZRTP4J.zid"))
+                    if (!engine.initialize("GNUZRTP4J.zid", zrtpAutoStart))
                         engine.sendInfo(
                             ZrtpCodes.MessageSeverity.Info,
                             EnumSet.of(
@@ -2164,6 +2174,7 @@ public class CallSessionImpl
         }
         catch (Exception exc)
         {
+            exc.printStackTrace();
             logger.error("Failed to init an RTP manager.", exc);
             throw new MediaException("Failed to init an RTP manager."
                                      , MediaException.IO_ERROR
@@ -2786,10 +2797,15 @@ public class CallSessionImpl
         }
     }
 
+    /*
+     * The following methods are specific to ZRTP key management implementation.
+     */
+    /*
+     * (non-Javadoc)
+     * @see net.java.sip.communicator.service.media.CallSession#setZrtpSASVerification(boolean)
+     */
     public boolean setZrtpSASVerification(boolean verified) {
-        TransformConnector transConnector = this.transConnectors
-                .get(audioRtpManager);
-        ZRTPTransformEngine engine = (ZRTPTransformEngine) transConnector
+        ZRTPTransformEngine engine = (ZRTPTransformEngine) zrtpDHSession
                 .getEngine();
         if (verified) {
             engine.SASVerified();
@@ -2844,6 +2860,39 @@ public class CallSessionImpl
         }
     }
 
+    /**
+     * Start multi-stream ZRTP sessions.
+     * 
+     * After the ZRTP Master (DH) session reached secure state the SCCallback calls
+     * this method to start the multi-stream ZRTP sessions.
+     * 
+     * First get the multi-stream data from the ZRTP DH session. Then iterate over
+     * all known connectors, set multi-stream mode data, and enable auto-start
+     * mode (auto-sensing).
+     * 
+     * @return Number of started ZRTP multi-stream mode sessions
+     */
+    public int startZrtpMultiStreams() {
+        ZRTPTransformEngine engine
+        = (ZRTPTransformEngine)zrtpDHSession.getEngine();
+
+        int counter = 0;
+        byte[] multiStreamData = engine.getMultiStrParams();
+        
+        Enumeration<TransformConnector> tcs = transConnectors.elements();
+
+        while (tcs.hasMoreElements()) { 
+            TransformConnector tc = tcs.nextElement();
+            if (tc.equals(zrtpDHSession)) {
+                continue;
+            }
+            engine = (ZRTPTransformEngine)tc.getEngine();
+            engine.setMultiStrParams(multiStreamData);
+            engine.setEnableZrtp(true);
+            counter++;
+        }
+        return counter;
+    }
     /**
      * Initializes the supported key management types and establishes
      * default usage priorities for them.

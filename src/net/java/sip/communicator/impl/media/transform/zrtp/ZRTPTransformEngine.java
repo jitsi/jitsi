@@ -362,7 +362,7 @@ public class ZRTPTransformEngine
 
     /**
      * Default engine initialization method.
-     * Calling this for engine initialization starts it with auto-sensing.
+     * Calling this for engine initialization and start it with auto-sensing.
      *
      * @param zidFilename The ZID file name
      * @return true if initialization fails, false if succeeds
@@ -445,7 +445,6 @@ public class ZRTPTransformEngine
 
             if (zf.open(zidFilename) < 0)
             {
-                enableZrtp = false;
                 return false;
             }
         }
@@ -459,6 +458,7 @@ public class ZRTPTransformEngine
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return false;
         }
 
         userCallback.init();
