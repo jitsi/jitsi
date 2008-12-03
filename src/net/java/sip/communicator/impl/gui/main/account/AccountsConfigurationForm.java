@@ -272,7 +272,7 @@ public class AccountsConfigurationForm
                         JOptionPane.showConfirmDialog(this, Messages
                             .getI18NString("removeAccountMessage").getText(),
                             Messages.getI18NString("removeAccount").getText(),
-                            JOptionPane.YES_NO_CANCEL_OPTION);
+                            JOptionPane.YES_NO_OPTION);
 
                     if (result == JOptionPane.YES_OPTION)
                     {
