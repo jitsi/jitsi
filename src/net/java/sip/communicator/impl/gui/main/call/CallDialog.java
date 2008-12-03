@@ -88,19 +88,7 @@ public class CallDialog
 
         if (buttonName.equals(HANGUP_BUTTON))
         {
-            Call call = callPanel.getCall();
-
-            CallManager.hangupCall(call);
-
-            this.dispose();
-
-//            if (removeCallTimers.containsKey(callPanel))
-//            {
-//                ((Timer) removeCallTimers.get(callPanel)).stop();
-//                removeCallTimers.remove(callPanel);
-//            }
-//
-//            removeCallPanel(callPanel);
+            actionPerformedOnHangupButton();
         }
         else if (buttonName.equals(DIAL_BUTTON))
         {
@@ -135,22 +123,35 @@ public class CallDialog
     }
 
     /**
+     * Executes the action associated with the "Hang up" button which may be
+     * invoked by clicking the button in question or closing this dialog.
+     */
+    private void actionPerformedOnHangupButton()
+    {
+        Call call = getCall();
+
+        if (call != null)
+            CallManager.hangupCall(call);
+
+        this.dispose();
+    }
+
+    /**
      * Returns the <tt>Call</tt> corresponding to this CallDialog.
      * 
      * @return the <tt>Call</tt> corresponding to this CallDialog.
      */
     public Call getCall()
     {
-        if (callPanel != null)
-        {
-            return callPanel.getCall();
-        }
-        else
-            return null;
+        return (callPanel != null) ? callPanel.getCall() : null;
     }
 
     @Override
     protected void close(boolean isEscaped)
     {
+        if (!isEscaped)
+        {
+            actionPerformedOnHangupButton();
+        }
     }
 }
