@@ -14,11 +14,11 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -34,6 +34,8 @@ public class ReceivedCallDialog
     private static final String CALL_BUTTON = "CallButton";
 
     private static final String HANGUP_BUTTON = "HangupButton";
+
+    private static final int HGAP = 5;
 
     private Call incomingCall;
 
@@ -64,10 +66,10 @@ public class ReceivedCallDialog
      */
     private void initComponents()
     {
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         JLabel callLabel = new JLabel();
 
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel buttonsPanel = new TransparentPanel(new GridBagLayout());
 
         SIPCommButton callButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
@@ -77,9 +79,7 @@ public class ReceivedCallDialog
 
         mainPanel.setPreferredSize(new Dimension(400, 90));
         mainPanel.setOpaque(false);
-        mainPanel.setBorder(BorderFactory.createCompoundBorder(
-            SIPCommBorders.getRoundBorder(),
-            BorderFactory.createEmptyBorder(20, 20, 20, 20)));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         callButton.setName(CALL_BUTTON);
         hangupButton.setName(HANGUP_BUTTON);
@@ -91,11 +91,29 @@ public class ReceivedCallDialog
 
         this.getContentPane().add(mainPanel);
 
-        mainPanel.add(callLabel, BorderLayout.CENTER);
-        mainPanel.add(buttonsPanel, BorderLayout.EAST);
+        GridBagConstraints mainConstraints = new GridBagConstraints();
+        mainConstraints.anchor = GridBagConstraints.WEST;
+        mainConstraints.gridx = 0;
+        mainConstraints.gridy = 0;
+        mainConstraints.weightx = 1;
+        mainPanel.add(callLabel, mainConstraints);
+        mainConstraints.anchor = GridBagConstraints.CENTER;
+        mainConstraints.gridx = 1;
+        mainConstraints.weightx = 0;
+        mainPanel.add(Box.createHorizontalStrut(HGAP), mainConstraints);
+        mainConstraints.anchor = GridBagConstraints.CENTER;
+        mainConstraints.gridx = 2;
+        mainConstraints.weightx = 0;
+        mainPanel.add(buttonsPanel, mainConstraints);
 
-        buttonsPanel.add(callButton);
-        buttonsPanel.add(hangupButton);
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridx = 0;
+        buttonConstraints.gridy = 0;
+        buttonsPanel.add(callButton, buttonConstraints);
+        buttonConstraints.gridx = 1;
+        buttonsPanel.add(Box.createHorizontalStrut(HGAP));
+        buttonConstraints.gridx = 2;
+        buttonsPanel.add(hangupButton, buttonConstraints);
     }
 
     /**
