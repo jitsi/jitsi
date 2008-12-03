@@ -775,22 +775,19 @@ public class CallParticipantPanel
         setBackground(center, background);
 
         class FullScreenListener
-            implements ContainerListener, KeyListener, MouseMotionListener,
-            WindowStateListener
+            implements ContainerListener, KeyListener, WindowStateListener
         {
             public void componentAdded(ContainerEvent event)
             {
                 Component child = event.getChild();
 
                 child.addKeyListener(this);
-                child.addMouseMotionListener(this);
             }
 
             public void componentRemoved(ContainerEvent event)
             {
                 Component child = event.getChild();
 
-                child.removeMouseMotionListener(this);
                 child.removeKeyListener(this);
             }
 
@@ -812,32 +809,6 @@ public class CallParticipantPanel
             {
             }
 
-            public void mouseDragged(MouseEvent event)
-            {
-            }
-
-            public void mouseMoved(MouseEvent event)
-            {
-                Component component = event.getComponent();
-
-                if ((buttonBar != null) && (component != null)
-                    && !component.equals(buttonBar))
-                {
-                    Point pointInContentPane =
-                        SwingUtilities.convertPoint(component, event
-                            .getPoint(), contentPane);
-                    Rectangle hotSpotBounds = buttonBar.getBounds();
-
-                    hotSpotBounds.x = 0;
-                    hotSpotBounds.width = contentPane.getWidth();
-
-                    boolean visible =
-                        hotSpotBounds.contains(pointInContentPane);
-
-                    buttonBar.setVisible(visible);
-                }
-            }
-
             public void windowStateChanged(WindowEvent event)
             {
                 switch (event.getID())
@@ -853,12 +824,6 @@ public class CallParticipantPanel
         }
         FullScreenListener listener = new FullScreenListener();
 
-        // Display the buttonBar when the mouse moves.
-        if (buttonBar != null)
-        {
-            buttonBar.setVisible(false);
-            addMouseMotionListener(contentPane, listener);
-        }
         // Exit on Escape.
         addKeyListener(frame, listener);
         // Activate the above features for the local and remote videos.
@@ -900,18 +865,6 @@ public class CallParticipantPanel
             Component[] components = ((Container) component).getComponents();
             for (int i = 0; i < components.length; i++)
                 addKeyListener(components[i], l);
-        }
-    }
-
-    private void addMouseMotionListener(Component component,
-        MouseMotionListener l)
-    {
-        component.addMouseMotionListener(l);
-        if (component instanceof Container)
-        {
-            Component[] components = ((Container) component).getComponents();
-            for (int i = 0; i < components.length; i++)
-                addMouseMotionListener(components[i], l);
         }
     }
 }
