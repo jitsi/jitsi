@@ -1754,8 +1754,9 @@ public class ProtocolProviderServiceSipImpl
         {
             String userID = (String) accountID.getAccountProperties()
                 .get(ProtocolProviderFactory.USER_ID);
-            if ( userID.indexOf("@") > -1 )
-                registrarAddressStr = userID.substring( userID.indexOf("@")+1);
+            int index = userID.indexOf("@");
+            if ( index > -1 )
+                registrarAddressStr = userID.substring( index+1);
         }
 
         //if we still have no registrar address or if the registrar address

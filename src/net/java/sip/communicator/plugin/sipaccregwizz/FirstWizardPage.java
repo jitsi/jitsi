@@ -557,7 +557,8 @@ public class FirstWizardPage
                 .get("KEEP_ALIVE_INTERVAL");
 
         uinField.setEnabled(false);
-        this.uinField.setText(accountID.getUserID() + "@" + serverAddress);
+        this.uinField.setText((serverAddress == null) ? accountID.getUserID()
+            : (accountID.getUserID() + "@" + serverAddress));
 
         if (password != null)
         {

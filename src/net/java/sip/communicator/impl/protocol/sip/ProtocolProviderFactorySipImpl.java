@@ -66,10 +66,8 @@ public class ProtocolProviderFactorySipImpl
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was null");
 
+        // serverAddress == null is OK because of registrarless support
         String serverAddress = (String)accountProperties.get(SERVER_ADDRESS);
-
-        if(serverAddress == null)
-            throw new NullPointerException("null is not a valid ServerAddress");
 
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.SIP);
@@ -150,10 +148,7 @@ public class ProtocolProviderFactorySipImpl
             throw new NullPointerException(
                 "The specified property map was null");
 
-        String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
-
-        if(serverAddress == null)
-            throw new NullPointerException("null is not a valid ServerAddress");
+        // serverAddress == null is OK because of registrarless support
 
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.SIP);

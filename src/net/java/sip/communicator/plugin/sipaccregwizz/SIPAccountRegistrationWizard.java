@@ -220,9 +220,9 @@ public class SIPAccountRegistrationWizard
             serverAddress = registration.getServerAddress();
         else
             serverAddress = getServerFromUserName(userName);
-
-        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
-                              serverAddress);
+        if (serverAddress != null)
+            accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+                serverAddress);
 
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                 registration.getServerPort());
@@ -232,9 +232,9 @@ public class SIPAccountRegistrationWizard
             proxyAddress = registration.getProxy();
         else
             proxyAddress = getServerFromUserName(userName);
-
-        accountProperties.put(  ProtocolProviderFactory.PROXY_ADDRESS,
-                                proxyAddress);
+        if (proxyAddress != null)
+            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+                proxyAddress);
 
         accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
                 registration.getProxyPort());

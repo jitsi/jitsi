@@ -17,23 +17,25 @@ import net.java.sip.communicator.service.protocol.*;
 public class SipAccountID
     extends AccountID
 {
+    private static String getUserIDWithoutServerName(String userID)
+    {
+        int index = userID.indexOf("@");
+        return (index > -1) ? userID.substring(0, index) : userID;
+    }
+
     /**
      * Creates a SIP account id from the specified ide and account properties.
-     *
+     * 
      * @param userID the user id part of the SIP uri identifying this contact.
      * @param accountProperties any other properties necessary for the account.
      * @param serverName the name of the server that the user belongs to.
      */
-    protected SipAccountID(String userID,
-                           Map    accountProperties,
-                           String serverName)
+    protected SipAccountID(String userID, Map accountProperties,
+        String serverName)
     {
-        super( ( userID.indexOf("@") > -1 )
-                    ? userID.substring(0, userID.indexOf("@"))
-                    : userID
-                , accountProperties
-                , (String) accountProperties.get(ProtocolProviderFactory.PROTOCOL)
-                , serverName);
+        super(getUserIDWithoutServerName(userID), accountProperties,
+            (String) accountProperties.get(ProtocolProviderFactory.PROTOCOL),
+            serverName);
     }
 
     /**
@@ -49,7 +51,18 @@ public class SipAccountID
      */
     public String getAccountAddress()
     {
-        return "sip:" + getUserID() + "@" + getService();
+        StringBuffer accountAddress = new StringBuffer();
+        accountAddress.append("sip:");
+        accountAddress.append(getUserID());
+
+        String service = getService();
+        if (service != null)
+        {
+            accountAddress.append('@');
+            accountAddress.append(service);
+        }
+
+        return accountAddress.toString();
     }
 
     /**
