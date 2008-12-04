@@ -43,11 +43,12 @@ public class TransferCallDialog
 
         setTitle(Messages.getI18NString("transferCallTitle").getText());
 
-        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         getContentPane().add(mainPanel);
 
-        JPanel contentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel contentPanel =
+            new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
         mainPanel.add(contentPanel, BorderLayout.NORTH);
 
         JLabel targetLabel =
@@ -59,7 +60,8 @@ public class TransferCallDialog
         targetComboBox.setUI(new SIPCommCallComboBoxUI());
         contentPanel.add(targetComboBox);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+        JPanel buttonPanel =
+            new TransparentPanel(new FlowLayout(FlowLayout.TRAILING));
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         okButton =

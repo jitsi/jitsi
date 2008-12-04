@@ -18,19 +18,20 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 public class SearchChatRoomPanel
-    extends JPanel
+    extends TransparentPanel
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(SearchChatRoomPanel.class);
     
     private ChatRoomNamePanel namePanel = new ChatRoomNamePanel();
     
-    private JPanel mainPanel = new JPanel();
-    
-    private JPanel searchPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel mainPanel = new TransparentPanel();
+
+    private JPanel searchPanel = new TransparentPanel(new GridLayout(0, 1));
     
     private JTextArea searchTextArea = new JTextArea(
         Messages.getI18NString("searchForChatRoomsText").getText());
@@ -38,7 +39,7 @@ public class SearchChatRoomPanel
     private JButton searchButton = new JButton(
         Messages.getI18NString("search").getText());
     
-    private JPanel buttonPanel = new JPanel(
+    private JPanel buttonPanel = new TransparentPanel(
         new FlowLayout(FlowLayout.CENTER));
     
     private JList chatRoomsList = new JList();

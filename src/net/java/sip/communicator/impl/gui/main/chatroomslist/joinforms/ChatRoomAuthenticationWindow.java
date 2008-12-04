@@ -47,13 +47,16 @@ public class ChatRoomAuthenticationWindow
 
     private JButton cancelButton = new JButton(cancelString.getText());
 
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
+    private JPanel labelsPanel =
+        new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-    private JPanel textFieldsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
+    private JPanel textFieldsPanel =
+        new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonsPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private LoginWindowBackground backgroundPanel;
 

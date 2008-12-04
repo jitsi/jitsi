@@ -7,17 +7,14 @@
 package net.java.sip.communicator.plugin.mailbox;
 
 import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.filechooser.*;
-import java.io.*;
-import java.awt.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.configuration.*;
-import org.osgi.framework.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the user interface
@@ -26,7 +23,7 @@ import org.osgi.framework.*;
  * @author Ryan Ricard
  */
 public class MailboxConfigurationForm
-    extends JPanel
+    extends TransparentPanel
     implements ConfigurationForm, ActionListener
 {
     private JLabel jlblOutgoingMessage = new JLabel(
@@ -35,7 +32,7 @@ public class MailboxConfigurationForm
     private JButton jbtnOutgoingMessage = new JButton(
                                     Resources.getString("browse"));
     private JTextField jtfOutgoingMessage = new JTextField();
-    private JPanel jpOutgoingMessage = new JPanel
+    private JPanel jpOutgoingMessage = new TransparentPanel
                                 (new FlowLayout(FlowLayout.LEFT));
     private JLabel jlblIncomingMessage = new JLabel(
                                     Resources.getString("incoming"));
@@ -43,7 +40,7 @@ public class MailboxConfigurationForm
     private JButton jbtnIncomingMessage = new JButton(
                                     Resources.getString("browse"));
     private JTextField jtfIncomingMessage = new JTextField();
-    private JPanel jpIncomingMessage = new JPanel(
+    private JPanel jpIncomingMessage = new TransparentPanel(
                                 new FlowLayout(FlowLayout.LEFT));
     private JLabel jlblWaitTime = new JLabel(Resources.getString("waitTime"));
     private JSpinner jsWaitTime = new JSpinner(new SpinnerNumberModel(
@@ -51,7 +48,9 @@ public class MailboxConfigurationForm
                                                 new Integer(0),
                                                 null,
                                                 new Integer(1000)));
-    private JPanel jpWaitTime = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+    private JPanel jpWaitTime =
+        new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
 
     private JLabel jlblMaxMessageTime = new JLabel(
                             Resources.getString("maxMessageTime"));
@@ -60,12 +59,12 @@ public class MailboxConfigurationForm
                                                 new Integer(0),
                                                 null,
                                                 new Integer(1000)));
-    private JPanel jpMaxMessageTime = new JPanel(
+    private JPanel jpMaxMessageTime = new TransparentPanel(
                                     new FlowLayout(FlowLayout.LEFT));
 
     private JButton jbtnConfirm = new JButton(Resources.getString("confirm"));
     private JButton jbtnDefault = new JButton(Resources.getString("default"));
-    private JPanel jpConfirmDefault = new JPanel();
+    private JPanel jpConfirmDefault = new TransparentPanel();
     ConfigurationService config;
     public MailboxConfigurationForm()
     {

@@ -11,7 +11,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -38,11 +37,12 @@ public class RequestAuthorizationDialog
         Messages.getI18NString("typeYourRequest").getText() + ": ");
     
     private JTextField requestField = new JTextField();
-    
-    private JPanel requestPanel = new JPanel(new BorderLayout());
-    
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    
+
+    private JPanel requestPanel = new TransparentPanel(new BorderLayout());
+
+    private JPanel buttonsPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
     private I18NString requestString = Messages.getI18NString("request");
     
     private I18NString cancelString = Messages.getI18NString("cancel");
@@ -51,11 +51,11 @@ public class RequestAuthorizationDialog
     
     private JButton cancelButton = new JButton(cancelString.getText());
     
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
     
-    private JPanel northPanel = new JPanel(new BorderLayout());
+    private JPanel northPanel = new TransparentPanel(new BorderLayout());
     
-    private JPanel titlePanel = new JPanel(new GridLayout(0, 1));
+    private JPanel titlePanel = new TransparentPanel(new GridLayout(0, 1));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));

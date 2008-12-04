@@ -37,10 +37,11 @@ public class CreateChatRoomDialog
     private JButton addButton = new JButton(addString.getText());
     
     private JButton cancelButton = new JButton(cancelString.getText());
-    
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+
+    private JPanel buttonsPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
     
     private ChatRoomProviderWrapper chatRoomProvider;
     

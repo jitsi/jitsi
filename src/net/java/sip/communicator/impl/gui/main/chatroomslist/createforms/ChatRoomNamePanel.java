@@ -24,7 +24,7 @@ import net.java.sip.communicator.swing.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomNamePanel
-    extends JPanel
+    extends TransparentPanel
     implements DocumentListener
 {
    
@@ -33,7 +33,7 @@ public class ChatRoomNamePanel
     
     private JTextField textField = new JTextField();
     
-    private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
     
     private SIPCommMsgTextArea infoLabel 
         = new SIPCommMsgTextArea(
@@ -44,11 +44,12 @@ public class ChatRoomNamePanel
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
-    
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
-    
-    private JPanel rightPanel = new JPanel(new BorderLayout());
-    
+
+    private JPanel labelsPanel =
+        new TransparentPanel(new GridLayout(0, 1, 10, 10));
+
+    private JPanel rightPanel = new TransparentPanel(new BorderLayout());
+
     private WizardContainer parentWizard;
     
     /**

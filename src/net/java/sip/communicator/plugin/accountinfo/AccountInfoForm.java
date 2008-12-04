@@ -3,7 +3,6 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.accountinfo;
 
 import java.awt.*;
@@ -14,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.swing.*;
 
 import org.osgi.framework.*;
 
@@ -24,7 +24,7 @@ import org.osgi.framework.*;
  * @author Adam Goldstein
  */
 public class AccountInfoForm
-    extends JPanel
+    extends TransparentPanel
     implements ConfigurationForm
 {
     /**

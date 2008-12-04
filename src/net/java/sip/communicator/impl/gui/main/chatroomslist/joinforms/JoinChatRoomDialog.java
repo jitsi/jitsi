@@ -12,7 +12,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.swing.*;
@@ -42,9 +41,10 @@ public class JoinChatRoomDialog
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
         .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
-    
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    
+
+    private JPanel buttonsPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
     private ChatRoomProviderWrapper chatRoomProvider;
     
     /**

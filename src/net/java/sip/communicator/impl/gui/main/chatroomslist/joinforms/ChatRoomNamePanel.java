@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
 import java.awt.*;
@@ -15,6 +14,7 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>ChatRoomNamePanel</tt> is the form, where we should enter the chat
@@ -23,14 +23,14 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomNamePanel
-    extends JPanel
+    extends TransparentPanel
 {    
     private JLabel chatRoomLabel = new JLabel(
         Messages.getI18NString("chatRoomName").getText());
     
     private JTextField textField = new JTextField();
     
-    private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
     
     private SIPCommMsgTextArea infoLabel 
         = new SIPCommMsgTextArea(
@@ -40,9 +40,9 @@ public class ChatRoomNamePanel
         Messages.getI18NString("joinChatRoomTitle").getText());
     
     
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
     
-    private JPanel rightPanel = new JPanel(new BorderLayout());
+    private JPanel rightPanel = new TransparentPanel(new BorderLayout());
         
     /**
      * Creates and initializes the <tt>ChatRoomNamePanel</tt>.

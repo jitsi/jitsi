@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class SelectAccountPanel extends JPanel
+public class SelectAccountPanel extends TransparentPanel
 {
     private Logger logger = Logger.getLogger(SelectAccountPanel.class);
     
@@ -44,9 +44,9 @@ public class SelectAccountPanel extends JPanel
     
     private Iterator protocolProvidersList;
     
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
     
-    private JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel rightPanel = new TransparentPanel(new BorderLayout(10, 10));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));

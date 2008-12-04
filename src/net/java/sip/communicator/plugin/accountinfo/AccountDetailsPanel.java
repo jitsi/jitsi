@@ -1,10 +1,9 @@
-package net.java.sip.communicator.plugin.accountinfo;
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
+package net.java.sip.communicator.plugin.accountinfo;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,6 +18,7 @@ import javax.swing.filechooser.FileFilter;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class AccountDetailsPanel
-    extends JPanel
+    extends TransparentPanel
 {
     private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
 
@@ -63,9 +63,10 @@ public class AccountDetailsPanel
 
     private JButton applyButton = new JButton(Resources.getString("apply"));
 
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
 
     private JScrollPane mainScrollPane = new JScrollPane();
 
@@ -130,17 +131,17 @@ public class AccountDetailsPanel
 
     private void initSummaryPanel()
     {
-        JPanel summaryPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel summaryPanel = new TransparentPanel(new BorderLayout(10, 10));
 
         summaryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         summaryPanel.setSize(this.getWidth(), this.getHeight());
 
         // Create the avatar panel.
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        JPanel avatarPanel = new JPanel(new BorderLayout());
+        JPanel leftPanel = new TransparentPanel(new BorderLayout());
+        JPanel avatarPanel = new TransparentPanel(new BorderLayout());
         JButton changeAvatarButton = new JButton(Resources.getString("change"));
         JPanel changeButtonPanel
-            = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
         changeAvatarButton.addActionListener(new ChangeAvatarActionListener());
 
@@ -156,13 +157,13 @@ public class AccountDetailsPanel
         summaryPanel.add(leftPanel, BorderLayout.WEST);
 
         // Create the summary details panel.
-        JPanel detailsPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel detailsPanel = new TransparentPanel(new BorderLayout(10, 10));
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         summaryPanel.add(detailsPanel, BorderLayout.CENTER);
 
         // Labels panel.
-        JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
         labelsPanel.add(new JLabel(Resources.getString("firstNameNS")));
 //        labelsPanel.add(new JLabel(Resources.getString("middleNameNS")));
@@ -176,7 +177,7 @@ public class AccountDetailsPanel
         detailsPanel.add(labelsPanel, BorderLayout.WEST);
 
         // Values panel.
-        JPanel valuesPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
         valuesPanel.add(firstNameField);
 //        valuesPanel.add(middleNameField);
@@ -225,7 +226,7 @@ public class AccountDetailsPanel
         unsupportedTextArea.setEditable(false);
         unsupportedTextArea.setLineWrap(true);
 
-        JPanel unsupportedPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel unsupportedPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
         unsupportedTextArea.setPreferredSize(new Dimension(200, 200));
 
@@ -390,12 +391,12 @@ public class AccountDetailsPanel
      */
     private void initExtendedPanel()
     {
-        JPanel mainExtendedPanel = new JPanel(new BorderLayout());
+        JPanel mainExtendedPanel = new TransparentPanel(new BorderLayout());
 
-        JPanel extendedPanel = new JPanel();
+        JPanel extendedPanel = new TransparentPanel();
         extendedPanel.setLayout(new BoxLayout(extendedPanel, BoxLayout.Y_AXIS));
 
-        JPanel imagePanel = new JPanel();
+        JPanel imagePanel = new TransparentPanel();
 
         // The imagePanel will be used for any BinaryDetails and will be added at
         // the bottom so we don't disrupt the standard look of the other details
@@ -421,7 +422,7 @@ public class AccountDetailsPanel
 
             detailLabel = new JLabel();
             detailValueArea = new JTextArea();
-            detailPanel = new JPanel(new BorderLayout(10, 10));
+            detailPanel = new TransparentPanel(new BorderLayout(10, 10));
 
             detailValueArea.setAlignmentX(JTextArea.CENTER_ALIGNMENT);
             detailValueArea.setLineWrap(true);
@@ -488,7 +489,7 @@ public class AccountDetailsPanel
 
             JLabel webInfoLabel = new JLabel("Click to see web info: ");
             JEditorPane webInfoValue = new JEditorPane();
-            JPanel webInfoPanel = new JPanel(new BorderLayout());
+            JPanel webInfoPanel = new TransparentPanel(new BorderLayout());
 
             webInfoPanel.add(webInfoLabel, BorderLayout.WEST);
             webInfoPanel.add(webInfoValue, BorderLayout.CENTER);
