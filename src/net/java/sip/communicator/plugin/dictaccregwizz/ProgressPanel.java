@@ -10,13 +10,15 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.swing.*;
+
 /**
  * Panel showing the current status of the search of the strategies
  * 
  * @author ROTH Damien
  */
 public class ProgressPanel
-    extends JPanel
+    extends TransparentPanel
     implements ActionListener
 {
     private JPanel rightPanel;
@@ -47,7 +49,7 @@ public class ProgressPanel
         this.cancelButton.addActionListener(this);
         
         // Right panel init
-        this.rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        this.rightPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
         this.rightPanel.add(this.progressLabel);
         this.rightPanel.add(this.cancelButton);
         

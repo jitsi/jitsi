@@ -9,11 +9,13 @@ package net.java.sip.communicator.plugin.rssaccregwizz;
 import java.util.*;
 
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user ID
@@ -22,25 +24,25 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov/Jean-Albert Vescovo
  */
 public class FirstWizardPage
-    extends JPanel
+    extends TransparentPanel
     implements  WizardPage,
                 DocumentListener
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
 
     private JLabel infoTitle= new JLabel(
         Resources.getString("rssAccountInfoTitle"));
 
     private JPanel infoTitlePanel
-        = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JLabel existingAccountLabel =
         new JLabel(Resources.getString("rssAccountExist"));
 
     private JPanel existingAccountPanel =
-        new JPanel(new FlowLayout(FlowLayout.LEFT));
+        new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
 
     private JTextArea accountInfoArea = new JTextArea(
         Resources.getString("rssAccountInfo"));
@@ -49,7 +51,7 @@ public class FirstWizardPage
         = new JLabel(Resources.getString("rssAccountAttention"));
 
     private JPanel accountInfoAttentionPanel
-        = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 

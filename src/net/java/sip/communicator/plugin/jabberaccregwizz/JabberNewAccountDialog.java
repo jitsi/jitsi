@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
@@ -35,21 +36,21 @@ public class JabberNewAccountDialog
     private JabberServerChooserDialog jabberServerChooserDialog;
 
     // Panels
-    private JPanel userIDPassPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel userIDPassPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel serverPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel serverPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private Box buttonBox = new Box(BoxLayout.X_AXIS);
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
 
-    private JPanel westPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel westPanel = new TransparentPanel(new BorderLayout(10, 10));
 
     // Labels
     private JLabel serverLabel = new JLabel(Resources.getString("cserver"));

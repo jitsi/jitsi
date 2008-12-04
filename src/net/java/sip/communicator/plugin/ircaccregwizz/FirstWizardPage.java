@@ -17,6 +17,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user ID
@@ -25,7 +26,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Lionel Ferreira & Michael Tarantino
  */
 public class FirstWizardPage
-    extends JPanel
+    extends TransparentPanel
     implements  WizardPage,
                 DocumentListener,
                 ActionListener
@@ -39,23 +40,23 @@ public class FirstWizardPage
 
     public static final String SERVER_EXAMPLE = "Ex: irc.quakenet.org";
 
-    private JPanel userPassPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel userPassPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel serverPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel serverPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel optionsPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel optionsPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
 
-    private JPanel valuesPanel = new JPanel();
+    private JPanel valuesPanel = new TransparentPanel();
 
-    private JPanel labelsServerPanel = new JPanel();
+    private JPanel labelsServerPanel = new TransparentPanel();
 
-    private JPanel valuesServerPanel = new JPanel();
+    private JPanel valuesServerPanel = new TransparentPanel();
 
-    private JPanel labelsOptionsPanel = new JPanel();
+    private JPanel labelsOptionsPanel = new TransparentPanel();
 
-    private JPanel valuesOptionsPanel = new JPanel();
+    private JPanel valuesOptionsPanel = new TransparentPanel();
 
     private JLabel infoPassword
         = new JLabel(Resources.getString("infoPassword"));
@@ -71,9 +72,9 @@ public class FirstWizardPage
     private JLabel existingAccountLabel
         = new JLabel(Resources.getString("existingAccount"));
 
-    private JPanel emptyPanel = new JPanel();
+    private JPanel emptyPanel = new TransparentPanel();
 
-    private JPanel emptyPanel2 = new JPanel();
+    private JPanel emptyPanel2 = new TransparentPanel();
 
     private JLabel nickExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
@@ -99,7 +100,7 @@ public class FirstWizardPage
     private JCheckBox passwordNotRequired = new JCheckBox(
             Resources.getString("passwordNotRequired"));
 
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -479,9 +480,9 @@ public class FirstWizardPage
     
     public Object getSimpleForm()
     {
-        JPanel simplePanel = new JPanel(new BorderLayout());
-        JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
-        JPanel valuesPanel = new JPanel(new GridLayout(0, 1));
+        JPanel simplePanel = new TransparentPanel(new BorderLayout());
+        JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
+        JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1));
 
         simplePanel.setOpaque(false);
         labelsPanel.setOpaque(false);

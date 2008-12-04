@@ -14,6 +14,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
@@ -23,26 +24,26 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Damian Minkov
  */
 public class FirstWizardPage
-    extends JPanel
+    extends TransparentPanel
     implements WizardPage, DocumentListener, ItemListener
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     public static final String USER_NAME_EXAMPLE = "Ex: john@voiphone.net or simply \"john\" for no server";
 
-    private JPanel firstTabPanel = new JPanel(new BorderLayout());
+    private JPanel firstTabPanel = new TransparentPanel(new BorderLayout());
 
-    private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel uinPassPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
 
-    private JPanel valuesPanel = new JPanel();
+    private JPanel valuesPanel = new TransparentPanel();
 
     private JLabel uinLabel = new JLabel(Resources.getString("id"));
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
-    private JPanel emptyPanel = new JPanel();
+    private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
@@ -56,11 +57,11 @@ public class FirstWizardPage
     private JCheckBox rememberPassBox =
         new JCheckBox(Resources.getString("rememberPassword"));
 
-    private JPanel advancedOpPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel advancedOpPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enableAdvOpButton =
         new JCheckBox(Resources.getString("ovverideServerOps"), false);
@@ -91,14 +92,14 @@ public class FirstWizardPage
     private JComboBox transportCombo = new JComboBox(new Object[]
     { "UDP", "TCP", "TLS" });
 
-    private JPanel presenceOpPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel presenceOpPanel = new TransparentPanel(new BorderLayout(10, 10));
 
     private JPanel buttonsPresOpPanel =
-        new JPanel(new GridLayout(0, 1, 10, 10));
+        new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel labelsPresOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsPresOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesPresOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesPresOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enablePresOpButton =
         new JCheckBox(Resources.getString("enablePresence"), true);
@@ -118,11 +119,11 @@ public class FirstWizardPage
     private JTextField subscribeExpiresField =
         new JTextField(SIPAccountRegistration.DEFAULT_SUBSCRIBE_EXPIRES);
 
-    private JPanel keepAlivePanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel keepAlivePanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel keepAliveLabels = new JPanel(new GridLayout(0, 1, 5, 5));
+    private JPanel keepAliveLabels = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
-    private JPanel keepAliveValues = new JPanel(new GridLayout(0, 1, 5, 5));
+    private JPanel keepAliveValues = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
     private JLabel keepAliveMethodLabel
         = new JLabel(Resources.getString("keepAliveMethod"));
@@ -144,7 +145,7 @@ public class FirstWizardPage
 
     private JTabbedPane tabbedPane = new JTabbedPane();
 
-    private JPanel advancedPanel = new JPanel();
+    private JPanel advancedPanel = new TransparentPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -308,7 +309,7 @@ public class FirstWizardPage
 
         advancedPanel.add(presenceOpPanel);
 
-        JPanel emptyLabelPanel = new JPanel();
+        JPanel emptyLabelPanel = new TransparentPanel();
         emptyLabelPanel.setMaximumSize(new Dimension(40, 35));
 
         keepAliveLabels.add(keepAliveMethodLabel);

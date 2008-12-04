@@ -14,6 +14,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
@@ -22,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class FirstWizardPage
-    extends JPanel
+    extends TransparentPanel
     implements  WizardPage,
                 DocumentListener,
                 ActionListener
@@ -31,24 +32,28 @@ public class FirstWizardPage
 
     public static final String USER_NAME_EXAMPLE = "Ex: 83378997";
 
-    private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel uinPassPanel =
+        new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
 
-    private JPanel valuesPanel = new JPanel();
+    private JPanel valuesPanel = new TransparentPanel();
 
-    private JPanel advancedOpPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel advancedOpPanel =
+        new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsAdvOpPanel =
+        new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesAdvOpPanel =
+        new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enableAdvOpButton =
         new JCheckBox(Resources.getString("ovverideServerOps"), false);
 
     private JLabel uinLabel = new JLabel(Resources.getString("id"));
 
-    private JPanel emptyPanel = new JPanel();
+    private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
@@ -64,9 +69,10 @@ public class FirstWizardPage
     private JCheckBox rememberPassBox =
         new JCheckBox(Resources.getString("rememberPassword"));
 
-    private JPanel registerPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
 
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JTextArea registerArea =
         new JTextArea(Resources.getString("aimRegisterNewAccountText"));
@@ -99,7 +105,7 @@ public class FirstWizardPage
     private JComboBox proxyTypeCombo = new JComboBox(new Object[]
     { "http", "socks5", "socks4" });
 
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 

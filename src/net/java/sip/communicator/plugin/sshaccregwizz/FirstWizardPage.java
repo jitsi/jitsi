@@ -10,7 +10,6 @@
  *
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  */
-
 package net.java.sip.communicator.plugin.sshaccregwizz;
 
 import java.util.*;
@@ -20,9 +19,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.protocol.ssh.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.impl.protocol.ssh.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user ID
@@ -31,15 +31,15 @@ import net.java.sip.communicator.impl.protocol.ssh.*;
  * @author Shobhit Jindal
  */
 public class FirstWizardPage
-        extends JPanel implements WizardPage, DocumentListener
+        extends TransparentPanel implements WizardPage, DocumentListener
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
     
-    private JPanel accountPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel accountPanel = new TransparentPanel(new BorderLayout(10, 10));
     
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
     
-    private JPanel valuesPanel = new JPanel();
+    private JPanel valuesPanel = new TransparentPanel();
     
     private JLabel accountID = new JLabel(Resources.getString("accountID"));
     
@@ -52,23 +52,23 @@ public class FirstWizardPage
     private JLabel existingAccountLabel
             = new JLabel(Resources.getString("existingAccount"));
     
-    private JPanel emptyPanel1 = new JPanel();
+    private JPanel emptyPanel1 = new TransparentPanel();
     
-    private JPanel emptyPanel2 = new JPanel();
+    private JPanel emptyPanel2 = new TransparentPanel();
     
-    private JPanel emptyPanel3 = new JPanel();
+    private JPanel emptyPanel3 = new TransparentPanel();
     
-    private JPanel emptyPanel4 = new JPanel();
+    private JPanel emptyPanel4 = new TransparentPanel();
     
-    private JPanel emptyPanel5 = new JPanel();
+    private JPanel emptyPanel5 = new TransparentPanel();
     
-    private JPanel emptyPanel6 = new JPanel();
+    private JPanel emptyPanel6 = new TransparentPanel();
     
-    private JPanel emptyPanel7 = new JPanel();
+    private JPanel emptyPanel7 = new TransparentPanel();
     
-    private JPanel emptyPanel8 = new JPanel();
+    private JPanel emptyPanel8 = new TransparentPanel();
     
-    private JPanel emptyPanel9 = new JPanel();
+    private JPanel emptyPanel9 = new TransparentPanel();
     
     private JTextField accountIDField = new JTextField();
     
@@ -78,7 +78,7 @@ public class FirstWizardPage
     
     private JFileChooser identityFileChooser = new JFileChooser();
     
-    private JPanel identityFilePanel = new JPanel();
+    private JPanel identityFilePanel = new TransparentPanel();
     
     private JTextField knownHostsFileField = new JTextField("Optional");
     
@@ -86,9 +86,9 @@ public class FirstWizardPage
     
     private JFileChooser knownHostsFileChooser = new JFileChooser();
     
-    private JPanel knownHostsFilePanel = new JPanel();
+    private JPanel knownHostsFilePanel = new TransparentPanel();
     
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
     
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
     

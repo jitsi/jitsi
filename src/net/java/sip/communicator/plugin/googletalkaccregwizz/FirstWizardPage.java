@@ -15,6 +15,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -24,7 +25,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class FirstWizardPage
-    extends JPanel
+    extends TransparentPanel
     implements  WizardPage,
                 DocumentListener
 {
@@ -35,11 +36,11 @@ public class FirstWizardPage
 
     public static final String USER_NAME_EXAMPLE = "Ex: johnsmith@gmail.com";
 
-    private JPanel userIDPassPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel userIDPassPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
 
-    private JPanel valuesPanel = new JPanel();
+    private JPanel valuesPanel = new TransparentPanel();
 
     private JLabel userIDLabel = new JLabel(Resources.getString("gtalkUsername"));
 
@@ -48,7 +49,7 @@ public class FirstWizardPage
     private JLabel existingAccountLabel = new JLabel(Resources
         .getString("existingAccount"));
 
-    private JPanel emptyPanel = new JPanel();
+    private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
@@ -59,11 +60,11 @@ public class FirstWizardPage
     private JCheckBox rememberPassBox = new JCheckBox(Resources
         .getString("rememberPassword"));
 
-    private JPanel advancedOpPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel advancedOpPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox sendKeepAliveBox = new JCheckBox(Resources
         .getString("enableKeepAlive"));
@@ -90,9 +91,9 @@ public class FirstWizardPage
     private JTextField portField
         = new JTextField(GoogleTalkAccountRegistration.DEFAULT_PORT);
 
-    private JPanel registerPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
 
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JTextArea registerArea = new JTextArea(Resources
         .getString("gtalkRegisterNewAccountText"));
@@ -100,7 +101,7 @@ public class FirstWizardPage
     private JButton registerButton = new JButton(Resources
         .getString("registerNewAccount"));
 
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -250,7 +251,7 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(resourceField);
         valuesAdvOpPanel.add(priorityField);
 
-        JPanel checkBoxesPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+        JPanel checkBoxesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
         checkBoxesPanel.add(sendKeepAliveBox);
         checkBoxesPanel.add(enableAdvOpButton);
 

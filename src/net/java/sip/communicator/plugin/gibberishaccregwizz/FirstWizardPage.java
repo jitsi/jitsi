@@ -14,26 +14,28 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user ID
  * and the password of the account.
- *
+ * 
  * @author Emil Ivov
  */
 public class FirstWizardPage
-    extends JPanel implements WizardPage, DocumentListener
+    extends TransparentPanel
+    implements WizardPage, DocumentListener
 {
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     public static final String USER_NAME_EXAMPLE = "Ex: random.user.name";
 
-    private JPanel userPassPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel userPassPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
 
-    private JPanel valuesPanel = new JPanel();
+    private JPanel valuesPanel = new TransparentPanel();
 
     private JLabel userID = new JLabel(Resources.getString("userID"));
 
@@ -42,7 +44,7 @@ public class FirstWizardPage
     private JLabel existingAccountLabel
         = new JLabel(Resources.getString("existingAccount"));
 
-    private JPanel emptyPanel = new JPanel();
+    private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
@@ -53,7 +55,7 @@ public class FirstWizardPage
     private JCheckBox rememberPassBox = new JCheckBox(
         Resources.getString("rememberPassword"));
 
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 

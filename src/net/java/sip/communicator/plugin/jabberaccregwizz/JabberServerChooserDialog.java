@@ -20,6 +20,7 @@ import javax.swing.table.*;
 import javax.xml.parsers.*;
 
 import net.java.sip.communicator.service.fileaccess.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -47,17 +48,17 @@ public class JabberServerChooserDialog
         .getString("chooseServerText"));
 
     // Panel
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
 
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private Box buttonBox = new Box(BoxLayout.X_AXIS);
 
-    private JPanel chooseAreaPanel = new JPanel(new BorderLayout());
+    private JPanel chooseAreaPanel = new TransparentPanel(new BorderLayout());
 
-    private JPanel westPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel westPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel eastPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel eastPanel = new TransparentPanel(new BorderLayout(10, 10));
 
     private JLabel westIconLabel = new JLabel();
 

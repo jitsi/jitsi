@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>AccountRegSummaryPage</tt> is the last page of the account
@@ -28,13 +29,13 @@ public class AccountRegSummaryPage
 {
     private String backPageIdentifier;
 
-    private JPanel keysPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel keysPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel wrapPanel = new JPanel(new BorderLayout());
+    private JPanel wrapPanel = new TransparentPanel(new BorderLayout());
 
     private AccountRegWizardContainerImpl wizardContainer;
 

@@ -16,6 +16,7 @@ import javax.swing.event.*;
 import net.java.dict4j.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the host,
@@ -25,20 +26,20 @@ import net.java.sip.communicator.service.protocol.*;
  * @author LITZELMANN Cedric
  */
 public class FirstWizardPage
-    extends JPanel
+    extends TransparentPanel
     implements WizardPage, DocumentListener, ActionListener
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    private JPanel hostPortPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel hostPortPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel();
+    private JPanel labelsPanel = new TransparentPanel();
 
-    private JPanel valuesPanel = new JPanel();
+    private JPanel valuesPanel = new TransparentPanel();
 
     private JLabel hostLabel = new JLabel(Resources.getString("dict.host"));
 
-    private JPanel emptyPanel = new JPanel();
+    private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel hostExampleLabel = new JLabel("Ex: dict.org");
 
@@ -52,9 +53,9 @@ public class FirstWizardPage
     private JTextField portField = new JTextField("2628");
     
     
-    private JPanel strategyPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel strategyPanel = new TransparentPanel(new BorderLayout(10, 10));
     
-    private JPanel strategyTitleBloc = new JPanel(new BorderLayout());
+    private JPanel strategyTitleBloc = new TransparentPanel(new BorderLayout());
     
     private JLabel strategyTitle = new JLabel(Resources.getString("dict.strategyList"));
     
@@ -64,7 +65,7 @@ public class FirstWizardPage
     private JTextArea strategyDescription = new JTextArea(Resources.getString("dict.strategyDesc"));    
     private ProgressPanel searchProgressPanel;
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -187,7 +188,7 @@ public class FirstWizardPage
         this.strategyLoader.addActionListener(this);
         
         // South Panel
-        JPanel sSouthPanel = new JPanel(new BorderLayout());
+        JPanel sSouthPanel = new TransparentPanel(new BorderLayout());
         
         // Description
         this.strategyDescription.setLineWrap(true);
@@ -222,9 +223,9 @@ public class FirstWizardPage
         // Init strategies list
         this.strategiesList = new StrategiesList();
         
-        this.mainPanel = new JPanel(new BorderLayout());
+        this.mainPanel = new TransparentPanel(new BorderLayout());
 
-        JPanel infoTitlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel infoTitlePanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
         JTextArea firstDescription = new JTextArea(Resources.getString("dict.firstAccount"));
         JLabel title = new JLabel(Resources.getString("dict.accountInfoTitle"));
 
