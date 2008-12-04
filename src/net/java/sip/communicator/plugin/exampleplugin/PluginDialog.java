@@ -11,6 +11,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * A plugin dialog that is open through the right button menu over a contact and
@@ -19,11 +20,11 @@ import net.java.sip.communicator.service.contactlist.*;
  * @author Yana Stamcheva
  */
 public class PluginDialog
-    extends JDialog
+    extends SIPCommDialog
 {
     private JTextArea infoTextArea = new JTextArea();
     
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
     
     private JLabel contactLabel = new JLabel();
     private JLabel nameLabel = new JLabel();
@@ -72,5 +73,9 @@ public class PluginDialog
         this.contactLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         this.contactLabel.setAlignmentY(JLabel.TOP_ALIGNMENT);
         this.contactLabel.setFont(contactLabel.getFont().deriveFont(Font.BOLD));        
+    }
+
+    protected void close(boolean isEscaped)
+    {
     }
 }

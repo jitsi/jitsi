@@ -4,17 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.swing;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 public abstract class SIPCommDialog extends JDialog
@@ -66,7 +63,7 @@ public abstract class SIPCommDialog extends JDialog
      */
     private void init()
     {
-        this.setContentPane(new MainContentPane());
+        this.setContentPane(new SIPCommFrame.MainContentPane());
 
         this.addWindowListener(new DialogWindowAdapter());
 
@@ -136,9 +133,9 @@ public abstract class SIPCommDialog extends JDialog
      */
     private void saveSizeAndLocation()
     {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-    
+        ConfigurationService configService =
+            SwingCommonActivator.getConfigurationService();
+
         String className = this.getClass().getName();
                 
         try {
@@ -169,8 +166,8 @@ public abstract class SIPCommDialog extends JDialog
      */
     private void setSizeAndLocation()
     {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
+        ConfigurationService configService =
+            SwingCommonActivator.getConfigurationService();
 
         String className = this.getClass().getName();
         
@@ -370,112 +367,6 @@ public abstract class SIPCommDialog extends JDialog
             this.saveSizeAndLocation();
         
         super.dispose();
-    }
-    
-    private class MainContentPane extends JPanel
-    {
-        String isColorBgEnabledProp
-            = "impl.gui.IS_WINDOW_COLOR_BACKGROUND_ENABLED";
-
-        boolean isColorBgEnabled = new Boolean(
-            GuiActivator.getResources().getSettingsString(isColorBgEnabledProp))
-                .booleanValue();
-
-        Color bgStartColor = new Color(GuiActivator.getResources()
-            .getColor("service.gui.MAIN_BACKGROUND"));
-
-        Color bgEndColor = new Color(GuiActivator.getResources()
-            .getColor("service.gui.MAIN_BACKGROUND_GRADIENT"));
-
-        GeneralPath headerBackground = new GeneralPath();
-
-        public MainContentPane()
-        {
-            super(new BorderLayout());
-
-            int borderSize = GuiActivator.getResources()
-                .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
-
-            if (isColorBgEnabled)
-            {
-                this.setBorder(BorderFactory
-                    .createEmptyBorder( borderSize,
-                                        borderSize,
-                                        borderSize,
-                                        borderSize));
-            }
-        }
-
-        protected void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-
-            g = g.create();
-            try
-            {
-                internalPaintComponent(g);
-            }
-            finally
-            {
-                g.dispose();
-            }
-        }
-
-        private void internalPaintComponent(Graphics g)
-        {
-            // If the custom color window background is not enabled we have
-            // nothing to do here.
-            if (!isColorBgEnabled)
-                return;
-
-            Graphics2D g2 = (Graphics2D) g;
-
-            AntialiasingManager.activateAntialiasing(g2);
-
-            GradientPaint bgGradientColor
-                = new GradientPaint(this.getWidth()/2, 0,
-                bgStartColor,
-                this.getWidth()/2,
-                80,
-                bgEndColor);
-
-            g2.setPaint(bgGradientColor);
-            g2.fillRect(0, 0, this.getWidth(), 80);
-
-            g2.setColor(bgEndColor);
-            g2.fillRect(0, 78,
-                    this.getWidth(),
-                    this.getHeight());
-
-            GradientPaint curveShadow = new GradientPaint(0, 0,
-                new Color(255, 255, 255, 150),
-                this.getWidth(),
-                this.getHeight(),
-                new Color(255, 255, 255, 50));
-
-            g2.setPaint(curveShadow);
-            g2.setStroke(new BasicStroke(1f));
-            CubicCurve2D curve1 = new CubicCurve2D.Float(
-                50, -1, 250, 30, 50, 150, 0, 300);
-
-            g2.draw(curve1);
-
-            CubicCurve2D curve2 = new CubicCurve2D.Float(
-                this.getWidth() - 20, 0,
-                this.getWidth(), 100,
-                this.getWidth()/2, 100,
-                0, 150);
-
-            g2.draw(curve2);
-
-            CubicCurve2D curve3 = new CubicCurve2D.Float(
-                0, 90,
-                this.getWidth()/3, 60,
-                2*this.getWidth()/3, 60,
-                this.getWidth(), 90);
-
-            g2.draw(curve3);
-        }
     }
 
     /**

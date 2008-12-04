@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -21,19 +22,19 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class NewStatusMessageDialog
-    extends JDialog
+    extends SIPCommDialog
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
 
-    private JPanel messagePanel = new JPanel(new BorderLayout());
+    private JPanel messagePanel = new TransparentPanel(new BorderLayout());
 
     private JLabel messageLabel = new JLabel(
         Resources.getString("newStatusMessage"));
 
     private JTextField messageTextField = new JTextField();
 
-    private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
 
     private JTextArea infoLabel = new JTextArea(
         Resources.getString("statusMessageInfo"));
@@ -44,17 +45,18 @@ public class NewStatusMessageDialog
     private JLabel iconLabel = new JLabel(
             Resources.getImage("newStatusMessageIcon"));
 
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
 
-    private JPanel rightPanel = new JPanel(new BorderLayout());
+    private JPanel rightPanel = new TransparentPanel(new BorderLayout());
 
     private JButton okButton = new JButton(Resources.getString("ok"));
 
     private JButton cancelButton = new JButton(Resources.getString("cancel"));
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private JPanel buttonsPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
 
     private ProtocolProviderService protocolProvider;
 
@@ -149,6 +151,11 @@ public class NewStatusMessageDialog
     public void requestFocusInFiled()
     {
         this.messageTextField.requestFocus();
+    }
+
+    protected void close(boolean isEscaped)
+    {
+        cancelButton.doClick();
     }
 
     /**

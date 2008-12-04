@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.extendedcallhistorysearch;
 
 import java.awt.*;
@@ -14,6 +13,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import com.toedter.calendar.*;
@@ -26,20 +26,21 @@ import com.toedter.calendar.*;
  * @author Maxime Bourdon & Thomas Meyer
  */
 public class ExtendedCallHistorySearchDialog
-    extends JDialog
+    extends SIPCommDialog
     implements  ActionListener,
                 ItemListener
 {
     /* PANEL */
-    private JPanel mainSearchPanel = new JPanel(new BorderLayout());
+    private JPanel mainSearchPanel = new TransparentPanel(new BorderLayout());
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(3, 1));
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout(3, 1));
 
-    private JPanel searchPanel = new JPanel(new GridBagLayout());
+    private JPanel searchPanel = new TransparentPanel(new GridBagLayout());
 
-    private JPanel callTypePanel = new JPanel(new GridBagLayout());
+    private JPanel callTypePanel = new TransparentPanel(new GridBagLayout());
 
-    private JPanel callListResultPanel = new JPanel(new BorderLayout());
+    private JPanel callListResultPanel =
+        new TransparentPanel(new BorderLayout());
 
     /* BUTTON */
     private JButton searchButton = new JButton(
@@ -486,5 +487,9 @@ public class ExtendedCallHistorySearchDialog
         if (callList.getModel().getSize() > 0)
             callList.addItem(ExtendedCallHistorySearchActivator.getResources()
                     .getI18NString("olderCalls") + "...");
+    }
+
+    protected void close(boolean isEscaped)
+    {
     }
 }

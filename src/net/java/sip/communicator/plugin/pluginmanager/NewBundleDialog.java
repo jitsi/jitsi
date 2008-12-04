@@ -4,21 +4,22 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.pluginmanager;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.swing.*;
 
 import org.osgi.framework.*;
 
 public class NewBundleDialog
-    extends JDialog
+    extends SIPCommDialog
     implements ActionListener
 {
     private JButton installButton = new JButton(Resources.getString("install"));
@@ -29,15 +30,15 @@ public class NewBundleDialog
     
     private JLabel bundlePathLabel = new JLabel(Resources.getString("url") + ": ");
     
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
     
-    private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
     
-    private JPanel mainPanel = new JPanel(new BorderLayout());
-    
-    private JButton fileChooserButton = new JButton(Resources.getString("chooseFile")
-        );
-    
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
+
+    private JButton fileChooserButton =
+        new JButton(Resources.getString("chooseFile"));
+
     public NewBundleDialog ()
     {
         this.mainPanel.setPreferredSize(new Dimension(450, 150));
@@ -118,5 +119,10 @@ public class NewBundleDialog
         }   
         else
             dispose();
+    }
+
+    protected void close(boolean isEscaped)
+    {
+        cancelButton.doClick();
     }
 }

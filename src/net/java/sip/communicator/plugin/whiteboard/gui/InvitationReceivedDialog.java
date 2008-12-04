@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.plugin.whiteboard.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The dialog that pops up when a chat room invitation is received.
@@ -20,23 +21,23 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class InvitationReceivedDialog
-    extends JDialog
+    extends SIPCommDialog
     implements ActionListener
 {
     private JTextArea infoTextArea = new JTextArea();
 
     private JTextArea invitationReasonTextArea = new JTextArea();
 
-    private JPanel reasonPanel = new JPanel(new BorderLayout());
+    private JPanel reasonPanel = new TransparentPanel(new BorderLayout());
 
     private JLabel reasonLabel = new JLabel(
         Resources.getString("reason") + ": ");
 
     private JTextField reasonField = new JTextField();
 
-    private JPanel dataPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel dataPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private JButton acceptButton = new JButton(Resources.getString("accept"));
     
@@ -44,9 +45,9 @@ public class InvitationReceivedDialog
     
     private JButton ignoreButton = new JButton(Resources.getString("ignore"));
     
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
     
-    private JPanel northPanel = new JPanel(new BorderLayout(10, 10));
+    private JPanel northPanel = new TransparentPanel(new BorderLayout(10, 10));
     
     private JLabel iconLabel = new JLabel(Resources.getImage("inviteIcon"));
     
@@ -171,5 +172,7 @@ public class InvitationReceivedDialog
     }
 
     protected void close(boolean isEscaped)
-    {}
+    {
+        rejectButton.doClick();
+    }
 }

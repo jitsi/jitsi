@@ -26,9 +26,8 @@ import org.jivesoftware.smack.*;
  * @author Nicolas Grandclaude
  */
 public class JabberNewAccountDialog
-    extends JDialog
-    implements
-    DocumentListener
+    extends SIPCommDialog
+    implements DocumentListener
 {
     private static final Logger logger = Logger
         .getLogger(JabberNewAccountDialog.class);
@@ -358,7 +357,12 @@ public class JabberNewAccountDialog
     public void pageBack()
     {
     }
-    
+
+    protected void close(boolean isEscaped)
+    {
+        cancelButton.doClick();
+    }
+
     /**
      * A GlassPane that would change the cursor to a waiting cursor until the
      * new account is registered.

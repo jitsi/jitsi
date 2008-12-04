@@ -9,30 +9,31 @@
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
-
-import java.text.ParseException;
-import net.java.sip.communicator.service.gui.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.text.ParseException;
+
 import javax.swing.*;
 import javax.swing.text.*;
+
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  *
  * @author Shobhit Jindal
  */
-class SSHContactInfo extends JDialog
+class SSHContactInfo extends SIPCommDialog
         implements ConfigurationForm {
     private ContactSSH sshContact;
     
-    private JPanel mainPanel = new JPanel();
-    private JPanel machinePanel = new JPanel();
-    private JPanel detailNamesPanel = new JPanel();
-    private JPanel detailFieldsPanel = new JPanel();
-    private JPanel detailsPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
+    private JPanel machinePanel = new TransparentPanel();
+    private JPanel detailNamesPanel = new TransparentPanel();
+    private JPanel detailFieldsPanel = new TransparentPanel();
+    private JPanel detailsPanel = new TransparentPanel();
     
     private JCheckBox addDetailsCheckBox = new JCheckBox("Add Details");
     
@@ -52,27 +53,27 @@ class SSHContactInfo extends JDialog
     private JTextField terminalTypeField = new JTextField("SIP Communicator");
     private JSpinner updateTimer = new JSpinner();
     
-    private JPanel emptyPanel1 = new JPanel();
+    private JPanel emptyPanel1 = new TransparentPanel();
     
-    private JPanel emptyPanel2 = new JPanel();
+    private JPanel emptyPanel2 = new TransparentPanel();
     
-    private JPanel emptyPanel3 = new JPanel();
+    private JPanel emptyPanel3 = new TransparentPanel();
     
-    private JPanel emptyPanel4 = new JPanel();
+    private JPanel emptyPanel4 = new TransparentPanel();
     
-    private JPanel emptyPanel5 = new JPanel();
+    private JPanel emptyPanel5 = new TransparentPanel();
     
-    private JPanel emptyPanel6 = new JPanel();
+    private JPanel emptyPanel6 = new TransparentPanel();
     
-    private JPanel emptyPanel7 = new JPanel();
+    private JPanel emptyPanel7 = new TransparentPanel();
     
-    private JPanel emptyPanel8 = new JPanel();
+    private JPanel emptyPanel8 = new TransparentPanel();
     
-    private JPanel emptyPanel9 = new JPanel();
+    private JPanel emptyPanel9 = new TransparentPanel();
     
-    private JPanel emptyPanel10 = new JPanel();
+    private JPanel emptyPanel10 = new TransparentPanel();
     
-    private JPanel emptyPanel11 = new JPanel();
+    private JPanel emptyPanel11 = new TransparentPanel();
     
 //    private ContactGroup contactGroup = null;
     
@@ -339,5 +340,9 @@ class SSHContactInfo extends JDialog
     public int getIndex()
     {
         return -1;
+    }
+
+    protected void close(boolean isEscaped)
+    {
     }
 }

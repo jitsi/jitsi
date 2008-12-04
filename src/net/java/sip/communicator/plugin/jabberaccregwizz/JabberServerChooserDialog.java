@@ -33,7 +33,7 @@ import org.xml.sax.*;
  * @author Nicolas Grandclaude
  */
 public class JabberServerChooserDialog
-    extends JDialog
+    extends SIPCommDialog
     implements ListSelectionListener
 {
     private static final Logger logger = Logger
@@ -288,9 +288,13 @@ public class JabberServerChooserDialog
         {
             okButton.setEnabled(false);
         }
-
     }
-    
+
+    protected void close(boolean isEscaped)
+    {
+        cancelButton.doClick();
+    }
+
     /**
      * The table model used for the table containing all servers. 
      */

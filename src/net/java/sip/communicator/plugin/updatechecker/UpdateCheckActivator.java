@@ -11,20 +11,15 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.*;
-import java.io.*;
 import java.net.*;
-import java.text.MessageFormat;
 import java.util.*;
 
 import javax.swing.*;
 
-import javax.swing.text.*;
-import javax.swing.text.html.*;
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.version.VersionService;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -79,7 +74,12 @@ public class UpdateCheckActivator
         if(isNewestVersion(ver.toString()))
             return;
 
-        final JDialog dialog = new JDialog();
+        final JDialog dialog = new SIPCommDialog()
+        {
+            protected void close(boolean isEscaped)
+            {
+            }
+        };
         dialog.setTitle(
             getResources().getI18NString("dialogTitle"));
 
@@ -102,12 +102,12 @@ public class UpdateCheckActivator
 
         contentMessage.setText(dialogMsg);
 
-        JPanel contentPane = new JPanel(new BorderLayout(5,5));
+        JPanel contentPane = new TransparentPanel(new BorderLayout(5,5));
         contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPane.add(contentMessage, BorderLayout.CENTER);
 
         JPanel buttonPanel
-            = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton closeButton
             = new JButton( getResources().getI18NString("buttonClose"));
 
