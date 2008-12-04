@@ -8,10 +8,11 @@ package net.java.sip.communicator.impl.gui.lookandfeel;
 
 import java.awt.*;
 import java.awt.geom.*;
+
 import javax.swing.border.*;
 import javax.swing.plaf.metal.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The default editor for SIPCommunicator editable combo boxes.

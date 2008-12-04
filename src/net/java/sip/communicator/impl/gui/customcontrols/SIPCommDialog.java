@@ -13,8 +13,8 @@ import java.awt.geom.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 public abstract class SIPCommDialog extends JDialog

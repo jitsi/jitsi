@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.*;
@@ -18,6 +17,8 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
+
 /**
  * The <tt>FileMenu</tt> is the menu in the chat window menu bar that contains
  * save, print and close.

@@ -10,7 +10,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**

@@ -6,12 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
+import java.awt.*;
 import java.util.*;
 
-import java.awt.*;
-import java.io.*;
-
-import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -20,7 +17,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**

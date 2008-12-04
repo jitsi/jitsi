@@ -13,6 +13,7 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * SIPCommButtonUI implementation.

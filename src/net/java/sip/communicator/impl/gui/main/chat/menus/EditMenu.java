@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.*;
@@ -16,7 +15,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
+
 /**
  * The <tt>EditMenu</tt> is the menu in the chat window menu bar, which contains
  * cut, copy and paste.

@@ -11,9 +11,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -23,19 +25,17 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class NewStatusMessageDialog
-    extends JDialog
+    extends SIPCommDialog
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
-
-    private JPanel messagePanel = new JPanel(new BorderLayout());
 
     private JLabel messageLabel = new JLabel(
         Messages.getI18NString("newStatusMessage").getText());
 
     private JTextField messageTextField = new JTextField();
 
-    private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
 
     private JTextArea infoArea = new JTextArea(
         Messages.getI18NString("statusMessageInfo").getText());
@@ -43,12 +43,7 @@ public class NewStatusMessageDialog
     private JLabel infoTitleLabel = new JLabel(
         Messages.getI18NString("newStatusMessage").getText());
 
-    private JLabel iconLabel = new JLabel(new ImageIcon(
-        ImageLoader.getImage(ImageLoader.RENAME_DIALOG_ICON)));
-
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
-
-    private JPanel rightPanel = new JPanel(new BorderLayout());
+    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
 
     private JButton okButton
         = new JButton(Messages.getI18NString("ok").getText());
@@ -56,9 +51,7 @@ public class NewStatusMessageDialog
     private JButton cancelButton
         = new JButton(Messages.getI18NString("cancel").getText());
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private ProtocolProviderService protocolProvider;
 
@@ -71,9 +64,8 @@ public class NewStatusMessageDialog
     {
         this.protocolProvider = protocolProvider;
 
-        this.setSize(new Dimension(520, 270));
-
         this.init();
+        pack();
     }
     
     /**
@@ -87,8 +79,6 @@ public class NewStatusMessageDialog
         this.getRootPane().setDefaultButton(okButton);
 
         this.setPreferredSize(new Dimension(500, 200));
-
-        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
 
         this.infoArea.setEditable(false);
         this.infoArea.setLineWrap(true);
@@ -106,10 +96,25 @@ public class NewStatusMessageDialog
         this.labelsPanel.add(infoArea);
         this.labelsPanel.add(dataPanel);
 
-        this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
-
-        this.messagePanel.add(iconLabel, BorderLayout.WEST);
-        this.messagePanel.add(rightPanel, BorderLayout.CENTER);
+        JPanel messagePanel = new TransparentPanel(new GridBagLayout());
+        GridBagConstraints messagePanelConstraints = new GridBagConstraints();
+        messagePanelConstraints.anchor = GridBagConstraints.NORTHWEST;
+        messagePanelConstraints.fill = GridBagConstraints.NONE;
+        messagePanelConstraints.gridx = 0;
+        messagePanelConstraints.gridy = 0;
+        messagePanelConstraints.insets = new Insets(5, 0, 5, 10);
+        messagePanelConstraints.weightx = 0;
+        messagePanelConstraints.weighty = 0;
+        messagePanel
+            .add(new ImageCanvas(ImageLoader
+                .getImage(ImageLoader.RENAME_DIALOG_ICON)),
+                messagePanelConstraints);
+        messagePanelConstraints.anchor = GridBagConstraints.NORTH;
+        messagePanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+        messagePanelConstraints.gridx = 1;
+        messagePanelConstraints.insets = new Insets(0, 0, 0, 0);
+        messagePanelConstraints.weightx = 1;
+        messagePanel.add(labelsPanel, messagePanelConstraints);
 
         this.okButton.setName("ok");
         this.cancelButton.setName("cancel");
@@ -125,10 +130,23 @@ public class NewStatusMessageDialog
         this.buttonsPanel.add(okButton);
         this.buttonsPanel.add(cancelButton);
 
-        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
+        JPanel mainPanel = new TransparentPanel(new GridBagLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
 
-        this.mainPanel.add(messagePanel, BorderLayout.NORTH);
-        this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        GridBagConstraints mainPanelConstraints = new GridBagConstraints();
+        mainPanelConstraints.anchor = GridBagConstraints.NORTH;
+        mainPanelConstraints.fill = GridBagConstraints.BOTH;
+        mainPanelConstraints.gridx = 0;
+        mainPanelConstraints.gridy = 0;
+        mainPanelConstraints.weightx = 1;
+        mainPanelConstraints.weighty = 1;
+        mainPanel.add(messagePanel, mainPanelConstraints);
+        mainPanelConstraints.anchor = GridBagConstraints.SOUTHEAST;
+        mainPanelConstraints.fill = GridBagConstraints.NONE;
+        mainPanelConstraints.gridy = 1;
+        mainPanelConstraints.weightx = 0;
+        mainPanelConstraints.weighty = 0;
+        mainPanel.add(buttonsPanel, mainPanelConstraints);
 
         this.getContentPane().add(mainPanel);
     }
@@ -228,5 +246,10 @@ public class NewStatusMessageDialog
                 }
             }
         }
+    }
+
+    protected void close(boolean isEscaped)
+    {
+        cancelButton.doClick();
     }
 }

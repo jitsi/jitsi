@@ -4,15 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>ContactInfoPanel</tt> is a popup dialog containing the contact
@@ -21,11 +22,11 @@ import net.java.sip.communicator.service.contactlist.*;
  * @author Yana Stamcheva
  */
 public class ContactInfoDialog
-    extends JDialog
+    extends SIPCommDialog
     implements WindowFocusListener
 {
 
-    private JPanel protocolsPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel protocolsPanel = new TransparentPanel(new GridLayout(0, 1));
 
     private MetaContact contactItem;
 
@@ -46,8 +47,6 @@ public class ContactInfoDialog
         this.setUndecorated(true);
 
         this.setModal(true);
-
-        this.protocolsPanel.setOpaque(false);
 
         // Create the transparent background component
         this.bg = new TransparentBackground(this);
@@ -106,8 +105,7 @@ public class ContactInfoDialog
 
     public void windowLostFocus(WindowEvent e)
     {
-        this.setVisible(false);
-        this.dispose();
+        close(false);
     }
 
     public void setPopupLocation(int x, int y)
@@ -115,5 +113,11 @@ public class ContactInfoDialog
         this.setLocation(x, y);
 
         this.bg.updateBackground(x, y);
+    }
+
+    protected void close(boolean isEscaped)
+    {
+        this.setVisible(false);
+        this.dispose();
     }
 }

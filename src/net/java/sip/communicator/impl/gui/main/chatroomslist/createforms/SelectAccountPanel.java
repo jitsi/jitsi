@@ -6,10 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 
-import java.util.*;
-
 import java.awt.*;
 import java.io.*;
+import java.util.*;
 
 import javax.imageio.*;
 import javax.swing.*;
@@ -20,6 +19,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**

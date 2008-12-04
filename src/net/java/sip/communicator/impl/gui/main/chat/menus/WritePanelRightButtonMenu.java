@@ -12,7 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The <tt>WritePanelRightButtonMenu</tt> appears when the user makes a right

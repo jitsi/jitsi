@@ -3,7 +3,6 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.*;
@@ -16,9 +15,9 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**

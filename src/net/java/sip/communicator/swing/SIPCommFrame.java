@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.swing;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,8 +13,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.resources.*;
@@ -89,7 +87,7 @@ public abstract class SIPCommFrame
 
         // Adds new bindings to input map
         this.bindings =
-            GuiActivator.getKeybindingsService().getBindings(category);
+            SwingCommonActivator.getKeybindingsService().getBindings(category);
 
         for (Map.Entry<KeyStroke, String> key2action : this.bindings
             .getBindings().entrySet())
@@ -135,7 +133,7 @@ public abstract class SIPCommFrame
     private void saveSizeAndLocation()
     {
         ConfigurationService configService =
-            GuiActivator.getConfigurationService();
+            SwingCommonActivator.getConfigurationService();
 
         String className = this.getClass().getName();
 
@@ -164,7 +162,7 @@ public abstract class SIPCommFrame
     public void setSizeAndLocation()
     {
         ConfigurationService configService =
-            GuiActivator.getConfigurationService();
+            SwingCommonActivator.getConfigurationService();
 
         String className = this.getClass().getName();
 
@@ -407,7 +405,8 @@ public abstract class SIPCommFrame
         {
             super(new BorderLayout());
 
-            ResourceManagementService resources = GuiActivator.getResources();
+            ResourceManagementService resources =
+                SwingCommonActivator.getResources();
 
             isColorBgEnabled =
                 new Boolean(resources.getSettingsString(

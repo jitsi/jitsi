@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.utils;
+package net.java.sip.communicator.swing;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -16,7 +16,6 @@ import java.util.List;
 import javax.imageio.*;
 import javax.imageio.stream.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -1148,7 +1147,9 @@ public class ImageLoader {
         }
         else
         {
-            URL path = GuiActivator.getResources().getImageURL(imageID.getId());
+            URL path =
+                SwingCommonActivator.getResources()
+                    .getImageURL(imageID.getId());
 
             if (path == null)
             {
@@ -1201,8 +1202,9 @@ public class ImageLoader {
      */
     public static byte[] getImageInBytes(ImageID imageID)
     {
-        InputStream in = GuiActivator.getResources().
-            getImageInputStream(imageID.getId());
+        InputStream in =
+            SwingCommonActivator.getResources().getImageInputStream(
+                imageID.getId());
 
         if (in == null)
             return null;
@@ -1301,8 +1303,8 @@ public class ImageLoader {
 
                 try
                 {
-                    return GuiActivator.getResources().
-                        getImageURL(imageID).toURI().toString();
+                    return SwingCommonActivator.getResources().getImageURL(
+                        imageID).toURI().toString();
                 }
                 catch(URISyntaxException ex)
                 {

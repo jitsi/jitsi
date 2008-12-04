@@ -4,11 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.utils;
+package net.java.sip.communicator.swing;
 
 import java.net.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.resources.*;
 
 /**
@@ -80,7 +79,7 @@ public class Smiley {
      */
     public String getImagePath() 
     {
-        URL url = GuiActivator.getResources().
+        URL url = SwingCommonActivator.getResources().
             getImageURL(this.getImageID().getId());
         
         if(url == null)

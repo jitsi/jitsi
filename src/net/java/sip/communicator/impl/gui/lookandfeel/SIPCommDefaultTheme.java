@@ -5,10 +5,10 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
@@ -16,6 +16,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * SipCommunicator default theme.

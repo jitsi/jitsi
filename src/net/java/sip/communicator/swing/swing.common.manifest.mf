@@ -1,6 +1,13 @@
+Bundle-Activator: net.java.sip.communicator.swing.SwingCommonActivator
 Bundle-Name: Swing Common
 Bundle-Description: Common/generic Swing additions not specific to SIP Communicator
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Import-Package: javax.swing
+Import-Package: javax.imageio,
+ javax.swing,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.keybindings,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util,
+ org.osgi.framework
 Export-Package: net.java.sip.communicator.swing

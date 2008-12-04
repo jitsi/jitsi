@@ -21,6 +21,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * This UI displays a different interface, which is independent from the look
