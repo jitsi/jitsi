@@ -43,7 +43,14 @@ public abstract class SIPCommDialog extends JDialog
 
         this.init();
     }
-    
+
+    public SIPCommDialog(boolean isSaveSizeAndLocation)
+    {
+        this();
+
+        this.isSaveSizeAndLocation = isSaveSizeAndLocation;
+    }
+
     public SIPCommDialog(Dialog owner, boolean isSaveSizeAndLocation)
     {
         this(owner);

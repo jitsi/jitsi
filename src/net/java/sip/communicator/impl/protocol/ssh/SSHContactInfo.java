@@ -83,7 +83,8 @@ class SSHContactInfo extends SIPCommDialog
      * @param sshContact the concerned contact
      */
     public SSHContactInfo(ContactSSH sshContact) {
-        super(new JFrame(), true);
+        super(true);
+
         this.sshContact = sshContact;
         initForm();
         

@@ -1,10 +1,9 @@
-package net.java.sip.communicator.plugin.contactinfo;
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
+package net.java.sip.communicator.plugin.contactinfo;
 
 import java.awt.*;
 import java.util.*;
@@ -13,6 +12,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * The left side panel of ContactInfoDialog. Display all associated subcontacts
@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class ContactInfoContactPanel
-    extends JPanel
+    extends TransparentPanel
 {
     /**
      * The list of all subcontacts related to the selected contact.

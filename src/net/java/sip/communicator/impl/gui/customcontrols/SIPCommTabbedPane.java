@@ -21,6 +21,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * A JTabbedPane with some added UI functionalities. A close and max/detach
@@ -140,10 +141,6 @@ public class SIPCommTabbedPane
         if (index < 0 || index >= getTabCount())
             return;
 
-        final JFrame frame = new JFrame();
-
-        Window parentWindow = SwingUtilities.windowForComponent(this);
-
         final int tabIndex = index;
         final JComponent c = (JComponent) getComponentAt(tabIndex);
 
@@ -151,6 +148,25 @@ public class SIPCommTabbedPane
         final String title = getTitleAt(tabIndex);
         final String toolTip = getToolTipTextAt(tabIndex);
         final Border border = c.getBorder();
+
+        final JFrame frame = new SIPCommFrame()
+        {
+            protected void close(boolean isEscaped)
+            {
+                if (isEscaped)
+                    return;
+
+                dispose();
+
+                insertTab(title, icon, c, toolTip, Math.min(tabIndex,
+                    getTabCount()));
+
+                c.setBorder(border);
+                setSelectedComponent(c);
+            }
+        };
+
+        Window parentWindow = SwingUtilities.windowForComponent(this);
 
         removeTabAt(index);
 
@@ -160,19 +176,6 @@ public class SIPCommTabbedPane
         frame.getContentPane().add(c);
         frame.setLocation(parentWindow.getLocation());
         frame.pack();
-
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent event) {
-                frame.dispose();
-
-                insertTab(title, icon, c, toolTip, Math.min(tabIndex,
-                        getTabCount()));
-
-                c.setBorder(border);
-                setSelectedComponent(c);
-            }
-
-        });
 
         WindowFocusListener windowFocusListener = new WindowFocusListener() {
             long start;

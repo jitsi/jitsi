@@ -1,18 +1,17 @@
-package net.java.sip.communicator.plugin.contactinfo;
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
+package net.java.sip.communicator.plugin.contactinfo;
 
 import java.awt.*;
 import java.util.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.swing.*;
 
 /**
  * A GUI plug-in for SIP Communicator that will allow cross protocol contact
@@ -22,7 +21,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class ContactInfoDialog
-    extends JFrame
+    extends SIPCommFrame
 {
     /**
      * The right side of this frame that contains protocol specific contact
@@ -52,8 +51,6 @@ public class ContactInfoDialog
      */
     public ContactInfoDialog(MetaContact metaContact)
     {
-        super(Resources.getString("contactDetails"));
-
         this.metaContact = metaContact;
 
         this.setTitle(Resources.getString("contactDetails")
@@ -65,8 +62,9 @@ public class ContactInfoDialog
         this.contactPanel
             = new ContactInfoContactPanel(subContacts, this);
 
-        this.getContentPane().add(contactPanel, BorderLayout.WEST);
-        this.getContentPane().add(detailsPanel, BorderLayout.CENTER);
+        Container contentPane = getContentPane();
+        contentPane.add(contactPanel, BorderLayout.WEST);
+        contentPane.add(detailsPanel, BorderLayout.CENTER);
 
         this.pack();
     }
@@ -79,5 +77,9 @@ public class ContactInfoDialog
     public void loadContactDetails(Contact contact)
     {
         this.detailsPanel.loadContactDetails(contact);
+    }
+
+    protected void close(boolean isEscaped)
+    {
     }
 }

@@ -1,23 +1,22 @@
-package net.java.sip.communicator.plugin.contactinfo;
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
+package net.java.sip.communicator.plugin.contactinfo;
 
 import java.awt.*;
 import java.awt.event.*;
-
-import java.util.*;
 import java.text.DateFormat;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The right side panel of ContactInfoDialog. Shows one tab of a summary of
@@ -28,7 +27,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
  * @author Yana Stamcheva
  */
 public class ContactInfoDetailsPanel
-    extends JPanel
+    extends TransparentPanel
 {
     /**
      * The tabbed pane containing the two different tabs for details.
@@ -142,7 +141,7 @@ public class ContactInfoDetailsPanel
         unsupportedTextArea.setEditable(false);
         unsupportedTextArea.setLineWrap(true);
 
-        JPanel unsupportedPanel = new JPanel(new BorderLayout());
+        JPanel unsupportedPanel = new TransparentPanel(new BorderLayout());
 
         unsupportedPanel.add(unsupportedTextArea);
 
@@ -162,13 +161,13 @@ public class ContactInfoDetailsPanel
      */
     private JPanel createSummaryInfoPanel()
     {
-        JPanel summaryPanel = new JPanel();
+        JPanel summaryPanel = new TransparentPanel();
 
         summaryPanel.setLayout(new BorderLayout(10, 5));
         summaryPanel.setSize(this.getWidth(), this.getHeight());
 
         // Create the avatar panel.
-        JPanel avatarPanel = new JPanel();
+        JPanel avatarPanel = new TransparentPanel();
 
         avatarPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
@@ -203,14 +202,14 @@ public class ContactInfoDetailsPanel
         summaryPanel.add(avatarPanel, BorderLayout.WEST);
 
         // Create the summary details panel.
-        JPanel detailsPanel = new JPanel();
+        JPanel detailsPanel = new TransparentPanel();
         detailsPanel.setLayout(new BorderLayout());
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         summaryPanel.add(detailsPanel);
 
         // Labels panel.
-        JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
         labelsPanel.add(new JLabel(Resources.getString("firstNameNS")));
         labelsPanel.add(new JLabel(Resources.getString("middleNameNS")));
         labelsPanel.add(new JLabel(Resources.getString("lastNameNS")));
@@ -223,7 +222,7 @@ public class ContactInfoDetailsPanel
         detailsPanel.add(labelsPanel, BorderLayout.WEST);
 
         // Values panel.
-        JPanel valuesPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
         detailsPanel.add(valuesPanel, BorderLayout.CENTER);
 
@@ -378,12 +377,12 @@ public class ContactInfoDetailsPanel
      */
     private JPanel createExtendedInfoPanel()
     {
-        JPanel mainExtendedPanel = new JPanel(new BorderLayout());
+        JPanel mainExtendedPanel = new TransparentPanel(new BorderLayout());
 
-        JPanel extendedPanel = new JPanel();
+        JPanel extendedPanel = new TransparentPanel();
         extendedPanel.setLayout(new BoxLayout(extendedPanel, BoxLayout.Y_AXIS));
 
-        JPanel imagePanel = new JPanel();
+        JPanel imagePanel = new TransparentPanel();
 
         // The imagePanel will be used for any BinaryDetails and will be added at
         // the bottom so we don't disrupt the standard look of the other details
@@ -409,7 +408,7 @@ public class ContactInfoDetailsPanel
 
             detailLabel = new JLabel();
             detailValueArea = new JTextArea();
-            detailPanel = new JPanel(new BorderLayout(10, 10));
+            detailPanel = new TransparentPanel(new BorderLayout(10, 10));
 
             detailValueArea.setAlignmentX(JTextArea.CENTER_ALIGNMENT);
             detailValueArea.setEditable(false);
@@ -474,7 +473,7 @@ public class ContactInfoDetailsPanel
 
             JLabel webInfoLabel = new JLabel("Click to see web info: ");
             JEditorPane webInfoValue = new JEditorPane();
-            JPanel webInfoPanel = new JPanel(new BorderLayout());
+            JPanel webInfoPanel = new TransparentPanel(new BorderLayout());
 
             webInfoPanel.add(webInfoLabel, BorderLayout.WEST);
             webInfoPanel.add(webInfoValue, BorderLayout.CENTER);

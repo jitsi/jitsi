@@ -3,7 +3,6 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.whiteboard.gui;
 
 import java.awt.*;
@@ -23,6 +22,7 @@ import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -31,7 +31,7 @@ import net.java.sip.communicator.util.*;
  * @author Julien Waechter
  */
 public class WhiteboardFrame
-    extends javax.swing.JFrame
+    extends SIPCommFrame
 {
     private static final Logger logger =
         Logger.getLogger(WhiteboardFrame.class);
@@ -291,7 +291,6 @@ public class WhiteboardFrame
     public WhiteboardFrame(WhiteboardSessionManager wps,
         WhiteboardSession session)
     {
-        super();
         this.drawCanvas = new WhiteboardPanel(displayList, this);
         this.sessionManager = wps;
         this.session = session;
@@ -788,8 +787,8 @@ public class WhiteboardFrame
         jButtonOpen = new JButton();
         jButtonCopy = new JButton();
         jButtonPaste = new JButton();
-        jPanel1 = new JPanel();
-        toolBar = new JPanel();
+        jPanel1 = new TransparentPanel();
+        toolBar = new TransparentPanel();
         penButton = new JToggleButton();
         selectionButton = new JToggleButton();
         lineButton = new JToggleButton();
@@ -805,7 +804,7 @@ public class WhiteboardFrame
         colorChooserButton = new JButton();
         jLabelColor = new JLabel();
         modifButton = new JToggleButton();
-        jPanel2 = new JPanel();
+        jPanel2 = new TransparentPanel();
         jLabelThickness = new JLabel();
         jLabel1 = new JLabel();
         jSpinnerThickness = new JSpinner();
@@ -827,7 +826,7 @@ public class WhiteboardFrame
         helpMenu = new JMenu();
         helpMenuItem = new JMenuItem();
         aboutMenuItem = new JMenuItem();
-        leftPanel = new JPanel(new BorderLayout());
+        leftPanel = new TransparentPanel(new BorderLayout());
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(Resources.getString("whiteboardTitle"));
@@ -1500,9 +1499,9 @@ public class WhiteboardFrame
 
     private JPanel leftPanel;
 
-    private javax.swing.JPanel jPanel1;
+    private JPanel jPanel1;
 
-    private javax.swing.JPanel jPanel2;
+    private JPanel jPanel2;
 
     private javax.swing.JSpinner jSpinnerThickness;
 
@@ -1540,7 +1539,7 @@ public class WhiteboardFrame
 
     private javax.swing.JToggleButton textButton;
 
-    private javax.swing.JPanel toolBar;
+    private JPanel toolBar;
 
     // End of variables declaration//GEN-END:variables
 
@@ -2524,6 +2523,10 @@ public class WhiteboardFrame
     public WhiteboardSession getWhiteboardSession()
     {
         return this.session;
+    }
+
+    protected void close(boolean isEscaped)
+    {
     }
 
     private class WhiteboardChangeListenerImpl
