@@ -65,15 +65,12 @@ public class MainMenu
     {
         fileMenu.setText(fileString.getText());
         fileMenu.setMnemonic(fileString.getMnemonic());
-        fileMenu.setToolTipText(fileString.getText());
 
         toolsMenu.setText(toolsString.getText());
         toolsMenu.setMnemonic(toolsString.getMnemonic());
-        toolsMenu.setToolTipText(toolsString.getText());
 
         helpMenu.setText(helpString.getText());
         helpMenu.setMnemonic(helpString.getMnemonic());
-        helpMenu.setToolTipText(helpString.getText());
 
         this.fileMenu.setOpaque(false);
         this.toolsMenu.setOpaque(false);
