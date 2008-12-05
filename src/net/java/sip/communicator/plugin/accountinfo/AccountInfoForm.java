@@ -33,7 +33,7 @@ public class AccountInfoForm
      */
     private AccountDetailsPanel detailsPanel;
 
-    private JTabbedPane accountsTabbedPane = new JTabbedPane();
+    private JTabbedPane accountsTabbedPane = new SIPCommTabbedPane(false, false);
 
     private Hashtable<ProtocolProviderService, AccountDetailsPanel>
         accountsTable = new Hashtable();

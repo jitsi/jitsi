@@ -4,18 +4,17 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.lookandfeel;
+package net.java.sip.communicator.swing.plaf;
 
 /*
  * The content of this file was based on code borrowed from David Bismut,
  * davidou@mageos.com Intern, SETLabs, Infosys Technologies Ltd. May 2004 - Jul
  * 2004 Ecole des Mines de Nantes, France
  */
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -24,8 +23,6 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.swing.*;
 
 /**

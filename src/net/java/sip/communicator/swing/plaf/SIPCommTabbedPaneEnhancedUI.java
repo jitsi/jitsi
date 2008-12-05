@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.lookandfeel;
+package net.java.sip.communicator.swing.plaf;
 
 /*
  * The content of this file was based on code borrowed from David Bismut,
@@ -14,13 +14,12 @@ package net.java.sip.communicator.impl.gui.lookandfeel;
 
 import java.awt.*;
 import java.awt.image.*;
+
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.swing.*;
 
 /**
@@ -35,7 +34,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
     private static final Color whiteColor = Color.white;
 
     private static final int TAB_OVERLAP
-        = new Integer(GuiActivator.getResources().
+        = new Integer(SwingCommonActivator.getResources().
             getSettingsString("impl.gui.TAB_OVERLAP")).intValue();
 
     private static final int PREFERRED_WIDTH = 150;

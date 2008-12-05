@@ -44,7 +44,7 @@ public class ChatRoomConfigurationWindow
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     
-    private JTabbedPane tabbedPane = new JTabbedPane();
+    private JTabbedPane tabbedPane = new SIPCommTabbedPane(false, false);
     
     private TitlePanel titlePanel = new TitlePanel();
     

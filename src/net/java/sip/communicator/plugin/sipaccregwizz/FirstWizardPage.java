@@ -143,7 +143,7 @@ public class FirstWizardPage
 
     private JTextField keepAliveIntervalValue = new JTextField();
 
-    private JTabbedPane tabbedPane = new JTabbedPane();
+    private JTabbedPane tabbedPane = new SIPCommTabbedPane(false, false);
 
     private JPanel advancedPanel = new TransparentPanel();
 
