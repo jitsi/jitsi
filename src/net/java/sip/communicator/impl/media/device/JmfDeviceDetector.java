@@ -16,10 +16,11 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
-import net.java.sip.communicator.util.*;
-import com.sun.media.util.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.impl.media.*;
+import net.java.sip.communicator.service.fileaccess.*;
+import net.java.sip.communicator.util.*;
+
+import com.sun.media.util.*;
 
 /**
  * Probes for available capture and playback devices and initializes the
@@ -27,6 +28,7 @@ import net.java.sip.communicator.impl.media.*;
  *
  * @author Emil Ivov
  * @author Ken Larson
+ * @author Lubomir Marinov
  */
 public class JmfDeviceDetector
 {
@@ -128,7 +130,7 @@ public class JmfDeviceDetector
         //First check if DirectSound capture is available
         try
         {
-            DirectSoundAuto directSoundAuto = new DirectSoundAuto();
+            new DirectSoundAuto();
         }
         catch (Throwable exc)
         {
@@ -138,7 +140,7 @@ public class JmfDeviceDetector
         // check if JavaSound capture is available
         try
         {
-            JavaSoundAuto javaSoundAuto = new JavaSoundAuto();
+            new JavaSoundAuto();
         }
         catch (Throwable exc)
         {
@@ -165,8 +167,8 @@ public class JmfDeviceDetector
         // Try to configgure capture devices for any operating system.
         //those that do not apply will silently fail.
         logger.info("Looking for video capture devices");
-        int nDevices = 0;
-/*        //Windows
+/*        int nDevices = 0;
+        //Windows
         try
         {
             VFWAuto vfwAuto = new VFWAuto();
@@ -242,7 +244,7 @@ public class JmfDeviceDetector
      */
     private void detectDirectAudio()
     {
-        Class cls;
+        Class<?> cls;
         int plType = PlugInManager.RENDERER;
         String dar = "com.sun.media.renderer.audio.DirectAudioRenderer";
         try
@@ -310,9 +312,9 @@ public class JmfDeviceDetector
      */
     public static void setupJMF()
     {
+        logger.logEntry();
         try
         {
-            logger.logEntry();
 
             // we'll be storing our jmf.properties file inside the
             //sip-communicator directory. If it does not exist - we created it.
@@ -366,8 +368,41 @@ public class JmfDeviceDetector
             logger.logExit();
         }
 
+        setupRenderers();
     }
 
+    private static void setupRenderers()
+    {
+        if (isWindowsVista())
+        {
+
+            /*
+             * DDRenderer will cause Windows Vista to switch its theme from Aero
+             * to Vista Basic so try to pick up a different Renderer.
+             */
+            Vector renderers =
+                PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
+
+            if (renderers.contains("com.sun.media.renderer.video.GDIRenderer"))
+            {
+                PlugInManager.removePlugIn(
+                    "com.sun.media.renderer.video.DDRenderer",
+                    PlugInManager.RENDERER);
+            }
+        }
+    }
+
+    private static boolean isWindowsVista()
+    {
+        String osName = System.getProperty("os.name");
+
+        /*
+         * TODO We're currently checking for Vista only but it may make sense to
+         * check for a version of Windows greater than or equal to Vista.
+         */
+        return (osName != null) && (osName.indexOf("Windows") != -1)
+            && (osName.indexOf("Vista") != -1);
+    }
 
     /**
      * Detect all devices and complete
