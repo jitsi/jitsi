@@ -61,8 +61,8 @@ public class FirstWizardPage
     private JTextField lastField = new JTextField();
     private JTextField mailField = new JTextField();
 
-    private JCheckBox rememberContacts = 
-        new JCheckBox("Remember Bonjour contacts?");
+    private JCheckBox rememberContacts =
+        new SIPCommCheckBox("Remember Bonjour contacts?");
 
     private JPanel mainPanel = new TransparentPanel();
 

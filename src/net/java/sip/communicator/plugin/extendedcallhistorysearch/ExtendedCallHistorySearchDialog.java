@@ -70,12 +70,12 @@ public class ExtendedCallHistorySearchDialog
                 .getI18NString("callType") + ": ");
 
     /* CHECKBOX */
-    private JCheckBox inCheckBox = new JCheckBox(
-        ExtendedCallHistorySearchActivator.getResources()
+    private JCheckBox inCheckBox =
+        new SIPCommCheckBox(ExtendedCallHistorySearchActivator.getResources()
             .getI18NString("incoming"), true);
 
-    private JCheckBox outCheckBox = new JCheckBox(
-        ExtendedCallHistorySearchActivator.getResources()
+    private JCheckBox outCheckBox =
+        new SIPCommCheckBox(ExtendedCallHistorySearchActivator.getResources()
             .getI18NString("outgoing"), true);
 
     /* SCROLL PANE */

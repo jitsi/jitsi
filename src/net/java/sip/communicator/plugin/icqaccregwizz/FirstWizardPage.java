@@ -44,7 +44,7 @@ public class FirstWizardPage
     private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enableAdvOpButton =
-        new JCheckBox(Resources.getString("ovverideServerOps"), false);
+        new SIPCommCheckBox(Resources.getString("ovverideServerOps"), false);
 
     private JLabel uinLabel = new JLabel(Resources.getString("uin"));
 
@@ -62,7 +62,7 @@ public class FirstWizardPage
     private JPasswordField passField = new JPasswordField();
 
     private JCheckBox rememberPassBox =
-        new JCheckBox(Resources.getString("rememberPassword"));
+        new SIPCommCheckBox(Resources.getString("rememberPassword"));
 
     private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
 

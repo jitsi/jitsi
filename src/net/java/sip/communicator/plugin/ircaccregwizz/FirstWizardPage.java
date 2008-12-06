@@ -88,17 +88,17 @@ public class FirstWizardPage
 
     private JTextField portField = new JTextField();
 
-    private JCheckBox rememberPassBox = new JCheckBox(
-        Resources.getString("rememberPassword"));
+    private JCheckBox rememberPassBox =
+        new SIPCommCheckBox(Resources.getString("rememberPassword"));
 
-    private JCheckBox autoNickChange = new JCheckBox(
-            Resources.getString("autoNickChange"));
+    private JCheckBox autoNickChange =
+        new SIPCommCheckBox(Resources.getString("autoNickChange"));
 
-    private JCheckBox defaultPort = new JCheckBox(
-            Resources.getString("defaultPort"));
+    private JCheckBox defaultPort =
+        new SIPCommCheckBox(Resources.getString("defaultPort"));
 
-    private JCheckBox passwordNotRequired = new JCheckBox(
-            Resources.getString("passwordNotRequired"));
+    private JCheckBox passwordNotRequired =
+        new SIPCommCheckBox(Resources.getString("passwordNotRequired"));
 
     private JPanel mainPanel = new TransparentPanel();
 

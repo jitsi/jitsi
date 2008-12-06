@@ -54,8 +54,8 @@ public class ChatPanel
 
     private final JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    private final JCheckBox sendSmsCheckBox = new JCheckBox(
-        Messages.getI18NString("sendAsSms").getText());
+    private final JCheckBox sendSmsCheckBox =
+        new SIPCommCheckBox(Messages.getI18NString("sendAsSms").getText());
 
     private JSplitPane topSplitPane;
 

@@ -141,7 +141,8 @@ public class NotificationConfigurationPanel
         desactivate.setMinimumSize(new Dimension(150,30));
         desactivate.setPreferredSize(new Dimension(150,30));
         desactivate.addActionListener(this);
-        playSoundCheckBox = new JCheckBox(Resources.getString("playsound"));
+        playSoundCheckBox =
+            new SIPCommCheckBox(Resources.getString("playsound"));
         playSoundCheckBox.addItemListener(this);
         playSoundButton = new JButton(
                 new ImageIcon(Resources.getImageInBytes(
@@ -159,7 +160,7 @@ public class NotificationConfigurationPanel
         soundFileChooser.setMinimumSize(new Dimension(30,30));
         soundFileChooser.setPreferredSize(new Dimension(30,30));
         soundFileChooser.addActionListener(this);
-        programCheckBox = new JCheckBox(Resources.getString("execprog"));
+        programCheckBox = new SIPCommCheckBox(Resources.getString("execprog"));
         programCheckBox.addItemListener(this);
         programFileTextField = new JTextField();
         programFileTextField.setMinimumSize(new Dimension(250,30));
@@ -171,7 +172,8 @@ public class NotificationConfigurationPanel
         programFileChooser.setMinimumSize(new Dimension(30,30));
         programFileChooser.setPreferredSize(new Dimension(30,30));
         programFileChooser.addActionListener(this);
-        popupCheckBox = new JCheckBox(Resources.getString("displaypopup"));
+        popupCheckBox =
+            new SIPCommCheckBox(Resources.getString("displaypopup"));
         popupCheckBox.addItemListener(this);
 
 

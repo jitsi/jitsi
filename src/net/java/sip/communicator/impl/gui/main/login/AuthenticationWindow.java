@@ -4,20 +4,20 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.login;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.swing.*;
+
 /**
  * The <tt>LoginWindow</tt> is the window where the user should type his
  * user identifier and password to login.
@@ -62,8 +62,9 @@ public class AuthenticationWindow
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JCheckBox rememberPassCheckBox
-        = new JCheckBox(Messages.getI18NString("rememberPassword").getText());
+    private JCheckBox rememberPassCheckBox =
+        new SIPCommCheckBox(Messages.getI18NString("rememberPassword")
+            .getText());
 
     private LoginWindowBackground backgroundPanel;
 

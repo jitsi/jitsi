@@ -52,8 +52,8 @@ public class FirstWizardPage
 
     private JPasswordField passField = new JPasswordField();
 
-    private JCheckBox rememberPassBox = new JCheckBox(
-        Resources.getString("rememberPassword"));
+    private JCheckBox rememberPassBox =
+        new SIPCommCheckBox(Resources.getString("rememberPassword"));
 
     private JPanel mainPanel = new TransparentPanel();
 

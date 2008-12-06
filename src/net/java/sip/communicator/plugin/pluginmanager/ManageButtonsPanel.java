@@ -43,8 +43,8 @@ public class ManageButtonsPanel
 
     private JButton newButton = new JButton(Resources.getString("new"));
 
-    private JCheckBox showSysBundlesCheckBox = new JCheckBox(
-            Resources.getString("showSystemBundles"));
+    private JCheckBox showSysBundlesCheckBox =
+        new SIPCommCheckBox(Resources.getString("showSystemBundles"));
 
     private JPanel buttonsPanel =
         new TransparentPanel(new GridLayout(0, 1, 8, 8));

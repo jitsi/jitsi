@@ -62,8 +62,9 @@ public class AutoAwayConfigForm
         JPanel fieldsPanel = new TransparentPanel(new BorderLayout(5, 5));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 0, 0));
 
-        enable = new JCheckBox(AutoAwayActivator.getResources()
-                .getI18NString("enableChangeStatus"));
+        enable =
+            new SIPCommCheckBox(AutoAwayActivator.getResources().getI18NString(
+                "enableChangeStatus"));
         fieldsPanel.add(enable, BorderLayout.NORTH);
         enable.addActionListener(new ActionListener()
         {

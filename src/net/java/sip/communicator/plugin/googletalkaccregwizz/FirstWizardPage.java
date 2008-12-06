@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.plugin.googletalkaccregwizz;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -57,8 +57,8 @@ public class FirstWizardPage
 
     private JPasswordField passField = new JPasswordField();
 
-    private JCheckBox rememberPassBox = new JCheckBox(Resources
-        .getString("rememberPassword"));
+    private JCheckBox rememberPassBox =
+        new SIPCommCheckBox(Resources.getString("rememberPassword"));
 
     private JPanel advancedOpPanel = new TransparentPanel(new BorderLayout(10, 10));
 
@@ -66,11 +66,11 @@ public class FirstWizardPage
 
     private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox sendKeepAliveBox = new JCheckBox(Resources
-        .getString("enableKeepAlive"));
+    private JCheckBox sendKeepAliveBox =
+        new SIPCommCheckBox(Resources.getString("enableKeepAlive"));
 
-    private JCheckBox enableAdvOpButton = new JCheckBox(Resources
-        .getString("ovverideServerOps"), false);
+    private JCheckBox enableAdvOpButton =
+        new SIPCommCheckBox(Resources.getString("ovverideServerOps"), false);
 
     private JLabel resourceLabel = new JLabel(Resources.getString("resource"));
 

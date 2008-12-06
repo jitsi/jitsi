@@ -55,7 +55,7 @@ public class FirstWizardPage
     private JPasswordField passField = new JPasswordField();
 
     private JCheckBox rememberPassBox =
-        new JCheckBox(Resources.getString("rememberPassword"));
+        new SIPCommCheckBox(Resources.getString("rememberPassword"));
 
     private JPanel advancedOpPanel = new TransparentPanel(new BorderLayout(10, 10));
 
@@ -64,7 +64,7 @@ public class FirstWizardPage
     private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enableAdvOpButton =
-        new JCheckBox(Resources.getString("ovverideServerOps"), false);
+        new SIPCommCheckBox(Resources.getString("ovverideServerOps"), false);
 
     private JLabel serverLabel = new JLabel(Resources.getString("registrar"));
 
@@ -102,10 +102,10 @@ public class FirstWizardPage
     private JPanel valuesPresOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enablePresOpButton =
-        new JCheckBox(Resources.getString("enablePresence"), true);
+        new SIPCommCheckBox(Resources.getString("enablePresence"), true);
 
     private JCheckBox forceP2PPresOpButton =
-        new JCheckBox(Resources.getString("forceP2PPresence"), true);
+        new SIPCommCheckBox(Resources.getString("forceP2PPresence"), true);
 
     private JLabel pollPeriodLabel =
         new JLabel(Resources.getString("offlineContactPollingPeriod"));

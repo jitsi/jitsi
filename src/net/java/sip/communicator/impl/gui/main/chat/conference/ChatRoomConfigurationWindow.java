@@ -141,7 +141,7 @@ public class ChatRoomConfigurationWindow
             if(fieldType.equals(ChatRoomConfigurationFormField.TYPE_BOOLEAN))
             {
                 // Create a check box when the field is of type boolean.
-                field = new JCheckBox(formField.getLabel());
+                field = new SIPCommCheckBox(formField.getLabel());
                 
                 if(values.hasNext())
                 {
@@ -177,7 +177,7 @@ public class ChatRoomConfigurationWindow
                 while(options.hasNext())
                 {
                     Object option = options.next();
-                    JCheckBox checkBox = new JCheckBox(option.toString());
+                    JCheckBox checkBox = new SIPCommCheckBox(option.toString());
                     
                     field.add(checkBox);
                     optionCheckBoxes.put(option, checkBox);

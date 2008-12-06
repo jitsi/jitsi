@@ -35,8 +35,8 @@ class SSHContactInfo extends SIPCommDialog
     private JPanel detailFieldsPanel = new TransparentPanel();
     private JPanel detailsPanel = new TransparentPanel();
     
-    private JCheckBox addDetailsCheckBox = new JCheckBox("Add Details");
-    
+    private JCheckBox addDetailsCheckBox = new SIPCommCheckBox("Add Details");
+
     private JButton doneButton = new JButton("Done");
     private JLabel machineID = new JLabel("Hostname / IP: ");
     private JTextField machineIDField = new JTextField();

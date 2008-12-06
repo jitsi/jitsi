@@ -13,7 +13,6 @@ import java.lang.reflect.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.swing.*;
 
 /**
@@ -35,8 +34,8 @@ public class MessageDialog
     private JButton okButton = new JButton(
         Messages.getI18NString("ok").getText());
 
-    private JCheckBox doNotAskAgain = new JCheckBox(Messages
-            .getI18NString("doNotAskAgain").getText());
+    private JCheckBox doNotAskAgain =
+        new SIPCommCheckBox(Messages.getI18NString("doNotAskAgain").getText());
 
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.WARNING_ICON)));

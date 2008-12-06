@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import com.izforge.izpack.util.os.*;
@@ -69,7 +70,7 @@ public class GeneralConfigurationForm
             String osName = System.getProperty("os.name");
             if (osName.startsWith("Windows"))
             {
-                autoStartCheckBox = new JCheckBox();
+                autoStartCheckBox = new SIPCommCheckBox();
                 mainPanel.add(autoStartCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
                 autoStartCheckBox.setText(Resources.getString(
@@ -79,7 +80,7 @@ public class GeneralConfigurationForm
                 autoStartCheckBox.addActionListener(this);
             }
             {
-                groupMessagesCheckBox = new JCheckBox();
+                groupMessagesCheckBox = new SIPCommCheckBox();
                 mainPanel.add(groupMessagesCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
                 groupMessagesCheckBox.setText(
@@ -97,7 +98,7 @@ public class GeneralConfigurationForm
                     new java.awt.Dimension(380, 57));
                 logHistoryPanel.setAlignmentX(0.0f);
                 {
-                    logHistoryCheckBox = new JCheckBox();
+                    logHistoryCheckBox = new SIPCommCheckBox();
                     logHistoryPanel.add(logHistoryCheckBox);
                     logHistoryCheckBox.setText(
                         Resources.getString("logHistory"));
@@ -115,7 +116,7 @@ public class GeneralConfigurationForm
                     });
                 }
                 {
-                    showHistoryCheckBox = new JCheckBox();
+                    showHistoryCheckBox = new SIPCommCheckBox();
                     logHistoryPanel.add(showHistoryCheckBox);
                     showHistoryCheckBox.setText(
                         Resources.getString("showHistory"));
@@ -196,7 +197,7 @@ public class GeneralConfigurationForm
                 }
             }
             {
-                enableTypingNotifiCheckBox = new JCheckBox();
+                enableTypingNotifiCheckBox = new SIPCommCheckBox();
                 enableTypingNotifiCheckBox.setLayout(null);
                 mainPanel.add(enableTypingNotifiCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
@@ -208,7 +209,7 @@ public class GeneralConfigurationForm
                 enableTypingNotifiCheckBox.addActionListener(this);
             }
             {
-                bringToFrontCheckBox = new JCheckBox();
+                bringToFrontCheckBox = new SIPCommCheckBox();
                 mainPanel.add(bringToFrontCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
                 bringToFrontCheckBox.setText(
