@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.generalconfig;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -15,11 +16,9 @@ import javax.swing.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
-import java.io.*;
 import com.izforge.izpack.util.os.*;
 
 /**
- * 
  * @author Yana Stamcheva
  */
 public class GeneralConfigurationForm
@@ -73,10 +72,9 @@ public class GeneralConfigurationForm
                 autoStartCheckBox = new JCheckBox();
                 mainPanel.add(autoStartCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
-                autoStartCheckBox.setText(
-                    Resources.getString("autoStartOption",
-                        new String[]{
-                            Resources.getSettingsString("applicationName")}));
+                autoStartCheckBox.setText(Resources.getString(
+                    "autoStartOption", new String[]
+                    { getApplicationName() }));
                 initAutoStartCheckBox();
                 autoStartCheckBox.addActionListener(this);
             }
@@ -309,6 +307,11 @@ public class GeneralConfigurationForm
             ConfigurationManager.isAutoPopupNewMessage());
     }
 
+    private String getApplicationName()
+    {
+        return Resources.getSettingsString("service.gui.APPLICATION_NAME");
+    }
+
     public Object getForm()
     {
         return this;
@@ -339,8 +342,7 @@ public class GeneralConfigurationForm
             {
                 String workingDir = new File(".").getCanonicalPath();
 
-                String appName
-                    = Resources.getSettingsString("service.gui.APPLICATION_NAME");
+                String appName = getApplicationName();
 
                 ShellLink shortcut = new ShellLink(ShellLink.STARTUP, appName);
                 shortcut.setUserType(ShellLink.CURRENT_USER);
@@ -421,8 +423,7 @@ public class GeneralConfigurationForm
     {
         try 
         {
-            String appName = 
-                        Resources.getSettingsString("applicationName");
+            String appName = getApplicationName();
             ShellLink shortcut = 
                 new ShellLink(
                     ShellLink.STARTUP, 
