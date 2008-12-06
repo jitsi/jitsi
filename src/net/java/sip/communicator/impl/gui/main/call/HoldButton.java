@@ -10,6 +10,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.swing.*;
@@ -37,6 +38,8 @@ public class HoldButton
         super(new ImageIcon(ImageLoader.getImage(ImageLoader.HOLD_BUTTON)));
 
         setModel(new HoldButtonModel(callParticipant));
+        setToolTipText(GuiActivator.getResources().getI18NString(
+            "HoldButton_toolTipText"));
     }
 
     /**

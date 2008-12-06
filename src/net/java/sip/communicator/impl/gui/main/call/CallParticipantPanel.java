@@ -13,8 +13,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.swing.*;
@@ -708,6 +708,8 @@ public class CallParticipantPanel
             new JButton(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON)));
 
+        button.setToolTipText(GuiActivator.getResources().getI18NString(
+            "CallParticipantPanel_enterFullScreenButtonToolTipText"));
         button.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -724,6 +726,8 @@ public class CallParticipantPanel
             new JButton(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON)));
 
+        button.setToolTipText(GuiActivator.getResources().getI18NString(
+            "CallParticipantPanel_exitFullScreenButtonToolTipText"));
         button.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)

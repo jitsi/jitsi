@@ -10,6 +10,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.swing.*;
 
@@ -35,6 +36,8 @@ public class MuteButton
         super(new ImageIcon(ImageLoader.getImage(ImageLoader.MUTE_BUTTON)));
 
         setModel(new MuteButtonModel(callParticipant));
+        setToolTipText(GuiActivator.getResources().getI18NString(
+            "MuteButton_toolTipText"));
     }
 
     /**

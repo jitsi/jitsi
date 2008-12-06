@@ -53,6 +53,8 @@ public class TransferCallButton
 
         this.callParticipant = callParticipant;
 
+        setToolTipText(GuiActivator.getResources().getI18NString(
+            "TransferCallButton_toolTipText"));
         addActionListener(new ActionListener()
         {
 
