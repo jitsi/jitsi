@@ -218,33 +218,36 @@ public class NativeEncoder
             return BUFFER_PROCESSED_OK;
         }
 
-        // copy data to avpicture
-        rawFrameBuffer.write(0, 
-            (byte[])inBuffer.getData(), inBuffer.getOffset(), encFrameLen);
-
-        if(framesSinceLastIFrame >= IFRAME_INTERVAL )
+        synchronized (AVCODEC)
         {
-            avpicture.key_frame = 1;
-            framesSinceLastIFrame = 0;
-        }
-        else
-        {
-            framesSinceLastIFrame++;
-            avpicture.key_frame = 0;
-        }
-        
-        // encode data
-        int encLen = 
-            AVCODEC.avcodec_encode_video(
-                avcontext, encFrameBuffer, encFrameLen, avpicture);
-        
-        byte[] r = encFrameBuffer.getByteArray(0, encLen);
+            // copy data to avpicture
+            rawFrameBuffer.write(0, 
+                (byte[])inBuffer.getData(), inBuffer.getOffset(), encFrameLen);
 
-        outBuffer.setData(r);
-        outBuffer.setLength(r.length);
-        outBuffer.setOffset(0);
+            if(framesSinceLastIFrame >= IFRAME_INTERVAL )
+            {
+                avpicture.key_frame = 1;
+                framesSinceLastIFrame = 0;
+            }
+            else
+            {
+                framesSinceLastIFrame++;
+                avpicture.key_frame = 0;
+            }
 
-        return BUFFER_PROCESSED_OK;
+            // encode data
+            int encLen = 
+                AVCODEC.avcodec_encode_video(
+                    avcontext, encFrameBuffer, encFrameLen, avpicture);
+
+            byte[] r = encFrameBuffer.getByteArray(0, encLen);
+
+            outBuffer.setData(r);
+            outBuffer.setLength(r.length);
+            outBuffer.setOffset(0);
+
+            return BUFFER_PROCESSED_OK;
+        }
     }
 
     public synchronized void open() throws ResourceUnavailableException
@@ -281,7 +284,7 @@ public class NativeEncoder
 
             avcontext.qcompress = 1;
 
-            int _bitRate = 48000;
+            int _bitRate = 9600;
             avcontext.bit_rate = _bitRate; // average bit rate
             avcontext.bit_rate_tolerance = _bitRate;// so to be 1 in x264
             avcontext.rc_max_rate = _bitRate;
@@ -291,7 +294,7 @@ public class NativeEncoder
             avcontext.time_base.den = 15;//25500; //???
             avcontext.time_base.num = 1000;
             avcontext.qmin = 10;
-            avcontext.qmax = 22;
+            avcontext.qmax = 18;
             avcontext.max_qdiff = 4;
 
             avcontext.partitions |= 0x111;
@@ -346,15 +349,18 @@ public class NativeEncoder
         if (opened)
         {
             opened = false;
-            super.close();
+            synchronized (AVCODEC)
+            {
+                super.close();
 
-            AVCODEC.avcodec_close(avcontext);
+                AVCODEC.avcodec_close(avcontext);
 
-            AVUTIL.av_free(avpicture.getPointer());
-            AVUTIL.av_free(avcontext.getPointer());
+                AVUTIL.av_free(avpicture.getPointer());
+                AVUTIL.av_free(avcontext.getPointer());
 
-            AVUTIL.av_free(rawFrameBuffer);
-            AVUTIL.av_free(encFrameBuffer);
+                AVUTIL.av_free(rawFrameBuffer);
+                AVUTIL.av_free(encFrameBuffer);
+            }
         }
     }
 

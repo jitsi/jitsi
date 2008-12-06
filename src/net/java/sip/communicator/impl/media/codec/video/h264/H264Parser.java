@@ -45,8 +45,7 @@ public class H264Parser
         // if the timestamp changes we are starting receiving a new frame
         if(!(currentStamp == lastTimestamp))
         {
-            encodedFrame = new byte[MAX_FRAME_SIZE];
-            encodedFrameLen = 0;
+            reset();
         }
         // the new frame timestamp
         lastTimestamp = currentStamp;
@@ -83,7 +82,8 @@ public class H264Parser
         catch(Exception ex)
         {
             logger.warn("Cannot parse incoming " + ex.getMessage());
-            return true;
+            reset();
+            return false;
         }
 
         if(hasMarker)
@@ -161,5 +161,11 @@ public class H264Parser
     public int getEncodedFrameLen()
     {
         return encodedFrameLen;
+    }
+
+    void reset()
+    {
+        encodedFrame = new byte[MAX_FRAME_SIZE];
+        encodedFrameLen = 0;
     }
 }

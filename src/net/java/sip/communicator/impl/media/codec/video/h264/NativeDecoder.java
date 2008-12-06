@@ -157,7 +157,7 @@ public class NativeDecoder
         else
             return null;
     }
-    
+
     @Override
     public Format setOutputFormat(Format format)
     {
@@ -203,15 +203,20 @@ public class NativeDecoder
         if (opened)
         {
             opened = false;
-            super.close();
+            synchronized (AVCODEC)
+            {
+                super.close();
 
-            AVCODEC.avcodec_close(avcontext);
+                AVCODEC.avcodec_close(avcontext);
 
-            AVUTIL.av_free(avpicture.getPointer());
-            AVUTIL.av_free(avcontext.getPointer());
+                AVUTIL.av_free(avpicture.getPointer());
+                AVUTIL.av_free(avcontext.getPointer());
+            }
         }
     }
 
+    long lastReceivedSeq = -1;
+    
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         if (!checkInputBuffer(inputBuffer))
@@ -225,65 +230,88 @@ public class NativeDecoder
             return BUFFER_PROCESSED_OK;
         }
 
-        if(!parser.pushRTPInput(inputBuffer))
+        if (inputBuffer.isDiscard())
         {
+            inputBuffer.setDiscard(true);
+            reset();
+            return BUFFER_PROCESSED_OK;
+        }
+        
+        if(lastReceivedSeq != -1 && inputBuffer.getSequenceNumber() - lastReceivedSeq > 1)
+        {
+            lastReceivedSeq = inputBuffer.getSequenceNumber();
+
+            parser.reset();
+            inputBuffer.setDiscard(true);
+            outputBuffer.setDiscard(true);
+            reset();
+            return BUFFER_PROCESSED_OK;
+        }
+        else if(!parser.pushRTPInput(inputBuffer))
+        {
+            lastReceivedSeq = inputBuffer.getSequenceNumber();
             return OUTPUT_BUFFER_NOT_FILLED;
         }
+
+        lastReceivedSeq = inputBuffer.getSequenceNumber();
 
         // fills the incoming data
         IntByReference got_picture = new IntByReference();
         Pointer encBuf = AVUTIL.av_malloc(parser.getEncodedFrameLen());
         arraycopy(parser.getEncodedFrame(), 0, encBuf, 0, parser.getEncodedFrameLen());
 
-        // decodes the data
-        AVCODEC.avcodec_decode_video(
-            avcontext, avpicture, got_picture, encBuf, parser.getEncodedFrameLen());
-
-        if(currentVideoWidth != avcontext.width)
+        synchronized (AVCODEC)
         {
-            currentVideoWidth = avcontext.width;
-            VideoFormat format = getVideoFormat(currentVideoWidth);
-            if(format != null)
+            // decodes the data
+            AVCODEC.avcodec_decode_video(
+                avcontext, avpicture, got_picture, encBuf, parser.getEncodedFrameLen());
+
+            if(currentVideoWidth != avcontext.width)
             {
-                outputBuffer.setFormat(format);
-                outputFormat = format;
+                currentVideoWidth = avcontext.width;
+                VideoFormat format = getVideoFormat(currentVideoWidth);
+                if(format != null)
+                {
+                    outputBuffer.setFormat(format);
+                    outputFormat = format;
+                }
             }
-        }
 
-        if(got_picture.getValue() == 0)
-        {
-            outputBuffer.setDiscard(true);
+            if(got_picture.getValue() == 0)
+            {
+                outputBuffer.setDiscard(true);
+                AVUTIL.av_free(encBuf);
+
+                return BUFFER_PROCESSED_OK;
+            }
+
+            // convert the picture in RGB Format
+            int numBytes = AVCODEC.avpicture_get_size(
+                AVCodecLibrary.PIX_FMT_RGB32, avcontext.width, avcontext.height);
+            Pointer buffer = AVUTIL.av_malloc(numBytes);
+
+            AVCODEC.avpicture_fill(
+                frameRGB, buffer, AVCodecLibrary.PIX_FMT_RGB32, avcontext.width, avcontext.height);
+
+            // Convert the image from its native format to RGB
+            AVCODEC.img_convert(frameRGB, AVCodecLibrary.PIX_FMT_RGB32, 
+                avpicture, avcontext.pix_fmt, avcontext.width, 
+                avcontext.height);
+
+            int[] data = 
+                frameRGB.data0.getIntArray(0, avcontext.height * avcontext.width);
+            int[] outData = validateIntArraySize(outputBuffer, data.length);
+            System.arraycopy(data, 0, outData, 0, data.length);
+
+            outputBuffer.setOffset(0);
+            outputBuffer.setLength(outData.length);
+            outputBuffer.setData(outData);
+
             AVUTIL.av_free(encBuf);
+            AVUTIL.av_free(buffer);
 
             return BUFFER_PROCESSED_OK;
         }
-  
-        // convert the picture in RGB Format
-        int numBytes = AVCODEC.avpicture_get_size(
-            AVCodecLibrary.PIX_FMT_RGB32, avcontext.width, avcontext.height);
-        Pointer buffer = AVUTIL.av_malloc(numBytes);
-
-        AVCODEC.avpicture_fill(
-            frameRGB, buffer, AVCodecLibrary.PIX_FMT_RGB32, avcontext.width, avcontext.height);
-
-        // Convert the image from its native format to RGB
-        AVCODEC.img_convert(frameRGB, AVCodecLibrary.PIX_FMT_RGB32, 
-            avpicture, avcontext.pix_fmt, avcontext.width, 
-            avcontext.height);
-
-        int[] data = 
-            frameRGB.data0.getIntArray(0, avcontext.height * avcontext.width);
-        int[] outData = validateIntArraySize(outputBuffer, data.length);
-        System.arraycopy(data, 0, outData, 0, data.length);
-
-        outputBuffer.setOffset(0);
-        outputBuffer.setLength(outData.length);
-        outputBuffer.setData(outData);
-
-        AVUTIL.av_free(encBuf);
-        AVUTIL.av_free(buffer);
-
-        return BUFFER_PROCESSED_OK;
     }
 
     /**
