@@ -6,17 +6,15 @@
  */
 package net.java.sip.communicator.impl.media.transform;
 
-import javax.media.rtp.*;
 import java.security.*;
+import java.util.*;
+
+import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.media.transform.dummy.*;
 import net.java.sip.communicator.impl.media.transform.srtp.*;
 import net.java.sip.communicator.impl.media.transform.zrtp.*;
-import net.java.sip.communicator.impl.media.keyshare.*;
 import net.java.sip.communicator.service.media.*;
-import java.util.*;
-
-import org.bouncycastle.jce.provider.*;
 
 /**
  * TransformManager class encapsulate the logic of creating different kinds of

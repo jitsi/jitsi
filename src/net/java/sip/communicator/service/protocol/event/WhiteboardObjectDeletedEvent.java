@@ -9,7 +9,6 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.whiteboardobjects.WhiteboardObject;
 
 /**
  * <tt>WhiteboardObjectDeletedEvent</tt> indicates reception of a new

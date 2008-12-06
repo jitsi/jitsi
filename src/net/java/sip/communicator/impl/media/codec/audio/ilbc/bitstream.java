@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.media.codec.audio.ilbc;
 
-import java.lang.*;
-
 /**
  * @author Jean Lorchat
  */

@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import net.java.sip.communicator.service.notification.event.*;
-
 /**
  * The <tt>NotificationsTableEntry</tt> is a class which defined the different 
  * entry in the utilitary "NotificationConfiguration" JTable. It 

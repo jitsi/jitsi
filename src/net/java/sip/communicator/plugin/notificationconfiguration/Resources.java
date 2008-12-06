@@ -6,10 +6,7 @@
  */
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import java.net.*;
 import java.util.*;
-
-import javax.swing.*;
 
 import net.java.sip.communicator.service.resources.*;
 

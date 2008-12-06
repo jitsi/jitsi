@@ -8,14 +8,13 @@ package net.java.sip.communicator.impl.protocol.sip.security;
 
 import java.text.*;
 import java.util.*;
+
 import javax.sip.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import net.java.sip.communicator.impl.netaddr.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**

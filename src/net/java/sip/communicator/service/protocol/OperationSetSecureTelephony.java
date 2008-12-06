@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.*;
-
 /**
  * An Operation Set defining the encryption operations for telephony.
  *

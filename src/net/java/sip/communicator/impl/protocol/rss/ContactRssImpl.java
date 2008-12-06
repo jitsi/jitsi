@@ -6,18 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
-import java.awt.*;
-import java.awt.image.*;
 import java.io.*;
 import java.net.*;
-import java.util.*;
-
-import javax.imageio.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-
-import com.ctreber.aclib.image.ico.*;
 
 /**
  * An implementation of a rss Contact.

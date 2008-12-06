@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.awt.geom.*;
-
 /**
  * A point representing a location in {@code (x,y)} coordinate space,
  * specified in integer precision.

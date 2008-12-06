@@ -9,14 +9,12 @@
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
 import com.jcraft.jsch.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * This interface represents a Contact of SSH Type

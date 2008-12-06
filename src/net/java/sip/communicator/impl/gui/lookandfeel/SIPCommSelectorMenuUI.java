@@ -12,7 +12,6 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.swing.*;
 
 /**

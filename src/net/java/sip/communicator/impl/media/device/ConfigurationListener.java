@@ -6,9 +6,7 @@
  */
 package net.java.sip.communicator.impl.media.device;
 
-import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.util.*;
-
 
 /**
  *

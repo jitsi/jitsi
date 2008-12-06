@@ -4,21 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.protocol.jabber.mediamgr;
 
-import net.java.sip.communicator.util.*;
+import java.util.*;
+
+import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.event.*;
-import net.java.sip.communicator.impl.protocol.jabber.*;
+import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smackx.jingle.*;
 import org.jivesoftware.smackx.jingle.media.*;
 import org.jivesoftware.smackx.jingle.nat.*;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
 
 /**
  * This Class implements a JingleMediaSession. which serve as a wrapper

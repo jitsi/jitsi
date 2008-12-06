@@ -6,10 +6,9 @@
  */
 package net.java.sip.communicator.impl.version;
 
-import java.util.*;
-
-import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.version.*;
+
 import org.osgi.framework.ServiceReference;
 
 /**

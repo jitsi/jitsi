@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.security;
 
-import javax.sip.header.AuthorizationHeader;
 import java.util.Vector;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**

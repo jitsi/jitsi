@@ -11,11 +11,12 @@
 package net.java.sip.communicator.impl.media.device;
 
 import java.util.*;
+
 import javax.media.*;
 
 import net.java.sip.communicator.util.*;
+
 import com.sun.media.protocol.v4l.*;
-import java.io.*;
 
 /**
  * Probes for video capture devices present on linux systems.

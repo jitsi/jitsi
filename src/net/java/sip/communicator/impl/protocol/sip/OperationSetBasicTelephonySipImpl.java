@@ -12,6 +12,7 @@ import gov.nist.javax.sip.header.extensions.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
+
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -19,7 +20,6 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.OperationSetSecureTelephony.SecureStatusChangeSource;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 

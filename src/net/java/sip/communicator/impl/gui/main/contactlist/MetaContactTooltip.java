@@ -11,7 +11,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.plaf.metal.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 
 /**

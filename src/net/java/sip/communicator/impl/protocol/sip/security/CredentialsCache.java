@@ -1,11 +1,14 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.sip.security;
 
 import java.util.*;
 
-import javax.sip.*;
 import javax.sip.header.*;
-import javax.sip.address.*;
-import javax.sip.message.*;
 
 /**
  * The class is used to cache all realms that a certain call has been authorized

@@ -6,10 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
-import java.util.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-
 /**
  * Instant messaging functionalites for the Rss protocol.
  *

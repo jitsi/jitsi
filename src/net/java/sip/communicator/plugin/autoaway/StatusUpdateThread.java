@@ -9,8 +9,6 @@ package net.java.sip.communicator.plugin.autoaway;
 import java.awt.*;
 import java.util.*;
 
-import javax.swing.text.Position;
-
 import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.protocol.*;
 

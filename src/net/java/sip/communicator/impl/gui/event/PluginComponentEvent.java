@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.event;
 
-import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.Container;
 
 /**
  * The <tt>PluginComponentEvent</tt> 

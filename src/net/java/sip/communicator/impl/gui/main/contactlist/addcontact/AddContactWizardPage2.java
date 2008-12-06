@@ -11,7 +11,6 @@ import java.util.*;
 
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**

@@ -11,12 +11,12 @@ import java.util.*;
 import net.sf.jml.*;
 import net.sf.jml.impl.*;
 import net.sf.jml.net.*;
+import net.sf.jml.net.Message;
 import net.sf.jml.protocol.*;
 import net.sf.jml.protocol.incoming.*;
+
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.sf.jml.net.Message;
 
 
 /**

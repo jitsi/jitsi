@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.swing.*;
 
 /**

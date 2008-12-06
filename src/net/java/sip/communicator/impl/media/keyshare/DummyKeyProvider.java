@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.media.keyshare;
 
-import net.java.sip.communicator.impl.media.transform.srtp.*;
-
 /**
  * DummyProvider class implements KeyProvider interface.
  * Used only for testing - activates the hardcoded keys behaviour for SRTP traffic.

@@ -11,10 +11,7 @@ import java.util.*;
 import java.util.Map.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-
-import org.jivesoftware.smack.packet.*;
 
 /**
  * This class give some static methods for converting a geolocation message

@@ -6,11 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.net.*;
-import java.text.*;
-import java.util.*;
 import java.beans.PropertyChangeEvent;
 import java.io.*;
+import java.text.*;
+import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;

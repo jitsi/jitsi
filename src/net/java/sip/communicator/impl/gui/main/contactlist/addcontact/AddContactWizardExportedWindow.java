@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import java.awt.Window;
-
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
 

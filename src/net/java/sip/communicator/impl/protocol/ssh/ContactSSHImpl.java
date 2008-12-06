@@ -12,9 +12,10 @@
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import com.jcraft.jsch.*;
+
 import java.io.*;
 import java.util.*;
-import net.java.sip.communicator.impl.protocol.ssh.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;

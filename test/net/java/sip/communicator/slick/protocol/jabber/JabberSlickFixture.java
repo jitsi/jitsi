@@ -6,13 +6,14 @@
  */
 package net.java.sip.communicator.slick.protocol.jabber;
 
-import org.osgi.framework.*;
-import junit.framework.*;
-import net.java.sip.communicator.service.protocol.*;
-import java.util.Map;
 import java.util.*;
-import org.jivesoftware.smack.RosterGroup;
-import org.jivesoftware.smack.RosterEntry;
+import java.util.Map;
+
+import org.osgi.framework.*;
+
+import junit.framework.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Contains fields and methods used by most or all tests in the Jabber slick.

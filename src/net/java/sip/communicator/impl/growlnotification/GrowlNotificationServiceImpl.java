@@ -6,15 +6,15 @@
  */
 package net.java.sip.communicator.impl.growlnotification;
 
-import java.util.*;
+import java.lang.reflect.*;
 
 import org.osgi.framework.*;
+
 import com.growl.*;
+
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import java.lang.reflect.*;
-
 
 /**
  * The Growl Notification Service displays on-screen information such as

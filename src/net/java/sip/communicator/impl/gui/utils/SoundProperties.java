@@ -4,10 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.utils;
-
-import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 

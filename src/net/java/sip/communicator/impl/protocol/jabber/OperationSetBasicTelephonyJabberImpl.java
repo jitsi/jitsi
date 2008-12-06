@@ -14,13 +14,12 @@ import org.jivesoftware.smackx.jingle.*;
 import org.jivesoftware.smackx.jingle.media.*;
 import org.jivesoftware.smackx.jingle.listeners.*;
 import org.jivesoftware.smackx.jingle.nat.*;
+import org.jivesoftware.smackx.packet.DiscoverInfo;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.mediamgr.*;
-import org.jivesoftware.smackx.packet.DiscoverInfo;
 
 /**
  * Implements all call management logic and exports basic telephony support by

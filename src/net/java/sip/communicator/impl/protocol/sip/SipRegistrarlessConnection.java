@@ -6,14 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.net.*;
-import java.text.*;
-import java.util.*;
-import java.util.logging.Level;
 import javax.sip.*;
-import javax.sip.address.*;
-import javax.sip.header.*;
-import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;

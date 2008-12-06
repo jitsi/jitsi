@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.geolocation;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.impl.protocol.jabber.*;

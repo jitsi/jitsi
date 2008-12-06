@@ -26,12 +26,12 @@
 */
 package net.java.sip.communicator.impl.media.transform.srtp;
 
-import java.util.*;
+import java.security.*;
+
+import javax.crypto.*;
+import javax.crypto.spec.*;
 
 import net.java.sip.communicator.impl.media.transform.*;
-import java.security.*;
-import javax.crypto.spec.*;
-import javax.crypto.*;
 
 /**
  * SRTPCryptoContext class is the core class of SRTP implementation.

@@ -12,7 +12,6 @@ import java.util.*;
 
 import net.java.sip.communicator.launcher.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.launchutils.*;
 
 /**
  * This class is used to prevent from running multiple instances of SIP

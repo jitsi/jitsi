@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**

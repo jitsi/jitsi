@@ -8,7 +8,6 @@
 package net.java.sip.communicator.impl.systray.jdic;
 
 import net.java.sip.communicator.impl.systray.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 

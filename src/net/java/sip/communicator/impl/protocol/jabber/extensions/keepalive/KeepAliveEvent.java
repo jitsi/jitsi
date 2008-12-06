@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
  * KeepAlive Event. Events are send on specified interval

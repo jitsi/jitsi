@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.util;
 
-import net.java.sip.communicator.plugin.extendedcallhistorysearch.*;
 import net.java.sip.communicator.service.resources.*;
 
 import org.osgi.framework.*;
