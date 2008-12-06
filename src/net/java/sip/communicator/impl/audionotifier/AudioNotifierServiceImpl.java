@@ -10,7 +10,6 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The implementation of the AudioNotifierService.
@@ -20,9 +19,8 @@ import net.java.sip.communicator.util.*;
 public class AudioNotifierServiceImpl
     implements AudioNotifierService
 {
-    private Logger logger = Logger.getLogger(AudioNotifierServiceImpl.class);
-
-    private static Map audioClips = new HashMap();
+    private static final Map<String, SCAudioClipImpl> audioClips =
+        new HashMap<String, SCAudioClipImpl>();
 
     private boolean isMute;
 
@@ -34,13 +32,13 @@ public class AudioNotifierServiceImpl
      */
     public SCAudioClip createAudio(String uri)
     {
-        SCAudioClip audioClip;
+        SCAudioClipImpl audioClip;
 
         synchronized (audioClips)
         {
             if(audioClips.containsKey(uri))
             {
-                audioClip = (SCAudioClip) audioClips.get(uri);
+                audioClip = audioClips.get(uri);
             }
             else
             {
@@ -90,23 +88,15 @@ public class AudioNotifierServiceImpl
     {
         this.isMute = isMute;
 
-        Iterator audios = audioClips.entrySet().iterator();
-
-        while (audios.hasNext())
+        for (SCAudioClipImpl audioClip : audioClips.values())
         {
-            SCAudioClipImpl audioClip
-                = (SCAudioClipImpl) ((Map.Entry) audios.next()).getValue();
-
             if (isMute)
             {
                 audioClip.internalStop();
             }
-            else
+            else if (audioClip.isLooping())
             {
-                if(audioClip.isLooping())
-                {
-                    audioClip.playInLoop(audioClip.getLoopInterval());
-                }
+                audioClip.playInLoop(audioClip.getLoopInterval());
             }
         }
     }

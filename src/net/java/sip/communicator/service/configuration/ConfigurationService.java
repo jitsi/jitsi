@@ -131,7 +131,7 @@ public interface ConfigurationService
      * @return a <tt>java.util.List</tt>containing all property name String-s
      * matching the specified conditions.
      */
-    public List getPropertyNamesByPrefix(String  prefix,
+    public List<String> getPropertyNamesByPrefix(String  prefix,
                                          boolean exactPrefixMatch);
 
     /**

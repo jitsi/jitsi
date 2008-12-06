@@ -26,7 +26,7 @@ public class SCAudioClipImpl implements SCAudioClip
 {
     private static Constructor acConstructor = null;
     
-    private  Timer playAudioTimer = new Timer(1000, null);
+    private Timer playAudioTimer = new Timer(1000, null);
     
     private AudioClip audioClip;
     

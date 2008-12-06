@@ -92,32 +92,22 @@ public class ChatRoomList
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List accounts = configService
-                .getPropertyNamesByPrefix(prefix, true);
+        List<String> accounts =
+            configService.getPropertyNamesByPrefix(prefix, true);
 
-        Iterator accountsIter = accounts.iterator();
-
-        while(accountsIter.hasNext()) {
-            String accountRootPropName
-                = (String) accountsIter.next();
-
+        for (String accountRootPropName : accounts) {
             String accountUID
                 = configService.getString(accountRootPropName);
 
             if(accountUID.equals(pps
                     .getAccountID().getAccountUniqueID()))
             {
-                List chatRooms = configService
+                List<String> chatRooms = configService
                     .getPropertyNamesByPrefix(
                         accountRootPropName + ".chatRooms", true);
 
-                Iterator chatRoomsIter = chatRooms.iterator();
-
-                while(chatRoomsIter.hasNext())
+                for (String chatRoomPropName : chatRooms)
                 {
-                    String chatRoomPropName
-                        = (String) chatRoomsIter.next();
-
                     String chatRoomID
                         = configService.getString(chatRoomPropName);
 

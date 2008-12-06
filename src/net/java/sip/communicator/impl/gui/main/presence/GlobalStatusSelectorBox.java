@@ -737,14 +737,10 @@ public class GlobalStatusSelectorBox
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List accounts = configService.getPropertyNamesByPrefix(prefix, true);
+        List<String> accounts = configService.getPropertyNamesByPrefix(prefix, true);
 
-        Iterator accountsIter = accounts.iterator();
-
-        while (accountsIter.hasNext())
+        for (String accountRootPropName : accounts)
         {
-            String accountRootPropName = (String) accountsIter.next();
-
             String accountUID = configService.getString(accountRootPropName);
 
             if (accountUID.equals(protocolProvider.getAccountID()

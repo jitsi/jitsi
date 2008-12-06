@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.callhistory;
 
 import java.util.*;
@@ -54,12 +60,12 @@ public class CallRecordImpl
     {
         this.endTime = endTime;
 
-        Iterator iter = participantRecords.iterator();
-        while (iter.hasNext())
+        for (CallParticipantRecord item : participantRecords)
         {
-            CallParticipantRecordImpl item = (CallParticipantRecordImpl) iter.next();
-            if(item.getEndTime() == null)
-                item.setEndTime(endTime);
+            CallParticipantRecordImpl itemImpl =
+                (CallParticipantRecordImpl) item;
+            if (item.getEndTime() == null)
+                itemImpl.setEndTime(endTime);
         }
     }
 

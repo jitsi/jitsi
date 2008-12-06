@@ -618,35 +618,25 @@ public class ConfigurationManager
     {
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List accounts = configService
+        List<String> accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
 
-        Iterator accountsIter = accounts.iterator();
-
-        while(accountsIter.hasNext())
+        for (String accountRootPropName : accounts)
         {
-            String accountRootPropName
-                = (String) accountsIter.next();
-
             String accountUID
                 = configService.getString(accountRootPropName);
 
             if(accountUID.equals(protocolProvider
                     .getAccountID().getAccountUniqueID()))
             {
-                List chatRooms = configService
+                List<String> chatRooms = configService
                     .getPropertyNamesByPrefix(
                         accountRootPropName + ".chatRooms", true);
 
-                Iterator chatRoomsIter = chatRooms.iterator();
-
                 boolean isExistingChatRoom = false;
 
-                while(chatRoomsIter.hasNext())
+                for (String chatRoomPropName : chatRooms)
                 {
-                    String chatRoomPropName
-                        = (String) chatRoomsIter.next();
-
                     String chatRoomID
                         = configService.getString(chatRoomPropName);
 
@@ -698,33 +688,23 @@ public class ConfigurationManager
     {
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List accounts = configService
+        List<String> accounts = configService
             .getPropertyNamesByPrefix(prefix, true);
 
-        Iterator accountsIter = accounts.iterator();
-
-        while(accountsIter.hasNext())
+        for (String accountRootPropName : accounts)
         {
-            String accountRootPropName
-                = (String) accountsIter.next();
-
             String accountUID
                 = configService.getString(accountRootPropName);
 
             if(accountUID.equals(protocolProvider
                 .getAccountID().getAccountUniqueID()))
             {
-                List chatRooms = configService
+                List<String> chatRooms = configService
                     .getPropertyNamesByPrefix(
                         accountRootPropName + ".chatRooms", true);
 
-                Iterator chatRoomsIter = chatRooms.iterator();
-
-                while(chatRoomsIter.hasNext())
+                for (String chatRoomPropName : chatRooms)
                 {
-                    String chatRoomPropName
-                        = (String) chatRoomsIter.next();
-
                     String chatRoomID
                         = configService.getString(chatRoomPropName);
 
@@ -755,33 +735,23 @@ public class ConfigurationManager
     {
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List accounts = configService
+        List<String> accounts = configService
             .getPropertyNamesByPrefix(prefix, true);
 
-        Iterator accountsIter = accounts.iterator();
-
-        while(accountsIter.hasNext())
+        for (String accountRootPropName : accounts)
         {
-            String accountRootPropName
-                = (String) accountsIter.next();
-
             String accountUID
                 = configService.getString(accountRootPropName);
 
             if(accountUID.equals(protocolProvider
                 .getAccountID().getAccountUniqueID()))
             {
-                List chatRooms = configService
+                List<String> chatRooms = configService
                     .getPropertyNamesByPrefix(
                         accountRootPropName + ".chatRooms", true);
 
-                Iterator chatRoomsIter = chatRooms.iterator();
-
-                while(chatRoomsIter.hasNext())
+                for (String chatRoomPropName : chatRooms)
                 {
-                    String chatRoomPropName
-                        = (String) chatRoomsIter.next();
-
                     String chatRoomID
                         = configService.getString(chatRoomPropName);
 
@@ -802,17 +772,12 @@ public class ConfigurationManager
     {
         String prefix = "net.java.sip.communicator.impl.gui.contactlist.groups";
 
-        List groups = configService
+        List<String> groups = configService
             .getPropertyNamesByPrefix(prefix, true);
 
-        Iterator groupsIter = groups.iterator();
-
         boolean isExistingGroup = false;
-        while(groupsIter.hasNext())
+        for (String groupRootPropName : groups)
         {
-            String groupRootPropName
-                = (String) groupsIter.next();
-
             String storedID
                 = configService.getString(groupRootPropName);
 
@@ -847,16 +812,10 @@ public class ConfigurationManager
     {
         String prefix = "net.java.sip.communicator.impl.gui.contactlist.groups";
 
-        List groups = configService
+        List<String> groups = configService
             .getPropertyNamesByPrefix(prefix, true);
-
-        Iterator groupsIter = groups.iterator();
-
-        while(groupsIter.hasNext())
+        for (String groupRootPropName : groups)
         {
-            String groupRootPropName
-                = (String) groupsIter.next();
-
             String storedID
                 = configService.getString(groupRootPropName);
 

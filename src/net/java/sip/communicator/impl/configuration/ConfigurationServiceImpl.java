@@ -11,15 +11,16 @@ import java.util.*;
 
 import javax.xml.parsers.*;
 
-import org.osgi.framework.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
 import net.java.sip.communicator.impl.configuration.xml.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
+
+import org.osgi.framework.*;
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 /**
  * A straight forward implementation of the ConfigurationService using an xml
@@ -34,7 +35,7 @@ import net.java.sip.communicator.util.xml.*;
 public class ConfigurationServiceImpl
     implements ConfigurationService
 {
-    private Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
+    private final Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
 
     /**
      * The XML Document containing the configuration file this service loaded.
@@ -71,13 +72,13 @@ public class ConfigurationServiceImpl
     /**
      * Our event dispatcher.
      */
-    private ChangeEventDispatcher changeEventDispatcher =
+    private final ChangeEventDispatcher changeEventDispatcher =
         new ChangeEventDispatcher(this);
 
     /**
      * The list of properties currently registered in the configuration service.
      */
-    private Map properties = new Hashtable();
+    private Map<String, Object> properties = new Hashtable<String, Object>();
 
     /**
      * Contains the properties that were initially loaded from the configuration
@@ -86,8 +87,9 @@ public class ConfigurationServiceImpl
      * that we could determine which properties are new and do not have a
      * corresponding node in the XMLDocument object.
      */
-    private Map fileExtractedProperties = new Hashtable();
-    
+    private Map<String, Object> fileExtractedProperties =
+        new Hashtable<String, Object>();
+
     /**
      * Indicates whether the service is started or stopped.
      */
@@ -215,16 +217,12 @@ public class ConfigurationServiceImpl
     public void removeProperty(String propertyName)
         throws PropertyVetoException
     {
-        List childPropertyNames = 
+        List<String> childPropertyNames = 
             getPropertyNamesByPrefix(propertyName, false);
-        
-        Iterator propsIter = childPropertyNames.iterator();
 
         //remove all properties
-        while (propsIter.hasNext())
+        for (String pName : childPropertyNames)
         {
-            String pName = (String) propsIter.next();
-
             removeProperty(pName);
         }
         
@@ -306,14 +304,12 @@ public class ConfigurationServiceImpl
      * @return a <tt>java.util.List</tt>containing all property name String-s
      * matching the specified conditions.
      */
-    public List getPropertyNamesByPrefix(String prefix, boolean exactPrefixMatch)
+    public List<String> getPropertyNamesByPrefix(String prefix, boolean exactPrefixMatch)
     {
-        LinkedList resultKeySet = new LinkedList();
-        Iterator keys = properties.keySet().iterator();
+        List<String> resultKeySet = new LinkedList<String>();
 
-        while(keys.hasNext())
+        for (String key : properties.keySet())
         {
-            String key = (String)keys.next();
             int ix = key.lastIndexOf('.');
             
             if(ix == -1)
@@ -472,7 +468,7 @@ public class ConfigurationServiceImpl
     public void reloadConfiguration()
         throws IOException, XMLException
     {
-        properties = new Hashtable();
+        properties = new Hashtable<String, Object>();
         this.configurationFile = null;
 
         fileExtractedProperties =
@@ -490,7 +486,7 @@ public class ConfigurationServiceImpl
      * @throws IOException if the specified file does not exist
      * @throws XMLException if there is a problem with the file syntax.
      */
-    Map loadConfiguration(File file)
+    Map<String, Object> loadConfiguration(File file)
         throws IOException, XMLException
     {
         // restore the file if needed
@@ -508,7 +504,7 @@ public class ConfigurationServiceImpl
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Map properties = new Hashtable();
+            Map<String, Object> properties = new Hashtable<String, Object>();
 
             //if the file is empyt (or contains only sth insignificant)
             //ifnore it and create a new document.
@@ -545,7 +541,7 @@ public class ConfigurationServiceImpl
             //it is not highly probable that this might happen - so lets just
             //log it.
             logger.error("Error finding configuration for default parsers", ex);
-            return new Hashtable();
+            return new Hashtable<String, Object>();
         }
     }
 
@@ -614,12 +610,11 @@ public class ConfigurationServiceImpl
         //create in the document the properties that were added by other
         //bundles after the initial property load.
 
-        Map newlyAddedProperties = cloneProperties();
+        Map<String, Object> newlyAddedProperties = cloneProperties();
 
         //remove those that were originally there;
-        Iterator propNames = fileExtractedProperties.keySet().iterator();
-        while (propNames.hasNext())
-            newlyAddedProperties.remove(propNames.next());
+        for (String propName : fileExtractedProperties.keySet())
+            newlyAddedProperties.remove(propName);
 
         this.processNewProperties(propertiesDocument,
                                   newlyAddedProperties);
@@ -653,7 +648,7 @@ public class ConfigurationServiceImpl
      */
     private void loadNode(Node         node,
                           StringBuffer propertyNameBuff,
-                          Map          properties)
+                          Map<String, Object>          properties)
     {
         Node currentNode = null;
         NodeList children = node.getChildNodes();
@@ -696,7 +691,6 @@ public class ConfigurationServiceImpl
 
                 //load child nodes
                 loadNode(currentNode, newPropBuff, properties);
-
             }
         }
     }
@@ -716,7 +710,7 @@ public class ConfigurationServiceImpl
      */
     private void updateNode(Node         node,
                             StringBuffer propertyNameBuff,
-                            Map          properties)
+                            Map<String, Object>          properties)
     {
         Node currentNode = null;
         NodeList children = node.getChildNodes();
@@ -955,22 +949,21 @@ public class ConfigurationServiceImpl
     }
 
     /**
-     * Creates new entries in the xml <tt>doc</tt> for every element in the
+     * Creates new entries in the XML <tt>doc</tt> for every element in the
      * <tt>newProperties</tt> table.
-     *
+     * 
      * @param doc the XML <tt>Document</tt> where the new entries should be
-     * created
+     *            created
      * @param newProperties the table containing the properties that are to be
-     * in troduced in the document.
+     *            introduced in the document.
      */
     private void processNewProperties(Document doc,
-                                      Map      newProperties)
+                                      Map<String, Object>      newProperties)
     {
-        Iterator propNames = newProperties.keySet().iterator();
-        while(propNames.hasNext())
+        for (Map.Entry<String, Object> entry : newProperties.entrySet())
         {
-            String key = (String)propNames.next();
-            Object value = newProperties.get(key);
+            String key = entry.getKey();
+            Object value = entry.getValue();
             boolean isSystem = value instanceof PropertyReference;
             value = isSystem
                         ?((PropertyReference)value).getValue()
@@ -1114,21 +1107,21 @@ public class ConfigurationServiceImpl
      * Returns a copy of the Map containing all configuration properties
      * @return a Map clone of the current configuration property set.
      */
-    private Map cloneProperties()
+    private Map<String, Object> cloneProperties()
     {
-        //at the time I'm writing this method we're implementing the
-        //configuration service through the use of a hashtable. this may very
-        //well change one day so let's not be presumptuous
-        if(properties instanceof Hashtable)
-            return (Map)((Hashtable)properties).clone();
-        if(properties instanceof HashMap)
-            return (Map)((HashMap)properties).clone();
-        if(properties instanceof TreeMap)
-            return (Map)((TreeMap)properties).clone();
+        // at the time I'm writing this method we're implementing the
+        // configuration service through the use of a hashtable. this may very
+        // well change one day so let's not be presumptuous
+        if (properties instanceof Hashtable)
+            return (Map<String, Object>) ((Hashtable) properties).clone();
+        if (properties instanceof HashMap)
+            return (Map<String, Object>) ((HashMap) properties).clone();
+        if (properties instanceof TreeMap)
+            return (Map<String, Object>) ((TreeMap) properties).clone();
 
-        //well you can't say that I didn't try!!!
+        // well you can't say that I didn't try!!!
 
-        return new Hashtable(properties);
+        return new Hashtable<String, Object>(properties);
     }
 
     /**

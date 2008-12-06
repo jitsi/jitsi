@@ -42,7 +42,7 @@ public class AudioNotifierActivator implements BundleActivator
     public void start(BundleContext bundleContext) throws Exception
     {
         try {
-            this.bundleContext = bundleContext;
+            AudioNotifierActivator.bundleContext = bundleContext;
             
             //Create the audio notifier service
             audioNotifier = new AudioNotifierServiceImpl();

@@ -37,8 +37,8 @@ public class CallHistoryServiceImpl
     /**
      * The logger for this class.
      */
-    private static Logger logger = Logger
-            .getLogger(CallHistoryServiceImpl.class);
+    private static final Logger logger =
+        Logger.getLogger(CallHistoryServiceImpl.class);
 
     private static String[] STRUCTURE_NAMES =
         new String[] { "callStart", "callEnd", "dir", "callParticipantIDs",
@@ -58,12 +58,14 @@ public class CallHistoryServiceImpl
 
     private Object syncRoot_HistoryService = new Object();
 
-    private Hashtable progressListeners = new Hashtable();
+    private final Map<CallHistorySearchProgressListener, SearchProgressWrapper> progressListeners =
+        new Hashtable<CallHistorySearchProgressListener, SearchProgressWrapper>();
 
-    private Vector currentCallRecords = new Vector();
+    private final List<CallRecordImpl> currentCallRecords =
+        new Vector<CallRecordImpl>();
 
-    private HistoryCallChangeListener historyCallChangeListener
-        = new HistoryCallChangeListener();
+    private final CallChangeListener historyCallChangeListener =
+        new HistoryCallChangeListener();
 
     public HistoryService getHistoryService()
     {
@@ -80,7 +82,7 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByStartDate(MetaContact contact, Date startDate)
+    public Collection<CallRecord> findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException
     {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -93,9 +95,10 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByStartDate(Date startDate)
+    public Collection<CallRecord> findByStartDate(Date startDate)
     {
-        TreeSet result = new TreeSet(new CallRecordComparator());
+        TreeSet<CallRecord> result =
+            new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
@@ -128,7 +131,7 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByEndDate(MetaContact contact, Date endDate)
+    public Collection<CallRecord> findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException
     {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -141,9 +144,9 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByEndDate(Date endDate) throws RuntimeException
+    public Collection<CallRecord> findByEndDate(Date endDate) throws RuntimeException
     {
-        TreeSet result = new TreeSet(new CallRecordComparator());
+        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
@@ -176,7 +179,7 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection<CallRecord> findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException
     {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -190,10 +193,10 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByPeriod(Date startDate, Date endDate) throws
+    public Collection<CallRecord> findByPeriod(Date startDate, Date endDate) throws
         RuntimeException
     {
-        TreeSet result = new TreeSet(new CallRecordComparator());
+        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
@@ -226,7 +229,7 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findLast(MetaContact contact, int count)
+    public Collection<CallRecord> findLast(MetaContact contact, int count)
         throws RuntimeException
     {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -239,9 +242,9 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findLast(int count) throws RuntimeException
+    public Collection<CallRecord> findLast(int count) throws RuntimeException
     {
-        TreeSet result = new TreeSet(new CallRecordComparator());
+        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
@@ -267,10 +270,10 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByParticipant(String address)
+    public Collection<CallRecord> findByParticipant(String address)
         throws RuntimeException
     {
-        TreeSet result = new TreeSet(new CallRecordComparator());
+        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
@@ -335,14 +338,14 @@ public class CallHistoryServiceImpl
      * @param hr HistoryRecord
      * @return Object CallRecord
      */
-    private Object convertHistoryRecordToCallRecord(HistoryRecord hr)
+    private CallRecord convertHistoryRecordToCallRecord(HistoryRecord hr)
     {
         CallRecordImpl result = new CallRecordImpl();
 
-        LinkedList callParticipantIDs = null;
-        LinkedList callParticipantStart = null;
-        LinkedList callParticipantEnd = null;
-        LinkedList callParticipantStates = null;
+        List<String> callParticipantIDs = null;
+        List<String> callParticipantStart = null;
+        List<String> callParticipantEnd = null;
+        List<CallParticipantState> callParticipantStates = null;
 
         // History structure
         // 0 - callStart
@@ -373,18 +376,17 @@ public class CallHistoryServiceImpl
                 callParticipantStates = getStates(value);
         }
 
-        for (int i = 0; i < callParticipantIDs.size(); i++)
+        final int callParticipantCount = callParticipantIDs.size();
+        for (int i = 0; i < callParticipantCount; i++)
         {
-
-            CallParticipantRecordImpl cpr = new CallParticipantRecordImpl(
-                (String)callParticipantIDs.get(i),
-                new Date(Long.parseLong((String)callParticipantStart.get(i))),
-                new Date(Long.parseLong((String)callParticipantEnd.get(i)))
-                );
+            CallParticipantRecordImpl cpr =
+                new CallParticipantRecordImpl(callParticipantIDs.get(i),
+                    new Date(Long.parseLong(callParticipantStart.get(i))),
+                    new Date(Long.parseLong(callParticipantEnd.get(i))));
 
             // if there is no record about the states (backward compability)
-            if(callParticipantStates != null)
-                cpr.setState((CallParticipantState)callParticipantStates.get(i));
+            if (callParticipantStates != null)
+                cpr.setState(callParticipantStates.get(i));
 
             result.getParticipantRecords().add(cpr);
         }
@@ -398,9 +400,9 @@ public class CallHistoryServiceImpl
      * @param str String
      * @return LinkedList
      */
-    private LinkedList getCSVs(String str)
+    private List<String> getCSVs(String str)
     {
-        LinkedList result = new LinkedList();
+        List<String> result = new LinkedList<String>();
         StringTokenizer toks = new StringTokenizer(str, DELIM);
         while(toks.hasMoreTokens())
         {
@@ -411,20 +413,19 @@ public class CallHistoryServiceImpl
 
     /**
      * Get the delimited strings and converts them to CallParticipantState
+     * 
      * @param str String delimited string states
      * @return LinkedList the converted values list
      */
-    private LinkedList getStates(String str)
+    private List<CallParticipantState> getStates(String str)
     {
-        LinkedList result = new LinkedList();
+        List<CallParticipantState> result =
+            new LinkedList<CallParticipantState>();
+        Collection<String> stateStrs = getCSVs(str);
 
-        LinkedList stateStrs = getCSVs(str);
-
-        Iterator iter = stateStrs.iterator();
-        while (iter.hasNext())
+        for (String item : stateStrs)
         {
-            String item = (String) iter.next();
-            result.addLast(convertStateStringToState(item));
+            result.add(convertStateStringToState(item));
         }
 
         return result;
@@ -564,10 +565,10 @@ public class CallHistoryServiceImpl
             StringBuffer callParticipantEndTime = new StringBuffer();
             StringBuffer callParticipantStates = new StringBuffer();
 
-            Iterator iter = callRecord.getParticipantRecords().iterator();
-            while (iter.hasNext())
+            for (CallParticipantRecord item : callRecord
+                .getParticipantRecords())
             {
-                if(callParticipantIDs.length() > 0)
+                if (callParticipantIDs.length() > 0)
                 {
                     callParticipantIDs.append(DELIM);
                     callParticipantStartTime.append(DELIM);
@@ -575,10 +576,11 @@ public class CallHistoryServiceImpl
                     callParticipantStates.append(DELIM);
                 }
 
-                CallParticipantRecord item = (CallParticipantRecord) iter.next();
                 callParticipantIDs.append(item.getParticipantAddress());
-                callParticipantStartTime.append(String.valueOf(item.getStartTime().getTime()));
-                callParticipantEndTime.append(String.valueOf(item.getEndTime().getTime()));
+                callParticipantStartTime.append(String.valueOf(item
+                    .getStartTime().getTime()));
+                callParticipantEndTime.append(String.valueOf(item.getEndTime()
+                    .getTime()));
                 callParticipantStates.append(item.getState().getStateString());
             }
 
@@ -718,10 +720,10 @@ public class CallHistoryServiceImpl
     public void addSearchProgressListener(CallHistorySearchProgressListener
                                           listener)
     {
-        synchronized(progressListeners){
-            HistorySearchProgressListener wrapperListener =
-                new SearchProgressWrapper(listener);
-            progressListeners.put(listener, wrapperListener);
+        synchronized (progressListeners)
+        {
+            progressListeners
+                .put(listener, new SearchProgressWrapper(listener));
         }
     }
 
@@ -739,22 +741,19 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Add the registered CallHistorySearchProgressListeners
-     * to the given HistoryReader
-     *
+     * Add the registered CallHistorySearchProgressListeners to the given
+     * HistoryReader
+     * 
      * @param reader HistoryReader
      * @param countContacts number of contacts will search
      */
-    private void addHistorySearchProgressListeners(
-        HistoryReader reader, int countContacts)
+    private void addHistorySearchProgressListeners(HistoryReader reader,
+        int countContacts)
     {
-        synchronized(progressListeners)
+        synchronized (progressListeners)
         {
-            Iterator iter = progressListeners.values().iterator();
-            while (iter.hasNext())
+            for (SearchProgressWrapper l : progressListeners.values())
             {
-                SearchProgressWrapper l =
-                    (SearchProgressWrapper) iter.next();
                 l.contactCount = countContacts;
                 reader.addSearchProgressListener(l);
             }
@@ -762,20 +761,17 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Removes the registered CallHistorySearchProgressListeners
-     * from the given HistoryReader
-     *
+     * Removes the registered CallHistorySearchProgressListeners from the given
+     * HistoryReader
+     * 
      * @param reader HistoryReader
      */
     private void removeHistorySearchProgressListeners(HistoryReader reader)
     {
-        synchronized(progressListeners)
+        synchronized (progressListeners)
         {
-            Iterator iter = progressListeners.values().iterator();
-            while (iter.hasNext())
+            for (SearchProgressWrapper l : progressListeners.values())
             {
-                SearchProgressWrapper l =
-                    (SearchProgressWrapper) iter.next();
                 l.clear();
                 reader.removeSearchProgressListener(l);
             }
@@ -784,16 +780,18 @@ public class CallHistoryServiceImpl
 
     /**
      * Gets all the history readers for the contacts in the given MetaContact
+     * 
      * @param contact MetaContact
      * @return Hashtable
      */
-    private Hashtable getHistoryReaders(MetaContact contact)
+    private Map<Contact, HistoryReader> getHistoryReaders(MetaContact contact)
     {
-        Hashtable readers = new Hashtable();
-        Iterator iter = contact.getContacts();
+        Map<Contact, HistoryReader> readers =
+            new Hashtable<Contact, HistoryReader>();
+        Iterator<Contact> iter = contact.getContacts();
         while (iter.hasNext())
         {
-            Contact item = (Contact) iter.next();
+            Contact item = iter.next();
 
             try
             {
@@ -929,17 +927,15 @@ public class CallHistoryServiceImpl
 
     /**
      * Finding a CallRecord for the given call
+     * 
      * @param call Call
      * @return CallRecord
      */
     private CallRecordImpl findCallRecord(Call call)
     {
-        Iterator iter = currentCallRecords.iterator();
-
-        while (iter.hasNext())
+        for (CallRecordImpl item : currentCallRecords)
         {
-            CallRecordImpl item = (CallRecordImpl) iter.next();
-            if(item.getSourceCall().equals(call))
+            if (item.getSourceCall().equals(call))
                 return item;
         }
 
@@ -985,11 +981,10 @@ public class CallHistoryServiceImpl
         currentCallRecords.add(newRecord);
 
         // if has already perticipants Dispatch them
-        Iterator iter = sourceCall.getCallParticipants();
+        Iterator<CallParticipant> iter = sourceCall.getCallParticipants();
         while (iter.hasNext())
         {
-            CallParticipant item = (CallParticipant) iter.next();
-            handleParticipantAdded(item);
+            handleParticipantAdded(iter.next());
         }
     }
 
@@ -1060,16 +1055,15 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Used to compare CallRecords
-     * and to be ordered in TreeSet according their timestamp
+     * Used to compare CallRecords and to be ordered in TreeSet according their
+     * timestamp
      */
     private class CallRecordComparator
-        implements Comparator
+        implements Comparator<CallRecord>
     {
-        public int compare(Object o1, Object o2)
+        public int compare(CallRecord o1, CallRecord o2)
         {
-            return ((CallRecord)o2).getStartTime().
-                compareTo(((CallRecord)o1).getStartTime());
+            return o2.getStartTime().compareTo(o1.getStartTime());
         }
     }
 

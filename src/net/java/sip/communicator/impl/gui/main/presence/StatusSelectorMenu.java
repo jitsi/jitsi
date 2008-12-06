@@ -80,16 +80,12 @@ public abstract class StatusSelectorMenu
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List accounts = configService
+        List<String> accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
 
         boolean savedAccount = false;
-        Iterator accountsIter = accounts.iterator();
 
-        while(accountsIter.hasNext()) {
-            String accountRootPropName
-                = (String) accountsIter.next();
-
+        for (String accountRootPropName : accounts) {
             String accountUID
                 = configService.getString(accountRootPropName);
 

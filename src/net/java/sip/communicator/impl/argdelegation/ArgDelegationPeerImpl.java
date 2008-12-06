@@ -12,10 +12,8 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.launchutils.*;
-
 
 /**
  * Implements the <tt>UriDelegationPeer</tt> interface from our argument handler
@@ -33,7 +31,7 @@ public class ArgDelegationPeerImpl
     /**
      * The list of uriHandlers that we are currently aware of.
      */
-    private Map<String, UriHandler> uriHandlers
+    private final Map<String, UriHandler> uriHandlers
         = new Hashtable<String, UriHandler>();
 
     /**

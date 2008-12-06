@@ -18,7 +18,10 @@ public class CallRecord
     public final static String IN = "in";
 
     protected String direction = null;
-    protected Vector participantRecords = new Vector();
+
+    protected final List<CallParticipantRecord> participantRecords =
+        new Vector<CallParticipantRecord>();
+
     protected Date startTime = null;
     protected Date endTime = null;
 
@@ -47,15 +50,14 @@ public class CallRecord
 
     /**
      * Finds a Participant with the supplied address
+     * 
      * @param address String
      * @return CallParticipantRecord
      */
     public CallParticipantRecord findParticipantRecord(String address)
     {
-        Iterator iter = participantRecords.iterator();
-        while (iter.hasNext())
+        for (CallParticipantRecord item : participantRecords)
         {
-            CallParticipantRecord item = (CallParticipantRecord) iter.next();
             if (item.getParticipantAddress().equals(address))
                 return item;
         }
@@ -86,7 +88,7 @@ public class CallRecord
      * Return Vector of CallParticipantRecords
      * @return Vector
      */
-    public Vector getParticipantRecords()
+    public List<CallParticipantRecord> getParticipantRecords()
     {
         return participantRecords;
     }

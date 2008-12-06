@@ -22,17 +22,18 @@ import net.java.sip.communicator.util.*;
 public class NotificationServiceImpl
     implements NotificationService
 {
-    private Logger logger = Logger.getLogger(NotificationServiceImpl.class);
-    
+    private final Logger logger =
+        Logger.getLogger(NotificationServiceImpl.class);
+
     private static String NOTIFICATIONS_PREFIX = 
         "net.java.sip.communicator.impl.notifications";
     
     /**
      * A set of all registered event notifications.
      */
-    private Hashtable notificationsTable = new Hashtable();
-    
-    
+    private final Hashtable<String, EventNotification> notificationsTable =
+        new Hashtable<String, EventNotification>();
+
     /**
      * A set of all registered event notifications.
      */
@@ -453,16 +454,11 @@ public class NotificationServiceImpl
         String eventTypeNodeName = null;
         String actionTypeNodeName = null;
 
-        List eventTypes = configService
+        List<String> eventTypes = configService
                 .getPropertyNamesByPrefix(NOTIFICATIONS_PREFIX, true);
-    
-        Iterator eventTypesIter = eventTypes.iterator();
-    
-        while(eventTypesIter.hasNext())
+
+        for (String eventTypeRootPropName : eventTypes)
         {
-            String eventTypeRootPropName
-                = (String) eventTypesIter.next();
-    
             String eType
                 = configService.getString(eventTypeRootPropName);
             
@@ -494,16 +490,11 @@ public class NotificationServiceImpl
         // Go through contained actions.
         String actionPrefix = eventTypeNodeName + ".actions";
     
-        List actionTypes = configService
+        List<String> actionTypes = configService
                 .getPropertyNamesByPrefix(actionPrefix, true);
-        
-        Iterator actionTypesIter = actionTypes.iterator();
-        
-        while(actionTypesIter.hasNext())
+
+        for (String actionTypeRootPropName : actionTypes)
         {
-            String actionTypeRootPropName
-                = (String) actionTypesIter.next();
-        
             String aType
                 = configService.getString(actionTypeRootPropName);
             
@@ -601,33 +592,23 @@ public class NotificationServiceImpl
      */
     private void loadNotifications()
     {
-        List eventTypes = configService
+        List<String> eventTypes = configService
                 .getPropertyNamesByPrefix(NOTIFICATIONS_PREFIX, true);
-    
-        Iterator eventTypesIter = eventTypes.iterator();
-    
-        while(eventTypesIter.hasNext())
+
+        for (String eventTypeRootPropName : eventTypes)
         {
-            String eventTypeRootPropName
-                = (String) eventTypesIter.next();
-            
             boolean isEventActive = 
                 isEnabled(eventTypeRootPropName + ".active");
             
             String eventType
                 = configService.getString(eventTypeRootPropName);
         
-            List actions = configService
+            List<String> actions = configService
                 .getPropertyNamesByPrefix(
                     eventTypeRootPropName + ".actions", true);
-            
-            Iterator actionsIter = actions.iterator();
 
-            while(actionsIter.hasNext())
+            for (String actionPropName : actions)
             {
-                String actionPropName
-                    = (String) actionsIter.next();
-                
                 String actionType
                     = configService.getString(actionPropName);
                 
@@ -722,7 +703,7 @@ public class NotificationServiceImpl
     public void setActive(String eventType, boolean isActive)
     {
         EventNotification eventNotification
-            = (EventNotification) notificationsTable.get(eventType);
+            = notificationsTable.get(eventType);
         
         if(eventNotification == null)
             return;
@@ -841,33 +822,23 @@ public class NotificationServiceImpl
     
     private boolean isDefault(String eventType, String actionType)
     {
-        List eventTypes = configService
+        List<String> eventTypes = configService
                 .getPropertyNamesByPrefix(NOTIFICATIONS_PREFIX, true);
-    
-        Iterator eventTypesIter = eventTypes.iterator();
-    
-        while(eventTypesIter.hasNext())
+
+        for (String eventTypeRootPropName : eventTypes)
         {
-            String eventTypeRootPropName
-                = (String) eventTypesIter.next();
-            
             String eType
                 = configService.getString(eventTypeRootPropName);
         
             if(!eType.equals(eventType))
                 continue;
             
-            List actions = configService
+            List<String> actions = configService
                 .getPropertyNamesByPrefix(
                     eventTypeRootPropName + ".actions", true);
-            
-            Iterator actionsIter = actions.iterator();
 
-            while(actionsIter.hasNext())
+            for (String actionPropName : actions)
             {
-                String actionPropName
-                    = (String) actionsIter.next();
-                
                 String aType
                     = configService.getString(actionPropName);
                 

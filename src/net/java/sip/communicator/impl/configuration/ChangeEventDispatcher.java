@@ -25,24 +25,24 @@ public class ChangeEventDispatcher
     /**
      * All property change listeners registered so far.
      */
-    private Vector propertyChangeListeners;
+    private List<PropertyChangeListener> propertyChangeListeners;
 
     /**
      * All listeners registered for vetoable change events.
      */
-    private Vector vetoableChangeListeners;
+    private List<VetoableChangeListener> vetoableChangeListeners;
 
     /**
      * Hashtable for managing property change listeners registered for specific
      * properties. Maps property names to PropertyChangeSupport objects.
      */
-    private Hashtable propertyChangeChildren;
+    private Map<String, ChangeEventDispatcher> propertyChangeChildren;
 
     /**
      * Hashtable for managing vetoable change listeners registered for specific
      * properties. Maps property names to PropertyChangeSupport objects.
      */
-    private Hashtable vetoableChangeChildren;
+    private Map<String, ChangeEventDispatcher> vetoableChangeChildren;
 
     /**
      * The object to be provided as the "source" for any generated events.
@@ -74,10 +74,10 @@ public class ChangeEventDispatcher
     {
         if (propertyChangeListeners == null)
         {
-            propertyChangeListeners = new Vector();
+            propertyChangeListeners = new Vector<PropertyChangeListener>();
         }
 
-        propertyChangeListeners.addElement(listener);
+        propertyChangeListeners.add(listener);
     }
 
     /**
@@ -95,7 +95,8 @@ public class ChangeEventDispatcher
     {
         if (propertyChangeChildren == null)
         {
-            propertyChangeChildren = new Hashtable();
+            propertyChangeChildren =
+                new Hashtable<String, ChangeEventDispatcher>();
         }
         ChangeEventDispatcher child = (ChangeEventDispatcher) propertyChangeChildren.get(
             propertyName);
@@ -117,12 +118,10 @@ public class ChangeEventDispatcher
     public synchronized void removePropertyChangeListener(
         PropertyChangeListener listener)
     {
-
-        if (propertyChangeListeners == null)
+        if (propertyChangeListeners != null)
         {
-            return;
+            propertyChangeListeners.remove(listener);
         }
-        propertyChangeListeners.removeElement(listener);
     }
 
     /**
@@ -139,8 +138,7 @@ public class ChangeEventDispatcher
         {
             return;
         }
-        ChangeEventDispatcher child = (ChangeEventDispatcher)
-            propertyChangeChildren.get( propertyName );
+        ChangeEventDispatcher child = propertyChangeChildren.get(propertyName);
 
         if (child == null)
         {
@@ -160,10 +158,10 @@ public class ChangeEventDispatcher
     {
         if (vetoableChangeListeners == null)
         {
-            vetoableChangeListeners = new Vector();
+            vetoableChangeListeners = new Vector<VetoableChangeListener>();
         }
 
-        vetoableChangeListeners.addElement(listener);
+        vetoableChangeListeners.add(listener);
     }
 
     /**
@@ -176,12 +174,10 @@ public class ChangeEventDispatcher
     public synchronized void removeVetoableChangeListener(
         VetoableChangeListener listener)
     {
-
-        if (vetoableChangeListeners == null)
+        if (vetoableChangeListeners != null)
         {
-            return;
+            vetoableChangeListeners.remove(listener);
         }
-        vetoableChangeListeners.removeElement(listener);
     }
 
     /**
@@ -199,10 +195,9 @@ public class ChangeEventDispatcher
     {
         if (vetoableChangeChildren == null)
         {
-            vetoableChangeChildren = new Hashtable();
+            vetoableChangeChildren = new Hashtable<String, ChangeEventDispatcher>();
         }
-        ChangeEventDispatcher child = (ChangeEventDispatcher) vetoableChangeChildren.get(
-            propertyName);
+        ChangeEventDispatcher child = vetoableChangeChildren.get(propertyName);
         if (child == null)
         {
             child = new ChangeEventDispatcher(source);
@@ -225,8 +220,7 @@ public class ChangeEventDispatcher
         {
             return;
         }
-        ChangeEventDispatcher child = (ChangeEventDispatcher)
-            vetoableChangeChildren.get( propertyName );
+        ChangeEventDispatcher child = vetoableChangeChildren.get( propertyName );
 
         if (child == null)
         {
@@ -287,27 +281,29 @@ public class ChangeEventDispatcher
             return;
         }
 
-        Vector targets = null;
+        VetoableChangeListener[] targets = null;
         ChangeEventDispatcher child = null;
         synchronized (this)
         {
             if (vetoableChangeListeners != null)
             {
-                targets = (Vector) vetoableChangeListeners.clone();
+                targets =
+                    vetoableChangeListeners
+                        .toArray(new VetoableChangeListener[vetoableChangeListeners
+                            .size()]);
             }
             if (vetoableChangeChildren != null && propertyName != null)
             {
-                child = (ChangeEventDispatcher)vetoableChangeChildren.get(propertyName);
+                child = vetoableChangeChildren.get(propertyName);
             }
         }
 
         if (vetoableChangeListeners != null)
         {
-            for (int i = 0; i < targets.size(); i++)
+            for (int i = 0; i < targets.length; i++)
             {
-                VetoableChangeListener target =
-                    (VetoableChangeListener) targets.elementAt(i);
-                //don't catch the exception - let it bounce to the caller.
+                VetoableChangeListener target = targets[i];
+                // don't catch the exception - let it bounce to the caller.
                 target.vetoableChange(evt);
             }
         }
@@ -357,19 +353,16 @@ public class ChangeEventDispatcher
 
         if (propertyChangeListeners != null)
         {
-            Iterator iterator = propertyChangeListeners.iterator();
-            while (iterator.hasNext())
+            for (PropertyChangeListener target : propertyChangeListeners)
             {
-                PropertyChangeListener target =
-                    (PropertyChangeListener) iterator.next();
                 target.propertyChange(evt);
             }
         }
 
         if (propertyChangeChildren != null && propertyName != null)
         {
-            ChangeEventDispatcher child = null;
-            child = (ChangeEventDispatcher) propertyChangeChildren.get(propertyName);
+            ChangeEventDispatcher child =
+                propertyChangeChildren.get(propertyName);
             if (child != null)
             {
                 child.firePropertyChange(evt);
@@ -393,8 +386,8 @@ public class ChangeEventDispatcher
         }
         if (propertyChangeChildren != null)
         {
-            ChangeEventDispatcher child = (ChangeEventDispatcher) propertyChangeChildren.get(
-                propertyName);
+            ChangeEventDispatcher child =
+                propertyChangeChildren.get(propertyName);
             if (child != null && child.propertyChangeListeners != null)
             {
                 return!child.propertyChangeListeners.isEmpty();
@@ -419,7 +412,7 @@ public class ChangeEventDispatcher
         }
         if (vetoableChangeChildren != null)
         {
-            ChangeEventDispatcher child = (ChangeEventDispatcher)
+            ChangeEventDispatcher child =
                 vetoableChangeChildren.get(propertyName);
 
             if (child != null && child.vetoableChangeListeners != null)

@@ -6,12 +6,14 @@
  */
 package net.java.sip.communicator.impl.configuration;
 
+import java.util.*;
+
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 /**
- *
  * @author Emil Ivov
  */
 public class ConfigurationActivator
@@ -22,7 +24,7 @@ public class ConfigurationActivator
      */
     public static BundleContext bundleContext;
     
-    private Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
+    private final Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
     private ConfigurationServiceImpl impl = new ConfigurationServiceImpl();
 
     /**
@@ -36,12 +38,12 @@ public class ConfigurationActivator
     {
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
         
-        this.bundleContext = bundleContext;
+        ConfigurationActivator.bundleContext = bundleContext;
         impl.start();
 
         bundleContext.registerService(ConfigurationService.class.getName(),
                                       impl,
-                                      new java.util.Hashtable());
+                                      new Hashtable());
 
         logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
     }

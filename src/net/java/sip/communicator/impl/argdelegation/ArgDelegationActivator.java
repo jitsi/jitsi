@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.argdelegation;
 
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.launchutils.*;
 
 import org.osgi.framework.*;

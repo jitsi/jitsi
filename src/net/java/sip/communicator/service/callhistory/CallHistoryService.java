@@ -8,8 +8,8 @@ package net.java.sip.communicator.service.callhistory;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.callhistory.event.*;
+import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * The Call History Service stores info about calls made from various protocols
@@ -29,7 +29,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByStartDate(MetaContact contact, Date startDate)
+    public Collection<CallRecord> findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException;
 
     /**
@@ -42,7 +42,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByEndDate(MetaContact contact, Date endDate)
+    public Collection<CallRecord> findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException;
 
     /**
@@ -56,7 +56,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection<CallRecord> findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException;
 
 
@@ -67,7 +67,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByStartDate(Date startDate)
+    public Collection<CallRecord> findByStartDate(Date startDate)
         throws RuntimeException;
 
     /**
@@ -77,7 +77,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByEndDate(Date endDate)
+    public Collection<CallRecord> findByEndDate(Date endDate)
         throws RuntimeException;
 
     /**
@@ -88,7 +88,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByPeriod(Date startDate, Date endDate)
+    public Collection<CallRecord> findByPeriod(Date startDate, Date endDate)
         throws RuntimeException;
 
     /**
@@ -101,7 +101,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findLast(MetaContact contact, int count)
+    public Collection<CallRecord> findLast(MetaContact contact, int count)
         throws RuntimeException;
 
     /**
@@ -112,7 +112,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findLast(int count)
+    public Collection<CallRecord> findLast(int count)
         throws RuntimeException;
 
     /**
@@ -121,7 +121,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByParticipant(String address)
+    public Collection<CallRecord> findByParticipant(String address)
         throws RuntimeException;
 
     /**

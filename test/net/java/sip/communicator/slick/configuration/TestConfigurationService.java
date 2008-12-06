@@ -245,7 +245,7 @@ public class TestConfigurationService extends TestCase
                                          , new Object());
 
         //try an exact match first
-        List propertyNames
+        List<String> propertyNames
             = configurationService.getPropertyNamesByPrefix(prefix, true);
 
         assertTrue("Returned list did not contain all property names. "
