@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.*;
 
 import javax.swing.*;
 
@@ -25,19 +26,19 @@ import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
-import com.apple.eawt.*;
-
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
  * contains "New account".
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class FileMenu
     extends SIPCommMenu
     implements ActionListener
 {
-    private final Logger logger = Logger.getLogger(FileMenu.class.getName());
+    private static final Logger logger =
+        Logger.getLogger(FileMenu.class.getName());
 
     private I18NString newAccountString = Messages.getI18NString("newAccount");
 
@@ -72,8 +73,8 @@ public class FileMenu
      * Creates an instance of <tt>FileMenu</tt>.
      * @param parentWindow The parent <tt>ChatWindow</tt>.
      */
-    public FileMenu(MainFrame parentWindow) {
-
+    public FileMenu(MainFrame parentWindow)
+    {
         super(Messages.getI18NString("file").getText());
 
         this.setOpaque(false);
@@ -153,7 +154,7 @@ public class FileMenu
         }
     }
 
-    private void closeActionPerformed()
+    void closeActionPerformed()
     {
         try {
             GuiActivator.bundleContext.getBundle(0).stop();
@@ -182,19 +183,45 @@ public class FileMenu
 
     private boolean registerCloseMenuItemMacOSX()
     {
-//        Application application = Application.getApplication();
-//        if (application != null)
-//        {
-//            application.addApplicationListener(new ApplicationAdapter()
-//            {
-//                public void handleQuit(ApplicationEvent event)
-//                {
-//                    closeActionPerformed();
-//                    event.setHandled(true);
-//                }
-//            });
-//            return true;
-//        }
+        return registerMenuItemMacOSX("Quit", this);
+    }
+
+    static boolean registerMenuItemMacOSX(String menuItemText, Object userData)
+    {
+        Exception exception = null;
+        try
+        {
+            Class<?> clazz =
+                Class
+                    .forName("net.java.sip.communicator.impl.gui.main.menus.MacOSX"
+                        + menuItemText + "Registration");
+            Method method = clazz.getMethod("run", new Class[]
+            { Object.class });
+            Object result = method.invoke(null, new Object[]
+            { userData });
+
+            if (result instanceof Boolean)
+                return ((Boolean) result).booleanValue();
+        }
+        catch (ClassNotFoundException ex)
+        {
+            exception = ex;
+        }
+        catch (IllegalAccessException ex)
+        {
+            exception = ex;
+        }
+        catch (InvocationTargetException ex)
+        {
+            exception = ex;
+        }
+        catch (NoSuchMethodException ex)
+        {
+            exception = ex;
+        }
+        if (exception != null)
+            logger.error("Failed to register Mac OS X-specific " + menuItemText
+                + " handling.", exception);
         return false;
     }
 

@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.branding;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
@@ -13,8 +14,6 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
-
-import com.apple.eawt.*;
 
 public class BrandingActivator
     implements  BundleActivator
@@ -128,24 +127,38 @@ public class BrandingActivator
 
     private boolean registerMenuEntryMacOSX(UIService uiService)
     {
-//        Application application = Application.getApplication();
-//        if (application != null)
-//        {
-//            application.addAboutMenuItem();
-//            if (application.isAboutMenuItemPresent())
-//            {
-//                application.setEnabledAboutMenu(true);
-//                application.addApplicationListener(new ApplicationAdapter()
-//                {
-//                    public void handleAbout(ApplicationEvent event)
-//                    {
-//                        AboutWindowPluginComponent.actionPerformed();
-//                        event.setHandled(true);
-//                    }
-//                });
-//                return true;
-//            }
-//        }
+        Exception exception = null;
+        try
+        {
+            Class<?> clazz =
+                Class
+                    .forName("net.java.sip.communicator.plugin.branding.MacOSXAboutRegistration");
+            Method method = clazz.getMethod("run", (Class<?>[]) null);
+            Object result = method.invoke(null, (Object[]) null);
+
+            if (result instanceof Boolean)
+                return ((Boolean) result).booleanValue();
+        }
+        catch (ClassNotFoundException ex)
+        {
+            exception = ex;
+        }
+        catch (IllegalAccessException ex)
+        {
+            exception = ex;
+        }
+        catch (InvocationTargetException ex)
+        {
+            exception = ex;
+        }
+        catch (NoSuchMethodException ex)
+        {
+            exception = ex;
+        }
+        if (exception != null)
+            logger.error(
+                "Failed to register Mac OS X-specific About handling.",
+                exception);
         return false;
     }
 

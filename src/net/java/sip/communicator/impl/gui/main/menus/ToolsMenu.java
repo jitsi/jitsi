@@ -22,13 +22,12 @@ import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
-import com.apple.eawt.*;
-
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
  * contains "New account".
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ToolsMenu
     extends SIPCommMenu
@@ -108,7 +107,7 @@ public class ToolsMenu
         }
     }
 
-    private void configActionPerformed()
+    void configActionPerformed()
     {
         ExportedWindow configDialog =
             GuiActivator.getUIService().getExportedWindow(
@@ -152,25 +151,7 @@ public class ToolsMenu
 
     private boolean registerConfigMenuItemMacOSX()
     {
-//        Application application = Application.getApplication();
-//        if (application != null)
-//        {
-//            application.addPreferencesMenuItem();
-//            if (application.isPreferencesMenuItemPresent())
-//            {
-//                application.setEnabledPreferencesMenu(true);
-//                application.addApplicationListener(new ApplicationAdapter()
-//                {
-//                    public void handlePreferences(ApplicationEvent event)
-//                    {
-//                        configActionPerformed();
-//                        event.setHandled(true);
-//                    }
-//                });
-//                return true;
-//            }
-//        }
-        return false;
+        return FileMenu.registerMenuItemMacOSX("Preferences", this);
     }
 
     private void registerConfigMenuItemNonMacOSX()
