@@ -27,7 +27,15 @@ public class ActionMenuPanel
     extends JPanel
     implements  ActionListener
 {
-    private Logger logger = Logger.getLogger(ActionMenuPanel.class);
+    private static final boolean setButtonContentAreaFilled = isWindows();
+
+    private static boolean isWindows()
+    {
+        String osName = System.getProperty("os.name");
+        return (osName != null) && (osName.indexOf("Windows") != -1);
+    }
+
+    private final Logger logger = Logger.getLogger(ActionMenuPanel.class);
 
     private Color baseStartColor = new Color(
         GuiActivator.getResources().getColor(
@@ -137,6 +145,9 @@ public class ActionMenuPanel
 
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setToolTipText(buttonText);
+        // Windows defaults to a non-transparent button background.
+        if (setButtonContentAreaFilled)
+            button.setContentAreaFilled(false);
 
         buttonPanel.add(button);
         buttonPanel.add(buttonLabel);
