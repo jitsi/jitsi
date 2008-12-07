@@ -272,8 +272,8 @@ public class CallParticipantPanel
         namePanel.add(timeLabel);
 //        if (secureLabel != null)
 //            namePanel.add(secureLabel);
-        if (zrtpPanel != null)
-            namePanel.add(zrtpPanel);
+//        if (zrtpPanel != null)
+//            namePanel.add(zrtpPanel);
         return namePanel;
     }
 

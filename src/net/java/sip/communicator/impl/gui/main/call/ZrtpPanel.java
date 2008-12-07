@@ -12,6 +12,9 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.service.gui.PopupDialog;
+import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.swing.*;
@@ -130,9 +133,15 @@ public class ZrtpPanel extends TransparentPanel {
 
         if (SecurityGUIEventZrtp.AUDIO.equals((String)state.get(SecurityGUIEventZrtp.SESSION_TYPE))) {
             refreshStatesAudio(securityEvent);
+
         }
         if (SecurityGUIEventZrtp.VIDEO.equals((String)state.get(SecurityGUIEventZrtp.SESSION_TYPE))) {
             refreshStatesVideo(securityEvent);
+        }
+        if (SecurityGUIEventZrtp.MSG_WARN.equals((String)state.get(SecurityGUIEventZrtp.SESSION_TYPE))) {
+            String text = (String)state.get(SecurityGUIEventZrtp.MSG_TEXT);
+            DisplayPopupMessage popup = new DisplayPopupMessage("ZRTP Security Warning", text);
+            popup.start();
         }
         revalidate();
     }
@@ -150,7 +159,6 @@ public class ZrtpPanel extends TransparentPanel {
             Boolean verified = (Boolean)state.get(SecurityGUIEventZrtp.SAS_VERIFY);
             if (verified.booleanValue()) {
                 secButton.setIcon(iconEncrVerified);
-//                secButton.setText("Ver");
                 secButton.setEnabled(true);
                 sasVerified = true;
             }
@@ -163,13 +171,11 @@ public class ZrtpPanel extends TransparentPanel {
         if (secure != null) {
             if (secure.booleanValue()) {
                 secButton.setIcon(iconEncr);
-//                secButton.setText("Sec");
                 secButton.setEnabled(true);
                 secMethod.setText((String)state.get(SecurityGUIEventZrtp.CIPHER));
             }
             else {
                 secButton.setIcon(iconEncrDisabled);
-//                secButton.setText("OFF");
                 secButton.setEnabled(false);
                 secMethod.setText("");
                 sasLabel.setText("");
@@ -190,38 +196,51 @@ public class ZrtpPanel extends TransparentPanel {
             sasLabelV.setText(sas);
             Boolean verified = (Boolean)state.get(SecurityGUIEventZrtp.SAS_VERIFY);
             if (verified.booleanValue()) {
-//              secButtonV.setIcon(iconEncrVerified);
-                secButtonV.setText("Ver");
+                secButtonV.setIcon(iconEncrVerified);
             }
         }
         
         Boolean secure = (Boolean)state.get(SecurityGUIEventZrtp.SECURITY_CHANGE);
         if (secure != null) {
             if (secure.booleanValue()) {
-//              secButtonV.setIcon(iconEncr);
-                secButtonV.setText("Sec");
+                secButtonV.setIcon(iconEncr);
                 secMethodV.setText((String)state.get(SecurityGUIEventZrtp.CIPHER));
             }
             else {
-//              secButtonV.setIcon(iconNotEncry);
-                secButtonV.setText("OFF");
+                secButtonV.setIcon(iconEncrDisabled);
                 secMethodV.setText("");
                 sasLabelV.setText("");
 
             }
         }
     }
+    
+    /**
+     * This small thread display messages that are relevant to the end user.
+     * Use an own thread not to block ZRTP processing. 
+     * 
+     * @author Werner Dittmann <Werner.Dittmann@t-online.de>
+     *
+     */
+    private class DisplayPopupMessage extends Thread {
 
-    /** Returns an ImageIcon, or null if the path was invalid. */
-    protected ImageIcon createImageIcon(String path,
-                                               String description) {
-        java.net.URL imgURL = getClass().getResource(path);
-        if (imgURL != null) {
-            return new ImageIcon(imgURL, description);
-        } else {
-            System.err.println("Couldn't find file: " + path);
-            return null;
+        private final PopupDialog popupDialog;
+        private final String message;
+        private final String title;
+        
+        DisplayPopupMessage(String title, String message) {
+            
+            this.title = title;
+            this.message = message;
+            
+            UIService uiService = GuiActivator.getUIService();
+
+            // Obtain the current UI implementation PopupDialog
+            popupDialog = uiService.getPopupDialog();
         }
-    }
 
+        public void run() {
+            popupDialog.showMessagePopupDialog(message, title, PopupDialog.INFORMATION_MESSAGE);
+        }
+   }
 }

@@ -28,7 +28,14 @@ public class SecurityGUIEventZrtp extends SecurityGUIEvent {
     public final static String SESSION_TYPE = "type";
     public final static String AUDIO = "Audio";
     public final static String VIDEO = "Video";
+
+    public final static String MSG_INFO = "Info";
+    public final static String MSG_WARN = "Warn";
+    public final static String MSG_SEVERE = "Severe";
+    public final static String MSG_ZRTP = "Zrtp";
     
+    public final static String MSG_TEXT = "Msg";
+
     private final HashMap<String, Object> states;
     
     public SecurityGUIEventZrtp(CallParticipant part,
