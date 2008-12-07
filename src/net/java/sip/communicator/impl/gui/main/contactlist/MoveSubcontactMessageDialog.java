@@ -70,6 +70,9 @@ public class MoveSubcontactMessageDialog
         this.mainFrame = parentWindow;
         this.clistListener = listener;
         
+        System.out.println("EHOOOOOOOOOOOOOOOOOOOOOOOOO");
+        this.setTitle(Messages.getI18NString("moveSubcontact").getText());
+        
         this.mainPanel.setPreferredSize(
                 new Dimension(dialogWidth, dialogHeight));
         
