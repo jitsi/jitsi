@@ -14,6 +14,8 @@ import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
+import com.apple.eawt.*;
+
 public class BrandingActivator
     implements  BundleActivator
 {
@@ -114,6 +116,40 @@ public class BrandingActivator
     }
 
     private void registerMenuEntry(ServiceReference uiServiceRef)
+    {
+        UIService uiService =
+            (UIService) bundleContext.getService(uiServiceRef);
+        if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
+            || !registerMenuEntryMacOSX(uiService))
+        {
+            registerMenuEntryNonMacOSX(uiService);
+        }
+    }
+
+    private boolean registerMenuEntryMacOSX(UIService uiService)
+    {
+        Application application = Application.getApplication();
+        if (application != null)
+        {
+            application.addAboutMenuItem();
+            if (application.isAboutMenuItemPresent())
+            {
+                application.setEnabledAboutMenu(true);
+                application.addApplicationListener(new ApplicationAdapter()
+                {
+                    public void handleAbout(ApplicationEvent event)
+                    {
+                        AboutWindowPluginComponent.actionPerformed();
+                        event.setHandled(true);
+                    }
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void registerMenuEntryNonMacOSX(UIService uiService)
     {
         // Register the about window plugin component in the main help menu.
         Hashtable<String, String> helpMenuFilter

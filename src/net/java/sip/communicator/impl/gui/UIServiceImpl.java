@@ -964,4 +964,11 @@ public class UIServiceImpl
             layeredPane.getComponent(i).setFont(font);
         }
     }
+
+    public boolean useMacOSXScreenMenuBar()
+    {
+        String osName = System.getProperty("os.name");
+        return (osName != null)
+            && ((osName.indexOf("Mac OS X") != -1) || (osName.indexOf("Darwin") != -1));
+    }
 }

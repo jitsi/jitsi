@@ -16,11 +16,16 @@ import net.java.sip.communicator.service.gui.*;
 public class AboutWindowPluginComponent
     implements PluginComponent
 {
-    private JMenuItem aboutMenuItem
+    public static void actionPerformed()
+    {
+        new AboutWindow(null).setVisible(true);
+    }
+
+    private final JMenuItem aboutMenuItem
         = new JMenuItem(BrandingActivator.getResources().
             getI18NString("aboutMenuEntry"));
 
-    private Container container;
+    private final Container container;
 
     public AboutWindowPluginComponent(Container c)
     {
@@ -30,8 +35,7 @@ public class AboutWindowPluginComponent
         {
             public void actionPerformed(ActionEvent e)
             {
-                AboutWindow aboutWindow = new AboutWindow(null);
-                aboutWindow.setVisible(true);
+                AboutWindowPluginComponent.actionPerformed();
             }
         });
     }

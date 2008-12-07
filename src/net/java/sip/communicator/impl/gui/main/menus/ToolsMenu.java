@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
@@ -22,6 +21,9 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
+
+import com.apple.eawt.*;
+
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
  * contains "New account".
@@ -33,16 +35,7 @@ public class ToolsMenu
     implements  ActionListener,
                 PluginComponentListener
 {
-
-    private Logger logger = Logger.getLogger(ToolsMenu.class.getName());
-    
-    private I18NString settingsString = Messages.getI18NString("settings");
-    
-    private JMenuItem configMenuItem = new JMenuItem(settingsString.getText());
-    
-    private MainFrame parentWindow;
-    
-    private ExportedWindow configDialog;
+    private final Logger logger = Logger.getLogger(ToolsMenu.class);
 
     /**
      * Creates an instance of <tt>FileMenu</tt>.
@@ -52,22 +45,13 @@ public class ToolsMenu
 
         super(Messages.getI18NString("tools").getText());
 
-        this.setOpaque(false);
-
         this.setForeground(
             new Color(GuiActivator.getResources().
                 getColor("service.gui.MAIN_MENU_FOREGROUND")));
-
-        this.parentWindow = parentWindow;
-
-        this.add(configMenuItem);
-
-        this.configMenuItem.setName("config");
-
-        this.configMenuItem.addActionListener(this);
-
         this.setMnemonic(Messages.getI18NString("tools").getMnemonic());
-        this.configMenuItem.setMnemonic(settingsString.getMnemonic());
+        this.setOpaque(false);
+
+        registerConfigMenuItem();
 
         this.initPluginComponents();
     }
@@ -113,17 +97,24 @@ public class ToolsMenu
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
      */
-    public void actionPerformed(ActionEvent e) {
-
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();
 
-        if (itemText.equalsIgnoreCase("config")) {
-            configDialog = GuiActivator.getUIService()
-                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
-
-            configDialog.setVisible(true);
+        if (itemText.equalsIgnoreCase("config"))
+        {
+            configActionPerformed();
         }
+    }
+
+    private void configActionPerformed()
+    {
+        ExportedWindow configDialog =
+            GuiActivator.getUIService().getExportedWindow(
+                ExportedWindow.CONFIGURATION_WINDOW);
+
+        configDialog.setVisible(true);
     }
 
     public void pluginComponentAdded(PluginComponentEvent event)
@@ -147,5 +138,48 @@ public class ToolsMenu
         {
             this.remove((Component) c.getComponent());
         }
+    }
+
+    private void registerConfigMenuItem()
+    {
+        UIService uiService = GuiActivator.getUIService();
+        if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
+            || !registerConfigMenuItemMacOSX())
+        {
+            registerConfigMenuItemNonMacOSX();
+        }
+    }
+
+    private boolean registerConfigMenuItemMacOSX()
+    {
+        Application application = Application.getApplication();
+        if (application != null)
+        {
+            application.addPreferencesMenuItem();
+            if (application.isPreferencesMenuItemPresent())
+            {
+                application.setEnabledPreferencesMenu(true);
+                application.addApplicationListener(new ApplicationAdapter()
+                {
+                    public void handlePreferences(ApplicationEvent event)
+                    {
+                        configActionPerformed();
+                        event.setHandled(true);
+                    }
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void registerConfigMenuItemNonMacOSX()
+    {
+        I18NString settingsString = Messages.getI18NString("settings");
+        JMenuItem configMenuItem = new JMenuItem(settingsString.getText());
+        this.add(configMenuItem);
+        configMenuItem.setMnemonic(settingsString.getMnemonic());
+        configMenuItem.setName("config");
+        configMenuItem.addActionListener(this);
     }
 }

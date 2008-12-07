@@ -14,4 +14,5 @@ Import-Package: org.osgi.framework,
  javax.swing.border,
  javax.swing.text,
  javax.swing.text.html,
- javax.imageio
+ javax.imageio,
+ com.apple.eawt

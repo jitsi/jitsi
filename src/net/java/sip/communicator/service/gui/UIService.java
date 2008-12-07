@@ -330,4 +330,6 @@ public interface UIService
      * <code>false</code> otherwise.
      */
     public boolean isContainerSupported(Container containderID);
+
+    public boolean useMacOSXScreenMenuBar();
 }

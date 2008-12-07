@@ -1,9 +1,9 @@
 /*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
@@ -33,8 +33,6 @@ public class HelpMenu
 {
     private Logger logger = Logger.getLogger(HelpMenu.class);
 
-    private MainFrame mainFrame;
-
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
      * 
@@ -45,15 +43,11 @@ public class HelpMenu
     {
         super(Messages.getI18NString("help").getText());
 
-        this.setOpaque(false);
-
-        this.mainFrame = mainFrame;
-
-        this.setMnemonic(Messages.getI18NString("help").getMnemonic());
-
         this.setForeground(
             new Color(GuiActivator.getResources().
                 getColor("service.gui.MAIN_MENU_FOREGROUND")));
+        this.setMnemonic(Messages.getI18NString("help").getMnemonic());
+        this.setOpaque(false);
 
         this.initPluginComponents();
     }
@@ -84,7 +78,6 @@ public class HelpMenu
 
         if (serRefs != null)
         {
-
             for (int i = 0; i < serRefs.length; i ++)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
