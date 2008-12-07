@@ -54,8 +54,6 @@ public class ChatRoomCommonRightButtonMenu
         searchForChatRoomsString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
 
-    private MainFrame mainFrame;
-
     private ChatRoomProviderWrapper chatRoomProvider;
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
@@ -63,10 +61,6 @@ public class ChatRoomCommonRightButtonMenu
     public ChatRoomCommonRightButtonMenu(   MainFrame mainFrame,
                                             ChatRoomProviderWrapper provider)
     {
-        super();
-
-        this.mainFrame = mainFrame;
-
         this.chatRoomProvider = provider;
 
         this.setLocation(getLocation());

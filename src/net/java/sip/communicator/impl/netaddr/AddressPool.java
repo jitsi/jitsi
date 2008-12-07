@@ -1,9 +1,13 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.netaddr;
 
 import java.net.*;
 import java.util.*;
-
-import net.java.sip.communicator.util.*;
 
 /**
  * The class scans all local interfaces discovering all addresses, and starts
@@ -15,20 +19,19 @@ import net.java.sip.communicator.util.*;
  */
 public class AddressPool
 {
-    private static  Logger logger =
-        Logger.getLogger(AddressPool.class);
+    private final Map<AddressPoolEntry, AddressDiagnosticsKit> diagnosticsKits =
+        new Hashtable<AddressPoolEntry, AddressDiagnosticsKit>();
 
-    private Map diagnosticsKits = new Hashtable();
-    private ArrayList addressEntries = new ArrayList();
+    private final List<AddressPoolEntry> addressEntries =
+        new ArrayList<AddressPoolEntry>();
 
     public AddressPool()
     {
-        super();
     }
 
     private void initPool()
     {
-        Enumeration localIfaces = null;
+        Enumeration<NetworkInterface> localIfaces = null;
         try
         {
             localIfaces = NetworkInterface.getNetworkInterfaces();
@@ -42,15 +45,14 @@ public class AddressPool
         //loop over all local network interfaces
         while (localIfaces.hasMoreElements())
         {
-            NetworkInterface iFace =
-                (NetworkInterface) localIfaces.nextElement();
+            NetworkInterface iFace = localIfaces.nextElement();
 
-            Enumeration addresses = iFace.getInetAddresses();
+            Enumeration<InetAddress> addresses = iFace.getInetAddresses();
 
             //addresses loop
             while (addresses.hasMoreElements())
             {
-                InetAddress address = (InetAddress) addresses.nextElement();
+                InetAddress address = addresses.nextElement();
 
                 //we don't care about loopback addresses
                 if(address.isLoopbackAddress())
@@ -73,6 +75,4 @@ public class AddressPool
         AddressPool pool = new AddressPool();
         pool.initPool();
     }
-
-
 }

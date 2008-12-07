@@ -5,9 +5,9 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
+import java.awt.*;
 import java.util.*;
 
-import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -27,8 +27,6 @@ public class AccountRegSummaryPage
     extends SCScrollPane
     implements WizardPage
 {
-    private String backPageIdentifier;
-
     private JPanel keysPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
@@ -50,8 +48,6 @@ public class AccountRegSummaryPage
      */
     public AccountRegSummaryPage(AccountRegWizardContainerImpl wizardContainer)
     {
-        super();
-
         this.wizardContainer = wizardContainer;
 
         this.pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));

@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
 import java.util.*;
@@ -26,11 +25,9 @@ public class AddContactWizardPage2
 {
     public static final String IDENTIFIER = "SELECT_GROUP_PANEL";
     
-    private SelectGroupPanel selectGroupPanel;
-    
-    private WizardContainer wizard;
-    
-    private NewContact newContact;
+    private final SelectGroupPanel selectGroupPanel;
+
+    private final NewContact newContact;
     
     /**
      * Creates an instance of <tt>AddContactWizardPage2</tt>.
@@ -44,8 +41,6 @@ public class AddContactWizardPage2
                                     NewContact newContact,
                                     Iterator groupsList)
     {
-        this.wizard = wizard;
-
         this.newContact = newContact;
 
         selectGroupPanel = new SelectGroupPanel(wizard, newContact);

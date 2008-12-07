@@ -28,13 +28,11 @@ public class ChatRoomListUI
     implements  MouseListener,
                 ChatRoomListChangeListener
 {
-    private JList chatRoomList = new JList();
+    private final JList chatRoomList = new JList();
 
-    private ChatRoomListModel chatRoomsListModel = new ChatRoomListModel();
+    private final ChatRoomListModel chatRoomsListModel = new ChatRoomListModel();
 
-    private JPanel treePanel = new JPanel(new BorderLayout());
-
-    private ChatRoomListDialog parentDialog;
+    private final JPanel treePanel = new JPanel(new BorderLayout());
 
     /**
      * Creates the scroll panel containing the chat rooms list.
@@ -43,8 +41,6 @@ public class ChatRoomListUI
      */
     public ChatRoomListUI(ChatRoomListDialog parentDialog)
     {
-        this.parentDialog = parentDialog;
-
         GuiActivator.getUIService().getConferenceChatManager()
             .addChatRoomListChangeListener(this);
 
