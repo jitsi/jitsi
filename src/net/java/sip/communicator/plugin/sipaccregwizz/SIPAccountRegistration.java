@@ -46,6 +46,8 @@ public class SIPAccountRegistration
     private boolean enablePresence = true;
 
     private boolean forceP2PMode = true;
+    
+    private boolean defaultEncryption = false;
 
     private String pollingPeriod = DEFAULT_POLL_PERIOD;
 
@@ -315,4 +317,24 @@ public class SIPAccountRegistration
     {
         this.keepAliveInterval = keepAliveInterval;
     }
+    
+    /**
+     * If default call encryption is enabled
+     * 
+     * @return If default call encryption is enabled
+     */
+    public boolean isDefaultEncryption()
+    {
+    	return defaultEncryption;
+    }
+    
+    /**
+     * Sets default call encryption
+     * 
+     * @param defaultEncryption if we want to set call encryption on as default
+     */
+    public void setDefaultEncryption(boolean defaultEncryption)
+    {
+    	this.defaultEncryption = defaultEncryption;
+    } 
 }

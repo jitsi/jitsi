@@ -137,6 +137,11 @@ public abstract class ProtocolProviderFactory
      * The name of the property under which we store resource priority.
      */
     public static final String RESOURCE_PRIORITY = "RESOURCE_PRIORITY";
+    
+    /**
+     * The name of the property which defines that the call is encrypted by default
+     */
+    public static final String DEFAULT_ENCRYPTION = "DEFAULT_ENCRYPTION"; 
 
     /**
      * The name of the property under which we store the boolean value

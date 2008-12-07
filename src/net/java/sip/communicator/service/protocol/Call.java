@@ -48,6 +48,13 @@ public abstract class Call
      * securing algorithm used
      */
     private Hashtable<Object, SecurityGUIListener> securityGUIListeners;
+    
+    /**
+     * If this flag is set to true according to the account properties 
+     * related with the sourceProvider the associated CallSession will start
+     * encrypted by default (where applicable)  
+     */
+    private boolean defaultEncryption; 
 
     /**
      * Creates a new Call instance.
@@ -61,6 +68,17 @@ public abstract class Call
                     + String.valueOf(super.hashCode());
 
         this.protocolProvider = sourceProvider;
+        AccountID accountID = sourceProvider.getAccountID();
+               
+        String defaultEncryptionObj = (String) accountID
+		.getAccountProperties().get(
+				ProtocolProviderFactory.DEFAULT_ENCRYPTION);
+
+        defaultEncryption = false;
+        if (defaultEncryptionObj != null) {
+        	defaultEncryption = Boolean.valueOf(defaultEncryptionObj)
+        	.booleanValue();
+        } 
     }
 
     /**
@@ -285,4 +303,14 @@ public abstract class Call
         else
             return securityGUIListeners.get(key);
     }
+    
+    /**
+     * Returns the default call encryption flag
+     * 
+     * @return the default call encryption flag
+     */
+    public boolean isDefaultEncrypted()
+    {
+    	return defaultEncryption;
+    } 
 }

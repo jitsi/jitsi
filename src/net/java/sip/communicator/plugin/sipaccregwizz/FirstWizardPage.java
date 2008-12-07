@@ -66,6 +66,9 @@ public class FirstWizardPage
     private JCheckBox enableAdvOpButton =
         new SIPCommCheckBox(Resources.getString("ovverideServerOps"), false);
 
+    private JCheckBox enableDefaultEncryption = 
+        new JCheckBox(Resources.getString("enableDefaultEncryption"), false); 
+
     private JLabel serverLabel = new JLabel(Resources.getString("registrar"));
 
     private JLabel proxyLabel = new JLabel(Resources.getString("proxy"));
@@ -270,6 +273,7 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(transportCombo);
 
         advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
+        advancedOpPanel.add(enableDefaultEncryption, BorderLayout.SOUTH); 
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
@@ -288,6 +292,7 @@ public class FirstWizardPage
                 forceP2PPresOpButton.setEnabled(cb.isSelected());
                 pollPeriodField.setEnabled(cb.isSelected());
                 subscribeExpiresField.setEnabled(cb.isSelected());
+                enableDefaultEncryption.setEnabled(cb.isSelected()); 
             }
         });
 
@@ -434,6 +439,7 @@ public class FirstWizardPage
 
             registration.setEnablePresence(enablePresOpButton.isSelected());
             registration.setForceP2PMode(forceP2PPresOpButton.isSelected());
+            registration.setDefaultEncryption(enableDefaultEncryption.isSelected()); 
             registration.setPollingPeriod(pollPeriodField.getText());
             registration.setSubscriptionExpiration(subscribeExpiresField
                 .getText());
@@ -540,6 +546,10 @@ public class FirstWizardPage
         boolean forceP2P = new Boolean(
             (String) accountID.getAccountProperties().get(
                 ProtocolProviderFactory.FORCE_P2P_MODE)).booleanValue();
+        
+        boolean enabledDefaultEncryption = new Boolean(
+        	(String) accountID.getAccountProperties().get(
+        		ProtocolProviderFactory.DEFAULT_ENCRYPTION)).booleanValue(); 
 
         String pollingPeriod =
             (String) accountID.getAccountProperties().get(
@@ -599,6 +609,7 @@ public class FirstWizardPage
 
         enablePresOpButton.setSelected(enablePresence);
         forceP2PPresOpButton.setSelected(forceP2P);
+        enableDefaultEncryption.setSelected(enabledDefaultEncryption); 
         pollPeriodField.setText(pollingPeriod);
         subscribeExpiresField.setText(subscriptionPeriod);
 

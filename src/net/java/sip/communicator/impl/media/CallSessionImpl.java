@@ -251,7 +251,8 @@ public class CallSessionImpl
     {
         ZRTPNotEnabledByUser,
         ZRTPDisabledByCallEnd,
-        ZRTPEngineInitFailure;
+        ZRTPEngineInitFailure,
+        ZRTPEnabledByDefault;
     }
 
     /**
@@ -2090,14 +2091,23 @@ public class CallSessionImpl
                 engine.setUserCallback(callback);
 
                 // Case 1: user toggled secure communication prior to the call
-                if (usingSRTP)
+                // call is encrypted by default due to the option set in 
+                // the account registration wizard
+                if (this.getCall().isDefaultEncrypted()) 
                 {
-                    if (!engine.initialize("GNUZRTP4J.zid", zrtpAutoStart))
-                        engine.sendInfo(
-                            ZrtpCodes.MessageSeverity.Info,
-                            EnumSet.of(
-                                ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
-
+                    if (engine.initialize("GNUZRTP4J.zid"))
+                    {
+                       usingSRTP = true;
+                       engine.sendInfo(
+                                ZrtpCodes.MessageSeverity.Info,
+                                EnumSet.of(
+                                    ZRTPCustomInfoCodes.ZRTPEnabledByDefault));
+                    }
+                    else
+                    {
+                       engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
+                                EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
+                    } 
                 }
                 // Case 2: user will toggle secure communication during the call
                 // (it's not set on at this point)

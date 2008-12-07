@@ -151,6 +151,13 @@ public class SIPAccountRegistrationWizard
             summaryTable.put(Resources.getString("forceP2PPresence"),
                     Resources.getString("no"));
         }
+        if (registration.isDefaultEncryption()) {
+        	summaryTable.put(Resources.getString("enableDefaultEncryption"),
+        			Resources.getString("yes"));
+        } else {
+        	summaryTable.put(Resources.getString("enableDefaultEncryption"), 
+        			Resources.getString("no"));
+        } 
         summaryTable.put(Resources.getString("offlineContactPollingPeriod"),
                 registration.getPollingPeriod());
         summaryTable.put(Resources.getString("subscriptionExpiration"),
@@ -247,6 +254,9 @@ public class SIPAccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
                 Boolean.toString(registration.isForceP2PMode()));
+        
+        accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION, 
+        		Boolean.toString(registration.isDefaultEncryption())); 
 
         accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
                 registration.getPollingPeriod());
