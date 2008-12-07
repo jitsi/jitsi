@@ -152,24 +152,24 @@ public class ToolsMenu
 
     private boolean registerConfigMenuItemMacOSX()
     {
-        Application application = Application.getApplication();
-        if (application != null)
-        {
-            application.addPreferencesMenuItem();
-            if (application.isPreferencesMenuItemPresent())
-            {
-                application.setEnabledPreferencesMenu(true);
-                application.addApplicationListener(new ApplicationAdapter()
-                {
-                    public void handlePreferences(ApplicationEvent event)
-                    {
-                        configActionPerformed();
-                        event.setHandled(true);
-                    }
-                });
-                return true;
-            }
-        }
+//        Application application = Application.getApplication();
+//        if (application != null)
+//        {
+//            application.addPreferencesMenuItem();
+//            if (application.isPreferencesMenuItemPresent())
+//            {
+//                application.setEnabledPreferencesMenu(true);
+//                application.addApplicationListener(new ApplicationAdapter()
+//                {
+//                    public void handlePreferences(ApplicationEvent event)
+//                    {
+//                        configActionPerformed();
+//                        event.setHandled(true);
+//                    }
+//                });
+//                return true;
+//            }
+//        }
         return false;
     }
 

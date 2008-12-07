@@ -182,19 +182,19 @@ public class FileMenu
 
     private boolean registerCloseMenuItemMacOSX()
     {
-        Application application = Application.getApplication();
-        if (application != null)
-        {
-            application.addApplicationListener(new ApplicationAdapter()
-            {
-                public void handleQuit(ApplicationEvent event)
-                {
-                    closeActionPerformed();
-                    event.setHandled(true);
-                }
-            });
-            return true;
-        }
+//        Application application = Application.getApplication();
+//        if (application != null)
+//        {
+//            application.addApplicationListener(new ApplicationAdapter()
+//            {
+//                public void handleQuit(ApplicationEvent event)
+//                {
+//                    closeActionPerformed();
+//                    event.setHandled(true);
+//                }
+//            });
+//            return true;
+//        }
         return false;
     }
 

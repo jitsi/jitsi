@@ -128,24 +128,24 @@ public class BrandingActivator
 
     private boolean registerMenuEntryMacOSX(UIService uiService)
     {
-        Application application = Application.getApplication();
-        if (application != null)
-        {
-            application.addAboutMenuItem();
-            if (application.isAboutMenuItemPresent())
-            {
-                application.setEnabledAboutMenu(true);
-                application.addApplicationListener(new ApplicationAdapter()
-                {
-                    public void handleAbout(ApplicationEvent event)
-                    {
-                        AboutWindowPluginComponent.actionPerformed();
-                        event.setHandled(true);
-                    }
-                });
-                return true;
-            }
-        }
+//        Application application = Application.getApplication();
+//        if (application != null)
+//        {
+//            application.addAboutMenuItem();
+//            if (application.isAboutMenuItemPresent())
+//            {
+//                application.setEnabledAboutMenu(true);
+//                application.addApplicationListener(new ApplicationAdapter()
+//                {
+//                    public void handleAbout(ApplicationEvent event)
+//                    {
+//                        AboutWindowPluginComponent.actionPerformed();
+//                        event.setHandled(true);
+//                    }
+//                });
+//                return true;
+//            }
+//        }
         return false;
     }
 
