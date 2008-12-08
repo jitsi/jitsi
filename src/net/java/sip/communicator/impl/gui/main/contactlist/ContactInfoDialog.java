@@ -13,7 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ContactInfoPanel</tt> is a popup dialog containing the contact

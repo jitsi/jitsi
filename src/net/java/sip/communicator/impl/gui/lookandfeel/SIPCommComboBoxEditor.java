@@ -12,7 +12,7 @@ import java.awt.geom.*;
 import javax.swing.border.*;
 import javax.swing.plaf.metal.*;
 
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The default editor for SIPCommunicator editable combo boxes.

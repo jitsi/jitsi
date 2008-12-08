@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>CallPanel</tt> is the panel containing call information. It's created

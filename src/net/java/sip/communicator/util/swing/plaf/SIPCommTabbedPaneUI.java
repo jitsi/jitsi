@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing.plaf;
+package net.java.sip.communicator.util.swing.plaf;
 
 /*
  * The content of this file was based on code borrowed from David Bismut,
@@ -23,7 +23,8 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * SIPCommTabbedPaneUI implementation.
@@ -116,12 +117,12 @@ public class SIPCommTabbedPaneUI
     {
         super();
 
-        closeImgB = SwingCommonActivator.getImage(CLOSE_TAB_SELECTED_ICON);
+        closeImgB = UtilActivator.getImage(CLOSE_TAB_SELECTED_ICON);
 
         maxImgB = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
                 BufferedImage.TYPE_4BYTE_ABGR);
 
-        closeImgI = SwingCommonActivator.getImage(CLOSE_TAB_ICON);
+        closeImgI = UtilActivator.getImage(CLOSE_TAB_ICON);
 
         maxImgI = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
                 BufferedImage.TYPE_4BYTE_ABGR);

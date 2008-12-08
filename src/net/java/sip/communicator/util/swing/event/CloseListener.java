@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing.event;
+package net.java.sip.communicator.util.swing.event;
 
 /*
  * The content of this file was based on code borrowed from David Bismut,

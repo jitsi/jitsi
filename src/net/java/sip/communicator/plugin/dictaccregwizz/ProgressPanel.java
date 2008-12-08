@@ -10,7 +10,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Panel showing the current status of the search of the strategies

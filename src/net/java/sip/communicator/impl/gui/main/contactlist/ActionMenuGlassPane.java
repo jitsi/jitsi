@@ -12,7 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
  
 public class ActionMenuGlassPane
     extends TransparentPanel

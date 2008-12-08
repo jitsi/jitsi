@@ -13,7 +13,7 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The SIPCommPasswordFieldUI implementation.

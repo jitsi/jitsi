@@ -18,8 +18,8 @@ import javax.swing.filechooser.FileFilter;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The right side panel of AccountDetailsDialog. Shows one tab of a summary of

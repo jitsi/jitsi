@@ -14,8 +14,8 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The dialog, shown when user click on the chat "Send" button, while the

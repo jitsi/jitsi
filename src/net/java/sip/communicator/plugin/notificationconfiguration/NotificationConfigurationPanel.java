@@ -19,8 +19,8 @@ import javax.swing.event.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.notification.event.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The UI of <tt>ConfigurationForm</tt> that would be added in the user

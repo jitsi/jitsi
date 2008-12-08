@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -43,7 +43,7 @@ public abstract class SIPCommFrame
     {
         this.setContentPane(new MainContentPane());
 
-        Image scLogo = SwingCommonActivator.getImage(SIP_COMMUNICATOR_LOGO);
+        Image scLogo = UtilActivator.getImage(SIP_COMMUNICATOR_LOGO);
         this.setIconImage(scLogo);
 
         // In order to have the same icon when using option panes
@@ -90,7 +90,7 @@ public abstract class SIPCommFrame
 
         // Adds new bindings to input map
         this.bindings =
-            SwingCommonActivator.getKeybindingsService().getBindings(category);
+            UtilActivator.getKeybindingsService().getBindings(category);
 
         for (Map.Entry<KeyStroke, String> key2action : this.bindings
             .getBindings().entrySet())
@@ -136,7 +136,7 @@ public abstract class SIPCommFrame
     private void saveSizeAndLocation()
     {
         ConfigurationService configService =
-            SwingCommonActivator.getConfigurationService();
+            UtilActivator.getConfigurationService();
 
         String className = this.getClass().getName();
 
@@ -165,7 +165,7 @@ public abstract class SIPCommFrame
     public void setSizeAndLocation()
     {
         ConfigurationService configService =
-            SwingCommonActivator.getConfigurationService();
+            UtilActivator.getConfigurationService();
 
         String className = this.getClass().getName();
 
@@ -409,7 +409,7 @@ public abstract class SIPCommFrame
             super(new BorderLayout());
 
             ResourceManagementService resources =
-                SwingCommonActivator.getResources();
+                UtilActivator.getResources();
 
             isColorBgEnabled =
                 new Boolean(resources.getSettingsString(

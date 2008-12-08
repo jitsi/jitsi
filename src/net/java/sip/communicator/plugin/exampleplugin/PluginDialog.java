@@ -11,7 +11,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * A plugin dialog that is open through the right button menu over a contact and

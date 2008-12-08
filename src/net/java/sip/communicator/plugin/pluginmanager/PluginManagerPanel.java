@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 

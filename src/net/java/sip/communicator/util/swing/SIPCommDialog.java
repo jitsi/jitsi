@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -141,7 +141,7 @@ public abstract class SIPCommDialog extends JDialog
     private void saveSizeAndLocation()
     {
         ConfigurationService configService =
-            SwingCommonActivator.getConfigurationService();
+            UtilActivator.getConfigurationService();
 
         String className = this.getClass().getName();
                 
@@ -174,7 +174,7 @@ public abstract class SIPCommDialog extends JDialog
     private void setSizeAndLocation()
     {
         ConfigurationService configService =
-            SwingCommonActivator.getConfigurationService();
+            UtilActivator.getConfigurationService();
 
         String className = this.getClass().getName();
         

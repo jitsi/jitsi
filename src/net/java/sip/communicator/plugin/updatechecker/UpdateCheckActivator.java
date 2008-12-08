@@ -19,8 +19,8 @@ import javax.swing.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.version.VersionService;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 

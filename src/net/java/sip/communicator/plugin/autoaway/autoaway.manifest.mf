@@ -4,12 +4,12 @@ Bundle-Description: A bundle that would automatically put your protocols in the 
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.2
 Import-Package: org.osgi.framework,
- net.java.sip.communicator.util,
- net.java.sip.communicator.service.resources,
- net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.gui,
- net.java.sip.communicator.swing,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.swing,
  javax.swing,
  javax.swing.event,
  javax.swing.border,

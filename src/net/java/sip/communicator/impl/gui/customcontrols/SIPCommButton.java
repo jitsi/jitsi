@@ -14,7 +14,7 @@ import javax.swing.*;
 import org.jvnet.lafwidget.animation.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SIPCommButton</tt> is a very flexible <tt>JButton</tt> that allows

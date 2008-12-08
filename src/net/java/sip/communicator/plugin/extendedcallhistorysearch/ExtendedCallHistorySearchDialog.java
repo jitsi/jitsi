@@ -13,8 +13,8 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.callhistory.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import com.toedter.calendar.*;
 

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing.event;
+package net.java.sip.communicator.util.swing.event;
 
 /*
  * The following code borrowed from David Bismut, davidou@mageos.com Intern,
@@ -17,6 +17,6 @@ import java.util.*;
 /**
  * @author Yana Stamcheva
  */
-public interface PopupOutsideListener extends EventListener {
-    public void popupOutsideOperation(MouseEvent e);
+public interface DoubleClickListener extends EventListener {
+    public void doubleClickOperation(MouseEvent e);
 }

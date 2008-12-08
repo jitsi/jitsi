@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing;
+package net.java.sip.communicator.util.swing;
 
 /*
  * The following code borrowed from David Bismut, davidou@mageos.com Intern,
@@ -19,8 +19,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.swing.event.*;
-import net.java.sip.communicator.swing.plaf.*;
+import net.java.sip.communicator.util.swing.event.*;
+import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * A JTabbedPane with some added UI functionalities. A close and max/detach

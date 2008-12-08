@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing.plaf;
+package net.java.sip.communicator.util.swing.plaf;
 
 /*
  * The content of this file was based on code borrowed from David Bismut,
@@ -20,7 +20,8 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * This UI displays a different interface, which is independent from the look
@@ -35,7 +36,7 @@ public class SIPCommTabbedPaneEnhancedUI
     private static final Color whiteColor = Color.white;
 
     private static final int TAB_OVERLAP
-        = new Integer(SwingCommonActivator.getResources().
+        = new Integer(UtilActivator.getResources().
             getSettingsString("impl.gui.TAB_OVERLAP")).intValue();
 
     private static final int PREFERRED_WIDTH = 150;
@@ -165,25 +166,24 @@ public class SIPCommTabbedPaneEnhancedUI
         {
             if (tabPane.isEnabledAt(tabIndex))
             {
-                leftImg = SwingCommonActivator.getImage(SELECTED_TAB_LEFT_BG);
-                middleImg =
-                    SwingCommonActivator.getImage(SELECTED_TAB_MIDDLE_BG);
-                rightImg = SwingCommonActivator.getImage(SELECTED_TAB_RIGHT_BG);
+                leftImg = UtilActivator.getImage(SELECTED_TAB_LEFT_BG);
+                middleImg = UtilActivator.getImage(SELECTED_TAB_MIDDLE_BG);
+                rightImg = UtilActivator.getImage(SELECTED_TAB_RIGHT_BG);
 
                 tabOverlap = TAB_OVERLAP;
             }
             else
             {
-                leftImg = SwingCommonActivator.getImage(TAB_LEFT_BG);
-                middleImg = SwingCommonActivator.getImage(TAB_MIDDLE_BG);
-                rightImg = SwingCommonActivator.getImage(TAB_RIGHT_BG);
+                leftImg = UtilActivator.getImage(TAB_LEFT_BG);
+                middleImg = UtilActivator.getImage(TAB_MIDDLE_BG);
+                rightImg = UtilActivator.getImage(TAB_RIGHT_BG);
             }
         }
         else
         {
-            leftImg = SwingCommonActivator.getImage(TAB_LEFT_BG);
-            middleImg = SwingCommonActivator.getImage(TAB_MIDDLE_BG);
-            rightImg = SwingCommonActivator.getImage(TAB_RIGHT_BG);
+            leftImg = UtilActivator.getImage(TAB_LEFT_BG);
+            middleImg = UtilActivator.getImage(TAB_MIDDLE_BG);
+            rightImg = UtilActivator.getImage(TAB_RIGHT_BG);
         }
         
         g2.drawImage(leftImg, x, y, null);

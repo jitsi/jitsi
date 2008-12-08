@@ -17,8 +17,8 @@ import javax.swing.table.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 

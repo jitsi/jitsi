@@ -15,7 +15,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the user interface

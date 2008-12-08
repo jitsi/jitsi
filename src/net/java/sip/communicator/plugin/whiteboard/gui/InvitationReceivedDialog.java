@@ -13,7 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.plugin.whiteboard.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The dialog that pops up when a chat room invitation is received.

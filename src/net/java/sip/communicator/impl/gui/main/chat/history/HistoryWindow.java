@@ -26,8 +26,8 @@ import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.msghistory.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>HistoryWindow</tt> is the window, where user could view or search

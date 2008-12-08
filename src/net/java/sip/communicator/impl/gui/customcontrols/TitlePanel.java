@@ -10,7 +10,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>TitlePanel</tt> is a decorated panel, that could be used for a header

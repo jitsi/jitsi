@@ -777,7 +777,7 @@
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-smacklib,
-        bundle-jabber,bundle-jabber-slick,bundle-swing-common,bundle-swing-ui,bundle-ui-service,
+        bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -1307,17 +1307,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-SWING-COMMON -->
-    <target name="bundle-swing-common">
-        <!-- Common/generic Swing additions not specific to SIP Communicator. -->
-        <jar compress="false" destfile="${bundles.dest}/swing-common.jar"
-            manifest="${src}/net/java/sip/communicator/swing/swing.common.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/swing"
-                prefix="net/java/sip/communicator/swing"/>
-        </jar>
-    </target>
-
-     <!-- BUNDLE-SWING-UI -->
+    <!-- BUNDLE-SWING-UI -->
     <target name="bundle-swing-ui">
         <!-- Bundle sip-communicator's UI.-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"

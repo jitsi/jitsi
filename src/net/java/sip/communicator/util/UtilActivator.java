@@ -6,6 +6,15 @@
  */
 package net.java.sip.communicator.util;
 
+import java.awt.image.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+import javax.imageio.*;
+
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.resources.*;
 
 import org.osgi.framework.*;
@@ -25,9 +34,16 @@ public class UtilActivator
     private static final Logger logger
         = Logger.getLogger(UtilActivator.class);
 
+    private static ConfigurationService configurationService;
+
+    private static KeybindingsService keybindingsService;
+
     private static ResourceManagementService resourceService;
 
     private static BundleContext bundleContext;
+
+    private static final Map<String, BufferedImage> imageCache =
+        new HashMap<String, BufferedImage>();
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
@@ -47,7 +63,6 @@ public class UtilActivator
         bundleContext = context;
 
         Thread.setDefaultUncaughtExceptionHandler(this);
-        Thread.currentThread().setDefaultUncaughtExceptionHandler(this);
     }
 
     /**
@@ -85,6 +100,38 @@ public class UtilActivator
 
     }
 
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            ServiceReference serviceReference =
+                bundleContext.getServiceReference(ConfigurationService.class
+                    .getName());
+
+            if (serviceReference != null)
+                configurationService =
+                    (ConfigurationService) bundleContext
+                        .getService(serviceReference);
+        }
+        return configurationService;
+    }
+
+    public static KeybindingsService getKeybindingsService()
+    {
+        if (keybindingsService == null)
+        {
+            ServiceReference serviceReference =
+                bundleContext.getServiceReference(KeybindingsService.class
+                    .getName());
+
+            if (serviceReference != null)
+                keybindingsService =
+                    (KeybindingsService) bundleContext
+                        .getService(serviceReference);
+        }
+        return keybindingsService;
+    }
+
     /**
      * Returns the service giving access to all application resources.
      * 
@@ -97,5 +144,28 @@ public class UtilActivator
                 ResourceManagementServiceUtils.getService(bundleContext);
 
         return resourceService;
+    }
+
+    public static BufferedImage getImage(String key)
+    {
+        if (imageCache.containsKey(key))
+            return imageCache.get(key);
+
+        URL url = getResources().getImageURL(key);
+        BufferedImage image = null;
+        if (url != null)
+        {
+            try
+            {
+                image = ImageIO.read(url);
+
+                imageCache.put(key, image);
+            }
+            catch (IOException ex)
+            {
+                logger.error("Failed to load image " + key, ex);
+            }
+        }
+        return image;
     }
 }

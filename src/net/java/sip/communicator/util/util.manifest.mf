@@ -3,23 +3,31 @@ Bundle-Name: SIP Communicator Utility Packages
 Bundle-Description: A bundle that export packages with utility classes.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Import-Package: org.osgi.framework,
+Import-Package: org.xml.sax, 
  org.w3c.dom,
- org.xml.sax,
- javax.xml.parsers,
+ org.osgi.framework,
  org.apache.xml.serialize,
- javax.xml.transform,
- javax.xml.transform.dom,
  javax.xml.transform.stream,
- javax.naming,
- javax.naming.directory,
- javax.swing,
+ javax.xml.transform.dom,
+ javax.xml.transform,
+ javax.xml.parsers,
  javax.swing.text.html,
  javax.swing.text,
+ javax.swing.plaf.basic,
+ javax.swing.plaf,
+ javax.swing.event,
+ javax.swing.border,
+ javax.swing,
+ javax.naming.directory,
+ javax.naming,
+ javax.imageio,
  net.java.sip.communicator.util.xml,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.resources,
- javax.imageio
+ net.java.sip.communicator.service.keybindings,
+ net.java.sip.communicator.service.configuration
 Export-Package: net.java.sip.communicator.util.xml,
- net.java.sip.communicator.util,
-
+ net.java.sip.communicator.util.swing.plaf,
+ net.java.sip.communicator.util.swing.event,
+ net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.util
