@@ -15,6 +15,7 @@ import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -36,26 +37,14 @@ public class AccountsConfigurationForm
                 ActionListener,
                 ServiceListener
 {
-    private Logger logger =
+    private final Logger logger =
         Logger.getLogger(AccountsConfigurationForm.class.getName());
 
-    private JScrollPane scrollPane = new JScrollPane();
+    private final JPanel accountsPanel = new TransparentPanel();
 
-    private TransparentPanel wrapAccountsPanel
-        = new TransparentPanel(new BorderLayout());
+    private final JButton newButton;
 
-    private TransparentPanel accountsPanel = new TransparentPanel();
-
-    private TransparentPanel buttonsPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-
-    private I18NString newString = Messages.getI18NString("newAccount");
-
-    private JButton newButton = new JButton(newString.getText());
-
-    private I18NString saveString = Messages.getI18NString("save");
-
-    private JButton saveButton = new JButton(saveString.getText());
+    private final JButton saveButton;
 
     private final Map<ProtocolProviderService, AccountPanel> accounts =
         new Hashtable<ProtocolProviderService, AccountPanel>();
@@ -69,24 +58,32 @@ public class AccountsConfigurationForm
     {
         super(new BorderLayout());
 
+        JPanel buttonsPanel =
+            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+        JScrollPane scrollPane = new SCScrollPane();
+        JPanel wrapAccountsPanel = new TransparentPanel(new BorderLayout());
+
         GuiActivator.bundleContext.addServiceListener(this);
 
         this.add(scrollPane, BorderLayout.CENTER);
         this.add(buttonsPanel, BorderLayout.SOUTH);
 
-        this.newButton.addActionListener(this);
-        this.saveButton.addActionListener(this);
-
+        I18NString newString = Messages.getI18NString("newAccount");
+        newButton = new JButton(newString.getText());
+        newButton.addActionListener(this);
         this.newButton.setMnemonic(newString.getMnemonic());
-        this.saveButton.setMnemonic(saveString.getMnemonic());
+        buttonsPanel.add(newButton);
 
-        this.buttonsPanel.add(newButton);
-        this.buttonsPanel.add(saveButton);
+        I18NString saveString = Messages.getI18NString("save");
+        saveButton = new JButton(saveString.getText());
+        saveButton.addActionListener(this);
+        saveButton.setMnemonic(saveString.getMnemonic());
+        buttonsPanel.add(saveButton);
 
-        this.scrollPane.getViewport().add(wrapAccountsPanel);
-        this.scrollPane.getVerticalScrollBar().setUnitIncrement(30);
+        scrollPane.getViewport().add(wrapAccountsPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(30);
 
-        this.wrapAccountsPanel.add(accountsPanel, BorderLayout.NORTH);
+        wrapAccountsPanel.add(accountsPanel, BorderLayout.NORTH);
 
         this.accountsInit();
 
@@ -130,11 +127,8 @@ public class AccountsConfigurationForm
         }
     }
 
-    /**
-     *
-     */
     private class AccountPanel
-        extends JPanel
+        extends TransparentPanel
         implements ActionListener
     {
         private JLabel protocolLabel = new JLabel();
