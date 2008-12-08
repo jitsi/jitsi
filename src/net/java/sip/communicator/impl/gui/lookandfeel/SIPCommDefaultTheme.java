@@ -461,14 +461,6 @@ public class SIPCommDefaultTheme
         table.putDefaults(defaults);
     }
 
-    /**
-     * Overriden to enable picking up the system fonts, if applicable.
-     */
-    boolean isSystemTheme()
-    {
-        return true;
-    }
-
     public String getName()
     {
         return "SipCommunicator";
