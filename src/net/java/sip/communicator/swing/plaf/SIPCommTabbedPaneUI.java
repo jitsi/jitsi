@@ -31,6 +31,21 @@ import net.java.sip.communicator.swing.*;
 public class SIPCommTabbedPaneUI
     extends BasicTabbedPaneUI
 {
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a close
+     * button on a tab.
+     */
+    private static final String CLOSE_TAB_ICON =
+        "service.gui.lookandfeel.CLOSE_TAB_ICON";
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a rollover
+     * close button on a tab.
+     */
+    private static final String CLOSE_TAB_SELECTED_ICON =
+        "service.gui.lookandfeel.CLOSE_TAB_SELECTED_ICON";
+
     // Instance variables initialized at installation
     private ContainerListener containerListener;
 
@@ -101,12 +116,12 @@ public class SIPCommTabbedPaneUI
     {
         super();
 
-        closeImgB = ImageLoader.getImage(ImageLoader.CLOSE_TAB_SELECTED_ICON);
+        closeImgB = SwingCommonActivator.getImage(CLOSE_TAB_SELECTED_ICON);
 
         maxImgB = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
                 BufferedImage.TYPE_4BYTE_ABGR);
 
-        closeImgI = ImageLoader.getImage(ImageLoader.CLOSE_TAB_ICON);
+        closeImgI = SwingCommonActivator.getImage(CLOSE_TAB_ICON);
 
         maxImgI = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
                 BufferedImage.TYPE_4BYTE_ABGR);

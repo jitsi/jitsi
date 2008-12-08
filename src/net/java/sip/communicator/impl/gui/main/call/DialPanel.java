@@ -20,7 +20,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**

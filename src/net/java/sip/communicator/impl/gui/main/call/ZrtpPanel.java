@@ -12,9 +12,9 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.service.gui.PopupDialog;
-import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.swing.*;

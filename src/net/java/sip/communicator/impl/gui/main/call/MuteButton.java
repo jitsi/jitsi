@@ -11,8 +11,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.swing.*;
 
 /**
  * Represents an UI means to mute the audio stream sent to an associated

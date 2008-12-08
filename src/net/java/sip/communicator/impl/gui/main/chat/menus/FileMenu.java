@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>FileMenu</tt> is the menu in the chat window menu bar that contains

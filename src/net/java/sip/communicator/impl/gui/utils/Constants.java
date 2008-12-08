@@ -16,7 +16,6 @@ import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**

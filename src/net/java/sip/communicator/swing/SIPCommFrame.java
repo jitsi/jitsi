@@ -28,6 +28,9 @@ public abstract class SIPCommFrame
     extends JFrame
     implements Observer
 {
+    private static final String SIP_COMMUNICATOR_LOGO =
+        "service.gui.SIP_COMMUNICATOR_LOGO";
+
     private final Logger logger = Logger.getLogger(SIPCommFrame.class);
 
     private final ActionMap amap;
@@ -40,7 +43,7 @@ public abstract class SIPCommFrame
     {
         this.setContentPane(new MainContentPane());
 
-        Image scLogo = ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO);
+        Image scLogo = SwingCommonActivator.getImage(SIP_COMMUNICATOR_LOGO);
         this.setIconImage(scLogo);
 
         // In order to have the same icon when using option panes

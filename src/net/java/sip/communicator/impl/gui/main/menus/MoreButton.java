@@ -13,10 +13,10 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.swing.*;
 
 public class MoreButton
     extends JLabel

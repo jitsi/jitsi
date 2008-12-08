@@ -14,7 +14,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The GroupRightButtonMenu is the menu, opened when user clicks with the

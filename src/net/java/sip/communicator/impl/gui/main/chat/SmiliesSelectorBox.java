@@ -13,7 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>SmiliesSelectorBox</tt> is the component where user could choose a

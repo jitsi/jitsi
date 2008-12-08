@@ -12,7 +12,7 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The SIPCommToolBar is a <tt>JToolBar</tt>, which has its own drag icon

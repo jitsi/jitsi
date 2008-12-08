@@ -29,8 +29,9 @@ import net.java.sip.communicator.swing.*;
  * @author David Bismut, davidou@mageos.com
  * @author Yana Stamcheva
  */
-public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
-
+public class SIPCommTabbedPaneEnhancedUI
+    extends SIPCommTabbedPaneUI
+{
     private static final Color whiteColor = Color.white;
 
     private static final int TAB_OVERLAP
@@ -38,6 +39,48 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
             getSettingsString("impl.gui.TAB_OVERLAP")).intValue();
 
     private static final int PREFERRED_WIDTH = 150;
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a selected tab.
+     */
+    private static final String SELECTED_TAB_LEFT_BG =
+        "service.gui.lookandfeel.SELECTED_TAB_LEFT_BG";
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a selected tab.
+     */
+    private static final String SELECTED_TAB_MIDDLE_BG =
+        "service.gui.lookandfeel.SELECTED_TAB_MIDDLE_BG";
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a selected tab.
+     */
+    private static final String SELECTED_TAB_RIGHT_BG =
+        "service.gui.lookandfeel.SELECTED_TAB_RIGHT_BG";
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a tab.
+     */
+    private static final String TAB_LEFT_BG =
+        "service.gui.lookandfeel.TAB_LEFT_BG";
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a tab.
+     */
+    private static final String TAB_MIDDLE_BG =
+        "service.gui.lookandfeel.TAB_MIDDLE_BG";
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a tab.
+     */
+    private static final String TAB_RIGHT_BG =
+        "service.gui.lookandfeel.TAB_RIGHT_BG";
 
     public static ComponentUI createUI(JComponent c) {
         return new SIPCommTabbedPaneEnhancedUI();
@@ -122,33 +165,25 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
         {
             if (tabPane.isEnabledAt(tabIndex))
             {
-                leftImg = ImageLoader.getImage(
-                    ImageLoader.SELECTED_TAB_LEFT_BG);
-                middleImg = ImageLoader.getImage(
-                    ImageLoader.SELECTED_TAB_MIDDLE_BG);
-                rightImg = ImageLoader.getImage(
-                    ImageLoader.SELECTED_TAB_RIGHT_BG);
-                
+                leftImg = SwingCommonActivator.getImage(SELECTED_TAB_LEFT_BG);
+                middleImg =
+                    SwingCommonActivator.getImage(SELECTED_TAB_MIDDLE_BG);
+                rightImg = SwingCommonActivator.getImage(SELECTED_TAB_RIGHT_BG);
+
                 tabOverlap = TAB_OVERLAP;
             }
             else
             {
-                leftImg = ImageLoader.getImage(
-                    ImageLoader.TAB_LEFT_BG);
-                middleImg = ImageLoader.getImage(
-                    ImageLoader.TAB_MIDDLE_BG);
-                rightImg = ImageLoader.getImage(
-                    ImageLoader.TAB_RIGHT_BG);
+                leftImg = SwingCommonActivator.getImage(TAB_LEFT_BG);
+                middleImg = SwingCommonActivator.getImage(TAB_MIDDLE_BG);
+                rightImg = SwingCommonActivator.getImage(TAB_RIGHT_BG);
             }
         }
         else
         {
-            leftImg = ImageLoader.getImage(
-                ImageLoader.TAB_LEFT_BG);
-            middleImg = ImageLoader.getImage(
-                ImageLoader.TAB_MIDDLE_BG);
-            rightImg = ImageLoader.getImage(
-                ImageLoader.TAB_RIGHT_BG);
+            leftImg = SwingCommonActivator.getImage(TAB_LEFT_BG);
+            middleImg = SwingCommonActivator.getImage(TAB_MIDDLE_BG);
+            rightImg = SwingCommonActivator.getImage(TAB_RIGHT_BG);
         }
         
         g2.drawImage(leftImg, x, y, null);

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.swing;
+package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -16,6 +16,7 @@ import java.util.List;
 import javax.imageio.*;
 import javax.imageio.stream.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -106,48 +107,6 @@ public class ImageLoader {
 
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
-     * of a tab.
-     */
-    public static final ImageID TAB_LEFT_BG
-        = new ImageID("service.gui.lookandfeel.TAB_LEFT_BG");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
-     * of a tab.
-     */
-    public static final ImageID TAB_MIDDLE_BG
-        = new ImageID("service.gui.lookandfeel.TAB_MIDDLE_BG");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
-     * of a tab.
-     */
-    public static final ImageID TAB_RIGHT_BG
-        = new ImageID("service.gui.lookandfeel.TAB_RIGHT_BG");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
-     * of a selected tab.
-     */
-    public static final ImageID SELECTED_TAB_LEFT_BG
-        = new ImageID("service.gui.lookandfeel.SELECTED_TAB_LEFT_BG");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
-     * of a selected tab.
-     */
-    public static final ImageID SELECTED_TAB_MIDDLE_BG
-        = new ImageID("service.gui.lookandfeel.SELECTED_TAB_MIDDLE_BG");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
-     * of a selected tab.
-     */
-    public static final ImageID SELECTED_TAB_RIGHT_BG
-        = new ImageID("service.gui.lookandfeel.SELECTED_TAB_RIGHT_BG");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a closable tab.
      */
     public static final ImageID CLOSABLE_TAB_BG
@@ -159,20 +118,6 @@ public class ImageLoader {
      */
     public static final ImageID SELECTED_CLOSABLE_TAB_BG
         = new ImageID("service.gui.lookandfeel.SELECTED_CLOSABLE_TAB_BG");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a close
-     * button on a tab.
-     */
-    public static final ImageID CLOSE_TAB_ICON
-        = new ImageID("service.gui.lookandfeel.CLOSE_TAB_ICON");
-
-    /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a rollover
-     * close button on a tab.
-     */
-    public static final ImageID CLOSE_TAB_SELECTED_ICON
-        = new ImageID("service.gui.lookandfeel.CLOSE_TAB_SELECTED_ICON");
 
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
@@ -1147,9 +1092,7 @@ public class ImageLoader {
         }
         else
         {
-            URL path =
-                SwingCommonActivator.getResources()
-                    .getImageURL(imageID.getId());
+            URL path = GuiActivator.getResources().getImageURL(imageID.getId());
 
             if (path == null)
             {
@@ -1203,8 +1146,7 @@ public class ImageLoader {
     public static byte[] getImageInBytes(ImageID imageID)
     {
         InputStream in =
-            SwingCommonActivator.getResources().getImageInputStream(
-                imageID.getId());
+            GuiActivator.getResources().getImageInputStream(imageID.getId());
 
         if (in == null)
             return null;
@@ -1303,8 +1245,8 @@ public class ImageLoader {
 
                 try
                 {
-                    return SwingCommonActivator.getResources().getImageURL(
-                        imageID).toURI().toString();
+                    return GuiActivator.getResources().getImageURL(imageID)
+                        .toURI().toString();
                 }
                 catch(URISyntaxException ex)
                 {

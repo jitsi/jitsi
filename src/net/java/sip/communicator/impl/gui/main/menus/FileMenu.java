@@ -20,8 +20,8 @@ import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.UIService;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;

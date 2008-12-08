@@ -9,10 +9,12 @@ package net.java.sip.communicator.impl.gui.main.account;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.swing.*;

@@ -13,7 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>ChatRightButtonMenu</tt> appears when the user makes a right button

@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.swing.*;
 import net.java.sip.communicator.util.*;
 
 /**

@@ -12,6 +12,7 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.swing.*;
 
 public class SCScrollPane

@@ -15,7 +15,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
-import net.java.sip.communicator.swing.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
