@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import java.net.*;
 import java.nio.channels.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
