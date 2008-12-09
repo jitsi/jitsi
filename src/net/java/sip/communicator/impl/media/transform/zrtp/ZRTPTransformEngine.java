@@ -420,12 +420,6 @@ public class ZRTPTransformEngine
         {
             return false;
         }
-        if (timeoutProvider == null)
-        {
-            timeoutProvider = new TimeoutProvider("ZRTP");
-            timeoutProvider.setDaemon(true);
-            timeoutProvider.start();
-        }
 
         ZidFile zf = ZidFile.getInstance();
         if (!zf.isOpen())
@@ -448,7 +442,6 @@ public class ZRTPTransformEngine
                 return false;
             }
         }
-        enableZrtp = autoEnable;
         try
         {
             zrtpEngine = new ZRtp(
@@ -461,8 +454,14 @@ public class ZRTPTransformEngine
             return false;
         }
 
+        if (timeoutProvider == null)
+        {
+            timeoutProvider = new TimeoutProvider("ZRTP");
+            timeoutProvider.setDaemon(true);
+            timeoutProvider.start();
+        }
         userCallback.init();
-
+        enableZrtp = autoEnable;
         return true;
     }
 
@@ -492,10 +491,11 @@ public class ZRTPTransformEngine
     /**
      * Cleanup function for any remaining timers
      */
-    public void cleanup()
-    {
-        timeoutProvider.stopRun();
-        timeoutProvider = null;
+    public void cleanup() {
+        if (timeoutProvider != null) {
+            timeoutProvider.stopRun();
+            timeoutProvider = null;
+        }
     }
 
     /* (non-Javadoc)

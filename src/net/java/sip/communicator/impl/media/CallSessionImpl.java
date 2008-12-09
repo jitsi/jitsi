@@ -526,10 +526,12 @@ public class CallSessionImpl
 
             if (transConnector != null)
             {
-                ZRTPTransformEngine engine
-                        = (ZRTPTransformEngine)transConnector.getEngine();
-                engine.stopZrtp();
-                engine.cleanup();
+                if (usingSRTP) {
+                    ZRTPTransformEngine engine = (ZRTPTransformEngine) transConnector
+                            .getEngine();
+                    engine.stopZrtp();
+                    engine.cleanup();
+                }
 
                 transConnector.removeTargets();
             }
@@ -698,8 +700,7 @@ public class CallSessionImpl
              mediaDescriptionIter.hasNext();)
         {
             MediaDescription mediaDescription = mediaDescriptionIter.next();
-            Vector<Attribute> attributes
-                                    = mediaDescription.getAttributes(false);
+            Vector<Attribute> attributes  = mediaDescription.getAttributes(false);
 
             try
             {
