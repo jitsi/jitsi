@@ -9,19 +9,20 @@
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
-import java.util.*;
-import com.jcraft.jsch.*;
+
 import javax.swing.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.service.gui.*;
+
+import org.osgi.framework.*;
+
+import com.jcraft.jsch.*;
 
 /**
  * A SSH implementation of the ProtocolProviderService.
@@ -75,12 +76,7 @@ public class ProtocolProviderServiceSSHImpl
     /**
      * We use this to lock access to initialization.
      */
-    private Object initializationLock = new Object();
-    
-    /**
-     * The hashtable with the operation sets that we support locally.
-     */
-    private final Hashtable supportedOperationSets = new Hashtable();
+    private final Object initializationLock = new Object();
     
     private OperationSetBasicInstantMessagingSSHImpl basicInstantMessaging;
     
@@ -515,21 +511,6 @@ public class ProtocolProviderServiceSSHImpl
     }
     
     /**
-     * Returns the operation set corresponding to the specified class or null
-     * if this operation set is not supported by the provider implementation.
-     *
-     * @param opsetClass the <tt>Class</tt> of the operation set that we're
-     *   looking for.
-     * @return returns an OperationSet of the specified <tt>Class</tt> if
-     *   the undelying implementation supports it or null otherwise.
-     */
-    public OperationSet getOperationSet(Class opsetClass)
-    {
-        return (OperationSet) getSupportedOperationSets()
-                    .get(opsetClass.getName());
-    }
-    
-    /**
      * Returns the short name of the protocol that the implementation of this
      * provider is based upon (like SIP, Jabber, ICQ/AIM, or others for
      * example).
@@ -552,20 +533,6 @@ public class ProtocolProviderServiceSSHImpl
     public RegistrationState getRegistrationState()
     {
         return currentRegistrationState;
-    }
-    
-    /**
-     * Returns an array containing all operation sets supported by the
-     * current implementation.
-     *
-     * @return a java.util.Map containing instance of all supported
-     *   operation sets mapped against their class names (e.g.
-     *   OperationSetPresence.class.getName()) .
-     */
-    public Map getSupportedOperationSets()
-    {
-        //Copy the map so that the caller is not able to modify it.
-        return (Map)supportedOperationSets.clone();
     }
     
     /**

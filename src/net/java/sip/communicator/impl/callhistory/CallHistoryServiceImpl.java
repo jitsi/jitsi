@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.callhistory.event.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -678,10 +679,9 @@ public class CallHistoryServiceImpl
         logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic telephony operation set
-        OperationSetBasicTelephony opSetTelephony
-            = (OperationSetBasicTelephony) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicTelephony.class.getName());
+        OperationSetBasicTelephony opSetTelephony =
+            (OperationSetBasicTelephony) provider
+                .getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {
@@ -701,10 +701,9 @@ public class CallHistoryServiceImpl
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetBasicTelephony opSetTelephony
-            = (OperationSetBasicTelephony) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicTelephony.class.getName());
+        OperationSetBasicTelephony opSetTelephony =
+            (OperationSetBasicTelephony) provider
+                .getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {

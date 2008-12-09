@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-
 /**
  * The Message History Service stores messages exchanged through the various protocols
  * Logs messages for all protocol providers that support basic instant messaging
@@ -929,10 +928,9 @@ public class MessageHistoryServiceImpl
                 + provider.getProtocolDisplayName());
 
         // check whether the provider has a basic im operation set
-        OperationSetBasicInstantMessaging opSetIm
-            = (OperationSetBasicInstantMessaging) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicInstantMessaging.class.getName());
+        OperationSetBasicInstantMessaging opSetIm =
+            (OperationSetBasicInstantMessaging) provider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
         {
@@ -943,10 +941,9 @@ public class MessageHistoryServiceImpl
             logger.trace("Service did not have a im op. set.");
         }
 
-        OperationSetMultiUserChat opSetMultiUChat
-            = (OperationSetMultiUserChat) provider
-            .getSupportedOperationSets().get(
-                OperationSetMultiUserChat.class.getName());
+        OperationSetMultiUserChat opSetMultiUChat =
+            (OperationSetMultiUserChat) provider
+                .getOperationSet(OperationSetMultiUserChat.class);
 
         if (opSetMultiUChat != null)
         {
@@ -975,20 +972,18 @@ public class MessageHistoryServiceImpl
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetBasicInstantMessaging opSetIm
-            = (OperationSetBasicInstantMessaging) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicInstantMessaging.class.getName());
+        OperationSetBasicInstantMessaging opSetIm =
+            (OperationSetBasicInstantMessaging) provider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
         {
             opSetIm.removeMessageListener(this);
         }
 
-         OperationSetMultiUserChat opSetMultiUChat
-            = (OperationSetMultiUserChat) provider
-            .getSupportedOperationSets().get(
-                OperationSetMultiUserChat.class.getName());
+        OperationSetMultiUserChat opSetMultiUChat =
+            (OperationSetMultiUserChat) provider
+                .getOperationSet(OperationSetMultiUserChat.class);
 
         if (opSetMultiUChat != null)
         {

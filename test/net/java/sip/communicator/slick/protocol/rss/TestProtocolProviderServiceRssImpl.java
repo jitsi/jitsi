@@ -116,20 +116,21 @@ public class TestProtocolProviderServiceRssImpl
      */
     public void testOperationsSets() throws ClassNotFoundException
     {
-    	Map supportedOperationSets = 
-    	    fixture.provider.getSupportedOperationSets();
-    	
-    	//get the keys for the supported operation set. The keys are strings
-    	//corresponding to class names.
-    	Iterator setNames = supportedOperationSets.keySet().iterator();
-    	while (setNames.hasNext())
-    	{
-    	    String key = (String) setNames.next();
-    	    Object opSet = supportedOperationSets.get(key);
-    	    
-    	    assertTrue(opSet + " was not an instance of " + key +"as declared",
-    		    Class.forName(key).isInstance(opSet));
-    	}
+    	Map<String, OperationSet> supportedOperationSets =
+            fixture.provider.getSupportedOperationSets();
+
+        // get the keys for the supported operation set. The keys are strings
+        // corresponding to class names.
+        for (Map.Entry<String, OperationSet> entry : supportedOperationSets
+            .entrySet())
+        {
+            String key = entry.getKey();
+            Object opSet = entry.getValue();
+
+            assertTrue(
+                opSet + " was not an instance of " + key + "as declared", Class
+                    .forName(key).isInstance(opSet));
+        }
     }
     
     /**

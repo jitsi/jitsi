@@ -286,9 +286,9 @@ public class OperationSetTypingNotificationsJabberImpl
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                opSetPersPresence = (OperationSetPersistentPresenceJabberImpl)
-                    jabberProvider.getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceJabberImpl) jabberProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
 
                 messageEventManager =
                     new MessageEventManager(jabberProvider.getConnection());

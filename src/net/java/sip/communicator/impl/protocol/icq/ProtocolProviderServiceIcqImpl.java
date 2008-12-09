@@ -33,11 +33,6 @@ public class ProtocolProviderServiceIcqImpl
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceIcqImpl.class);
 
-    /**
-     * The hashtable with the operation sets that we support locally.
-     */
-    private Hashtable supportedOperationSets = new Hashtable();
-
     private DefaultAppSession session = null;
 
     private AimSession aimSession = null;
@@ -435,33 +430,6 @@ public class ProtocolProviderServiceIcqImpl
             return ProtocolNames.ICQ;
         else
             return ProtocolNames.AIM;
-    }
-
-    /**
-     * Returns an array containing all operation sets supported by the
-     * current implementation.
-     *
-     * @return an array of OperationSet-s supported by this protocol
-     *   provider implementation.
-     */
-    public Map getSupportedOperationSets()
-    {
-        return supportedOperationSets;
-    }
-
-    /**
-     * Returns the operation set corresponding to the specified class or null
-     * if this operation set is not supported by the provider implementation.
-     *
-     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
-     * looking for.
-     * @return returns an OperationSet of the specified <tt>Class</tt> if the
-     * undelying implementation supports it or null otherwise.
-     */
-    public OperationSet getOperationSet(Class opsetClass)
-    {
-        return (OperationSet)getSupportedOperationSets()
-            .get(opsetClass.getName());
     }
 
     /**

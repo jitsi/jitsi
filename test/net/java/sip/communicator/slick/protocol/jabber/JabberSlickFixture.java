@@ -7,7 +7,6 @@
 package net.java.sip.communicator.slick.protocol.jabber;
 
 import java.util.*;
-import java.util.Map;
 
 import org.osgi.framework.*;
 
@@ -229,7 +228,8 @@ public class JabberSlickFixture
     public void clearProvidersLists()
         throws Exception
     {
-        Map supportedOperationSets1 = provider1.getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets1 =
+            provider1.getSupportedOperationSets();
 
         if ( supportedOperationSets1 == null
             || supportedOperationSets1.size() < 1)
@@ -251,7 +251,8 @@ public class JabberSlickFixture
                 + "Operation Sets");
 
         // lets do it once again for the second provider
-        Map supportedOperationSets2 = provider2.getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets2 =
+            provider2.getSupportedOperationSets();
 
         if (supportedOperationSets2 == null
             || supportedOperationSets2.size() < 1)

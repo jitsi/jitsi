@@ -118,21 +118,19 @@ public class MclSlickFixture
         mockP1Grp1.addContact(emilP1);
         mockP1Grp1.addSubgroup(subMockP1Grp);
 
-        mockPresOpSetP1 = (MockPersistentPresenceOperationSet) mockP1
-            .getSupportedOperationSets().get(
-                OperationSetPresence.class.getName());
+        mockPresOpSetP1 =
+            (MockPersistentPresenceOperationSet) mockP1
+                .getOperationSet(OperationSetPresence.class);
         mockPresOpSetP1.addMockGroup(mockP1Grp1);
 
         //init mock provider 2
         mockP2Grp1.addContact(emilP2);
 
-        mockPresOpSetP2 = (MockPersistentPresenceOperationSet) mockP2
-            .getSupportedOperationSets().get(
-                OperationSetPresence.class.getName());
+        mockPresOpSetP2 =
+            (MockPersistentPresenceOperationSet) mockP2
+                .getOperationSet(OperationSetPresence.class);
         mockPresOpSetP2.addMockGroup(mockP2Grp1);
     }
-
-
 
     public MclSlickFixture(Object obj)
     {

@@ -111,7 +111,7 @@ public class TestMsgHistoryService
         mockProvider = new MockProvider("MessageHistoryMockUser");
 
         //store thre presence op set of the new provider into the fixture
-        Map supportedOperationSets =
+        Map<String, OperationSet> supportedOperationSets =
             mockProvider.getSupportedOperationSets();
 
         //get the operation set presence here.

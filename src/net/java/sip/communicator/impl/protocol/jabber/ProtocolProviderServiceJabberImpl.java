@@ -36,11 +36,6 @@ public class ProtocolProviderServiceJabberImpl
         Logger.getLogger(ProtocolProviderServiceJabberImpl.class);
 
     /**
-     * The hashtable with the operation sets that we support locally.
-     */
-    private Hashtable supportedOperationSets = new Hashtable();
-
-    /**
      * Used to connect to a XMPP server.
      */
     private XMPPConnection connection = null;
@@ -452,33 +447,6 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Returns an array containing all operation sets supported by the
-     * current implementation.
-     *
-     * @return an array of OperationSet-s supported by this protocol
-     *   provider implementation.
-     */
-    public Map getSupportedOperationSets()
-    {
-        return supportedOperationSets;
-    }
-
-    /**
-     * Returns the operation set corresponding to the specified class or null
-     * if this operation set is not supported by the provider implementation.
-     *
-     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
-     * looking for.
-     * @return returns an OperationSet of the specified <tt>Class</tt> if the
-     * underlying implementation supports it or null otherwise.
-     */
-    public OperationSet getOperationSet(Class opsetClass)
-    {
-        return (OperationSet)getSupportedOperationSets()
-            .get(opsetClass.getName());
-    }
-
-    /**
      * Initialized the service implementation, and puts it in a sate where it
      * could interoperate with other services. It is strongly recommended that
      * properties in this Map be mapped to property names as specified by
@@ -708,9 +676,7 @@ public class ProtocolProviderServiceJabberImpl
         public void connectionClosed()
         {
             OperationSetPersistentPresenceJabberImpl opSetPersPresence =
-                (OperationSetPersistentPresenceJabberImpl)
-                    getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
+                (OperationSetPersistentPresenceJabberImpl) getOperationSet(OperationSetPersistentPresence.class);
 
             opSetPersPresence.fireProviderPresenceStatusChangeEvent(
                 opSetPersPresence.getPresenceStatus(), getJabberStatusEnum()

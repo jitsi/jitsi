@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 
-
 /**
  * The ProtocolProvider interface should be implemented by bundles that wrap
  * Instant Messaging and telephony protocol stacks. It gives the user interface
@@ -134,7 +133,7 @@ public interface ProtocolProviderService
     /**
      * Returns an array containing all operation sets supported by the current
      * implementation. When querying this method users must be prepared to
-     * receive any sybset of the OperationSet-s defined by this service. They
+     * receive any subset of the OperationSet-s defined by this service. They
      * MUST ignore any OperationSet-s that they are not aware of and that may be
      * defined by future version of this service. Such "unknown" OperationSet-s
      * though not encouraged, may also be defined by service implementors.
@@ -143,7 +142,7 @@ public interface ProtocolProviderService
      * sets mapped against their class names (e.g.
      * OperationSetPresence.class.getName()) .
      */
-    public Map getSupportedOperationSets();
+    public Map<String, OperationSet> getSupportedOperationSets();
 
     /**
      * Returns the operation set corresponding to the specified class or null
@@ -154,7 +153,7 @@ public interface ProtocolProviderService
      * @return returns an OperationSet of the specified <tt>Class</tt> if the
      * undelying implementation supports it or null otherwise.
      */
-    public OperationSet getOperationSet(Class opsetClass);
+    public OperationSet getOperationSet(Class<? extends OperationSet> opsetClass);
 
     /**
      * Makes the service implementation close all open sockets and release

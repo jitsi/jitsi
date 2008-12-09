@@ -33,6 +33,12 @@ public abstract class AbstractProtocolProviderService
         new ArrayList<RegistrationStateChangeListener>();
 
     /**
+     * The hashtable with the operation sets that we support locally.
+     */
+    protected final Map<String, OperationSet> supportedOperationSets
+        = new Hashtable<String, OperationSet>();
+
+    /**
      * Registers the specified listener with this provider so that it would
      * receive notifications on changes of its state or other properties such
      * as its local address and display name.
@@ -93,6 +99,20 @@ public abstract class AbstractProtocolProviderService
     }
 
     /**
+     * Returns the operation set corresponding to the specified class or null if
+     * this operation set is not supported by the provider implementation.
+     * 
+     * @param opsetClass the <tt>Class</tt> of the operation set that we're
+     *            looking for.
+     * @return returns an OperationSet of the specified <tt>Class</tt> if the
+     *         undelying implementation supports it or null otherwise.
+     */
+    public OperationSet getOperationSet(Class<? extends OperationSet> opsetClass)
+    {
+        return doGetSupportedOperationSets().get(opsetClass.getName());
+    }
+
+    /**
      * Returns the protocol display name. This is the name that would be used
      * by the GUI to display the protocol name.
      * 
@@ -104,6 +124,31 @@ public abstract class AbstractProtocolProviderService
         String displayName = (String) getAccountID().getAccountProperties()
             .get(ProtocolProviderFactory.PROTOCOL);
         return (displayName == null) ? getProtocolName() : displayName;
+    }
+
+    /**
+     * Returns an array containing all operation sets supported by the current
+     * implementation. When querying this method users must be prepared to
+     * receive any subset of the OperationSet-s defined by this service. They
+     * MUST ignore any OperationSet-s that they are not aware of and that may be
+     * defined by future version of this service. Such "unknown" OperationSet-s
+     * though not encouraged, may also be defined by service implementors.
+     * 
+     * @return a java.util.Map containing instance of all supported operation
+     *         sets mapped against their class names (e.g.
+     *         OperationSetPresence.class.getName()) .
+     */
+    public Map<String, OperationSet> getSupportedOperationSets()
+    {
+        Map<String, OperationSet> supportedOperationSets =
+            doGetSupportedOperationSets();
+
+        return new Hashtable<String, OperationSet>(supportedOperationSets);
+    }
+
+    protected Map<String, OperationSet> doGetSupportedOperationSets()
+    {
+        return supportedOperationSets;
     }
 
     /**

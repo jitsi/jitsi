@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.contactlist;
 import java.util.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -356,10 +357,9 @@ public class MetaContactListServiceImpl
                                             boolean fireEvent)
         throws MetaContactListException
     {
-        OperationSetPersistentPresence opSetPersPresence
-            = (OperationSetPersistentPresence) provider
-            .getSupportedOperationSets().get(
-                OperationSetPersistentPresence.class.getName());
+        OperationSetPersistentPresence opSetPersPresence =
+            (OperationSetPersistentPresence) provider
+                .getOperationSet(OperationSetPersistentPresence.class);
         if (opSetPersPresence == null)
         {
             /** @todo handle non-persistent presence operation sets as well */
@@ -507,10 +507,9 @@ public class MetaContactListServiceImpl
             throw new NullPointerException("Internal Error. Orphan group.");
         }
 
-        OperationSetPersistentPresence opSetPersPresence
-            = (OperationSetPersistentPresence) protoProvider
-            .getSupportedOperationSets().get(OperationSetPersistentPresence
-                                             .class.getName());
+        OperationSetPersistentPresence opSetPersPresence =
+            (OperationSetPersistentPresence) protoProvider
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         //if persistent presence is not supported - just bail
         //we should have verified this earlier anyway
@@ -889,10 +888,9 @@ public class MetaContactListServiceImpl
         currentParentMetaContact.removeProtoContact(contact);
 
         //get a persistent  presence operation set
-        OperationSetPersistentPresence opSetPresence
-            = (OperationSetPersistentPresence) contact
-            .getProtocolProvider().getSupportedOperationSets()
-            .get(OperationSetPersistentPresence.class.getName());
+        OperationSetPersistentPresence opSetPresence =
+            (OperationSetPersistentPresence) contact.getProtocolProvider()
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         if (opSetPresence == null)
         {
@@ -991,10 +989,10 @@ public class MetaContactListServiceImpl
                     .getProtocolProvider(), (MetaContactGroupImpl) newMetaGroup);
 
                 //get a persistent or non persistent presence operation set
-                OperationSetPersistentPresence opSetPresence
-                    = (OperationSetPersistentPresence) protoContact
-                    .getProtocolProvider().getSupportedOperationSets()
-                    .get(OperationSetPersistentPresence.class.getName());
+                OperationSetPersistentPresence opSetPresence =
+                    (OperationSetPersistentPresence) protoContact
+                        .getProtocolProvider().getOperationSet(
+                            OperationSetPersistentPresence.class);
 
                 if (opSetPresence == null)
                 {
@@ -1040,15 +1038,14 @@ public class MetaContactListServiceImpl
         //provider
         OperationSetPresence opSetPresence =
             (OperationSetPresence) contact.getProtocolProvider()
-            .getSupportedOperationSets().get(OperationSetPresence.class
-                                             .getName());
+                .getOperationSet(OperationSetPresence.class);
 
-        //in case the provider only hase a persistent operation set:
+        //in case the provider only has a persistent operation set:
         if (opSetPresence == null)
         {
-            opSetPresence = (OperationSetPresence) contact.getProtocolProvider()
-                .getSupportedOperationSets().get(
-                    OperationSetPersistentPresence.class.getName());
+            opSetPresence =
+                (OperationSetPresence) contact.getProtocolProvider()
+                    .getOperationSet(OperationSetPersistentPresence.class);
 
             if (opSetPresence == null)
             {
@@ -1145,10 +1142,10 @@ public class MetaContactListServiceImpl
             {
                 ContactGroup protoGroup = protoGroups.next();
 
-                OperationSetPersistentPresence opSetPersPresence
-                    = (OperationSetPersistentPresence) protoGroup
-                    .getProtocolProvider().getSupportedOperationSets().get(
-                        OperationSetPersistentPresence.class.getName());
+                OperationSetPersistentPresence opSetPersPresence =
+                    (OperationSetPersistentPresence) protoGroup
+                        .getProtocolProvider().getOperationSet(
+                            OperationSetPersistentPresence.class);
 
                 if (opSetPersPresence == null)
                 {
@@ -1405,7 +1402,7 @@ public class MetaContactListServiceImpl
     public Iterator<MetaContact> findAllMetaContactsForProvider(
                                     ProtocolProviderService protocolProvider)
     {
-        ArrayList<MetaContact> resultList = new ArrayList();
+        List<MetaContact> resultList = new ArrayList<MetaContact>();
 
         this.findAllMetaContactsForProvider(protocolProvider,
                                             rootMetaGroup,
@@ -1619,11 +1616,9 @@ public class MetaContactListServiceImpl
                      + provider.getProtocolName());
 
         // check whether the provider has a persistent presence op set
-        OperationSetPersistentPresence opSetPersPresence
-            = (OperationSetPersistentPresence) provider
-            .getSupportedOperationSets().get(
-                OperationSetPersistentPresence.class
-                .getName());
+        OperationSetPersistentPresence opSetPersPresence =
+            (OperationSetPersistentPresence) provider
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         this.currentlyInstalledProviders.put(
                            provider.getAccountID().getAccountUniqueID(),
@@ -2760,9 +2755,8 @@ public class MetaContactListServiceImpl
         ProtocolProviderService sourceProvider = (ProtocolProviderService)
             currentlyInstalledProviders.get(accountID);
         OperationSetPersistentPresence presenceOpSet =
-            (OperationSetPersistentPresence)sourceProvider
-                .getSupportedOperationSets().get(OperationSetPersistentPresence
-                                                    .class.getName());
+            (OperationSetPersistentPresence) sourceProvider
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         ContactGroup newProtoGroup = presenceOpSet.createUnresolvedContactGroup(
             contactGroupUID, persistentData,
@@ -2812,9 +2806,8 @@ public class MetaContactListServiceImpl
         ProtocolProviderService sourceProvider = (ProtocolProviderService)
             currentlyInstalledProviders.get(accountID);
         OperationSetPersistentPresence presenceOpSet =
-            (OperationSetPersistentPresence)sourceProvider
-                .getSupportedOperationSets().get(OperationSetPersistentPresence
-                                                    .class.getName());
+            (OperationSetPersistentPresence) sourceProvider
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         Iterator<MclStorageManager.StoredProtoContactDescriptor> contactsIter
             = protoContacts.iterator();

@@ -300,10 +300,9 @@ public class GrowlNotificationServiceImpl
         logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic im operation set
-        OperationSetBasicInstantMessaging opSetIm
-            = (OperationSetBasicInstantMessaging) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicInstantMessaging.class.getName());
+        OperationSetBasicInstantMessaging opSetIm =
+            (OperationSetBasicInstantMessaging) provider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
         {
@@ -334,10 +333,9 @@ public class GrowlNotificationServiceImpl
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetBasicInstantMessaging opSetIm
-            = (OperationSetBasicInstantMessaging) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicInstantMessaging.class.getName());
+        OperationSetBasicInstantMessaging opSetIm =
+            (OperationSetBasicInstantMessaging) provider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
         {

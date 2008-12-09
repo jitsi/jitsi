@@ -271,9 +271,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                opSetPersPresence = (OperationSetPersistentPresenceJabberImpl)
-                    jabberProvider.getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceJabberImpl) jabberProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
 
                 jabberProvider.getConnection().addPacketListener(
                         new SmackMessageListener(),

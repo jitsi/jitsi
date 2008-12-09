@@ -246,10 +246,9 @@ public class OperationSetTypingNotificationsIcqImpl
                 icqProvider.getAimConnection().getIcbmService()
                     .addIcbmListener(joustSimIcbmListener);
 
-                opSetPersPresence = (OperationSetPersistentPresenceIcqImpl)
-                    icqProvider.getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
-
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceIcqImpl) icqProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
             }
         }
     }

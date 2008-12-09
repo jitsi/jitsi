@@ -548,9 +548,9 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                 opSetPersPresence = (OperationSetPresenceSipImpl)
-                    sipProvider.getSupportedOperationSets()
-                    .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPresenceSipImpl) sipProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
             }
         }
     }

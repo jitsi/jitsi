@@ -42,7 +42,7 @@ public class TestOperationSetTypingNotifications
         super.setUp();
         fixture.setUp();
 
-        Map supportedOperationSets =
+        Map<String, OperationSet> supportedOperationSets =
             fixture.provider.getSupportedOperationSets();
 
         if ( supportedOperationSets == null

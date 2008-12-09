@@ -29,11 +29,6 @@ public class ProtocolProviderServiceMsnImpl
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceMsnImpl.class);
 
-    /**
-     * The hashtable with the operation sets that we support locally.
-     */
-    private Hashtable supportedOperationSets = new Hashtable();
-
     private MsnMessenger messenger = null;
 
     /**
@@ -245,33 +240,6 @@ public class ProtocolProviderServiceMsnImpl
     public String getProtocolName()
     {
         return ProtocolNames.MSN;
-    }
-
-    /**
-     * Returns an array containing all operation sets supported by the
-     * current implementation.
-     *
-     * @return an array of OperationSet-s supported by this protocol
-     *   provider implementation.
-     */
-    public Map getSupportedOperationSets()
-    {
-        return supportedOperationSets;
-    }
-
-    /**
-     * Returns the operation set corresponding to the specified class or null
-     * if this operation set is not supported by the provider implementation.
-     *
-     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
-     * looking for.
-     * @return returns an OperationSet of the specified <tt>Class</tt> if the
-     * undelying implementation supports it or null otherwise.
-     */
-    public OperationSet getOperationSet(Class opsetClass)
-    {
-        return (OperationSet)getSupportedOperationSets()
-            .get(opsetClass.getName());
     }
 
     /**

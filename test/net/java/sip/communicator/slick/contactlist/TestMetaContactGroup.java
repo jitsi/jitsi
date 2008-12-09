@@ -45,10 +45,9 @@ public class TestMetaContactGroup extends TestCase
         super.setUp();
         fixture.setUp();
 
-        OperationSetPersistentPresence opSetPresence
-            = (OperationSetPersistentPresence)fixture.mockProvider
-                .getSupportedOperationSets().get(
-                    OperationSetPersistentPresence.class.getName());
+        OperationSetPersistentPresence opSetPresence =
+            (OperationSetPersistentPresence) fixture.mockProvider
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         mockGroup = (MockContactGroup)opSetPresence
                                             .getServerStoredContactListRoot();

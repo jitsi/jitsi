@@ -146,11 +146,9 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         // Here is registered the listener which will receive the first message
         // This message is supposed to be offline message and as one is tested
         // in TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
-        Map supportedOperationSets =
-            fixture.provider.getSupportedOperationSets();
         OperationSetBasicInstantMessaging opSetBasicIM =
-                    (OperationSetBasicInstantMessaging)supportedOperationSets.get(
-                OperationSetBasicInstantMessaging.class.getName());
+            (OperationSetBasicInstantMessaging) fixture.provider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
         fixture.offlineMsgCollector.register(opSetBasicIM);
 
         //give time for the AIM server to notify everyone of our arrival
@@ -236,23 +234,21 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
      */
     public void testOperationSetTypes() throws Exception
     {
-        Map supportedOperationSets
-            = fixture.provider.getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets =
+            fixture.provider.getSupportedOperationSets();
 
-        //make sure that keys (which are supposed to be class names) correspond
-        //what the class of the values recorded against them.
-        Iterator setNames = supportedOperationSets.keySet().iterator();
-        while (setNames.hasNext())
+        // make sure that keys (which are supposed to be class names) correspond
+        // what the class of the values recorded against them.
+        for (Map.Entry<String, OperationSet> entry : supportedOperationSets
+            .entrySet())
         {
-            String setName = (String) setNames.next();
-            Object opSet = supportedOperationSets.get(setName);
+            String setName = entry.getKey();
+            Object opSet = entry.getValue();
 
-            assertTrue(opSet + " was not an instance of "
-                       + setName + " as declared"
-                       , Class.forName(setName).isInstance(opSet));
+            assertTrue(opSet + " was not an instance of " + setName
+                + " as declared", Class.forName(setName).isInstance(opSet));
         }
     }
-
 
     /**
      * A class that would plugin as a registration listener to a protocol

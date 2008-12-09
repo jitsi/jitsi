@@ -96,7 +96,7 @@ public class TestOperationSetMultiUserChat
         super.setUp();
         fixture.setUp();
 
-        Map supportedOperationSets1 =
+        Map<String, OperationSet> supportedOperationSets1 =
             fixture.provider1.getSupportedOperationSets();
 
         if ( supportedOperationSets1 == null
@@ -129,7 +129,7 @@ public class TestOperationSetMultiUserChat
                 + "implementation of at least one of the PresenceOperationSets");
         }
 
-        Map supportedOperationSets2 =
+        Map<String, OperationSet> supportedOperationSets2 =
             fixture.provider2.getSupportedOperationSets();
 
         if ( supportedOperationSets2 == null

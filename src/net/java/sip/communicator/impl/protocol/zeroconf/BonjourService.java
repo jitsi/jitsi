@@ -75,9 +75,9 @@ public class BonjourService extends Thread
         this.id = acc.getUserID();
         this.pps = pps;
 
-        opSetPersPresence = (OperationSetPersistentPresenceZeroconfImpl)
-            pps.getSupportedOperationSets()
-                .get(OperationSetPersistentPresence.class.getName());
+        opSetPersPresence =
+            (OperationSetPersistentPresenceZeroconfImpl) pps
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         props = new Hashtable();
 

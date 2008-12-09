@@ -502,10 +502,9 @@ public class OperationSetMultiUserChatIcqImpl
                        .getProperty("icq.custom.message.charset")) != null)
                    OscarTools.setDefaultCharset(customMessageEncoding);
 
-               opSetPersPresence
-                   = (OperationSetPersistentPresenceIcqImpl) icqProvider
-                       .getSupportedOperationSets().get(
-                               OperationSetPersistentPresence.class.getName());
+               opSetPersPresence =
+                    (OperationSetPersistentPresenceIcqImpl) icqProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
 
                //add ChatRoomMangagerListener
                icqProvider.getAimConnection().getChatRoomManager()

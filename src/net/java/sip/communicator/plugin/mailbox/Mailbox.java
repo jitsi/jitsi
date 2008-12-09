@@ -348,10 +348,9 @@ public class Mailbox
         logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic telephony operation set
-        OperationSetBasicTelephony opSetTelephony
-            = (OperationSetBasicTelephony) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicTelephony.class.getName());
+        OperationSetBasicTelephony opSetTelephony =
+            (OperationSetBasicTelephony) provider
+                .getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {
@@ -372,10 +371,9 @@ public class Mailbox
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetBasicTelephony opSetTelephony
-            = (OperationSetBasicTelephony) provider
-            .getSupportedOperationSets().get(
-                OperationSetBasicTelephony.class.getName());
+        OperationSetBasicTelephony opSetTelephony =
+            (OperationSetBasicTelephony) provider
+                .getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {

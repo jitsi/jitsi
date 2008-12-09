@@ -1243,9 +1243,8 @@ public class OperationSetPersistentPresenceIcqImpl
                 if(parentProvider.USING_ICQ)
                 {
                     opSetExtendedAuthorizations =
-                        (OperationSetExtendedAuthorizationsIcqImpl)
-                            parentProvider.getSupportedOperationSets()
-                            .get(OperationSetExtendedAuthorizations.class.getName());
+                        (OperationSetExtendedAuthorizationsIcqImpl) parentProvider
+                            .getOperationSet(OperationSetExtendedAuthorizations.class);
 
                     if(presenceQueryTimer == null)
                         presenceQueryTimer = new Timer();

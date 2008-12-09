@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.text.*;
 import java.util.*;
+
 import javax.sip.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
@@ -15,10 +16,10 @@ import javax.sip.message.*;
 import org.w3c.dom.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
-import net.java.sip.communicator.service.protocol.Message;
 
 /**
  * A implementation of the typing notification operation
@@ -133,9 +134,9 @@ public class OperationSetTypingNotificationsSipImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                 opSetPersPresence = (OperationSetPresenceSipImpl)
-                    sipProvider.getSupportedOperationSets()
-                    .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPresenceSipImpl) sipProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
             }
         }
     }

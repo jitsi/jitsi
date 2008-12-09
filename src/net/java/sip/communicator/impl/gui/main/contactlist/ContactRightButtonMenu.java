@@ -293,8 +293,8 @@ public class ContactRightButtonMenu
             this.moveSubcontactMenu.add(contactItem1);
             
             // add all the contacts that support telephony to the call menu
-            if (contact.getProtocolProvider().getSupportedOperationSets()
-                    .get(OperationSetBasicTelephony.class.getName()) != null)
+            if (contact.getProtocolProvider().getOperationSet(
+                OperationSetBasicTelephony.class) != null)
             {
                 JMenuItem callContactItem = new JMenuItem(contactDisplayName);
                 callContactItem.setIcon(protocolIcon);
@@ -304,9 +304,8 @@ public class ContactRightButtonMenu
                 this.callContactMenu.add(callContactItem);
             }
 
-            OperationSetWebContactInfo wContactInfo
-                = (OperationSetWebContactInfo) protocolProvider
-                    .getOperationSet(OperationSetWebContactInfo.class);
+            // TODO Why is OperationSetWebContactInfo requested and not used?
+            protocolProvider.getOperationSet(OperationSetWebContactInfo.class);
         }
 
         this.add(sendMessageItem);
@@ -641,16 +640,17 @@ public class ContactRightButtonMenu
      */
     private Contact getContactFromMetaContact(String itemID)
     {
-        Iterator i = contactItem.getContacts();
+        Iterator<Contact> i = contactItem.getContacts();
 
-        while(i.hasNext())
+        while (i.hasNext())
         {
-            Contact contact = (Contact)i.next();
+            Contact contact = i.next();
 
-            String id = contact.getAddress()
-                + contact.getProtocolProvider().getProtocolName();
+            String id =
+                contact.getAddress()
+                    + contact.getProtocolProvider().getProtocolName();
 
-            if(itemID.equals(id))
+            if (itemID.equals(id))
             {
                 return contact;
             }

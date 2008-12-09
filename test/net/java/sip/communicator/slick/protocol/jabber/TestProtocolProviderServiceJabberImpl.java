@@ -145,20 +145,19 @@ public class TestProtocolProviderServiceJabberImpl
      */
     public void testOperationSetTypes() throws Exception
     {
-        Map supportedOperationSets
-            = fixture.provider1.getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets =
+            fixture.provider1.getSupportedOperationSets();
 
-        //make sure that keys (which are supposed to be class names) correspond
-        //what the class of the values recorded against them.
-        Iterator setNames = supportedOperationSets.keySet().iterator();
-        while (setNames.hasNext())
+        // make sure that keys (which are supposed to be class names) correspond
+        // what the class of the values recorded against them.
+        for (Map.Entry<String, OperationSet> entry : supportedOperationSets
+            .entrySet())
         {
-            String setName = (String) setNames.next();
-            Object opSet = supportedOperationSets.get(setName);
+            String setName = entry.getKey();
+            Object opSet = entry.getValue();
 
-            assertTrue(opSet + " was not an instance of "
-                       + setName + " as declared"
-                       , Class.forName(setName).isInstance(opSet));
+            assertTrue(opSet + " was not an instance of " + setName
+                + " as declared", Class.forName(setName).isInstance(opSet));
         }
     }
 

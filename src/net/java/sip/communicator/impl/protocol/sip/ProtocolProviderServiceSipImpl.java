@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.net.*;
 import java.text.*;
 import java.util.*;
+
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -16,6 +17,7 @@ import javax.sip.message.*;
 
 import org.osgi.framework.*;
 
+import net.java.sip.communicator.impl.protocol.sip.security.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -23,12 +25,10 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.version.Version;
 
 import net.java.sip.communicator.util.*;
-import gov.nist.javax.sip.*;
+
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.message.*;
-import gov.nist.javax.sip.stack.*;
-import net.java.sip.communicator.impl.protocol.sip.security.*;
 
 /**
  * A SIP implementation of the Protocol Provider Service.
@@ -43,12 +43,6 @@ public class ProtocolProviderServiceSipImpl
 {
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceSipImpl.class);
-
-    /**
-     * The hashtable with the operation sets that we support locally.
-     */
-    private Hashtable<String, OperationSet> supportedOperationSets
-        = new Hashtable<String, OperationSet>();
 
     /**
      * The identifier of the account that this provider represents.
@@ -69,12 +63,6 @@ public class ProtocolProviderServiceSipImpl
      * A list of all events registered for this provider.
      */
     private List<String> registeredEvents = new ArrayList<String>();
-
-    /**
-     * The SipFactory instance used to create the SipStack and the Address
-     * Message and Header Factories.
-     */
-    private SipFactory sipFactory;
 
     /**
      * The AddressFactory used to create URLs ans Address objects.
@@ -158,11 +146,6 @@ public class ProtocolProviderServiceSipImpl
      * The default maxForwards header that we use in our requests.
      */
     private MaxForwardsHeader maxForwardsHeader = null;
-
-    /**
-     * The contact header we use in non REGISTER requests.
-     */
-    private ContactHeader genericContactHeader = null;
 
     /**
      * The header that we use to identify ourselves.
@@ -276,40 +259,6 @@ public class ProtocolProviderServiceSipImpl
     {
         return this.registeredEvents;
     }
-
-    /**
-     * Returns an array containing all operation sets supported by the current
-     * implementation. When querying this method users must be prepared to
-     * receive any sybset of the OperationSet-s defined by this service. They
-     * MUST ignore any OperationSet-s that they are not aware of and that may be
-     * defined by future version of this service. Such "unknown" OperationSet-s
-     * though not encouraged, may also be defined by service implementors.
-     *
-     * @return a java.util.Map containing instance of all supported operation
-     * sets mapped against their class names (e.g.
-     * OperationSetPresence.class.getName()) .
-     */
-    public Map<String, OperationSet> getSupportedOperationSets()
-    {
-        return supportedOperationSets;
-    }
-
-    /**
-     * Returns the operation set corresponding to the specified class or null
-     * if this operation set is not supported by the provider implementation.
-     *
-     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
-     * looking for.
-     * @return returns an OperationSet of the specified <tt>Class</tt> if the
-     * undelying implementation supports it or null otherwise.
-     */
-    public OperationSet getOperationSet(Class opsetClass)
-    {
-        return (OperationSet)getSupportedOperationSets()
-            .get(opsetClass.getName());
-    }
-
-
 
     /**
      * Starts the registration process. Connection details such as
@@ -569,7 +518,7 @@ public class ProtocolProviderServiceSipImpl
                 OperationSetDTMF.class.getName(), opSetDTMF);
 
             //initialize our OPTIONS handler
-            ClientCapabilities capabilities = new ClientCapabilities(this);
+            new ClientCapabilities(this);
 
             //initialize our display name
             ourDisplayName = (String)accountID.getAccountProperties()
@@ -923,7 +872,6 @@ public class ProtocolProviderServiceSipImpl
             headerFactory = null;
             messageFactory = null;
             addressFactory = null;
-            sipFactory = null;
             sipSecurityManager = null;
 
             methodProcessors.clear();
@@ -1522,9 +1470,6 @@ public class ProtocolProviderServiceSipImpl
     private void initRegistrarlessConnection(SipAccountID accountID)
         throws IllegalArgumentException
     {
-        String userID = (String) accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.USER_ID);
-
         //registrar transport
         String registrarTransport = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
@@ -1836,7 +1781,8 @@ public class ProtocolProviderServiceSipImpl
         }
         else
         {
-            Class methodProcessorClass = methodProcessor.getClass();
+            Class<? extends MethodProcessor> methodProcessorClass =
+                methodProcessor.getClass();
             for (Iterator<MethodProcessor> processorIter =
                 processors.iterator(); processorIter.hasNext();)
             {
@@ -1967,7 +1913,7 @@ public class ProtocolProviderServiceSipImpl
         {
             try
             {
-                List userAgentTokens = new LinkedList();
+                List<String> userAgentTokens = new LinkedList<String>();
 
                 Version ver =
                         SipActivator.getVersionService().getCurrentVersion();

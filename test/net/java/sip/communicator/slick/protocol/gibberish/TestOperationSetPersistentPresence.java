@@ -9,6 +9,7 @@ package net.java.sip.communicator.slick.protocol.gibberish;
 import java.util.*;
 
 import junit.framework.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -73,7 +74,7 @@ public class TestOperationSetPersistentPresence
         super.setUp();
         fixture.setUp();
 
-        Map supportedOperationSets1 =
+        Map<String, OperationSet> supportedOperationSets1 =
             fixture.provider1.getSupportedOperationSets();
 
         if ( supportedOperationSets1 == null
@@ -96,8 +97,8 @@ public class TestOperationSetPersistentPresence
                 + "Operation Sets");
 
         // lets do it once again for the second provider
-        Map supportedOperationSets2 =
-        fixture.provider2.getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets2 =
+            fixture.provider2.getSupportedOperationSets();
 
         if (supportedOperationSets2 == null
             || supportedOperationSets2.size() < 1)

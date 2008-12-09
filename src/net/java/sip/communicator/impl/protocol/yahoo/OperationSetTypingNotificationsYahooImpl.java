@@ -219,9 +219,9 @@ public class OperationSetTypingNotificationsYahooImpl
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                opSetPersPresence = (OperationSetPersistentPresenceYahooImpl)
-                    yahooProvider.getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceYahooImpl) yahooProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
 
                 yahooProvider.getYahooSession().addSessionListener(new TypingListener());
             }

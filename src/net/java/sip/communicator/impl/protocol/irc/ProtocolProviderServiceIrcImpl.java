@@ -37,12 +37,7 @@ public class ProtocolProviderServiceIrcImpl
     /**
      * We use this to lock access to initialization.
      */
-    private Object initializationLock = new Object();
-
-    /**
-     * The hashtable with the operation sets that we support locally.
-     */
-    private Hashtable supportedOperationSets = new Hashtable();
+    private final Object initializationLock = new Object();
 
     /**
      * The operation set managing multi user chat.
@@ -120,21 +115,6 @@ public class ProtocolProviderServiceIrcImpl
     }
 
     /**
-     * Returns the operation set corresponding to the specified class or null
-     * if this operation set is not supported by the provider implementation.
-     *
-     * @param opsetClass the <tt>Class</tt> of the operation set that we're
-     *   looking for.
-     * @return returns an OperationSet of the specified <tt>Class</tt> if
-     *   the underlying implementation supports it or null otherwise.
-     */
-    public OperationSet getOperationSet(Class opsetClass)
-    {
-        return (OperationSet) getSupportedOperationSets()
-                    .get(opsetClass.getName());
-    }
-
-    /**
      * Returns the short name of the protocol that the implementation of this
      * provider is based upon (like SIP, Jabber, ICQ/AIM, or others for
      * example).
@@ -157,20 +137,6 @@ public class ProtocolProviderServiceIrcImpl
     public RegistrationState getRegistrationState()
     {
         return currentRegistrationState;
-    }
-
-    /**
-     * Returns an array containing all operation sets supported by the
-     * current implementation.
-     *
-     * @return a java.util.Map containing instance of all supported
-     *   operation sets mapped against their class names (e.g.
-     *   OperationSetPresence.class.getName()) .
-     */
-    public Map getSupportedOperationSets()
-    {
-        //Copy the map so that the caller is not able to modify it.
-        return (Map) supportedOperationSets.clone();
     }
 
     /**

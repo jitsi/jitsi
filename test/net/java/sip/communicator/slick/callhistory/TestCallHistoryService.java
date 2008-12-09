@@ -91,12 +91,9 @@ public class TestCallHistoryService
         mockProvider = new MockProvider("CallHistoryMockUser");
 
         //store thre presence op set of the new provider into the fixture
-        Map supportedOperationSets =
-            mockProvider.getSupportedOperationSets();
-
         mockBTelphonyOpSet =
-            (MockOperationSetBasicTelephony) supportedOperationSets.get(
-                OperationSetBasicTelephony.class.getName());
+            (MockOperationSetBasicTelephony) mockProvider
+                .getOperationSet(OperationSetBasicTelephony.class);
 
        System.setProperty(MetaContactListService.PROVIDER_MASK_PROPERTY, "1");
 

@@ -9,7 +9,7 @@ package net.java.sip.communicator.slick.protocol.yahoo;
 import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.Map;
+
 import java.util.*;
 
 /**
@@ -214,7 +214,8 @@ public class YahooSlickFixture
     public void clearProvidersLists()
         throws Exception
     {
-        Map supportedOperationSets1 = provider1.getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets1 =
+            provider1.getSupportedOperationSets();
 
         if ( supportedOperationSets1 == null
             || supportedOperationSets1.size() < 1)
@@ -236,7 +237,8 @@ public class YahooSlickFixture
                 + "Operation Sets");
 
         // lets do it once again for the second provider
-        Map supportedOperationSets2 = provider2.getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets2 =
+            provider2.getSupportedOperationSets();
 
         if (supportedOperationSets2 == null
             || supportedOperationSets2.size() < 1)

@@ -189,10 +189,10 @@ public class TestMetaContactListPersistence extends TestCase
     {
         //verify that contents of the meta contact list matches contents of
         //the mock provider we removed.
-        ContactGroup oldProtoRoot = ((OperationSetPersistentPresence)fixture
-            .mockProvider.getSupportedOperationSets().get(
-                OperationSetPersistentPresence.class.getName()))
-                    .getServerStoredContactListRoot();
+        ContactGroup oldProtoRoot =
+            ((OperationSetPersistentPresence) fixture.mockProvider
+                .getOperationSet(OperationSetPersistentPresence.class))
+                .getServerStoredContactListRoot();
 
         fixture.assertGroupEquals(
             (MockContactGroup)oldProtoRoot
@@ -202,10 +202,10 @@ public class TestMetaContactListPersistence extends TestCase
 
         //verify that the new mock provider has created unresolved contacts
         //for all contacts in the meta cl.
-        ContactGroup newProtoRoot = ((OperationSetPersistentPresence)fixture
-            .replacementMockPr.getSupportedOperationSets().get(
-                OperationSetPersistentPresence.class.getName()))
-                    .getServerStoredContactListRoot();
+        ContactGroup newProtoRoot =
+            ((OperationSetPersistentPresence) fixture.replacementMockPr
+                .getOperationSet(OperationSetPersistentPresence.class))
+                .getServerStoredContactListRoot();
 
         assertEquals("Newly loaded provider does not match the old one."
                      , oldProtoRoot
@@ -239,32 +239,32 @@ public class TestMetaContactListPersistence extends TestCase
             .registerMockProviderService(fixture.replacementMockP2);
 
         //Get references to the root groups of the 2 providers we removed
-        ContactGroup oldProtoMockP1Root = ((OperationSetPersistentPresence)
-            fixture.mockP1.getSupportedOperationSets().get(
-                OperationSetPersistentPresence.class.getName()))
-                    .getServerStoredContactListRoot();
+        ContactGroup oldProtoMockP1Root =
+            ((OperationSetPersistentPresence) fixture.mockP1
+                .getOperationSet(OperationSetPersistentPresence.class))
+                .getServerStoredContactListRoot();
 
-        ContactGroup oldProtoMockP2Root = ( (OperationSetPersistentPresence)
-            fixture.mockP2.getSupportedOperationSets().
-                get(OperationSetPersistentPresence.class.getName()))
-                    .getServerStoredContactListRoot();
+        ContactGroup oldProtoMockP2Root =
+            ((OperationSetPersistentPresence) fixture.mockP2
+                .getOperationSet(OperationSetPersistentPresence.class))
+                .getServerStoredContactListRoot();
 
         //verify that contacts tnat unresolved contacts that have been created
         //inside that the replacement mock providers match those in the
         //providers we removed.
-        ContactGroup newProtoMockP1Root = ((OperationSetPersistentPresence)fixture
-            .replacementMockP1.getSupportedOperationSets().get(
-                OperationSetPersistentPresence.class.getName()))
-                    .getServerStoredContactListRoot();
+        ContactGroup newProtoMockP1Root =
+            ((OperationSetPersistentPresence) fixture.replacementMockP1
+                .getOperationSet(OperationSetPersistentPresence.class))
+                .getServerStoredContactListRoot();
 
         assertEquals("Newly loaded provider does not match the old one."
                      , oldProtoMockP1Root
                      , newProtoMockP1Root);
 
-        ContactGroup newProtoMockP2Root = ((OperationSetPersistentPresence)fixture
-            .replacementMockP2.getSupportedOperationSets().get(
-                OperationSetPersistentPresence.class.getName()))
-                    .getServerStoredContactListRoot();
+        ContactGroup newProtoMockP2Root =
+            ((OperationSetPersistentPresence) fixture.replacementMockP2
+                .getOperationSet(OperationSetPersistentPresence.class))
+                .getServerStoredContactListRoot();
 
         assertEquals("Newly loaded provider does not match the old one."
                      , oldProtoMockP2Root

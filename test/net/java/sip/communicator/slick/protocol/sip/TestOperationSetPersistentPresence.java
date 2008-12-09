@@ -73,7 +73,7 @@ public class TestOperationSetPersistentPresence
         super.setUp();
         this.fixture.setUp();
 
-        Map supportedOperationSets1 =
+        Map<String, OperationSet> supportedOperationSets1 =
             this.fixture.provider1.getSupportedOperationSets();
 
         if ( supportedOperationSets1 == null
@@ -96,7 +96,7 @@ public class TestOperationSetPersistentPresence
                 + "Operation Sets");
 
         // lets do it once again for the second provider
-        Map supportedOperationSets2 =
+        Map<String, OperationSet> supportedOperationSets2 =
             this.fixture.provider2.getSupportedOperationSets();
 
         if (supportedOperationSets2 == null

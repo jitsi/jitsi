@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import junit.framework.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -49,7 +50,7 @@ public class TestOperationSetBasicInstantMessaging
         super.setUp();
         fixture.setUp();
 
-        Map supportedOperationSets1 =
+        Map<String, OperationSet> supportedOperationSets1 =
             fixture.provider1.getSupportedOperationSets();
 
         if ( supportedOperationSets1 == null
@@ -82,7 +83,7 @@ public class TestOperationSetBasicInstantMessaging
                 + "implementation of at least one of the PresenceOperationSets");
         }
 
-        Map supportedOperationSets2 =
+        Map<String, OperationSet> supportedOperationSets2 =
             fixture.provider2.getSupportedOperationSets();
 
         if ( supportedOperationSets2 == null

@@ -168,9 +168,9 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                opSetPersPresence = (OperationSetPersistentPresenceMsnImpl)
-                    msnProvider.getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceMsnImpl) msnProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
 
                 msnProvider.getMessenger().
                     addMessageListener(new MsnMessageListener());

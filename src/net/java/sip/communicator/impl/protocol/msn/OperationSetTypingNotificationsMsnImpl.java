@@ -233,9 +233,9 @@ public class OperationSetTypingNotificationsMsnImpl
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                opSetPersPresence = (OperationSetPersistentPresenceMsnImpl)
-                    msnProvider.getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceMsnImpl) msnProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
             }
         }
     }

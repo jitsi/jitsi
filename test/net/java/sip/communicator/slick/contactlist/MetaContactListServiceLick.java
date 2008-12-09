@@ -78,14 +78,11 @@ public class MetaContactListServiceLick
         MclSlickFixture.mockProvider = provider;
 
         //store thre presence op set of the new provider into the fixture
-        Map supportedOperationSets =
-            MclSlickFixture.mockProvider.getSupportedOperationSets();
 
         //get the operation set presence here.
         MclSlickFixture.mockPresOpSet =
-            (MockPersistentPresenceOperationSet)supportedOperationSets.get(
-                OperationSetPersistentPresence.class.getName());
-
+            (MockPersistentPresenceOperationSet) MclSlickFixture.mockProvider
+                .getOperationSet(OperationSetPersistentPresence.class);
 
         //add the meta contact list tests.
         addTestSuite(TestMetaContactList.class);
@@ -175,10 +172,9 @@ public class MetaContactListServiceLick
      */
     private void fillMockContactList(MockProvider provider)
     {
-        MockPersistentPresenceOperationSet mockOpSet
-            = (MockPersistentPresenceOperationSet)provider.
-                getSupportedOperationSets().get( OperationSetPersistentPresence.
-                                                    class.getName());
+        MockPersistentPresenceOperationSet mockOpSet =
+            (MockPersistentPresenceOperationSet) provider
+                .getOperationSet(OperationSetPersistentPresence.class);
         MockContactGroup root =
                 (MockContactGroup)mockOpSet.getServerStoredContactListRoot();
         root.addContact( new MockContact("Ivan Ivanov", provider) );

@@ -366,9 +366,9 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 icqProvider.getAimConnection().getIcbmService()
                     .addIcbmListener(joustSimIcbmListener);
 
-                opSetPersPresence = (OperationSetPersistentPresenceIcqImpl)
-                    icqProvider.getSupportedOperationSets()
-                        .get(OperationSetPersistentPresence.class.getName());
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceIcqImpl) icqProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
             }
             else if (evt.getNewState() == RegistrationState.REGISTERED)
             {
