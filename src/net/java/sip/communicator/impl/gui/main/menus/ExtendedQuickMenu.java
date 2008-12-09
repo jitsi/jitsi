@@ -17,7 +17,6 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
@@ -135,18 +134,18 @@ public class ExtendedQuickMenu
         this.createGroupButton.setPreferredSize(
             new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
 
-        this.infoButton.setToolTipText(
-            Messages.getI18NString("contactInfo").getText());
-        this.configureButton.setToolTipText(
-            Messages.getI18NString("settings").getText());
-        this.hideShowButton.setToolTipText(
-            Messages.getI18NString("hideOfflineContacts").getText());
-        this.addButton.setToolTipText(
-            Messages.getI18NString("addContact").getText());
-        this.soundButton.setToolTipText(
-            Messages.getI18NString("soundOnOff").getText());
-        this.createGroupButton.setToolTipText(
-            Messages.getI18NString("createGroup").getText());
+        this.infoButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.CONTACT_INFO"));
+        this.configureButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.SETTINGS"));
+        this.hideShowButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.HIDE_OFFLINE_CONTACTS"));
+        this.addButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_CONTACT"));
+        this.soundButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.SOUND_ON_OFF"));
+        this.createGroupButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.CREATE_GROUP"));
 
         this.updateMuteButton(
                 GuiActivator.getAudioNotifier().isMute());
@@ -581,16 +580,16 @@ public class ExtendedQuickMenu
                 button.setIcon(new ImageIcon(ImageLoader.getImage(
                     ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON)));
 
-                button.setToolTipText(Messages
-                    .getI18NString("showOfflineContacts").getText());
+                button.setToolTipText(GuiActivator.getResources()
+                    .getI18NString("service.gui.SHOW_OFFLINE_CONTACTS"));
             }
             else
             {
                 button.setIcon(new ImageIcon(ImageLoader.getImage(
                     ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON)));
 
-                button.setToolTipText(Messages
-                    .getI18NString("hideOfflineContacts").getText());
+                button.setToolTipText(GuiActivator.getResources()
+                    .getI18NString("service.gui.HIDE_OFFLINE_CONTACTS"));
             }
 
             contactList.setShowOffline(!ConfigurationManager.isShowOffline());
@@ -662,9 +661,10 @@ public class ExtendedQuickMenu
                 else
                 {
                     new ErrorDialog(mainFrame,
-                        Messages.getI18NString("warning").getText(),
-                        Messages.getI18NString("selectContactSupportingInfo")
-                            .getText(),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.WARNING"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.SELECT_CONTACT_SUPPORTING_INFO"),
                         ErrorDialog.WARNING).showDialog();
                 }
             }
@@ -722,7 +722,7 @@ public class ExtendedQuickMenu
 
             g2.setColor(new Color(
                 GuiActivator.getResources()
-                .getColor("desktopBackgroundColor")));
+                .getColor("service.gui.DESKTOP_BACKGROUND")));
 
             g2.drawRect(0, this.getHeight() - 2, this.getWidth(), 2);
         }

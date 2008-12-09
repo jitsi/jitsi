@@ -127,12 +127,12 @@ public class ContactDictImpl
             if (this.contactID.equals("*"))
             {
                 this.dictName =  DictActivator.getResources()
-                            .getI18NString("dict.anyDictionary");
+                            .getI18NString("plugin.dictaccregwizz.ANY_DICTIONARY");
             }
             else if (this.contactID.equals("!"))
             {
                 this.dictName = DictActivator.getResources()
-                            .getI18NString("dict.firstMatch");
+                            .getI18NString("plugin.dictaccregwizz.FIRST_MATCH");
             }
             else
             {

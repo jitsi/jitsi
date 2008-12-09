@@ -12,8 +12,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.swing.*;
@@ -32,14 +32,16 @@ public class SelectGroupPanel
         = new TransparentPanel(new BorderLayout()); 
     
     private JLabel groupLabel = new JLabel(
-            Messages.getI18NString("selectGroup").getText() + ": ");
+        GuiActivator.getResources().getI18NString("service.gui.SELECT_GROUP")
+            + ": ");
     
     private JComboBox groupCombo = new JComboBox();
     
     private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea();
     
     private JLabel infoTitleLabel = new JLabel(
-            Messages.getI18NString("selectGroupWizardTitle").getText());
+        GuiActivator.getResources()
+            .getI18NString("service.gui.SELECT_GROUP_WIZARD"));
     
     private TransparentPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1, 10, 10));
@@ -97,7 +99,7 @@ public class SelectGroupPanel
         this.add(rightPanel, BorderLayout.CENTER);
 
 //      groupCombo.addItem(new GroupWrapper(
-//      Messages.getI18NString("rootGroup").getText(),
+//      GuiActivator.getResources().getI18NString("service.gui.ROOT_GROUP").getText(),
 //      wizard.getRootGroup()));
 
         String lastGroupName = ConfigurationManager.getLastContactParent();
@@ -109,7 +111,8 @@ public class SelectGroupPanel
         if (groupsList.hasNext())
         {
             infoLabel.setText(
-                Messages.getI18NString("selectGroupWizard").getText());
+                GuiActivator.getResources().
+                    getI18NString("service.gui.SELECT_GROUP_WIZARD_MSG"));
 
             this.groupPanel.add(groupLabel, BorderLayout.WEST);
             this.groupPanel.add(groupCombo, BorderLayout.CENTER);
@@ -134,8 +137,8 @@ public class SelectGroupPanel
         else
         {
             infoLabel.setForeground(Color.RED);
-            infoLabel.setText(
-                Messages.getI18NString("createFirstGroupWizard").getText());
+            infoLabel.setText(GuiActivator.getResources()
+                .getI18NString("service.gui.CREATE_FIRST_GROUP_WIZARD"));
         }
     }
     

@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -47,9 +47,11 @@ public class AddContactWizard
 
         super.addWizardListener(this);
 
-        this.setTitle(Messages.getI18NString("addContactWizard").getText());
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_CONTACT_WIZARD"));
 
-        this.setFinishButtonText(Messages.getI18NString("addContact").getText());
+        this.setFinishButtonText(GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_CONTACT"));
 
         Vector pps = new Vector();
         Iterator iter = mainFrame.getProtocolProviders();
@@ -122,56 +124,45 @@ public class AddContactWizard
                     .createMetaContact(
                     pps, group, newContact.getUin());
             }
-            catch (MetaContactListException ex) {
+            catch (MetaContactListException ex)
+            {
                 logger.error(ex);
                 ex.printStackTrace();
                 int errorCode = ex.getErrorCode();
-                
+
                 if (errorCode
                         == MetaContactListException
-                            .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
-                        
+                            .CODE_CONTACT_ALREADY_EXISTS_ERROR)
+                {
                         new ErrorDialog(mainFrame,
-                            Messages.getI18NString(
-                            "addContactErrorTitle").getText(),
-                            Messages.getI18NString(
+                            GuiActivator.getResources().getI18NString(
+                            "addContactErrorTitle"),
+                            GuiActivator.getResources().getI18NString(
                                     "addContactExistError",
-                                    new String[]{newContact.getUin()}).getText(),
+                                    new String[]{newContact.getUin()}),
                             ex)
                         .showDialog();
-                }
-                else if (errorCode
-                    == MetaContactListException.CODE_LOCAL_IO_ERROR) {
-                    
-                    new ErrorDialog(mainFrame,
-                        Messages.getI18NString(
-                        "addContactErrorTitle").getText(),
-                        Messages.getI18NString(
-                                "addContactError",
-                                new String[]{newContact.getUin()}).getText(),
-                        ex)
-                    .showDialog();
                 }
                 else if (errorCode
                         == MetaContactListException.CODE_NETWORK_ERROR) {
                     
                     new ErrorDialog(mainFrame,
-                        Messages.getI18NString(
-                        "addContactErrorTitle").getText(),
-                        Messages.getI18NString(
-                                "addContactError",
-                                new String[]{newContact.getUin()}).getText(),
+                        GuiActivator.getResources().getI18NString(
+                        "addContactErrorTitle"),
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_CONTACT_NETWORK_ERROR",
+                                new String[]{newContact.getUin()}),
                         ex)
                     .showDialog();
                 }
                 else {
                     
                     new ErrorDialog(mainFrame,
-                        Messages.getI18NString(
-                        "addContactErrorTitle").getText(),
-                        Messages.getI18NString(
-                                "addContactError",
-                                new String[]{newContact.getUin()}).getText(),
+                        GuiActivator.getResources().getI18NString(
+                        "addContactErrorTitle"),
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_CONTACT_ERROR",
+                                new String[]{newContact.getUin()}),
                         ex)
                     .showDialog();
                 }

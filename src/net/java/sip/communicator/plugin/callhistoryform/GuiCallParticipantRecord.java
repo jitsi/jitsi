@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.extendedcallhistorysearch;
+package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.util.*;
 
@@ -30,7 +30,7 @@ public class GuiCallParticipantRecord
     
     private Date startTime;
     
-    private Date callTime;    
+    private Date callTime;
     
     /**
      * Creates an instance of <tt>GuiCallParticipantRecord</tt> by specifying

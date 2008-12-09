@@ -33,22 +33,22 @@ public class FirstWizardPage
     private JPanel labelsPanel = new TransparentPanel();
 
     private JLabel infoTitle= new JLabel(
-        Resources.getString("rssAccountInfoTitle"));
+        Resources.getString("plugin.rssaccregwizz.ACCOUNT_INFO_TITLE"));
 
     private JPanel infoTitlePanel
         = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("rssAccountExist"));
+    private JLabel existingAccountLabel = new JLabel(
+        Resources.getString("plugin.rssaccregwizz.ERROR_ACCOUNT_EXISTS"));
 
     private JPanel existingAccountPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
 
     private JTextArea accountInfoArea = new JTextArea(
-        Resources.getString("rssAccountInfo"));
+        Resources.getString("plugin.rssaccregwizz.ACCOUNT_INFO"));
 
-    private JLabel accountInfoAttentionArea
-        = new JLabel(Resources.getString("rssAccountAttention"));
+    private JLabel accountInfoAttentionArea = new JLabel(
+        Resources.getString("plugin.rssaccregwizz.ACCOUNT_ATTENTION"));
 
     private JPanel accountInfoAttentionPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));

@@ -37,12 +37,14 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel userID = new JLabel(Resources.getString("userID"));
+    private JLabel userID = new JLabel(
+        Resources.getString("plugin.gibberishaccregwizz.USERNAME"));
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel = new JLabel(
+        Resources.getString("service.gui.PASSWORD"));
 
     private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("existingAccount"));
+        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -52,8 +54,8 @@ public class FirstWizardPage
 
     private JPasswordField passField = new JPasswordField();
 
-    private JCheckBox rememberPassBox =
-        new SIPCommCheckBox(Resources.getString("rememberPassword"));
+    private JCheckBox rememberPassBox = new SIPCommCheckBox(
+        Resources.getString("service.gui.REMEMBER_PASSWORD"));
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -123,7 +125,7 @@ public class FirstWizardPage
 
         userPassPanel.setBorder(BorderFactory
                                 .createTitledBorder(Resources.getString(
-                                    "userAndPassword")));
+                                    "plugin.gibberishaccregwizz.USERNAME_AND_PASSWORD")));
 
         this.add(userPassPanel, BorderLayout.NORTH);
     }

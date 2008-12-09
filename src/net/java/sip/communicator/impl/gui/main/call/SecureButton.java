@@ -10,7 +10,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -84,7 +85,7 @@ public class SecureButton
             // We deactivate the tooltip at the moment, because the 
             // secure mode cannot be toggled off
             //this.setToolTipText(
-            //        Messages.getI18NString("toggleOffSecurity").getText());
+            //        GuiActivator.getResources().getI18NString("impl.media.security.TOGGLE_OFF_SECURITY").getText());
             this.setToolTipText(null);
         }
         else
@@ -93,7 +94,8 @@ public class SecureButton
                 new ImageIcon(
                     ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
             this.setToolTipText(
-                    Messages.getI18NString("toggleOnSecurity").getText());
+                GuiActivator.getResources()
+                    .getI18NString("impl.media.security.TOGGLE_ON_SECURITY"));
         }
     }
 }

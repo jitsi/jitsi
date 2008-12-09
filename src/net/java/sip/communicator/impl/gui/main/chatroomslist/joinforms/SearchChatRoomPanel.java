@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
@@ -34,10 +33,11 @@ public class SearchChatRoomPanel
     private JPanel searchPanel = new TransparentPanel(new GridLayout(0, 1));
     
     private JTextArea searchTextArea = new JTextArea(
-        Messages.getI18NString("searchForChatRoomsText").getText());
+        GuiActivator.getResources()
+            .getI18NString("service.gui.SEARCH_FOR_CHAT_ROOMS_MSG"));
     
     private JButton searchButton = new JButton(
-        Messages.getI18NString("search").getText());
+        GuiActivator.getResources().getI18NString("service.gui.SEARCH"));
     
     private JPanel buttonPanel = new TransparentPanel(
         new FlowLayout(FlowLayout.CENTER));
@@ -99,14 +99,16 @@ public class SearchChatRoomPanel
         this.mainPanel.add(searchPanel);
 
         this.searchPanel.setBorder(BorderFactory
-                .createTitledBorder(Messages.getI18NString("search").getText()));
+            .createTitledBorder(GuiActivator.getResources()
+                .getI18NString("service.gui.SEARCH")));
 
         this.searchButton.addActionListener(this);
 
         this.add(mainPanel, BorderLayout.NORTH);
 
         this.chatRoomsScrollPane.setBorder(BorderFactory
-            .createTitledBorder(Messages.getI18NString("chatRooms").getText()));
+            .createTitledBorder(GuiActivator.getResources()
+                .getI18NString("service.gui.CHAT_ROOM_REQUIRES_PASSWORD")));
 
         this.chatRoomsList.addListSelectionListener(
             new ChatRoomListSelectionListener());
@@ -131,7 +133,10 @@ public class SearchChatRoomPanel
         if(list != null)
         {
             if(list.size() == 0)
-                list.add(Messages.getI18NString("noAvailableRooms").getText());
+            {
+                list.add(GuiActivator.getResources()
+                    .getI18NString("service.gui.NO_AVAILABLE_ROOMS"));
+            }
 
             chatRoomsList.setListData(new Vector(list));
             chatRoomsScrollPane.setPreferredSize(new Dimension(500, 120));

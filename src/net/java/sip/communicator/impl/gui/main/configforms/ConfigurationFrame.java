@@ -11,7 +11,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -65,7 +64,8 @@ public class ConfigurationFrame
 
         this.configScrollList.setViewportView(configList);
 
-        this.setTitle(Messages.getI18NString("configuration").getText());
+        this.setTitle(GuiActivator.getResources()
+                .getI18NString("service.gui.SETTINGS"));
 
         this.getContentPane().setLayout(new BorderLayout());
 

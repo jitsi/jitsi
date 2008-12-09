@@ -17,7 +17,6 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -70,7 +69,7 @@ public class HistoryWindow
     private Hashtable dateHistoryTable = new Hashtable();
     
     private JLabel readyLabel = new JLabel(
-        Messages.getI18NString("ready").getText());
+        GuiActivator.getResources().getI18NString("service.gui.READY"));
     
     private String searchKeyword;
     
@@ -117,9 +116,9 @@ public class HistoryWindow
         {
             MetaContact metaContact = (MetaContact) historyContact;
 
-            this.setTitle(Messages.getI18NString(
-                    "historyContact",
-                    new String[]{metaContact.getDisplayName()}).getText());
+            this.setTitle(GuiActivator.getResources().getI18NString(
+                    "service.gui.HISTORY_CONTACT",
+                    new String[]{metaContact.getDisplayName()}));
 
             Iterator protoContacts = metaContact.getContacts();
             

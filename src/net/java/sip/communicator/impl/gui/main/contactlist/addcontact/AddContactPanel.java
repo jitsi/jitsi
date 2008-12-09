@@ -7,11 +7,12 @@
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
@@ -28,7 +29,7 @@ public class AddContactPanel
 {
 
     private JLabel uinLabel = new JLabel(
-        Messages.getI18NString("identifier").getText());
+        GuiActivator.getResources().getI18NString("service.gui.IDENTIFIER"));
 
     private JTextField textField = new JTextField();
 
@@ -36,11 +37,11 @@ public class AddContactPanel
         = new TransparentPanel(new BorderLayout(5, 5));
 
     private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(
-            Messages.getI18NString("addContactIdentifier").getText());
+        = new SIPCommMsgTextArea(GuiActivator.getResources()
+                .getI18NString("service.gui.ADD_CONTACT_IDENTIFIER"));
 
     private JLabel infoTitleLabel = new JLabel(
-        Messages.getI18NString("addContact").getText());
+        GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
 
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));

@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
@@ -24,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jdesktop.swingworker.SwingWorker;
+import org.jdesktop.swingworker.*;
 import org.osgi.framework.*;
 
 /**
@@ -213,8 +212,10 @@ public class ConferenceChatManager
         chatWindowManager.openChat(chatPanel, false);
 
         // Fire notification
-        String title = Messages.getI18NString("msgReceived",
-            new String[]{sourceMember.getName()}).getText();
+        String title
+            = GuiActivator.getResources().getI18NString(
+                "service.gui.MSG_RECEIVED",
+                new String[]{sourceMember.getName()});
 
         NotificationManager.fireChatNotification(
             sourceChatRoom,
@@ -242,29 +243,30 @@ public class ConferenceChatManager
         if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryOfflineNotSupported").getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
 
-            errorMsg = Messages.getI18NString("msgNotDelivered").getText();
+            errorMsg = GuiActivator.getResources()
+                .getI18NString("service.gui.MSG_NOT_DELIVERED");
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
 
-            errorMsg = Messages.getI18NString(
-                    "msgSendConnectionProblem").getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_SEND_CONNECTION_PROBLEM");
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
 
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryInternalError").getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
         }
         else {
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryFailedUnknownError").getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
         }
 
         ChatWindowManager chatWindowManager
@@ -348,11 +350,11 @@ public class ConferenceChatManager
         {
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
-                Messages.getI18NString("error").getText(),
-                Messages.getI18NString("failedToJoinChatRoom",
-                    new String[]{sourceChatRoom.getName()})
-                        .getText() + evt.getReason())
-                    .showDialog();
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
+                    new String[]{sourceChatRoom.getName()}) + evt.getReason())
+                .showDialog();
         }
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
@@ -445,9 +447,9 @@ public class ConferenceChatManager
         {
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
-                Messages.getI18NString("warning").getText(),
-                Messages.getI18NString("haveToBeConnectedToJoin")
-                        .getText())
+                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+                GuiActivator.getResources().getI18NString(
+                    "haveToBeConnectedToJoin"))
                     .showDialog();
 
             return;
@@ -488,10 +490,10 @@ public class ConferenceChatManager
 
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
-                Messages.getI18NString("error").getText(),
-                Messages.getI18NString(
-                    "createChatRoomError",
-                    new String[]{chatRoomName}).getText(),
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_CHAT_ROOM_ERROR",
+                    new String[]{chatRoomName}),
                     ex)
             .showDialog();
         }
@@ -501,10 +503,10 @@ public class ConferenceChatManager
 
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
-                Messages.getI18NString("error").getText(),
-                Messages.getI18NString(
-                    "createChatRoomError",
-                    new String[]{chatRoomName}).getText(),
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_CHAT_ROOM_ERROR",
+                    new String[]{chatRoomName}),
                     ex)
             .showDialog();
         }
@@ -538,9 +540,8 @@ public class ConferenceChatManager
         {
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
-                Messages.getI18NString("warning").getText(),
-                Messages.getI18NString("haveToBeConnectedToJoin")
-                        .getText())
+                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+                GuiActivator.getResources().getI18NString("haveToBeConnectedToJoin"))
                     .showDialog();
 
             return;
@@ -660,12 +661,12 @@ public class ConferenceChatManager
         else
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
-                Messages.getI18NString("error").getText(),
-                Messages.getI18NString("chatRoomNotExist",
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_NOT_EXIST",
                     new String[]{chatRoomName,
                     chatRoomProvider.getProtocolProvider()
-                        .getAccountID().getService()})
-                    .getText())
+                        .getAccountID().getService()}))
                     .showDialog();
     }
 
@@ -682,9 +683,9 @@ public class ConferenceChatManager
         {
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
-                Messages.getI18NString("warning").getText(),
-                Messages.getI18NString("haveToBeConnectedToLeave")
-                        .getText())
+                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED="))
                     .showDialog();
 
             return;
@@ -1027,28 +1028,29 @@ public class ConferenceChatManager
             {
                 errorMessage
                     = GuiActivator.getResources()
-                        .getI18NString("chatRoomRegistrationRequired",
+                        .getI18NString(
+                            "service.gui.CHAT_ROOM_REGISTRATION_REQUIRED",
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
             else if(returnCode.equals(PROVIDER_NOT_REGISTERED))
             {
                 errorMessage
                     = GuiActivator.getResources()
-                        .getI18NString("chatRoomNotConnected",
+                        .getI18NString("service.gui.CHAT_ROOM_NOT_CONNECTED",
                         new String[]{chatRoomWrapper.getChatRoomName()});
             }
             else if(returnCode.equals(SUBSCRIPTION_ALREADY_EXISTS))
             {
                 errorMessage
                     = GuiActivator.getResources()
-                        .getI18NString("chatRoomAlreadyJoined",
+                        .getI18NString("service.gui.CHAT_ROOM_ALREADY_JOINED",
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
             else
             {
                 errorMessage
                     = GuiActivator.getResources()
-                        .getI18NString("failedToJoinChatRoom",
+                        .getI18NString("service.gui.FAILED_TO_JOIN_CHAT_ROOM",
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
 
@@ -1057,7 +1059,7 @@ public class ConferenceChatManager
             {
                 new ErrorDialog(
                     GuiActivator.getUIService().getMainFrame(),
-                    Messages.getI18NString("error").getText(),
+                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                     errorMessage).showDialog();
             }
         }

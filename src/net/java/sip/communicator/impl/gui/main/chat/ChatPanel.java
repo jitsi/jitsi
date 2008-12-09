@@ -13,13 +13,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
+
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -54,8 +54,8 @@ public class ChatPanel
 
     private final JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    private final JCheckBox sendSmsCheckBox =
-        new SIPCommCheckBox(Messages.getI18NString("sendAsSms").getText());
+    private final JCheckBox sendSmsCheckBox = new JCheckBox(
+        GuiActivator.getResources().getI18NString("service.gui.SEND_AS_SMS"));
 
     private JSplitPane topSplitPane;
 
@@ -819,8 +819,9 @@ public class ChatPanel
                 smsChatTransport.getName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                Messages.getI18NString("sendSmsNotSupported")
-                .getText(), "plain/text");
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.SEND_SMS_NOT_SUPPORTED"),
+                "plain/text");
 
             return;
         }
@@ -883,8 +884,9 @@ public class ChatPanel
                 chatSession.getCurrentChatTransport().getName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                Messages.getI18NString("msgSendConnectionProblem")
-                .getText(), "text");
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_SEND_CONNECTION_PROBLEM"),
+                "text");
         }
         catch (Exception ex)
         {
@@ -903,9 +905,10 @@ public class ChatPanel
                 chatSession.getCurrentChatTransport().getName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                Messages.getI18NString("msgDeliveryUnknownError",
-                    new String[]{ex.getMessage()})
-                    .getText(), "text");
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                    new String[]{ex.getMessage()}),
+                "text");
         }
 
         if (chatSession.getCurrentChatTransport().allowsTypingNotifications())
@@ -931,8 +934,9 @@ public class ChatPanel
             transportSelectorBox = new ChatTransportSelectorBox(
                 this, chatSession, chatSession.getCurrentChatTransport());
 
-            sendViaLabel
-                = new JLabel(Messages.getI18NString("sendVia").getText());
+            sendViaLabel = new JLabel(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.SEND_VIA"));
         }
 
         JPanel sendPanel = getChatSendPanel().getSendPanel();
@@ -985,8 +989,9 @@ public class ChatPanel
                     contact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.ACTION_MESSAGE,
-                    Messages.getI18NString("smsSuccessfullySent")
-                    .getText(), "text");
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.SMS_SUCCESSFULLY_SENT"),
+                    "text");
         }
 
         public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
@@ -1005,29 +1010,30 @@ public class ChatPanel
             if (evt.getErrorCode() 
                     == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
             {
-                errorMsg = Messages.getI18NString(
-                        "msgDeliveryOfflineNotSupported").getText();
+                errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
             }
             else if (evt.getErrorCode()
                     == MessageDeliveryFailedEvent.NETWORK_FAILURE)
             {
-                errorMsg = Messages.getI18NString("msgNotDelivered").getText();
+                errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_NOT_DELIVERED");
             }
             else if (evt.getErrorCode()
                     == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
             {
-                errorMsg = Messages.getI18NString(
-                        "msgSendConnectionProblem").getText();
+                errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_SEND_CONNECTION_PROBLEM");
             }
             else if (evt.getErrorCode()
                     == MessageDeliveryFailedEvent.INTERNAL_ERROR)
             {
-                errorMsg = Messages.getI18NString(
-                        "msgDeliveryInternalError").getText();
+                errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
             }
             else {
-                errorMsg = Messages.getI18NString(
-                        "msgDeliveryFailedUnknownError").getText();
+                errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
             }
 
             processMessage(
@@ -1211,9 +1217,9 @@ public class ChatPanel
             chatTransport.getName(),
             new Date(System.currentTimeMillis()),
             Constants.STATUS_MESSAGE,
-            Messages.getI18NString("statusChangedChatMessage",
-                new String[]{chatTransport.getStatus().getStatusName()})
-                    .getText(),
+            GuiActivator.getResources().getI18NString(
+                "service.gui.STATUS_CHANGED_CHAT_MESSAGE",
+                new String[]{chatTransport.getStatus().getStatusName()}),
                 "text/plain");
 
         getChatConversationPanel().appendMessageToEnd(message);
@@ -1362,9 +1368,10 @@ public class ChatPanel
                 chatSession.getChatName(),
                 new Date(System.currentTimeMillis()),
                 Constants.STATUS_MESSAGE,
-                Messages.getI18NString("chatRoomSubjectChanged",
-                    new String []{chatSession.getChatName(),
-                    subject}).getText(),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_SUBJECT_CHANGED",
+                    new String []{  chatSession.getChatName(),
+                                    subject}),
                 ChatConversationPanel.TEXT_CONTENT_TYPE);
         }
     }

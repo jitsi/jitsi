@@ -11,7 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.*;
@@ -30,13 +31,11 @@ public class CreateGroupDialog
     
     private CreateGroupPanel groupPanel = new CreateGroupPanel();
     
-    private I18NString createString = Messages.getI18NString("create");
+    private JButton addButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CREATE"));
     
-    private I18NString cancelString = Messages.getI18NString("cancel");
-    
-    private JButton addButton = new JButton(createString.getText());
-    
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -70,7 +69,8 @@ public class CreateGroupDialog
      */
     private void init()
     {
-        this.setTitle(Messages.getI18NString("addGroup").getText());
+        this.setTitle(
+            GuiActivator.getResources().getI18NString("service.gui.ADD_GROUP"));
         
         this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("create");
@@ -79,8 +79,10 @@ public class CreateGroupDialog
         this.addButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
         
-        this.addButton.setMnemonic(createString.getMnemonic());
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.addButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CREATE"));
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
         
         this.buttonsPanel.add(addButton);
         this.buttonsPanel.add(cancelButton);
@@ -144,38 +146,38 @@ public class CreateGroupDialog
                                     .CODE_GROUP_ALREADY_EXISTS_ERROR)
                         {
                             groupPanel.showErrorMessage(
-                                    Messages.getI18NString(
-                                            "addGroupExistError",
-                                            new String[]{groupName}).getText());
-                            
+                                GuiActivator.getResources().getI18NString(
+                                        "service.gui.ADD_GROUP_EXIST_ERROR",
+                                        new String[]{groupName}));
+
                             return;
                         }
                         else if (errorCode
                             == MetaContactListException.CODE_LOCAL_IO_ERROR)
                         {
                             groupPanel.showErrorMessage(
-                                    Messages.getI18NString(
-                                            "addGroupLocalError",
-                                            new String[]{groupName}).getText());
-                            
+                                GuiActivator.getResources().getI18NString(
+                                        "service.gui.ADD_GROUP_LOCAL_ERROR",
+                                        new String[]{groupName}));
+
                             return;
                         }
                         else if (errorCode
                                 == MetaContactListException.CODE_NETWORK_ERROR)
                         {
                             groupPanel.showErrorMessage(
-                                    Messages.getI18NString(
-                                            "addGroupNetError",
-                                            new String[]{groupName}).getText());
-                            
+                                GuiActivator.getResources().getI18NString(
+                                        "service.gui.ADD_GROUP_NET_ERROR",
+                                        new String[]{groupName}));
+
                             return;
                         }
                         else
                         {
                             groupPanel.showErrorMessage(
-                                    Messages.getI18NString(
-                                            "addGroupError",
-                                            new String[]{groupName}).getText());
+                                GuiActivator.getResources().getI18NString(
+                                        "service.gui.ADD_GROUP_ERROR",
+                                        new String[]{groupName}));
 
                             return;
                         }

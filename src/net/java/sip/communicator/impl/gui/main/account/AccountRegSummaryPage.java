@@ -10,8 +10,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -37,8 +37,9 @@ public class AccountRegSummaryPage
 
     private AccountRegWizardContainerImpl wizardContainer;
 
-    private JLabel pageTitleLabel =
-        new JLabel(Messages.getI18NString("summary").getText(), JLabel.CENTER);
+    private JLabel pageTitleLabel = new JLabel(
+        GuiActivator.getResources().getI18NString("service.gui.SUMMARY"),
+        JLabel.CENTER);
 
     /**
      * Creates an <tt>AccountRegSummaryPage</tt>.

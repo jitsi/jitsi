@@ -11,7 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -49,17 +50,14 @@ public class AuthorizationRequestedDialog
     private JLabel iconLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
     
-    private I18NString acceptString = Messages.getI18NString("accept");
+    private JButton acceptButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.ACCEPT"));
     
-    private I18NString rejectString = Messages.getI18NString("reject");
+    private JButton rejectButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.REJECT"));
     
-    private I18NString ignoreString = Messages.getI18NString("ignore");
-    
-    private JButton acceptButton = new JButton(acceptString.getText());
-    
-    private JButton rejectButton = new JButton(rejectString.getText());
-    
-    private JButton ignoreButton = new JButton(ignoreString.getText());
+    private JButton ignoreButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.IGNORE"));
     
     private JScrollPane requestScrollPane = new JScrollPane();
     
@@ -69,7 +67,8 @@ public class AuthorizationRequestedDialog
         new TransparentPanel(new GridLayout(0, 1, 5, 5));
     
     private String title
-        = Messages.getI18NString("authorizationRequested").getText();
+        = GuiActivator.getResources()
+            .getI18NString("service.gui.AUTHORIZATION_REQUESTED");
     
     private Object lock = new Object();
     
@@ -89,13 +88,15 @@ public class AuthorizationRequestedDialog
         this.setModal(false);
         
         this.setTitle(title);
-
+        
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
         
-        infoTextArea.setText(Messages.getI18NString("authorizationRequestedInfo", 
-                new String[]{contact.getDisplayName()}).getText());
+        infoTextArea.setText(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.AUTHORIZATION_REQUESTED_INFO", 
+                new String[]{contact.getDisplayName()}));
         
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);
@@ -109,49 +110,51 @@ public class AuthorizationRequestedDialog
         this.northPanel.add(iconLabel, BorderLayout.WEST);
         this.northPanel.add(titlePanel, BorderLayout.CENTER);
         
-        if(request.getReason() != null && !request.getReason().equals("")) {
-            
+        if(request.getReason() != null && !request.getReason().equals(""))
+        {
             this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
                 SIPCommBorders.getBoldRoundBorder()));
-        
+            
             this.requestPane.setEditable(false);
             this.requestPane.setOpaque(false);
             this.requestPane.setText(request.getReason());
-                    
+            
             this.requestScrollPane.getViewport().add(requestPane);
             
             this.reasonsPanel.add(requestScrollPane);
             
-            this.mainPanel.setPreferredSize(new Dimension(550, 300));            
+            this.mainPanel.setPreferredSize(new Dimension(550, 300));
         }
         else {
             this.mainPanel.setPreferredSize(new Dimension(550, 200));
         }
-        
-        
-        this.acceptButton.setName("accept");
+
+        this.acceptButton.setName("service.gui.ACCEPT");
         this.rejectButton.setName("reject");
         this.ignoreButton.setName("ignore");
-        
+
         this.getRootPane().setDefaultButton(acceptButton);
         this.acceptButton.addActionListener(this);
         this.rejectButton.addActionListener(this);
         this.ignoreButton.addActionListener(this);
-                
-        this.acceptButton.setMnemonic(acceptString.getMnemonic());
-        this.rejectButton.setMnemonic(rejectString.getMnemonic());
-        this.ignoreButton.setMnemonic(ignoreString.getMnemonic());
-        
+
+        this.acceptButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.ACCEPT"));
+        this.rejectButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.REJECT"));
+        this.ignoreButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.IGNORE"));
+
         this.buttonsPanel.add(acceptButton);
         this.buttonsPanel.add(rejectButton);
         this.buttonsPanel.add(ignoreButton);
-        
+
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainPanel.add(northPanel, BorderLayout.NORTH);        
         this.mainPanel.add(reasonsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-        
+
         this.getContentPane().add(mainPanel);
     }
 
@@ -159,11 +162,14 @@ public class AuthorizationRequestedDialog
      * Shows this modal dialog.
      * @return the result code, which shows what was the choice of the user
      */
-    public int showDialog() {
+    public int showDialog()
+    {
         this.setVisible(true);
         
-        synchronized (lock) {
-            try {                    
+        synchronized (lock)
+        {
+            try
+            {
                 lock.wait();
             }
             catch (InterruptedException e) {
@@ -183,7 +189,7 @@ public class AuthorizationRequestedDialog
         JButton button = (JButton)e.getSource();
         String name = button.getName();
         
-        if (name.equals("accept")) {
+        if (name.equals("service.gui.ACCEPT")) {
             this.result = ACCEPT_CODE;
         }
         else if (name.equals("reject")) {

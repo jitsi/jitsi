@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.plugin.extendedcallhistorysearch;
+package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
 
@@ -112,12 +112,12 @@ public class CallListCellRenderer
  
             this.timeLabel.setText(
                 ExtendedCallHistorySearchActivator.getResources()
-                    .getI18NString("at") + " "
+                    .getI18NString("service.gui.AT") + " "
                 + GuiUtils.formatTime(participant.getStartTime()));
 
             this.durationLabel.setText(
                 ExtendedCallHistorySearchActivator.getResources()
-                    .getI18NString("duration") + " "
+                    .getI18NString("service.gui.DURATION") + " "
                 + GuiUtils.formatTime(participant.getCallTime()));
 
             // this.nameLabel.setIcon(listModel

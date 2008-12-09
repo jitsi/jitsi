@@ -46,7 +46,8 @@ public class MsnAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer
+            .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -79,7 +80,7 @@ public class MsnAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameMsn");
+        return Resources.getString("plugin.msnaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -91,7 +92,7 @@ public class MsnAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionMsn");
+        return Resources.getString("plugin.msnaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -118,9 +119,10 @@ public class MsnAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(Resources.getString("id"), registration.getId());
-        summaryTable.put(Resources.getString("rememberPassword"),
-            new Boolean(registration.isRememberPassword()));
+        summaryTable.put(   Resources.getString("plugin.msnaccregwizz.USERNAME"),
+                            registration.getId());
+        summaryTable.put(   Resources.getString("service.gui.REMEMBER_PASSWORD"),
+                            new Boolean(registration.isRememberPassword()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -203,14 +205,14 @@ public class MsnAccountRegistrationWizard
         {
             MsnAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException e)
         {
             MsnAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
 

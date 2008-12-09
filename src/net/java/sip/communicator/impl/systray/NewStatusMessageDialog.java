@@ -30,17 +30,17 @@ public class NewStatusMessageDialog
     private JPanel messagePanel = new TransparentPanel(new BorderLayout());
 
     private JLabel messageLabel = new JLabel(
-        Resources.getString("newStatusMessage"));
+        Resources.getString("service.gui.NEW_STATUS_MESSAGE"));
 
     private JTextField messageTextField = new JTextField();
 
     private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
 
     private JTextArea infoLabel = new JTextArea(
-        Resources.getString("statusMessageInfo"));
+        Resources.getString("service.gui.STATUS_MESSAGE_INFO"));
 
     private JLabel infoTitleLabel = new JLabel(
-        Resources.getString("newStatusMessage"));
+        Resources.getString("service.gui.NEW_STATUS_MESSAGE"));
 
     private JLabel iconLabel = new JLabel(
             Resources.getImage("newStatusMessageIcon"));
@@ -49,9 +49,10 @@ public class NewStatusMessageDialog
 
     private JPanel rightPanel = new TransparentPanel(new BorderLayout());
 
-    private JButton okButton = new JButton(Resources.getString("ok"));
+    private JButton okButton = new JButton(Resources.getString("service.gui.OK"));
 
-    private JButton cancelButton = new JButton(Resources.getString("cancel"));
+    private JButton cancelButton = new JButton(
+        Resources.getString("service.gui.CANCEL"));
 
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -80,7 +81,7 @@ public class NewStatusMessageDialog
      */
     private void init()
     {
-        this.setTitle(Resources.getString("newStatusMessage"));
+        this.setTitle(Resources.getString("service.gui.NEW_STATUS_MESSAGE"));
 
         this.getRootPane().setDefaultButton(okButton);
 
@@ -110,7 +111,7 @@ public class NewStatusMessageDialog
         this.okButton.setName("ok");
         this.cancelButton.setName("cancel");
 
-        this.okButton.setMnemonic(Resources.getMnemonic("ok"));
+        this.okButton.setMnemonic(Resources.getMnemonic("service.gui.OK"));
         this.cancelButton.setMnemonic(Resources.getMnemonic("cancel"));
 
         this.okButton.addActionListener(this);

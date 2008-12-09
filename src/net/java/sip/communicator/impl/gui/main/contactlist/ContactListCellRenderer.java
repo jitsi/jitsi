@@ -11,7 +11,6 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.*;
@@ -120,7 +119,8 @@ public class ContactListCellRenderer
 
             if (displayName == null || displayName.length() < 1)
             {
-                displayName = Messages.getI18NString("unknown").getText();
+                displayName = GuiActivator.getResources()
+                    .getI18NString("service.gui.UNKNOWN");
             }
 
             this.nameLabel.setText(displayName);

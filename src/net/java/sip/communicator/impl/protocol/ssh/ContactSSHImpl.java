@@ -11,7 +11,6 @@
 
 package net.java.sip.communicator.impl.protocol.ssh;
 
-import com.jcraft.jsch.*;
 
 import java.io.*;
 import java.util.*;
@@ -19,6 +18,8 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
+
+import com.jcraft.jsch.*;
 
 /**
  * A Contact of SSH Type
@@ -34,8 +35,8 @@ public class ContactSSHImpl
     /**
      * This acts as a seperator between details stored in persistent data
      */
-    private final String detailsSeperator = 
-        Resources.getString("detailsSeperator");
+    private final String separator = 
+        Resources.getString("impl.protocol.ssh.DETAILS_SEPARATOR");
     
     /**
      * The identifier for SSH Stack
@@ -314,42 +315,42 @@ public class ContactSSHImpl
     
     /**
      * Saves the details of contact in persistentData seperated by
-     * detailsSeperator
+     * "service.gui.JANUARY"
      * Passowrd is saved unsecurely using Base64 encoding
      */
     public void savePersistentDetails()
     {
         persistentData =
                 this.sshConfigurationForm.getHostName() +
-                detailsSeperator +
+                "service.gui.JANUARY" +
                 this.sshConfigurationForm.getUserName() +
-                detailsSeperator +
+                "service.gui.JANUARY" +
                 new String(Base64.encode(this.sshConfigurationForm.getPassword()
                         .getBytes())) +
-                detailsSeperator + sshConfigurationForm.getPort() +
-                detailsSeperator +
+                "service.gui.JANUARY" + sshConfigurationForm.getPort() +
+                "service.gui.JANUARY" +
                 sshConfigurationForm.getTerminalType() +
-                detailsSeperator +
+                "service.gui.JANUARY" +
                 sshConfigurationForm.getUpdateInterval();
     }
     
     /**
      * Stores persistent data in fields of the contact seperated by
-     * detailsSeperator.
+     * "service.gui.JANUARY".
      *
      * @param persistentData of the contact
      */
     public void setPersistentData(String persistentData)
     {
         this.persistentData = persistentData;
-        int firstCommaIndex = this.persistentData.indexOf(detailsSeperator);
-        int secondCommaIndex = this.persistentData.indexOf(detailsSeperator,
+        int firstCommaIndex = this.persistentData.indexOf("service.gui.JANUARY");
+        int secondCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
                 firstCommaIndex +1);
-        int thirdCommaIndex = this.persistentData.indexOf(detailsSeperator,
+        int thirdCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
                 secondCommaIndex +1);
-        int fourthCommaIndex = this.persistentData.indexOf(detailsSeperator,
+        int fourthCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
                 thirdCommaIndex +1);
-        int fifthCommaIndex = this.persistentData.indexOf(detailsSeperator,
+        int fifthCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
                 fourthCommaIndex +1);
         
         logger.debug("Commas: " + firstCommaIndex + " " + secondCommaIndex + " "

@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.util.*;
 
@@ -42,9 +41,11 @@ public class CreateChatRoomWizard
 
         super.addWizardListener(this);
 
-        this.setTitle(Messages.getI18NString("createChatRoomWizard").getText());
+        this.setTitle(GuiActivator.getResources()
+                .getI18NString("service.gui.CREATE_CHAT_ROOM_WIZARD"));
 
-        this.setFinishButtonText(Messages.getI18NString("create").getText());
+        this.setFinishButtonText(
+            GuiActivator.getResources().getI18NString("service.gui.CREATE"));
 
         page1 = new CreateChatRoomWizardPage1(this, newChatRoom,
                     mainFrame.getProtocolProviders());

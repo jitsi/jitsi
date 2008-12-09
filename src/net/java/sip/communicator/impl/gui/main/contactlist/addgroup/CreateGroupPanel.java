@@ -10,8 +10,8 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -25,7 +25,7 @@ public class CreateGroupPanel
 {
 
     private JLabel uinLabel = new JLabel(
-        Messages.getI18NString("groupName").getText());
+        GuiActivator.getResources().getI18NString("service.gui.GROUP_NAME"));
 
     private JTextField textField = new JTextField();
 
@@ -33,10 +33,11 @@ public class CreateGroupPanel
         = new TransparentPanel(new BorderLayout(5, 5));
 
     private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
-            Messages.getI18NString("createGroupName").getText());
+            GuiActivator.getResources()
+                .getI18NString("service.gui.CREATE_GROUP_NAME"));
 
     private JLabel infoTitleLabel = new JLabel(
-        Messages.getI18NString("createGroup").getText());
+        GuiActivator.getResources().getI18NString("service.gui.CREATE_GROUP"));
 
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_GROUP_ICON)));

@@ -10,7 +10,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
@@ -24,19 +24,15 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class CommonRightButtonMenu extends JPopupMenu
-    implements ActionListener {
-
-    private I18NString addContactString = Messages.getI18NString("addContact");
+    implements ActionListener
+{
+    private JMenuItem addContactItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
     
-    private I18NString createGroupString = Messages.getI18NString("createGroup");
-    
-    private JMenuItem addContactItem
-        = new JMenuItem(addContactString.getText(), new ImageIcon(
-            ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
-    
-    private JMenuItem createGroupItem
-    = new JMenuItem(createGroupString.getText(), new ImageIcon(
-            ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+    private JMenuItem createGroupItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.CREATE_GROUP"),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
     
     private MainFrame mainFrame;
     
@@ -55,31 +51,36 @@ public class CommonRightButtonMenu extends JPopupMenu
         this.addContactItem.setName("addContact");
         this.createGroupItem.setName("createGroup");
         
-        this.addContactItem.setMnemonic(addContactString.getMnemonic());
-        this.createGroupItem.setMnemonic(createGroupString.getMnemonic());
+        this.addContactItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.ADD_CONTACT"));
+        this.createGroupItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.CREATE_GROUP"));
         
         this.addContactItem.addActionListener(this);
         this.createGroupItem.addActionListener(this);
     }
     
     /**
-     * Handles the <tt>ActionEvent</tt>. The choosen menu item should correspond
+     * Handles the <tt>ActionEvent</tt>. The chosen menu item should correspond
      * to an account, where the new contact will be added. We obtain here the
-     * protocol provider corresponding to the choosen account and show the
+     * protocol provider corresponding to the chosen account and show the
      * dialog, where the user could add the contact.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem item = (JMenuItem)e.getSource();
         String itemName = item.getName();
-        
-        if(itemName.equals("createGroup")) {
+
+        if(itemName.equals("createGroup"))
+        {
             CreateGroupDialog dialog = new CreateGroupDialog(mainFrame);
-            
+
             dialog.setVisible(true);
         }
-        else if(itemName.equals("addContact")) {
+        else if(itemName.equals("addContact"))
+        {
             AddContactWizard wizard = new AddContactWizard(mainFrame);
-            
+
             wizard.setVisible(true);
         }
     }

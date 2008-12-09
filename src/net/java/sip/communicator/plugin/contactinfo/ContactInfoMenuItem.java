@@ -24,7 +24,7 @@ public class ContactInfoMenuItem
                 ActionListener
 {
     private JMenuItem menuItem
-        = new JMenuItem(Resources.getString("contactInfo"),
+        = new JMenuItem(Resources.getString("service.gui.CONTACT_INFO"),
             new ImageIcon(Resources.getImage(
                 "plugin.contactinfo.CONTACT_INFO_ICON")));
 

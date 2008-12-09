@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -20,23 +21,27 @@ public class StatusMessageMenu
 {
     private Logger logger = Logger.getLogger(StatusMessageMenu.class);
 
+    private static final String BRB_MESSAGE
+        = Resources.getString("service.gui.BRB_MESSAGE");
+
+    private static final String BUSY_MESSAGE
+        = Resources.getString("service.gui.BUSY_MESSAGE");
+
     private JMenuItem noMessageItem
-        = new JMenuItem(Resources.getString("noMessage"));
+        = new JMenuItem(Resources.getString("service.gui.NO_MESSAGE"));
 
     private JMenuItem newMessageItem
-        = new JMenuItem(Resources.getString("newMessage"));
+        = new JMenuItem(Resources.getString("service.gui.NEW_MESSAGE"));
 
-    private JMenuItem busyMessageItem
-        =  new JMenuItem(Resources.getString("busyMessage"));
+    private JMenuItem busyMessageItem =  new JMenuItem(BUSY_MESSAGE);
 
-    private JMenuItem brbMessageItem
-        = new JMenuItem(Resources.getString("brbMessage"));
+    private JMenuItem brbMessageItem = new JMenuItem(BRB_MESSAGE);
 
     private ProtocolProviderService protocolProvider;
 
     public StatusMessageMenu(  ProtocolProviderService protocolProvider)
     {
-        super(Resources.getString("setStatusMessage"));
+        super(Resources.getString("service.gui.SET_STATUS_MESSAGE"));
 
         this.protocolProvider = protocolProvider;
 
@@ -78,11 +83,11 @@ public class StatusMessageMenu
         }
         else if (menuItem.equals(busyMessageItem))
         {
-            statusMessage = Resources.getString("busyMessage");
+            statusMessage = BUSY_MESSAGE;
         }
         else if (menuItem.equals(brbMessageItem))
         {
-            statusMessage = Resources.getString("brbMessage");
+            statusMessage = BRB_MESSAGE;
         }
 
         new PublishStatusMessageThread(statusMessage).start();

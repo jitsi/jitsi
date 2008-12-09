@@ -16,10 +16,9 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -916,10 +915,10 @@ public class ContactList
                     {
                         new ErrorDialog(
                                 mainFrame,
-                                Messages.getI18NString(
-                                    "moveToGroup").getText(),
-                                Messages.getI18NString(
-                                    "moveContactError").getText(),
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.MOVE_TO_GROUP"),
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.MOVE_CONTACT_ERROR"),
                                 ex).showDialog();
                     }
                 }
@@ -1441,17 +1440,18 @@ public class ContactList
                 return;
             }
 
-            String message = Messages.getI18NString(
-                "moveSubcontactQuestion",
+            String message = GuiActivator.getResources().getI18NString(
+                "service.gui.MOVE_SUBCONTACT_QUESTION",
                 new String[]{   srcContact.getDisplayName(),
-                                destMetaContact.getDisplayName()})
-                    .getText();
+                                destMetaContact.getDisplayName()});
 
             MessageDialog dialog = new MessageDialog(
                     mainFrame,
-                    Messages.getI18NString("moveContact").getText(),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE_CONTACT"),
                     message,
-                    Messages.getI18NString("move").getText());
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE"));
 
             int returnCode = dialog.showDialog();
 
@@ -1498,17 +1498,18 @@ public class ContactList
                 return;
             }
 
-            String message = Messages.getI18NString(
-                "moveSubcontactQuestion",
+            String message = GuiActivator.getResources().getI18NString(
+                "service.gui.MOVE_SUBCONTACT_QUESTION",
                 new String[]{   srcContact.getDisplayName(),
-                                destGroup.getGroupName()})
-                    .getText();
+                                destGroup.getGroupName()});
 
             MessageDialog dialog = new MessageDialog(
                     mainFrame,
-                    Messages.getI18NString("moveContact").getText(),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE_CONTACT"),
                     message,
-                    Messages.getI18NString("move").getText());
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE"));
 
             int returnCode = dialog.showDialog();
 
@@ -1555,17 +1556,18 @@ public class ContactList
                 return;
             }
 
-            String message = Messages.getI18NString(
-                "moveSubcontactQuestion",
+            String message = GuiActivator.getResources().getI18NString(
+                "service.gui.MOVE_SUBCONTACT_QUESTION",
                 new String[]{   srcContact.getDisplayName(),
-                                destGroup.getGroupName()})
-                    .getText();
+                                destGroup.getGroupName()});
 
             MessageDialog dialog = new MessageDialog(
                     mainFrame,
-                    Messages.getI18NString("moveContact").getText(),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE_CONTACT"),
                     message,
-                    Messages.getI18NString("move").getText());
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE"));
 
             int returnCode = dialog.showDialog();
 

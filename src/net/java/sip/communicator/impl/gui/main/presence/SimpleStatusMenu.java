@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -42,11 +41,11 @@ public class SimpleStatusMenu
     private ImageIcon offlineIcon;
 
     private JMenuItem onlineItem = new JMenuItem(
-            Messages.getI18NString("online").getText(),
+            GuiActivator.getResources().getI18NString("service.gui.ONLINE"),
             onlineIcon);
 
     private JMenuItem offlineItem = new JMenuItem(
-            Messages.getI18NString("offline").getText(),
+            GuiActivator.getResources().getI18NString("service.gui.OFFLINE"),
             offlineIcon);
 
     private JLabel titleLabel;

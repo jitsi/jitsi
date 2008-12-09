@@ -52,7 +52,7 @@ public class IrcAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -83,7 +83,7 @@ public class IrcAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameIrc");
+        return Resources.getString("plugin.ircaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -93,7 +93,7 @@ public class IrcAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionIrc");
+        return Resources.getString("plugin.ircaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -229,14 +229,14 @@ public class IrcAccountRegistrationWizard
         {
             IrcAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
             IrcAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
 

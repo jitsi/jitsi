@@ -12,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -28,14 +28,14 @@ public class SearchPanel
     implements  ActionListener,
                 DocumentListener
 {
+    private static final String searchString
+        = GuiActivator.getResources().getI18NString("service.gui.SEARCH");
 
-    private I18NString searchString = Messages.getI18NString("search");
-    
-    private JButton searchButton = new JButton(searchString.getText(),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON)));
+    private JButton searchButton = new JButton(
+        searchString,
+        new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON)));
 
-    private JLabel searchLabel
-        = new JLabel(searchString.getText() + ": ");
+    private JLabel searchLabel = new JLabel(searchString + ": ");
 
     private JTextField searchTextField = new JTextField();
     
@@ -44,37 +44,37 @@ public class SearchPanel
 
     /*
     private JRadioButton todayMessagesRadio = new JRadioButton(Messages
-            .getString("today"));
+            .getString("service.gui.TODAY"));
 
     private JRadioButton yesterdayMessagesRadio = new JRadioButton(Messages
-            .getString("yesterday")); //$NON-NLS-1$
+            .getString("service.gui.YESTERDAY")); //$NON-NLS-1$
 
     private JRadioButton allMessagesRadio = new JRadioButton(Messages
-            .getString("all")); //$NON-NLS-1$
+            .getString("service.gui.ALL")); //$NON-NLS-1$
 
     private ButtonGroup radiosGroup = new ButtonGroup();
 
     private JLabel dateLabel
-        = new JLabel(Messages.getString("date") + ": "); //$NON-NLS-1$
+        = new JLabel(Messages.getString("service.gui.DATE") + ": "); //$NON-NLS-1$
 
     private JTextField dateTextField = new JTextField(10);
 
     private JLabel hourLabel
-        = new JLabel(Messages.getString("hour") + ": "); //$NON-NLS-1$
+        = new JLabel(Messages.getString("service.gui.HOUR") + ": "); //$NON-NLS-1$
 
     private JTextField hourTextField = new JTextField(10);
 
     private JLabel lastNMessagesLabel = new JLabel(
-            Messages.getString("last") + ": "); //$NON-NLS-1$
+            Messages.getString("service.gui.LAST") + ": "); //$NON-NLS-1$
 
     private JTextField lastNMessagesTextField = new JTextField(10);
     
     private SIPCommButton extendedSearchButton = new SIPCommButton
-        (Messages.getString("extendedCriteria"), //$NON-NLS-1$
+        (Messages.getString("service.gui.EXTENDED_CRITERIA"), //$NON-NLS-1$
         Constants.RIGHT_ARROW_ICON, Constants.RIGHT_ARROW_ROLLOVER_ICON);
     
     private SIPCommButton extendedSearchOpenedButton = new SIPCommButton
-        (Messages.getString("extendedCriteria"), //$NON-NLS-1$
+        (Messages.getString("service.gui.EXTENDED_CRITERIA"), //$NON-NLS-1$
         Constants.BOTTOM_ARROW_ICON, Constants.BOTTOM_ARROW_ROLLOVER_ICON);
 
     private JPanel datePanel = new JPanel(new GridLayout(0, 2, 10, 0));
@@ -105,7 +105,7 @@ public class SearchPanel
         this.historyWindow = historyWindow;
 
         this.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(searchString.getText()),
+                BorderFactory.createTitledBorder(searchString),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5))); 
         
         this.textFieldPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -151,7 +151,8 @@ public class SearchPanel
         */
         
         this.searchButton.setName("search");
-        this.searchButton.setMnemonic(searchString.getMnemonic());
+        this.searchButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.SEARCH"));
         
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");

@@ -33,7 +33,7 @@ public class KeybindingsConfigForm
     public String getTitle()
     {
         return KeybindingChooserActivator.getResources()
-            .getI18NString("keybindings");
+            .getI18NString("plugin.keybindings.PLUGIN_NAME");
     }
 
     /**

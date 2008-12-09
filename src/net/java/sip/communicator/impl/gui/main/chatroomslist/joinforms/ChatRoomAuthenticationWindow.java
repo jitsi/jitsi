@@ -12,9 +12,9 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -30,22 +30,20 @@ public class ChatRoomAuthenticationWindow
     private JTextArea infoTextArea = new JTextArea();
 
     private JLabel idLabel = new JLabel(
-        Messages.getI18NString("id").getText());
+        GuiActivator.getResources().getI18NString("service.gui.IDENTIFIER"));
 
     private JLabel passwdLabel = new JLabel(
-        Messages.getI18NString("passwd").getText());
+        GuiActivator.getResources().getI18NString("service.gui.PASSWORD"));
 
     private JTextField idValue;
 
     private JPasswordField passwdField = new JPasswordField(15);
 
-    private I18NString okString = Messages.getI18NString("ok");
+    private JButton loginButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.OK"));
 
-    private I18NString cancelString = Messages.getI18NString("cancel");
-
-    private JButton loginButton = new JButton(okString.getText());
-
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private JPanel labelsPanel =
         new TransparentPanel(new GridLayout(0, 1, 8, 8));
@@ -96,8 +94,9 @@ public class ChatRoomAuthenticationWindow
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.setTitle(
-            Messages.getI18NString("authenticationWindowTitle").getText());
+        this.setTitle(GuiActivator.getResources().getI18NString(
+            "service.gui.AUTHENTICATION_WINDOW_TITLE",
+            new String[]{chatRoom.getParentProvider().getName()}));
 
         this.enableKeyActions();
     }
@@ -117,8 +116,9 @@ public class ChatRoomAuthenticationWindow
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setEditable(false);
         this.infoTextArea.setText(
-            Messages.getI18NString("chatRoomRequiresPassword",
-                new String[]{chatRoom.getChatRoomName()}).getText());
+            GuiActivator.getResources().getI18NString(
+                "service.gui.CHAT_ROOM_REQUIRES_PASSWORD",
+                new String[]{chatRoom.getChatRoomName()}));
 
         this.idLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -142,8 +142,10 @@ public class ChatRoomAuthenticationWindow
         this.loginButton.setName("ok");
         this.cancelButton.setName("cancel");
 
-        this.loginButton.setMnemonic(okString.getMnemonic());
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.loginButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.OK"));
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         this.loginButton.addActionListener(this);
         this.cancelButton.addActionListener(this);

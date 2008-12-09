@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.login;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -56,19 +56,14 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
     {
         String errorMessage = null;
 
-        if (reasonCode == WRONG_PASSWORD)
+        if (reasonCode == WRONG_PASSWORD
+            || reasonCode == WRONG_USERNAME)
         {
             errorMessage
-                = Messages.getI18NString("authenticationFailed",
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.AUTHENTICATION_FAILED",
                     new String[]{   userCredentials.getUserName(),
-                                    realm}).getText();
-        }
-        else if (reasonCode == WRONG_USERNAME)
-        {
-            errorMessage
-                = Messages.getI18NString("authenticationFailed",
-                    new String[]{   userCredentials.getUserName(),
-                                    realm}).getText();
+                                    realm});
         }
 
         AuthenticationWindow loginWindow = null;

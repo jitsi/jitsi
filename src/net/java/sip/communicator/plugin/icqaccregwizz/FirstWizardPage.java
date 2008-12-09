@@ -44,49 +44,55 @@ public class FirstWizardPage
     private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enableAdvOpButton =
-        new SIPCommCheckBox(Resources.getString("ovverideServerOps"), false);
+        new SIPCommCheckBox(Resources.getString(
+            "plugin.aimaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"),
+            false);
 
-    private JLabel uinLabel = new JLabel(Resources.getString("uin"));
+    private JLabel uinLabel
+        = new JLabel(Resources.getString("plugin.icqaccregwizz.USERNAME"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel
+        = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
     private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("existingAccount"));
+        new JLabel(Resources.getString(
+            "service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JTextField uinField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
 
     private JCheckBox rememberPassBox =
-        new SIPCommCheckBox(Resources.getString("rememberPassword"));
+        new SIPCommCheckBox(Resources.getString("service.gui.REMEMBER_PASSWORD"));
 
     private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
 
     private JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JTextArea registerArea =
-        new JTextArea(Resources.getString("icqRegisterNewAccountText"));
+    private JTextArea registerArea = new JTextArea(
+        Resources.getString("plugin.icqaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
 
-    private JButton registerButton =
-        new JButton(Resources.getString("registerNewAccount"));
+    private JButton registerButton = new JButton(
+        Resources.getString("plugin.icqaccregwizz.REGISTER_NEW_ACCOUNT"));
 
-    private JLabel proxyLabel = new JLabel(Resources.getString("proxy"));
+    private JLabel proxyLabel = new JLabel(
+        Resources.getString("plugin.icqaccregwizz.PROXY"));
 
     private JLabel proxyPortLabel =
-        new JLabel(Resources.getString("proxyPort"));
+        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_PORT"));
 
     private JLabel proxyUsernameLabel =
-        new JLabel(Resources.getString("proxyUsername"));
+        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_USERNAME"));
 
     private JLabel proxyPasswordLabel =
-        new JLabel(Resources.getString("proxyPassword"));
+        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_PASSWORD"));
 
     private JLabel proxyTypeLabel =
-        new JLabel(Resources.getString("proxyType"));
+        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_TYPE"));
 
     private JTextField proxyField = new JTextField();
 
@@ -169,7 +175,7 @@ public class FirstWizardPage
         uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("aimUinAndPassword")));
+            .getString("plugin.aimaccregwizz.USERNAME_AND_PASSWORD")));
 
         mainPanel.add(uinPassPanel);
 
@@ -213,7 +219,7 @@ public class FirstWizardPage
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("advancedOptions")));
+            .getString("plugin.aimaccregwizz.ADVANCED_OPTIONS")));
 
         mainPanel.add(advancedOpPanel);
 
@@ -227,7 +233,7 @@ public class FirstWizardPage
         this.registerPanel.add(buttonPanel);
 
         this.registerPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("registerNewAccount")));
+            .getString("plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT")));
 
         mainPanel.add(registerPanel);
 

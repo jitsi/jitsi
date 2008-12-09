@@ -13,7 +13,6 @@ import java.awt.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -37,9 +36,9 @@ public class HelpMenu
      * Creates an instance of <tt>HelpMenu</tt>.
      * @param chatWindow The parent <tt>MainFrame</tt>.
      */
-    public HelpMenu(ChatWindow chatWindow) {
-
-        super(Messages.getI18NString("help").getText());
+    public HelpMenu(ChatWindow chatWindow)
+    {
+        super(GuiActivator.getResources().getI18NString("service.gui.HELP"));
 
         this.setOpaque(false);
 
@@ -47,7 +46,8 @@ public class HelpMenu
             GuiActivator.getResources()
                 .getColor("service.gui.CHAT_MENU_FOREGROUND")));
 
-        this.setMnemonic(Messages.getI18NString("help").getMnemonic());
+        this.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.HELP"));
 
         this.initPluginComponents();
     }

@@ -11,7 +11,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 
@@ -44,7 +44,8 @@ public class ChatContactCellRenderer
 
         if (displayName == null || displayName.length() < 1)
         {
-            displayName = Messages.getI18NString("unknown").getText();
+            displayName = GuiActivator.getResources()
+                .getI18NString("service.gui.UNKNOWN");
         }
 
         this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));

@@ -66,7 +66,7 @@ public class ContactInfoContactPanel
         this.contactInfoDialog = dialog;
 
         this.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-            .createTitledBorder(Resources.getString("contacts")),
+            .createTitledBorder(Resources.getString("service.gui.CONTACTS")),
             BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         this.contactList.setOpaque(false);

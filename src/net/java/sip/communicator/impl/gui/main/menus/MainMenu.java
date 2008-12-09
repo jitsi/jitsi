@@ -11,7 +11,6 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -34,12 +33,15 @@ public class MainMenu
 
     private HelpMenu helpMenu;
 
-    private I18NString fileString = Messages.getI18NString("file");
-    
-    private I18NString toolsString = Messages.getI18NString("tools");
-    
-    private I18NString helpString = Messages.getI18NString("help");
-    
+    private static final String fileString
+        = GuiActivator.getResources().getI18NString("service.gui.FILE");
+
+    private static final String toolsString
+        = GuiActivator.getResources().getI18NString("service.gui.TOOLS");
+
+    private static final String helpString
+        = GuiActivator.getResources().getI18NString("service.gui.HELP");
+
     /**
      * Creates an instance of <tt>Menu</tt>.
      */
@@ -63,14 +65,17 @@ public class MainMenu
      */
     private void init()
     {
-        fileMenu.setText(fileString.getText());
-        fileMenu.setMnemonic(fileString.getMnemonic());
+        fileMenu.setText(fileString);
+        fileMenu.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.FILE"));
 
-        toolsMenu.setText(toolsString.getText());
-        toolsMenu.setMnemonic(toolsString.getMnemonic());
+        toolsMenu.setText(toolsString);
+        toolsMenu.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
 
-        helpMenu.setText(helpString.getText());
-        helpMenu.setMnemonic(helpString.getMnemonic());
+        helpMenu.setText(helpString);
+        helpMenu.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.HELP"));
 
         this.fileMenu.setOpaque(false);
         this.toolsMenu.setOpaque(false);

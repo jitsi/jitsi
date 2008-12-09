@@ -12,7 +12,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -32,13 +31,11 @@ public class JoinChatRoomDialog
     
     private SearchChatRoomPanel searchPanel;
     
-    private I18NString joinString = Messages.getI18NString("join");
+    private JButton joinButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.JOIN"));
     
-    private I18NString cancelString = Messages.getI18NString("cancel");
-    
-    private JButton joinButton = new JButton(joinString.getText());
-    
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
         .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
@@ -61,15 +58,19 @@ public class JoinChatRoomDialog
 
         this.searchPanel = new SearchChatRoomPanel(chatRoomProvider);
 
-        this.setTitle(Messages.getI18NString("joinChatRoom").getText());
+        this.setTitle(
+            GuiActivator.getResources()
+                .getI18NString("service.gui.JOIN_CHAT_ROOM"));
 
         this.getRootPane().setDefaultButton(joinButton);
         this.joinButton.setName("join");
         this.cancelButton.setName("cancel");
 
-        this.joinButton.setMnemonic(joinString.getMnemonic());
+        this.joinButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.JOIN"));
 
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
 
@@ -95,7 +96,7 @@ public class JoinChatRoomDialog
         JButton button = (JButton)e.getSource();
         String name = button.getName();
 
-        if (name.equals("join"))
+        if (name.equals("service.gui.JOIN"))
         {
             GuiActivator.getUIService().getConferenceChatManager()
                 .joinChatRoom(searchPanel.getChatRoomName(), chatRoomProvider);

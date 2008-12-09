@@ -14,7 +14,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -469,11 +470,12 @@ public class Wizard
         nextButton.addActionListener(wizardController);
         cancelButton.addActionListener(wizardController);
 
-        backButton
-            .setMnemonic(Messages.getI18NString("previous").getMnemonic());
-        nextButton.setMnemonic(Messages.getI18NString("next").getMnemonic());
-        cancelButton
-            .setMnemonic(Messages.getI18NString("cancel").getMnemonic());
+        backButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.PREVIOUS"));
+        nextButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.NEXT"));
+        cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         // Create the buttons with a separator above them, then place them
         // on the east side of the panel with a small amount of space between
@@ -511,10 +513,14 @@ public class Wizard
 
     static
     {
-        BACK_TEXT = Messages.getI18NString("previous").getText();
-        NEXT_TEXT = Messages.getI18NString("next").getText();
-        CANCEL_TEXT = Messages.getI18NString("cancel").getText();
-        FINISH_TEXT = Messages.getI18NString("finish").getText();
+        BACK_TEXT
+            = GuiActivator.getResources().getI18NString("service.gui.PREVIOUS");
+        NEXT_TEXT
+            = GuiActivator.getResources().getI18NString("service.gui.NEXT");
+        CANCEL_TEXT
+            = GuiActivator.getResources().getI18NString("service.gui.CANCEL");
+        FINISH_TEXT
+            = GuiActivator.getResources().getI18NString("service.gui.FINISH");
     }
 
     public BufferedImage getWizzardIcon()

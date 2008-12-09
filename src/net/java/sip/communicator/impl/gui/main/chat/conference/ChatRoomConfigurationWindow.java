@@ -13,8 +13,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -35,10 +35,10 @@ public class ChatRoomConfigurationWindow
     private JPanel mainPanel = new JPanel();
     
     private JButton saveButton = new JButton(
-        Messages.getI18NString("apply").getText());
+        GuiActivator.getResources().getI18NString("service.gui.APPLY"));
     
     private JButton cancelButton = new JButton(
-        Messages.getI18NString("cancel").getText());
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
     private JPanel roomOptionsPanel = new JPanel(new GridLayout(0, 1));
     
@@ -62,11 +62,12 @@ public class ChatRoomConfigurationWindow
     {
         this.configForm = configForm;
         
-        this.setTitle(Messages.getI18NString(
-            "chatRoomConfiguration", new String[]{chatRoomName}).getText());
+        this.setTitle(GuiActivator.getResources().getI18NString(
+            "service.gui.CHAT_ROOM_CONFIGURATION",
+            new String[]{chatRoomName}));
         
-        titlePanel.setTitleText(Messages.getI18NString(
-            "configuration").getText());
+        titlePanel.setTitleText(GuiActivator.getResources().getI18NString(
+            "service.gui.SETTINGS"));
         
         this.generalScrollPane.setPreferredSize(new Dimension(550, 500));
         this.generalScrollPane.setHorizontalScrollBarPolicy(
@@ -92,11 +93,11 @@ public class ChatRoomConfigurationWindow
             BorderLayout.NORTH);
         
         this.tabbedPane.add(
-            Messages.getI18NString("general").getText(),
+            GuiActivator.getResources().getI18NString("service.gui.GENERAL"),
             generalScrollPane);
         
         this.tabbedPane.add(
-            Messages.getI18NString("options").getText(),
+            GuiActivator.getResources().getI18NString("service.gui.OPTIONS"),
             optionsScrollPane);
         
         this.getContentPane().add(titlePanel, BorderLayout.NORTH);
@@ -106,7 +107,8 @@ public class ChatRoomConfigurationWindow
         this.roomOptionsPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15),
             BorderFactory.createTitledBorder(
-                Messages.getI18NString("chatRoomOptions").getText())));
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.CHAT_ROOM_OPTIONS"))));
         
         this.loadConfigurationForm();
     }
@@ -391,9 +393,10 @@ public class ChatRoomConfigurationWindow
                     {
                         new ErrorDialog(
                             ChatRoomConfigurationWindow.this,
-                            Messages.getI18NString("error").getText(),
-                            Messages.getI18NString(
-                                "chatRoomConfigFormSubmitFailed").getText(),
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.ERROR"),
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.CHAT_ROOM_CONFIGURATION_SUBMIT_FAILED"),
                             e).showDialog();
                     }
                 }

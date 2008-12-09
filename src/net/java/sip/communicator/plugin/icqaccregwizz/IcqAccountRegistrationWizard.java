@@ -42,7 +42,7 @@ public class IcqAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -71,7 +71,7 @@ public class IcqAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameIcq");
+        return Resources.getString("plugin.icqaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -81,7 +81,7 @@ public class IcqAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionIcq");
+        return Resources.getString("plugin.icqaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -104,14 +104,14 @@ public class IcqAccountRegistrationWizard
     {
         LinkedHashMap summaryTable = new LinkedHashMap();
 
-        summaryTable.put(Resources.getString("uin"), registration.getUin());
-        summaryTable.put(Resources.getString("rememberPassword"),
+        summaryTable.put(Resources.getString("service.gui.USER_IDENTIFIER"), registration.getUin());
+        summaryTable.put(Resources.getString("service.gui.REMEMBER_PASSWORD"),
                 new Boolean(registration.isRememberPassword()));
 
         if(registration.isAdvancedSettingsEnabled())
         {
             if (registration.getProxy() != null)
-                summaryTable.put(Resources.getString("proxy"),
+                summaryTable.put(Resources.getString("plugin.icqaccregwizz.PROXY"),
                     registration.getProxy());
 
             if (registration.getProxyPort() != null)
@@ -228,14 +228,14 @@ public class IcqAccountRegistrationWizard
         {
             IcqAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("error"),
+                                        Resources.getString("service.gui.ERROR"),
                                         PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException e)
         {
             IcqAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("error"),
+                                        Resources.getString("service.gui.ERROR"),
                                         PopupDialog.ERROR_MESSAGE);
         }
 

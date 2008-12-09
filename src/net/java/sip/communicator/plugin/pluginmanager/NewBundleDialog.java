@@ -22,23 +22,27 @@ public class NewBundleDialog
     extends SIPCommDialog
     implements ActionListener
 {
-    private JButton installButton = new JButton(Resources.getString("install"));
+    private JButton installButton
+        = new JButton(Resources.getString("plugin.pluginmanager.INSTALL"));
     
-    private JButton cancelButton = new JButton(Resources.getString("cancel"));
+    private JButton cancelButton
+        = new JButton(Resources.getString("service.gui.CANCEL"));
     
     private JTextField bundlePathField = new JTextField();
     
-    private JLabel bundlePathLabel = new JLabel(Resources.getString("url") + ": ");
+    private JLabel bundlePathLabel
+        = new JLabel(Resources.getString("plugin.pluginmanager.URL") + ": ");
     
-    private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonsPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
     
     private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
     
     private JPanel mainPanel = new TransparentPanel(new BorderLayout());
-
-    private JButton fileChooserButton =
-        new JButton(Resources.getString("chooseFile"));
-
+    
+    private JButton fileChooserButton = new JButton(
+        Resources.getString("plugin.pluginmanager.CHOOSE_FILE"));
+    
     public NewBundleDialog ()
     {
         this.mainPanel.setPreferredSize(new Dimension(450, 150));

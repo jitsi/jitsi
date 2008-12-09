@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.plugin.extendedcallhistorysearch;
+package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
 
@@ -47,6 +47,6 @@ public class CallHistoryButton
     public String getText()
     {
         return ExtendedCallHistorySearchActivator.getResources()
-            .getI18NString("history");
+            .getI18NString("service.gui.HISTORY");
     }
 }

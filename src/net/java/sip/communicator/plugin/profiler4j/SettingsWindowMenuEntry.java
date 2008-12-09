@@ -19,7 +19,7 @@ import net.sf.profiler4j.console.*;
 
 public class SettingsWindowMenuEntry implements PluginComponent
 {
-    private static final String PROFILER_NAME = "profiler";
+    private static final String PROFILER_NAME = "plugin.profiler.PLUGIN_NAME";
     private JMenuItem settingsMenuEntry;
     private Container container;
 
@@ -33,7 +33,7 @@ public class SettingsWindowMenuEntry implements PluginComponent
                 Prefs prefs = new Prefs();
 
                 System.setProperty("swing.aatext", 
-                		String.valueOf(prefs.isAntialiasing()));          
+                		String.valueOf(prefs.isAntialiasing()));
                 
                 final Console app = new Console(prefs);
                 app.connect();

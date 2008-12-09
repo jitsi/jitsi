@@ -39,7 +39,7 @@ public class HoldButton
 
         setModel(new HoldButtonModel(callParticipant));
         setToolTipText(GuiActivator.getResources().getI18NString(
-            "HoldButton_toolTipText"));
+            "service.gui.HOLD_BUTTON_TOOL_TIP"));
     }
 
     /**

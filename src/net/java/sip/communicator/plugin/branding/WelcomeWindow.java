@@ -32,7 +32,7 @@ public class WelcomeWindow extends JDialog
             + System.getProperty("sip-communicator.version"));
 
     private JTextArea logoArea = new JTextArea(
-        BrandingActivator.getResources().getI18NString("logoMessage"));
+        BrandingActivator.getResources().getI18NString("plugin.branding.LOGO_MESSAGE"));
 
     private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
 
@@ -43,7 +43,7 @@ public class WelcomeWindow extends JDialog
     private JPanel loadingPanel = new JPanel(new BorderLayout());
 
     private JLabel loadingLabel = new JLabel(
-        BrandingActivator.getResources().getI18NString("loading") + ": ");
+        BrandingActivator.getResources().getI18NString("plugin.branding.LOADING") + ": ");
 
     private JLabel bundleLabel = new JLabel();
 
@@ -89,7 +89,7 @@ public class WelcomeWindow extends JDialog
 
         this.rightsArea.setContentType("text/html");
         this.rightsArea.appendToEnd(BrandingActivator.getResources().getI18NString(
-            "welcomeMessage",
+            "plugin.branding.WELCOME_MESSAGE",
             new String[]{
                 Constants.TEXT_COLOR,
                 APPLICATION_NAME,
@@ -107,7 +107,7 @@ public class WelcomeWindow extends JDialog
 
         this.licenseArea.setContentType("text/html");
         this.licenseArea.appendToEnd(BrandingActivator.getResources().getI18NString(
-            "license",
+            "plugin.branding.LICENSE",
             new String[]
                        {
                             Constants.TEXT_COLOR

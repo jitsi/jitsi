@@ -12,7 +12,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
@@ -33,7 +32,7 @@ public class InvitationReceivedDialog
     private JPanel reasonPanel = new JPanel(new BorderLayout());
     
     private JLabel reasonLabel = new JLabel(
-        Messages.getI18NString("reason").getText() + ": ");
+        GuiActivator.getResources().getI18NString("service.gui.REASON") + ": ");
     
     private JTextField reasonField = new JTextField();
 
@@ -41,17 +40,14 @@ public class InvitationReceivedDialog
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private I18NString acceptString = Messages.getI18NString("accept");
+    private JButton acceptButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.ACCEPT"));
     
-    private I18NString rejectString = Messages.getI18NString("reject");
+    private JButton rejectButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.REJECT"));
     
-    private I18NString ignoreString = Messages.getI18NString("ignore");
-    
-    private JButton acceptButton = new JButton(acceptString.getText());
-    
-    private JButton rejectButton = new JButton(rejectString.getText());
-    
-    private JButton ignoreButton = new JButton(ignoreString.getText());
+    private JButton ignoreButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.IGNORE"));
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
@@ -60,8 +56,8 @@ public class InvitationReceivedDialog
     private JLabel iconLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
     
-    private String title
-        = Messages.getI18NString("invitationReceived").getText();
+    private String title = GuiActivator.getResources()
+        .getI18NString("service.gui.INVITATION_RECEIVED");
     
     /**
      * The <tt>ChatRoomInvitation</tt> for which this dialog is.
@@ -108,17 +104,17 @@ public class InvitationReceivedDialog
         this.mainPanel.setPreferredSize(new Dimension(400, 230));
 
         infoTextArea.setText(
-            Messages.getI18NString("invitationReceivedFormInfo",
+            GuiActivator.getResources().getI18NString("service.gui.INVITATION_RECEIVED_MSG",
                 new String[] {  invitation.getInviter(),
-                                invitation.getTargetChatRoom().getName()})
-                                .getText());
+                                invitation.getTargetChatRoom().getName()}));
 
         if(invitation.getReason() != null && invitation.getReason() != "")
         {
             invitationReasonTextArea.setText(invitation.getReason());
             invitationReasonTextArea.setBorder(
                 BorderFactory.createTitledBorder(
-                    Messages.getI18NString("invitation").getText()));
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.INVITATION")));
 
             this.dataPanel.add(invitationReasonTextArea, BorderLayout.CENTER);
         }
@@ -146,9 +142,12 @@ public class InvitationReceivedDialog
         this.buttonsPanel.add(ignoreButton);
         
         this.getRootPane().setDefaultButton(acceptButton);
-        this.acceptButton.setMnemonic(acceptString.getMnemonic());
-        this.rejectButton.setMnemonic(rejectString.getMnemonic());
-        this.ignoreButton.setMnemonic(ignoreString.getMnemonic());
+        this.acceptButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.ACCEPT"));
+        this.rejectButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.REJECT"));
+        this.ignoreButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.IGNORE"));
         
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -157,7 +156,7 @@ public class InvitationReceivedDialog
         this.mainPanel.add(dataPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
-        this.getContentPane().add(mainPanel);        
+        this.getContentPane().add(mainPanel);
     }
     
     /**

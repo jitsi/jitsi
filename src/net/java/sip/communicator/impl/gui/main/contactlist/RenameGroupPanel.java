@@ -6,10 +6,11 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
+
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -22,20 +23,20 @@ import net.java.sip.communicator.util.swing.*;
 public class RenameGroupPanel
     extends TransparentPanel
 {
-    private JLabel uinLabel
-        = new JLabel(Messages.getI18NString("newName").getText());
+    private JLabel uinLabel = new JLabel(
+        GuiActivator.getResources().getI18NString("service.gui.NEW_NAME"));
 
     private JTextField textField = new JTextField();
 
     private TransparentPanel dataPanel
         = new TransparentPanel(new BorderLayout(5, 5));
 
-    private SIPCommMsgTextArea infoLabel
-        = new SIPCommMsgTextArea(
-            Messages.getI18NString("renameGroupInfo").getText());
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+        GuiActivator.getResources()
+            .getI18NString("service.gui.RENAME_GROUP_INFO"));
 
-    private JLabel infoTitleLabel
-        = new JLabel(Messages.getI18NString("renameGroup").getText());
+    private JLabel infoTitleLabel = new JLabel(
+        GuiActivator.getResources().getI18NString("service.gui.RENAME_GROUP"));
 
     private JLabel iconLabel
         = new JLabel(new ImageIcon(ImageLoader.getImage(

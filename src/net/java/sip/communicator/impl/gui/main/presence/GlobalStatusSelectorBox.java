@@ -15,7 +15,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -68,23 +67,23 @@ public class GlobalStatusSelectorBox
         ImageLoader.getImage(ImageLoader.USER_FFC_ICON));
 
     private JMenuItem onlineItem = new JMenuItem(
-        Messages.getI18NString("online").getText(),
+        GuiActivator.getResources().getI18NString("service.gui.ONLINE"),
         onlineIcon);
 
     private JMenuItem offlineItem = new JMenuItem(
-        Messages.getI18NString("offline").getText(),
+        GuiActivator.getResources().getI18NString("service.gui.OFFLINE"),
         offlineIcon);
 
     private JMenuItem awayItem = new JMenuItem(
-        Messages.getI18NString("awayStatus").getText(),
+        GuiActivator.getResources().getI18NString("service.gui.AWAY_STATUS"),
         awayIcon);
 
 //    private JMenuItem dndItem = new JMenuItem(
-//        Messages.getI18NString("dndStatus").getText(),
+//        GuiActivator.getResources().getI18NString("service.gui.DND_STATUS").getText(),
 //        dndIcon);
 
     private JMenuItem ffcItem = new JMenuItem(
-        Messages.getI18NString("ffcStatus").getText(),
+        GuiActivator.getResources().getI18NString("service.gui.FFC_STATUS"),
         ffcIcon);
 
     private JLabel titleLabel;
@@ -617,33 +616,36 @@ public class GlobalStatusSelectorBox
                     == OperationFailedException.GENERAL_ERROR)
                 {
                     String msgText =
-                        Messages.getI18NString("statusChangeGeneralError")
-                            .getText();
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.STATUS_CHANGE_GENERAL_ERROR");
 
-                    new ErrorDialog(null, Messages.getI18NString(
-                        "generalError").getText(), msgText, e1)
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                        "service.gui.GENERAL_ERROR"), msgText, e1)
                     .showDialog();
                 }
                 else if (e1.getErrorCode()
                     == OperationFailedException.NETWORK_FAILURE)
                 {
                     String msgText =
-                        Messages.getI18NString("statusChangeNetworkFailure")
-                            .getText();
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
 
                     new ErrorDialog(null, msgText,
-                        Messages.getI18NString("networkFailure").getText(), e1)
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NETWORK_FAILURE"), e1)
                     .showDialog();
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException.PROVIDER_NOT_REGISTERED)
                 {
                     String msgText =
-                        Messages.getI18NString("statusChangeNetworkFailure")
-                            .getText();
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
 
-                    new ErrorDialog(null, Messages.getI18NString(
-                        "networkFailure").getText(), msgText, e1)
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                        "service.gui.NETWORK_FAILURE"), msgText, e1)
                     .showDialog();
                 }
                 logger.error("Error - changing status", e1);

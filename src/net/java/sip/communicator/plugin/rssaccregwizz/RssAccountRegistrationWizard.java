@@ -55,7 +55,7 @@ public class RssAccountRegistrationWizard
         this.wizardContainer = wizardContainer;
 
         this.wizardContainer
-            .setFinishButtonText(Resources.getString("activate"));
+            .setFinishButtonText(Resources.getString("service.gui.ACTIVATE"));
     }
 
     /**
@@ -86,7 +86,7 @@ public class RssAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameRss");
+        return Resources.getString("plugin.rssaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -96,7 +96,7 @@ public class RssAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionRss");
+        return Resources.getString("plugin.rssaccregwizz.PROTICOL_DESCRIPTION");
     }
 
     /**
@@ -186,14 +186,14 @@ public class RssAccountRegistrationWizard
         {
             RssAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                        Resources.getString("error"),
+                        Resources.getString("service.gui.ERROR"),
                         PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException e)
         {
             RssAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                        Resources.getString("error"),
+                        Resources.getString("service.gui.ERROR"),
                         PopupDialog.ERROR_MESSAGE);
         }
 

@@ -325,7 +325,8 @@ public class WhiteboardFrame
      */
     private void initIcons()
     {
-        setIconImage(Resources.getImage("sc_logo16x16").getImage());
+        setIconImage(
+            Resources.getImage("service.gui.SIP_COMMUNICATOR_LOGO").getImage());
 
         selectionButton
             .setIcon(Resources.getImage("plugin.whiteboard.SELECT_ICON"));
@@ -829,7 +830,7 @@ public class WhiteboardFrame
         leftPanel = new TransparentPanel(new BorderLayout());
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle(Resources.getString("whiteboardTitle"));
+        setTitle(Resources.getString("plugin.whiteboard.TITLE"));
 
         if (session != null)
         {
@@ -841,16 +842,16 @@ public class WhiteboardFrame
             }
         }
 
-        jLabelStatus.setText(Resources.getString("draw"));
+        jLabelStatus.setText(Resources.getString("plugin.whiteboard.DRAW"));
         jLabelStatus.setBorder(javax.swing.BorderFactory
             .createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
         getContentPane().add(jLabelStatus, java.awt.BorderLayout.SOUTH);
 
-        jButtonNew.setToolTipText(Resources.getString("new"));
+        jButtonNew.setToolTipText(Resources.getString("service.gui.NEW"));
         jButtonNew.setEnabled(false);
         jToolBar1.add(jButtonNew);
 
-        jButtonSave.setToolTipText(Resources.getString("save"));
+        jButtonSave.setToolTipText(Resources.getString("service.gui.SAVE"));
         jButtonSave.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -861,15 +862,15 @@ public class WhiteboardFrame
 
         jToolBar1.add(jButtonSave);
 
-        jButtonOpen.setToolTipText(Resources.getString("open"));
+        jButtonOpen.setToolTipText(Resources.getString("plugin.whiteboard.OPEN"));
         jButtonOpen.setEnabled(false);
         jToolBar1.add(jButtonOpen);
 
-        jButtonCopy.setToolTipText(Resources.getString("copy"));
+        jButtonCopy.setToolTipText(Resources.getString("service.gui.COPY"));
         jButtonCopy.setEnabled(false);
         jToolBar1.add(jButtonCopy);
 
-        jButtonPaste.setToolTipText(Resources.getString("paste"));
+        jButtonPaste.setToolTipText(Resources.getString("service.gui.PASTE"));
         jButtonPaste.setEnabled(false);
         jToolBar1.add(jButtonPaste);
 
@@ -882,7 +883,7 @@ public class WhiteboardFrame
         toolBar.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
 
         buttonGroup.add(selectionButton);
-        selectionButton.setToolTipText(Resources.getString("select"));
+        selectionButton.setToolTipText(Resources.getString("plugin.whiteboard.SELECT"));
         selectionButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -894,7 +895,7 @@ public class WhiteboardFrame
         toolBar.add(selectionButton);
 
         buttonGroup.add(modifButton);
-        modifButton.setToolTipText(Resources.getString("modification"));
+        modifButton.setToolTipText(Resources.getString("plugin.whiteboard.MODIFICATION"));
         modifButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -906,7 +907,7 @@ public class WhiteboardFrame
         toolBar.add(modifButton);
 
         buttonGroup.add(penButton);
-        penButton.setToolTipText(Resources.getString("pen"));
+        penButton.setToolTipText(Resources.getString("plugin.whiteboard.PEN"));
         penButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -918,7 +919,7 @@ public class WhiteboardFrame
         toolBar.add(penButton);
 
         buttonGroup.add(textButton);
-        textButton.setToolTipText(Resources.getString("text"));
+        textButton.setToolTipText(Resources.getString("plugin.whiteboard.TEXT"));
         textButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -930,7 +931,7 @@ public class WhiteboardFrame
         toolBar.add(textButton);
 
         buttonGroup.add(lineButton);
-        lineButton.setToolTipText(Resources.getString("line"));
+        lineButton.setToolTipText(Resources.getString("plugin.whiteboard.LINE"));
         lineButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -942,7 +943,7 @@ public class WhiteboardFrame
         toolBar.add(lineButton);
 
         buttonGroup.add(polylineButton);
-        polylineButton.setToolTipText(Resources.getString("polyline"));
+        polylineButton.setToolTipText(Resources.getString("plugin.whiteboard.POLYLINE"));
         polylineButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -954,7 +955,7 @@ public class WhiteboardFrame
         toolBar.add(polylineButton);
 
         buttonGroup.add(rectangleButton);
-        rectangleButton.setToolTipText(Resources.getString("rectangle"));
+        rectangleButton.setToolTipText(Resources.getString("plugin.whiteboard.RECTANGLE"));
         rectangleButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -966,7 +967,7 @@ public class WhiteboardFrame
         toolBar.add(rectangleButton);
 
         buttonGroup.add(fillRectangleButton);
-        fillRectangleButton.setToolTipText(Resources.getString("fillRectangle"));
+        fillRectangleButton.setToolTipText(Resources.getString("plugin.whiteboard.FILLED_RECTANGLE"));
         fillRectangleButton
             .addActionListener(new java.awt.event.ActionListener()
             {
@@ -979,7 +980,7 @@ public class WhiteboardFrame
         toolBar.add(fillRectangleButton);
 
         buttonGroup.add(imageButton);
-        imageButton.setToolTipText(Resources.getString("image"));
+        imageButton.setToolTipText(Resources.getString("plugin.whiteboard.IMAGE"));
         imageButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -991,7 +992,7 @@ public class WhiteboardFrame
         toolBar.add(imageButton);
 
         buttonGroup.add(polygonButton);
-        polygonButton.setToolTipText(Resources.getString("polygon"));
+        polygonButton.setToolTipText(Resources.getString("plugin.whiteboard.POLYGON"));
         polygonButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1003,7 +1004,7 @@ public class WhiteboardFrame
         toolBar.add(polygonButton);
 
         buttonGroup.add(fillPolygonButton);
-        fillPolygonButton.setToolTipText(Resources.getString("fillPolygon"));
+        fillPolygonButton.setToolTipText(Resources.getString("plugin.whiteboard.FILLEDPOLYGON"));
         fillPolygonButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1015,7 +1016,7 @@ public class WhiteboardFrame
         toolBar.add(fillPolygonButton);
 
         buttonGroup.add(circleButton);
-        circleButton.setToolTipText(Resources.getString("circle"));
+        circleButton.setToolTipText(Resources.getString("plugin.whiteboard.CIRCLE"));
         circleButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1027,7 +1028,7 @@ public class WhiteboardFrame
         toolBar.add(circleButton);
 
         buttonGroup.add(fillCircleButton);
-        fillCircleButton.setToolTipText(Resources.getString("fillCircle"));
+        fillCircleButton.setToolTipText(Resources.getString("plugin.whiteboard.FILLED_CIRCLE"));
         fillCircleButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1038,7 +1039,7 @@ public class WhiteboardFrame
 
         toolBar.add(fillCircleButton);
 
-        colorChooserButton.setToolTipText(Resources.getString("color"));
+        colorChooserButton.setToolTipText(Resources.getString("plugin.whiteboard.COLOR"));
         colorChooserButton
             .addActionListener(new java.awt.event.ActionListener()
             {
@@ -1059,7 +1060,7 @@ public class WhiteboardFrame
 
         jPanel2.setLayout(new GridBagLayout());
 
-        jLabelThickness.setText(Resources.getString("thickness"));
+        jLabelThickness.setText(Resources.getString("plugin.whiteboard.THICKNESS"));
 
         jPanel2.add(jLabelThickness);
 
@@ -1080,9 +1081,9 @@ public class WhiteboardFrame
 
         getContentPane().add(leftPanel, BorderLayout.WEST);
 
-        fileMenu.setText(Resources.getString("file"));
+        fileMenu.setText(Resources.getString("service.gui.FILE"));
 
-        newMenuItem.setText(Resources.getString("new"));
+        newMenuItem.setText(Resources.getString("service.gui.NEW"));
         newMenuItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -1102,19 +1103,19 @@ public class WhiteboardFrame
         });
         fileMenu.add(newMenuItem);
 
-        openMenuItem.setText(Resources.getString("open"));
+        openMenuItem.setText(Resources.getString("plugin.whiteboard.OPEN"));
         openMenuItem.setEnabled(false);
         fileMenu.add(openMenuItem);
 
-        saveMenuItem.setText(Resources.getString("save"));
+        saveMenuItem.setText(Resources.getString("service.gui.SAVE"));
         saveMenuItem.setEnabled(false);
         fileMenu.add(saveMenuItem);
 
-        printMenuItem.setText(Resources.getString("print"));
+        printMenuItem.setText(Resources.getString("service.gui.PRINT"));
         printMenuItem.setEnabled(false);
         fileMenu.add(printMenuItem);
 
-        exitMenuItem.setText(Resources.getString("exit"));
+        exitMenuItem.setText(Resources.getString("service.gui.EXIT"));
         exitMenuItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -1126,8 +1127,8 @@ public class WhiteboardFrame
 
         menuBar.add(fileMenu);
 
-        editMenu.setText(Resources.getString("edit"));
-        gridMenuItem.setText(Resources.getString("grid"));
+        editMenu.setText(Resources.getString("service.gui.EDIT"));
+        gridMenuItem.setText(Resources.getString("plugin.whiteboard.GRID"));
         gridMenuItem.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1138,7 +1139,7 @@ public class WhiteboardFrame
 
         editMenu.add(gridMenuItem);
 
-        deselectMenuItem.setText(Resources.getString("deselect"));
+        deselectMenuItem.setText(Resources.getString("plugin.whiteboard.DESELECT"));
         deselectMenuItem.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1149,17 +1150,17 @@ public class WhiteboardFrame
 
         editMenu.add(deselectMenuItem);
 
-        copyMenuItem.setText(Resources.getString("copy"));
+        copyMenuItem.setText(Resources.getString("service.gui.COPY"));
         copyMenuItem.setEnabled(false);
         editMenu.add(copyMenuItem);
 
-        pasteMenuItem.setText(Resources.getString("paste"));
+        pasteMenuItem.setText(Resources.getString("service.gui.PASTE"));
         pasteMenuItem.setEnabled(false);
         editMenu.add(pasteMenuItem);
 
         deleteMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
             java.awt.event.KeyEvent.VK_DELETE, 0));
-        deleteMenuItem.setText(Resources.getString("delete"));
+        deleteMenuItem.setText(Resources.getString("plugin.whiteboard.DELETE"));
         deleteMenuItem.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1170,18 +1171,18 @@ public class WhiteboardFrame
 
         editMenu.add(deleteMenuItem);
 
-        propertiesMenuItem.setText(Resources.getString("properties"));
+        propertiesMenuItem.setText(Resources.getString("plugin.whiteboard.PROPERTIES"));
         propertiesMenuItem.setEnabled(false);
         editMenu.add(propertiesMenuItem);
 
         menuBar.add(editMenu);
 
-        helpMenu.setText(Resources.getString("help"));
+        helpMenu.setText(Resources.getString("service.gui.HELP"));
         helpMenu.setEnabled(false);
-        helpMenuItem.setText(Resources.getString("help"));
+        helpMenuItem.setText(Resources.getString("service.gui.HELP"));
         helpMenu.add(helpMenuItem);
 
-        aboutMenuItem.setText(Resources.getString("about"));
+        aboutMenuItem.setText(Resources.getString("service.gui.ABOUT"));
         helpMenu.add(aboutMenuItem);
 
         menuBar.add(helpMenu);
@@ -2130,8 +2131,8 @@ public class WhiteboardFrame
 
         String t =
             (String) JOptionPane.showInputDialog(this,
-                "Please enter your text", "Text", JOptionPane.QUESTION_MESSAGE,
-                null, null, "text");
+                "Please enter your text", "plugin.whiteboard.TEXT", JOptionPane.QUESTION_MESSAGE,
+                null, null, "plugin.whiteboard.TEXT");
 
         if (t != null && t.length() > 0)
         {

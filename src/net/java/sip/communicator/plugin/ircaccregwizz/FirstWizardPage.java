@@ -59,18 +59,22 @@ public class FirstWizardPage
     private JPanel valuesOptionsPanel = new TransparentPanel();
 
     private JLabel infoPassword
-        = new JLabel(Resources.getString("infoPassword"));
+        = new JLabel(Resources.getString("plugin.ircaccregwizz.INFO_PASSWORD"));
 
-    private JLabel nick = new JLabel(Resources.getString("nick"));
+    private JLabel nick
+        = new JLabel(Resources.getString("plugin.ircaccregwizz.USERNAME"));
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel
+        = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
-    private JLabel server = new JLabel(Resources.getString("server"));
+    private JLabel server
+        = new JLabel(Resources.getString("plugin.ircaccregwizz.HOST"));
 
-    private JLabel port = new JLabel(Resources.getString("port"));
+    private JLabel port
+        = new JLabel(Resources.getString("plugin.ircaccregwizz.PORT"));
 
     private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("existingAccount"));
+        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -88,17 +92,18 @@ public class FirstWizardPage
 
     private JTextField portField = new JTextField();
 
-    private JCheckBox rememberPassBox =
-        new SIPCommCheckBox(Resources.getString("rememberPassword"));
+    private JCheckBox rememberPassBox
+        = new SIPCommCheckBox(Resources.getString("service.gui.REMEMBER_PASSWORD"));
 
-    private JCheckBox autoNickChange =
-        new SIPCommCheckBox(Resources.getString("autoNickChange"));
+    private JCheckBox autoNickChange
+        = new SIPCommCheckBox(
+            Resources.getString("plugin.ircaccregwizz.AUTO_NICK_CHANGE"));
 
-    private JCheckBox defaultPort =
-        new SIPCommCheckBox(Resources.getString("defaultPort"));
+    private JCheckBox defaultPort = new SIPCommCheckBox(
+            Resources.getString("plugin.ircaccregwizz.USE_DEFAULT_PORT"));
 
-    private JCheckBox passwordNotRequired =
-        new SIPCommCheckBox(Resources.getString("passwordNotRequired"));
+    private JCheckBox passwordNotRequired = new SIPCommCheckBox(
+            Resources.getString("plugin.ircaccregwizz.PASSWORD_NOT_REQUIRED"));
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -201,7 +206,7 @@ public class FirstWizardPage
         
         userPassPanel.setBorder(BorderFactory
                                 .createTitledBorder(Resources.getString(
-                                    "userAndPassword")));
+                                "plugin.ircaccregwizz.USERNAME_AND_PASSWORD")));
         
         labelsServerPanel.add(server);
         labelsServerPanel.add(emptyPanel2);
@@ -216,13 +221,13 @@ public class FirstWizardPage
         serverPanel.add(defaultPort, BorderLayout.SOUTH);
         
         serverPanel.setBorder(BorderFactory.createTitledBorder(
-            Resources.getString("serverIRC")));
+            Resources.getString("plugin.ircaccregwizz.IRC_SERVER")));
         
         optionsPanel.add(rememberPassBox, BorderLayout.CENTER);
         optionsPanel.add(autoNickChange, BorderLayout.SOUTH);
         
         optionsPanel.setBorder(BorderFactory.createTitledBorder(
-            Resources.getString("options")));
+            Resources.getString("service.gui.OPTIONS")));
         
         mainPanel.add(userPassPanel);
         mainPanel.add(serverPanel);

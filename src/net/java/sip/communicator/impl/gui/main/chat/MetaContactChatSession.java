@@ -12,7 +12,6 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -113,7 +112,7 @@ public class MetaContactChatSession
         if (displayName != null && displayName.length() > 0)
             return metaContact.getDisplayName();
 
-        return Messages.getI18NString("unknown").getText();
+        return GuiActivator.getResources().getI18NString("service.gui.UNKNOWN");
     }
 
     /**

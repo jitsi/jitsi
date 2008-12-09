@@ -125,7 +125,7 @@ public class NotificationConfigurationPanel
 
         // Initializing variable part of the "actions"
         TitledBorder title1 = BorderFactory.createTitledBorder(
-                Resources.getString("actions"));
+                Resources.getString("plugin.notificationconfig.ACTIONS"));
         actions.setBorder(title1);
 
         JPanel activateDescactivatePanel = new TransparentPanel();
@@ -133,16 +133,19 @@ public class NotificationConfigurationPanel
         layoutADP.setHgap(75);
         activateDescactivatePanel.setLayout(layoutADP);
 
-        activate = new JButton(Resources.getString("activate"));
+        activate = new JButton(Resources.getString("service.gui.ACTIVATE"));
         activate.setMinimumSize(new Dimension(150,30));
         activate.setPreferredSize(new Dimension(150,30));
         activate.addActionListener(this);
-        desactivate = new JButton(Resources.getString("deactivate"));
+        desactivate = new JButton(
+            Resources.getString("service.gui.DEACTIVATE"));
         desactivate.setMinimumSize(new Dimension(150,30));
         desactivate.setPreferredSize(new Dimension(150,30));
         desactivate.addActionListener(this);
-        playSoundCheckBox =
-            new SIPCommCheckBox(Resources.getString("playsound"));
+
+        playSoundCheckBox = new SIPCommCheckBox(
+            Resources.getString("plugin.notificationconfig.PLAY_SOUND"));
+
         playSoundCheckBox.addItemListener(this);
         playSoundButton = new JButton(
                 new ImageIcon(Resources.getImageInBytes(
@@ -160,7 +163,10 @@ public class NotificationConfigurationPanel
         soundFileChooser.setMinimumSize(new Dimension(30,30));
         soundFileChooser.setPreferredSize(new Dimension(30,30));
         soundFileChooser.addActionListener(this);
-        programCheckBox = new SIPCommCheckBox(Resources.getString("execprog"));
+
+        programCheckBox = new SIPCommCheckBox(
+            Resources.getString("plugin.notificationconfig.EXEC_PROG"));
+
         programCheckBox.addItemListener(this);
         programFileTextField = new JTextField();
         programFileTextField.setMinimumSize(new Dimension(250,30));
@@ -172,8 +178,10 @@ public class NotificationConfigurationPanel
         programFileChooser.setMinimumSize(new Dimension(30,30));
         programFileChooser.setPreferredSize(new Dimension(30,30));
         programFileChooser.addActionListener(this);
-        popupCheckBox =
-            new SIPCommCheckBox(Resources.getString("displaypopup"));
+
+        popupCheckBox = new SIPCommCheckBox(
+            Resources.getString("plugin.notificationconfig.DISPLAY_POPUP"));
+
         popupCheckBox.addItemListener(this);
 
 
@@ -293,14 +301,16 @@ public class NotificationConfigurationPanel
         comboBoxTurnOn.addActionListener(this);
         comboBoxTurnOff = new JComboBox(textComboBox);
         comboBoxTurnOff.addActionListener(this);
-        turnOnAll = new JButton(Resources.getString("turnonall"));
+        turnOnAll = new JButton(
+            Resources.getString("plugin.notificationconfig.TURN_ON_ALL"));
         turnOnAll.addActionListener(this);
-        turnOffAll = new JButton(Resources.getString("turnoffall"));
+        turnOffAll = new JButton(
+            Resources.getString("plugin.notificationconfig.TURN_OFF_ALL"));
         turnOffAll.addActionListener(this);
 
 
         TitledBorder title2 = BorderFactory.createTitledBorder(
-                Resources.getString("quickcontrols"));
+                Resources.getString("plugin.notificationconfig.QUICK_CONTROLS"));
         quickControl.setLayout(new FlowLayout(FlowLayout.CENTER,2,2));
         quickControl.setBorder(title2);
         quickControl.add(turnOnAll);
@@ -330,16 +340,17 @@ public class NotificationConfigurationPanel
         constraints.weightx = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
 
-        restore = new JButton(Resources.getString("restore"));
+        restore = new JButton(
+            Resources.getString("plugin.notificationconfig.RESTORE"));
         restore.addActionListener(this);
-        apply = new JButton(Resources.getString("apply"));
+        apply = new JButton(
+            Resources.getString("service.gui.APPLY"));
         apply.addActionListener(this);
         applyPanel.setLayout(new BorderLayout(5,2));
         applyPanel.add(apply, BorderLayout.EAST);
         applyPanel.add(restore, BorderLayout.WEST);
         gridLayoutGlobal.setConstraints(applyPanel, constraints);
         this.add(applyPanel);
-
 
         notificationService
                 = NotificationConfigurationActivator.getNotificationService();
@@ -407,16 +418,19 @@ public class NotificationConfigurationPanel
             {
                 try
                 {
-                    NotificationsTableEntry tmpNTE = (NotificationsTableEntry) dataVector.elementAt(index);
+                    NotificationsTableEntry tmpNTE
+                        = (NotificationsTableEntry) dataVector.elementAt(index);
                     File file = fileChooserSound.getSelectedFile();
                     //This is where a real application would open the file.
-                    logger.debug("Opening: " + file.toURI().toURL().toExternalForm());
+                    logger.debug("Opening: "
+                            + file.toURI().toURL().toExternalForm());
                     tmpNTE.setSoundFile(file.toURI().toURL().toExternalForm());
                     tmpNTE.setSound(true);
                     tmpNTE.setModify(true);
                     this.updateTableRow(tmpNTE, index);
                     notificationList.setLine(tmpNTE, index);
-                    soundFileTextField.setText(file.toURI().toURL().toExternalForm());
+                    soundFileTextField.setText(
+                        file.toURI().toURL().toExternalForm());
                 }
                 catch (MalformedURLException ex)
                 {

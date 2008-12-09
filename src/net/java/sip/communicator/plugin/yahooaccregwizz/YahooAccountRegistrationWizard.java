@@ -47,7 +47,8 @@ public class YahooAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer
+            .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -80,7 +81,7 @@ public class YahooAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameYahoo");
+        return Resources.getString("plugin.yahooaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -92,7 +93,8 @@ public class YahooAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionYahoo");
+        return Resources
+            .getString("plugin.yahooaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -119,9 +121,12 @@ public class YahooAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(Resources.getString("id"), registration.getUin());
-        summaryTable.put(   Resources.getString("rememberPassword"),
-                            new Boolean(registration.isRememberPassword()));
+        summaryTable.put(
+            Resources.getString("plugin.yahooaccregwizz.USERNAME"),
+            registration.getUin());
+        summaryTable.put(
+            Resources.getString("service.gui.REMEMBER_PASSWORD"),
+            new Boolean(registration.isRememberPassword()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -201,14 +206,14 @@ public class YahooAccountRegistrationWizard
         {
             YahooAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException e)
         {
             YahooAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
 

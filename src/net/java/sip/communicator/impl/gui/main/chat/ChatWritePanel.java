@@ -17,7 +17,6 @@ import javax.swing.undo.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -163,7 +162,9 @@ public class ChatWritePanel
                 KeyEvent.SHIFT_DOWN_MASK), "newLine");
 
             chatPanel.getChatSendPanel().getSendButton().setToolTipText(
-                "<html>" + Messages.getI18NString("sendMessage").getText()
+                "<html>"
+                    + GuiActivator.getResources()
+                        .getI18NString("service.gui.SEND_MESSAGE")
                     + " - Enter <br> "
                     + "Use Ctrl-Enter or Shift-Enter to make a new line"
                     + "</html>");
@@ -176,7 +177,8 @@ public class ChatWritePanel
 
             chatPanel.getChatSendPanel().getSendButton()
                 .setToolTipText(
-                    Messages.getI18NString("sendMessage").getText()
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.SEND_MESSAGE")
                         + " Ctrl-Enter");
         }
     }

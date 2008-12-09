@@ -81,7 +81,7 @@ public class UpdateCheckActivator
             }
         };
         dialog.setTitle(
-            getResources().getI18NString("dialogTitle"));
+            getResources().getI18NString("plugin.updatechecker.DIALOG_TITLE"));
 
         JEditorPane contentMessage = new JEditorPane();
         contentMessage.setContentType("text/html");
@@ -89,15 +89,17 @@ public class UpdateCheckActivator
         contentMessage.setEditable(false);
 
         String dialogMsg =
-            getResources().getI18NString("dialogMessage1",
-            new String[]{getResources().getSettingsString("applicationName")});
+            getResources().getI18NString("plugin.updatechecker.DIALOG_MESSAGE",
+            new String[]{getResources()
+                .getSettingsString("service.gui.APPLICATION_NAME")});
 
         if(lastVersion != null)
             dialogMsg +=
                 getResources().getI18NString(
-                "dialogMessage2",
+                "plugin.updatechecker.DIALOG_MESSAGE_2",
                 new String[]{
-                    getResources().getSettingsString("applicationName"),
+                    getResources().getSettingsString(
+                        "service.gui.APPLICATION_NAME"),
                     lastVersion});
 
         contentMessage.setText(dialogMsg);
@@ -108,8 +110,8 @@ public class UpdateCheckActivator
 
         JPanel buttonPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton closeButton
-            = new JButton( getResources().getI18NString("buttonClose"));
+        JButton closeButton = new JButton(
+            getResources().getI18NString("plugin.updatechecker.BUTTON_CLOSE"));
 
         closeButton.addActionListener(new ActionListener() {
 
@@ -121,8 +123,8 @@ public class UpdateCheckActivator
 
         if(downloadLink != null)
         {
-            JButton downloadButton =
-                new JButton(getResources().getI18NString("buttonDownload"));
+            JButton downloadButton = new JButton(getResources().getI18NString(
+                "plugin.updatechecker.BUTTON_DOWNLOAD"));
 
             downloadButton.addActionListener(new ActionListener() {
 

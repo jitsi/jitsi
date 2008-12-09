@@ -151,14 +151,15 @@ public class ReceivedCallDialog
                 text = callLabel.getText()
                     + participant.getDisplayName()
                     + " "
-                    + GuiActivator.getResources().getI18NString("isCalling");
+                    + GuiActivator.getResources().getI18NString("service.gui.IS_CALLING");
 
                 imageIcon = getParticipantImage(participant);
             }
         }
 
         if (hasMoreParticipants)
-            text += GuiActivator.getResources().getI18NString("areCalling");
+            text += GuiActivator.getResources()
+                .getI18NString("service.gui.ARE_CALLING");
 
         callLabel.setIcon(imageIcon);
         callLabel.setText(text);

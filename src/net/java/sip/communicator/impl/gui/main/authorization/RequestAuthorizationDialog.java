@@ -11,7 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -34,7 +35,8 @@ public class RequestAuthorizationDialog
     private JTextArea infoTextArea = new JTextArea();
     
     private JLabel requestLabel = new JLabel(
-        Messages.getI18NString("typeYourRequest").getText() + ": ");
+        GuiActivator.getResources()
+            .getI18NString("service.gui.TYPE_YOUR_REQUEST") + ": ");
     
     private JTextField requestField = new JTextField();
 
@@ -43,13 +45,13 @@ public class RequestAuthorizationDialog
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private I18NString requestString = Messages.getI18NString("request");
+    private String cancelString
+        = GuiActivator.getResources().getI18NString("service.gui.CANCEL");
     
-    private I18NString cancelString = Messages.getI18NString("cancel");
+    private JButton requestButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.REQUEST"));
     
-    private JButton requestButton = new JButton(requestString.getText());
-    
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(cancelString);
     
     private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
     
@@ -62,8 +64,8 @@ public class RequestAuthorizationDialog
     
     private JLabel titleLabel = new JLabel();
     
-    private String title
-        = Messages.getI18NString("requestAuthorization").getText();
+    private String title = GuiActivator.getResources()
+        .getI18NString("service.gui.REQUEST_AUTHORIZATION");
     
     private AuthorizationRequest request;
     
@@ -85,7 +87,7 @@ public class RequestAuthorizationDialog
         this.setModal(false);
         
         this.setTitle(title);
-    
+        
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
@@ -94,15 +96,16 @@ public class RequestAuthorizationDialog
         
         this.request = request;
         
-        infoTextArea.setText(Messages.getI18NString("requestAuthorizationInfo", 
-                new String[]{contact.getDisplayName()}).getText());
+        infoTextArea.setText(GuiActivator.getResources().getI18NString(
+            "service.gui.REQUEST_AUTHORIZATION_MSG", 
+            new String[]{contact.getDisplayName()}));
         
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setOpaque(false);
         this.infoTextArea.setWrapStyleWord(true);
         this.infoTextArea.setEditable(false);
-                
+        
         this.titlePanel.add(titleLabel);
         this.titlePanel.add(infoTextArea);
         
@@ -122,15 +125,17 @@ public class RequestAuthorizationDialog
         this.buttonsPanel.add(cancelButton);
         
         this.getRootPane().setDefaultButton(requestButton);
-        this.requestButton.setMnemonic(requestString.getMnemonic());
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.requestButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.REQUEST"));
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
         this.mainPanel.add(requestPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
-        this.getContentPane().add(mainPanel);                   
+        this.getContentPane().add(mainPanel);
     }
 
     /**

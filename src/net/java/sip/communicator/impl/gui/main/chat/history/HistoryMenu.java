@@ -11,8 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 
 /**
  * The <tt>HistoryMenu</tt> is the main menu in the history window.
@@ -21,17 +21,13 @@ import net.java.sip.communicator.impl.gui.i18n.*;
  */
 public class HistoryMenu
     extends SIPCommMenu
-    implements ActionListener {
+    implements ActionListener
+{
+    private JMenuItem emptyMenuItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.EMPTY_HISTORY"));
 
-    private I18NString emptyHistoryString
-        = Messages.getI18NString("emptyHistory");
-    
-    private I18NString closeString
-        = Messages.getI18NString("close");
-    
-    private JMenuItem emptyMenuItem = new JMenuItem(emptyHistoryString.getText());
-
-    private JMenuItem closeMenuItem = new JMenuItem(closeString.getText());
+    private JMenuItem closeMenuItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.CLOSE"));
 
     private JFrame parentWindow;
 
@@ -41,22 +37,25 @@ public class HistoryMenu
      */
     public HistoryMenu(JFrame parentWindow) {
 
-        super(Messages.getI18NString("history").getText());
+        super(GuiActivator.getResources().getI18NString("service.gui.HISTORY"));
 
         this.parentWindow = parentWindow;
 
         this.emptyMenuItem.setName("empty");
-        this.closeMenuItem.setName("close");
-        
-        this.emptyMenuItem.setMnemonic(emptyHistoryString.getMnemonic());
-        this.closeMenuItem.setMnemonic(closeString.getMnemonic());
+        this.closeMenuItem.setName("service.gui.CLOSE");
+
+        this.emptyMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+                "service.gui.EMPTY_HISTORY"));
+        this.closeMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CLOSE"));
 
         this.emptyMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
-        
+
         this.add(emptyMenuItem);
         this.add(closeMenuItem);
-        
+
         //disable meni items that are not yet implemented
         this.emptyMenuItem.setEnabled(false);
     }
@@ -71,7 +70,7 @@ public class HistoryMenu
 
         if (menuName.equalsIgnoreCase("empty")) {
             //TODO: Implement - "empty" history.
-        } else if (menuName.equalsIgnoreCase("close")) {
+        } else if (menuName.equalsIgnoreCase("service.gui.CLOSE")) {
             this.parentWindow.setVisible(false);
             this.parentWindow.dispose();
         }

@@ -25,7 +25,7 @@ public class WhiteboardMenuItem
                 ActionListener
 {
     private JMenu whiteboardMenu
-        = new JMenu(Resources.getString("whiteboardMenuItemText"));
+        = new JMenu(Resources.getString("plugin.whiteboard.MENU_ITEM"));
 
     /**
      * The current meta contact
@@ -45,7 +45,8 @@ public class WhiteboardMenuItem
     public WhiteboardMenuItem (WhiteboardSessionManager session)
     {
         this.session = session;
-        this.whiteboardMenu.setIcon (Resources.getImage ("mpenIcon"));
+        this.whiteboardMenu.setIcon (
+            Resources.getImage ("plugin.whiteboard.MPEN_ICON"));
     }
 
     /**
@@ -81,7 +82,7 @@ public class WhiteboardMenuItem
             {
                 contactItem.setEnabled(false);
                 contactItem.setToolTipText(
-                        Resources.getString("whiteboardMenuItemNotSupportedTooltip"));
+                        Resources.getString("plugin.whiteboard.NOT_SUPPORTED"));
             }
 
             this.whiteboardMenu.add(contactItem);

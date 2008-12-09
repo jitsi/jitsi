@@ -26,7 +26,7 @@ public class PluginManagerConfigForm
      */
     public String getTitle()
     {
-        return Resources.getString("plugins");
+        return Resources.getString("plugin.pluginmanager.PLUGINS");
     }
 
     /**

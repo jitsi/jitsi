@@ -11,7 +11,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -29,33 +28,21 @@ public class ChatRoomRightButtonMenu
     implements  ActionListener
 {
     private Logger logger = Logger.getLogger(ChatRoomRightButtonMenu.class);
-    
-    private I18NString joinChatRoomString
-        = Messages.getI18NString("join");
-    
-    private I18NString joinAsChatRoomString
-        = Messages.getI18NString("joinAs");
-
-    private I18NString leaveChatRoomString
-        = Messages.getI18NString("leave");
-
-    private I18NString removeChatRoomString
-        = Messages.getI18NString("remove");
 
     private JMenuItem leaveChatRoomItem = new JMenuItem(
-        leaveChatRoomString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.LEAVE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.LEAVE_ICON)));
 
     private JMenuItem joinChatRoomItem = new JMenuItem(
-        joinChatRoomString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.JOIN"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.JOIN_ICON)));
 
     private JMenuItem joinAsChatRoomItem = new JMenuItem(
-        joinAsChatRoomString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.JOIN_AS"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.JOIN_AS_ICON)));
 
     private JMenuItem removeChatRoomItem = new JMenuItem(
-        removeChatRoomString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.REMOVE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
 
     private ChatRoomWrapper chatRoomWrapper = null;
@@ -92,17 +79,17 @@ public class ChatRoomRightButtonMenu
         this.leaveChatRoomItem.setName("leaveChatRoom");
         this.removeChatRoomItem.setName("removeChatRoom");
 
-        this.joinChatRoomItem
-            .setMnemonic(joinChatRoomString.getMnemonic());
+        this.joinChatRoomItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.JOIN"));
 
-        this.joinAsChatRoomItem
-            .setMnemonic(joinAsChatRoomString.getMnemonic());
+        this.joinAsChatRoomItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.JOIN_AS"));
 
-        this.leaveChatRoomItem
-            .setMnemonic(leaveChatRoomString.getMnemonic());
+        this.leaveChatRoomItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.LEAVE"));
 
-        this.removeChatRoomItem
-            .setMnemonic(removeChatRoomString.getMnemonic());
+        this.removeChatRoomItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.REMOVE"));
 
         this.joinChatRoomItem.addActionListener(this);
         this.joinAsChatRoomItem.addActionListener(this);

@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.util.*;
@@ -49,9 +48,11 @@ public class JoinChatRoomWizard
 
         super.addWizardListener(this);
 
-        this.setTitle(Messages.getI18NString("joinChatRoomWizard").getText());
+        this.setTitle(GuiActivator.getResources()
+                .getI18NString("service.gui.JOIN_CHAT_ROOM_WIZARD"));
 
-        this.setFinishButtonText(Messages.getI18NString("join").getText());
+        this.setFinishButtonText(GuiActivator.getResources()
+            .getI18NString("service.gui.JOIN"));
 
         Iterator<ChatRoomProviderWrapper> chatRoomProviders
             = GuiActivator.getUIService().getConferenceChatManager()

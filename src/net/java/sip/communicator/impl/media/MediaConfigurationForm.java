@@ -33,6 +33,6 @@ public class MediaConfigurationForm
     public String getTitle()
     {
         return MediaActivator.getResources().getI18NString(
-            "MediaConfigurationForm_title");
+            "impl.media.configform.TITLE");
     }
 }

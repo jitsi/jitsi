@@ -56,7 +56,8 @@ public class ZeroconfAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer
+            .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -87,7 +88,7 @@ public class ZeroconfAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameZeroconf");
+        return Resources.getString("plugin.zeroaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -97,7 +98,7 @@ public class ZeroconfAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionZeroconf");
+        return Resources.getString("plugin.zeroaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -208,14 +209,14 @@ public class ZeroconfAccountRegistrationWizard
         {
             ZeroconfAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
             ZeroconfAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
 
@@ -318,7 +319,7 @@ public class ZeroconfAccountRegistrationWizard
      */
     public String getPasswordLabel()
     {
-        return Resources.getString("password");
+        return Resources.getString("service.gui.PASSWORD");
     }
 
     /**

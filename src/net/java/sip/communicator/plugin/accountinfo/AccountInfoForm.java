@@ -105,7 +105,7 @@ public class AccountInfoForm
      */
     public String getTitle()
     {
-        return Resources.getString("title");
+        return Resources.getString("plugin.accountinfo.TITLE");
     }
 
     /**

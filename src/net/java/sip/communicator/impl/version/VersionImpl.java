@@ -313,9 +313,10 @@ public class VersionImpl
                 }
                     
                 applicationName = 
-                    resourcesService.getSettingsString("applicationName");
-                
-            } catch (Exception e) 
+                    resourcesService.getSettingsString(
+                        "service.gui.APPLICATION_NAME");
+            }
+            catch (Exception e) 
             {
                 // if resource bundle is not found or the key is missing
                 // return the defautl name

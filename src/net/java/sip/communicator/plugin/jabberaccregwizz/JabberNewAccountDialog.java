@@ -52,15 +52,21 @@ public class JabberNewAccountDialog
     private JPanel westPanel = new TransparentPanel(new BorderLayout(10, 10));
 
     // Labels
-    private JLabel serverLabel = new JLabel(Resources.getString("cserver"));
+    private JLabel serverLabel
+        = new JLabel(Resources.getString("plugin.jabberaccregwizz.CSERVER"));
 
-    private JLabel userIDLabel = new JLabel(Resources.getString("userID"));
+    private JLabel userIDLabel
+        = new JLabel(Resources.getString("plugin.jabberaccregwizz.USERNAME"));
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel
+        = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
-    private JLabel pass2Label = new JLabel(Resources.getString("password2"));
+    private JLabel pass2Label
+        = new JLabel(Resources.getString(
+            "plugin.jabberaccregwizz.PASSWORD_CONFIRM"));
 
-    private JLabel portLabel = new JLabel(Resources.getString("port"));
+    private JLabel portLabel
+        = new JLabel(Resources.getString("plugin.jabberaccregwizz.PORT"));
 
     private JLabel westIconLabel = new JLabel();
 
@@ -108,7 +114,8 @@ public class JabberNewAccountDialog
     {
         this.setSize(new Dimension(450, 250));
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        this.setTitle(Resources.getString("newAccountTitle"));
+        this.setTitle(
+            Resources.getString("plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE"));
         this.setModal(true);
         this.setGlassPane(loadingAccountGlassPane);
 
@@ -147,18 +154,27 @@ public class JabberNewAccountDialog
         {
             if (exc.getXMPPError().getCode() == 409)
             {
-                JOptionPane.showMessageDialog(null, Resources
-                    .getString("userExist"), Resources.getString("xmppError"),
+                JOptionPane.showMessageDialog(
+                    null,
+                    Resources.getString(
+                        "plugin.jabberaccregwizz.USER_EXISTS_ERROR"),
+                    Resources.getString(
+                        "plugin.jabberaccregwizz.XMPP_ERROR"),
                     JOptionPane.ERROR_MESSAGE);
-                
+
                 logger.error(
-                    "Error when created a new Jabber account : user already exist");
+                    "Error when created a new Jabber account :" +
+                    " user already exist");
             }
             else
             {
-                JOptionPane.showMessageDialog(null, Resources
-                    .getString("unknownXmppError"), Resources
-                    .getString("xmppError"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                    null,
+                    Resources.getString(
+                        "plugin.jabberaccregwizz.UNKNOWN_XMPP_ERROR"),
+                    Resources.getString(
+                        "plugin.jabberaccregwizz.XMPP_ERROR"),
+                    JOptionPane.ERROR_MESSAGE);
             }
             return false;
         }
@@ -195,8 +211,10 @@ public class JabberNewAccountDialog
         userIDPassPanel.add(labelsPanel, BorderLayout.WEST);
         userIDPassPanel.add(valuesPanel, BorderLayout.CENTER);
 
-        chooseButton.setText(Resources.getString("chooseLabel"));
-        chooseButton.setMnemonic(Resources.getMnemonic("chooseLabel"));
+        chooseButton.setText(
+            Resources.getString("plugin.jabberaccregwizz.CHOOSE"));
+        chooseButton.setMnemonic(
+            Resources.getMnemonic("plugin.jabberaccregwizz.CHOOSE"));
 
         westIconLabel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(20, 20, 20, 20), BorderFactory
@@ -264,9 +282,13 @@ public class JabberNewAccountDialog
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(null, Resources
-                        .getString("notSamePassword"), Resources
-                        .getString("xmppError"), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                        null,
+                        Resources.getString(
+                            "plugin.jabberaccregwizz.PROTOCOL_DESCRIPTION"),
+                        Resources.getString(
+                            "plugin.jabberaccregwizz.XMPP_ERROR"),
+                        JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -280,12 +302,12 @@ public class JabberNewAccountDialog
             }
         });
 
-        okButton.setText(Resources.getString("okLabel"));
-        okButton.setMnemonic(Resources.getMnemonic("okLabel"));
+        okButton.setText(Resources.getString("service.gui.OK"));
+        okButton.setMnemonic(Resources.getMnemonic("service.gui.OK"));
         okButton.setEnabled(false);
 
-        cancelButton.setText(Resources.getString("cancelLabel"));
-        cancelButton.setMnemonic(Resources.getMnemonic("cancelLabel"));
+        cancelButton.setText(Resources.getString("service.gui.CANCEL"));
+        cancelButton.setMnemonic(Resources.getMnemonic("service.gui.CANCEL"));
 
         buttonBox.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
         buttonBox.add(okButton);

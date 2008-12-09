@@ -8,10 +8,11 @@ package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -36,13 +37,11 @@ public class AddContactDialog
     
     private AddContactPanel addContactPanel = new AddContactPanel();
     
-    private I18NString addString = Messages.getI18NString("add");
+    private JButton addButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.ADD"));
     
-    private I18NString cancelString = Messages.getI18NString("cancel");
-    
-    private JButton addButton = new JButton(addString.getText());
-    
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -111,7 +110,8 @@ public class AddContactDialog
      */
     private void init()
     {
-        this.setTitle(Messages.getI18NString("addContact").getText());
+        this.setTitle(
+            GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
         
         this.setSize(520, 250);
         
@@ -119,9 +119,11 @@ public class AddContactDialog
         this.addButton.setName("add");
         this.cancelButton.setName("cancel");
         
-        this.addButton.setMnemonic(addString.getMnemonic());
+        this.addButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.ADD"));
         
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
         
         this.addButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
@@ -175,30 +177,17 @@ public class AddContactDialog
                             logger.error(ex);
                             ex.printStackTrace();
                             int errorCode = ex.getErrorCode();
-                            
+
                             if (errorCode
                                     == MetaContactListException
-                                        .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
-                                
-                                new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                    "addContactErrorTitle").getText(),
-                                    Messages.getI18NString(
-                                            "addContactExistError",
-                                            new String[]{uin}).getText(),
-                                    ex)
-                                .showDialog();
-                            }
-                            else if (errorCode
-                                == MetaContactListException
-                                    .CODE_LOCAL_IO_ERROR)
+                                        .CODE_CONTACT_ALREADY_EXISTS_ERROR)
                             {
                                 new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                    "addContactErrorTitle").getText(),
-                                    Messages.getI18NString(
-                                            "addContactError",
-                                            new String[]{uin}).getText(),
+                                    GuiActivator.getResources().getI18NString(
+                                    "addContactErrorTitle"),
+                                    GuiActivator.getResources().getI18NString(
+                                            "addContactExistError",
+                                            new String[]{uin}),
                                     ex)
                                 .showDialog();
                             }
@@ -207,22 +196,22 @@ public class AddContactDialog
                                         .CODE_NETWORK_ERROR)
                             {
                                 new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                    "addContactErrorTitle").getText(),
-                                    Messages.getI18NString(
-                                            "addContactError",
-                                            new String[]{uin}).getText(),
+                                    GuiActivator.getResources().getI18NString(
+                                    "addContactErrorTitle"),
+                                    GuiActivator.getResources().getI18NString(
+                                        "service.gui.ADD_CONTACT_NETWORK_ERROR",
+                                        new String[]{uin}),
                                     ex)
                                 .showDialog();
                             }
                             else
                             {
                                 new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                    "addContactErrorTitle").getText(),
-                                    Messages.getI18NString(
-                                            "addContactError",
-                                            new String[]{uin}).getText(),
+                                    GuiActivator.getResources().getI18NString(
+                                    "addContactErrorTitle"),
+                                    GuiActivator.getResources().getI18NString(
+                                            "service.gui.ADD_CONTACT_ERROR",
+                                            new String[]{uin}),
                                     ex)
                                 .showDialog();
                             }

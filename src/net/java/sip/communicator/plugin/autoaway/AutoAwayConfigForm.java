@@ -53,7 +53,7 @@ public class AutoAwayConfigForm
         // Title : automatic status
         JLabel autoStatusLabel 
             = new JLabel(AutoAwayActivator.getResources()
-                    .getI18NString("automaticStatus"));
+                    .getI18NString("plugin.autoaway.AUTO_STATUS"));
 
 
         Font bold = autoStatusLabel.getFont().deriveFont(Font.BOLD);
@@ -62,9 +62,9 @@ public class AutoAwayConfigForm
         JPanel fieldsPanel = new TransparentPanel(new BorderLayout(5, 5));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 0, 0));
 
-        enable =
-            new SIPCommCheckBox(AutoAwayActivator.getResources().getI18NString(
-                "enableChangeStatus"));
+        enable = new SIPCommCheckBox(AutoAwayActivator.getResources()
+                .getI18NString("plugin.autoaway.ENABLE_CHANGE_STATUS"));
+
         fieldsPanel.add(enable, BorderLayout.NORTH);
         enable.addActionListener(new ActionListener()
         {
@@ -81,7 +81,8 @@ public class AutoAwayConfigForm
             new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
         // Texte
         timerPanel.add(new JLabel(
-                AutoAwayActivator.getResources().getI18NString("awayMinutes")));
+                AutoAwayActivator.getResources()
+                    .getI18NString("plugin.autoaway.AWAY_MINUTES")));
         // Spinner
         timer = new JSpinner(new SpinnerNumberModel(15, 1, 180, 1));
         timerPanel.add(timer);
@@ -189,7 +190,7 @@ public class AutoAwayConfigForm
     public String getTitle()
     {
         return AutoAwayActivator.getResources()
-            .getI18NString("automaticStatus");
+            .getI18NString("plugin.autoaway.AUTO_STATUS");
     }
 
 }

@@ -11,7 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -27,17 +27,21 @@ public class StatusMessageMenu
 {
     private Logger logger = Logger.getLogger(StatusMessageMenu.class);
 
-    private JMenuItem noMessageItem
-        = new JMenuItem(Messages.getI18NString("noMessage").getText());
+    private static final String BRB_MESSAGE
+        = GuiActivator.getResources().getI18NString("service.gui.BRB_MESSAGE");
 
-    private JMenuItem newMessageItem
-        = new JMenuItem(Messages.getI18NString("newMessage").getText());
+    private static final String BUSY_MESSAGE
+        = GuiActivator.getResources().getI18NString("service.gui.BUSY_MESSAGE");
 
-    private JMenuItem busyMessageItem
-        =  new JMenuItem(Messages.getI18NString("busyMessage").getText());
+    private JMenuItem noMessageItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.NO_MESSAGE"));
 
-    private JMenuItem brbMessageItem
-        = new JMenuItem(Messages.getI18NString("brbMessage").getText());
+    private JMenuItem newMessageItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.NEW_MESSAGE"));
+
+    private JMenuItem busyMessageItem =  new JMenuItem(BUSY_MESSAGE);
+
+    private JMenuItem brbMessageItem = new JMenuItem(BRB_MESSAGE);
 
     private ProtocolProviderService protocolProvider;
 
@@ -50,7 +54,8 @@ public class StatusMessageMenu
      */
     public StatusMessageMenu(ProtocolProviderService protocolProvider)
     {
-        super(Messages.getI18NString("setStatusMessage").getText());
+        super(GuiActivator.getResources()
+                .getI18NString("service.gui.SET_STATUS_MESSAGE"));
 
         this.protocolProvider = protocolProvider;
 
@@ -92,11 +97,11 @@ public class StatusMessageMenu
         }
         else if (menuItem.equals(busyMessageItem))
         {
-            statusMessage = Messages.getI18NString("busyMessage").getText();
+            statusMessage = BUSY_MESSAGE;
         }
         else if (menuItem.equals(brbMessageItem))
         {
-            statusMessage = Messages.getI18NString("brbMessage").getText();
+            statusMessage = BRB_MESSAGE;
         }
 
         new PublishStatusMessageThread(statusMessage).start();

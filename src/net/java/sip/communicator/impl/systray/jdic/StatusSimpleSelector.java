@@ -48,12 +48,12 @@ public class StatusSimpleSelector
      * The menu item for the online status
      */
     private JMenuItem onlineItem = new JMenuItem(
-            Resources.getString("onlineStatus"));
+            Resources.getString("impl.systray.ONLINE_STATUS"));
     /**
      * The menu item for the offline status
      */
     private JMenuItem offlineItem = new JMenuItem(
-            Resources.getString("offlineStatus"));
+            Resources.getString("impl.systray.OFFLINE_STATUS"));
     
     /**
      * Creates an instance of <tt>StatusSimpleSelector</tt>

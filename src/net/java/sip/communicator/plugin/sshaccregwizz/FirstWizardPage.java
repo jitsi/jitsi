@@ -41,16 +41,17 @@ public class FirstWizardPage
     
     private JPanel valuesPanel = new TransparentPanel();
     
-    private JLabel accountID = new JLabel(Resources.getString("accountID"));
+    private JLabel accountID
+        = new JLabel(Resources.getString("plugin.sshaccregwizz.USERNAME"));
     
-    private JLabel identityFile = new JLabel(Resources.getString(
-                                        "identityFile"));
+    private JLabel identityFile
+        = new JLabel(Resources.getString("plugin.sshaccregwizz.IDENTITY_FILE"));
     
-    private JLabel knownHostsFile = new JLabel(Resources.getString(
-                                        "knownHosts"));
+    private JLabel knownHostsFile
+        = new JLabel(Resources.getString("plugin.sshaccregwizz.KNOWN_HOSTS"));
     
     private JLabel existingAccountLabel
-            = new JLabel(Resources.getString("existingAccount"));
+        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
     
     private JPanel emptyPanel1 = new TransparentPanel();
     
@@ -72,17 +73,21 @@ public class FirstWizardPage
     
     private JTextField accountIDField = new JTextField();
     
-    private JTextField identityFileField = new JTextField("Optional");
+    private JTextField identityFileField = new JTextField(
+        Resources.getString("plugin.sshaccregwizz.OPTIONAL"));
     
-    private JButton identityFileButton = new JButton("Browse");
+    private JButton identityFileButton = new JButton(
+        Resources.getString("service.gui.BROWSE"));
     
     private JFileChooser identityFileChooser = new JFileChooser();
     
     private JPanel identityFilePanel = new TransparentPanel();
     
-    private JTextField knownHostsFileField = new JTextField("Optional");
+    private JTextField knownHostsFileField = new JTextField(
+        Resources.getString("plugin.sshaccregwizz.KNOWN_HOSTS"));
     
-    private JButton knownHostsFileButton = new JButton("Browse");
+    private JButton knownHostsFileButton = new JButton(
+        Resources.getString("service.gui.BROWSE"));
     
     private JFileChooser knownHostsFileChooser = new JFileChooser();
     
@@ -236,7 +241,7 @@ public class FirstWizardPage
         
         accountPanel.setBorder(BorderFactory
                 .createTitledBorder(Resources.getString(
-                "accountDetails")));
+                "plugin.sshaccregwizz.ACCOUNT_DETAILS")));
         
         this.add(accountPanel, BorderLayout.NORTH);
     }

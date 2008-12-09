@@ -52,6 +52,6 @@ public class NotificationConfigurationForm
      */
     public String getTitle()
     {
-        return Resources.getString("notifications");
+        return Resources.getString("service.gui.NOTIFICATIONS");
     }
 }

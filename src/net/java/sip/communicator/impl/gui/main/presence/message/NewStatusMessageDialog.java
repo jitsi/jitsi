@@ -11,7 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -30,25 +30,28 @@ public class NewStatusMessageDialog
     private Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
 
     private JLabel messageLabel = new JLabel(
-        Messages.getI18NString("newStatusMessage").getText());
+        GuiActivator.getResources().getI18NString(
+            "service.gui.NEW_STATUS_MESSAGE"));
 
     private JTextField messageTextField = new JTextField();
 
     private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
 
     private JTextArea infoArea = new JTextArea(
-        Messages.getI18NString("statusMessageInfo").getText());
+        GuiActivator.getResources().getI18NString(
+            "service.gui.STATUS_MESSAGE_INFO"));
 
     private JLabel infoTitleLabel = new JLabel(
-        Messages.getI18NString("newStatusMessage").getText());
+        GuiActivator.getResources().getI18NString(
+            "service.gui.NEW_STATUS_MESSAGE"));
 
     private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
 
     private JButton okButton
-        = new JButton(Messages.getI18NString("ok").getText());
+        = new JButton(GuiActivator.getResources().getI18NString("service.gui.OK"));
 
-    private JButton cancelButton
-        = new JButton(Messages.getI18NString("cancel").getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -73,7 +76,8 @@ public class NewStatusMessageDialog
      */
     private void init()
     {
-        this.setTitle(Messages.getI18NString("newStatusMessage").getText());
+        this.setTitle(GuiActivator.getResources()
+                .getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
         this.getRootPane().setDefaultButton(okButton);
 
@@ -119,9 +123,9 @@ public class NewStatusMessageDialog
         this.cancelButton.setName("cancel");
 
         this.okButton.setMnemonic(
-            Messages.getI18NString("ok").getMnemonic());
+            GuiActivator.getResources().getI18nMnemonic("service.gui.OK"));
         this.cancelButton.setMnemonic(
-            Messages.getI18NString("cancel").getMnemonic());
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         this.okButton.addActionListener(this);
         this.cancelButton.addActionListener(this);

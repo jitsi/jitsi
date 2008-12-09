@@ -12,7 +12,8 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -29,21 +30,22 @@ public class SendSmsDialog
 {
     private Logger logger = Logger.getLogger(SendSmsDialog.class);
     
-    private String title = Messages.getI18NString("sendSms").getText();
+    private String title
+        = GuiActivator.getResources().getI18NString("service.gui.SEND_SMS");
     
     private JLabel phoneNumberLabel = new JLabel(
-        Messages.getI18NString("enterPhoneNumber").getText());
+        GuiActivator.getResources().getI18NString("service.gui.ENTER_PHONE_NUMBER"));
     
     private JTextField phoneNumberBox
         = new JTextField();
     
     private JTextArea detailsArea = new JTextArea(
-        Messages.getI18NString("sendSmsDetails").getText());
+        GuiActivator.getResources().getI18NString("service.gui.SEND_SMS_DETAILS"));
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
     private JButton sendButton = new JButton(
-        Messages.getI18NString("send").getText());
+        GuiActivator.getResources().getI18NString("service.gui.SEND"));
     
     private JPanel buttonPanel = new JPanel(
         new FlowLayout(FlowLayout.RIGHT));
@@ -141,8 +143,9 @@ public class SendSmsDialog
                 phoneNumber,
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                Messages.getI18NString("smsSendConnectionProblem")
-                .getText(), "text");
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.SMS_SEND_CONNECTION_PROBLEM"),
+                "text");
         }
         catch (Exception ex)
         {
@@ -161,9 +164,10 @@ public class SendSmsDialog
                 phoneNumber,
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                Messages.getI18NString("msgDeliveryUnknownError",
-                    new String[]{ex.getMessage()})
-                .getText(), "text");
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                    new String[]{ex.getMessage()}),
+                "text");
         }
         
         this.dispose();

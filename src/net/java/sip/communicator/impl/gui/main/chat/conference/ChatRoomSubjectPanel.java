@@ -11,8 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -30,7 +30,7 @@ public class ChatRoomSubjectPanel
     private Logger logger = Logger.getLogger(ChatRoomSubjectPanel.class);
 
     private JLabel subjectLabel = new JLabel(
-        Messages.getI18NString("subject").getText() + ": ");
+        GuiActivator.getResources().getI18NString("service.gui.SUBJECT") + ": ");
 
     private JTextField subjectField = new JTextField();
 
@@ -119,11 +119,11 @@ public class ChatRoomSubjectPanel
                 {
                     new ErrorDialog(
                         chatWindow,
-                        Messages.getI18NString("warning").getText(),
-                        Messages.getI18NString(
-                            "chatRoomOpenConfigForbidden",
-                            new String[]{chatSession.getChatName()})
-                            .getText(),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.WARNING"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CHAT_ROOM_CONFIGURATION_FORBIDDEN",
+                            new String[]{chatSession.getChatName()}),
                         ErrorDialog.WARNING)
                             .showDialog();
                 }
@@ -131,12 +131,12 @@ public class ChatRoomSubjectPanel
                 {
                     new ErrorDialog(
                         chatWindow,
-                        Messages.getI18NString("error").getText(),
-                        Messages.getI18NString(
-                            "chatRoomOpenConfigFailed",
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CHAT_ROOM_CONFIGURATION_FAILED",
                             new String[]{
-                            chatSession.getChatName()})
-                            .getText(),
+                            chatSession.getChatName()}),
                         e).showDialog();
                 }
             }

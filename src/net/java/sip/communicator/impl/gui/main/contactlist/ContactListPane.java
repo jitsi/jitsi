@@ -16,7 +16,6 @@ import javax.swing.Timer;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -361,8 +360,9 @@ public class ContactListPane
             });
 
             // Fire notification
-            String title = Messages.getI18NString("msgReceived",
-                new String[]{evt.getSourceContact().getDisplayName()}).getText();
+            String title = GuiActivator.getResources().getI18NString(
+                "service.gui.MSG_RECEIVED",
+                new String[]{evt.getSourceContact().getDisplayName()});
 
             NotificationManager.fireChatNotification(
                                             protocolContact,
@@ -442,34 +442,33 @@ public class ContactListPane
         if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryOfflineNotSupported").getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
 
-            errorMsg = Messages.getI18NString(  "msgNotDelivered",
-                                                new String[]{evt.getReason()})
-                                                .getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_NOT_DELIVERED",
+                    new String[]{evt.getReason()});
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
 
-            errorMsg = Messages.getI18NString(
-                    "msgSendConnectionProblem").getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_SEND_CONNECTION_PROBLEM");
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
 
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryInternalError",
-                    new String[]{evt.getReason()})
-                        .getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR",
+                    new String[]{evt.getReason()});
         }
         else {
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryFailedUnknownError",
-                    new String[]{evt.getReason()}).getText();
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                    new String[]{evt.getReason()});
         }
 
         ChatPanel chatPanel = chatWindowManager
@@ -508,8 +507,10 @@ public class ContactListPane
                 .findMetaContactByContact(evt.getSourceContact());
         String contactName = metaContact.getDisplayName() + " ";
 
-        if (contactName.equals("")) {
-            contactName = Messages.getI18NString("unknown").getText() + " ";
+        if (contactName.equals(""))
+        {
+            contactName = GuiActivator.getResources()
+                .getI18NString("service.gui.UNKNOWN") + " ";
         }
 
         int typingState = evt.getTypingState();
@@ -517,8 +518,9 @@ public class ContactListPane
         if (typingState == OperationSetTypingNotifications.STATE_TYPING)
         {
             notificationMsg
-                = Messages.getI18NString("contactTyping",
-                    new String[]{contactName}).getText();
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.CONTACT_TYPING",
+                    new String[]{contactName});
 
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
@@ -532,8 +534,9 @@ public class ContactListPane
         }
         else if (typingState == OperationSetTypingNotifications.STATE_PAUSED)
         {
-            notificationMsg = Messages.getI18NString("contactPausedTyping",
-                new String[]{contactName}).getText();
+            notificationMsg = GuiActivator.getResources().getI18NString(
+                "service.gui.CONTACT_PAUSED_TYPING",
+                new String[]{contactName});
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
         }
@@ -544,7 +547,8 @@ public class ContactListPane
         else if (typingState == OperationSetTypingNotifications.STATE_STALE)
         {
             notificationMsg
-                = Messages.getI18NString("contactTypingStateStale").getText();
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.CONTACT_TYPING_STATE_STALE");
         }
         else if (typingState == OperationSetTypingNotifications.STATE_UNKNOWN)
         {
@@ -594,7 +598,8 @@ public class ContactListPane
         NotificationManager.fireNotification(
                 NotificationManager.PROACTIVE_NOTIFICATION,
                 contactName,
-                Messages.getI18NString("proactiveNotification").getText());
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
     }
 
     /**

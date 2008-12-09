@@ -14,7 +14,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
@@ -45,7 +44,8 @@ public class CallDialog
     {
         this.callPanel = callPanel;
 
-        this.setTitle(GuiActivator.getResources().getI18NString("call"));
+        this.setTitle(
+            GuiActivator.getResources().getI18NString("service.gui.CALL"));
 
         this.setPreferredSize(new Dimension(500, 400));
 
@@ -60,7 +60,8 @@ public class CallDialog
 
         dialButton.setName(DIAL_BUTTON);
 
-        dialButton.setToolTipText(Messages.getI18NString("dialpad").getText());
+        dialButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
 
         dialButton.addActionListener(this);
 
@@ -71,7 +72,7 @@ public class CallDialog
         hangupButton.setName(HANGUP_BUTTON);
 
         hangupButton.setToolTipText(
-            Messages.getI18NString("hangUp").getText());
+            GuiActivator.getResources().getI18NString("service.gui.HANG_UP"));
 
         hangupButton.addActionListener(this);
 

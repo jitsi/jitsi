@@ -26,80 +26,80 @@ import org.osgi.framework.*;
  */
 public class SCCallbackResources
 {
-	/**
-	 * Contains the secure button icons
-	 */
-	private static Hashtable loadedImages = new Hashtable();
-	
+    /**
+     * Contains the secure button icons
+     */
+    private static Hashtable loadedImages = new Hashtable();
+    
     public static String TOGGLE_OFF_SECURITY
-		= getString("toggleOffSecurity");
+        = getString("impl.media.security.TOGGLE_OFF_SECURITY");
     
     public static String TOGGLE_ON_SECURITY
-		= getString("toggleOnSecurity");
+        = getString("impl.media.security.TOGGLE_ON_SECURITY");
     
     public static String SAS_SECURED_MESSAGE
-    	= getString("sasSecuredMessage");
+        = getString("impl.media.security.SECURED_MESSAGE");
     
     public static String SAS_SECURED_TOOLTIP
-    	= getString("sasSecuredTooltip");
+        = getString("impl.media.security.SECURED_TOOLTIP");
     
     public static String SAS_NOT_SECURED_MESSAGE
-    	= getString("sasNotSecuredMessage");
+        = getString("impl.media.security.NOT_SECURED_MESSAGE");
     
     public static String SAS_NOT_SECURED_TOOLTIP
-    	= getString("sasNotSecuredTooltip");
+        = getString("impl.media.security.NOT_SECURED_TOOLTIP");
     
     public static String DEFAULT_SAS_TOOLTIP
-		= getString("defaultSASTooltip");
-
+        = getString("impl.media.security.DEFAULT_TOOLTIP");
+    
     public static String DEFAULT_SAS_MESSAGE
-		= getString("defaultSASMessage");
+        = getString("impl.media.security.DEFAULT_MESSAGE");
     
     public static String ENGINE_FAIL_SAS_TOOLTIP
-		= getString("sasEngineFailTooltip");
+        = getString("impl.media.security.ENGINE_FAIL_TOOLTIP");
     
     public static String ENGINE_FAIL_SAS_MESSAGE
-		= getString("sasEngineFailMessage");
+        = getString("impl.media.security.ENGINE_FAIL_MESSAGE");
     
     public static String SAS_SECURING_FAIL_TOOLTIP
-    	= getString("sasSecuringFailTooltip");
+        = getString("impl.media.security.SECURING_FAIL_TOOLTIP");
     
     public static String SAS_UNSECURED_AT_REQUEST_TOOLTIP
-    	= getString("sasUnsecuredAtRequestTooltip");
+        = getString("impl.media.security.UNSECURED_AT_REQUEST");
     
     public static String PEER_UNSUPORTED_SECURITY
-    	= getString("peerUnsuportedSecurity");
+        = getString("impl.media.security.PEER_UNSUPPORTED_SECURITY");
     
     public static String SAS_PEER_UNSUPORTED_TOOLTIP
-    	= getString("sasPeerUnsuportedTooltip");
+        = getString("impl.media.security.PEER_UNSUPPORTED_TOOLTIP");
     
     public static String PEER_TOGGLED_SECURITY_OFF_MESSAGE
-    	= getString("peerToggledOffSecurityMessage");
+        = getString("impl.media.security.PEER_TOGGLED_OFF_SECURITY_MESSAGE");
     
     public static String PEER_TOGGLED_SECURITY_OFF_CAPTION
-    	= getString("peerToggledOffSecurityCaption");
+        = getString("impl.media.security.PEER_TOGGLED_OFF_SECURITY_SECTION");
     
     public static String SAS_UNSECURED_AT_PEER_REQUEST_TOOLTIP
-    	= getString("sasUnsecuredAtPeerRequestTooltip");
+        = getString("impl.media.security.UNSECURED_AT_PEER_REQUEST_TOOLTIP");
     
     public static String ZRTP_ENGINE_INIT_FAILURE
-		= getString("engineInitFailure");
-
+        = getString("impl.media.security.ENGINE_INIT_FAILURE");
+    
     public static String GOCLEAR_REQUEST_AC_FLAG_FAILURE
-		= getString("allowClearRequestFailure");
+        = getString("impl.media.security.ALLOW_CLEAR_REQUEST_FAILURE");
     
     /**
      * The icon on the "Secure" button in the <tt>QuickMenu</tt>.
      */
     public static final ImageID SECURE_ON_ICON
-    = new ImageID("SECURE_BUTTON_ON");
+        = new ImageID("SECURE_BUTTON_ON");
 
     /**
      * The icon on the "Secure" button in the <tt>QuickMenu</tt>.
      */
     public static final ImageID SECURE_OFF_ICON
-    = new ImageID("SECURE_BUTTON_OFF");
-      
+        = new ImageID("SECURE_BUTTON_OFF");
+
     /**
      * The resource management service used to get the needed
      * resources: button images, text predefined messages, etc
@@ -116,7 +116,7 @@ public class SCCallbackResources
     {
         return getResources().getI18NString(key);
     }
-   
+    
     /**
      * Provides the resource management service
      * 

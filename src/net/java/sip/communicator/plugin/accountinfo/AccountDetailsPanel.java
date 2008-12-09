@@ -61,7 +61,8 @@ public class AccountDetailsPanel
 
     private JLabel avatarLabel = new JLabel();
 
-    private JButton applyButton = new JButton(Resources.getString("apply"));
+    private JButton applyButton
+        = new JButton(Resources.getString("service.gui.APPLY"));
 
     private JPanel buttonPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
@@ -139,7 +140,7 @@ public class AccountDetailsPanel
         // Create the avatar panel.
         JPanel leftPanel = new TransparentPanel(new BorderLayout());
         JPanel avatarPanel = new TransparentPanel(new BorderLayout());
-        JButton changeAvatarButton = new JButton(Resources.getString("change"));
+        JButton changeAvatarButton = new JButton(Resources.getString("plugin.accountinfo.CHANGE"));
         JPanel changeButtonPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -165,14 +166,21 @@ public class AccountDetailsPanel
         // Labels panel.
         JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
-        labelsPanel.add(new JLabel(Resources.getString("firstNameNS")));
-//        labelsPanel.add(new JLabel(Resources.getString("middleNameNS")));
-        labelsPanel.add(new JLabel(Resources.getString("lastNameNS")));
-        labelsPanel.add(new JLabel(Resources.getString("genderNS")));
-        labelsPanel.add(new JLabel(Resources.getString("ageNS")));
-        labelsPanel.add(new JLabel(Resources.getString("bdayNS")));
-        labelsPanel.add(new JLabel(Resources.getString("emailNS")));
-        labelsPanel.add(new JLabel(Resources.getString("phoneNS")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.FIRST_NAME")));
+//        labelsPanel.add(new JLabel(Resources.getString("plugin.accountinfo.MIDDLE_NAME")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.LAST_NAME")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.GENDER")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.AGE")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.BDAY")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.EMAIL")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.PHONE")));
 
         detailsPanel.add(labelsPanel, BorderLayout.WEST);
 
@@ -221,7 +229,7 @@ public class AccountDetailsPanel
     private void initUnsupportedPanel()
     {
         JTextArea unsupportedTextArea =
-            new JTextArea(Resources.getString("notSupported"));
+            new JTextArea(Resources.getString("plugin.accountinfo.NOT_SUPPORTED"));
 
         unsupportedTextArea.setEditable(false);
         unsupportedTextArea.setLineWrap(true);
@@ -402,7 +410,7 @@ public class AccountDetailsPanel
         // the bottom so we don't disrupt the standard look of the other details
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.LINE_AXIS));
         imagePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-            .createTitledBorder(Resources.getString("userPictures")),
+            .createTitledBorder(Resources.getString("plugin.accountinfo.USER_PICTURES")),
             BorderFactory.createEmptyBorder(0, 5, 5, 5)));
 
         // Obtain all the details for a contact.
@@ -741,7 +749,7 @@ public class AccountDetailsPanel
          */
         public String getDescription()
         {
-            return Resources.getString("onlyMessages");
+            return Resources.getString("plugin.accountinfo.ONLY_MESSAGE");
         }
     }
 

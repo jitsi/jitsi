@@ -37,38 +37,45 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel hostLabel = new JLabel(Resources.getString("dict.host"));
+    private JLabel hostLabel = new JLabel(Resources.getString("plugin.dictaccregwizz.HOST"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel hostExampleLabel = new JLabel("Ex: dict.org");
 
-    private JLabel portLabel = new JLabel(Resources.getString("dict.port"));
+    private JLabel portLabel = new JLabel(Resources.getString("plugin.dictaccregwizz.PORT"));
 
     private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("existingAccount"));
+        new JLabel(Resources.getString(
+            "service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JTextField hostField = new JTextField();
 
     private JTextField portField = new JTextField("2628");
     
-    
     private JPanel strategyPanel = new TransparentPanel(new BorderLayout(10, 10));
     
     private JPanel strategyTitleBloc = new TransparentPanel(new BorderLayout());
     
-    private JLabel strategyTitle = new JLabel(Resources.getString("dict.strategyList"));
+    private JLabel strategyTitle = new JLabel(Resources.getString(
+            "plugin.dictaccregwizz.STRATEGY_LIST"));
     
-    private JButton strategyLoader = new JButton(Resources.getString("dict.strategyActu"));
+    private JButton strategyLoader
+        = new JButton(Resources.getString(
+            "plugin.dictaccregwizz.SEARCH_STRATEGIES"));
     
     private StrategiesList strategiesList;
-    private JTextArea strategyDescription = new JTextArea(Resources.getString("dict.strategyDesc"));    
+    
+    private JTextArea strategyDescription
+        = new JTextArea(Resources.getString(
+            "plugin.dictaccregwizz.STRATEGY_DESCRIPTION"));
+    
     private ProgressPanel searchProgressPanel;
-
+    
     private JPanel mainPanel = new TransparentPanel(new BorderLayout());
-
+    
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
-
+    
     private DictAccountRegistrationWizard wizard;
     
     private String initstrategy = "";
@@ -150,7 +157,7 @@ public class FirstWizardPage
         hostPortPanel.add(valuesPanel, BorderLayout.CENTER);
 
         hostPortPanel.setBorder(BorderFactory.createTitledBorder(
-                Resources.getString("dict.serverInformations")));
+                Resources.getString("plugin.dictaccregwizz.SERVER_INFO")));
         
         this.labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
         this.valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
@@ -205,7 +212,7 @@ public class FirstWizardPage
         
         this.strategyPanel.add(this.strategyTitleBloc, BorderLayout.NORTH);
         this.strategyPanel.setBorder(BorderFactory.createTitledBorder(
-                Resources.getString("dict.strategySelection")));
+                Resources.getString("plugin.dictaccregwizz.STRATEGY_SELECTION")));
         mainPanel.add(this.strategyPanel);
 
         this.add(mainPanel, BorderLayout.NORTH);
@@ -226,8 +233,8 @@ public class FirstWizardPage
         this.mainPanel = new TransparentPanel(new BorderLayout());
 
         JPanel infoTitlePanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-        JTextArea firstDescription = new JTextArea(Resources.getString("dict.firstAccount"));
-        JLabel title = new JLabel(Resources.getString("dict.accountInfoTitle"));
+        JTextArea firstDescription = new JTextArea(Resources.getString("plugin.dictaccregwizz.FIRST_ACCOUNT"));
+        JLabel title = new JLabel(Resources.getString("plugin.dictaccregwizz.ACCOUNT_INFO_TITLE"));
 
         // Title
         title.setFont(title.getFont().deriveFont(Font.BOLD, 14.0f));

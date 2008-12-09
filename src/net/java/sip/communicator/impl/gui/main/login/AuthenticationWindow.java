@@ -10,8 +10,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import net.java.sip.communicator.impl.gui.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
@@ -33,22 +33,20 @@ public class AuthenticationWindow
     private JTextArea realmTextArea = new JTextArea();
 
     private JLabel uinLabel = new JLabel(
-        Messages.getI18NString("identifier").getText());
+        GuiActivator.getResources().getI18NString("service.gui.IDENTIFIER"));
 
     private JLabel passwdLabel = new JLabel(
-        Messages.getI18NString("passwd").getText());
+        GuiActivator.getResources().getI18NString("service.gui.PASSWORD"));
 
     private JComponent uinValue;
 
     private JPasswordField passwdField = new JPasswordField(15);
 
-    private I18NString okString = Messages.getI18NString("ok");
+    private JButton loginButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.OK"));
 
-    private I18NString cancelString = Messages.getI18NString("cancel");
-
-    private JButton loginButton = new JButton(okString.getText());
-
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private TransparentPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1, 8, 8));
@@ -62,9 +60,9 @@ public class AuthenticationWindow
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JCheckBox rememberPassCheckBox =
-        new SIPCommCheckBox(Messages.getI18NString("rememberPassword")
-            .getText());
+    private JCheckBox rememberPassCheckBox
+        = new SIPCommCheckBox(GuiActivator.getResources()
+            .getI18NString("service.gui.REMEMBER_PASSWORD"));
 
     private LoginWindowBackground backgroundPanel;
 
@@ -130,8 +128,9 @@ public class AuthenticationWindow
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.setTitle(
-            Messages.getI18NString("authenticationWindowTitle").getText());
+        this.setTitle(GuiActivator.getResources().getI18NString(
+            "service.gui.AUTHENTICATION_WINDOW_TITLE",
+            new String[]{protocolProvider.getProtocolName()}));
 
         this.enableKeyActions();
     }
@@ -184,8 +183,9 @@ public class AuthenticationWindow
         this.realmTextArea.setWrapStyleWord(true);
         this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.realmTextArea.setText(
-            Messages.getI18NString("securityAuthorityRealm",
-                new String[]{realm}).getText());
+            GuiActivator.getResources().getI18NString(
+                "service.gui.SECURITY_AUTHORITY_REALM",
+                new String[]{realm}));
 
         this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -213,8 +213,10 @@ public class AuthenticationWindow
         this.loginButton.setName("ok");
         this.cancelButton.setName("cancel");
 
-        this.loginButton.setMnemonic(okString.getMnemonic());
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.loginButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.OK"));
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         this.loginButton.addActionListener(this);
         this.cancelButton.addActionListener(this);

@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -24,24 +23,18 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class EditMenu extends SIPCommMenu 
-    implements ActionListener {
-
-    private I18NString cutString = Messages.getI18NString("cut");
-    
-    private I18NString copyString = Messages.getI18NString("copy");
-    
-    private I18NString pasteString = Messages.getI18NString("paste");
-    
+    implements ActionListener
+{
     private JMenuItem cutMenuItem = new JMenuItem(
-        cutString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.CUT"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
 
     private JMenuItem copyMenuItem = new JMenuItem(
-        copyString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.COPY"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
     private JMenuItem pasteMenuItem = new JMenuItem(
-        pasteString.getText(), 
+        GuiActivator.getResources().getI18NString("service.gui.PASTE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.PASTE_ICON)));
 
     private ChatWindow chatWindow;
@@ -53,7 +46,7 @@ public class EditMenu extends SIPCommMenu
      */
     public EditMenu(ChatWindow chatWindow) {
 
-        super(Messages.getI18NString("edit").getText());
+        super(GuiActivator.getResources().getI18NString("service.gui.EDIT"));
 
         this.setOpaque(false);
 
@@ -74,20 +67,24 @@ public class EditMenu extends SIPCommMenu
         this.add(cutMenuItem);
         this.add(copyMenuItem);
         this.add(pasteMenuItem);
-        
-        this.setMnemonic(Messages.getI18NString("edit").getMnemonic());
-        this.cutMenuItem.setMnemonic(cutString.getMnemonic());
-        this.copyMenuItem.setMnemonic(copyString.getMnemonic());
-        this.pasteMenuItem.setMnemonic(pasteString.getMnemonic());
-        
+
+        this.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.EDIT"));
+        this.cutMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CUT"));
+        this.copyMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.COPY"));
+        this.pasteMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.PASTE"));
+
         this.cutMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_X,
                 KeyEvent.CTRL_MASK));
-        
+
         this.copyMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_C,
                 KeyEvent.CTRL_MASK));
-        
+
         this.pasteMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_P,
                 KeyEvent.CTRL_MASK));

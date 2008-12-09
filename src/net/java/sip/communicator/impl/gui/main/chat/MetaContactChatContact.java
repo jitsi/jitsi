@@ -56,7 +56,7 @@ public class MetaContactChatContact
         String name = metaContact.getDisplayName();
 
         if (name == null || name.length() < 1)
-            name = GuiActivator.getResources().getI18NString("unknown");
+            name = GuiActivator.getResources().getI18NString("service.gui.UNKNOWN");
 
         return name;
     }

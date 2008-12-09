@@ -63,7 +63,8 @@ public class SSHAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer.setFinishButtonText(
+            Resources.getString("service.gui.SIGN_IN"));
     }
     
     /**
@@ -92,7 +93,7 @@ public class SSHAccountRegistrationWizard
      * @return String
      */
     public String getProtocolName() {
-        return Resources.getString("protocolNameSsh");
+        return Resources.getString("plugin.sshaccregwizz.PROTOCOL_NAME");
     }
     
     /**
@@ -101,7 +102,7 @@ public class SSHAccountRegistrationWizard
      * @return String
      */
     public String getProtocolDescription() {
-        return Resources.getString("protocolDescriptionSsh");
+        return Resources.getString("plugin.sshaccregwizz.PROTOCOL_DESCRIPTION");
     }
     
     /**
@@ -208,14 +209,14 @@ public class SSHAccountRegistrationWizard
         {
             SSHAccRegWizzActivator.getUIService().getPopupDialog()
             .showMessagePopupDialog(exc.getMessage(),
-                Resources.getString("error"),
+                Resources.getString("service.gui.ERROR"),
                 PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
             SSHAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         

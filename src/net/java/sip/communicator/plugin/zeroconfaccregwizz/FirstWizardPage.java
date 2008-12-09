@@ -36,15 +36,19 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel userID = new JLabel(Resources.getString("userID"));
+    private JLabel userID = new JLabel(
+        Resources.getString("plugin.zeroaccregwizz.USERID"));
 
     /* TEMPORARY : HARD CODED !! Should be added to Resource */
-    private JLabel firstLabel = new JLabel("Firstname:");
-    private JLabel lastLabel = new JLabel("Lastname:");
-    private JLabel mailLabel = new JLabel("Mail address:");
+    private JLabel firstLabel
+        = new JLabel(Resources.getString("plugin.zeroaccregwizz.FIRST_NAME"));
+    private JLabel lastLabel
+        = new JLabel(Resources.getString("plugin.zeroaccregwizz.LAST_NAME"));
+    private JLabel mailLabel
+        = new JLabel(Resources.getString("plugin.zeroaccregwizz.EMAIL"));
 
     private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("existingAccount"));
+        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
     private JPanel emptyPanel2 = new TransparentPanel();
@@ -61,8 +65,9 @@ public class FirstWizardPage
     private JTextField lastField = new JTextField();
     private JTextField mailField = new JTextField();
 
-    private JCheckBox rememberContacts =
-        new SIPCommCheckBox("Remember Bonjour contacts?");
+    private JCheckBox rememberContacts = 
+        new SIPCommCheckBox(Resources.getString(
+            "plugin.zeroaccregwizz.REMEMBER_CONTACTS"));
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -160,9 +165,8 @@ public class FirstWizardPage
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
         userPassPanel.add(rememberContacts, BorderLayout.SOUTH);
 
-        userPassPanel.setBorder(BorderFactory
-                                .createTitledBorder(Resources.getString(
-                                    "userAndPassword")));
+        userPassPanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("plugin.zeroaccregwizz.USERID_AND_PASSWORD")));
 
         this.add(userPassPanel, BorderLayout.NORTH);
     }

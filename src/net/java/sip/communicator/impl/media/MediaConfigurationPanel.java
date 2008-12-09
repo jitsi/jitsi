@@ -123,16 +123,16 @@ public class MediaConfigurationPanel
         table.setShowGrid(false);
         table.setTableHeader(null);
 
-        key = "MediaConfigurationPanel_encodings";
+        key = "impl.media.configform.ENCODINGS";
         JLabel label = new JLabel(resources.getI18NString(key));
         label.setDisplayedMnemonic(resources.getI18nMnemonic(key));
         label.setLabelFor(table);
 
-        key = "MediaConfigurationPanel_up";
+        key = "impl.media.configform.UP";
         final JButton upButton = new JButton(resources.getI18NString(key));
         upButton.setMnemonic(resources.getI18nMnemonic(key));
 
-        key = "MediaConfigurationPanel_down";
+        key = "impl.media.configform.DOWN";
         final JButton downButton = new JButton(resources.getI18NString(key));
         downButton.setMnemonic(resources.getI18nMnemonic(key));
 
@@ -294,7 +294,7 @@ public class MediaConfigurationPanel
         {
             JLabel noPreview =
                 new JLabel(MediaActivator.getResources().getI18NString(
-                    "MediaConfigurationPanel_noPreview"));
+                    "impl.media.configform.NO_PREVIEW"));
             noPreview.setHorizontalAlignment(SwingConstants.CENTER);
             noPreview.setVerticalAlignment(SwingConstants.CENTER);
 
@@ -340,10 +340,10 @@ public class MediaConfigurationPanel
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
             return MediaActivator.getResources().getI18nMnemonic(
-                "MediaConfigurationPanel_audio");
+                "impl.media.configform.AUDIO");
         case DeviceConfigurationComboBoxModel.VIDEO:
             return MediaActivator.getResources().getI18nMnemonic(
-                "MediaConfigurationPanel_video");
+                "impl.media.configform.VIDEO");
         default:
             throw new IllegalArgumentException("type");
         }
@@ -355,10 +355,10 @@ public class MediaConfigurationPanel
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
             return MediaActivator.getResources().getI18NString(
-                "MediaConfigurationPanel_audio");
+                "impl.media.configform.AUDIO");
         case DeviceConfigurationComboBoxModel.VIDEO:
             return MediaActivator.getResources().getI18NString(
-                "MediaConfigurationPanel_video");
+                "impl.media.configform.VIDEO");
         default:
             throw new IllegalArgumentException("type");
         }

@@ -12,8 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -30,17 +30,15 @@ public class CreateChatRoomDialog
 {
     private ChatRoomNamePanel chatRoomPanel = new ChatRoomNamePanel();
     
-    private I18NString addString = Messages.getI18NString("create");
+    private JButton addButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CREATE"));
     
-    private I18NString cancelString = Messages.getI18NString("cancel");
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
-    private JButton addButton = new JButton(addString.getText());
-    
-    private JButton cancelButton = new JButton(cancelString.getText());
-
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-
+    
     private JPanel mainPanel = new TransparentPanel(new BorderLayout());
     
     private ChatRoomProviderWrapper chatRoomProvider;
@@ -64,7 +62,8 @@ public class CreateChatRoomDialog
      */
     private void init()
     {
-        this.setTitle(Messages.getI18NString("createChatRoom").getText());
+        this.setTitle(GuiActivator.getResources()
+                .getI18NString("service.gui.CREATE_CHAT_ROOM"));
         
         this.setSize(620, 450);
         this.setPreferredSize(new Dimension(620, 450));
@@ -73,9 +72,11 @@ public class CreateChatRoomDialog
         this.addButton.setName("create");
         this.cancelButton.setName("cancel");
         
-        this.addButton.setMnemonic(addString.getMnemonic());
+        this.addButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CREATE"));
         
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
         
         this.addButton.addActionListener(this);
         this.cancelButton.addActionListener(this);

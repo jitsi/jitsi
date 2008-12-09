@@ -32,7 +32,7 @@ public class AuthorizationResponse
      * the user to their contact list.
      */
     public static final AuthorizationResponseCode ACCEPT
-        = new AuthorizationResponseCode("Accept");
+        = new AuthorizationResponseCode("service.gui.ACCEPT");
 
     /**
      * Indicates that source authorization request which this response is about

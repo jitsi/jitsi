@@ -788,7 +788,7 @@
         bundle-audionotifier,bundle-plugin-branding,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
-        bundle-plugin-extended-callhistory-search,
+    	bundle-plugin-call-history-form,
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,bundle-plugin-whiteboard,
         bundle-irc,bundle-plugin-ircaccregwizz,
@@ -1563,12 +1563,12 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-PLUGIN-EXTENDED CALL HISTORY SEARCH -->
-    <target name="bundle-plugin-extended-callhistory-search">
+    <target name="bundle-plugin-call-history-form">
         <!-- Creates a bundle for a extended callhistory search-->
-        <jar compress="false" destfile="${bundles.dest}/extendedcallhistorysearch.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/extendedcallhistorysearch/extendedcallhistorysearch.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/extendedcallhistorysearch"
-                prefix="net/java/sip/communicator/plugin/extendedcallhistorysearch"/>
+        <jar compress="false" destfile="${bundles.dest}/callhistoryform.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/callhistoryform/callhistoryform.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/callhistoryform"
+                prefix="net/java/sip/communicator/plugin/callhistoryform"/>
             <zipfileset src="${lib.noinst}/jcalendar-1.3.2.jar" prefix=""/>
         </jar>
     </target>

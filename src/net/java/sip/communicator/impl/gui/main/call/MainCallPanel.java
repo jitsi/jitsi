@@ -16,7 +16,6 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -65,7 +64,9 @@ public class MainCallPanel
         = new TransparentPanel(new BorderLayout());
 
     private JLabel callViaLabel
-        = new JLabel(Messages.getI18NString("callVia").getText() + " ");
+        = new JLabel(
+            GuiActivator.getResources().getI18NString("service.gui.CALL_VIA")
+            + " ");
 
     private TransparentPanel callViaPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
@@ -113,7 +114,7 @@ public class MainCallPanel
         dialButton.setName(DIAL_BUTTON);
 
         callButton.setToolTipText(
-            Messages.getI18NString("call").getText());
+            GuiActivator.getResources().getI18NString("service.gui.CALL"));
 
         callButton.addActionListener(this);
         dialButton.addActionListener(this);
@@ -157,12 +158,12 @@ public class MainCallPanel
                         {
                             new ErrorDialog(
                                 this.mainFrame,
-                                Messages.getI18NString("warning").getText(),
-                                Messages.getI18NString(
-                                    "contactNotSupportingTelephony",
+                                GuiActivator.getResources()
+                                    .getI18NString("service.gui.WARNING"),
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.CONTACT_NOT_SUPPORTING_TELEPHONY",
                                     new String[]
-                                    { ((MetaContact) o).getDisplayName() })
-                                        .getText())
+                                    { ((MetaContact) o).getDisplayName() }))
                                 .showDialog();
                         }
                     }

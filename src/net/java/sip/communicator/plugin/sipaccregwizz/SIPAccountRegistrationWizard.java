@@ -51,7 +51,8 @@ public class SIPAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer.setFinishButtonText(
+            Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -81,7 +82,7 @@ public class SIPAccountRegistrationWizard
      * @return String
      */
     public String getProtocolName() {
-        return Resources.getString("protocolNameSip");
+        return Resources.getString("plugin.sipaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -90,7 +91,7 @@ public class SIPAccountRegistrationWizard
      * @return String
      */
     public String getProtocolDescription() {
-        return Resources.getString("protocolDescriptionSip");
+        return Resources.getString("plugin.sipaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -118,55 +119,84 @@ public class SIPAccountRegistrationWizard
 
         String rememberPswdString;
         if(rememberPswd)
-            rememberPswdString = Resources.getString("yes");
+            rememberPswdString = Resources.getString("service.gui.YES");
         else
-            rememberPswdString = Resources.getString("no");
+            rememberPswdString = Resources.getString("service.gui.NO");
 
-        summaryTable.put(Resources.getString("id"),
-                registration.getId());
-        summaryTable.put(Resources.getString("rememberPassword"),
-                rememberPswdString);
-        summaryTable.put(Resources.getString("registrar"),
-                registration.getServerAddress());
-        summaryTable.put(Resources.getString("serverPort"),
-                registration.getServerPort());
-        summaryTable.put(Resources.getString("proxy"),
-                registration.getProxy());
-        summaryTable.put(Resources.getString("proxyPort"),
-                registration.getProxyPort());
-        summaryTable.put(Resources.getString("preferredTransport"),
-                registration.getPreferredTransport());
-        
-        if (registration.isEnablePresence()) {
-            summaryTable.put(Resources.getString("enablePresence"),
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.USERNAME"),
+            registration.getId());
+        summaryTable.put(
+            Resources.getString("service.gui.REMEMBER_PASSWORD"),
+            rememberPswdString);
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.REGISTRAR"),
+            registration.getServerAddress());
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
+            registration.getServerPort());
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.PROXY"),
+            registration.getProxy());
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.PROXY_PORT"),
+            registration.getProxyPort());
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.PREFERRED_TRANSPORT"),
+            registration.getPreferredTransport());
+
+        if (registration.isEnablePresence())
+        {
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
+                Resources.getString("service.gui.YES"));
+        }
+        else
+        {
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
+                Resources.getString("service.gui.NO"));
+        }
+
+        if (registration.isForceP2PMode())
+        {
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
+                Resources.getString("service.gui.YES"));
+        }
+        else
+        {
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
+                Resources.getString("service.gui.NO"));
+        }
+
+        if (registration.isDefaultEncryption()) 
+        {
+            summaryTable.put(Resources.getString(
+                "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
                 Resources.getString("yes"));
-        } else {
-            summaryTable.put(Resources.getString("enablePresence"),
-                    Resources.getString("no"));
         }
-        if (registration.isForceP2PMode()) {
-            summaryTable.put(Resources.getString("forceP2PPresence"),
-                    Resources.getString("yes"));
-        } else {
-            summaryTable.put(Resources.getString("forceP2PPresence"),
-                    Resources.getString("no"));
-        }
-        if (registration.isDefaultEncryption()) {
-        	summaryTable.put(Resources.getString("enableDefaultEncryption"),
-        			Resources.getString("yes"));
-        } else {
-        	summaryTable.put(Resources.getString("enableDefaultEncryption"), 
-        			Resources.getString("no"));
+        else
+        {
+            summaryTable.put(Resources.getString(
+                "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), 
+                Resources.getString("no"));
         } 
-        summaryTable.put(Resources.getString("offlineContactPollingPeriod"),
+
+        summaryTable.put(Resources.getString(
+                "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"),
                 registration.getPollingPeriod());
-        summaryTable.put(Resources.getString("subscriptionExpiration"),
+        summaryTable.put(Resources.getString(
+                "plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"),
                 registration.getSubscriptionExpiration());
 
-        summaryTable.put(Resources.getString("keepAliveMethod"),
-                registration.getKeepAliveMethod());
-        summaryTable.put(Resources.getString("keepAliveInterval"),
-                registration.getKeepAliveInterval());
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_METHOD"),
+            registration.getKeepAliveMethod());
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
+            registration.getKeepAliveInterval());
 
         return summaryTable.entrySet().iterator();
     }
@@ -254,9 +284,9 @@ public class SIPAccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
                 Boolean.toString(registration.isForceP2PMode()));
-        
+
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION, 
-        		Boolean.toString(registration.isDefaultEncryption())); 
+                Boolean.toString(registration.isDefaultEncryption())); 
 
         accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
                 registration.getPollingPeriod());
@@ -296,14 +326,14 @@ public class SIPAccountRegistrationWizard
         {
             SIPAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
             SIPAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
 

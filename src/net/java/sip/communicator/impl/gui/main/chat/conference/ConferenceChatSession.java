@@ -11,7 +11,6 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.msghistory.*;
@@ -385,8 +384,9 @@ public class ConferenceChatSession
 
             sessionRenderer.addChatContact(chatContact);
 
-            statusMessage = Messages.getI18NString("chatRoomUserJoined",
-                new String[] {sourceChatRoom.getName()}).getText();
+            statusMessage = GuiActivator.getResources().getI18NString(
+                "service.gui.CHAT_ROOM_USER_JOINED",
+                new String[] {sourceChatRoom.getName()});
 
             sessionRenderer.updateChatContactStatus(chatContact, statusMessage);
         }
@@ -396,20 +396,23 @@ public class ConferenceChatSession
         {
             if(eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT))
             {
-                statusMessage = Messages.getI18NString("chatRoomUserLeft",
-                    new String[] {sourceChatRoom.getName()}).getText();
+                statusMessage = GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_USER_LEFT",
+                    new String[] {sourceChatRoom.getName()});
             }
             else if(eventType.equals(
                 ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED))
             {
-                statusMessage = Messages.getI18NString("chatRoomUserKicked",
-                    new String[] {sourceChatRoom.getName()}).getText();
+                statusMessage = GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_USER_KICKED",
+                    new String[] {sourceChatRoom.getName()});
             }
             else if(eventType.equals(
                 ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT))
             {
-                statusMessage = Messages.getI18NString("chatRoomUserQuit",
-                    new String[] {sourceChatRoom.getName()}).getText();
+                statusMessage = GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_USER_QUIT",
+                    new String[] {sourceChatRoom.getName()});
             }
 
             Iterator<ConferenceChatContact> chatContactsIter

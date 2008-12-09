@@ -566,7 +566,7 @@ public class WhiteboardSessionManager
                 .showMessagePopupDialog(
                     Resources.getString("failedToJoinWhiteboard",
                         new String[] {whiteboard.getWhiteboardID()}),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
 
             logger.error("Failed to join whiteboard: "
@@ -631,7 +631,7 @@ public class WhiteboardSessionManager
                         Resources.getString("failedToJoinWhiteboard",
                             new String[]{whiteboardSession.getWhiteboardID()})
                                 + evt.getReason(),
-                        Resources.getString("error"),
+                        Resources.getString("service.gui.ERROR"),
                         PopupDialog.ERROR_MESSAGE);
             }
             else if (evt.getEventType().equals(

@@ -181,41 +181,41 @@ public class GuiUtils {
     {
         String monthString = "";
         if(month == 1)
-            monthString
-                = UtilActivator.getResources().getI18NString("january");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.JANUARY");
         else if(month == 2)
-            monthString
-                = UtilActivator.getResources().getI18NString("february");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("shervice.gui.FEBRUARY");
         else if(month == 3)
-            monthString
-                = UtilActivator.getResources().getI18NString("march");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.MARCH");
         else if(month == 4)
-            monthString
-                = UtilActivator.getResources().getI18NString("april");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.APRIL");
         else if(month == 5)
-            monthString
-                = UtilActivator.getResources().getI18NString("may");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.MAY");
         else if(month == 6)
-            monthString
-                = UtilActivator.getResources().getI18NString("june");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.JUNE");
         else if(month == 7)
-            monthString
-                = UtilActivator.getResources().getI18NString("july");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.JULY");
         else if(month == 8)
-            monthString
-                = UtilActivator.getResources().getI18NString("august");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.AUGUST");
         else if(month == 9)
-            monthString
-                = UtilActivator.getResources().getI18NString("september");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.SEPTEMBER");
         else if(month == 10)
-            monthString
-                = UtilActivator.getResources().getI18NString("october");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.OCTOBER");
         else if(month == 11)
-            monthString
-                = UtilActivator.getResources().getI18NString("november");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.NOVEMBER");
         else if(month == 12)
-            monthString
-                = UtilActivator.getResources().getI18NString("december");
+            monthString = UtilActivator.getResources()
+                            .getI18NString("service.gui.DECEMBER");
 
         return monthString;
     }

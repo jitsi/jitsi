@@ -30,21 +30,22 @@ public class ManageButtonsPanel
     private Logger logger = Logger.getLogger(ManageButtonsPanel.class);
 
     private JButton deactivateButton = new JButton(
-            Resources.getString("deactivate"));
+            Resources.getString("service.gui.DEACTIVATE"));
 
     private JButton activateButton = new JButton(
-            Resources.getString("activate"));
+            Resources.getString("service.gui.ACTIVATE"));
 
     private JButton uninstallButton = new JButton(
-            Resources.getString("uninstall"));
+            Resources.getString("plugin.pluginmanager.UNINSTALL"));
 
     private JButton updateButton = new JButton(
-            Resources.getString("update"));
+            Resources.getString("plugin.pluginmanager.UPDATE"));
 
-    private JButton newButton = new JButton(Resources.getString("new"));
+    private JButton newButton
+        = new JButton(Resources.getString("plugin.pluginmanager.NEW"));
 
-    private JCheckBox showSysBundlesCheckBox =
-        new SIPCommCheckBox(Resources.getString("showSystemBundles"));
+    private JCheckBox showSysBundlesCheckBox = new SIPCommCheckBox(
+            Resources.getString("plugin.pluginmanager.SHOW_SYSTEM_BUNDLES"));
 
     private JPanel buttonsPanel =
         new TransparentPanel(new GridLayout(0, 1, 8, 8));

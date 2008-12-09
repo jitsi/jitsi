@@ -37,7 +37,7 @@ public class MuteButton
 
         setModel(new MuteButtonModel(callParticipant));
         setToolTipText(GuiActivator.getResources().getI18NString(
-            "MuteButton_toolTipText"));
+            "service.gui.MUTE_BUTTON_TOOL_TIP"));
     }
 
     /**

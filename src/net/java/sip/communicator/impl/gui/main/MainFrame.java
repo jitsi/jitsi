@@ -18,7 +18,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
@@ -160,7 +159,8 @@ public class MainFrame
             this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         this.setKeybindingInput(KeybindingSet.Category.MAIN);
-        this.addKeybindingAction("main-rename", new RenameAction());
+        this.addKeybindingAction("plugin.keybindings.MAIN_RENAME",
+                                new RenameAction());
 
         TransparentPanel northPanel = new TransparentPanel(new BorderLayout());
 
@@ -196,7 +196,7 @@ public class MainFrame
 
         moreActionsPanel.add(moreActionsLabel);
         moreActionsLabel.setToolTipText(GuiActivator.getResources()
-            .getI18NString("openTools"));
+            .getI18NString("service.gui.OPEN_TOOLS"));
 
         moreActionsLabel.addMouseListener(new ActionMenuMouseListener());
 
@@ -1453,9 +1453,11 @@ public class MainFrame
                     if (ConfigurationManager.isQuitWarningShown())
                     {
                         MessageDialog dialog =
-                            new MessageDialog(null, Messages.getI18NString(
-                                "close").getText(), Messages.getI18NString(
-                                "hideMainWindow").getText(), false);
+                            new MessageDialog(null,
+                                GuiActivator.getResources().getI18NString(
+                                "service.gui.CLOSE"),
+                                GuiActivator.getResources().getI18NString(
+                                "service.gui.HIDE_MAIN_WINDOW"), false);
 
                         if (dialog.showDialog() == MessageDialog.OK_DONT_ASK_CODE)
                             ConfigurationManager.setQuitWarningShown(false);

@@ -56,7 +56,7 @@ public class ConferenceChatContact
         String name = chatRoomMember.getName();
 
         if (name == null || name.length() < 1)
-            name = GuiActivator.getResources().getI18NString("unknown");
+            name = GuiActivator.getResources().getI18NString("service.gui.UNKNOWN");
 
         return name;
     }

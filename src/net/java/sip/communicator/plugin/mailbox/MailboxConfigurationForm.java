@@ -12,8 +12,9 @@ import java.io.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
+
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,23 +27,35 @@ public class MailboxConfigurationForm
     extends TransparentPanel
     implements ConfigurationForm, ActionListener
 {
-    private JLabel jlblOutgoingMessage = new JLabel(
-                                Resources.getString("outgoing"));
+    private JLabel jlblOutgoingMessage
+        = new JLabel(Resources.getString("plugin.mailbox.OUTGOING"));
+
     private JFileChooser  jfcOutgoingMessage = new JFileChooser();
-    private JButton jbtnOutgoingMessage = new JButton(
-                                    Resources.getString("browse"));
+
+    private JButton jbtnOutgoingMessage
+        = new JButton(Resources.getString("plugin.mailbox.BROWSE"));
+
     private JTextField jtfOutgoingMessage = new JTextField();
-    private JPanel jpOutgoingMessage = new TransparentPanel
-                                (new FlowLayout(FlowLayout.LEFT));
-    private JLabel jlblIncomingMessage = new JLabel(
-                                    Resources.getString("incoming"));
+
+    private JPanel jpOutgoingMessage
+        = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+
+    private JLabel jlblIncomingMessage
+        = new JLabel(Resources.getString("plugin.mailbox.INCOMING"));
+
     private JFileChooser  jfcIncomingMessage = new JFileChooser();
-    private JButton jbtnIncomingMessage = new JButton(
-                                    Resources.getString("browse"));
+
+    private JButton jbtnIncomingMessage
+        = new JButton(Resources.getString("plugin.mailbox.BROWSE"));
+
     private JTextField jtfIncomingMessage = new JTextField();
-    private JPanel jpIncomingMessage = new TransparentPanel(
-                                new FlowLayout(FlowLayout.LEFT));
-    private JLabel jlblWaitTime = new JLabel(Resources.getString("waitTime"));
+
+    private JPanel jpIncomingMessage
+        = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+
+    private JLabel jlblWaitTime
+        = new JLabel(Resources.getString("plugin.mailbox.WAIT_TIME"));
+
     private JSpinner jsWaitTime = new JSpinner(new SpinnerNumberModel(
                                                 new Integer(10000),
                                                 new Integer(0),
@@ -52,20 +65,26 @@ public class MailboxConfigurationForm
     private JPanel jpWaitTime =
         new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
 
-    private JLabel jlblMaxMessageTime = new JLabel(
-                            Resources.getString("maxMessageTime"));
+    private JLabel jlblMaxMessageTime
+        = new JLabel(Resources.getString("plugin.mailbox.MAX_MESSAGE_TIME"));
+
     private JSpinner jsMaxMessageTime = new JSpinner(new SpinnerNumberModel(
                                                 new Integer(10000),
                                                 new Integer(0),
                                                 null,
                                                 new Integer(1000)));
+
     private JPanel jpMaxMessageTime = new TransparentPanel(
                                     new FlowLayout(FlowLayout.LEFT));
 
-    private JButton jbtnConfirm = new JButton(Resources.getString("confirm"));
-    private JButton jbtnDefault = new JButton(Resources.getString("default"));
+    private JButton jbtnConfirm
+        = new JButton(Resources.getString("plugin.mailbox.CONFIRM"));
+    private JButton jbtnDefault
+        = new JButton(Resources.getString("plugin.mailbox.DEFAULTS"));
+
     private JPanel jpConfirmDefault = new TransparentPanel();
     ConfigurationService config;
+
     public MailboxConfigurationForm()
     {
 
@@ -208,7 +227,7 @@ public class MailboxConfigurationForm
      */
     public String getTitle()
     {
-        return Resources.getString("mailbox");
+        return Resources.getString("plugin.mailbox.MAILBOX");
     }
 
     /**

@@ -12,7 +12,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -40,7 +40,8 @@ public class MoreButton
         this.setVerticalTextPosition(SwingConstants.BOTTOM);
         this.setHorizontalTextPosition(SwingConstants.CENTER);
 
-        this.setToolTipText(Messages.getI18NString("more").getText());
+        this.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.MORE"));
 
         this.addMouseListener(this);
 

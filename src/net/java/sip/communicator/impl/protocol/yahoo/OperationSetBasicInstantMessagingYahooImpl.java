@@ -344,11 +344,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
              yahooMailLogon = "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
                      + yahooMailLogon + "\">"
                      + yahooMailLogon + "</a>";
-             
-             
 
              String newMail = YahooActivator.getResources().getI18NString(
-                 "newMail",
+                 "service.gui.NEW_MAIL",
                  new String[]{ev.getFrom(), 
                               "&lt;" + ev.getEmailAddress() + "&gt", 
                               ev.getSubject(),

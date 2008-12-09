@@ -11,7 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
@@ -28,18 +28,12 @@ public class ChatRoomServerRightButtonMenu
     extends JPopupMenu
     implements  ActionListener
 {
-    private I18NString createChatRoomString
-        = Messages.getI18NString("createChatRoom");
-
-    private I18NString joinChannelString
-        = Messages.getI18NString("joinChatRoom");
-
     private JMenuItem createChatRoomItem = new JMenuItem(
-        createChatRoomString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.CREATE_CHAT_ROOM"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
 
     private JMenuItem joinChannelItem = new JMenuItem(
-        joinChannelString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.JOIN_CHAT_ROOM"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
 
     private ChatRoomProviderWrapper chatRoomProvider;
@@ -74,10 +68,12 @@ public class ChatRoomServerRightButtonMenu
         this.createChatRoomItem.setName("createChatRoom");
         this.joinChannelItem.setName("joinChatRoom");
         
-        this.createChatRoomItem
-            .setMnemonic(createChatRoomString.getMnemonic());
-        this.joinChannelItem
-            .setMnemonic(joinChannelString.getMnemonic());
+        this.createChatRoomItem.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.CREATE_CHAT_ROOM"));
+        this.joinChannelItem.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.JOIN_CHAT_ROOM"));
         
         this.createChatRoomItem.addActionListener(this);
         this.joinChannelItem.addActionListener(this);

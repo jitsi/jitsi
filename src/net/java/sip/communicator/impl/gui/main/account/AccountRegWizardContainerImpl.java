@@ -14,7 +14,6 @@ import javax.imageio.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -48,8 +47,8 @@ public class AccountRegWizardContainerImpl
     {
         super(mainFrame);
 
-        this.setTitle(Messages.getI18NString("accountRegistrationWizard")
-            .getText());
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.ACCOUNT_REGISTRATION_WIZARD"));
 
         this.summaryPage = new AccountRegSummaryPage(this);
 

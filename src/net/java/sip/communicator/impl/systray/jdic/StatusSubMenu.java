@@ -52,7 +52,7 @@ public class StatusSubMenu
         
         parentSystray = tray;
 
-        this.setText(Resources.getString("setStatus"));
+        this.setText(Resources.getString("impl.systray.SET_STATUS"));
         this.setIcon(Resources.getImage("service.systray.STATUS_MENU_ICON"));
 
         /* makes the menu look better */

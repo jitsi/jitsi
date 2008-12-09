@@ -12,7 +12,7 @@ import java.lang.reflect.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -30,13 +30,14 @@ public class MessageDialog
     implements ActionListener
 {
     private JButton cancelButton = new JButton(
-        Messages.getI18NString("cancel").getText());
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private JButton okButton = new JButton(
-        Messages.getI18NString("ok").getText());
+        GuiActivator.getResources().getI18NString("service.gui.OK"));
 
-    private JCheckBox doNotAskAgain =
-        new SIPCommCheckBox(Messages.getI18NString("doNotAskAgain").getText());
+    private JCheckBox doNotAskAgain = new JCheckBox(
+        GuiActivator.getResources()
+            .getI18NString("service.gui.DO_NOT_ASK_AGAIN"));
 
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.WARNING_ICON)));
@@ -172,8 +173,8 @@ public class MessageDialog
 
         if(!isCancelButtonEnabled)
         {
-            doNotAskAgain.setText(
-                Messages.getI18NString("doNotShowAgain").getText());
+            doNotAskAgain.setText(GuiActivator.getResources()
+                .getI18NString("service.gui.DO_NOT_SHOW_AGAIN"));
 
             buttonsPanel.remove(cancelButton);
         }

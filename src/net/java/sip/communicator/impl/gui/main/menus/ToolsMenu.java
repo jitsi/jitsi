@@ -14,7 +14,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -36,18 +35,24 @@ public class ToolsMenu
 {
     private final Logger logger = Logger.getLogger(ToolsMenu.class);
 
+    private MainFrame parentWindow;
+
+    private ExportedWindow configDialog;
+
     /**
      * Creates an instance of <tt>FileMenu</tt>.
      * @param parentWindow The parent <tt>ChatWindow</tt>.
      */
     public ToolsMenu(MainFrame parentWindow) {
 
-        super(Messages.getI18NString("tools").getText());
+        super(GuiActivator.getResources().getI18NString("service.gui.TOOLS"));
 
         this.setForeground(
             new Color(GuiActivator.getResources().
                 getColor("service.gui.MAIN_MENU_FOREGROUND")));
-        this.setMnemonic(Messages.getI18NString("tools").getMnemonic());
+        this.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
+
         this.setOpaque(false);
 
         registerConfigMenuItem();
@@ -156,10 +161,12 @@ public class ToolsMenu
 
     private void registerConfigMenuItemNonMacOSX()
     {
-        I18NString settingsString = Messages.getI18NString("settings");
-        JMenuItem configMenuItem = new JMenuItem(settingsString.getText());
+        JMenuItem configMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString("service.gui.SETTINGS"));
+
         this.add(configMenuItem);
-        configMenuItem.setMnemonic(settingsString.getMnemonic());
+        configMenuItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.SETTINGS"));
         configMenuItem.setName("config");
         configMenuItem.addActionListener(this);
     }

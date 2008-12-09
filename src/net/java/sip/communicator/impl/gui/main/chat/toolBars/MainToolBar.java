@@ -14,7 +14,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -87,27 +86,28 @@ public class MainToolBar
 
 //        this.previousButton.setName("previous");
 //        this.previousButton.setToolTipText(
-//            Messages.getI18NString("previous").getText());
+//            GuiActivator.getResources().getI18NString("service.gui.PREVIOUS").getText());
 //
 //        this.nextButton.setName("next");
 //        this.nextButton.setToolTipText(
-//            Messages.getI18NString("next").getText());
+//            GuiActivator.getResources().getI18NString("service.gui.NEXT").getText());
 
         this.sendFileButton.setName("sendFile");
         this.sendFileButton.setToolTipText(
-            Messages.getI18NString("sendFile").getText());
+            GuiActivator.getResources().getI18NString("service.gui.SEND_FILE"));
 
         this.historyButton.setName("history");
         this.historyButton.setToolTipText(
-            Messages.getI18NString("history").getText() + " Ctrl-H");
+            GuiActivator.getResources().getI18NString("service.gui.HISTORY")
+            + " Ctrl-H");
 
         this.inviteButton.setName("invite");
         this.inviteButton.setToolTipText(
-            Messages.getI18NString("invite").getText());
+            GuiActivator.getResources().getI18NString("service.gui.INVITE"));
 
         this.optionsButton.setName("options");
         this.optionsButton.setToolTipText(
-            Messages.getI18NString("options").getText());
+            GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
 
 //        this.previousButton.addActionListener(this);
 //        this.nextButton.addActionListener(this);

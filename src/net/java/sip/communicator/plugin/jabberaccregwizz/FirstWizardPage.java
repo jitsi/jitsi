@@ -45,12 +45,14 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel userIDLabel = new JLabel(Resources.getString("jabberUsername"));
+    private JLabel userIDLabel
+        = new JLabel(Resources.getString("plugin.jabberaccregwizz.USERNAME"));
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel
+        = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
     private JLabel existingAccountLabel = new JLabel(Resources
-        .getString("existingAccount"));
+        .getString("plugin.jabberaccregwizz.USER_EXISTS_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -60,36 +62,45 @@ public class FirstWizardPage
 
     private JPasswordField passField = new JPasswordField();
 
-    private JCheckBox rememberPassBox =
-        new SIPCommCheckBox(Resources.getString("rememberPassword"));
+    private JCheckBox rememberPassBox = new SIPCommCheckBox(Resources
+        .getString("service.gui.REMEMBER_PASSWORD"));
 
-    private JPanel advancedOpPanel = new TransparentPanel(new BorderLayout(10, 10));
+    private JPanel advancedOpPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsAdvOpPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesAdvOpPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox sendKeepAliveBox =
-        new SIPCommCheckBox(Resources.getString("enableKeepAlive"));
+    private JCheckBox sendKeepAliveBox = new SIPCommCheckBox(Resources
+        .getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"));
 
-    private JCheckBox enableAdvOpButton =
-        new SIPCommCheckBox(Resources.getString("ovverideServerOps"), false);
+    private JCheckBox enableAdvOpButton = new SIPCommCheckBox(
+        Resources.getString(
+            "plugin.jabberaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"),
+        false);
 
-    private JLabel resourceLabel = new JLabel(Resources.getString("resource"));
+    private JLabel resourceLabel
+        = new JLabel(Resources.getString("plugin.jabberaccregwizz.RESOURCE"));
 
     private JTextField resourceField
         = new JTextField(JabberAccountRegistration.DEFAULT_RESOURCE);
 
-    private JLabel priorityLabel = new JLabel(Resources.getString("priority"));
+    private JLabel priorityLabel = new JLabel(
+        Resources.getString("plugin.jabberaccregwizz.PRIORITY"));
 
     private JTextField priorityField
         = new JTextField(JabberAccountRegistration.DEFAULT_PRIORITY);
 
-    private JLabel serverLabel = new JLabel(Resources.getString("server"));
+    private JLabel serverLabel
+        = new JLabel(Resources.getString("plugin.jabberaccregwizz.SERVER"));
 
     private JTextField serverField = new JTextField();
 
-    private JLabel portLabel = new JLabel(Resources.getString("port"));
+    private JLabel portLabel
+        = new JLabel(Resources.getString("plugin.jabberaccregwizz.PORT"));
 
     private JTextField portField
         = new JTextField(JabberAccountRegistration.DEFAULT_PORT);
@@ -99,10 +110,10 @@ public class FirstWizardPage
     private JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JTextArea registerArea = new JTextArea(Resources
-        .getString("registerNewAccountText"));
+        .getString("plugin.jabberaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
 
     private JButton registerButton = new JButton(Resources
-        .getString("registerNewAccount"));
+        .getString("plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE"));
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -172,7 +183,7 @@ public class FirstWizardPage
         userIDPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         userIDPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("userIDAndPassword")));
+            .getString("plugin.jabberaccregwizz.USERNAME_AND_PASSWORD")));
 
         mainPanel.add(userIDPassPanel);
 
@@ -262,7 +273,7 @@ public class FirstWizardPage
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("advancedOptions")));
+            .getString("plugin.jabberaccregwizz.ADVANCED_OPTIONS")));
 
         mainPanel.add(advancedOpPanel);
 
@@ -302,7 +313,7 @@ public class FirstWizardPage
         registerPanel.add(buttonPanel);
 
         registerPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("registerNewAccount")));
+            .getString("plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE")));
 
         mainPanel.add(registerPanel);
 
@@ -368,8 +379,6 @@ public class FirstWizardPage
     public void commitPage()
     {
         String userID = userIDField.getText();
-
-System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!userID" + userID);
 
         if (!wizard.isModification() && isExistingAccount(userID))
         {

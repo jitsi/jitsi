@@ -11,7 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.swing.*;
@@ -24,17 +25,15 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class RenameContactDialog
     extends SIPCommDialog
-    implements ActionListener {
-
+    implements ActionListener
+{
     private RenameContactPanel renameContactPanel;
     
-    private I18NString renameString = Messages.getI18NString("rename");
+    private JButton renameButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.RENAME"));
     
-    private I18NString cancelString = Messages.getI18NString("cancel");
-    
-    private JButton renameButton = new JButton(renameString.getText());
-    
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -77,14 +76,17 @@ public class RenameContactDialog
      * fields, etc.
      */
     private void init() {
-        this.setTitle(Messages.getI18NString("renameContact").getText());
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.RENAME_CONTACT"));
         
         this.getRootPane().setDefaultButton(renameButton);
         this.renameButton.setName("rename");
         this.cancelButton.setName("cancel");
         
-        this.renameButton.setMnemonic(renameString.getMnemonic());
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.renameButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.RENAME"));
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
         
         this.renameButton.addActionListener(this);
         this.cancelButton.addActionListener(this);

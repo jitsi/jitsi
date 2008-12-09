@@ -6,20 +6,16 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
-
-import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -30,6 +26,8 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.osgi.framework.*;
 
 /**
  * The GroupRightButtonMenu is the menu, opened when user clicks with the
@@ -45,21 +43,15 @@ public class GroupRightButtonMenu
     {
     private Logger logger = Logger.getLogger(GroupRightButtonMenu.class);
 
-    private I18NString addContactString = Messages.getI18NString("addContact");
-
-    private I18NString removeGroupString = Messages.getI18NString("removeGroup");
-    
-    private I18NString renameGroupString = Messages.getI18NString("renameGroup");
-    
-    private SIPCommMenu addContactMenu
-        = new SIPCommMenu(addContactString.getText());
+    private SIPCommMenu addContactMenu = new SIPCommMenu(
+        GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
     
     private JMenuItem removeGroupItem = new JMenuItem(
-        removeGroupString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.REMOVE_GROUP"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
     
     private JMenuItem renameGroupItem = new JMenuItem(
-        renameGroupString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.RENAME_GROUP"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
     
     private MetaContactGroup group;
@@ -114,12 +106,14 @@ public class GroupRightButtonMenu
         this.renameGroupItem.setName("renameGroup");
         this.removeGroupItem.setName("removeGroup");
         
+        this.addContactMenu.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.ADD_CONTACT"));
         
-        this.addContactMenu.setMnemonic(addContactString.getMnemonic());
+        this.renameGroupItem.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.RENAME_GROUP"));
         
-        this.renameGroupItem.setMnemonic(renameGroupString.getMnemonic());
-        
-        this.removeGroupItem.setMnemonic(removeGroupString.getMnemonic());
+        this.removeGroupItem.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.REMOVE_GROUP"));
         
         this.renameGroupItem.addActionListener(this);
         this.removeGroupItem.addActionListener(this);
@@ -183,7 +177,7 @@ public class GroupRightButtonMenu
             if(group != null) 
                 new RemoveGroupThread(group).start();
         }
-        else if(itemName.equals("renameGroup"))
+        else if(itemName.equals("service.gui.RENAME_GROUP"))
         {
             
             RenameGroupDialog dialog = new RenameGroupDialog(
@@ -234,14 +228,17 @@ public class GroupRightButtonMenu
             try
             {
                 if(Constants.REMOVE_CONTACT_ASK) {
-                    String message = Messages.getI18NString("removeContactText",
-                        new String[]{group.getGroupName()}).getText();
+                    String message = GuiActivator.getResources().getI18NString(
+                        "service.gui.REMOVE_CONTACT_TEXT",
+                        new String[]{group.getGroupName()});
 
                     MessageDialog dialog = new MessageDialog(
-                            mainFrame,
-                            Messages.getI18NString("removeGroup").getText(),
-                            message,
-                            Messages.getI18NString("remove").getText());
+                        mainFrame,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.REMOVE_GROUP"),
+                        message,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.REMOVE"));
 
                     int returnCode = dialog.showDialog();
 
@@ -263,11 +260,11 @@ public class GroupRightButtonMenu
             catch (Exception ex)
             {
                 new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                    "removeGroup").getText(),
-                                    ex.getMessage(),
-                                    ex)
-                                .showDialog();
+                                GuiActivator.getResources().getI18NString(
+                                "service.gui.REMOVE_GROUP"),
+                                ex.getMessage(),
+                                ex)
+                .showDialog();
             }
         }
     }

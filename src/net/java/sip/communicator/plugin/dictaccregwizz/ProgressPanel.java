@@ -45,7 +45,8 @@ public class ProgressPanel
         // Element creation
         this.messageLabel = new JLabel(" ");
         this.progressLabel = new JLabel(" ");
-        this.cancelButton = new JButton(Resources.getString("cancel"));
+        this.cancelButton
+            = new JButton(Resources.getString("service.gui.CANCEL"));
         this.cancelButton.addActionListener(this);
         
         // Right panel init

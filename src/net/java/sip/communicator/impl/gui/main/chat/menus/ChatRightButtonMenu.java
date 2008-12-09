@@ -11,7 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -26,29 +26,21 @@ public class ChatRightButtonMenu extends JPopupMenu
     implements ActionListener {
 
     private ChatConversationPanel chatConvPanel;
-    
-    private I18NString copyString = Messages.getI18NString("copy");
-    
-    private I18NString saveString = Messages.getI18NString("save");
-    
-    private I18NString printString = Messages.getI18NString("print");
-    
-    private I18NString closeString = Messages.getI18NString("close");
-    
+
     private JMenuItem copyMenuItem = new JMenuItem(
-        copyString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.COPY"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
-    
+
     private JMenuItem saveMenuItem = new JMenuItem(
-        saveString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.SAVE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
 
     private JMenuItem printMenuItem = new JMenuItem(
-        printString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.PRINT"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.PRINT_ICON)));
 
     private JMenuItem closeMenuItem = new JMenuItem(
-        closeString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     /**
      * Creates an instance of <tt>ChatRightButtonMenu</tt>.
@@ -82,17 +74,21 @@ public class ChatRightButtonMenu extends JPopupMenu
         this.copyMenuItem.setName("copy");
         this.saveMenuItem.setName("save");
         this.printMenuItem.setName("print");
-        this.closeMenuItem.setName("close");
+        this.closeMenuItem.setName("service.gui.CLOSE");
 
         this.copyMenuItem.addActionListener(this);
         this.saveMenuItem.addActionListener(this);
         this.printMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
         
-        this.copyMenuItem.setMnemonic(copyString.getMnemonic());
-        this.saveMenuItem.setMnemonic(saveString.getMnemonic());
-        this.printMenuItem.setMnemonic(printString.getMnemonic());
-        this.closeMenuItem.setMnemonic(closeString.getMnemonic());
+        this.copyMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.COPY"));
+        this.saveMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.SAVE"));
+        this.printMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.PRINT"));
+        this.closeMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CLOSE"));
         
         this.copyMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_C,
@@ -139,7 +135,7 @@ public class ChatRightButtonMenu extends JPopupMenu
 
         } else if (itemText.equalsIgnoreCase("print")) {
 
-        } else if (itemText.equalsIgnoreCase("close")) {
+        } else if (itemText.equalsIgnoreCase("service.gui.CLOSE")) {
             
             Window window = this.chatConvPanel
                 .getChatContainer().getConversationContainerWindow();

@@ -17,7 +17,6 @@ import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -58,19 +57,21 @@ public class SelectAccountPanel
         new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
 
-    private SIPCommMsgTextArea infoLabel =
-        new SIPCommMsgTextArea(Messages.getI18NString("selectProvidersWizard")
-            .getText());
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+        GuiActivator.getResources()
+            .getI18NString("service.gui.SELECT_PROVIDERS_WIZARD_MSG"));
 
-    private JLabel infoTitleLabel =
-        new JLabel(Messages.getI18NString("selectProvidersWizardTitle")
-            .getText(), JLabel.CENTER);
+    private JLabel infoTitleLabel = new JLabel(
+        GuiActivator.getResources()
+            .getI18NString("service.gui.SELECT_PROVIDERS_WIZARD"),
+        JLabel.CENTER);
 
     private TransparentPanel buttonPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private JButton addAccountButton =
-        new JButton(Messages.getI18NString("addAccount").getText());
+        new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.ADD_ACCOUNT"));
 
     /**
      * Creates and initializes the <tt>SelectAccountPanel</tt>.
@@ -140,8 +141,10 @@ public class SelectAccountPanel
             .setPreferredScrollableViewportSize(new Dimension(500, 70));
 
         tableModel.addColumn("");
-        tableModel.addColumn(Messages.getI18NString("account").getText());
-        tableModel.addColumn(Messages.getI18NString("protocol").getText());
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.PROTOCOL"));
 
         while (protocolProvidersList.hasNext())
         {

@@ -13,7 +13,7 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -36,7 +36,7 @@ public class ErrorDialog
     private Logger logger = Logger.getLogger(ErrorDialog.class);
 
     private JButton okButton = new JButton(
-        Messages.getI18NString("ok").getText());
+        GuiActivator.getResources().getI18NString("service.gui.OK"));
 
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ERROR_ICON)));

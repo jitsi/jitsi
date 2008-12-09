@@ -12,7 +12,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -32,9 +31,10 @@ public class AboutWindow
         this.setResizable(false);
 
         this.setTitle(
-            Messages.getI18NString("aboutWindowTitle",
-            new String[]{ GuiActivator.getResources()
-                    .getSettingsString("applicationName")}).getText());
+            GuiActivator.getResources().getI18NString(
+                "plugin.branding.ABOUT_WINDOW_TITLE",
+                new String[]{ GuiActivator.getResources()
+                    .getSettingsString("service.gui.APPLICATION_NAME")}));
 
         this.mainPanel.setLayout(null);
 

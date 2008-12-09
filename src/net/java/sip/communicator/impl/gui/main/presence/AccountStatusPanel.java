@@ -43,7 +43,8 @@ public class AccountStatusPanel
                             AVATAR_ICON_HEIGHT);
 
     private JLabel accountNameLabel
-        = new JLabel(GuiActivator.getResources().getI18NString("accountMe"));
+        = new JLabel(GuiActivator.getResources()
+                .getI18NString("service.gui.ACCOUNT_ME"));
 
     public AccountStatusPanel(MainFrame mainFrame)
     {

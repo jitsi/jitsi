@@ -16,7 +16,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -46,74 +45,76 @@ public class ContactRightButtonMenu
 {
     private Logger logger = Logger.getLogger(ContactRightButtonMenu.class);
     
-    private I18NString allContactsString
-        = Messages.getI18NString("allContacts");
+    private static final String allContactsString
+        = GuiActivator.getResources().getI18NString("service.gui.ALL_CONTACTS");
 
-    private I18NString moveToString
-        = Messages.getI18NString("moveToGroup");
+    private static final String moveToString = GuiActivator.getResources()
+        .getI18NString("service.gui.MOVE_TO_GROUP");
 
-    private I18NString moveSubcontactString
-        = Messages.getI18NString("moveSubcontact");
+    private static final String moveSubcontactString = GuiActivator.getResources()
+        .getI18NString("service.gui.MOVE_SUBCONTACT");
 
-    private I18NString addSubcontactString
-        = Messages.getI18NString("addSubcontact");
+    private static final String addSubcontactString
+        = GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_SUBCONTACT");
 
-    private I18NString removeContactString
-        = Messages.getI18NString("removeContact");
+    private static final String removeContactString
+        = GuiActivator.getResources()
+            .getI18NString("service.gui.REMOVE_CONTACT");
 
-    private I18NString callString
-        = Messages.getI18NString("call");
+    private static final String callString
+        = GuiActivator.getResources().getI18NString("service.gui.CALL");
 
-    private I18NString sendMessageString
-        = Messages.getI18NString("sendMessage");
+    private static final String sendMessageString
+        = GuiActivator.getResources().getI18NString("service.gui.SEND_MESSAGE");
 
-    private I18NString sendFileString
-        = Messages.getI18NString("sendFile");
+    private String sendFileString
+        = GuiActivator.getResources().getI18NString("service.gui.SEND_FILE");
 
-    private I18NString renameContactString
-        = Messages.getI18NString("renameContact");
+    private String renameContactString
+        = GuiActivator.getResources().getI18NString("service.gui.RENAME_CONTACT");
 
-    private I18NString viewHistoryString
-        = Messages.getI18NString("viewHistory");
+    private String viewHistoryString
+        = GuiActivator.getResources().getI18NString("service.gui.VIEW_HISTORY");
 
-    private I18NString sendSmsString
-        = Messages.getI18NString("sendSms");
+    private String sendSmsString
+        = GuiActivator.getResources().getI18NString("service.gui.SEND_SMS");
 
-    private SIPCommMenu moveToMenu = new SIPCommMenu(moveToString.getText());
+    private SIPCommMenu moveToMenu = new SIPCommMenu(moveToString);
 
     private SIPCommMenu moveSubcontactMenu
-        = new SIPCommMenu(moveSubcontactString.getText());
+        = new SIPCommMenu(moveSubcontactString);
 
     private SIPCommMenu addSubcontactMenu
-        = new SIPCommMenu(addSubcontactString.getText());
+        = new SIPCommMenu(addSubcontactString);
 
     private SIPCommMenu removeContactMenu
-        = new SIPCommMenu(removeContactString.getText());
+        = new SIPCommMenu(removeContactString);
 
-    private SIPCommMenu callContactMenu = new SIPCommMenu(callString.getText());
+    private SIPCommMenu callContactMenu = new SIPCommMenu(callString);
 
     private JMenuItem callItem = new JMenuItem(
-        callString.getText(),
+        callString,
         new ImageIcon(ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
 
     private JMenuItem sendMessageItem = new JMenuItem(
-        sendMessageString.getText(),
+        sendMessageString,
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
 
     private JMenuItem sendFileItem = new JMenuItem(
-        sendFileString.getText(),
+        sendFileString,
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_FILE_16x16_ICON)));
 
     private JMenuItem sendSmsItem = new JMenuItem(
-        sendSmsString.getText(),
+        sendSmsString,
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
 
     private JMenuItem renameContactItem = new JMenuItem(
-        renameContactString.getText(),
+        renameContactString,
         new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
 
     private JMenuItem viewHistoryItem = new JMenuItem(
-        viewHistoryString.getText(),
+        viewHistoryString,
         new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
 
     private MetaContact contactItem;
@@ -188,7 +189,8 @@ public class ContactRightButtonMenu
         if(providers.hasNext()) 
         {
             JLabel infoLabel = new JLabel(
-                Messages.getI18NString("selectAccount").getText());
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.SELECT_ACCOUNT"));
 
             infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -220,7 +222,8 @@ public class ContactRightButtonMenu
         if(groups.hasNext()) 
         {
             JLabel infoLabel = new JLabel(
-                Messages.getI18NString("selectGroup").getText());
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.SELECT_GROUP"));
 
             infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -246,16 +249,15 @@ public class ContactRightButtonMenu
 
         if (contactItem.getContactCount() > 1) 
         {
-            
-            JMenuItem allItem = new JMenuItem(allContactsString.getText());
-            JMenuItem allItem1 = new JMenuItem(allContactsString.getText());
-           
+            JMenuItem allItem = new JMenuItem(allContactsString);
+            JMenuItem allItem1 = new JMenuItem(allContactsString);
+
             allItem.addActionListener(this);
             allItem1.addActionListener(this);
-           
+
             allItem.setName(removeContactPrefix + "allContacts");
             allItem1.setName(moveSubcontactPrefix + "allContacts");
-           
+
             this.removeContactMenu.add(allItem);
             this.moveSubcontactMenu.add(allItem1);
             this.removeContactMenu.addSeparator();
@@ -422,23 +424,35 @@ public class ContactRightButtonMenu
      */
     private void initMnemonics()
     {
-        this.sendMessageItem.setMnemonic(sendMessageString.getMnemonic());
+        this.sendMessageItem.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.SEND_MESSAGE"));
         if (callContactMenu.getItemCount() > 1) 
         {
-            this.callContactMenu.setMnemonic(callString.getMnemonic());
+            this.callContactMenu.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.CALL"));
         }
         else
         {
-            this.callItem.setMnemonic(callString.getMnemonic());
+            this.callItem.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.CALL"));
         }
-        this.sendSmsItem.setMnemonic(sendSmsString.getMnemonic());
-        this.sendFileItem.setMnemonic(sendFileString.getMnemonic());
-        this.moveToMenu.setMnemonic(moveToString.getMnemonic());
-        this.addSubcontactMenu.setMnemonic(addSubcontactString.getMnemonic());
-        this.removeContactMenu.setMnemonic(removeContactString.getMnemonic());
-        this.renameContactItem.setMnemonic(renameContactString.getMnemonic());
-        this.viewHistoryItem.setMnemonic(viewHistoryString.getMnemonic());
-        this.moveSubcontactMenu.setMnemonic(moveSubcontactString.getMnemonic());
+        this.sendSmsItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.SEND_SMS"));
+        this.sendFileItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.SEND_FILE"));
+        this.moveToMenu.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.MOVE_TO_GROUP"));
+        this.addSubcontactMenu.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.ADD_SUBCONTACT"));
+        this.removeContactMenu.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.REMOVE_CONTACT"));
+        this.renameContactItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.RENAME_CONTACT"));
+        this.viewHistoryItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.VIEW_HISTORY"));
+        this.moveSubcontactMenu.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.MOVE_SUBCONTACT"));
     }
 
     /**
@@ -561,10 +575,10 @@ public class ContactRightButtonMenu
             {
                 new ErrorDialog(
                         mainFrame,
-                        Messages.getI18NString(
-                            "moveToGroup").getText(),
-                        Messages.getI18NString(
-                            "moveContactError").getText(),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.MOVE_TO_GROUP"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.MOVE_CONTACT_ERROR"),
                         ex).showDialog();
             }
         }
@@ -675,14 +689,17 @@ public class ContactRightButtonMenu
             {
                 if(Constants.REMOVE_CONTACT_ASK)
                 {
-                    String message = Messages.getI18NString("removeContactText",
-                        new String[]{contact.getDisplayName()}).getText();
+                    String message = GuiActivator.getResources().getI18NString(
+                        "service.gui.REMOVE_CONTACT_TEXT",
+                        new String[]{contact.getDisplayName()});
 
                     MessageDialog dialog = new MessageDialog(
-                            mainFrame,
-                            Messages.getI18NString("removeContact").getText(),
-                            message,
-                            Messages.getI18NString("remove").getText());
+                        mainFrame,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.REMOVE_CONTACT"),
+                        message,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.REMOVE"));
 
                     int returnCode = dialog.showDialog();
 
@@ -704,11 +721,11 @@ public class ContactRightButtonMenu
             catch (Exception ex)
             {
                 new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                    "removeContact").getText(),
-                                    ex.getMessage(),
-                                    ex)
-                                .showDialog();
+                                GuiActivator.getResources().getI18NString(
+                                "service.gui.REMOVE_CONTACT"),
+                                ex.getMessage(),
+                                ex)
+                            .showDialog();
             }
         }
     }
@@ -723,16 +740,16 @@ public class ContactRightButtonMenu
             if(Constants.REMOVE_CONTACT_ASK)
             {
                 String message
-                    = Messages.getI18NString("removeContactText",
-                        new String[]{contactItem.getDisplayName()}).getText();
+                    = GuiActivator.getResources().getI18NString(
+                        "service.gui.REMOVE_CONTACT_TEXT",
+                        new String[]{contactItem.getDisplayName()});
 
-                MessageDialog dialog
-                    = new MessageDialog(mainFrame,
-                                        Messages.getI18NString("removeContact")
-                                            .getText(),
-                                        message,
-                                        Messages.getI18NString("remove")
-                                            .getText());
+                MessageDialog dialog = new MessageDialog(mainFrame,
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.REMOVE_CONTACT"),
+                    message,
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.REMOVE"));
 
                 int returnCode = dialog.showDialog();
 
@@ -807,8 +824,10 @@ public class ContactRightButtonMenu
         if(toMetaContact.equals(contactItem)) 
         {
             new ErrorDialog(this.mainFrame,
-                Messages.getI18NString("moveSubcontact").getText(),
-                Messages.getI18NString("moveSubcontactInSameContact").getText(),
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.MOVE_SUBCONTACT"),
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.MOVE_SUBCONTACT_FAILED"),
                 ErrorDialog.WARNING)
                     .showDialog();
         }
@@ -817,7 +836,7 @@ public class ContactRightButtonMenu
             
             guiContactList.setCursor(
                     Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+            
             if(moveAllContacts) 
             {
                 new MoveAllSubcontactsThread(toMetaContact).start();

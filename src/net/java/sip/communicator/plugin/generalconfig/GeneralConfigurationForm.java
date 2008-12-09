@@ -73,9 +73,12 @@ public class GeneralConfigurationForm
                 autoStartCheckBox = new SIPCommCheckBox();
                 mainPanel.add(autoStartCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
-                autoStartCheckBox.setText(Resources.getString(
-                    "autoStartOption", new String[]
-                    { getApplicationName() }));
+
+                autoStartCheckBox.setText(
+                    Resources.getString(
+                        "plugin.generalconfig.AUTO_START",
+                        new String[]{getApplicationName()}));
+
                 initAutoStartCheckBox();
                 autoStartCheckBox.addActionListener(this);
             }
@@ -84,7 +87,8 @@ public class GeneralConfigurationForm
                 mainPanel.add(groupMessagesCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
                 groupMessagesCheckBox.setText(
-                    Resources.getString("groupChatMessages"));
+                    Resources.getString(
+                        "plugin.generalconfig.GROUP_CHAT_MESSAGES"));
                 groupMessagesCheckBox.addActionListener(this);
             }
             {
@@ -101,7 +105,7 @@ public class GeneralConfigurationForm
                     logHistoryCheckBox = new SIPCommCheckBox();
                     logHistoryPanel.add(logHistoryCheckBox);
                     logHistoryCheckBox.setText(
-                        Resources.getString("logHistory"));
+                        Resources.getString("plugin.generalconfig.LOG_HISTORY"));
                     logHistoryCheckBox.setBounds(0, 0, 200, 19);
                     logHistoryCheckBox.addActionListener(this);
                     logHistoryCheckBox.addChangeListener(new ChangeListener()
@@ -119,7 +123,7 @@ public class GeneralConfigurationForm
                     showHistoryCheckBox = new SIPCommCheckBox();
                     logHistoryPanel.add(showHistoryCheckBox);
                     showHistoryCheckBox.setText(
-                        Resources.getString("showHistory"));
+                        Resources.getString("plugin.generalconfig.SHOW_HISTORY"));
                     showHistoryCheckBox.setBounds(17, 25, 140, 19);
                     showHistoryCheckBox.addActionListener(this);
                     showHistoryCheckBox.addChangeListener(new ChangeListener()
@@ -153,7 +157,7 @@ public class GeneralConfigurationForm
                     historySizeLabel = new JLabel();
                     logHistoryPanel.add(historySizeLabel);
                     historySizeLabel.setText(
-                        Resources.getString("historySize"));
+                        Resources.getString("plugin.generalconfig.HISTORY_SIZE"));
                     historySizeLabel.setBounds(205, 27, 220, 15);
                 }
             }
@@ -174,7 +178,7 @@ public class GeneralConfigurationForm
                     sendMessagePanel.add(
                         sendMessageLabel, BorderLayout.WEST);
                     sendMessageLabel.setText(
-                        Resources.getString("sendMessagesWith"));
+                        Resources.getString("plugin.generalconfig.SEND_MESSAGES_WITH"));
                 }
                 {
                     ComboBoxModel sendMessageComboBoxModel = 
@@ -202,7 +206,7 @@ public class GeneralConfigurationForm
                 mainPanel.add(enableTypingNotifiCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
                 enableTypingNotifiCheckBox.setText(
-                    Resources.getString("enableTypingNotifications"));
+                    Resources.getString("service.gui.ENABLE_TYPING_NOTIFICATIONS"));
                 enableTypingNotifiCheckBox.setPreferredSize(
                     new java.awt.Dimension(253, 20));
                 enableTypingNotifiCheckBox.setAlignmentY(0.0f);
@@ -213,7 +217,7 @@ public class GeneralConfigurationForm
                 mainPanel.add(bringToFrontCheckBox);
                 mainPanel.add(Box.createVerticalStrut(10));
                 bringToFrontCheckBox.setText(
-                    Resources.getString("bringWindowToFront"));
+                    Resources.getString("plugin.generalconfig.BRING_WINDOW_TO_FRONT"));
                 bringToFrontCheckBox.addActionListener(this);
             }
 //            {
@@ -229,7 +233,7 @@ public class GeneralConfigurationForm
 //                {
 //                    final JCheckBox enableTransparencyCheckBox
 //                        = new JCheckBox(
-//                            Resources.getString("enableTransparency"),
+//                            Resources.getString("plugin.generalconfig.ENABLE_TRANSPARENCY"),
 //                            ConfigurationManager.isTransparentWindowEnabled());
 //                    transparencyPanel.add(
 //                        enableTransparencyCheckBox, BorderLayout.NORTH);
@@ -247,7 +251,7 @@ public class GeneralConfigurationForm
 //                }
 //                {
 //                    JLabel transparencyLabel = new JLabel(
-//                        Resources.getString("transparency"));
+//                        Resources.getString("plugin.generalconfig.TRANSPARENCY"));
 //
 //                    transparencyPanel.add(  transparencyLabel,
 //                                            BorderLayout.WEST);
@@ -325,7 +329,7 @@ public class GeneralConfigurationForm
 
     public String getTitle()
     {
-        return Resources.getString("general");
+        return Resources.getString("service.gui.GENERAL");
     }
 
     public int getIndex()
@@ -383,7 +387,8 @@ public class GeneralConfigurationForm
                             GeneralConfigPluginActivator.getUIService().
                                 getPopupDialog().showMessagePopupDialog(
                                     e.getMessage(),
-                                    Resources.getString("errorPermission"),
+                                    Resources.getString(
+                                        "plugin.generalconfig.ERROR_PERMISSION"),
                                     PopupDialog.ERROR_MESSAGE);
                         // cannot delete no permissions
                     }
@@ -425,15 +430,16 @@ public class GeneralConfigurationForm
         try 
         {
             String appName = getApplicationName();
+
             ShellLink shortcut = 
                 new ShellLink(
                     ShellLink.STARTUP, 
                     appName);
             shortcut.setUserType(ShellLink.CURRENT_USER);
-            
+
             String f1 = shortcut.getcurrentUserLinkPath() + 
                         File.separator + appName + ".lnk";
-            
+
             String f2 = f1.replaceAll(
                     System.getProperty("user.name"), 
                     "All Users");
@@ -442,8 +448,8 @@ public class GeneralConfigurationForm
                 autoStartCheckBox.setSelected(true);
             else
                 autoStartCheckBox.setSelected(false);
-            
-        } catch (Exception e) 
+        }
+        catch (Exception e) 
         {
             logger.error(e);
         }

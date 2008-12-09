@@ -39,12 +39,14 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel uinLabel = new JLabel(Resources.getString("id"));
+    private JLabel uinLabel = new JLabel(
+        Resources.getString("plugin.yahooaccregwizz.USERNAME"));
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel
+        = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
     private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("existingAccount"));
+        new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -55,7 +57,8 @@ public class FirstWizardPage
     private JPasswordField passField = new JPasswordField();
 
     private JCheckBox rememberPassBox =
-        new SIPCommCheckBox(Resources.getString("rememberPassword"));
+        new SIPCommCheckBox(
+            Resources.getString("service.gui.REMEMBER_PASSWORD"));
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -125,7 +128,7 @@ public class FirstWizardPage
         uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("yahooUinAndPassword")));
+            .getString("plugin.yahooaccregwizz.USERID_AND_PASSWORD")));
 
         mainPanel.add(uinPassPanel);
         this.add(mainPanel, BorderLayout.NORTH);

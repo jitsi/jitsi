@@ -14,7 +14,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
@@ -137,51 +136,58 @@ public class ExtendedMainToolBar
 
         this.saveButton.setName("save");
         this.saveButton.setToolTipText(
-            Messages.getI18NString("save").getText() + " Ctrl-S");
+            GuiActivator.getResources().getI18NString("service.gui.SAVE")
+                + " Ctrl-S");
 
         this.printButton.setName("print");
         this.printButton.setToolTipText(
-            Messages.getI18NString("print").getText());
+            GuiActivator.getResources().getI18NString("service.gui.PRINT"));
 
         this.cutButton.setName("cut");
         this.cutButton.setToolTipText(
-            Messages.getI18NString("cut").getText() + " Ctrl-X");
+            GuiActivator.getResources().getI18NString("service.gui.CUT")
+                + " Ctrl-X");
 
         this.copyButton.setName("copy");
         this.copyButton.setToolTipText(
-            Messages.getI18NString("copy").getText() + " Ctrl-C");
+            GuiActivator.getResources().getI18NString("service.gui.COPY")
+                + " Ctrl-C");
 
         this.pasteButton.setName("paste");
         this.pasteButton.setToolTipText(
-            Messages.getI18NString("paste").getText() + " Ctrl-P");
+            GuiActivator.getResources().getI18NString("service.gui.PASTE")
+                + " Ctrl-P");
 
         this.previousButton.setName("previous");
         this.previousButton.setToolTipText(
-            Messages.getI18NString("previousTooltip").getText());
+            GuiActivator.getResources()
+                .getI18NString("service.gui.PREVIOUS_TOOLTIP"));
 
         this.nextButton.setName("next");
         this.nextButton.setToolTipText(
-            Messages.getI18NString("nextTooltip").getText());
+            GuiActivator.getResources()
+                .getI18NString("service.gui.NEXT_TOOLTIP"));
 
         this.sendFileButton.setName("sendFile");
         this.sendFileButton.setToolTipText(
-            Messages.getI18NString("sendFile").getText());
+            GuiActivator.getResources().getI18NString("service.gui.SEND_FILE"));
 
         this.historyButton.setName("history");
         this.historyButton.setToolTipText(
-            Messages.getI18NString("history").getText() + " Ctrl-H");
+            GuiActivator.getResources().getI18NString("service.gui.HISTORY")
+                + " Ctrl-H");
 
         this.addButton.setName("addContact");
         this.addButton.setToolTipText(
-            Messages.getI18NString("addContact").getText());
+            GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
 
         this.fontButton.setName("font");
         this.fontButton.setToolTipText(
-            Messages.getI18NString("font").getText());
+            GuiActivator.getResources().getI18NString("service.gui.FONT"));
 
         this.settingsButton.setName("settings");
         this.settingsButton.setToolTipText(
-            Messages.getI18NString("settings").getText());
+            GuiActivator.getResources().getI18NString("service.gui.SETTINGS"));
 
         this.saveButton.setPreferredSize(
             new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
@@ -470,7 +476,7 @@ public class ExtendedMainToolBar
                                                                 history);
             }
         }
-        else if (buttonText.equalsIgnoreCase("addContact")) 
+        else if (buttonText.equals("addContact")) 
         {
             if(currentChatContact != null)
             {
@@ -525,7 +531,7 @@ public class ExtendedMainToolBar
 
             g2.setColor(new Color(
                 GuiActivator.getResources()
-                .getColor("desktopBackgroundColor")));
+                .getColor("service.gui.DESKTOP_BACKGROUND")));
 
             g2.drawRect(0, this.getHeight() - 2, this.getWidth(), 2);
         }

@@ -42,7 +42,7 @@ public class AimAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -71,7 +71,7 @@ public class AimAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameAim");
+        return Resources.getString("plugin.aimaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -81,7 +81,7 @@ public class AimAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionAim");
+        return Resources.getString("plugin.aimaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -104,28 +104,28 @@ public class AimAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(Resources.getString("id"), registration.getUin());
-        summaryTable.put(Resources.getString("rememberPassword"),
+        summaryTable.put(Resources.getString("plugin.aimaccregwizz.USERNAME"), registration.getUin());
+        summaryTable.put(Resources.getString("service.gui.REMEMBER_PASSWORD"),
                 new Boolean(registration.isRememberPassword()));
 
         if (registration.getProxy() != null)
-            summaryTable.put(Resources.getString("proxy"),
+            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY"),
                 registration.getProxy());
 
         if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyPort"),
+            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY"),
                 registration.getProxyPort());
 
         if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyType"),
+            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY_TYPE"),
                 registration.getProxyType());
 
         if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyUsername"),
+            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY_USERNAME"),
                 registration.getProxyPort());
 
         if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyPassword"),
+            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY_PASSWORD"),
                 registration.getProxyType());
 
         return summaryTable.entrySet().iterator();
@@ -145,7 +145,7 @@ public class AimAccountRegistrationWizard
 
     /**
      * Defines the operations that will be executed when the user clicks on
-     * the wizard "Signin" button.
+     * the wizard "service.gui.SIGN_IN" button.
      * 
      * @param userName the user name to sign in with
      * @param password the password to sign in with
@@ -227,14 +227,14 @@ public class AimAccountRegistrationWizard
         {
             AimAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("error"),
+                                        Resources.getString("service.gui.ERROR"),
                                         PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException e)
         {
             AimAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("error"),
+                                        Resources.getString("service.gui.ERROR"),
                                         PopupDialog.ERROR_MESSAGE);
         }
 

@@ -4,7 +4,8 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.extendedcallhistorysearch;
+
+package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,7 +15,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import com.toedter.calendar.*;
 
@@ -26,26 +26,25 @@ import com.toedter.calendar.*;
  * @author Maxime Bourdon & Thomas Meyer
  */
 public class ExtendedCallHistorySearchDialog
-    extends SIPCommDialog
+    extends JDialog
     implements  ActionListener,
                 ItemListener
 {
     /* PANEL */
-    private JPanel mainSearchPanel = new TransparentPanel(new BorderLayout());
+    private JPanel mainSearchPanel = new JPanel(new BorderLayout());
 
-    private JPanel mainPanel = new TransparentPanel(new BorderLayout(3, 1));
+    private JPanel mainPanel = new JPanel(new BorderLayout(3, 1));
 
-    private JPanel searchPanel = new TransparentPanel(new GridBagLayout());
+    private JPanel searchPanel = new JPanel(new GridBagLayout());
 
-    private JPanel callTypePanel = new TransparentPanel(new GridBagLayout());
+    private JPanel callTypePanel = new JPanel(new GridBagLayout());
 
-    private JPanel callListResultPanel =
-        new TransparentPanel(new BorderLayout());
+    private JPanel callListResultPanel = new JPanel(new BorderLayout());
 
     /* BUTTON */
     private JButton searchButton = new JButton(
         ExtendedCallHistorySearchActivator.getResources()
-            .getI18NString("search"),
+            .getI18NString("service.gui.SEARCH"),
         ExtendedCallHistorySearchActivator.getResources()
             .getImage("plugin.callhistorysearch.SEARCH_ICON"));
 
@@ -55,28 +54,28 @@ public class ExtendedCallHistorySearchDialog
     /* LABEL */
     private JLabel contactNameLabel = new JLabel(
         ExtendedCallHistorySearchActivator.getResources()
-            .getI18NString("contactName") + ": ");
+            .getI18NString("plugin.callhistoryform.CONTACT_NAME") + ": ");
 
     private JLabel sinceDateLabel
         = new JLabel(ExtendedCallHistorySearchActivator.getResources()
-                .getI18NString("since") + ": ");
+                .getI18NString("plugin.callhistoryform.SINCE") + ": ");
 
     private JLabel untilDateLabel
         = new JLabel(ExtendedCallHistorySearchActivator.getResources()
-                .getI18NString("until") + ": ");
+                .getI18NString("plugin.callhistoryform.UNTIL") + ": ");
 
     private JLabel callTypeLabel
         = new JLabel(ExtendedCallHistorySearchActivator.getResources()
-                .getI18NString("callType") + ": ");
+                .getI18NString("plugin.callhistoryform.CALLTYPE") + ": ");
 
     /* CHECKBOX */
-    private JCheckBox inCheckBox =
-        new SIPCommCheckBox(ExtendedCallHistorySearchActivator.getResources()
-            .getI18NString("incoming"), true);
+    private JCheckBox inCheckBox = new JCheckBox(
+        ExtendedCallHistorySearchActivator.getResources()
+            .getI18NString("plugin.callhistoryform.INCOMING"), true);
 
-    private JCheckBox outCheckBox =
-        new SIPCommCheckBox(ExtendedCallHistorySearchActivator.getResources()
-            .getI18NString("outgoing"), true);
+    private JCheckBox outCheckBox = new JCheckBox(
+        ExtendedCallHistorySearchActivator.getResources()
+            .getI18NString("plugin.callhistoryform.OUTGOING"), true);
 
     /* SCROLL PANE */
     private JScrollPane scrollPane = new JScrollPane();
@@ -111,7 +110,7 @@ public class ExtendedCallHistorySearchDialog
         this.mainPanel.setPreferredSize(new Dimension(650, 550));
 
         this.setTitle(ExtendedCallHistorySearchActivator.getResources()
-                .getI18NString("advancedCallHistorySearch"));
+                .getI18NString("plugin.callhistoryform.TITLE"));
 
         this.initPanels();
 
@@ -340,7 +339,7 @@ public class ExtendedCallHistorySearchDialog
         {
 
             resultString = ExtendedCallHistorySearchActivator.getResources()
-                .getI18NString("today");
+                .getI18NString("service.gui.TODAY");
         }
         else
         {
@@ -486,10 +485,6 @@ public class ExtendedCallHistorySearchDialog
 
         if (callList.getModel().getSize() > 0)
             callList.addItem(ExtendedCallHistorySearchActivator.getResources()
-                    .getI18NString("olderCalls") + "...");
-    }
-
-    protected void close(boolean isEscaped)
-    {
+                    .getI18NString("service.gui.OLDER_CALLS") + "...");
     }
 }

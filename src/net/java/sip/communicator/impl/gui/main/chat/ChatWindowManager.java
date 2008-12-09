@@ -10,9 +10,8 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -188,11 +187,17 @@ public class ChatWindowManager
 
                 if (!chatPanel.isWriteAreaEmpty())
                 {
-                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                        .getI18NString("nonEmptyChatWindowClose").getText());
-                    int answer = JOptionPane.showConfirmDialog(chatWindow,
-                        msgText, Messages.getI18NString("warning").getText(),
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE"));
+
+                    int answer = JOptionPane.showConfirmDialog(
+                        chatWindow,
+                        msgText,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.WARNING"),
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
 
                     if (answer == JOptionPane.OK_OPTION)
                     {
@@ -202,12 +207,18 @@ public class ChatWindowManager
                 else if (System.currentTimeMillis() - chatWindow
                     .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
                 {
-                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                        .getI18NString("closeChatAfterNewMsg").getText());
+                    SIPCommMsgTextArea msgText
+                        = new SIPCommMsgTextArea(GuiActivator.getResources()
+                            .getI18NString(
+                                "service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE"));
 
-                    int answer = JOptionPane.showConfirmDialog(chatWindow,
-                        msgText, Messages.getI18NString("warning").getText(),
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                    int answer = JOptionPane.showConfirmDialog(
+                        chatWindow,
+                        msgText,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.WARNING"),
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
 
                     if (answer == JOptionPane.OK_OPTION)
                         closeChatPanel(chatPanel);
@@ -231,11 +242,16 @@ public class ChatWindowManager
 
             if (!chatPanel.isWriteAreaEmpty())
             {
-                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                    .getI18NString("nonEmptyChatWindowClose").getText());
-                int answer = JOptionPane.showConfirmDialog(chatWindow,
-                    msgText, Messages.getI18NString("warning").getText(),
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE"));
+                int answer = JOptionPane.showConfirmDialog(
+                    chatWindow,
+                    msgText,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.WARNING"),
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
 
                 if (answer == JOptionPane.OK_OPTION)
                 {
@@ -245,11 +261,15 @@ public class ChatWindowManager
             else if (System.currentTimeMillis() - chatWindow
                 .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
             {
-                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                    .getI18NString("closeChatAfterNewMsg").getText());
+                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
+                    GuiActivator.getResources()
+                    .getI18NString("service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE"));
 
-                int answer = JOptionPane.showConfirmDialog(chatWindow,
-                    msgText, Messages.getI18NString("warning").getText(),
+                int answer = JOptionPane.showConfirmDialog(
+                    chatWindow,
+                    msgText,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.WARNING"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
                 if (answer == JOptionPane.OK_OPTION)

@@ -13,7 +13,6 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -38,18 +37,18 @@ public class NewAccountDialog
         = new TransparentPanel(new BorderLayout());
 
     private JLabel networkLabel = new JLabel(
-        Messages.getI18NString("network").getText());
+        GuiActivator.getResources().getI18NString("service.gui.NETWORK"));
 
     private JComboBox networkComboBox = new JComboBox();
 
     private JButton advancedButton = new JButton(
-        Messages.getI18NString("advanced").getText());
+        GuiActivator.getResources().getI18NString("service.gui.ADVANCED"));
 
     private JButton addAccountButton = new JButton(
-        Messages.getI18NString("add").getText());
+        GuiActivator.getResources().getI18NString("service.gui.ADD"));
 
     private JButton cancelButton = new JButton(
-        Messages.getI18NString("cancel").getText());
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private TransparentPanel rightButtonPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -63,7 +62,8 @@ public class NewAccountDialog
     {
         super(GuiActivator.getUIService().getMainFrame());
 
-        this.setTitle(Messages.getI18NString("newAccount").getText());
+        this.setTitle(
+            GuiActivator.getResources().getI18NString("service.gui.NEW_ACCOUNT"));
 
         this.getContentPane().add(mainPanel);
 
@@ -263,8 +263,9 @@ public class NewAccountDialog
         {
             wizard.setModification(false);
 
-            wizardContainer.setTitle(Messages.getI18NString(
-                "accountRegistrationWizard").getText());
+            wizardContainer.setTitle(
+                GuiActivator.getResources().getI18NString(
+                "service.gui.ACCOUNT_REGISTRATION_WIZARD"));
 
             wizardContainer.setCurrentWizard(wizard);
 

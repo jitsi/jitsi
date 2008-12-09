@@ -104,12 +104,18 @@ public class ThreadManager
          * Informations messages
          */
         private String[] messages = new String[] {
-                Resources.getString("dict.threadConnect"),
-                Resources.getString("dict.threadConnectFailed"),
-                Resources.getString("dict.retrievingStrategies"),
-                Resources.getString("dict.noStrategiesFound"),
-                Resources.getString("dict.populateList"),
-                Resources.getString("dict.closingConnexion")
+                Resources.getString(
+                    "plugin.dictaccregwizz.THREAD_CONNECT"),
+                Resources.getString(
+                    "plugin.dictaccregwizz.THREAD_CONNECT_FAILED"),
+                Resources.getString(
+                    "plugin.dictaccregwizz.RETRIEVING_STRATEGIES"),
+                Resources.getString(
+                    "plugin.dictaccregwizz.NO_STRATEGIES_FOUND"),
+                Resources.getString(
+                    "plugin.dictaccregwizz.POPULATE_LIST"),
+                Resources.getString(
+                    "dict.plugin.dictaccregwizz.CLOSING_CONNECTION")
         };
         
         /**

@@ -1405,7 +1405,8 @@ public class OperationSetPersistentPresenceIcqImpl
             }
             else
             {
-                if(userInfo.getAwayStatus() != null && userInfo.getAwayStatus().equals(Boolean.TRUE))
+                if(userInfo.getAwayStatus() != null
+                    && userInfo.getAwayStatus().equals(Boolean.TRUE))
                 {
                     currentIcqStatus = presenceStatusToStatusLong(AimStatusEnum.AWAY);
                 }

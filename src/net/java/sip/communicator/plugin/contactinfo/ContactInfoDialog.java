@@ -53,7 +53,7 @@ public class ContactInfoDialog
     {
         this.metaContact = metaContact;
 
-        this.setTitle(Resources.getString("contactDetails")
+        this.setTitle(Resources.getString("plugin.contactinfo.TITLE")
                     + ": "
                     + metaContact.getDisplayName());
 

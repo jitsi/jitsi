@@ -42,7 +42,7 @@ public class InitialAccountRegistrationFrame
 
     private JPanel accountsPanel = new JPanel(new GridLayout(0, 2, 10, 10));
 
-    private JButton signinButton = new JButton(Resources.getString("signin"));
+    private JButton signinButton = new JButton(Resources.getString("service.gui.SIGN_IN"));
 
     private Collection registrationForms = new Vector();
 
@@ -56,11 +56,12 @@ public class InitialAccountRegistrationFrame
         MainPanel mainPanel = new MainPanel(new BorderLayout(5, 5));
         JPanel messageAreaPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JTextArea messageArea =
-            new JTextArea(Resources.getString("initialAccountRegistration"));
+            new JTextArea(Resources.getString("plugin.simpleaccregwizz.INITIAL_ACCOUNT_REGISTRATION"));
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton cancelButton = new JButton(Resources.getString("cancel"));
+        JButton cancelButton
+            = new JButton(Resources.getString("service.gui.CANCEL"));
 
-        this.setTitle(Resources.getString("signin"));
+        this.setTitle(Resources.getString("service.gui.SIGN_IN"));
 
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -172,7 +173,8 @@ public class InitialAccountRegistrationFrame
     {
         private JLabel protocolLabel = new JLabel();
 
-        private JLabel usernameLabel = new JLabel("Login");
+        private JLabel usernameLabel
+            = new JLabel(Resources.getString("service.gui.LOGIN"));
 
         private JLabel passwordLabel = new JLabel("Password");
 
@@ -198,12 +200,12 @@ public class InitialAccountRegistrationFrame
 
         private JLabel signupLabel
             = new JLabel("<html><a href=''>"
-                + Resources.getString("signup")
+                + Resources.getString("plugin.simpleaccregwizz.SIGNUP")
                 + "</a></html>", JLabel.RIGHT);
 
         private JLabel specialSignupLabel
             = new JLabel("<html><a href=''>"
-                + Resources.getString("specialSignup")
+                + Resources.getString("plugin.simpleaccregwizz.SPECIAL_SIGNUP")
                 + "</a></html>", JLabel.RIGHT);
 
         private AccountRegistrationWizard wizard;
@@ -362,7 +364,7 @@ public class InitialAccountRegistrationFrame
             super.paintComponent(g2d);
 
             g2d.setColor(new Color(
-                Resources.getColor("desktopBackgroundColor")));
+                Resources.getColor("service.gui.DESKTOP_BACKGROUND")));
 
             // paint the background with the chosen color
             g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
@@ -449,7 +451,7 @@ public class InitialAccountRegistrationFrame
     }
 
     /**
-     * Handles the event triggered by the "Signin" button.
+     * Handles the event triggered by the "service.gui.SIGN_IN" button.
      */
     private class SigninActionListener implements ActionListener
     {
@@ -501,7 +503,7 @@ public class InitialAccountRegistrationFrame
             super.paintComponent(g2d);
 
             g2d.setColor(new Color(
-                Resources.getColor("accountRegistrationBackground")));
+                Resources.getColor("plugin.simpleaccreg.ACCOUNT_REGISTRATION_BACKGROUND")));
 
             // paint the background with the chosen color
             g2d.fillRoundRect(10, 10, getWidth() - 20, getHeight() - 20, 15, 15);

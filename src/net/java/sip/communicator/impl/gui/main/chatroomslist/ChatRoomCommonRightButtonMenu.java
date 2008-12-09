@@ -11,11 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
@@ -24,6 +21,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -40,18 +39,12 @@ public class ChatRoomCommonRightButtonMenu
     private Logger logger
         = Logger.getLogger(ChatRoomCommonRightButtonMenu.class);
 
-    private I18NString createChatRoomString
-        = Messages.getI18NString("createChatRoom");
-
-    private I18NString searchForChatRoomsString
-        = Messages.getI18NString("joinChatRoom");
-
     private JMenuItem createChatRoomItem = new JMenuItem(
-        createChatRoomString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.CREATE_CHAT_ROOM"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
 
     private JMenuItem searchForChatRoomsItem = new JMenuItem(
-        searchForChatRoomsString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.JOIN_CHAT_ROOM"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
 
     private ChatRoomProviderWrapper chatRoomProvider;
@@ -77,14 +70,16 @@ public class ChatRoomCommonRightButtonMenu
         this.add(searchForChatRoomsItem);
         
         this.initPluginComponents();
-
+        
         this.createChatRoomItem.setName("createChatRoom");
         this.searchForChatRoomsItem.setName("searchForChatRooms");
         
-        this.createChatRoomItem
-            .setMnemonic(createChatRoomString.getMnemonic());
-        this.searchForChatRoomsItem
-            .setMnemonic(searchForChatRoomsString.getMnemonic());
+        this.createChatRoomItem.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.CREATE_CHAT_ROOM"));
+        this.searchForChatRoomsItem.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.JOIN_CHAT_ROOM"));
         
         this.createChatRoomItem.addActionListener(this);
         this.searchForChatRoomsItem.addActionListener(this);

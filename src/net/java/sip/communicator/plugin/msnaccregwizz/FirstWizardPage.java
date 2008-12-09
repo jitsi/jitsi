@@ -37,12 +37,14 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel uinLabel = new JLabel(Resources.getString("id"));
+    private JLabel uinLabel
+        = new JLabel(Resources.getString("plugin.msnaccregwizz.USERNAME"));
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel
+        = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
     private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("existingAccount"));
+        new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -53,7 +55,8 @@ public class FirstWizardPage
     private JPasswordField passField = new JPasswordField();
 
     private JCheckBox rememberPassBox =
-        new SIPCommCheckBox(Resources.getString("rememberPassword"));
+        new SIPCommCheckBox(
+            Resources.getString("service.gui.REMEMBER_PASSWORD"));
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -123,7 +126,7 @@ public class FirstWizardPage
         uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("msnUinAndPassword")));
+            .getString("plugin.msnaccregwizz.USERNAME_AND_PASSWORD")));
 
         mainPanel.add(uinPassPanel);
         this.add(mainPanel, BorderLayout.NORTH);
@@ -259,7 +262,7 @@ public class FirstWizardPage
     }
 
     /**
-     * Fills the UIN and Password fields in this panel with the data comming
+     * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
      *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load

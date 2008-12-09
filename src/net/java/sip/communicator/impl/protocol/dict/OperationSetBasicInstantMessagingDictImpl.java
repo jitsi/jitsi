@@ -324,7 +324,7 @@ public class OperationSetBasicInstantMessagingDictImpl
         boolean isStart = true;
         
         result.append(DictActivator.getResources()
-            .getI18NString("dict.matchResult", new String[] {word}));
+            .getI18NString("plugin.dictaccregwizz.MATCH_RESULT", new String[] {word}));
         
         for (int i=0; i<data.size(); i++)
         {
@@ -354,17 +354,17 @@ public class OperationSetBasicInstantMessagingDictImpl
         if (errorCode == DictReturnCode.INVALID_DATABASE)
         {
             return DictActivator.getResources()
-                .getI18NString("dict.invalidDatabase", new String[] {database});
+                .getI18NString("plugin.dictaccregwizz.INVALID_DATABASE", new String[] {database});
         }
         else if (errorCode == DictReturnCode.INVALID_STRATEGY)
         {
             return DictActivator.getResources()
-                .getI18NString("dict.invalidStrategy");
+                .getI18NString("plugin.dictaccregwizz.INVALID_STRATEGY");
         }
         else if (errorCode == DictReturnCode.NO_MATCH)
         {
             return DictActivator.getResources()
-                .getI18NString("dict.noMatch");
+                .getI18NString("plugin.dictaccregwizz.NO_MATCH");
         }
 
         return dix.getMessage();

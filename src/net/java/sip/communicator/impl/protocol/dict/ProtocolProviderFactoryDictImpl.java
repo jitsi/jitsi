@@ -120,7 +120,7 @@ public class ProtocolProviderFactoryDictImpl
         try
         {
             String groupName = DictActivator.getResources()
-                .getI18NString("dict.dictionaries");
+                .getI18NString("service.protocol.DICTIONARIES");
             
             mcl.createMetaContactGroup(mcl.getRoot(), groupName);
         }
@@ -156,11 +156,12 @@ public class ProtocolProviderFactoryDictImpl
         
         // Gets group name
         String groupName = DictActivator.getResources()
-            .getI18NString("dict.dictionaries");
+            .getI18NString("service.protocol.DICTIONARIES");
         
         // Gets contact name
         String contactName = DictActivator.getResources()
-            .getI18NString("dict.anyDictionaryFrom", new String[] {accountID.getUserID()});
+            .getI18NString("dict.plugin.dictaccregwizz.ANY_DICTIONARY_FORM",
+                new String[] {accountID.getUserID()});
         
         // Gets the MetaContactGroup for the "dictionaries" group.
         MetaContactGroup group = mcl.getRoot().getMetaContactSubgroup(groupName);

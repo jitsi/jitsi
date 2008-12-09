@@ -14,7 +14,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
@@ -924,8 +923,10 @@ public class UIServiceImpl
                 if (isTransparentWindowEnabled)
                 {
                     new ErrorDialog(mainFrame,
-                        Messages.getI18NString("error").getText(),
-                        Messages.getI18NString("transparencyNotEnabled").getText())
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
+                        GuiActivator.getResources()
+                        .getI18NString("service.gui.TRANSPARENCY_NOT_ENABLED"))
                     .showDialog();
                 }
 

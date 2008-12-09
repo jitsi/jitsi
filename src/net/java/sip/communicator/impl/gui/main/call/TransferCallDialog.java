@@ -12,8 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -41,7 +41,8 @@ public class TransferCallDialog
     {
         super(owner);
 
-        setTitle(Messages.getI18NString("transferCallTitle").getText());
+        setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.TRANSFER_CALL_TITLE"));
 
         JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -52,8 +53,9 @@ public class TransferCallDialog
         mainPanel.add(contentPanel, BorderLayout.NORTH);
 
         JLabel targetLabel =
-            new JLabel(Messages.getI18NString("transferCallTargetLabel")
-                .getText());
+            new JLabel(
+                GuiActivator.getResources().getI18NString("service.gui.TO"));
+
         contentPanel.add(targetLabel);
 
         targetComboBox = new SIPCommSmartComboBox();
@@ -65,11 +67,15 @@ public class TransferCallDialog
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         okButton =
-            new JButton(Messages.getI18NString("transferCallButton").getText());
+            new JButton(GuiActivator.getResources()
+                .getI18NString("service.gui.TRANSFER"));
+
         buttonPanel.add(okButton);
         getRootPane().setDefaultButton(okButton);
 
-        cancelButton = new JButton(Messages.getI18NString("cancel").getText());
+        cancelButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+
         buttonPanel.add(cancelButton);
 
         /*

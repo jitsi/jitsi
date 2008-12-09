@@ -11,8 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -32,17 +32,11 @@ public class ChatContactRightButtonMenu
 {
     private Logger logger = Logger.getLogger(ChatContactRightButtonMenu.class);
     
-    private I18NString kickString
-        = Messages.getI18NString("kick");
-    
-    private I18NString banString
-        = Messages.getI18NString("ban");
-
     private JMenuItem kickItem = new JMenuItem(
-        kickString.getText());
+        GuiActivator.getResources().getI18NString("service.gui.KICK"));
     
     private JMenuItem banItem = new JMenuItem(
-        banString.getText());
+        GuiActivator.getResources().getI18NString("service.gui.BAN"));
     
     private static String KICK_OPERATION = "Kick";
     
@@ -78,11 +72,11 @@ public class ChatContactRightButtonMenu
         this.kickItem.setName("kick");
         this.banItem.setName("ban");
 
-        this.kickItem
-            .setMnemonic(kickString.getMnemonic());
+        this.kickItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.KICK"));
 
-        this.banItem
-            .setMnemonic(banString.getMnemonic());
+        this.banItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.BAN"));
 
         this.kickItem.addActionListener(this);
         this.banItem.addActionListener(this);
@@ -113,22 +107,24 @@ public class ChatContactRightButtonMenu
             ImageLoader.getImage(ImageLoader.REASON_DIALOG_ICON)));
         
         private JLabel infoLabel = new JLabel(
-            Messages.getI18NString("specifyReason").getText());
+            GuiActivator.getResources()
+                .getI18NString("service.gui.SPECIFY_REASON"));
         
         private JLabel reasonLabel = new JLabel(
-            Messages.getI18NString("reason").getText() + ":");
+            GuiActivator.getResources()
+                .getI18NString("service.gui.REASON") + ":");
         
         private JTextField reasonField = new JTextField();
         
         private JButton okButton = new JButton(
-            Messages.getI18NString("ok").getText());
+            GuiActivator.getResources().getI18NString("service.gui.OK"));
         
         private JButton cancelButton = new JButton(
-            Messages.getI18NString("cancel").getText());
+            GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
         
         private JPanel buttonsPanel
             = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    
+        
         private JPanel titlePanel = new JPanel(new BorderLayout(10, 10));
         
         private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
@@ -139,13 +135,14 @@ public class ChatContactRightButtonMenu
         {
             super(chatPanel.getChatWindow());
             
-            this.setTitle(Messages.getI18NString("reason").getText());
+            this.setTitle(
+                GuiActivator.getResources().getI18NString("service.gui.REASON"));
             
             this.operationType = operation;
             
             this.buttonsPanel.add(okButton);
             this.buttonsPanel.add(cancelButton);
-         
+            
             okButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -161,11 +158,12 @@ public class ChatContactRightButtonMenu
                     if(chatRoom == null)
                     {
                         new ErrorDialog(chatPanel.getChatWindow(),
-                            Messages.getI18NString("error").getText(),
-                            Messages.getI18NString("chatRoomNotJoined")
-                                .getText())
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.ERROR"),
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.CHAT_ROOM_NOT_JOINED"))
                                 .setVisible(true);
-                        
+
                         return;
                     }
                     
@@ -248,10 +246,11 @@ public class ChatContactRightButtonMenu
                 {
                     ErrorDialog errorDialog
                         = new ErrorDialog(chatPanel.getChatWindow(),
-                            Messages.getI18NString("kickFailed").getText(),
-                            Messages.getI18NString(
-                            "kickFailedNotEnoughPermissions",
-                            new String[]{chatContact.getName()}).getText(),
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.KICK_FAILED"),
+                            GuiActivator.getResources().getI18NString(
+                            "service.gui.KICK_FAILED_NOT_ENOUGH_PERMISSIONS",
+                            new String[]{chatContact.getName()}),
                             e);
 
                     errorDialog.showDialog();
@@ -260,17 +259,21 @@ public class ChatContactRightButtonMenu
                     == OperationFailedException.FORBIDDEN)
                 {   
                     new ErrorDialog(chatPanel.getChatWindow(),
-                        Messages.getI18NString("kickFailed").getText(),
-                        Messages.getI18NString("kickFailedNotAllowed",
-                            new String[]{chatContact.getName()}).getText(),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.KICK_FAILED"),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.KICK_FAILED_NOT_ALLOWED",
+                            new String[]{chatContact.getName()}),
                             e).showDialog();
                 }
                 else
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
-                        Messages.getI18NString("kickFailed").getText(),
-                        Messages.getI18NString("kickFailedGeneralError",
-                            new String[]{chatContact.getName()}).getText(),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.KICK_FAILED"),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.KICK_FAILED_GENERAL_ERROR",
+                            new String[]{chatContact.getName()}),
                         e).showDialog();
                 }
             }
@@ -304,33 +307,37 @@ public class ChatContactRightButtonMenu
             catch (OperationFailedException e)
             {
                 logger.error("Failed to ban participant.", e);
-                
+
+                String errorTitle = GuiActivator.getResources()
+                    .getI18NString("service.gui.BAN_FAILED");
+
                 if (e.getErrorCode()
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
-                        Messages.getI18NString("banFailed").getText(),
-                        Messages.getI18NString("banFailedNotEnoughPermissions",
-                            new String[]{chatContact.getName()})
-                            .getText(),
+                        errorTitle,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.BAN_FAILED_NOT_ENOUGH_PERMISSIONS",
+                            new String[]{chatContact.getName()}),
                         e).showDialog();
                 }
                 else if (e.getErrorCode()
                     == OperationFailedException.FORBIDDEN)
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
-                        Messages.getI18NString("banFailed").getText(),
-                        Messages.getI18NString("banFailedNotAllowed",
-                            new String[]{chatContact.getName()}).getText(),
+                        errorTitle,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.BAN_FAILED_NOT_ALLOWED",
+                            new String[]{chatContact.getName()}),
                         e).showDialog();
                 }
                 else
                 {
                     new ErrorDialog(chatPanel.getChatWindow(),
-                        Messages.getI18NString("banFailed").getText(),
-                        Messages.getI18NString("banFailedGeneralError",
-                            new String[]{chatContact.getName()})
-                            .getText(),
+                        errorTitle,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.BAN_FAILED_GENERAL_ERROR",
+                            new String[]{chatContact.getName()}),
                         e).showDialog();
                 }
             }

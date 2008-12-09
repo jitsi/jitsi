@@ -14,7 +14,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
@@ -40,31 +39,22 @@ public class FileMenu
     private static final Logger logger =
         Logger.getLogger(FileMenu.class.getName());
 
-    private I18NString newAccountString = Messages.getI18NString("newAccount");
-
-    private I18NString addContactString = Messages.getI18NString("addContact");
-
-    private I18NString createGroupString = Messages.getI18NString("createGroup");
-
-    private I18NString fileString = Messages.getI18NString("file");
-
-    private I18NString myChatRoomsString
-        = Messages.getI18NString("myChatRooms");
-
-    private JMenuItem newAccountMenuItem
-        = new JMenuItem(newAccountString.getText());
+    private JMenuItem newAccountMenuItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.NEW_ACCOUNT"));
 
     private JMenuItem addContactItem
-        = new JMenuItem(addContactString.getText(), 
+        = new JMenuItem(
+            GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"), 
             new ImageIcon(ImageLoader.getImage(
                 ImageLoader.ADD_CONTACT_16x16_ICON)));
 
     private JMenuItem createGroupItem
-        = new JMenuItem(createGroupString.getText(),
+        = new JMenuItem(
+            GuiActivator.getResources().getI18NString("service.gui.CREATE_GROUP"),
             new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
 
     private JMenuItem myChatRoomsItem = new JMenuItem(
-        myChatRoomsString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.MY_CHAT_ROOMS"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
 
     private MainFrame parentWindow;
@@ -75,12 +65,13 @@ public class FileMenu
      */
     public FileMenu(MainFrame parentWindow)
     {
-        super(Messages.getI18NString("file").getText());
+        super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
 
         this.setOpaque(false);
 
         this.setForeground(
-            new Color(GuiActivator.getResources().getColor("service.gui.MAIN_MENU_FOREGROUND")));
+            new Color(GuiActivator.getResources()
+                .getColor("service.gui.MAIN_MENU_FOREGROUND")));
 
         this.parentWindow = parentWindow;
 
@@ -110,11 +101,16 @@ public class FileMenu
         this.createGroupItem.addActionListener(this);
         this.myChatRoomsItem.addActionListener(this);
 
-        this.setMnemonic(fileString.getMnemonic());
-        this.newAccountMenuItem.setMnemonic(newAccountString.getMnemonic());
-        this.addContactItem.setMnemonic(addContactString.getMnemonic());
-        this.createGroupItem.setMnemonic(createGroupString.getMnemonic());
-        this.myChatRoomsItem.setMnemonic(myChatRoomsString.getMnemonic());
+        this.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.FILE"));
+        this.newAccountMenuItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.NEW_ACCOUNT"));
+        this.addContactItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.ADD_CONTACT"));
+        this.createGroupItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.CREATE_GROUP"));
+        this.myChatRoomsItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.MY_CHAT_ROOMS"));
     }
 
     /**
@@ -227,12 +223,14 @@ public class FileMenu
 
     private void registerCloseMenuItemNonMacOSX()
     {
-        I18NString closeString = Messages.getI18NString("quit");
-        JMenuItem closeMenuItem = new JMenuItem(closeString.getText());
+        JMenuItem closeMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString("service.gui.QUIT"));
+
         this.addSeparator();
         this.add(closeMenuItem);
         closeMenuItem.setName("close");
         closeMenuItem.addActionListener(this);
-        closeMenuItem.setMnemonic(closeString.getMnemonic());
+        closeMenuItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.QUIT"));
     }
 }

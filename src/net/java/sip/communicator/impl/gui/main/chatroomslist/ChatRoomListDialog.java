@@ -11,7 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
@@ -60,26 +61,21 @@ public class ChatRoomListDialog
     {
         ChatRoomListUI chatRoomsListUI = new ChatRoomListUI(this);
 
-        I18NString createChatRoomString
-            = Messages.getI18NString("createChatRoom");
-
-        I18NString joinChatRoomString
-            = Messages.getI18NString("joinChatRoom");
-
-        I18NString cancelString
-            = Messages.getI18NString("cancel");
-
         JButton createChatRoomButton = new JButton(
-            createChatRoomString.getText());
+            GuiActivator.getResources()
+                .getI18NString("service.gui.CREATE_CHAT_ROOM"));
 
         JButton joinChatRoomButton = new JButton(
-            joinChatRoomString.getText());
+            GuiActivator.getResources()
+                .getI18NString("service.gui.JOIN_CHAT_ROOM"));
 
-        JButton cancelButton = new JButton(cancelString.getText());
+        JButton cancelButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
         TransparentPanel buttonPanel = new TransparentPanel();
 
-        this.setTitle(Messages.getI18NString("myChatRooms").getText());
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.MY_CHAT_ROOMS"));
 
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
         this.getContentPane().add(chatRoomsListUI, BorderLayout.CENTER);
@@ -96,12 +92,12 @@ public class ChatRoomListDialog
         joinChatRoomButton.setName(JOIN_CHAT_ROOM);
         cancelButton.setName(CANCEL);
 
-        createChatRoomButton
-            .setMnemonic(createChatRoomString.getMnemonic());
-        joinChatRoomButton
-            .setMnemonic(joinChatRoomString.getMnemonic());
-        cancelButton
-            .setMnemonic(cancelString.getMnemonic());
+        createChatRoomButton.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.CREATE_CHAT_ROOM"));
+        joinChatRoomButton.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.JOIN_CHAT_ROOM"));
+        cancelButton.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.CANCEL"));
     }
 
     /**

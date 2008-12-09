@@ -20,7 +20,6 @@ import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -118,10 +117,13 @@ public class ChatConversationPanel
 
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 
-        I18NString copyLinkString = Messages.getI18NString("copyLink");
+        String copyLinkString
+            = GuiActivator.getResources().getI18NString("service.gui.COPY_LINK");
+
         copyLinkItem =
-            new JMenuItem(copyLinkString.getText(), new ImageIcon(ImageLoader
-                .getImage(ImageLoader.COPY_ICON)));
+            new JMenuItem(copyLinkString,
+                new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
+
         copyLinkItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -135,10 +137,15 @@ public class ChatConversationPanel
             }
         });
 
-        I18NString openLinkString = Messages.getI18NString("openInBrowser");
+        String openLinkString
+            = GuiActivator.getResources().getI18NString(
+                "service.gui.OPEN_IN_BROWSER");
+
         openLinkItem =
-            new JMenuItem(openLinkString.getText(), new ImageIcon(ImageLoader
-                .getImage(ImageLoader.BROWSER_ICON)));
+            new JMenuItem(
+                openLinkString,
+                new ImageIcon(ImageLoader.getImage(ImageLoader.BROWSER_ICON)));
+
         openLinkItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -147,8 +154,13 @@ public class ChatConversationPanel
             }
         });
 
-        openLinkItem.setMnemonic(openLinkString.getMnemonic());
-        copyLinkItem.setMnemonic(copyLinkString.getMnemonic());
+        openLinkItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+                "service.gui.OPEN_IN_BROWSER"));
+
+        copyLinkItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+                "service.gui.COPY_LINK"));
 
         /*
          * Tooltip on hyperlinks - JDK 1.5+
@@ -270,10 +282,12 @@ public class ChatConversationPanel
                             + msgHeaderID
                             + "\" date=\""
                             + msgDate + "\">";
-            
+
             endHeaderTag = "</h3>";
 
-            chatString += timeString + Messages.getI18NString("me").getText()
+            chatString += timeString
+                + GuiActivator.getResources()
+                    .getI18NString("service.gui.ME")
                 + " at " + GuiUtils.formatTime(date) + endHeaderTag
                 + startDivTag + startPlainTextTag
                 + formatMessage(message, contentType) + endPlainTextTag
@@ -323,7 +337,8 @@ public class ChatConversationPanel
                     .getImage(ImageLoader.EXCLAMATION_MARK)) + "' </IMG>";
 
             chatString += errorIcon
-                + Messages.getI18NString("msgDeliveryFailure").getText()
+                + GuiActivator.getResources()
+                    .getI18NString("service.gui.MSG_DELIVERY_FAILURE")
                 + endHeaderTag + "<h5>" + message + "</h5>";
         }
         else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE))
@@ -349,7 +364,9 @@ public class ChatConversationPanel
             
             endHeaderTag = "</h3>";
 
-            chatString += timeString + Messages.getI18NString("me").getText()
+            chatString += timeString
+                + GuiActivator.getResources()
+                    .getI18NString("service.gui.ME")
                 + " at " + GuiUtils.formatTime(date) + endHeaderTag
                 + startHistoryDivTag + startPlainTextTag
                 + formatMessage(message, contentType) + endPlainTextTag

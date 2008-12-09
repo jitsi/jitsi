@@ -13,7 +13,6 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -36,10 +35,10 @@ public class ChatInviteDialog
     private JTextArea reasonArea = new JTextArea();
 
     private JButton inviteButton = new JButton(
-        GuiActivator.getResources().getI18NString("invite"));
+        GuiActivator.getResources().getI18NString("service.gui.INVITE"));
 
     private JButton cancelButton = new JButton(
-        GuiActivator.getResources().getI18NString("cancel"));
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private DefaultListModel contactListModel = new DefaultListModel();
 
@@ -61,8 +60,8 @@ public class ChatInviteDialog
 
         this.setModal(false);
 
-        String title
-            = Messages.getI18NString("inviteContactToChat").getText();
+        String title = GuiActivator.getResources()
+            .getI18NString("service.gui.INVITE_CONTACT_TO_CHAT");
 
         this.setTitle(title);
 
@@ -78,12 +77,13 @@ public class ChatInviteDialog
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         this.reasonArea.setBorder(BorderFactory.createTitledBorder(
-            GuiActivator.getResources().getI18NString("inviteReason")));
+            GuiActivator.getResources()
+                .getI18NString("service.gui.INVITE_REASON")));
 
         JTextArea infoTextArea = new JTextArea();
 
-        infoTextArea.setText(
-            Messages.getI18NString("inviteContactFormInfo").getText());
+        infoTextArea.setText(GuiActivator.getResources()
+            .getI18NString("service.gui.INVITE_CONTACT_MSG"));
 
         infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         infoTextArea.setLineWrap(true);
@@ -108,9 +108,9 @@ public class ChatInviteDialog
 
         this.getRootPane().setDefaultButton(inviteButton);
         inviteButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("invite"));
+            GuiActivator.getResources().getI18nMnemonic("service.gui.INVITE"));
         cancelButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("cancel"));
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         MainFrame mainFrame = GuiActivator.getUIService().getMainFrame();
 
@@ -179,10 +179,10 @@ public class ChatInviteDialog
         JPanel addRemoveButtonsPanel = new JPanel(new GridLayout(0, 2, 5, 5));
 
         JButton addContactButton = new JButton(
-            GuiActivator.getResources().getI18NString("add"));
+            GuiActivator.getResources().getI18NString("service.gui.ADD"));
 
         JButton removeContactButton = new JButton(
-            GuiActivator.getResources().getI18NString("remove"));
+            GuiActivator.getResources().getI18NString("service.gui.REMOVE"));
 
         addRemoveButtonsPanel.add(addContactButton);
         addRemoveButtonsPanel.add(removeContactButton);

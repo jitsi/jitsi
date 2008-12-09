@@ -14,7 +14,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
+
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -328,19 +328,22 @@ public class CallParticipantPanel
 
                 secureButton.setActionCommand("startSecureMode");
                 secureButton.setName("secureButton");
-                secureButton.setToolTipText(Messages.getI18NString(
-                    "toggleOnSecurity").getText());
+                secureButton.setToolTipText(
+                    GuiActivator.getResources().getI18NString(
+                    "impl.media.security.TOGGLE_ON_SECURITY"));
                 return secureButton;
             }
         }
         return null;
     }
 
-    public void changeSecureCallButton(boolean onOff) {
+    public void changeSecureCallButton(boolean onOff)
+    {
         secureButton.updateSecureButton(onOff);
     }
 
-    public void changeZrtpPanel(SecurityGUIEventZrtp securityEvent) {
+    public void changeZrtpPanel(SecurityGUIEventZrtp securityEvent)
+    {
         Call call = callParticipant.getCall();
 
         if (call != null) {
@@ -710,7 +713,7 @@ public class CallParticipantPanel
                 .getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON)));
 
         button.setToolTipText(GuiActivator.getResources().getI18NString(
-            "CallParticipantPanel_enterFullScreenButtonToolTipText"));
+            "service.gui.ENTER_FULL_SCREEN_TOOL_TIP"));
         button.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -728,7 +731,7 @@ public class CallParticipantPanel
                 .getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON)));
 
         button.setToolTipText(GuiActivator.getResources().getI18NString(
-            "CallParticipantPanel_exitFullScreenButtonToolTipText"));
+            "service.gui.EXIT_FULL_SCREEN_TOOL_TIP"));
         button.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)

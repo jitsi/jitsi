@@ -50,7 +50,8 @@ public class GoogleTalkAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer
+            .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -81,7 +82,8 @@ public class GoogleTalkAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolName");
+        return Resources
+            .getString("plugin.googletalkaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -91,7 +93,8 @@ public class GoogleTalkAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescription");
+        return Resources
+            .getString("plugin.googletalkaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -116,26 +119,33 @@ public class GoogleTalkAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(   Resources.getString("gtalkUsername"),
-                            registration.getUserID());
+        summaryTable.put(
+            Resources.getString("plugin.googletalkaccregwizz.USERNAME"),
+            registration.getUserID());
 
-        summaryTable.put(   Resources.getString("rememberPassword"),
-                            new Boolean(registration.isRememberPassword()));
+        summaryTable.put(
+            Resources.getString("service.gui.REMEMBER_PASSWORD"),
+            new Boolean(registration.isRememberPassword()));
 
-        summaryTable.put(   Resources.getString("server"),
-                            registration.getServerAddress());
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.SERVER"),
+            registration.getServerAddress());
 
-        summaryTable.put(   Resources.getString("port"),
-                            String.valueOf(registration.getPort()));
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.PORT"),
+            String.valueOf(registration.getPort()));
 
-        summaryTable.put(   Resources.getString("enableKeepAlive"),
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"),
             String.valueOf(registration.isSendKeepAlive()));
 
-        summaryTable.put(   Resources.getString("resource"),
-                            registration.getResource());
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.RESOURCE"),
+            registration.getResource());
 
-        summaryTable.put(   Resources.getString("priority"),
-                            String.valueOf(registration.getPriority()));
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.PRIORITY"),
+            String.valueOf(registration.getPriority()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -242,14 +252,14 @@ public class GoogleTalkAccountRegistrationWizard
         {
             GoogleTalkAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
             GoogleTalkAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
 

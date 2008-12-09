@@ -55,7 +55,7 @@ public class GibberishAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -86,7 +86,7 @@ public class GibberishAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameGibberish");
+        return Resources.getString("plugin.gibberishaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -96,7 +96,7 @@ public class GibberishAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionGibberish");
+        return Resources.getString("plugin.gibberishaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -195,14 +195,14 @@ public class GibberishAccountRegistrationWizard
         {
             GibberishAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                                        Resources.getString("error"),
+                                        Resources.getString("service.gui.ERROR"),
                                         PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
         {
             GibberishAccRegWizzActivator.getUIService().getPopupDialog()
             .showMessagePopupDialog(exc.getMessage(),
-                                    Resources.getString("error"),
+                                    Resources.getString("service.gui.ERROR"),
                                     PopupDialog.ERROR_MESSAGE);
         }
 

@@ -13,8 +13,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -50,11 +50,13 @@ public class SelectAccountPanel extends TransparentPanel
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
     private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
-            Messages.getI18NString("selectProvidersForChatRoom").getText());
+        GuiActivator.getResources()
+            .getI18NString("service.gui.SELECT_PROVIDERS_FOR_CHAT_ROOM"));
     
     private JLabel infoTitleLabel = new JLabel(
-            Messages.getI18NString("selectAccount").getText(), 
-                JLabel.CENTER);
+        GuiActivator.getResources()
+            .getI18NString("service.gui.SELECT_ACCOUNT"), 
+        JLabel.CENTER);
     
     private ButtonGroup radioButtonGroup = new ButtonGroup();
     
@@ -113,8 +115,10 @@ public class SelectAccountPanel extends TransparentPanel
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 
         tableModel.addColumn("");
-        tableModel.addColumn(Messages.getI18NString("account").getText());
-        tableModel.addColumn(Messages.getI18NString("protocol").getText());
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.PROTOCOL"));
 
         while(chatRoomProvidersList.hasNext())
         {
@@ -158,7 +162,8 @@ public class SelectAccountPanel extends TransparentPanel
         if (accountsTable.getModel().getRowCount() == 0)
         {
             JTextArea noAccountsTextArea = new JTextArea(
-                Messages.getI18NString("noMultiChatAccountAvailable").getText());
+                GuiActivator.getResources()
+                .getI18NString("service.gui.NO_GROUP_CHAT_ACCOUNT_AVAILABLE"));
 
             noAccountsTextArea.setLineWrap(true);
             noAccountsTextArea.setPreferredSize(new Dimension(400, 200));

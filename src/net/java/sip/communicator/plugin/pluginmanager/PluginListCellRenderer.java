@@ -52,7 +52,7 @@ public class PluginListCellRenderer extends JPanel
     private JLabel iconLabel = new JLabel();
     
     private JLabel systemLabel
-        = new JLabel("( " + Resources.getString("system") + " )");
+        = new JLabel("( " + Resources.getString("plugin.pluginmanager.SYSTEM") + " )");
     
     private boolean isSelected = false;
     

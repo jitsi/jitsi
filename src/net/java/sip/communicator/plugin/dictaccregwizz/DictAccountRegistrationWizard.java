@@ -86,7 +86,7 @@ public class DictAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("dict.protocolName");
+        return Resources.getString("plugin.dictaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -96,7 +96,7 @@ public class DictAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("dict.protocolDescription");
+        return Resources.getString("plugin.dictaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -226,14 +226,14 @@ public class DictAccountRegistrationWizard
         {
             DictAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("error"),
+                                        Resources.getString("service.gui.ERROR"),
                                         PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException e)
         {
             DictAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("error"),
+                                        Resources.getString("service.gui.ERROR"),
                                         PopupDialog.ERROR_MESSAGE);
         }
 

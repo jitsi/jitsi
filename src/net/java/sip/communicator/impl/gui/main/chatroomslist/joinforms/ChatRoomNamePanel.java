@@ -11,8 +11,8 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -26,19 +26,19 @@ public class ChatRoomNamePanel
     extends TransparentPanel
 {    
     private JLabel chatRoomLabel = new JLabel(
-        Messages.getI18NString("chatRoomName").getText());
+        GuiActivator.getResources().getI18NString("service.gui.CHAT_ROOM_NAME"));
     
     private JTextField textField = new JTextField();
     
     private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
     
-    private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(
-            Messages.getI18NString("joinChatRoomName").getText());
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+        GuiActivator.getResources()
+            .getI18NString("service.gui.JOIN_CHAT_ROOM_NAME"));
     
     private JLabel infoTitleLabel = new JLabel(
-        Messages.getI18NString("joinChatRoomTitle").getText());
-    
+        GuiActivator.getResources()
+            .getI18NString("service.gui.JOIN_CHAT_ROOM_TITLE"));
     
     private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
     

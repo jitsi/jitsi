@@ -11,8 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
@@ -29,17 +29,18 @@ public class MoveSubcontactMessageDialog
     extends SIPCommDialog
 {
     private SIPCommMsgTextArea infoArea = new SIPCommMsgTextArea(
-        Messages.getI18NString("moveSubcontactMsg").getText());
+        GuiActivator.getResources()
+            .getI18NString("service.gui.MOVE_SUBCONTACT_MSG"));
     
     private JLabel infoTitleLabel = new JLabel(
-        Messages.getI18NString("moveSubcontact").getText());
+        GuiActivator.getResources()
+            .getI18NString("service.gui.MOVE_SUBCONTACT"));
     
     private JLabel iconLabel = new JLabel(
             new ImageIcon(ImageLoader.getImage(ImageLoader.INFO_ICON)));
     
-    private I18NString cancelString = Messages.getI18NString("cancel");
-    
-    private JButton cancelButton = new JButton(cancelString.getText());
+    private JButton cancelButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
     private TransparentPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1));
@@ -70,13 +71,14 @@ public class MoveSubcontactMessageDialog
         this.mainFrame = parentWindow;
         this.clistListener = listener;
         
-        System.out.println("EHOOOOOOOOOOOOOOOOOOOOOOOOO");
-        this.setTitle(Messages.getI18NString("moveSubcontact").getText());
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.MOVE_SUBCONTACT"));
         
         this.mainPanel.setPreferredSize(
                 new Dimension(dialogWidth, dialogHeight));
         
-        this.cancelButton.setMnemonic(cancelString.getMnemonic());
+        this.cancelButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
         
         this.cancelButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {

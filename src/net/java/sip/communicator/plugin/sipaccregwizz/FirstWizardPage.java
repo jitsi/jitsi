@@ -29,7 +29,8 @@ public class FirstWizardPage
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    public static final String USER_NAME_EXAMPLE = "Ex: john@voiphone.net or simply \"john\" for no server";
+    public static final String USER_NAME_EXAMPLE
+        = "Ex: john@voiphone.net or simply \"john\" for no server";
 
     private JPanel firstTabPanel = new TransparentPanel(new BorderLayout());
 
@@ -39,48 +40,58 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel uinLabel = new JLabel(Resources.getString("id"));
+    private JLabel uinLabel
+        = new JLabel(Resources.getString("plugin.sipaccregwizz.USERNAME"));
 
-    private JLabel passLabel = new JLabel(Resources.getString("password"));
+    private JLabel passLabel
+        = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
     private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("existingAccount"));
+        new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JTextField uinField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
 
     private JCheckBox rememberPassBox =
-        new SIPCommCheckBox(Resources.getString("rememberPassword"));
+        new SIPCommCheckBox(
+            Resources.getString("service.gui.REMEMBER_PASSWORD"));
 
-    private JPanel advancedOpPanel = new TransparentPanel(new BorderLayout(10, 10));
+    private JPanel advancedOpPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsAdvOpPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesAdvOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesAdvOpPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enableAdvOpButton =
-        new SIPCommCheckBox(Resources.getString("ovverideServerOps"), false);
+        new SIPCommCheckBox(Resources.getString(
+            "plugin.sipaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"), false);
+
+    private JLabel serverLabel
+        = new JLabel(Resources.getString("plugin.sipaccregwizz.REGISTRAR"));
 
     private JCheckBox enableDefaultEncryption = 
-        new JCheckBox(Resources.getString("enableDefaultEncryption"), false); 
+        new JCheckBox(Resources.getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), false); 
 
-    private JLabel serverLabel = new JLabel(Resources.getString("registrar"));
-
-    private JLabel proxyLabel = new JLabel(Resources.getString("proxy"));
+    private JLabel proxyLabel
+        = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
 
     private JLabel serverPortLabel =
-        new JLabel(Resources.getString("serverPort"));
+        new JLabel(Resources.getString("plugin.sipaccregwizz.SERVER_PORT"));
 
     private JLabel proxyPortLabel =
-        new JLabel(Resources.getString("proxyPort"));
+        new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY_PORT"));
 
     private JLabel transportLabel =
-        new JLabel(Resources.getString("preferredTransport"));
+        new JLabel(Resources.getString(
+            "plugin.sipaccregwizz.PREFERRED_TRANSPORT"));
 
     private JTextField serverField = new JTextField();
 
@@ -104,17 +115,18 @@ public class FirstWizardPage
 
     private JPanel valuesPresOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox enablePresOpButton =
-        new SIPCommCheckBox(Resources.getString("enablePresence"), true);
+    private JCheckBox enablePresOpButton = new JCheckBox(
+        Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
+        true);
 
-    private JCheckBox forceP2PPresOpButton =
-        new SIPCommCheckBox(Resources.getString("forceP2PPresence"), true);
+    private JCheckBox forceP2PPresOpButton = new JCheckBox(
+        Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"), true);
 
-    private JLabel pollPeriodLabel =
-        new JLabel(Resources.getString("offlineContactPollingPeriod"));
+    private JLabel pollPeriodLabel = new JLabel(
+        Resources.getString("plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"));
 
-    private JLabel subscribeExpiresLabel =
-        new JLabel(Resources.getString("subscriptionExpiration"));
+    private JLabel subscribeExpiresLabel = new JLabel(
+        Resources.getString("plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"));
 
     private JTextField pollPeriodField
         = new JTextField(SIPAccountRegistration.DEFAULT_POLL_PERIOD);
@@ -128,14 +140,14 @@ public class FirstWizardPage
 
     private JPanel keepAliveValues = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
-    private JLabel keepAliveMethodLabel
-        = new JLabel(Resources.getString("keepAliveMethod"));
+    private JLabel keepAliveMethodLabel = new JLabel(
+        Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_METHOD"));
 
-    private JLabel keepAliveIntervalLabel
-        = new JLabel(Resources.getString("keepAliveInterval"));
+    private JLabel keepAliveIntervalLabel = new JLabel(
+        Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"));
 
-    private JLabel keepAliveIntervalExampleLabel
-        = new JLabel(Resources.getString("keepAliveIntervalEx"));
+    private JLabel keepAliveIntervalExampleLabel = new JLabel(
+        Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL_INFO"));
 
     private JComboBox keepAliveMethodBox
         = new JComboBox(new Object []
@@ -215,11 +227,11 @@ public class FirstWizardPage
         uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("sipUinAndPassword")));
+            .getString("plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
 
         firstTabPanel.add(uinPassPanel, BorderLayout.NORTH);
 
-        tabbedPane.addTab(  Resources.getString("summary"),
+        tabbedPane.addTab(  Resources.getString("service.gui.SUMMARY"),
                             firstTabPanel);
 
         serverField.setEnabled(false);
@@ -278,7 +290,7 @@ public class FirstWizardPage
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("advancedOptions")));
+            .getString("plugin.aimaccregwizz.ADVANCED_OPTIONS")));
 
         advancedPanel.add(advancedOpPanel);
 
@@ -310,7 +322,7 @@ public class FirstWizardPage
         presenceOpPanel.add(valuesPresOpPanel, BorderLayout.CENTER);
 
         presenceOpPanel.setBorder(BorderFactory.createTitledBorder(
-            Resources.getString("presenceOptions")));
+            Resources.getString("plugin.sipaccregwizz.PRESENCE_OPTIONS")));
 
         advancedPanel.add(presenceOpPanel);
 
@@ -343,11 +355,13 @@ public class FirstWizardPage
         keepAlivePanel.add(keepAliveValues, BorderLayout.CENTER);
 
         keepAlivePanel.setBorder(BorderFactory.createTitledBorder(
-            Resources.getString("keepAlive")));
+            Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE")));
 
         advancedPanel.add(keepAlivePanel);
 
-        tabbedPane.addTab("Advanced", advancedPanel);
+        tabbedPane.addTab(
+            Resources.getString("service.gui.ADVANCED"),
+            advancedPanel);
 
         this.add(tabbedPane, BorderLayout.NORTH);
     }

@@ -61,14 +61,14 @@ public class OperationSetBasicInstantMessagingRssImpl
      * a dead RSS contact
      */
     private static final String MSG_CONFIRM_REMOVE_MISSING_CONTACT
-        = "confirmRemoveMissingContactMessage";
+        = "plugin.rssaccregwizz.CONFIRM_ACCOUNT_REMOVAL";
 
     /**
      * The title of the confirmation dialog that we show to the user before we
      * remove a dead contact
      */
     private static final String TITLE_CONFIRM_REMOVE_MISSING_CONTACT
-        = "confirmRemoveMissingContactTitle";
+        = "plugin.rssaccregwizz.CONFIRM_ACCOUNT_REMOVAL_TITLE";
 
     /**
      * Creates an instance of this operation set keeping a reference to the

@@ -38,15 +38,15 @@ public class TrayMenu
     private SystrayServiceJdicImpl parentSystray;
         
     private JMenuItem settingsItem = new JMenuItem(
-            Resources.getString("settings"),
+            Resources.getString("service.gui.SETTINGS"),
             Resources.getImage("service.gui.icons.QUICK_MENU_CONFIGURE_ICON"));
     
     private JMenuItem closeItem = new JMenuItem(
-            Resources.getString("close"),
+            Resources.getString("service.gui.CLOSE"),
             Resources.getImage("service.systray.CLOSE_MENU_ICON"));
     
     private JMenuItem addContactMenuItem = new JMenuItem(
-            Resources.getString("addContact"),
+            Resources.getString("service.gui.ADD_CONTACT"),
             Resources.getImage("service.gui.icons.ADD_CONTACT_16x16_ICON"));
     
     private StatusSubMenu statusMenu;
@@ -69,7 +69,7 @@ public class TrayMenu
         this.add(closeItem);
 
         this.settingsItem.setName("settings");
-        this.closeItem.setName("close");
+        this.closeItem.setName("service.gui.CLOSE");
         this.addContactMenuItem.setName("addContact");
 
         this.settingsItem.addActionListener(this);
@@ -95,7 +95,7 @@ public class TrayMenu
             
             configWindow.setVisible(true);
         }
-        else if(itemName.equals("close"))
+        else if(itemName.equals("service.gui.CLOSE"))
         {   
             try
             {
@@ -117,8 +117,8 @@ public class TrayMenu
                 dialog.setVisible(true);
             else
                 SystrayActivator.getUIService().getPopupDialog()
-                    .showMessagePopupDialog(
-                        Resources.getString("failedToLoadAddContactDialog"));
+                    .showMessagePopupDialog(Resources.getString(
+                        "impl.systray.FAILED_TO_OPEN_ADD_CONTACT_DIALOG"));
         }
     }
 }

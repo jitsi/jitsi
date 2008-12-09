@@ -55,7 +55,8 @@ public class JabberAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("signin"));
+        this.wizardContainer
+            .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -86,7 +87,7 @@ public class JabberAccountRegistrationWizard
      */
     public String getProtocolName()
     {
-        return Resources.getString("protocolNameJabber");
+        return Resources.getString("plugin.jabberaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -96,7 +97,8 @@ public class JabberAccountRegistrationWizard
      */
     public String getProtocolDescription()
     {
-        return Resources.getString("protocolDescriptionJabber");
+        return Resources
+            .getString("plugin.jabberaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -121,26 +123,33 @@ public class JabberAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(   Resources.getString("jabberUsername"),
-                            registration.getUserID());
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.USERNAME"),
+            registration.getUserID());
 
-        summaryTable.put(   Resources.getString("rememberPassword"),
-                            new Boolean(registration.isRememberPassword()));
+        summaryTable.put(
+            Resources.getString("service.gui.REMEMBER_PASSWORD"),
+            new Boolean(registration.isRememberPassword()));
 
-        summaryTable.put(   Resources.getString("server"),
-                            registration.getServerAddress());
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.SERVER"),
+            registration.getServerAddress());
 
-        summaryTable.put(   Resources.getString("port"),
-                            String.valueOf(registration.getPort()));
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.PORT"),
+            String.valueOf(registration.getPort()));
 
-        summaryTable.put(   Resources.getString("enableKeepAlive"),
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"),
             String.valueOf(registration.isSendKeepAlive()));
 
-        summaryTable.put(   Resources.getString("resource"),
-                            registration.getResource());
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.RESOURCE"),
+            registration.getResource());
 
-        summaryTable.put(   Resources.getString("priority"),
-                            String.valueOf(registration.getPriority()));
+        summaryTable.put(
+            Resources.getString("plugin.jabberaccregwizz.PRIORITY"),
+            String.valueOf(registration.getPriority()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -253,7 +262,7 @@ public class JabberAccountRegistrationWizard
             logger.warn("Failed to create a jabber account.", exc);
             JabberAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
         catch (IllegalStateException exc)
@@ -261,7 +270,7 @@ public class JabberAccountRegistrationWizard
             logger.warn("Failed to create a jabber account.", exc);
             JabberAccRegWizzActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("error"),
+                    Resources.getString("service.gui.ERROR"),
                     PopupDialog.ERROR_MESSAGE);
         }
 

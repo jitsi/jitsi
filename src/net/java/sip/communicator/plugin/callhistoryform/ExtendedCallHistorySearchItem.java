@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.plugin.extendedcallhistorysearch;
+package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -29,7 +29,7 @@ public class ExtendedCallHistorySearchItem
 {
     private JMenuItem historyMenuItem
         = new JMenuItem(ExtendedCallHistorySearchActivator.getResources()
-                .getI18NString("advancedCallHistorySearch"),
+                .getI18NString("plugin.callhistoryform.TITLE"),
             ExtendedCallHistorySearchActivator.getResources()
                 .getImage("plugin.callhistorysearch.HISTORY_MENU_ICON"));
 
@@ -42,7 +42,7 @@ public class ExtendedCallHistorySearchItem
     {
         this.historyMenuItem.setMnemonic(
             ExtendedCallHistorySearchActivator.getResources()
-                .getI18nMnemonic("advancedCallHistorySearch"));
+                .getI18nMnemonic("plugin.callhistoryform.TITLE"));
         this.historyMenuItem.addActionListener(this);
     }
  

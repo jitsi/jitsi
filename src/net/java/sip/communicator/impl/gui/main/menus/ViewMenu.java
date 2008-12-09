@@ -11,7 +11,6 @@ import java.awt.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.util.*;
 /**
@@ -33,7 +32,7 @@ public class ViewMenu
      */
     public ViewMenu(MainFrame mainFrame) {
 
-        super(Messages.getI18NString("view").getText());
+        super(GuiActivator.getResources().getI18NString("service.gui.VIEW"));
 
         this.setOpaque(false);
 
@@ -43,6 +42,7 @@ public class ViewMenu
 
         this.mainFrame = mainFrame;
 
-        this.setMnemonic(Messages.getI18NString("view").getMnemonic());
+        this.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.VIEW"));
     }
 }

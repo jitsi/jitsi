@@ -13,11 +13,12 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
+
 import net.java.sip.communicator.util.swing.*;
 
 import say.swing.*;
@@ -81,8 +82,8 @@ public class EditTextToolBar
             ImageLoader.getDefaultSmiliesPack(), chatWritePanel);
 
         this.smiliesBox.setName("smiley");
-        this.smiliesBox.setToolTipText(
-            Messages.getI18NString("insertSmiley").getText() + " Ctrl-M");
+        this.smiliesBox.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.INSERT_SMILEY") + " Ctrl-M");
 
         this.add(smiliesBox);
 

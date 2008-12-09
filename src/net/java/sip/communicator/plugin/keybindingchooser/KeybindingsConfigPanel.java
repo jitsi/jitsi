@@ -12,9 +12,9 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.keybindings.*;
 import chooser.*;
 
-import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -74,7 +74,10 @@ public class KeybindingsConfigPanel
 
         add(chooserPanes);
 
-        JButton apply = new JButton("Apply");
+        JButton apply = new JButton(
+            KeybindingChooserActivator.getResources()
+                .getI18NString("service.gui.APPLY"));
+
         apply.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)

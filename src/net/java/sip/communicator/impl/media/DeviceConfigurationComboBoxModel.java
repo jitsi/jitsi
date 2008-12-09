@@ -38,7 +38,7 @@ public class DeviceConfigurationComboBoxModel
         {
             if (info == null)
                 return MediaActivator.getResources().getI18NString(
-                    "DeviceConfigurationComboBoxModel_noDevice");
+                    "impl.media.configform.NO_DEVICE");
             return info.getName();
         }
     }

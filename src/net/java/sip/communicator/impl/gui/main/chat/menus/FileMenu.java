@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -27,17 +26,12 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class FileMenu extends SIPCommMenu 
     implements ActionListener
 {
-    private I18NString myChatRoomsString
-        = Messages.getI18NString("myChatRooms");
-
-    private I18NString closeString = Messages.getI18NString("close");
-
     private JMenuItem myChatRoomsItem = new JMenuItem(
-        myChatRoomsString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.MY_CHAT_ROOMS"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
 
     private JMenuItem closeMenuItem = new JMenuItem(
-        closeString.getText(),
+        GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
 
     private ChatWindow parentWindow;
@@ -48,7 +42,7 @@ public class FileMenu extends SIPCommMenu
      */
     public FileMenu(ChatWindow parentWindow) {
 
-        super(Messages.getI18NString("file").getText());
+        super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
 
         this.setOpaque(false);
 
@@ -58,7 +52,8 @@ public class FileMenu extends SIPCommMenu
             GuiActivator.getResources()
                 .getColor("service.gui.CHAT_MENU_FOREGROUND")));
 
-        this.setMnemonic(Messages.getI18NString("file").getMnemonic());
+        this.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.FILE"));
 
         this.add(myChatRoomsItem);
 
@@ -72,8 +67,12 @@ public class FileMenu extends SIPCommMenu
         this.myChatRoomsItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
 
-        this.myChatRoomsItem.setMnemonic(myChatRoomsString.getMnemonic());
-        this.closeMenuItem.setMnemonic(closeString.getMnemonic());
+        this.myChatRoomsItem.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.MY_CHAT_ROOMS"));
+
+        this.closeMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.CLOSE"));
     }
 
     /**
@@ -93,7 +92,7 @@ public class FileMenu extends SIPCommMenu
             chatRoomsDialog.setPreferredSize(new Dimension(500, 400));
             chatRoomsDialog.setVisible(true);
         }
-        else if (itemText.equalsIgnoreCase("close"))
+        else if (itemText.equalsIgnoreCase("service.gui.CLOSE"))
         {
             this.parentWindow.setVisible(false);
             this.parentWindow.dispose();

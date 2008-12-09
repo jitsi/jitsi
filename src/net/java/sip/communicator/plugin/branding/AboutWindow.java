@@ -2,9 +2,9 @@ package net.java.sip.communicator.plugin.branding;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 
-import javax.imageio.ImageIO;
+import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
 public class AboutWindow extends JDialog implements HyperlinkListener,
         ActionListener, ExportedWindow
@@ -32,7 +32,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
             = resources.getSettingsString("service.gui.APPLICATION_NAME");
 
         this.setTitle(
-            resources.getI18NString("aboutWindowTitle",
+            resources.getI18NString("plugin.branding.ABOUT_WINDOW_TITLE",
                 new String[]{applicationName}));
 
         setModal(false);
@@ -63,7 +63,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
             = resources.getSettingsInt("plugin.branding.ABOUT_LOGO_FONT_SIZE");
 
         JTextArea logoArea =
-            new JTextArea(resources.getI18NString("logoMessage"));
+            new JTextArea(resources.getI18NString("plugin.branding.LOGO_MESSAGE"));
         logoArea.setFont(
             logoArea.getFont().deriveFont(Font.BOLD, logoAreaFontSize));
         logoArea.setForeground(Constants.TITLE_COLOR);
@@ -79,7 +79,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
         rightsArea.setContentType("text/html");
 
-        rightsArea.appendToEnd(resources.getI18NString("copyright",
+        rightsArea.appendToEnd(resources.getI18NString("plugin.branding.COPYRIGHT",
             new String[]
             { Constants.TEXT_COLOR }));
 
@@ -95,7 +95,7 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
         licenseArea.setContentType("text/html");
         licenseArea.appendToEnd(resources.
-            getI18NString("license",
+            getI18NString("plugin.branding.LICENSE",
             new String[]{Constants.TEXT_COLOR}));
 
         licenseArea.setPreferredSize(new Dimension(50, 20));
@@ -115,11 +115,11 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         textPanel.add(rightsArea);
         textPanel.add(licenseArea);
 
-        JButton okButton = new JButton(resources.getI18NString("ok"));
+        JButton okButton = new JButton(resources.getI18NString("service.gui.OK"));
 
         this.getRootPane().setDefaultButton(okButton);
 
-        okButton.setMnemonic(resources.getI18nMnemonic("ok"));
+        okButton.setMnemonic(resources.getI18nMnemonic("service.gui.OK"));
         okButton.addActionListener(this);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

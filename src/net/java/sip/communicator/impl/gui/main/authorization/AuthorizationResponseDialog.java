@@ -11,7 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -28,9 +29,8 @@ public class AuthorizationResponseDialog extends SIPCommDialog
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private I18NString okString = Messages.getI18NString("ok");
-    
-    private JButton okButton = new JButton(okString.getText());
+    private JButton okButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.OK"));
     
     private JScrollPane responseScrollPane = new JScrollPane();
     
@@ -46,8 +46,9 @@ public class AuthorizationResponseDialog extends SIPCommDialog
     private JLabel titleLabel = new JLabel();
     
     private String title
-        = Messages.getI18NString("authorizationResponse").getText();
-        
+        = GuiActivator.getResources()
+            .getI18NString("service.gui.AUTHORIZATION_RESPONSE");
+    
     /**
      * Constructs the <tt>RequestAuthorisationDialog</tt>.
      * 
@@ -68,17 +69,19 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         titleLabel.setText(title);
         
         this.mainPanel.setPreferredSize(new Dimension(400, 250));
-                
+        
         AuthorizationResponse.AuthorizationResponseCode responseCode
             = response.getResponseCode();
         
         if(responseCode.equals(AuthorizationResponse.ACCEPT)) {
             infoTextArea.setText(contact.getDisplayName() + " "
-                    + Messages.getI18NString("authAccepted").getText());
+                + GuiActivator.getResources().getI18NString(
+                    "service.gui.AUTHORIZATION_ACCEPTED"));
         }
         else if(responseCode.equals(AuthorizationResponse.REJECT)) {
             infoTextArea.setText(contact.getDisplayName() + " "
-                    + Messages.getI18NString("authRejected").getText());
+                + GuiActivator.getResources()
+                    .getI18NString("service.gui.AUTHENTICATION_REJECTED"));
         }
         
         if(response.getReason() != null && !response.getReason().equals("")) {
@@ -117,7 +120,8 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         
         this.okButton.requestFocus();
         this.okButton.setName("ok");
-        this.okButton.setMnemonic(okString.getMnemonic());
+        this.okButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.OK"));
         this.getRootPane().setDefaultButton(okButton);
         
         this.okButton.addActionListener(this);
@@ -128,7 +132,7 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
-        this.getContentPane().add(mainPanel);        
+        this.getContentPane().add(mainPanel);
     }
 
     /**

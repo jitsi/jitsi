@@ -15,8 +15,9 @@ import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
+
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -43,9 +44,11 @@ public class AccountsConfigurationForm
 
     private final JPanel accountsPanel = new TransparentPanel();
 
-    private final JButton newButton;
+    private final JButton newButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.NEW_ACCOUNT"));
 
-    private final JButton saveButton;
+    private final JButton saveButton = new JButton(
+        GuiActivator.getResources().getI18NString("service.gui.SAVE"));
 
     private final Map<ProtocolProviderService, AccountPanel> accounts =
         new Hashtable<ProtocolProviderService, AccountPanel>();
@@ -69,16 +72,18 @@ public class AccountsConfigurationForm
         this.add(scrollPane, BorderLayout.CENTER);
         this.add(buttonsPanel, BorderLayout.SOUTH);
 
-        I18NString newString = Messages.getI18NString("newAccount");
-        newButton = new JButton(newString.getText());
         newButton.addActionListener(this);
-        this.newButton.setMnemonic(newString.getMnemonic());
-        buttonsPanel.add(newButton);
-
-        I18NString saveString = Messages.getI18NString("save");
-        saveButton = new JButton(saveString.getText());
         saveButton.addActionListener(this);
-        saveButton.setMnemonic(saveString.getMnemonic());
+
+        this.newButton.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.NEW_ACCOUNT"));
+
+        this.saveButton.setMnemonic(
+            GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.SAVE"));
+
+        buttonsPanel.add(newButton);
         buttonsPanel.add(saveButton);
 
         scrollPane.getViewport().add(wrapAccountsPanel);
@@ -138,13 +143,11 @@ public class AccountsConfigurationForm
 
         private JPasswordField passwordField = new JPasswordField();
 
-        private I18NString modifyString = Messages.getI18NString("settings");
+        private JButton modifyButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.MODIFY"));
 
-        private I18NString removeString = Messages.getI18NString("remove");
-
-        private JButton modifyButton = new JButton(modifyString.getText());
-
-        private JButton removeButton = new JButton(removeString.getText());
+        private JButton removeButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.REMOVE"));
 
         private GridBagConstraints constraints = new GridBagConstraints();
 
@@ -263,9 +266,12 @@ public class AccountsConfigurationForm
                 if (providerFactory != null)
                 {
                     int result =
-                        JOptionPane.showConfirmDialog(this, Messages
-                            .getI18NString("removeAccountMessage").getText(),
-                            Messages.getI18NString("removeAccount").getText(),
+                        JOptionPane.showConfirmDialog(
+                            this,
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.REMOVE_ACCOUNT_MESSAGE"),
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.REMOVE_ACCOUNT"),
                             JOptionPane.YES_NO_OPTION);
 
                     if (result == JOptionPane.YES_OPTION)
@@ -304,8 +310,8 @@ public class AccountsConfigurationForm
                     (AccountRegWizardContainerImpl) GuiActivator.getUIService()
                         .getAccountRegWizardContainer();
 
-                wizard.setTitle(Messages.getI18NString(
-                    "accountRegistrationWizard").getText());
+                wizard.setTitle(GuiActivator.getResources().getI18NString(
+                    "service.gui.ACCOUNT_REGISTRATION_WIZARD"));
 
                 wizard.modifyAccount(protocolProvider);
                 wizard.showDialog(false);
@@ -320,7 +326,7 @@ public class AccountsConfigurationForm
      */
     public String getTitle()
     {
-        return Messages.getI18NString("accounts").getText();
+        return GuiActivator.getResources().getI18NString("service.gui.ACCOUNTS");
     }
 
     /**

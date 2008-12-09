@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.presence.message.*;
@@ -310,32 +309,36 @@ public class PresenceStatusMenu
                         == OperationFailedException.GENERAL_ERROR)
                 {
                     String msgText =
-                        Messages.getI18NString("statusChangeGeneralError")
-                            .getText();
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.STATUS_CHANGE_GENERAL_ERROR");
 
-                    new ErrorDialog(null, Messages
-                        .getI18NString("generalError").getText(), msgText, e1)
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.GENERAL_ERROR"), msgText, e1)
                         .showDialog();
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException.NETWORK_FAILURE)
                 {
                     String msgText =
-                        Messages.getI18NString("statusChangeNetworkFailure")
-                            .getText();
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
 
-                    new ErrorDialog(null, Messages.getI18NString(
-                        "networkFailure").getText(), msgText, e1).showDialog();
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                        "service.gui.NETWORK_FAILURE"), msgText, e1)
+                        .showDialog();
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException.PROVIDER_NOT_REGISTERED)
                 {
                     String msgText =
-                        Messages.getI18NString("statusChangeNetworkFailure")
-                            .getText();
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
 
-                    new ErrorDialog(null, Messages.getI18NString(
-                        "networkFailure").getText(), msgText, e1).showDialog();
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                        "service.gui.NETWORK_FAILURE"), msgText, e1).showDialog();
                 }
                 logger.error("Error - changing status", e1);
             }

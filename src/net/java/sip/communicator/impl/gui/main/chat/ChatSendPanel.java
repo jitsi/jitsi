@@ -11,7 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -48,8 +48,8 @@ public class ChatSendPanel
     {
         super(new BorderLayout(5, 0));
 
-        I18NString sendString = Messages.getI18NString("send");
-        sendButton = new JButton(sendString.getText());
+        sendButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.SEND"));
 
         this.chatPanel = chatPanel;
 
@@ -61,7 +61,8 @@ public class ChatSendPanel
         this.add(sendPanel, BorderLayout.EAST);
 
         this.sendButton.addActionListener(this);
-        this.sendButton.setMnemonic(sendString.getMnemonic());
+        this.sendButton.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.SEND"));
     }
 
     /**

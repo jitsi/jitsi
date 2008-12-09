@@ -107,14 +107,20 @@ public class ContactInfoDetailsPanel
 
         JScrollPane extendedScrollPane = new JScrollPane(extendedPanel);
 
-        this.tabbedPane.addTab(Resources.getString("summary"), icon,
-            summaryPanel, Resources.getString("contactSummaryDesc")
+        this.tabbedPane.addTab(
+            Resources.getString("service.gui.SUMMARY"), icon,
+            summaryPanel,
+            Resources.getString(
+                "plugin.contactinfo.CONTACT_SUMMARY_DESCRIPTION")
                 + contact.getDisplayName());
 
         this.tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
-        this.tabbedPane.addTab(Resources.getString("extended"), icon,
-            extendedScrollPane, Resources.getString("contactExtendedDesc")
+        this.tabbedPane.addTab(
+            Resources.getString("plugin.accountinfo.EXTENDED"), icon,
+            extendedScrollPane,
+            Resources.getString(
+                "plugin.contactinfo.CONTACT_EXTENDED_DESCRIPTION")
                 + contact.getDisplayName());
 
         this.tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
@@ -135,8 +141,8 @@ public class ContactInfoDetailsPanel
      */
     private JPanel createUnsupportedPanel()
     {
-        JTextArea unsupportedTextArea =
-            new JTextArea(Resources.getString("contactInfoNotSupported"));
+        JTextArea unsupportedTextArea = new JTextArea(
+            Resources.getString("service.gui.CONTACT_INFO_NOT_SUPPORTED"));
 
         unsupportedTextArea.setEditable(false);
         unsupportedTextArea.setLineWrap(true);
@@ -210,14 +216,22 @@ public class ContactInfoDetailsPanel
 
         // Labels panel.
         JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
-        labelsPanel.add(new JLabel(Resources.getString("firstNameNS")));
-        labelsPanel.add(new JLabel(Resources.getString("middleNameNS")));
-        labelsPanel.add(new JLabel(Resources.getString("lastNameNS")));
-        labelsPanel.add(new JLabel(Resources.getString("genderNS")));
-        labelsPanel.add(new JLabel(Resources.getString("bdayNS")));
-        labelsPanel.add(new JLabel(Resources.getString("ageNS")));
-        labelsPanel.add(new JLabel(Resources.getString("emailNS")));
-        labelsPanel.add(new JLabel(Resources.getString("phoneNS")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.FIRST_NAME")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.MIDDLE_NAME")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.LAST_NAME")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.GENDER")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.BDAY")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.AGE")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.EMAIL")));
+        labelsPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.PHONE")));
 
         detailsPanel.add(labelsPanel, BorderLayout.WEST);
 
@@ -243,7 +257,8 @@ public class ContactInfoDetailsPanel
         }
 
         if (firstNameDetail.equals(""))
-            firstNameDetail = Resources.getString("notSpecified");
+            firstNameDetail
+                = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         valuesPanel.add(new JLabel(firstNameDetail));
 
@@ -260,7 +275,8 @@ public class ContactInfoDetailsPanel
         }
 
         if (middleNameDetail.trim().equals(""))
-            middleNameDetail = Resources.getString("notSpecified");
+            middleNameDetail
+                = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         valuesPanel.add(new JLabel(middleNameDetail));
 
@@ -278,7 +294,8 @@ public class ContactInfoDetailsPanel
         }
 
         if (lastNameDetail.trim().equals(""))
-            lastNameDetail = Resources.getString("notSpecified");
+            lastNameDetail
+                = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         valuesPanel.add(new JLabel(lastNameDetail));
 
@@ -294,7 +311,8 @@ public class ContactInfoDetailsPanel
         }
 
         if (genderDetail.trim().equals(""))
-            genderDetail = Resources.getString("notSpecified");
+            genderDetail
+                = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         valuesPanel.add(new JLabel(genderDetail));
 
@@ -326,10 +344,11 @@ public class ContactInfoDetailsPanel
         }
 
         if (birthDateDetail.equals(""))
-            birthDateDetail = Resources.getString("notSpecified");
+            birthDateDetail
+                = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         if (ageDetail.equals(""))
-            ageDetail = Resources.getString("notSpecified");
+            ageDetail = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         valuesPanel.add(new JLabel(birthDateDetail));
         valuesPanel.add(new JLabel(ageDetail));
@@ -346,7 +365,8 @@ public class ContactInfoDetailsPanel
         }
 
         if (emailDetail.trim().equals(""))
-            emailDetail = Resources.getString("notSpecified");
+            emailDetail
+                = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         valuesPanel.add(new JLabel(emailDetail));
 
@@ -363,7 +383,8 @@ public class ContactInfoDetailsPanel
         }
 
         if (phoneNumberDetail.trim().equals(""))
-            phoneNumberDetail = Resources.getString("notSpecified");
+            phoneNumberDetail
+                = Resources.getString("plugin.contactinfo.NOT_SPECIFIED");
 
         valuesPanel.add(new JLabel(phoneNumberDetail));
 
@@ -388,7 +409,9 @@ public class ContactInfoDetailsPanel
         // the bottom so we don't disrupt the standard look of the other details
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.LINE_AXIS));
         imagePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-            .createTitledBorder(Resources.getString("userPictures")),
+            .createTitledBorder(
+                Resources.getString("plugin.contactinfo.USER_PICTURES")),
+
             BorderFactory.createEmptyBorder(0, 5, 5, 5)));
 
         // Obtain all the details for a contact.

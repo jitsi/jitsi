@@ -31,7 +31,7 @@ public class InvitationReceivedDialog
     private JPanel reasonPanel = new TransparentPanel(new BorderLayout());
 
     private JLabel reasonLabel = new JLabel(
-        Resources.getString("reason") + ": ");
+        Resources.getString("service.gui.REASON") + ": ");
 
     private JTextField reasonField = new JTextField();
 
@@ -39,11 +39,12 @@ public class InvitationReceivedDialog
 
     private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private JButton acceptButton = new JButton(Resources.getString("accept"));
+    private JButton acceptButton
+        = new JButton(Resources.getString("service.gui.ACCEPT"));
     
-    private JButton rejectButton = new JButton(Resources.getString("reject"));
+    private JButton rejectButton = new JButton(Resources.getString("service.gui.REJECT"));
     
-    private JButton ignoreButton = new JButton(Resources.getString("ignore"));
+    private JButton ignoreButton = new JButton(Resources.getString("service.gui.IGNORE"));
     
     private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
     
@@ -52,7 +53,7 @@ public class InvitationReceivedDialog
     private JLabel iconLabel = new JLabel(Resources.getImage("inviteIcon"));
     
     private String title
-        = Resources.getString("invitationReceived");
+        = Resources.getString("service.gui.INVITATION_RECEIVED");
     
     /**
      * The <tt>ChatRoomInvitation</tt> for which this dialog is.
@@ -97,7 +98,7 @@ public class InvitationReceivedDialog
         this.mainPanel.setPreferredSize(new Dimension(400, 230));
 
         infoTextArea.setText(
-            Resources.getString("invitationReceivedFormInfo",
+            Resources.getString("service.gui.INVITATION_RECEIVED_MSG",
                 new String[] {  invitation.getInviter(),
                                 invitation.getTargetWhiteboard()
                                     .getWhiteboardID()}));
@@ -107,7 +108,7 @@ public class InvitationReceivedDialog
             invitationReasonTextArea.setText(invitation.getReason());
             invitationReasonTextArea.setBorder(
                 BorderFactory.createTitledBorder(
-                    Resources.getString("invitation")));
+                    Resources.getString("service.gui.INVITATION")));
 
             this.dataPanel.add(invitationReasonTextArea, BorderLayout.CENTER);
         }
@@ -137,8 +138,8 @@ public class InvitationReceivedDialog
         
         this.getRootPane().setDefaultButton(acceptButton);
         this.acceptButton.setMnemonic(Resources.getMnemonic("accept"));
-        this.rejectButton.setMnemonic(Resources.getMnemonic("reject"));
-        this.ignoreButton.setMnemonic(Resources.getMnemonic("ignore"));
+        this.rejectButton.setMnemonic(Resources.getMnemonic("service.gui.REJECT"));
+        this.ignoreButton.setMnemonic(Resources.getMnemonic("service.gui.IGNORE"));
         
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));

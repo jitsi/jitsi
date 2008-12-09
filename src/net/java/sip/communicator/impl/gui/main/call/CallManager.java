@@ -261,7 +261,7 @@ public class CallManager
                 logger.error("The call could not be created: " + e);
 
                 new ErrorDialog(null,
-                    GuiActivator.getResources().getI18NString("error"),
+                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                     e.getMessage(),
                     ErrorDialog.ERROR).showDialog();
             }
@@ -270,7 +270,7 @@ public class CallManager
                 logger.error("The call could not be created: " + e);
 
                 new ErrorDialog(null,
-                    GuiActivator.getResources().getI18NString("error"),
+                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                     e.getMessage(),
                     ErrorDialog.ERROR).showDialog();
             }

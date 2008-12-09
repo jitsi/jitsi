@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.login;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -163,24 +162,27 @@ public class LoginManager
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED)
             {
 
-                String msgText = Messages.getI18NString(
-                    "reconnectionLimitExceeded", new String[]
-                    { accountID.getUserID(), accountID.getService() })
-                    .getText();
+                String msgText = GuiActivator.getResources().getI18NString(
+                    "service.gui.RECONNECTION_LIMIT_EXCEEDED", new String[]
+                    { accountID.getUserID(), accountID.getService() });
 
-                new ErrorDialog(null,
-                                Messages.getI18NString("error").getText(),
-                                msgText).showDialog();
+                new ErrorDialog(
+                    null,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    msgText).showDialog();
             }
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                                 .REASON_NON_EXISTING_USER_ID)
             {
-                String msgText = Messages.getI18NString("nonExistingUserId",
+                String msgText = GuiActivator.getResources().getI18NString(
+                    "service.gui.NON_EXISTING_USER_ID",
                     new String[]
-                    { protocolProvider.getProtocolDisplayName() }).getText();
+                    { protocolProvider.getProtocolDisplayName() });
 
-                new ErrorDialog(null,
-                    Messages.getI18NString("error").getText(),
+                new ErrorDialog(
+                    null,
+                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                     msgText).showDialog();
             }
 
@@ -188,14 +190,16 @@ public class LoginManager
         }
         else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
-            String msgText = Messages.getI18NString("connectionFailedMessage",
+            String msgText = GuiActivator.getResources().getI18NString(
+                "service.gui.CONNECTION_FAILED_MSG",
                 new String[]
-                { accountID.getUserID(), accountID.getService() }).getText();
+                { accountID.getUserID(), accountID.getService() });
 
-            int result = new MessageDialog(null,
-                Messages.getI18NString("error").getText(),
+            int result = new MessageDialog(
+                null,
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 msgText,
-                Messages.getI18NString("retry").getText(),
+                GuiActivator.getResources().getI18NString("service.gui.RETRY"),
                 false).showDialog();
 
             if (result == MessageDialog.OK_RETURN_CODE)
@@ -207,12 +211,13 @@ public class LoginManager
         }
         else if (evt.getNewState().equals(RegistrationState.EXPIRED))
         {
-            String msgText = Messages.getI18NString("connectionExpiredMessage",
+            String msgText = GuiActivator.getResources().getI18NString(
+                "service.gui.CONNECTION_EXPIRED_MSG",
                 new String[]
-                { protocolProvider.getProtocolDisplayName() }).getText();
+                { protocolProvider.getProtocolDisplayName() });
 
             new ErrorDialog(null,
-                Messages.getI18NString("error").getText(),
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 msgText).showDialog();
 
             logger.error(evt.getReason());
@@ -224,24 +229,26 @@ public class LoginManager
                 if (evt.getReasonCode() == RegistrationStateChangeEvent
                                             .REASON_MULTIPLE_LOGINS)
                 {
-                    String msgText = Messages.getI18NString("multipleLogins",
+                    String msgText = GuiActivator.getResources().getI18NString(
+                        "service.gui.MULTIPLE_LOGINS",
                         new String[]
-                        { accountID.getUserID(), accountID.getService() })
-                        .getText();
+                        { accountID.getUserID(), accountID.getService() });
 
                     new ErrorDialog(null,
-                        Messages.getI18NString("error").getText(),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
                         msgText).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
                                             .REASON_CLIENT_LIMIT_REACHED_FOR_IP)
                 {
-                    String msgText = Messages.getI18NString(
-                        "limitReachedForIp", new String[]
-                        { protocolProvider.getProtocolDisplayName() }).getText();
+                    String msgText = GuiActivator.getResources().getI18NString(
+                        "service.gui.LIMIT_REACHED_FOR_IP", new String[]
+                        { protocolProvider.getProtocolDisplayName() });
 
                     new ErrorDialog(null,
-                        Messages.getI18NString("error").getText(),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
                         msgText).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
@@ -251,13 +258,13 @@ public class LoginManager
                 }
                 else
                 {
-                    String msgText = Messages.getI18NString(
-                        "unregisteredMessage", new String[]
-                        { accountID.getUserID(), accountID.getService() })
-                        .getText();
+                    String msgText = GuiActivator.getResources().getI18NString(
+                        "service.gui.UNREGISTERED_MESSAGE", new String[]
+                        { accountID.getUserID(), accountID.getService() });
 
                     new ErrorDialog(null,
-                        Messages.getI18NString("error").getText(),
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
                         msgText).showDialog();
                 }
                 logger.error(evt.getReason());
@@ -403,11 +410,15 @@ public class LoginManager
                 logger.error("Failed to register protocol provider. ", ex);
 
                 AccountID accountID = protocolProvider.getAccountID();
-                new ErrorDialog(mainFrame, Messages.getI18NString("error")
-                    .getText(), Messages.getI18NString("loginGeneralError",
+                new ErrorDialog(
+                    mainFrame,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.LOGIN_GENERAL_ERROR",
                     new String[]
-                    { accountID.getUserID(), accountID.getService() })
-                    .getText()).showDialog();
+                    { accountID.getUserID(), accountID.getService() }))
+                .showDialog();
             }
         }
 
@@ -424,12 +435,15 @@ public class LoginManager
 
                 AccountID accountID = protocolProvider.getAccountID();
                 errorMessage =
-                    Messages.getI18NString("loginGeneralError", new String[]
-                    { accountID.getUserID(), accountID.getService() })
-                        .getText();
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.LOGIN_GENERAL_ERROR",
+                        new String[]
+                           { accountID.getUserID(), accountID.getService() });
 
-                new ErrorDialog(mainFrame, Messages.getI18NString("error")
-                    .getText(), errorMessage, ex).showDialog();
+                new ErrorDialog(mainFrame,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"), errorMessage, ex)
+                .showDialog();
             }
                 break;
             case OperationFailedException.INTERNAL_ERROR:
@@ -439,12 +453,14 @@ public class LoginManager
 
                 AccountID accountID = protocolProvider.getAccountID();
                 errorMessage =
-                    Messages.getI18NString("loginInternalError", new String[]
-                    { accountID.getUserID(), accountID.getService() })
-                        .getText();
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.LOGIN_INTERNAL_ERROR",
+                        new String[]
+                           { accountID.getUserID(), accountID.getService() });
 
-                new ErrorDialog(mainFrame, Messages.getI18NString("error")
-                    .getText(), errorMessage, ex).showDialog();
+                new ErrorDialog(mainFrame,
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.ERROR"), errorMessage, ex).showDialog();
             }
                 break;
             case OperationFailedException.NETWORK_FAILURE:
@@ -453,15 +469,20 @@ public class LoginManager
                     + " due to a network failure: " + ex);
 
                 AccountID accountID = protocolProvider.getAccountID();
-                errorMessage =
-                    Messages.getI18NString("loginNetworkError", new String[]
-                    { accountID.getUserID(), accountID.getService() })
-                        .getText();
+                errorMessage = GuiActivator.getResources().getI18NString(
+                    "service.gui.LOGIN_NETWORK_ERROR",
+                    new String[]
+                       { accountID.getUserID(), accountID.getService() });
 
                 int result =
-                    new MessageDialog(null, Messages.getI18NString("error")
-                        .getText(), errorMessage, Messages.getI18NString(
-                        "retry").getText(), false).showDialog();
+                    new MessageDialog(
+                        null,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
+                        errorMessage,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.RETRY"), false)
+                    .showDialog();
 
                 if (result == MessageDialog.OK_RETURN_CODE)
                 {
@@ -476,13 +497,14 @@ public class LoginManager
 
                 AccountID accountID = protocolProvider.getAccountID();
                 errorMessage =
-                    Messages.getI18NString("loginInvalidPropsError",
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.LOGIN_INVALID_PROPERTIES_ERROR",
                         new String[]
-                        { accountID.getUserID(), accountID.getService() })
-                        .getText();
+                        { accountID.getUserID(), accountID.getService() });
 
-                new ErrorDialog(mainFrame, Messages.getI18NString("error")
-                    .getText(), errorMessage, ex).showDialog();
+                new ErrorDialog(mainFrame,
+                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                    errorMessage, ex).showDialog();
             }
                 break;
             default:
@@ -535,12 +557,13 @@ public class LoginManager
                 }
 
                 new ErrorDialog(mainFrame,
-                    Messages.getI18NString("error").getText(),
-                    Messages.getI18NString("logoffNotSucceeded",
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.LOGOFF_NOT_SUCCEEDED",
                         new String[]
                         { protocolProvider.getAccountID().getUserID(),
-                            protocolProvider.getAccountID().getService() })
-                        .getText())
+                            protocolProvider.getAccountID().getService() }))
                     .showDialog();
             }
         }
