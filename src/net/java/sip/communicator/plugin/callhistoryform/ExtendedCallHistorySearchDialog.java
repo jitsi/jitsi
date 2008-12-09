@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
@@ -15,6 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import com.toedter.calendar.*;
 
@@ -26,20 +26,21 @@ import com.toedter.calendar.*;
  * @author Maxime Bourdon & Thomas Meyer
  */
 public class ExtendedCallHistorySearchDialog
-    extends JDialog
+    extends SIPCommDialog
     implements  ActionListener,
                 ItemListener
 {
     /* PANEL */
-    private JPanel mainSearchPanel = new JPanel(new BorderLayout());
+    private JPanel mainSearchPanel = new TransparentPanel(new BorderLayout());
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(3, 1));
+    private JPanel mainPanel = new TransparentPanel(new BorderLayout(3, 1));
 
-    private JPanel searchPanel = new JPanel(new GridBagLayout());
+    private JPanel searchPanel = new TransparentPanel(new GridBagLayout());
 
-    private JPanel callTypePanel = new JPanel(new GridBagLayout());
+    private JPanel callTypePanel = new TransparentPanel(new GridBagLayout());
 
-    private JPanel callListResultPanel = new JPanel(new BorderLayout());
+    private JPanel callListResultPanel =
+        new TransparentPanel(new BorderLayout());
 
     /* BUTTON */
     private JButton searchButton = new JButton(
@@ -69,11 +70,11 @@ public class ExtendedCallHistorySearchDialog
                 .getI18NString("plugin.callhistoryform.CALLTYPE") + ": ");
 
     /* CHECKBOX */
-    private JCheckBox inCheckBox = new JCheckBox(
+    private JCheckBox inCheckBox = new SIPCommCheckBox(
         ExtendedCallHistorySearchActivator.getResources()
             .getI18NString("plugin.callhistoryform.INCOMING"), true);
 
-    private JCheckBox outCheckBox = new JCheckBox(
+    private JCheckBox outCheckBox = new SIPCommCheckBox(
         ExtendedCallHistorySearchActivator.getResources()
             .getI18NString("plugin.callhistoryform.OUTGOING"), true);
 
@@ -453,13 +454,13 @@ public class ExtendedCallHistorySearchDialog
             /* PARTICIPANTS Checking */
             if (addMe)
             {
-                Iterator participants = callRecord.getParticipantRecords()
-                    .iterator();
+                Iterator<CallParticipantRecord> participants =
+                    callRecord.getParticipantRecords().iterator();
 
                 while (participants.hasNext() && addMe)
                 {
-                    CallParticipantRecord participantRecord
-                        = (CallParticipantRecord) participants.next();
+                    CallParticipantRecord participantRecord =
+                        participants.next();
 
                     String participantName = participantRecord
                         .getParticipantAddress();
@@ -486,5 +487,9 @@ public class ExtendedCallHistorySearchDialog
         if (callList.getModel().getSize() > 0)
             callList.addItem(ExtendedCallHistorySearchActivator.getResources()
                     .getI18NString("service.gui.OLDER_CALLS") + "...");
+    }
+
+    protected void close(boolean isEscaped)
+    {
     }
 }

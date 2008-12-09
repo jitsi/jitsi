@@ -77,8 +77,9 @@ public class FirstWizardPage
     private JLabel serverLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.REGISTRAR"));
 
-    private JCheckBox enableDefaultEncryption = 
-        new JCheckBox(Resources.getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), false); 
+    private JCheckBox enableDefaultEncryption =
+        new SIPCommCheckBox(Resources
+            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), false); 
 
     private JLabel proxyLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
@@ -115,12 +116,13 @@ public class FirstWizardPage
 
     private JPanel valuesPresOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox enablePresOpButton = new JCheckBox(
-        Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
-        true);
+    private JCheckBox enablePresOpButton =
+        new SIPCommCheckBox(Resources
+            .getString("plugin.sipaccregwizz.ENABLE_PRESENCE"), true);
 
-    private JCheckBox forceP2PPresOpButton = new JCheckBox(
-        Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"), true);
+    private JCheckBox forceP2PPresOpButton =
+        new SIPCommCheckBox(Resources
+            .getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"), true);
 
     private JLabel pollPeriodLabel = new JLabel(
         Resources.getString("plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"));
@@ -687,13 +689,11 @@ public class FirstWizardPage
     {
         ProtocolProviderFactory factory =
             SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
+        java.util.List<AccountID> registeredAccounts =
+            factory.getRegisteredAccounts();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
+        for (AccountID accountID : registeredAccounts)
         {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
             if (accountName.equalsIgnoreCase(accountID.getUserID())
                     && serverName.equalsIgnoreCase(accountID.getService()))
                 return true;

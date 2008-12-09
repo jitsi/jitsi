@@ -35,7 +35,7 @@ public class MessageDialog
     private JButton okButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.OK"));
 
-    private JCheckBox doNotAskAgain = new JCheckBox(
+    private JCheckBox doNotAskAgain = new SIPCommCheckBox(
         GuiActivator.getResources()
             .getI18NString("service.gui.DO_NOT_ASK_AGAIN"));
 
