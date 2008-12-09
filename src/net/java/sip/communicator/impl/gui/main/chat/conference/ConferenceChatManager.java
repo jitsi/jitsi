@@ -23,7 +23,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jdesktop.swingworker.*;
+// Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
+import org.jdesktop.swingworker.SwingWorker;
 import org.osgi.framework.*;
 
 /**
