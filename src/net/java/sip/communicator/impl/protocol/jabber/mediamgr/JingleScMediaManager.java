@@ -69,8 +69,18 @@ public class JingleScMediaManager extends JingleMediaManager
      */
     private void setupPayloads() {
 
-        String[] audioEnc = JabberActivator.getMediaService().
+        String[] audioEnc = new String[0];
+
+        try
+        {
+            audioEnc = JabberActivator.getMediaService().
                 getSupportedAudioEncodings();
+        }
+        catch (Exception e)
+        {
+            logger.warn("Cannot get Audio encodings!", e);
+        }
+
         for (int i = 0; i < audioEnc.length; i++)
         {
             int payloadType = MediaUtils.getPayloadType(

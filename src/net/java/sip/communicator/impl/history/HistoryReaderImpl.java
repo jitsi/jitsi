@@ -619,9 +619,14 @@ public class HistoryReaderImpl
             if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
             {
                 String nodeName = propertyNode.getNodeName();
+
+                Node nestedNode = propertyNode.getFirstChild();
+
+                if(nestedNode == null)
+                    continue;
+
                 // Get nested TEXT node's value
-                String nodeValue =
-                    propertyNode.getFirstChild().getNodeValue();
+                String nodeValue = nestedNode.getNodeValue();
 
                 if(field != null && field.equals(nodeName)
                    && !matchKeyword(nodeValue, keywords, caseSensitive))

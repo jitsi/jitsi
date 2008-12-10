@@ -1001,6 +1001,9 @@ public class MediaControl
     public static Dimension selectVideoSize(DataSource videoDS,
         final int preferredWidth, final int preferredHeight)
     {
+        if(videoDS == null)
+            return null;
+
         FormatControl formatControl =
             (FormatControl) videoDS.getControl(FormatControl.class.getName());
 
