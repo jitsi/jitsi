@@ -51,7 +51,7 @@ public class ProtocolProviderFactorySipImpl
      * @throws NullPointerException if any of the arguments is null.
      */
     public AccountID installAccount( String userIDStr,
-                                 Map accountProperties)
+                                 Map<String, String> accountProperties)
     {
         BundleContext context
             = SipActivator.getBundleContext();
@@ -117,7 +117,7 @@ public class ProtocolProviderFactorySipImpl
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
     {
         BundleContext context
             = SipActivator.getBundleContext();
@@ -163,7 +163,7 @@ public class ProtocolProviderFactorySipImpl
 
         String userIDStr = (String) accountProperties.get(USER_ID);
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put(PROTOCOL, ProtocolNames.SIP);
         properties.put(USER_ID, userIDStr);
 
@@ -203,7 +203,7 @@ public class ProtocolProviderFactorySipImpl
      *         representing the given set of account properties
      */
     @Override
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
 

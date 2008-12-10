@@ -303,6 +303,7 @@ public class SIPAccountRegistrationWizard
 
         if(isModification)
         {
+            accountProperties.put(ProtocolProviderFactory.USER_ID, userName);
             providerFactory.modifyAccount(  protocolProvider,
                                             accountProperties);
 

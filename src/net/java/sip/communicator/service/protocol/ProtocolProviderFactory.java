@@ -270,7 +270,7 @@ public abstract class ProtocolProviderFactory
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
     public abstract AccountID installAccount(String userID,
-                                             Map    accountProperties)
+                                             Map<String, String>    accountProperties)
         throws IllegalArgumentException,
                IllegalStateException,
                NullPointerException;
@@ -291,7 +291,7 @@ public abstract class ProtocolProviderFactory
      */
     public abstract void modifyAccount(
                                 ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
             throws NullPointerException;
 
     /**
@@ -537,7 +537,7 @@ public abstract class ProtocolProviderFactory
      *            properties defining the new account.
      * @return the AccountID of the newly loaded account
      */
-    public AccountID loadAccount(Map accountProperties)
+    public AccountID loadAccount(Map<String, String> accountProperties)
     {
         BundleContext bundleContext = getBundleContext();
         if (bundleContext == null)
@@ -595,7 +595,7 @@ public abstract class ProtocolProviderFactory
      *         representing the given set of account properties
      */
     protected abstract AccountID createAccountID(String userID,
-        Map accountProperties);
+        Map<String, String> accountProperties);
 
     /**
      * Gets the name of the protocol this factory registers its
@@ -652,10 +652,10 @@ public abstract class ProtocolProviderFactory
             = (ConfigurationService) bundleContext.getService(confReference);
 
         //first retrieve all accounts that we've registered
-        List storedAccounts = configurationService.getPropertyNamesByPrefix(
+        List<String> storedAccounts = configurationService.getPropertyNamesByPrefix(
             sourcePackageName, true);
 
-        Iterator storedAccountsIter = storedAccounts.iterator();
+        Iterator<String> storedAccountsIter = storedAccounts.iterator();
 
         //find an account with the corresponding id.
         while (storedAccountsIter.hasNext())
@@ -674,11 +674,11 @@ public abstract class ProtocolProviderFactory
             {
                 //retrieve the names of all properties registered for the
                 //current account.
-                List accountPropertyNames
+                List<String> accountPropertyNames
                     = configurationService.getPropertyNamesByPrefix(
                         accountRootPropertyName, false);
 
-                Iterator propsIter = accountPropertyNames.iterator();
+                Iterator<String> propsIter = accountPropertyNames.iterator();
 
                 //set all account properties to null in order to remove them.
                 while (propsIter.hasNext())
@@ -720,10 +720,10 @@ public abstract class ProtocolProviderFactory
             = (ConfigurationService) bundleContext.getService(confReference);
 
         //first retrieve all accounts that we've registered
-        List storedAccounts = configurationService.getPropertyNamesByPrefix(
+        List<String> storedAccounts = configurationService.getPropertyNamesByPrefix(
             sourcePackageName, true);
 
-        Iterator storedAccountsIter = storedAccounts.iterator();
+        Iterator<String> storedAccountsIter = storedAccounts.iterator();
 
         //find an account with the corresponding id.
         while (storedAccountsIter.hasNext())

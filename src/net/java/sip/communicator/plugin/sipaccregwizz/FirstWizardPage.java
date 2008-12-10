@@ -7,8 +7,6 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -23,6 +21,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
+@SuppressWarnings("serial")
 public class FirstWizardPage
     extends TransparentPanel
     implements WizardPage, DocumentListener, ItemListener
