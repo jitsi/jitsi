@@ -193,7 +193,8 @@ public class LoginManager
             String msgText = GuiActivator.getResources().getI18NString(
                 "service.gui.CONNECTION_FAILED_MSG",
                 new String[]
-                { accountID.getUserID(), accountID.getService() });
+                {   accountID.getUserID(),
+                    accountID.getService() });
 
             int result = new MessageDialog(
                 null,
