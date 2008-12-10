@@ -6,20 +6,20 @@
  */
 package net.java.sip.communicator.plugin.branding;
 
-import java.io.IOException;
+import java.io.*;
 
-import javax.swing.JEditorPane;
+import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 public class StyledHTMLEditorPane
     extends JEditorPane
 {
-    private Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
+    private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
 
-    private HTMLDocument document;
+    private final HTMLDocument document;
     
     public StyledHTMLEditorPane()
     {

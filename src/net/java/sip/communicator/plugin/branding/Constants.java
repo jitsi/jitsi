@@ -4,20 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.branding;
 
 import java.awt.*;
 import java.io.*;
 
-import javax.swing.text.html.StyleSheet;
+import javax.swing.text.html.*;
 
 /**
  * All look and feel related constants are stored here.
  * 
  * @author Yana Stamcheva
  */
-
 public class Constants
 {
     /*

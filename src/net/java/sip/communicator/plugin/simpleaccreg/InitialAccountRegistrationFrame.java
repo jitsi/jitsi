@@ -38,13 +38,26 @@ public class InitialAccountRegistrationFrame
     private final Logger logger
         = Logger.getLogger(InitialAccountRegistrationFrame.class);
 
-    private JPanel mainAccountsPanel = new JPanel(new BorderLayout(10, 10));
+    private final JPanel mainAccountsPanel =
+        new JPanel(new BorderLayout(10, 10));
 
-    private JPanel accountsPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+    private final JPanel accountsPanel =
+        new JPanel(new GridLayout(0, 2, 10, 10));
 
-    private JButton signinButton = new JButton(Resources.getString("service.gui.SIGN_IN"));
+    private final JButton signinButton =
+        new JButton(Resources.getString("service.gui.SIGN_IN"));
 
-    private Collection registrationForms = new Vector();
+    private final Collection<AccountRegistrationPanel> registrationForms =
+        new Vector<AccountRegistrationPanel>();
+
+    /*
+     * The background of all AccountRegistrationPanel instances is one and the
+     * same so it not only makes sense to retrieve it once for each panel but to
+     * also retrieve it once and use it in all AccountRegistrationPanel
+     * instances.
+     */
+    private final Color accountRegistrationPanelBackground =
+        new Color(Resources.getColor("service.gui.DESKTOP_BACKGROUND"));
 
     /**
      * Creates an instance of <tt>NoAccountFoundPage</tt>.
@@ -166,9 +179,6 @@ public class InitialAccountRegistrationFrame
         }
     }
 
-    /**
-     * 
-     */
     private class AccountRegistrationPanel extends JPanel
     {
         private JLabel protocolLabel = new JLabel();
@@ -208,7 +218,7 @@ public class InitialAccountRegistrationFrame
                 + Resources.getString("plugin.simpleaccregwizz.SPECIAL_SIGNUP")
                 + "</a></html>", JLabel.RIGHT);
 
-        private AccountRegistrationWizard wizard;
+        private final AccountRegistrationWizard wizard;
 
         public AccountRegistrationPanel(
             AccountRegistrationWizard accountWizard,
@@ -355,35 +365,38 @@ public class InitialAccountRegistrationFrame
 
         public void paintComponent(Graphics g)
         {
-            Graphics2D g2d = (Graphics2D) g;
+            // do the superclass behavior first
+            super.paintComponent(g);
 
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+            g = g.create();
+            try
+            {
+                Graphics2D g2d = (Graphics2D) g;
+
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // do the superclass behavior first
-            super.paintComponent(g2d);
-
-            g2d.setColor(new Color(
-                Resources.getColor("service.gui.DESKTOP_BACKGROUND")));
-
-            // paint the background with the chosen color
-            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                // paint the background with the chosen color
+                g2d.setColor(accountRegistrationPanelBackground);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
 
         public boolean isFilled()
         {
-            if(usernameField.getText() != null
-                && usernameField.getText().length() > 0)
-                return true;
-
-            return false;
+            String username = usernameField.getText();
+            return (username != null) && (username.length() > 0);
         }
 
         public void signin()
         {
-            ProtocolProviderService protocolProvider
-                = wizard.signin(  usernameField.getText(),
-                            new String(passwordField.getPassword()));
+            ProtocolProviderService protocolProvider =
+                wizard.signin(usernameField.getText(), new String(passwordField
+                    .getPassword()));
 
             saveAccountWizard(protocolProvider, wizard);
         }
@@ -461,15 +474,15 @@ public class InitialAccountRegistrationFrame
 
             if (button.equals(signinButton))
             {
-                Iterator regIterator = registrationForms.iterator();
+                Iterator<AccountRegistrationPanel> regIterator =
+                    registrationForms.iterator();
 
                 if (regIterator.hasNext())
                     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 while(regIterator.hasNext())
                 {
-                    AccountRegistrationPanel regForm
-                        = (AccountRegistrationPanel) regIterator.next();
+                    AccountRegistrationPanel regForm = regIterator.next();
 
                     if (regForm.isFilled())
                     {
@@ -487,6 +500,19 @@ public class InitialAccountRegistrationFrame
 
     private class MainPanel extends JPanel
     {
+
+        /*
+         * We cannot keep retrieving the definition and creating a new Color
+         * instance on each and every call of paintComponent() - we have to do
+         * the thing once and then reuse it. The InitialAccountRegistrationFrame
+         * will be disposed as soon as it's closed so we're not wasting memory,
+         * only bettering the execution speed.
+         */
+        private final Color background =
+            new Color(
+                Resources
+                    .getColor("plugin.simpleaccreg.ACCOUNT_REGISTRATION_BACKGROUND"));
+
         public MainPanel(LayoutManager layoutManager)
         {
             super(layoutManager);
@@ -494,19 +520,26 @@ public class InitialAccountRegistrationFrame
 
         public void paintComponent(Graphics g)
         {
-            Graphics2D g2d = (Graphics2D) g;
+            // do the superclass behavior first
+            super.paintComponent(g);
 
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+            g = g.create();
+            try
+            {
+                Graphics2D g2d = (Graphics2D) g;
+
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // do the superclass behavior first
-            super.paintComponent(g2d);
-
-            g2d.setColor(new Color(
-                Resources.getColor("plugin.simpleaccreg.ACCOUNT_REGISTRATION_BACKGROUND")));
-
-            // paint the background with the chosen color
-            g2d.fillRoundRect(10, 10, getWidth() - 20, getHeight() - 20, 15, 15);
+                // paint the background with the chosen color
+                g2d.setColor(background);
+                g2d.fillRoundRect(10, 10, getWidth() - 20, getHeight() - 20,
+                    15, 15);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 
@@ -524,15 +557,11 @@ public class InitialAccountRegistrationFrame
 
         ConfigurationService configService = getConfigurationService();
 
-        List accounts = configService.getPropertyNamesByPrefix(prefix, true);
-
+        List<String> accounts = configService.getPropertyNamesByPrefix(prefix, true);
         boolean savedAccount = false;
-        Iterator accountsIter = accounts.iterator();
 
-        while (accountsIter.hasNext())
+        for (String accountRootPropName : accounts)
         {
-            String accountRootPropName = (String) accountsIter.next();
-
             String accountUID = configService.getString(accountRootPropName);
 
             if (accountUID.equals(protocolProvider.getAccountID()

@@ -24,8 +24,6 @@ public class WelcomeWindow extends JDialog
         = BrandingActivator.getResources()
             .getSettingsInt("plugin.branding.SPLASH_SCREEN_TEXT_INDENT");
 
-    private WindowBackground mainPanel = new WindowBackground();
-
     private JLabel titleLabel = new JLabel(APPLICATION_NAME);
 
     private JLabel versionLabel = new JLabel(" "
@@ -49,12 +47,14 @@ public class WelcomeWindow extends JDialog
 
     public WelcomeWindow()
     {
+        Container mainPanel = new WindowBackground();
+
         this.setTitle(APPLICATION_NAME);
 
         this.setModal(false);
         this.setUndecorated(true);
 
-        this.mainPanel.setLayout(new BorderLayout());
+        mainPanel.setLayout(new BorderLayout());
 
         this.textPanel.setPreferredSize(new Dimension(470, 280));
         this.textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
@@ -134,18 +134,18 @@ public class WelcomeWindow extends JDialog
         this.textPanel.add(rightsArea);
         this.textPanel.add(licenseArea);
 
-        this.mainPanel.add(textPanel, BorderLayout.CENTER);
-        this.mainPanel.add(loadingPanel, BorderLayout.SOUTH);
+        mainPanel.add(textPanel, BorderLayout.CENTER);
+        mainPanel.add(loadingPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
 
         this.setResizable(false);
 
-        this.mainPanel.setPreferredSize(new Dimension(570, 330));
+        mainPanel.setPreferredSize(new Dimension(570, 330));
 
-        this.setLocation(
-            Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 527 / 2,
-            Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 305 / 2);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(screenSize.width / 2 - 527 / 2,
+            screenSize.height / 2 - 305 / 2);
 
         // Close the splash screen on simple click or Esc.
         this.getGlassPane().addMouseListener(new MouseAdapter()
@@ -195,7 +195,7 @@ public class WelcomeWindow extends JDialog
     /**
      * Constructs the window background in order to have a background image.
      */
-    private class WindowBackground
+    private static class WindowBackground
         extends JPanel
     {
         private BufferedImage cache;
