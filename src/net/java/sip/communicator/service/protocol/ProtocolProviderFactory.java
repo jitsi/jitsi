@@ -548,7 +548,7 @@ public abstract class ProtocolProviderFactory
             throw new NullPointerException(
                 "The specified property map was null");
 
-        String userID = (String) accountProperties.get(USER_ID);
+        String userID = accountProperties.get(USER_ID);
         if (userID == null)
             throw new NullPointerException(
                 "The account properties contained no user id.");
@@ -655,13 +655,9 @@ public abstract class ProtocolProviderFactory
         List<String> storedAccounts = configurationService.getPropertyNamesByPrefix(
             sourcePackageName, true);
 
-        Iterator<String> storedAccountsIter = storedAccounts.iterator();
-
         //find an account with the corresponding id.
-        while (storedAccountsIter.hasNext())
+        for (String accountRootPropertyName : storedAccounts)
         {
-            String accountRootPropertyName = (String) storedAccountsIter.next();
-
             //unregister the account in the configuration service.
             //all the properties must have been registered in the following
             //hierarchy:
@@ -678,13 +674,9 @@ public abstract class ProtocolProviderFactory
                     = configurationService.getPropertyNamesByPrefix(
                         accountRootPropertyName, false);
 
-                Iterator<String> propsIter = accountPropertyNames.iterator();
-
                 //set all account properties to null in order to remove them.
-                while (propsIter.hasNext())
+                for (String propName : accountPropertyNames)
                 {
-                    String propName = (String) propsIter.next();
-
                     configurationService.setProperty(propName, null);
                 }
 
@@ -723,13 +715,9 @@ public abstract class ProtocolProviderFactory
         List<String> storedAccounts = configurationService.getPropertyNamesByPrefix(
             sourcePackageName, true);
 
-        Iterator<String> storedAccountsIter = storedAccounts.iterator();
-
         //find an account with the corresponding id.
-        while (storedAccountsIter.hasNext())
+        for (String accountRootPropertyName : storedAccounts)
         {
-            String accountRootPropertyName = (String) storedAccountsIter.next();
-
             //unregister the account in the configuration service.
             //all the properties must have been registered in the following
             //hierarchy:

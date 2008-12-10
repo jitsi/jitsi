@@ -93,7 +93,6 @@ public class InitialAccountRegistrationFrame
         mainAccountsPanel.setOpaque(false);
         accountsPanel.setOpaque(false);
         buttonPanel.setOpaque(false);
-        messageArea.setOpaque(false);
         messageAreaPanel.setOpaque(false);
 
         SigninActionListener actionListener = new SigninActionListener();

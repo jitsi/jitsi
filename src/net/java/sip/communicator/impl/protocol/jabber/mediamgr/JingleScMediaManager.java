@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.mediamgr;
 
 import java.util.*;
+
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.util.*;
 
@@ -63,13 +64,21 @@ public class JingleScMediaManager extends JingleMediaManager
 
     /**
      * Setup API supported Payloads
-     *
-     * http://tools.ietf.org/html/rfc3551#page-32 to view the
-     * correspondence between PayloadType and codec
+     * 
+     * http://tools.ietf.org/html/rfc3551#page-32 to view the correspondence
+     * between PayloadType and codec
      */
-    private void setupPayloads() {
+    private void setupPayloads()
+    {
 
-        String[] audioEnc = new String[0];
+        /*
+         * Initializing audioEnc to new String[0] isn't better than setting it
+         * to null upon an exception because the former causes an allocation.
+         * Besides, the exception is supposes to happen in rare/exceptional
+         * situations i.e. in most of the cases the allocation will immediately
+         * be thrown away as garbage. Checking for null is faster.
+         */
+        String[] audioEnc;
 
         try
         {
@@ -78,22 +87,29 @@ public class JingleScMediaManager extends JingleMediaManager
         }
         catch (Exception e)
         {
+            audioEnc = null;
+
             logger.warn("Cannot get Audio encodings!", e);
         }
 
-        for (int i = 0; i < audioEnc.length; i++)
+        if (audioEnc != null)
         {
-            int payloadType = MediaUtils.getPayloadType(
-                    Integer.parseInt(audioEnc[i]));
+            for (int i = 0; i < audioEnc.length; i++)
+            {
+                int payloadType =
+                    MediaUtils.getPayloadType(Integer.parseInt(audioEnc[i]));
+                String payloadName = MediaUtils.getPayloadName(payloadType);
 
-            if (MediaUtils.getPayloadName(payloadType) != null)
-            {
-                payloads.add(new PayloadType.Audio(payloadType
-                        , MediaUtils.getPayloadName(payloadType)));
-            }
-            else if (payloadType >= 0)
-            {
-                payloads.add(new PayloadType.Audio(payloadType, audioEnc[i]));
+                if (payloadName != null)
+                {
+                    payloads
+                        .add(new PayloadType.Audio(payloadType, payloadName));
+                }
+                else if (payloadType >= 0)
+                {
+                    payloads
+                        .add(new PayloadType.Audio(payloadType, audioEnc[i]));
+                }
             }
         }
         if (payloads.isEmpty())

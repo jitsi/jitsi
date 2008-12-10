@@ -67,7 +67,7 @@ public class ProtocolProviderFactorySipImpl
             throw new NullPointerException("The specified property map was null");
 
         // serverAddress == null is OK because of registrarless support
-        String serverAddress = (String)accountProperties.get(SERVER_ADDRESS);
+        String serverAddress = accountProperties.get(SERVER_ADDRESS);
 
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.SIP);
@@ -161,7 +161,7 @@ public class ProtocolProviderFactorySipImpl
         // and check for a password.
         this.storeAccount(accountID);
 
-        String userIDStr = (String) accountProperties.get(USER_ID);
+        String userIDStr = accountProperties.get(USER_ID);
 
         Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put(PROTOCOL, ProtocolNames.SIP);
@@ -205,7 +205,7 @@ public class ProtocolProviderFactorySipImpl
     @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
-        String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
+        String serverAddress = accountProperties.get(SERVER_ADDRESS);
 
         return new SipAccountID(userID, accountProperties, serverAddress);
     }

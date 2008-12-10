@@ -15,7 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.notification.NotificationService;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
@@ -48,8 +48,6 @@ public class ZrtpPanel extends TransparentPanel {
     private boolean sasVerified = false;
     
     private NotificationService notificationService = null;
-    
-    GridLayout simpleLayout = new GridLayout(0, 4);
 
     public ZrtpPanel() {
         iconEncrVerified = new ImageIcon(
@@ -57,15 +55,8 @@ public class ZrtpPanel extends TransparentPanel {
         iconEncr = new ImageIcon(ImageLoader.getImage(ImageLoader.ENCR));
         iconEncrDisabled = new ImageIcon(
                 ImageLoader.getImage(ImageLoader.ENCR_DISABLED));
-        setLayout(simpleLayout);
-        
-        simpleLayout.setHgap(5);
-        simpleLayout.setVgap(2);
 
-        setLayout(simpleLayout);
-        
-        simpleLayout.setHgap(10);
-        simpleLayout.setVgap(3);
+        setLayout(new GridLayout(0, 4, 10, 3));
         
         secButton = new JButton("");
         sasLabel = new JLabel("", JLabel.CENTER);
