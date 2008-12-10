@@ -63,6 +63,12 @@ public class SoundProperties
     public static String BUSY
         = GuiActivator.getResources().getSoundPath("BUSY");
 
+    public static String ZRTP_SECURE
+    = GuiActivator.getResources().getSoundPath("ZRTP_SECURE");
+
+    public static String ZRTP_ALERT
+    = GuiActivator.getResources().getSoundPath("ZRTP_ALERT");
+
     private static final String BUNDLE_NAME 
         = "net.java.sip.communicator.impl.gui.utils.sounds";
 

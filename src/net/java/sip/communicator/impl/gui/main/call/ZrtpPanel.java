@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.notification.NotificationService;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
@@ -24,6 +25,9 @@ public class ZrtpPanel extends TransparentPanel {
      * Default.
      */
     private static final long serialVersionUID = 1L;
+    
+    private static final String ZRTP_SECURE = "ZrtpSecure";
+    private static final String ZRTP_ALERT = "ZrtpAlert";
     
     private CallParticipant participant;
     
@@ -42,6 +46,8 @@ public class ZrtpPanel extends TransparentPanel {
     private ImageIcon iconEncrDisabled;
 
     private boolean sasVerified = false;
+    
+    private NotificationService notificationService = null;
     
     GridLayout simpleLayout = new GridLayout(0, 4);
 
@@ -72,6 +78,21 @@ public class ZrtpPanel extends TransparentPanel {
         sessionTypeV = new JLabel("", JLabel.CENTER);
 
         setPreferredSize(new Dimension(350, 80));
+        
+        notificationService = GuiActivator.getNotificationService();
+    
+        if(notificationService != null) {
+            notificationService.registerDefaultNotificationForEvent(
+                    ZRTP_SECURE,
+                    NotificationService.ACTION_SOUND,
+                    SoundProperties.ZRTP_SECURE,
+                    null);
+            notificationService.registerDefaultNotificationForEvent(
+                    ZRTP_ALERT,
+                    NotificationService.ACTION_SOUND,
+                    SoundProperties.ZRTP_ALERT,
+                    null);
+        }
     }
 
     public void addComponentsToPane() {
@@ -173,13 +194,13 @@ public class ZrtpPanel extends TransparentPanel {
                 secButton.setIcon(iconEncr);
                 secButton.setEnabled(true);
                 secMethod.setText((String)state.get(SecurityGUIEventZrtp.CIPHER));
+                notificationService.fireNotification(ZRTP_SECURE);
             }
             else {
                 secButton.setIcon(iconEncrDisabled);
                 secButton.setEnabled(false);
                 secMethod.setText("");
                 sasLabel.setText("");
-
             }
         }
     }

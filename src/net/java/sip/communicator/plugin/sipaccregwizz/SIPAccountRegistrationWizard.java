@@ -234,6 +234,7 @@ public class SIPAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
+     * 
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
      * @param userName the user identifier
@@ -245,7 +246,7 @@ public class SIPAccountRegistrationWizard
             String userName,
             String passwd)
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties = new Hashtable<String, String>();
 
         if(registration.isRememberPassword())
         {
