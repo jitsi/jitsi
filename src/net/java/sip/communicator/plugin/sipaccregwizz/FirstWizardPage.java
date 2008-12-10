@@ -39,6 +39,8 @@ public class FirstWizardPage
     private JPanel labelsPanel = new TransparentPanel();
 
     private JPanel valuesPanel = new TransparentPanel();
+    
+    private JPanel passSecurePanel = new TransparentPanel(new BorderLayout());
 
     private JLabel uinLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.USERNAME"));
@@ -224,9 +226,13 @@ public class FirstWizardPage
         valuesPanel.add(uinExampleLabel);
         valuesPanel.add(passField);
 
+        passSecurePanel.add(rememberPassBox, BorderLayout.WEST);
+        enableDefaultEncryption.setVisible(true);
+        passSecurePanel.add(enableDefaultEncryption, BorderLayout.EAST);
+        
         uinPassPanel.add(labelsPanel, BorderLayout.WEST);
         uinPassPanel.add(valuesPanel, BorderLayout.CENTER);
-        uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
+        uinPassPanel.add(passSecurePanel, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
@@ -256,7 +262,7 @@ public class FirstWizardPage
                 proxyField.setEnabled(cb.isSelected());
                 proxyPortField.setEnabled(cb.isSelected());
                 transportCombo.setEnabled(cb.isSelected());
-
+                
                 if(!cb.isSelected())
                 {
                     setServerFieldAccordingToUIN();
@@ -287,7 +293,6 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(transportCombo);
 
         advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
-        advancedOpPanel.add(enableDefaultEncryption, BorderLayout.SOUTH); 
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
@@ -306,7 +311,6 @@ public class FirstWizardPage
                 forceP2PPresOpButton.setEnabled(cb.isSelected());
                 pollPeriodField.setEnabled(cb.isSelected());
                 subscribeExpiresField.setEnabled(cb.isSelected());
-                enableDefaultEncryption.setEnabled(cb.isSelected()); 
             }
         });
 
