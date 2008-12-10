@@ -7,7 +7,6 @@
 package net.java.sip.communicator.plugin.keybindingchooser;
 
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.keybindings.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added to the settings
@@ -17,23 +16,16 @@ import net.java.sip.communicator.service.keybindings.*;
  * @author Lubomir Marinov
  */
 public class KeybindingsConfigForm
-    implements ConfigurationForm
+    extends AbstractConfigurationForm
 {
-    private final KeybindingsService service;
-
-    public KeybindingsConfigForm(KeybindingsService service)
-    {
-        this.service = service;
-    }
-
     /**
      * Implements the <tt>ConfigurationForm.getTitle()</tt> method. Returns the
      * title of this configuration form.
      */
     public String getTitle()
     {
-        return KeybindingChooserActivator.getResources()
-            .getI18NString("plugin.keybindings.PLUGIN_NAME");
+        return KeybindingChooserActivator.getResources().getI18NString(
+            "plugin.keybindings.PLUGIN_NAME");
     }
 
     /**
@@ -42,21 +34,12 @@ public class KeybindingsConfigForm
      */
     public byte[] getIcon()
     {
-        return KeybindingChooserActivator.getResources()
-            .getImageInBytes("plugin.keybinding.PLUGIN_ICON");
+        return KeybindingChooserActivator.getResources().getImageInBytes(
+            "plugin.keybinding.PLUGIN_ICON");
     }
 
-    /**
-     * Implements the <tt>ConfigurationForm.getForm()</tt> method. Returns the
-     * component corresponding to this configuration form.
-     */
-    public Object getForm()
+    protected String getFormClassName()
     {
-        return new KeybindingsConfigPanel(service);
-    }
-
-    public int getIndex()
-    {
-        return -1;
+        return "net.java.sip.communicator.plugin.keybindingchooser.KeybindingsConfigPanel";
     }
 }

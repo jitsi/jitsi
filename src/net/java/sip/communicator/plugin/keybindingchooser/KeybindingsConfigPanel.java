@@ -12,10 +12,12 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.keybindings.*;
-import chooser.*;
+import org.osgi.framework.*;
 
+import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.swing.*;
+
+import chooser.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added to the settings
@@ -27,14 +29,27 @@ import net.java.sip.communicator.util.swing.*;
 public class KeybindingsConfigPanel
     extends TransparentPanel
 {
+    private static KeybindingsService getKeybindingsService()
+    {
+        BundleContext bundleContext =
+            KeybindingChooserActivator.getBundleContext();
+        ServiceReference keybindingRef =
+            bundleContext.getServiceReference(KeybindingsService.class
+                .getName());
+
+        return (KeybindingsService) bundleContext.getService(keybindingRef);
+    }
+
     private static final long serialVersionUID = 0;
 
     private final HashMap<KeybindingSet, SIPChooser> choosers =
         new HashMap<KeybindingSet, SIPChooser>();
 
-    public KeybindingsConfigPanel(KeybindingsService service)
+    public KeybindingsConfigPanel()
     {
         super(new BorderLayout());
+
+        KeybindingsService service = getKeybindingsService();
 
         setFocusable(true);
         JTabbedPane chooserPanes = new SIPCommTabbedPane(false, false);

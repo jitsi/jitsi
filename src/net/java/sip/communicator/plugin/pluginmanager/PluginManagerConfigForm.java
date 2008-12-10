@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.gui.*;
  * @author Lubomir Marinov
  */
 public class PluginManagerConfigForm
-    implements ConfigurationForm
+    extends AbstractConfigurationForm
 {
 
     /**
@@ -39,17 +39,8 @@ public class PluginManagerConfigForm
             "plugin.pluginmanager.PLUGIN_ICON");
     }
 
-    /**
-     * Implements the <tt>ConfigurationForm.getForm()</tt> method. Returns the
-     * component corresponding to this configuration form.
-     */
-    public Object getForm()
+    protected String getFormClassName()
     {
-        return new PluginManagerPanel();
-    }
-
-    public int getIndex()
-    {
-        return -1;
+        return "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel";
     }
 }

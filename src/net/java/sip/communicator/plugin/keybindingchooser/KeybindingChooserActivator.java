@@ -7,7 +7,6 @@
 package net.java.sip.communicator.plugin.keybindingchooser;
 
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -39,17 +38,8 @@ public class KeybindingChooserActivator
 
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
-        ServiceReference keybindingRef =
-            context.getServiceReference(KeybindingsService.class.getName());
-
-        KeybindingsService keybingingsService =
-            (KeybindingsService) context.getService(keybindingRef);
-
-        KeybindingsConfigForm keybindingsManager =
-            new KeybindingsConfigForm(keybingingsService);
-
         context.registerService(ConfigurationForm.class.getName(),
-            keybindingsManager, null);
+            new KeybindingsConfigForm(), null);
     }
 
     /**
@@ -57,6 +47,11 @@ public class KeybindingChooserActivator
      */
     public void stop(BundleContext arg0) throws Exception
     {
+    }
+
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
     }
 
     public static ResourceManagementService getResources()

@@ -12,22 +12,17 @@ import net.java.sip.communicator.service.gui.*;
  * @author Lubomir Marinov
  */
 public class MediaConfigurationForm
-    implements ConfigurationForm
+    extends AbstractConfigurationForm
 {
-    public Object getForm()
+    protected String getFormClassName()
     {
-        return new MediaConfigurationPanel();
+        return "net.java.sip.communicator.impl.media.MediaConfigurationPanel";
     }
 
     public byte[] getIcon()
     {
         return MediaActivator.getResources().getImageInBytes(
             "plugin.mediaconfig.PLUGIN_ICON");
-    }
-
-    public int getIndex()
-    {
-        return -1;
     }
 
     public String getTitle()
