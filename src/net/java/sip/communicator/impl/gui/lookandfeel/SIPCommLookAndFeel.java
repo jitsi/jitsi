@@ -60,7 +60,7 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
                 "MenuUI", lfPackageName + "SIPCommMenuUI",
                 "ToolBarUI", lfPackageName + "SIPCommToolBarUI",
                 "ToolBarSeparatorUI", lfPackageName + "SIPCommToolBarSeparatorUI",
-                "TabbedPaneUI", lfPackageName + "SIPCommTabbedPaneEnhancedUI",
+                "TabbedPaneUI", "net.java.sip.communicator.util.swing.plaf.SIPCommTabbedPaneEnhancedUI",
                 "ToolTipUI", lfPackageName + "SIPCommToolTipUI",
                 "TextAreaUI", lfPackageName + "SIPCommTextAreaUI",
                 "TextPaneUI", lfPackageName + "SIPCommTextPaneUI",
