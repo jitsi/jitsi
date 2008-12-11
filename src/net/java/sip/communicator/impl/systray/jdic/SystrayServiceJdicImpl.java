@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.systray.jdic;
 
 import java.awt.Toolkit;
@@ -24,8 +23,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
-
-import org.jdesktop.jdic.tray.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>
@@ -50,7 +47,7 @@ public class SystrayServiceJdicImpl
     /**
      * The menu that spring with a right click.
      */
-    private TrayMenu menu;
+    private Object menu;
 
     /**
      * The list of all added popup message listeners.
@@ -140,7 +137,7 @@ public class SystrayServiceJdicImpl
         final int doubleClickSpeed = (o instanceof Integer ? ((Integer) o)
                 .intValue() : 500);
 
-        menu = new TrayMenu(this);
+        menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
 
         String osName = System.getProperty("os.name");
         // If we're running under Windows, we use a special icon without
@@ -245,7 +242,7 @@ public class SystrayServiceJdicImpl
         // menu appears
         if (osName.startsWith("Mac OS X"))
         {
-            menu.addPopupMenuListener(new PopupMenuListener()
+            TrayMenuFactory.addPopupMenuListener(menu, new PopupMenuListener()
             {
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e)
                 {
@@ -473,7 +470,8 @@ public class SystrayServiceJdicImpl
 
         if (imageType == SystrayService.SC_IMG_TYPE)
         {
-            if (osName.startsWith("Mac OS X") && this.menu.isVisible())
+            if (osName.startsWith("Mac OS X")
+                && TrayMenuFactory.isVisible(menu))
             {
                 toChangeSystrayIcon = logoIconWhite;
             }
@@ -505,7 +503,8 @@ public class SystrayServiceJdicImpl
         }
         else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
         {
-            if (osName.startsWith("Mac OS X") && this.menu.isVisible())
+            if (osName.startsWith("Mac OS X")
+                && TrayMenuFactory.isVisible(menu))
             {
                 toChangeSystrayIcon = envelopeIconWhite;
             }

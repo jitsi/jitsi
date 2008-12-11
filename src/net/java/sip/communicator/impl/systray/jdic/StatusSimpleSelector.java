@@ -4,10 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
- 
 package net.java.sip.communicator.impl.systray.jdic;
 
-
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -16,87 +15,90 @@ import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-
 /**
- * The <tt>StatusSimpleSelector</tt> is a submenu which allow
- * to select a status for a protocol provider which does not 
- * support the OperationSetPresence
+ * The <tt>StatusSimpleSelector</tt> is a submenu which allow to select a status
+ * for a protocol provider which does not support the OperationSetPresence
  * 
  * @author Nicolas Chamouard
- *
+ * @author Lubomir Marinov
  */
 public class StatusSimpleSelector
-    extends JMenu
     implements ActionListener
 {
-    /**
-     * A reference of <tt>Systray</tt>
-     */
-    private SystrayServiceJdicImpl parentSystray;
+
     /**
      * The protocol provider
      */
-    private ProtocolProviderService provider;
+    private final ProtocolProviderService provider;
     
     /**
      * The logger for this class.
      */
-    private Logger logger = Logger.getLogger(
-            StatusSimpleSelector.class.getName());
-    
-    /**
-     * The menu item for the online status
-     */
-    private JMenuItem onlineItem = new JMenuItem(
-            Resources.getString("impl.systray.ONLINE_STATUS"));
-    /**
-     * The menu item for the offline status
-     */
-    private JMenuItem offlineItem = new JMenuItem(
-            Resources.getString("impl.systray.OFFLINE_STATUS"));
-    
+    private final Logger logger = Logger.getLogger(StatusSimpleSelector.class);
+
+    private final Object menu;
+
     /**
      * Creates an instance of <tt>StatusSimpleSelector</tt>
      * 
-     * @param jdicSystray a reference of the parent <tt>Systray</tt>
      * @param protocolProvider the protocol provider
      */
-    public StatusSimpleSelector(SystrayServiceJdicImpl jdicSystray,
-                                ProtocolProviderService protocolProvider)
+    public StatusSimpleSelector(ProtocolProviderService protocolProvider,
+        boolean swing)
     {
-
         this.provider = protocolProvider;
-        this.parentSystray = jdicSystray;
 
         /* the parent item */
-
-        ImageIcon icon;
-
-        if(provider.isRegistered())
+        String text = provider.getAccountID().getUserID();
+        if (swing)
         {
-            icon = new ImageIcon(protocolProvider.getProtocolIcon()
-                .getIcon(ProtocolIcon.ICON_SIZE_16x16));
+            JMenu menu = new JMenu(text);
+
+            ImageIcon icon =
+                new ImageIcon(protocolProvider.getProtocolIcon().getIcon(
+                    ProtocolIcon.ICON_SIZE_16x16));
+            if (!provider.isRegistered())
+            {
+                icon =
+                    new ImageIcon(LightGrayFilter.createDisabledImage(icon
+                        .getImage()));
+            }
+            menu.setIcon(icon);
+
+            this.menu = menu;
         }
         else
         {
-            icon = new ImageIcon(LightGrayFilter.createDisabledImage(
-                new ImageIcon(protocolProvider.getProtocolIcon()
-                    .getIcon(ProtocolIcon.ICON_SIZE_16x16)).getImage()));
+            this.menu = new Menu(text);
         }
 
-        this.setText(provider.getAccountID().getUserID());
-        this.setIcon(icon);
-
         /* the menu itself */
+        createMenuItem("impl.systray.ONLINE_STATUS", "online");
+        createMenuItem("impl.systray.OFFLINE_STATUS", "offline");
+    }
 
-        this.onlineItem.addActionListener(this);
-        this.offlineItem.addActionListener(this);
+    private void createMenuItem(String textKey, String name)
+    {
+        String text = Resources.getString(textKey);
+        if (menu instanceof JMenu)
+        {
+            JMenuItem menuItem = new JMenuItem(text);
+            menuItem.setName(name);
+            menuItem.addActionListener(this);
+            ((JMenu) menu).add(menuItem);
+        }
+        else
+        {
+            MenuItem menuItem = new MenuItem(text);
+            menuItem.setName(name);
+            menuItem.addActionListener(this);
+            ((Menu) menu).add(menuItem);
+        }
+    }
 
-        this.onlineItem.setName("online");
-        this.offlineItem.setName("offline");
-
-        this.add(onlineItem);
-        this.add(offlineItem);
+    public Object getMenu()
+    {
+        return menu;
     }
 
     /**
@@ -106,9 +108,12 @@ public class StatusSimpleSelector
      */
     public void actionPerformed(ActionEvent evt)
     {
-
-        JMenuItem menuItem = (JMenuItem) evt.getSource();
-        String itemName = menuItem.getName();
+        Object source = evt.getSource();
+        String itemName;
+        if (source instanceof Component)
+            itemName = ((Component) source).getName();
+        else
+            itemName = ((MenuComponent) source).getName();
 
         if(itemName.equals("online")) 
         {
@@ -138,6 +143,8 @@ public class StatusSimpleSelector
             + provider.getAccountID().getAccountAddress()
             + ". The new status will be: " + presenceStatus.getStatusName());
 
-        this.setIcon(new ImageIcon(presenceStatus.getStatusIcon()));
+        if (menu instanceof AbstractButton)
+            ((AbstractButton) menu).setIcon(new ImageIcon(presenceStatus
+                .getStatusIcon()));
     }
 }

@@ -4,10 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
- 
 package net.java.sip.communicator.impl.systray.jdic;
 
-
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
@@ -17,38 +16,35 @@ import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-
 /**
  * The <tt>StatusSelector</tt> is a submenu which allows to select a status for
  * a protocol provider which supports the OperationSetPresence.
  * 
  * @author Nicolas Chamouard
- *
+ * @author Lubomir Marinov
  */
 public class StatusSelector
-    extends JMenu
     implements ActionListener
 {
     /**
      * A reference of <tt>Systray</tt>
      */
-    private SystrayServiceJdicImpl parentSystray;
+    private final SystrayServiceJdicImpl parentSystray;
     /**
      * The protocol provider
      */
-    private ProtocolProviderService provider;
+    private final ProtocolProviderService provider;
     /**
      * The presence status
      */
-    private OperationSetPresence presence;
+    private final OperationSetPresence presence;
     
     /**
      * The logger for this class.
      */
-    private Logger logger = Logger.getLogger(
-            StatusSelector.class.getName());
+    private final Logger logger = Logger.getLogger(StatusSelector.class);
 
-    private StatusMessageMenu statusMessageMenu;
+    private final Object menu;
 
     /**
      * Creates an instance of StatusSelector
@@ -57,96 +53,125 @@ public class StatusSelector
      * @param provider the protocol provider
      * @param presence the presence status
      */
-    public StatusSelector(  SystrayServiceJdicImpl jdicSystray,
-                            ProtocolProviderService provider,
-                            OperationSetPresence presence)
+    public StatusSelector(SystrayServiceJdicImpl jdicSystray,
+        ProtocolProviderService provider, OperationSetPresence presence,
+        boolean swing)
     {
         this.parentSystray = jdicSystray;
         this.provider = provider;
         this.presence = presence;
 
-        this.statusMessageMenu = new StatusMessageMenu(provider);
         /* the parent item */
+        {
+            String text = provider.getAccountID().getUserID();
+            if (swing)
+            {
+                JMenu menu = new JMenu(text);
+                menu.setIcon(new ImageIcon(presence.getPresenceStatus()
+                    .getStatusIcon()));
 
-        this.setText(provider.getAccountID().getUserID());
-        this.setIcon(new ImageIcon(
-                presence.getPresenceStatus().getStatusIcon()));
+                this.menu = menu;
+            }
+            else
+            {
+                this.menu = new Menu(text);
+            }
+        }
 
         /* the submenu itself */
 
         Iterator statusIterator = this.presence.getSupportedStatusSet();
 
-        while(statusIterator.hasNext()) 
+        while (statusIterator.hasNext())
         {
             PresenceStatus status = (PresenceStatus) statusIterator.next();
+            String text = status.getStatusName();
 
-            ImageIcon icon = new ImageIcon(status.getStatusIcon());
-            JMenuItem item = new JMenuItem(status.getStatusName(),icon);
+            if (menu instanceof Container)
+            {
+                ImageIcon icon = new ImageIcon(status.getStatusIcon());
+                JMenuItem item = new JMenuItem(text, icon);
 
-            item.addActionListener(this);
+                item.addActionListener(this);
 
-            this.add(item);
+                ((Container) menu).add(item);
+            }
+            else
+            {
+                MenuItem item = new MenuItem(text);
+                item.addActionListener(this);
+                ((Menu) menu).add(item);
+            }
         }
 
-        this.addSeparator();
+        addSeparator();
 
-        this.add(statusMessageMenu);
+        StatusSubMenu.addMenuItem(menu, new StatusMessageMenu(provider, swing)
+            .getMenu());
+    }
+
+    private void addSeparator()
+    {
+        if (menu instanceof JMenu)
+            ((JMenu) menu).addSeparator();
+        else
+            ((Menu) menu).addSeparator();
+    }
+
+    public Object getMenu()
+    {
+        return menu;
     }
 
     /**
-     * Change the status of the protocol according to
-     * the menu item selected
+     * Change the status of the protocol according to the menu item selected
+     * 
      * @param evt the event containing the menu item name
      */
     public void actionPerformed(ActionEvent evt)
     {
-        JMenuItem menuItem = (JMenuItem) evt.getSource();
+        Object source = evt.getSource();
+        String menuItemText;
+        if (source instanceof AbstractButton)
+            menuItemText = ((AbstractButton) source).getText();
+        else
+            menuItemText = ((MenuItem) source).getLabel();
 
         Iterator statusSet = presence.getSupportedStatusSet();
 
-        while (statusSet.hasNext()) 
+        while (statusSet.hasNext())
         {
-            PresenceStatus status = ((PresenceStatus) statusSet.next());
+            PresenceStatus status = (PresenceStatus) statusSet.next();
 
-            if (status.getStatusName().equals(menuItem.getText())) 
+            if (status.getStatusName().equals(menuItemText))
             {
-                
-                if (this.provider.getRegistrationState()
-                        == RegistrationState.REGISTERED
+                RegistrationState registrationState =
+                    provider.getRegistrationState();
+
+                if (registrationState == RegistrationState.REGISTERED
                     && !presence.getPresenceStatus().equals(status))
                 {
-                    if (status.isOnline()) 
-                    {
+                    if (status.isOnline())
                         new PublishPresenceStatusThread(status).start();
-                    }
                     else
-                    {
                         new ProviderUnRegistration(this.provider).start();
-                    }
                 }
-                else if (this.provider.getRegistrationState()
-                            != RegistrationState.REGISTERED
-                        && this.provider.getRegistrationState()
-                            != RegistrationState.REGISTERING
-                        && this.provider.getRegistrationState()
-                            != RegistrationState.AUTHENTICATING
-                        && status.isOnline())
+                else if (registrationState != RegistrationState.REGISTERED
+                    && registrationState != RegistrationState.REGISTERING
+                    && registrationState != RegistrationState.AUTHENTICATING
+                    && status.isOnline())
                 {
                     new ProviderRegistration(provider).start();
                 }
-                else
+                else if (!status.isOnline()
+                    && !(registrationState == RegistrationState.UNREGISTERING))
                 {
-                    if(!status.isOnline()
-                        && !(this.provider.getRegistrationState()
-                        == RegistrationState.UNREGISTERING))
-                    {
-                        new ProviderUnRegistration(this.provider).start();
-                    }
-                }    
-                
-                parentSystray.saveStatusInformation(
-                    provider, status.getStatusName());
-                
+                    new ProviderUnRegistration(this.provider).start();
+                }
+
+                parentSystray.saveStatusInformation(provider, status
+                    .getStatusName());
+
                 break;
             }
         }
@@ -161,7 +186,9 @@ public class StatusSelector
             + provider.getAccountID().getAccountAddress()
             + ". The new status will be: " + presenceStatus.getStatusName());
 
-        this.setIcon(new ImageIcon(presenceStatus.getStatusIcon()));
+        if (menu instanceof AbstractButton)
+            ((AbstractButton) menu).setIcon(new ImageIcon(presenceStatus
+                .getStatusIcon()));
     }
 
     /**

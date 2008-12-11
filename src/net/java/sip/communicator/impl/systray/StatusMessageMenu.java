@@ -15,10 +15,9 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 public class StatusMessageMenu
-    extends JMenu
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(StatusMessageMenu.class);
+    private final Logger logger = Logger.getLogger(StatusMessageMenu.class);
 
     private static final String BRB_MESSAGE
         = Resources.getString("service.gui.BRB_MESSAGE");
@@ -26,55 +25,82 @@ public class StatusMessageMenu
     private static final String BUSY_MESSAGE
         = Resources.getString("service.gui.BUSY_MESSAGE");
 
-    private JMenuItem noMessageItem
-        = new JMenuItem(Resources.getString("service.gui.NO_MESSAGE"));
+    private final Object newMessageItem;
 
-    private JMenuItem newMessageItem
-        = new JMenuItem(Resources.getString("service.gui.NEW_MESSAGE"));
+    private final Object busyMessageItem;
 
-    private JMenuItem busyMessageItem =  new JMenuItem(BUSY_MESSAGE);
+    private final Object brbMessageItem;
 
-    private JMenuItem brbMessageItem = new JMenuItem(BRB_MESSAGE);
+    private final ProtocolProviderService protocolProvider;
 
-    private ProtocolProviderService protocolProvider;
+    private final Object menu;
 
-    public StatusMessageMenu(  ProtocolProviderService protocolProvider)
+    public StatusMessageMenu(ProtocolProviderService protocolProvider,
+        boolean swing)
     {
-        super(Resources.getString("service.gui.SET_STATUS_MESSAGE"));
-
         this.protocolProvider = protocolProvider;
 
-        this.noMessageItem.addActionListener(this);
-        this.newMessageItem.addActionListener(this);
-        this.busyMessageItem.addActionListener(this);
-        this.brbMessageItem.addActionListener(this);
+        String text = Resources.getString("service.gui.SET_STATUS_MESSAGE");
+        if (swing)
+            menu = new JMenu(text);
+        else
+            menu = new Menu(text);
 
-        this.add(noMessageItem);
-        this.add(newMessageItem);
+        createMenuItem(Resources.getString("service.gui.NO_MESSAGE"));
+        newMessageItem =
+            createMenuItem(Resources.getString("service.gui.NEW_MESSAGE"));
 
-        this.addSeparator();
+        addSeparator();
 
-        this.add(busyMessageItem);
-        this.add(brbMessageItem);
+        busyMessageItem = createMenuItem(BUSY_MESSAGE);
+        brbMessageItem = createMenuItem(BRB_MESSAGE);
+    }
+
+    private Object createMenuItem(String text)
+    {
+        if (menu instanceof Container)
+        {
+            JMenuItem menuItem = new JMenuItem(text);
+            menuItem.addActionListener(this);
+            ((Container) menu).add(menuItem);
+            return menuItem;
+        }
+        else
+        {
+            MenuItem menuItem = new MenuItem(text);
+            menuItem.addActionListener(this);
+            ((Menu) menu).add(menuItem);
+            return menuItem;
+        }
+    }
+
+    private void addSeparator()
+    {
+        if (menu instanceof JMenu)
+            ((JMenu) menu).addSeparator();
+        else
+            ((Menu) menu).addSeparator();
+    }
+
+    public Object getMenu()
+    {
+        return menu;
     }
 
     public void actionPerformed(ActionEvent e)
     {
-        JMenuItem menuItem = (JMenuItem) e.getSource();
+        Object menuItem = e.getSource();
 
         String statusMessage = "";
 
         if (menuItem.equals(newMessageItem))
         {
-            NewStatusMessageDialog dialog
-                = new NewStatusMessageDialog(protocolProvider);
+            NewStatusMessageDialog dialog =
+                new NewStatusMessageDialog(protocolProvider);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-            dialog.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - dialog.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - dialog.getHeight()/2
-                );
+            dialog.setLocation(screenSize.width / 2 - dialog.getWidth() / 2,
+                screenSize.height / 2 - dialog.getHeight() / 2);
 
             dialog.setVisible(true);
 

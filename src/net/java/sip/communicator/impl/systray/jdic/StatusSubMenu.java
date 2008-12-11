@@ -20,45 +20,64 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * The <tt>StatusSubMenu</tt> provides a menu which allow
- * to select the status for each of the protocol providers
- * registered when the menu appears
+ * The <tt>StatusSubMenu</tt> provides a menu which allow to select the status
+ * for each of the protocol providers registered when the menu appears
  * 
  * @author Nicolas Chamouard
- *
+ * @author Lubomir Marinov
  */
-
 public class StatusSubMenu
-    extends JMenu
 {
     /**
      * A reference of <tt>Systray</tt>
      */
-    private SystrayServiceJdicImpl parentSystray;
+    private final SystrayServiceJdicImpl parentSystray;
 
     /**
      * Contains all accounts and corresponding menus.
      */
-    private Hashtable accountSelectors = new Hashtable();
+    private final Map<AccountID, Object> accountSelectors =
+        new Hashtable<AccountID, Object>();
 
-    private Logger logger = Logger.getLogger(StatusSubMenu.class);
+    private final Logger logger = Logger.getLogger(StatusSubMenu.class);
+
+    private final Object menu;
 
     /**
      * Creates an instance of <tt>StatusSubMenu</tt>.
+     * 
      * @param tray a reference of the parent <tt>Systray</tt>
+     * @param swing <tt>true</tt> to represent this instance with a Swing
+     *            <code>JMenu</code>; <tt>false</tt> to use an AWT
+     *            <code>Menu</code>
      */
-    public StatusSubMenu(SystrayServiceJdicImpl tray)
+    public StatusSubMenu(SystrayServiceJdicImpl tray, boolean swing)
     {
-        
         parentSystray = tray;
 
-        this.setText(Resources.getString("impl.systray.SET_STATUS"));
-        this.setIcon(Resources.getImage("service.systray.STATUS_MENU_ICON"));
+        String text = Resources.getString("impl.systray.SET_STATUS");
+        if (swing)
+        {
+            JMenu menu = new JMenu(text);
+            menu
+                .setIcon(Resources.getImage("service.systray.STATUS_MENU_ICON"));
 
-        /* makes the menu look better */
-        this.setPreferredSize(new java.awt.Dimension(28, 24));
+            /* makes the menu look better */
+            menu.setPreferredSize(new java.awt.Dimension(28, 24));
+
+            this.menu = menu;
+        }
+        else
+        {
+            this.menu = new Menu(text);
+        }
 
         this.init();
+    }
+
+    public Object getMenu()
+    {
+        return menu;
     }
 
     /**
@@ -66,36 +85,45 @@ public class StatusSubMenu
      * menu.
      * 
      * @param protocolProvider the protocol provider corresponding to the
-     * account to add
+     *            account to add
      */
     private void addAccount(ProtocolProviderService protocolProvider)
     {
-        OperationSetPresence presence = (OperationSetPresence)
-            protocolProvider.getOperationSet(OperationSetPresence.class);
+        OperationSetPresence presence =
+            (OperationSetPresence) protocolProvider
+                .getOperationSet(OperationSetPresence.class);
+        boolean swing = (menu instanceof JComponent);
 
         if (presence == null)
         {
-            StatusSimpleSelector simpleSelector = 
-                new StatusSimpleSelector(parentSystray, protocolProvider);
+            StatusSimpleSelector simpleSelector =
+                new StatusSimpleSelector(protocolProvider, swing);
 
-            this.accountSelectors.put(  protocolProvider.getAccountID(),
-                                        simpleSelector);
-            this.add(simpleSelector);
+            this.accountSelectors.put(protocolProvider.getAccountID(),
+                simpleSelector);
+            addMenuItem(menu, simpleSelector.getMenu());
         }
         else
         {
-            StatusSelector statusSelector = 
-                new StatusSelector( parentSystray,
-                                    protocolProvider,
-                                    presence);
+            StatusSelector statusSelector =
+                new StatusSelector(parentSystray, protocolProvider, presence,
+                    swing);
 
-            this.accountSelectors.put(  protocolProvider.getAccountID(),
-                                        statusSelector);
-            this.add(statusSelector);
+            this.accountSelectors.put(protocolProvider.getAccountID(),
+                statusSelector);
+            addMenuItem(menu, statusSelector.getMenu());
 
-            presence.addProviderPresenceStatusListener(
-                new SystrayProviderPresenceStatusListener());
+            presence
+                .addProviderPresenceStatusListener(new SystrayProviderPresenceStatusListener());
         }
+    }
+
+    static void addMenuItem(Object menu, Object menuItem)
+    {
+        if (menu instanceof Container)
+            ((Container) menu).add((Component) menuItem);
+        else
+            ((Menu) menu).add((MenuItem) menuItem);
     }
 
     /**
@@ -107,10 +135,13 @@ public class StatusSubMenu
      */
     private void removeAccount(ProtocolProviderService protocolProvider)
     {
-        Component c = (Component) this.accountSelectors
-            .get(protocolProvider.getAccountID());
+        Object selector =
+            this.accountSelectors.get(protocolProvider.getAccountID());
 
-        this.remove(c);
+        if (menu instanceof Container)
+            ((Container) menu).remove((Component) selector);
+        else
+            ((MenuContainer) menu).remove((MenuComponent) selector);
     }
 
     /**
@@ -190,11 +221,16 @@ public class StatusSubMenu
 
             ProtocolProviderService provider = (ProtocolProviderService)service;
 
-            if (event.getType() == ServiceEvent.REGISTERED)
+            switch (event.getType())
+            {
+            case ServiceEvent.REGISTERED:
                 addAccount(provider);
+                break;
 
-            if (event.getType() == ServiceEvent.UNREGISTERING)
-               removeAccount(provider);
+            case ServiceEvent.UNREGISTERING:
+                removeAccount(provider);
+                break;
+            }
         }
     }
 
@@ -227,5 +263,4 @@ public class StatusSubMenu
         {
         }
     }
-
 }
