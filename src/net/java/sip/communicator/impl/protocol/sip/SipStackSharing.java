@@ -280,9 +280,6 @@ public class SipStackSharing
         }
         catch(InvalidArgumentException ex)
         {
-            logger.trace(java.util.Locale.getDefault().toString());
-            ex.printStackTrace();
-
             // makes sure we didn't leave an open listener
             // as both UDP and TCP listener have to bind to the same port
             if(tlsLP != null)
