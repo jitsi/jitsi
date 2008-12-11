@@ -414,6 +414,7 @@ public class FirstWizardPage
     public void pageShowing()
     {
         this.setNextButtonAccordingToUIN();
+        wizard.getWizardContainer().setBackButtonEnabled(false);
     }
 
     /**
@@ -466,6 +467,7 @@ public class FirstWizardPage
                 keepAliveMethodBox.getSelectedItem().toString());
             registration.setKeepAliveInterval(keepAliveIntervalValue.getText());
         }
+        wizard.getWizardContainer().setBackButtonEnabled(true);
 
         this.isCommitted = true;
     }
