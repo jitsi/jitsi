@@ -333,6 +333,7 @@ public class SipStackSharing
             while(it.hasNext())
             {
                 this.stack.deleteListeningPoint(it.next());
+                it = this.stack.getListeningPoints();
             }
 
             this.stack.stop();
