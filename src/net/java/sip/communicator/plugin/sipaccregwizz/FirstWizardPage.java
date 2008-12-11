@@ -39,8 +39,6 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
     
-    private JPanel passSecurePanel = new TransparentPanel(new BorderLayout());
-
     private JLabel uinLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.USERNAME"));
 
@@ -80,7 +78,7 @@ public class FirstWizardPage
 
     private JCheckBox enableDefaultEncryption =
         new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), false); 
+            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), true); 
 
     private JLabel proxyLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
@@ -225,13 +223,9 @@ public class FirstWizardPage
         valuesPanel.add(uinExampleLabel);
         valuesPanel.add(passField);
 
-        passSecurePanel.add(rememberPassBox, BorderLayout.WEST);
-        enableDefaultEncryption.setVisible(true);
-        passSecurePanel.add(enableDefaultEncryption, BorderLayout.EAST);
-        
         uinPassPanel.add(labelsPanel, BorderLayout.WEST);
         uinPassPanel.add(valuesPanel, BorderLayout.CENTER);
-        uinPassPanel.add(passSecurePanel, BorderLayout.SOUTH);
+        uinPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
@@ -294,7 +288,8 @@ public class FirstWizardPage
         advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
-
+        advancedOpPanel.add(enableDefaultEncryption, BorderLayout.SOUTH);
+        
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.aimaccregwizz.ADVANCED_OPTIONS")));
 
