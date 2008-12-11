@@ -175,13 +175,13 @@ public class SIPAccountRegistrationWizard
         {
             summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
-                Resources.getString("yes"));
+                Resources.getString("service.gui.YES"));
         }
         else
         {
             summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), 
-                Resources.getString("no"));
+                Resources.getString("service.gui.NO"));
         } 
 
         summaryTable.put(Resources.getString(
