@@ -131,17 +131,22 @@ public class StatusSubMenu
      * this menu.
      * 
      * @param protocolProvider the protocol provider corresponding to the
-     * account to remove.
+     *            account to remove.
      */
     private void removeAccount(ProtocolProviderService protocolProvider)
     {
         Object selector =
             this.accountSelectors.get(protocolProvider.getAccountID());
+        Object selectorMenu;
+        if (selector instanceof StatusSimpleSelector)
+            selectorMenu = ((StatusSimpleSelector) selector).getMenu();
+        else
+            selectorMenu = ((StatusSelector) selector).getMenu();
 
         if (menu instanceof Container)
-            ((Container) menu).remove((Component) selector);
+            ((Container) menu).remove((Component) selectorMenu);
         else
-            ((MenuContainer) menu).remove((MenuComponent) selector);
+            ((MenuContainer) menu).remove((MenuComponent) selectorMenu);
     }
 
     /**
