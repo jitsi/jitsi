@@ -334,8 +334,6 @@ public class ProtocolProviderServiceSipImpl
 
         sipRegistrarConnection.unregister();
         sipSecurityManager.setSecurityAuthority(null);
-
-        sipStackSharing.removeSipListener(this);
     }
 
     /**

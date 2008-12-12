@@ -14,6 +14,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -30,7 +31,8 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Mazy
  */
 public class SipStackSharing
-    implements SipListener
+    implements SipListener,
+               RegistrationStateChangeListener
 {
     /**
      * Logger for this class
@@ -121,6 +123,7 @@ public class SipStackSharing
             if(this.listeners.size() == 0)
                 startListening();
             this.listeners.add(listener);
+            listener.addRegistrationStateChangeListener(this);
             logger.trace(this.listeners.size() + " listeners now");
         }
     }
@@ -131,8 +134,7 @@ public class SipStackSharing
      *
      * @param listener possible target to remove for the dispatching process
      */
-    public void removeSipListener(ProtocolProviderServiceSipImpl listener)
-        throws OperationFailedException
+    private void removeSipListener(ProtocolProviderServiceSipImpl listener)
     {
         synchronized(this.listeners)
         {
@@ -155,6 +157,23 @@ public class SipStackSharing
         synchronized(this.listeners)
         {
             return new HashSet<ProtocolProviderServiceSipImpl>(this.listeners);
+        }
+    }
+
+    /**
+     * Stops dispatching SIP messages to a SIP protocol provider service
+     * once it's been unregistered.
+     *
+     * @param event the change event in the registration state of a provider
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent event)
+    {
+        if(event.getNewState() == RegistrationState.UNREGISTERED)
+        {
+            ProtocolProviderServiceSipImpl listener
+                = (ProtocolProviderServiceSipImpl) event.getProvider();
+            this.removeSipListener(listener);
+            listener.removeRegistrationStateChangeListener(this);
         }
     }
 
@@ -315,7 +334,6 @@ public class SipStackSharing
      * and frees the network ports used.
      */
     private void stopListening()
-        throws OperationFailedException
     {
         try
         {
@@ -339,11 +357,6 @@ public class SipStackSharing
         catch(ObjectInUseException ex)
         {
             logger.fatal("Failed to stop listening", ex);
-            throw new OperationFailedException(
-                    "A unexpected error occurred while stopping "
-                    +"the SIP listening."
-                    , OperationFailedException.INTERNAL_ERROR
-                    , ex);
         }
     }
 
