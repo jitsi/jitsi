@@ -186,7 +186,7 @@ public class LoginManager
                     msgText).showDialog();
             }
 
-            logger.error(evt.getReason());
+            logger.trace(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
@@ -208,7 +208,7 @@ public class LoginManager
                 this.login(protocolProvider);
             }
 
-            logger.error(evt.getReason());
+            logger.trace(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.EXPIRED))
         {
@@ -268,7 +268,7 @@ public class LoginManager
                             .getI18NString("service.gui.ERROR"),
                         msgText).showDialog();
                 }
-                logger.error(evt.getReason());
+                logger.trace(evt.getReason());
             }
         }
     }
