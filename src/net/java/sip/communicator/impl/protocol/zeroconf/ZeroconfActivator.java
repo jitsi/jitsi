@@ -56,11 +56,11 @@ public class ZeroconfActivator
     public void start(BundleContext context)
         throws Exception
     {
-        logger.setLevelAll();
+//        logger.setLevelAll();
         
-        this.bundleContext = context;
+        bundleContext = context;
 
-        Hashtable hashtable = new Hashtable();
+        Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, "Zeroconf");
 
         zeroconfProviderFactory = new ProtocolProviderFactoryZeroconfImpl();
@@ -109,7 +109,7 @@ public class ZeroconfActivator
     public void stop(BundleContext context)
         throws Exception
     {
-        this.zeroconfProviderFactory.stop();
+        zeroconfProviderFactory.stop();
         zeroconfPpFactoryServReg.unregister();
         
         logger.info("Zeroconf protocol implementation [STOPPED].");
