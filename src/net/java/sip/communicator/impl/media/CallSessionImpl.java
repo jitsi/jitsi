@@ -163,7 +163,7 @@ public class CallSessionImpl
     * Toggles default (from the call start) activation
     * of secure communication
     */
-    private boolean usingSRTP = true;
+    private boolean usingZRTP = true;
 
     /**
      * Vector used to hold references of the various key management solutions
@@ -526,7 +526,7 @@ public class CallSessionImpl
 
             if (transConnector != null)
             {
-                if (usingSRTP) {
+                if (usingZRTP) {
                     ZRTPTransformEngine engine = (ZRTPTransformEngine) transConnector
                             .getEngine();
                     engine.stopZrtp();
@@ -918,10 +918,10 @@ public class CallSessionImpl
      */
     private void putOnHold(RTPManager rtpManager, boolean on)
     {
-        for (Iterator sendStreamIter = rtpManager.getSendStreams().iterator();
+        for (Iterator<SendStream> sendStreamIter = rtpManager.getSendStreams().iterator();
              sendStreamIter.hasNext();)
         {
-            SendStream sendStream = (SendStream) sendStreamIter.next();
+            SendStream sendStream = sendStreamIter.next();
 
             if (on)
             {
@@ -986,7 +986,7 @@ public class CallSessionImpl
         setCallURL(sdpAnswer.getURI());
 
         //extract media descriptions
-        Vector mediaDescriptions = null;
+        Vector<MediaDescription> mediaDescriptions = null;
         try
         {
             mediaDescriptions = sdpAnswer.getMediaDescriptions(true);
@@ -1121,7 +1121,7 @@ public class CallSessionImpl
      * necessary streams and/or don't find encodings supported by both the
      * remote participant and the local controller.
      */
-    private void createSendStreams(Vector mediaDescriptions)
+    private void createSendStreams(Vector<MediaDescription> mediaDescriptions)
         throws MediaException
     {
         //extract the encodings these media descriptions specify
@@ -1464,7 +1464,7 @@ public class CallSessionImpl
             sessDescr.setTimeDescriptions(timeDescs);
 
             //media descriptions.
-            Vector offeredMediaDescriptions  = null;
+            Vector<MediaDescription> offeredMediaDescriptions  = null;
             if(offer != null)
                 offeredMediaDescriptions = offer.getMediaDescriptions(false);
 
@@ -1473,7 +1473,7 @@ public class CallSessionImpl
                          + " and video public address="
                          + videoPublicAddress);
 
-            Vector mediaDescs
+            Vector<MediaDescription> mediaDescs
                 = createMediaDescriptions(offeredMediaDescriptions
                                         , audioPublicAddress
                                         , videoPublicAddress);
@@ -1516,7 +1516,7 @@ public class CallSessionImpl
      * @throws MediaException with code UNSUPPORTED_FORMAT_SET_ERROR if we don't
      * support any of the offered media formats.
      */
-    private Vector createMediaDescriptions(
+    private Vector<MediaDescription> createMediaDescriptions(
                                       Vector<MediaDescription> offerMediaDescs,
                                       InetSocketAddress publicAudioAddress,
                                       InetSocketAddress publicVideoAddress)
@@ -1580,7 +1580,7 @@ public class CallSessionImpl
             supportedVideoEncodings
                 = intersectedVideoEncsList.toArray(new String[0]);
         }
-        Vector mediaDescs = new Vector();
+        Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
 
         if(supportedAudioEncodings.length > 0)
         {
@@ -1800,19 +1800,19 @@ public class CallSessionImpl
      *         specified in the <tt>mediaDescriptions</tt> vector.
      */
     private Hashtable<String, List<String>> extractMediaEncodings(
-        Vector mediaDescriptions)
+        Vector<MediaDescription> mediaDescriptions)
     {
         Hashtable<String, List<String>> mediaEncodings =
             new Hashtable<String, List<String>>(2);
 
-        Iterator descriptionsIter = mediaDescriptions.iterator();
+        Iterator<MediaDescription> descriptionsIter = mediaDescriptions.iterator();
 
         while(descriptionsIter.hasNext())
         {
             MediaDescription mediaDescription
-                = (MediaDescription)descriptionsIter.next();
+                = descriptionsIter.next();
             Media media = mediaDescription.getMedia();
-            Vector mediaFormats = null;
+            Vector<String> mediaFormats = null;
             String mediaType = null;
             try
             {
@@ -2067,9 +2067,9 @@ public class CallSessionImpl
                 // - Statement: audio media session will be started before video media session
                 // - if no other audio session was started before then this will become
                 //   ZRTP Master session
-                // - only the ZRTP master sessions start in "aut-sensing" mode to
-                //   immedialtely catch ZRTP communication fro other client
-                // - after the master session has completed key negotiations it will
+                // - only the ZRTP master sessions start in "auto-sensing" mode to
+                //   immediately catch ZRTP communication from other client
+                // - after the master session has completed its key negotiation it will
                 //   start other media sessions (see SCCallback)
                 if (rtpManager.equals(audioRtpManager)) {
                     if (zrtpDHSession == null) {
@@ -2096,9 +2096,9 @@ public class CallSessionImpl
                 // the account registration wizard
                 if (this.getCall().isDefaultEncrypted()) 
                 {
-                    if (engine.initialize("GNUZRTP4J.zid"))
+                    if (engine.initialize("GNUZRTP4J.zid", zrtpAutoStart))
                     {
-                       usingSRTP = true;
+                       usingZRTP = true;
                        engine.sendInfo(
                                 ZrtpCodes.MessageSeverity.Info,
                                 EnumSet.of(
@@ -2124,55 +2124,55 @@ public class CallSessionImpl
                     + (rtpManager.equals(audioRtpManager)?" audio ":"video")
                     + "manager initialized through connector");
             }
-            else
-            // Selected key management type == Dummy branch - hardcoded keys
-            if (selectedKeyProviderAlgorithm != null &&
-                selectedKeyProviderAlgorithm.getProviderType() ==
-                KeyProviderAlgorithm.ProviderType.DUMMY_PROVIDER
-                /* TODO: Video securing related code
-                 * remove the next condition as part of enabling video securing
-                 * (see comments in secureStatusChanged method for more info)
-                 */
-                && rtpManager.equals(audioRtpManager))
-            {
-                SRTPPolicy srtpPolicy = new SRTPPolicy(
-                            SRTPPolicy.AESF8_ENCRYPTION, 16,
-                            SRTPPolicy.HMACSHA1_AUTHENTICATION, 20, 10, 14);
-
-                // Master key and master salt are hardcoded
-                byte[] masterKey  =
-                    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-
-                byte[] masterSalt =
-                    {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-                    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d};
-
-                TransformConnector transConnector = null;
-
-                TransformManager.initializeProviders();
-
-                // The connector is created based also on the crypto services
-                // provider type;
-                // The crypto provider solution should be queried somehow
-                // or taken from a resources file
-                transConnector =
-                    TransformManager.createSRTPConnector(bindAddress,
-                                                        masterKey,
-                                                        masterSalt,
-                                                        srtpPolicy,
-                                                        srtpPolicy,
-                                                        "BouncyCastle");
-
-                rtpManager.initialize(transConnector);
-                this.transConnectors.put(rtpManager, transConnector);
-
-                logger.trace("RTP"+
-                        (rtpManager.equals(audioRtpManager)?" audio ":"video")+
-                        "manager initialized through connector");
-
-            }
-            // No key management solution - unsecure communication branch
+//            else
+//            // Selected key management type == Dummy branch - hardcoded keys
+//            if (selectedKeyProviderAlgorithm != null &&
+//                selectedKeyProviderAlgorithm.getProviderType() ==
+//                KeyProviderAlgorithm.ProviderType.DUMMY_PROVIDER
+//                /* TODO: Video securing related code
+//                 * remove the next condition as part of enabling video securing
+//                 * (see comments in secureStatusChanged method for more info)
+//                 */
+//                && rtpManager.equals(audioRtpManager))
+//            {
+//                SRTPPolicy srtpPolicy = new SRTPPolicy(
+//                            SRTPPolicy.AESF8_ENCRYPTION, 16,
+//                            SRTPPolicy.HMACSHA1_AUTHENTICATION, 20, 10, 14);
+//
+//                // Master key and master salt are hardcoded
+//                byte[] masterKey  =
+//                    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+//                     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+//
+//                byte[] masterSalt =
+//                    {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+//                    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d};
+//
+//                TransformConnector transConnector = null;
+//
+//                TransformManager.initializeProviders();
+//
+//                // The connector is created based also on the crypto services
+//                // provider type;
+//                // The crypto provider solution should be queried somehow
+//                // or taken from a resources file
+//                transConnector =
+//                    TransformManager.createSRTPConnector(bindAddress,
+//                                                        masterKey,
+//                                                        masterSalt,
+//                                                        srtpPolicy,
+//                                                        srtpPolicy,
+//                                                        "BouncyCastle");
+//
+//                rtpManager.initialize(transConnector);
+//                this.transConnectors.put(rtpManager, transConnector);
+//
+//                logger.trace("RTP"+
+//                        (rtpManager.equals(audioRtpManager)?" audio ":"video")+
+//                        "manager initialized through connector");
+//
+//            }
+//            // No key management solution - unsecure communication branch
             else
             {
                 rtpManager.initialize(bindAddress);
@@ -2744,7 +2744,7 @@ public class CallSessionImpl
      */
     public boolean getSecureCommunicationStatus()
     {
-        return usingSRTP;
+        return usingZRTP;
     }
 
     /**
@@ -2764,7 +2764,7 @@ public class CallSessionImpl
         logger.trace("Call session secure status change event received");
 
         // Make the change for default security enabled/disabled start option
-        usingSRTP = activator;
+        usingZRTP = activator;
 
         // Fire the change event to notify any present CallSession of security
         // change status
