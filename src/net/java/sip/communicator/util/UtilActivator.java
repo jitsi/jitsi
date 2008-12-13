@@ -22,9 +22,9 @@ import org.osgi.framework.*;
 /**
  * The only raison d'etre for this Activator is so that it would set a global
  * exception handler. It doesn't export any services and neither it runs any
- * iniitialization - all it does is call
+ * initialization - all it does is call
  * <tt>Thread.setUncaughtExceptionHandler()</tt>
- *
+ * 
  * @author Emil Ivov
  */
 public class UtilActivator
@@ -97,7 +97,6 @@ public class UtilActivator
     public void stop(BundleContext context)
         throws Exception
     {
-
     }
 
     public static ConfigurationService getConfigurationService()

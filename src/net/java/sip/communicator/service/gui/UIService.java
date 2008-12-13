@@ -332,4 +332,6 @@ public interface UIService
     public boolean isContainerSupported(Container containderID);
 
     public boolean useMacOSXScreenMenuBar();
+
+    public void beginShutdown();
 }

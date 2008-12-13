@@ -23,7 +23,14 @@ public final class MacOSXQuitRegistration
                 public void handleQuit(ApplicationEvent event)
                 {
                     ((FileMenu) userData).closeActionPerformed();
-                    event.setHandled(true);
+
+                    /*
+                     * Tell Mac OS X that it shouldn't terminate the
+                     * application. We've already initiated the quit and we'll
+                     * eventually complete it i.e. we'll honor the request of
+                     * Mac OS X to quit.
+                     */
+                    event.setHandled(false);
                 }
             });
             return true;

@@ -14,9 +14,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.*;
-
-import org.osgi.framework.*;
 
 /**
  * The <tt>TrayMenu</tt> is the menu that appears when the user right-click
@@ -27,12 +24,6 @@ import org.osgi.framework.*;
  */
 public final class TrayMenuFactory
 {
-
-    /**
-     * The logger for this class.
-     */
-    private static final Logger logger =
-        Logger.getLogger(TrayMenuFactory.class.getName());
 
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
@@ -64,22 +55,7 @@ public final class TrayMenuFactory
         }
         else if (itemName.equals("service.gui.CLOSE"))
         {
-
-            /*
-             * TODO Quitting the application has evolved to resolve additional
-             * issues such as storing the configuration prior to disposing the
-             * MainFrame so this old copy here doesn't have them.
-             */
-            try
-            {
-                SystrayActivator.bundleContext.getBundle(0).stop();
-            }
-            catch (BundleException ex)
-            {
-                logger.error("Failed to gently shutdown Felix", ex);
-                System.exit(0);
-            }
-
+            SystrayActivator.getUIService().beginShutdown();
         }
         else if (itemName.equals("addContact"))
         {

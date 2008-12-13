@@ -972,4 +972,25 @@ public class UIServiceImpl
         return (osName != null)
             && ((osName.indexOf("Mac OS X") != -1) || (osName.indexOf("Darwin") != -1));
     }
+
+    public void beginShutdown()
+    {
+        try
+        {
+            if (mainFrame != null)
+                mainFrame.dispose();
+        }
+        finally
+        {
+            try
+            {
+                GuiActivator.bundleContext.getBundle(0).stop();
+            }
+            catch (BundleException ex)
+            {
+                logger.error("Failed to being gentle shutdown of Felix.", ex);
+                System.exit(0);
+            }
+        }
+    }
 }
