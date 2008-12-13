@@ -150,6 +150,8 @@ public interface ConfigurationService
 
     boolean getBoolean(String propertyName, boolean defaultValue);
 
+    int getInt(String propertyName, int defaultValue);
+
     /**
      * Adds a PropertyChangeListener to the listener list. The listener is
      * registered for all properties in the current configuration.

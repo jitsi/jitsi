@@ -1071,6 +1071,27 @@ public class ConfigurationServiceImpl
             .parseBoolean(stringValue);
     }
 
+    public int getInt(String propertyName, int defaultValue)
+    {
+        String stringValue = getString(propertyName);
+        int intValue = defaultValue;
+
+        if (stringValue != null)
+        {
+            try
+            {
+                intValue = Integer.parseInt(stringValue);
+            }
+            catch (NumberFormatException ex)
+            {
+                logger.error(propertyName
+                    + " does not appear to be an integer. " + "Defaulting to "
+                    + defaultValue + ".", ex);
+            }
+        }
+        return intValue;
+    }
+
     /**
      * We use property references when we'd like to store system properties.
      * Simply storing System properties in our properties Map would not be

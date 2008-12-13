@@ -7,7 +7,9 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.stack.*;
+
 import java.util.*;
+
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -43,7 +45,7 @@ public class SipStackSharing
     /**
      * Our SIP stack (provided by JAIN-SIP)
      */
-    private SipStack stack = null;
+    private final SipStack stack;
 
     /**
      * The JAIN-SIP provider that we use for clear UDP/TCP.
@@ -59,7 +61,7 @@ public class SipStackSharing
      * the listeners to choose from when dispatching
      * messages from the SipProvider-s
      */
-    private Set<ProtocolProviderServiceSipImpl> listeners
+    private final Set<ProtocolProviderServiceSipImpl> listeners
         = new HashSet<ProtocolProviderServiceSipImpl>();
 
     /**
@@ -139,8 +141,10 @@ public class SipStackSharing
         synchronized(this.listeners)
         {
             this.listeners.remove(listener);
-            logger.trace(this.listeners.size() + " listeners left");
-            if(this.listeners.size() == 0)
+
+            int listenerCount = listeners.size();
+            logger.trace(listenerCount + " listeners left");
+            if(listenerCount == 0)
                 stopListening();
         }
     }
@@ -209,10 +213,12 @@ public class SipStackSharing
     {
         try
         {
+            int bindRetriesValue = getBindRetriesValue();
+
             this.createProvider(this.getPreferredClearPort()
-                    , this.getBindRetriesValue(), false);
+                    , bindRetriesValue, false);
             this.createProvider(this.getPreferredSecurePort()
-                    , this.getBindRetriesValue(), true);
+                    , bindRetriesValue, true);
             this.stack.start();
             logger.trace("started listening");
         }
@@ -385,28 +391,8 @@ public class SipStackSharing
      */
     private int getPreferredClearPort()
     {
-        String clearPortStr
-            = SipActivator.getConfigurationService().getString(
-                    PREFERRED_CLEAR_PORT_PROPERTY_NAME);
-
-        int clearPort = ListeningPoint.PORT_5060;
-
-        if (clearPortStr != null)
-        {
-            try
-            {
-                clearPort = Integer.parseInt(clearPortStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.error(clearPortStr
-                        + " does not appear to be an integer. "
-                        + "Defaulting port bind retries to "
-                        + clearPort + ".", ex);
-            }
-        }
-
-        return clearPort;
+        return SipActivator.getConfigurationService().getInt(
+            PREFERRED_CLEAR_PORT_PROPERTY_NAME, ListeningPoint.PORT_5060);
     }
 
     /**
@@ -415,28 +401,8 @@ public class SipStackSharing
      */
     private int getPreferredSecurePort()
     {
-        String securePortStr
-            = SipActivator.getConfigurationService().getString(
-                    PREFERRED_SECURE_PORT_PROPERTY_NAME);
-
-        int securePort = ListeningPoint.PORT_5061;
-
-        if (securePortStr != null)
-        {
-            try
-            {
-                securePort = Integer.parseInt(securePortStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.error(securePortStr
-                        + " does not appear to be an integer. "
-                        + "Defaulting port bind retries to "
-                        + securePort + ".", ex);
-            }
-        }
-
-        return securePort;
+        return SipActivator.getConfigurationService().getInt(
+            PREFERRED_SECURE_PORT_PROPERTY_NAME, ListeningPoint.PORT_5061);
     }
 
     /**
@@ -446,28 +412,9 @@ public class SipStackSharing
      */
     private int getBindRetriesValue()
     {
-        String bindRetriesStr
-            = SipActivator.getConfigurationService().getString(
-                    ProtocolProviderService.BIND_RETRIES_PROPERTY_NAME);
-
-        int bindRetries = ProtocolProviderService.BIND_RETRIES_DEFAULT_VALUE;
-
-        if (bindRetriesStr != null)
-        {
-            try
-            {
-                bindRetries = Integer.parseInt(bindRetriesStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.error(bindRetriesStr
-                        + " does not appear to be an integer. "
-                        + "Defaulting port bind retries to "
-                        + bindRetries + ".", ex);
-            }
-        }
-
-        return bindRetries;
+        return SipActivator.getConfigurationService().getInt(
+            ProtocolProviderService.BIND_RETRIES_PROPERTY_NAME,
+            ProtocolProviderService.BIND_RETRIES_DEFAULT_VALUE);
     }
 
     /**
@@ -655,9 +602,11 @@ public class SipStackSharing
             // every other case is approximation
             if(candidates.size() == 1)
             {
+                ProtocolProviderServiceSipImpl perfectMatch = candidates.get(0);
+
                 logger.trace("(0) will dispatch to: "
-                        + candidates.get(0).getAccountID());
-                return candidates.get(0);
+                    + perfectMatch.getAccountID());
+                return perfectMatch;
             }
 
             // past this point, our guess is not reliable
@@ -909,4 +858,3 @@ public class SipStackSharing
         return null;
     }
 }
-
