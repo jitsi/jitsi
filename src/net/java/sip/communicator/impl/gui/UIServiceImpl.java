@@ -107,6 +107,9 @@ public class UIServiceImpl
 
         this.mainFrame = new MainFrame();
 
+        if (UIManager.getLookAndFeel() instanceof SIPCommLookAndFeel)
+            initCustomFonts();
+
         /*
          * The mainFrame isn't fully ready without the MetaContactListService so
          * make sure it's set before allowing anything, such as LoginManager, to
@@ -822,8 +825,6 @@ public class UIServiceImpl
                 logger.error("The provided Look & Feel is not supported.",
                     e);
             }
-
-            this.initCustomFonts();
         }
     }
 
