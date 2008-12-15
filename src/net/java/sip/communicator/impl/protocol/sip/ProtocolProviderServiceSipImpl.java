@@ -2309,7 +2309,7 @@ public class ProtocolProviderServiceSipImpl
         {
             ProtocolProviderServiceSipImpl listener
                 = (ProtocolProviderServiceSipImpl) event.getProvider();
-            this.sipStackSharing.removeSipListener(listener);
+            sipStackSharing.removeSipListener(listener);
             listener.removeRegistrationStateChangeListener(this);
         }
     }
