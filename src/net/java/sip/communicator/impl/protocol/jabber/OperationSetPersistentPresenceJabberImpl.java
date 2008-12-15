@@ -923,6 +923,8 @@ public class OperationSetPersistentPresenceJabberImpl
     private class ContactChangesListener
         implements RosterListener
     {
+        private Hashtable<String, TreeSet> statuses = new Hashtable();
+
         public void entriesAdded(Collection addresses)
         {}
         public void entriesUpdated(Collection addresses)
@@ -935,10 +937,69 @@ public class OperationSetPersistentPresenceJabberImpl
             try
             {
                 String userID = StringUtils.parseBareAddress(presence.getFrom());
+                String resource = StringUtils.parseResource(presence.getFrom());
 
-                logger.debug("Received a status update for buddy=" +
+                // all contact statuses that are received from all its resources
+                // ordered by priority
+                TreeSet<Presence> userStats = statuses.get(userID);
+                if(userStats == null)
+                {
+                    userStats = new TreeSet<Presence>(new Comparator<Presence>(){
+
+                        public int compare(Presence o1, Presence o2)
+                        {
+                            int res = o1.getPriority() - o2.getPriority();
+
+                            // if statuses are with same priorities
+                            // return which one is more available
+                            // counts the JabberStatusEnum order
+                            if(res == 0)
+                            {
+                                res =
+                                    jabberStatusToPresenceStatus(o1, parentProvider).getStatus() -
+                                    jabberStatusToPresenceStatus(o2, parentProvider).getStatus();
+                            }
+
+                            return res;
+                        }
+                    });
+                    statuses.put(userID,userStats);
+                }
+
+                logger.info("Received a status update for buddy=" +
                              userID);
 
+                // remove the status for this resource
+                // if we are online we will update its value with the new status
+                Presence toRemove = null;
+
+                Iterator<Presence> iter = userStats.iterator();
+                while (iter.hasNext())
+                {
+                    Presence p = iter.next();
+                    if(StringUtils.parseResource(p.getFrom()).equals(resource))
+                        toRemove = p;
+                }
+                if(toRemove != null)
+                    userStats.remove(toRemove);
+
+                if(!jabberStatusToPresenceStatus(presence, parentProvider).
+                    equals(parentProvider.getJabberStatusEnum()
+                        .getStatus(JabberStatusEnum.OFFLINE)))
+                {
+                    userStats.add(presence);
+                }
+
+                Presence currentPresence;
+                if(userStats.size() == 0)
+                {
+                    currentPresence = presence;
+                }
+                else
+                {
+                    currentPresence = userStats.first();
+                }
+                    
                 ContactJabberImpl sourceContact
                     = ssContactList.findContactById(userID);
 
@@ -949,13 +1010,13 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
                 
                 // statuses maybe the same and only change in status message
-                sourceContact.setStatusMessage(presence.getStatus());
+                sourceContact.setStatusMessage(currentPresence.getStatus());
                 
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
 
                 PresenceStatus newStatus =
-                    jabberStatusToPresenceStatus(presence, parentProvider);
+                    jabberStatusToPresenceStatus(currentPresence, parentProvider);
 
                 // when old and new status are the same do nothing
                 // no change
