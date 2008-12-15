@@ -39,7 +39,8 @@ import gov.nist.javax.sip.message.*;
  */
 public class ProtocolProviderServiceSipImpl
   extends AbstractProtocolProviderService
-  implements SipListener
+  implements SipListener,
+             RegistrationStateChangeListener
 {
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceSipImpl.class);
@@ -290,6 +291,9 @@ public class ProtocolProviderServiceSipImpl
         }
 
         sipStackSharing.addSipListener(this);
+        // be warned when we will unregister, so that we can
+        // then remove us as SipListener
+        this.addRegistrationStateChangeListener(this);
 
         // Enable the user name modification. Setting this property to true we'll
         // allow the user to change the user name stored in the given authority.
@@ -2291,5 +2295,22 @@ public class ProtocolProviderServiceSipImpl
                  + " for destination " + host);
 
         return destinationInetAddress;
+    }
+
+    /**
+     * Stops dispatching SIP messages to a SIP protocol provider service
+     * once it's been unregistered.
+     *
+     * @param event the change event in the registration state of a provider.
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent event)
+    {
+        if(event.getNewState() == RegistrationState.UNREGISTERED)
+        {
+            ProtocolProviderServiceSipImpl listener
+                = (ProtocolProviderServiceSipImpl) event.getProvider();
+            this.sipStackSharing.removeSipListener(listener);
+            listener.removeRegistrationStateChangeListener(this);
+        }
     }
 }

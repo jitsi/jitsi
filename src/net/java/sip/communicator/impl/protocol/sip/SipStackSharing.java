@@ -33,8 +33,7 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Mazy
  */
 public class SipStackSharing
-    implements SipListener,
-               RegistrationStateChangeListener
+    implements SipListener
 {
     /**
      * Logger for this class.
@@ -127,7 +126,6 @@ public class SipStackSharing
             if(this.listeners.size() == 0)
                 startListening();
             this.listeners.add(listener);
-            listener.addRegistrationStateChangeListener(this);
             logger.trace(this.listeners.size() + " listeners now");
         }
     }
@@ -139,7 +137,7 @@ public class SipStackSharing
      *
      * @param listener possible target to remove for the dispatching process.
      */
-    private void removeSipListener(ProtocolProviderServiceSipImpl listener)
+    public void removeSipListener(ProtocolProviderServiceSipImpl listener)
     {
         synchronized(this.listeners)
         {
@@ -162,23 +160,6 @@ public class SipStackSharing
         synchronized(this.listeners)
         {
             return new HashSet<ProtocolProviderServiceSipImpl>(this.listeners);
-        }
-    }
-
-    /**
-     * Stops dispatching SIP messages to a SIP protocol provider service
-     * once it's been unregistered.
-     *
-     * @param event the change event in the registration state of a provider.
-     */
-    public void registrationStateChanged(RegistrationStateChangeEvent event)
-    {
-        if(event.getNewState() == RegistrationState.UNREGISTERED)
-        {
-            ProtocolProviderServiceSipImpl listener
-                = (ProtocolProviderServiceSipImpl) event.getProvider();
-            this.removeSipListener(listener);
-            listener.removeRegistrationStateChangeListener(this);
         }
     }
 
