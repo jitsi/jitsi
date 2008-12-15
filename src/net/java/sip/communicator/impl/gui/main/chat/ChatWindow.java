@@ -232,7 +232,9 @@ public class ChatWindow
      */
     private void addChatTab(ChatPanel chatPanel)
     {
-        String chatName = chatPanel.getChatSession().getChatName();
+        ChatSession chatSession = chatPanel.getChatSession();
+        String chatName = chatSession.getChatName();
+
         ChatPanel currentChatPanel = getCurrentChatPanel();
 
         if (currentChatPanel == null)
@@ -244,14 +246,16 @@ public class ChatWindow
             if (getChatTabCount() == 0)
             {
                 ChatPanel firstChatPanel = currentChatPanel;
-                ChatSession chatSession = firstChatPanel.getChatSession();
+                ChatSession firstChatSession = firstChatPanel.getChatSession();
 
                 // Add first two tabs to the tabbed pane.
-                chatTabbedPane.addTab(chatSession.getChatName(), chatSession
-                    .getChatStatusIcon(), firstChatPanel);
+                chatTabbedPane.addTab(  firstChatSession.getChatName(),
+                                        firstChatSession.getChatStatusIcon(),
+                                        firstChatPanel);
 
-                chatTabbedPane.addTab(chatName,
-                    chatSession.getChatStatusIcon(), chatPanel);
+                chatTabbedPane.addTab(  chatName,
+                                        chatSession.getChatStatusIcon(),
+                                        chatPanel);
 
                 // When added to the tabbed pane, the first chat panel should
                 // rest the selected component.
@@ -276,7 +280,7 @@ public class ChatWindow
 
                 chatTabbedPane.addTab(
                     chatName,
-                    chatPanel.getChatSession().getChatStatusIcon(),
+                    chatSession.getChatStatusIcon(),
                     chatPanel);
 
                 chatTabbedPane.getParent().validate();
