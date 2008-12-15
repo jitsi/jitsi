@@ -10,14 +10,15 @@ import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
+
+import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-import org.jivesoftware.smack.filter.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 
 /**
  * The Jabber implementation of a Persistent Presence Operation set. This class
@@ -917,27 +918,26 @@ public class OperationSetPersistentPresenceJabberImpl
         }
     }
 
-    /**
-     *
-     */
     private class ContactChangesListener
         implements RosterListener
     {
-        private Hashtable<String, TreeSet> statuses = new Hashtable();
+        private final Map<String, TreeSet<Presence>> statuses =
+            new Hashtable<String, TreeSet<Presence>>();
 
-        public void entriesAdded(Collection addresses)
+        public void entriesAdded(Collection<String> addresses)
         {}
-        public void entriesUpdated(Collection addresses)
+        public void entriesUpdated(Collection<String> addresses)
         {}
-        public void entriesDeleted(Collection addresses)
+        public void entriesDeleted(Collection<String> addresses)
         {}
 
         public void presenceChanged(Presence presence)
         {
             try
             {
-                String userID = StringUtils.parseBareAddress(presence.getFrom());
-                String resource = StringUtils.parseResource(presence.getFrom());
+                String userID =
+                    StringUtils.parseBareAddress(presence.getFrom());
+                logger.info("Received a status update for buddy=" + userID);
 
                 // all contact statuses that are received from all its resources
                 // ordered by priority
@@ -945,7 +945,6 @@ public class OperationSetPersistentPresenceJabberImpl
                 if(userStats == null)
                 {
                     userStats = new TreeSet<Presence>(new Comparator<Presence>(){
-
                         public int compare(Presence o1, Presence o2)
                         {
                             int res = o1.getPriority() - o2.getPriority();
@@ -963,25 +962,22 @@ public class OperationSetPersistentPresenceJabberImpl
                             return res;
                         }
                     });
-                    statuses.put(userID,userStats);
+                    statuses.put(userID, userStats);
                 }
-
-                logger.info("Received a status update for buddy=" +
-                             userID);
-
-                // remove the status for this resource
-                // if we are online we will update its value with the new status
-                Presence toRemove = null;
-
-                Iterator<Presence> iter = userStats.iterator();
-                while (iter.hasNext())
+                else
                 {
-                    Presence p = iter.next();
-                    if(StringUtils.parseResource(p.getFrom()).equals(resource))
-                        toRemove = p;
+                    String resource = StringUtils.parseResource(presence.getFrom());
+
+                    // remove the status for this resource
+                    // if we are online we will update its value with the new status
+                    for (Iterator<Presence> iter = userStats.iterator(); iter
+                        .hasNext();)
+                    {
+                        Presence p = iter.next();
+                        if (StringUtils.parseResource(p.getFrom()).equals(resource))
+                            iter.remove();
+                    }
                 }
-                if(toRemove != null)
-                    userStats.remove(toRemove);
 
                 if(!jabberStatusToPresenceStatus(presence, parentProvider).
                     equals(parentProvider.getJabberStatusEnum()
@@ -991,15 +987,22 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
 
                 Presence currentPresence;
-                if(userStats.size() == 0)
+                if (userStats.size() == 0)
                 {
                     currentPresence = presence;
+
+                    /*
+                     * We no longer have statuses for userID so it doesn't make
+                     * sense to retain (1) the TreeSet and (2) its slot in the
+                     * statuses Map.
+                     */
+                    statuses.remove(userID);
                 }
                 else
                 {
                     currentPresence = userStats.first();
                 }
-                    
+
                 ContactJabberImpl sourceContact
                     = ssContactList.findContactById(userID);
 
@@ -1009,7 +1012,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     return;
                 }
                 
-                // statuses maybe the same and only change in status message
+                // statuses may be the same and only change in status message
                 sourceContact.setStatusMessage(currentPresence.getStatus());
                 
                 PresenceStatus oldStatus
