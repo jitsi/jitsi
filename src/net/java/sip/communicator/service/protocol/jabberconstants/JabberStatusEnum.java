@@ -71,51 +71,51 @@ public class JabberStatusEnum
      * The Online status. Indicate that the user is able and willing to
      * communicate.
      */
-    private JabberPresenceStatus availableStatus;
+    private final JabberPresenceStatus availableStatus;
 
     /**
      * The Away status. Indicates that the user has connectivity but might not
      * be able to immediately act upon initiation of communication.
      */
-    private JabberPresenceStatus awayStatus;
+    private final JabberPresenceStatus awayStatus;
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers not
      * to be contacted.
      */
-    private JabberPresenceStatus doNotDisturbStatus;
+    private final JabberPresenceStatus doNotDisturbStatus;
 
     /**
      * The Free For Chat status. Indicates that the user is eager to
      * communicate.
      */
-    private JabberPresenceStatus freeForChatStatus;
+    private final JabberPresenceStatus freeForChatStatus;
 
     /**
      * Indicates an Offline status or status with 0 connectivity.
      */
-    private JabberPresenceStatus offlineStatus;
+    private final JabberPresenceStatus offlineStatus;
     
     /**
      * Indicates an Extended Away status or status.
      */
-    private JabberPresenceStatus extendedAwayStatus;
+    private final JabberPresenceStatus extendedAwayStatus;
 
     /**
      * The supported status set stores all statuses supported by this protocol
      * implementation.
      */
-    public List<JabberPresenceStatus> supportedStatusSet =
+    public final List<JabberPresenceStatus> supportedStatusSet =
         new LinkedList<JabberPresenceStatus>();
 
     /**
      * The Unknown status. Indicate that we don't know if the user is present or
      * not.
      */
-    private JabberPresenceStatus unknownStatus;
+    private final JabberPresenceStatus unknownStatus;
     
-    private static Hashtable<String, JabberStatusEnum> existingEnums
-        = new Hashtable<String, JabberStatusEnum>();
+    private static final Map<String, JabberStatusEnum> existingEnums =
+        new Hashtable<String, JabberStatusEnum>();
 
     /**
      * Returns an instance of JabberStatusEnum for the specified 
@@ -239,7 +239,7 @@ public class JabberStatusEnum
         return loadIcon(imagePath, JabberStatusEnum.class);
     }
 
-    public static byte[] loadIcon(String imagePath, Class clazz)
+    public static byte[] loadIcon(String imagePath, Class<?> clazz)
     {
         InputStream is = getResourceAsStream(imagePath, clazz);
 
@@ -272,7 +272,7 @@ public class JabberStatusEnum
         return icon;
     }
 
-    private static InputStream getResourceAsStream(String name, Class clazz)
+    private static InputStream getResourceAsStream(String name, Class<?> clazz)
     {
         if (name.indexOf("://") != -1)
         {
@@ -296,7 +296,7 @@ public class JabberStatusEnum
      * An implementation of <tt>PresenceStatus</tt> that enumerates all states
      * that a Jabber contact can currently have.
      */
-    private class JabberPresenceStatus
+    private static class JabberPresenceStatus
         extends PresenceStatus
     {
         /**

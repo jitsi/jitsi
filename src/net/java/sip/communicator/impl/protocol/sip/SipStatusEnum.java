@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SipStatusEnum</tt> gives access to presence states for the Sip
@@ -21,9 +20,6 @@ import net.java.sip.communicator.util.*;
  */
 public class SipStatusEnum
 {
-    private static final Logger logger
-        = Logger.getLogger(SipStatusEnum.class);
-
     /**
      * Indicates an Offline status or status with 0 connectivity.
      */
@@ -59,55 +55,48 @@ public class SipStatusEnum
     public static final String UNKNOWN = "Unknown";
 
     /**
-     * The path to the status icons.
-     */
-    private String iconPath;
-
-    /**
      * Indicates an Offline status or status with 0 connectivity.
      */
-    private SipPresenceStatus offlineStatus;
+    private final SipPresenceStatus offlineStatus;
 
     /**
      * The Online status. Indicate that the user is able and willing to
      * communicate.
      */
-    private SipPresenceStatus onlineStatus;
+    private final SipPresenceStatus onlineStatus;
 
     /**
      * The busy status. Indicates that the user has connectivity but is doing
      * something else.
      */
-    private SipPresenceStatus busyStatus;
+    private final SipPresenceStatus busyStatus;
 
     /**
      * The On the phone status. Indicates that the user is talking to the phone.
      */
-    private SipPresenceStatus onThePhoneStatus;
+    private final SipPresenceStatus onThePhoneStatus;
 
     /**
      * The Away  status. Indicates that the user has connectivity but might
      * not be able to immediately act upon initiation of communication.
      */
-    private SipPresenceStatus awayStatus;
+    private final SipPresenceStatus awayStatus;
 
     /**
      * The Unknown status. Indicate that we don't know if the user is present
      * or not.
      */
-    private SipPresenceStatus unknownStatus;
+    private final SipPresenceStatus unknownStatus;
 
     /**
      * The supported status set stores all statuses supported by this protocol
      * implementation.
      */
-    public List<SipPresenceStatus> supportedStatusSet
+    public final List<SipPresenceStatus> supportedStatusSet
         = new LinkedList<SipPresenceStatus>();
 
     public SipStatusEnum(String iconPath)
     {
-        this.iconPath = iconPath;
-
         this.offlineStatus = new SipPresenceStatus(
             0,
             OFFLINE, 
@@ -193,7 +182,7 @@ public class SipStatusEnum
      * An implementation of <tt>PresenceStatus</tt> that enumerates all states
      * that a SIP contact can currently have.
      */
-    private class SipPresenceStatus
+    private static class SipPresenceStatus
         extends PresenceStatus
     {
         /**

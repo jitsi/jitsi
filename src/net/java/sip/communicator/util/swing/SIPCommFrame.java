@@ -442,17 +442,17 @@ public abstract class SIPCommFrame
 
             // If the custom color window background is not enabled we have
             // nothing to do here.
-            if (!isColorBgEnabled)
-                return;
-
-            g = g.create();
-            try
+            if (isColorBgEnabled)
             {
-                internalPaintComponent(g);
-            }
-            finally
-            {
-                g.dispose();
+                g = g.create();
+                try
+                {
+                    internalPaintComponent(g);
+                }
+                finally
+                {
+                    g.dispose();
+                }
             }
         }
 

@@ -28,6 +28,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -52,8 +53,8 @@ public class UIServiceImpl
 
     private AccountRegWizardContainerImpl wizardContainer;
 
-    private Vector<PluginComponentListener>
-        pluginComponentListeners = new Vector<PluginComponentListener>();
+    private final List<PluginComponentListener> pluginComponentListeners =
+        new Vector<PluginComponentListener>();
 
     private static final List<Container> supportedContainers
         = new ArrayList<Container>();
@@ -159,7 +160,7 @@ public class UIServiceImpl
      * @see UIService#getSupportedContainers()
      * @return an Iterator over all supported containers.
      */
-    public Iterator getSupportedContainers()
+    public Iterator<Container> getSupportedContainers()
     {
         return Collections.unmodifiableList(supportedContainers).iterator();
     }
@@ -186,13 +187,8 @@ public class UIServiceImpl
 
         synchronized (pluginComponentListeners)
         {
-            Iterator<PluginComponentListener> listeners =
-                this.pluginComponentListeners.iterator();
-
-            while (listeners.hasNext())
+            for (PluginComponentListener l : pluginComponentListeners)
             {
-                PluginComponentListener l = listeners.next();
-
                 switch (evt.getEventID())
                 {
                 case PluginComponentEvent.PLUGIN_COMPONENT_ADDED:
@@ -203,6 +199,7 @@ public class UIServiceImpl
                     break;
                 default:
                     logger.error("Unknown event type " + evt.getEventID());
+                    break;
                 }
             }
         }
@@ -360,13 +357,10 @@ public class UIServiceImpl
     {
         this.exitOnClose = exitOnClose;
 
-        if (mainFrame == null)
-            return;
-
-        if (exitOnClose)
-            mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        else
-            mainFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        if (mainFrame != null)
+            mainFrame
+                .setDefaultCloseOperation(exitOnClose ? JFrame.DISPOSE_ON_CLOSE
+                    : JFrame.HIDE_ON_CLOSE);
     }
 
     /**
@@ -470,32 +464,29 @@ public class UIServiceImpl
      *
      * @see UIService#getSupportedExportedWindows()
      */
-    public Iterator getSupportedExportedWindows()
+    public Iterator<WindowID> getSupportedExportedWindows()
     {
         return Collections.unmodifiableMap(exportedWindows).keySet().iterator();
     }
 
     /**
-     * Implements the <code>getExportedWindow</code> in the UIService
-     * interface. Returns the window corresponding to the given
-     * <tt>WindowID</tt>.
-     *
+     * Implements the <code>getExportedWindow</code> in the UIService interface.
+     * Returns the window corresponding to the given <tt>WindowID</tt>.
+     * 
      * @param windowID the id of the window we'd like to retrieve.
      * @param params the params to be passed to the returned window.
      * @return a reference to the <tt>ExportedWindow</tt> instance corresponding
-     * to <tt>windowID</tt>.
+     *         to <tt>windowID</tt>.
      * @see UIService#getExportedWindow(WindowID)
      */
     public ExportedWindow getExportedWindow(WindowID windowID, Object[] params)
     {
-        if (exportedWindows.containsKey(windowID))
-        {
-            ExportedWindow win = (ExportedWindow) exportedWindows.get(windowID);
+        ExportedWindow win = exportedWindows.get(windowID);
+
+        if (win != null)
             win.setParams(params);
 
-            return win;
-        }
-        return null;
+        return win;
     }
 
     /**
@@ -845,29 +836,29 @@ public class UIServiceImpl
 
         PluginComponent pluginComponent = (PluginComponent) sService;
 
-        if (event.getType() == ServiceEvent.REGISTERED)
+        switch (event.getType())
         {
-            logger
-                .info("Handling registration of a new Plugin Component.");
+        case ServiceEvent.REGISTERED:
+            logger.info("Handling registration of a new Plugin Component.");
 
-            if(pluginComponent.getComponent() == null
-                || !(pluginComponent.getComponent() instanceof Component))
+            Object component = pluginComponent.getComponent();
+            if (component == null || !(component instanceof Component))
             {
-                logger.error("Plugin Component type is not supported." +
-                            "Should provide a plugin in AWT, SWT or Swing.");
+                logger.error("Plugin Component type is not supported."
+                    + "Should provide a plugin in AWT, SWT or Swing.");
                 logger.debug("Logging exception to show the calling plugin",
-                            new Exception(""));
+                    new Exception(""));
                 return;
             }
 
-            this.firePluginEvent(   pluginComponent,
-                                    PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
-        }
-        else if (event.getType() == ServiceEvent.UNREGISTERING)
-        {
-            this.firePluginEvent(   pluginComponent,
-                                    PluginComponentEvent
-                                        .PLUGIN_COMPONENT_REMOVED);
+            this.firePluginEvent(pluginComponent,
+                PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
+            break;
+
+        case ServiceEvent.UNREGISTERING:
+            this.firePluginEvent(pluginComponent,
+                PluginComponentEvent.PLUGIN_COMPONENT_REMOVED);
+            break;
         }
     }
 
@@ -904,7 +895,9 @@ public class UIServiceImpl
 
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if (evt.getPropertyName().equals(
+        String propertyName = evt.getPropertyName();
+
+        if (propertyName.equals(
             "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED"))
         {
             String isTransparentString = (String) evt.getNewValue();
@@ -923,24 +916,24 @@ public class UIServiceImpl
 
                 if (isTransparentWindowEnabled)
                 {
-                    new ErrorDialog(mainFrame,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.ERROR"),
-                        GuiActivator.getResources()
+                    ResourceManagementService resources =
+                        GuiActivator.getResources();
+
+                    new ErrorDialog(mainFrame, resources
+                        .getI18NString("service.gui.ERROR"), resources
                         .getI18NString("service.gui.TRANSPARENCY_NOT_ENABLED"))
-                    .showDialog();
+                        .showDialog();
                 }
 
                 ConfigurationManager.setTransparentWindowEnabled(false);
             }
         }
-        else if (evt.getPropertyName().equals(
+        else if (propertyName.equals(
             "impl.gui.WINDOW_TRANSPARENCY"))
         {
             mainFrame.repaint();
         }
     }
-    
 
     /**
      * Initialize main window font.
@@ -949,13 +942,10 @@ public class UIServiceImpl
     {
         JComponent layeredPane = mainFrame.getLayeredPane();
 
-        String fontName
-            = GuiActivator.getResources().getSettingsString(
-                "service.gui.FONT_NAME");
-
-        String titleFontSize
-            = GuiActivator.getResources().getSettingsString(
-                "service.gui.FONT_SIZE");
+        ResourceManagementService resources = GuiActivator.getResources();
+        String fontName = resources.getSettingsString("service.gui.FONT_NAME");
+        String titleFontSize =
+            resources.getSettingsString("service.gui.FONT_SIZE");
 
         Font font = new Font(   fontName,
                                 Font.BOLD,
