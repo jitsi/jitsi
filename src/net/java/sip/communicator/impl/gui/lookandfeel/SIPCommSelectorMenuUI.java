@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.swing.*;
 public class SIPCommSelectorMenuUI
     extends BasicMenuUI
 {
-    private Image menuBgImage
+    private final Image menuBgImage
         = ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX);
     
     /**
@@ -32,12 +32,6 @@ public class SIPCommSelectorMenuUI
     public static ComponentUI createUI(JComponent x)
     {
         return new SIPCommSelectorMenuUI();
-    }
-
-    public void paint(Graphics g, JComponent c)
-    {
-        AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);
     }
 
     /**
@@ -50,11 +44,19 @@ public class SIPCommSelectorMenuUI
      */
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
     {
-        AntialiasingManager.activateAntialiasing(g);
+        g = g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
 
-        int menuWidth = menuItem.getWidth();
-        int menuHeight = menuItem.getHeight();
+            int menuWidth = menuItem.getWidth();
+            int menuHeight = menuItem.getHeight();
 
-        g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
+            g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
+        }
+        finally
+        {
+            g.dispose();
+        }
     }
 }

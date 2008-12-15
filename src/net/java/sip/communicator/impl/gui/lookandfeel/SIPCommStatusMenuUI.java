@@ -29,12 +29,6 @@ public class SIPCommStatusMenuUI
         return new SIPCommStatusMenuUI();
     }
 
-    public void paint(Graphics g, JComponent c)
-    {
-        AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);
-    }
-
     /**
      * Draws the background of the menu.
      * 
@@ -45,9 +39,23 @@ public class SIPCommStatusMenuUI
      */
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
     {
-        AntialiasingManager.activateAntialiasing(g);
-
         super.paintBackground(g, menuItem, bgColor);
+
+        g = g.create();
+        try
+        {
+            internalPaintBackground(g, menuItem, bgColor);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
+
+    private void internalPaintBackground(Graphics g, JMenuItem menuItem,
+        Color bgColor)
+    {
+        AntialiasingManager.activateAntialiasing(g);
 
         Color oldColor = g.getColor();
 

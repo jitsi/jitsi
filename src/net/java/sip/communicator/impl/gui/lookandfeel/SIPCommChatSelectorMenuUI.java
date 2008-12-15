@@ -24,11 +24,8 @@ import net.java.sip.communicator.util.swing.*;
 public class SIPCommChatSelectorMenuUI
     extends BasicMenuUI
 {
-    private Image menuBgImage
+    private final Image menuBgImage
         = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_BUTTON_BG);
-
-    private Image menuRolloverImage
-        = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_ROLLOVER_BUTTON_BG);
 
     /**
      * Creates a new SIPCommChatSelectorMenuUI instance.
@@ -36,12 +33,6 @@ public class SIPCommChatSelectorMenuUI
     public static ComponentUI createUI(JComponent x)
     {
         return new SIPCommChatSelectorMenuUI();
-    }
-
-    public void paint(Graphics g, JComponent c)
-    {
-        AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);
     }
 
     /**
@@ -54,21 +45,28 @@ public class SIPCommChatSelectorMenuUI
      */
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
     {
-        AntialiasingManager.activateAntialiasing(g);
-
         super.paintBackground(g, menuItem, bgColor);
 
-        boolean isToolBarExtended
-            = new Boolean(GuiActivator.getResources().
-                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED"))
-                    .booleanValue();
+        boolean isToolBarExtended =
+            new Boolean(GuiActivator.getResources().getSettingsString(
+                "impl.gui.IS_TOOLBAR_EXTENDED")).booleanValue();
 
         if (!isToolBarExtended)
         {
-            int menuWidth = menuItem.getWidth();
-            int menuHeight = menuItem.getHeight();
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
 
-            g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
+                int menuWidth = menuItem.getWidth();
+                int menuHeight = menuItem.getHeight();
+
+                g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 }

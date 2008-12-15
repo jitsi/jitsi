@@ -150,8 +150,23 @@ public class SIPCommTabbedPaneEnhancedUI
     }
 
     protected void paintTabBackground(Graphics g, int tabPlacement,
-            int tabIndex, int x, int y, int w, int h, boolean isSelected) {
+        int tabIndex, int x, int y, int w, int h, boolean isSelected)
+    {
+        g = g.create();
+        try
+        {
+            internalPaintTabBackground(g, tabPlacement, tabIndex, x, y, w, h,
+                isSelected);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
 
+    private void internalPaintTabBackground(Graphics g, int tabPlacement,
+        int tabIndex, int x, int y, int w, int h, boolean isSelected)
+    {
         BufferedImage leftImg = null;
         BufferedImage middleImg = null;
         BufferedImage rightImg = null;

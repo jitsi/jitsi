@@ -6,13 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.*;
-
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
-
-import net.java.sip.communicator.util.swing.*;
 
 /**
  *  SIPCommPopupMenuUI implementation.
@@ -26,11 +22,5 @@ public class SIPCommPopupMenuUI extends BasicPopupMenuUI
      */
     public static ComponentUI createUI(JComponent c) {
         return new SIPCommPopupMenuUI();
-    }
-
-    public void paint(Graphics g, JComponent c) {
-        AntialiasingManager.activateAntialiasing(g);
-        
-        super.paint(g, c);
     }
 }
