@@ -20,12 +20,12 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * This class is in the SipListener for all SipProviderS.
- * It is in charge of dispatching the received messages
- * to the registered ProtocolProviderServiceSipImplS.
- * It also contains the common JAIN-SIP stuff between
- * all ProtocolProviderServiceSipImpl (namely 1 SipStack,
- * 2 SipProvider-s, 3 ListeningPoint-s).
+ * This class is the <tt>SipListener</tt> for all JAIN-SIP
+ * <tt>SipProvider</tt>s. It is in charge of dispatching the received messages
+ * to the suitable <tt>ProtocolProviderServiceSipImpl</tt>s registered with
+ * <tt>addSipListener</tt>. It also contains the JAIN-SIP pieces which are
+ * common between all <tt>ProtocolProviderServiceSipImpl</tt>s (namely 1
+ * <tt>SipStack</tt>, 2 <tt>SipProvider</tt>s, 3 <tt>ListeningPoint</tt>s).
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
@@ -37,13 +37,13 @@ public class SipStackSharing
                RegistrationStateChangeListener
 {
     /**
-     * Logger for this class
+     * Logger for this class.
      */
     private static final Logger logger
         = Logger.getLogger(SipStackSharing.class);
 
     /**
-     * Our SIP stack (provided by JAIN-SIP)
+     * Our SIP stack (provided by JAIN-SIP).
      */
     private final SipStack stack;
 
@@ -58,22 +58,24 @@ public class SipStackSharing
     private SipProvider secureJainSipProvider = null;
 
     /**
-     * the listeners to choose from when dispatching
-     * messages from the SipProvider-s
+     * The candidate recipients to choose from when dispatching messages
+     * received from one the JAIN-SIP <tt>SipProvider</tt>-s. for thread safety
+     * issues reasons, better iterate on a copy of that set using
+     * <tt>getSipListeners()</tt>.
      */
     private final Set<ProtocolProviderServiceSipImpl> listeners
         = new HashSet<ProtocolProviderServiceSipImpl>();
 
     /**
      * The property indicating the preferred UDP and TCP
-     * port to bind to for clear communications
+     * port to bind to for clear communications.
      */
     private static final String PREFERRED_CLEAR_PORT_PROPERTY_NAME
         = "net.java.sip.communicator.SIP_PREFERRED_CLEAR_PORT";
 
     /**
      * The property indicating the preferred TLS (TCP)
-     * port to bind to for secure communications
+     * port to bind to for secure communications.
      */
     private static final String PREFERRED_SECURE_PORT_PROPERTY_NAME
         = "net.java.sip.communicator.SIP_PREFERRED_SECURE_PORT";
@@ -112,10 +114,10 @@ public class SipStackSharing
     }
 
     /**
-     * Adds the ProtocolProviderServiceSipImpl listener as a target
-     * for the dispatcher
+     * Adds this <tt>listener</tt> as a candidate recipient for the dispatching
+     * of new messages received from the JAIN-SIP <tt>SipProvider</tt>s.
      *
-     * @param listener new possible target for the dispatching process
+     * @param listener a new possible target for the dispatching process.
      */
     public void addSipListener(ProtocolProviderServiceSipImpl listener)
         throws OperationFailedException
@@ -131,10 +133,11 @@ public class SipStackSharing
     }
 
     /**
-     * The ProtocolProviderServiceSipImpl listener will no longer
-     * be a target for the dispatcher.
+     * This <tt>listener</tt> will no longer be a candidate recipient for the
+     * dispatching of new messages received from the JAIN-SIP
+     * <tt>SipProvider</tt>s.
      *
-     * @param listener possible target to remove for the dispatching process
+     * @param listener possible target to remove for the dispatching process.
      */
     private void removeSipListener(ProtocolProviderServiceSipImpl listener)
     {
@@ -150,11 +153,9 @@ public class SipStackSharing
     }
 
     /**
-     * Returns a copy of the listeners set. You should iterate on the
-     * returned Set, not directly on the listeners attribute (for thread
-     * safety issues).
+     * Returns a copy of the <tt>listeners</tt> (= candidate recipients) set.
      *
-     * @return a copy of the listeners set
+     * @return a copy of the <tt>listeners</tt> set.
      */
     private Set<ProtocolProviderServiceSipImpl> getSipListeners()
     {
@@ -168,7 +169,7 @@ public class SipStackSharing
      * Stops dispatching SIP messages to a SIP protocol provider service
      * once it's been unregistered.
      *
-     * @param event the change event in the registration state of a provider
+     * @param event the change event in the registration state of a provider.
      */
     public void registrationStateChanged(RegistrationStateChangeEvent event)
     {
@@ -182,10 +183,11 @@ public class SipStackSharing
     }
 
     /**
-     * Returns the JAIN-SIP ListeningPoint associated to the given
+     * Returns the JAIN-SIP <tt>ListeningPoint</tt> associated to the given
      * transport string.
      *
-     * @param transport a string like "UDP", "TCP" or "TLS"
+     * @param transport a string like "UDP", "TCP" or "TLS".
+     * @return the LP associated to the given transport.
      */
     public ListeningPoint getLP(String transport)
     {
@@ -205,8 +207,9 @@ public class SipStackSharing
     }
 
     /**
-     * Put the stack in a state where it can receive data on
-     * three UDP/TCP port (2 for clear communication, 1 for TLS)
+     * Put the stack in a state where it can receive data on three UDP/TCP ports
+     * (2 for clear communication, 1 for TLS). That is to say create the related
+     * JAIN-SIP <tt>ListeningPoint</tt>s and <tt>SipProvider</tt>s.
      */
     private void startListening()
         throws OperationFailedException
@@ -226,26 +229,26 @@ public class SipStackSharing
         {
             logger.error("An unexpected error happened while creating the"
                     + "SipProviders and ListeningPoints.");
-            throw new OperationFailedException(
-                    "An unexpected error hapenned while initializing the SIP stack"
+            throw new OperationFailedException("An unexpected error hapenned"
+                    + "while initializing the SIP stack"
                     , OperationFailedException.INTERNAL_ERROR
                     , ex);
         }
     }
 
     /**
-     * Attach JAIN-SIP SipProvider and ListeningPoint to the stack either for
-     * clear communications or TLS. Clear UDP and TCP ListeningPoint are not
-     * handled separately as the former is a fallback for the latter (depending
-     * on the size of the data transmitted). Both ListeningPoint-s must be bound
-     * to the same address and port in order for the related SipProvider to be
-     * created. If UDP or TCP ListeningPoint cannot bind, *both* must retry on
-     * another port.
+     * Attach JAIN-SIP <tt>SipProvider</tt> and <tt>ListeningPoint</tt> to the
+     * stack either for clear communications or TLS. Clear UDP and TCP
+     * <tt>ListeningPoint</tt>s are not handled separately as the former is a
+     * fallback for the latter (depending on the size of the data transmitted).
+     * Both <tt>ListeningPoint</tt>s must be bound to the same address and port
+     * in order for the related <tt>SipProvider</tt> to be created. If a UDP or
+     * TCP <tt>ListeningPoint</tt> cannot bind, retry for both on another port.
      *
-     * @param preferredPort which port to try first to bind
+     * @param preferredPort which port to try first to bind.
      * @param retries how many times should we try to find a free port to bind
-     * @param secure whether to create the TLS SipProvider
-     * or the clear UDP/TCP one
+     * @param secure whether to create the TLS SipProvider.
+     * or the clear UDP/TCP one.
      */
     private void createProvider(int preferredPort, int retries, boolean secure)
         throws TransportNotSupportedException
@@ -336,8 +339,9 @@ public class SipStackSharing
     }
 
     /**
-     * Put the JAIN-SIP stack in a state where it cannot receive any data
-     * and frees the network ports used.
+     * Put the JAIN-SIP stack in a state where it cannot receive any data and
+     * frees the network ports used. That is to say remove JAIN-SIP
+     * <tt>ListeningPoint</tt>s and <tt>SipProvider</tt>s.
      */
     private void stopListening()
     {
@@ -367,9 +371,11 @@ public class SipStackSharing
     }
 
     /**
-     * Returns the JAIN-SIP SipProvider matching the transport string.
+     * Returns the JAIN-SIP <tt>SipProvider</tt> in charge of this
+     * <tt>transport</tt>.
      *
-     * @param transport a String like "TCP", "UDP" or "TLS"
+     * @param transport a <tt>String</tt> like "TCP", "UDP" or "TLS"
+     * @return the corresponding <tt>SipProvider</tt>
      */
     public SipProvider getJainSipProvider(String transport)
     {
@@ -386,8 +392,10 @@ public class SipStackSharing
     }
 
     /**
-     * Fetches the preferred UDP and TCP port for clear communications
-     * in the user preferences or fallback on a default value.
+     * Fetches the preferred UDP and TCP port for clear communications in the
+     * user preferences or fallback on a default value.
+     *
+     * @return the preferred network port for clear communications.
      */
     private int getPreferredClearPort()
     {
@@ -396,8 +404,10 @@ public class SipStackSharing
     }
 
     /**
-     * Fetches the preferred TLS (TCP) port for secure communications
-     * in the user preferences or fallback on a default value.
+     * Fetches the preferred TLS (TCP) port for secure communications in the
+     * user preferences or fallback on a default value.
+     *
+     * @return the preferred network port for secure communications.
      */
     private int getPreferredSecurePort()
     {
@@ -406,9 +416,11 @@ public class SipStackSharing
     }
 
     /**
-     * Fetches the number of times to retry when the binding of the JAIN-SIP
-     * ListeningPoint fails. Looks in the user preferences or fallback on a
-     * default value.
+     * Fetches the number of times to retry when the binding of a JAIN-SIP
+     * <tt>ListeningPoint</tt> fails. Looks in the user preferences or
+     * fallbacks on a default value.
+     *
+     * @return the number of times to retry a failed bind.
      */
     private int getBindRetriesValue()
     {
@@ -418,9 +430,11 @@ public class SipStackSharing
     }
 
     /**
-     * Dispatches the event received to one of our listeners.
+     * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
+     * of our "candidate recipient" listeners.
      *
-     * @see javax.sip.SipListener#processDialogTerminated
+     * @param dialogTerminatedEvent the event received for a
+     * <tt>SipProvider</tt>.
      */
     public void processDialogTerminated(
                                 DialogTerminatedEvent dialogTerminatedEvent)
@@ -444,15 +458,10 @@ public class SipStackSharing
     }
 
     /**
-     * Process an asynchronously reported IO Exception. Asynchronous IO
-     * Exceptions may occur as a result of errors during retransmission of
-     * requests. The transaction state machine requires to report IO Exceptions
-     * to the application immediately (according to RFC 3261). This method
-     * enables an implementation to propagate the asynchronous handling of IO
-     * Exceptions to the application.
+     * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
+     * of our "candidate recipient" listeners.
      *
-     * @param exceptionEvent The Exception event that is reported to the
-     * application.
+     * @param exceptionEvent the event received for a <tt>SipProvider</tt>.
      */
     public void processIOException(IOExceptionEvent exceptionEvent)
     {
@@ -463,9 +472,10 @@ public class SipStackSharing
     }
 
     /**
-     * Dispatches the event received to one of our listeners.
+     * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
+     * of our "candidate recipient" listeners.
      *
-     * @see javax.sip.SipListener#processRequest
+     * @param requestEvent the event received for a <tt>SipProvider</tt>.
      */
     public void processRequest(RequestEvent requestEvent)
     {
@@ -482,9 +492,10 @@ public class SipStackSharing
     }
 
     /**
-     * Dispatches the event received to one of our listeners.
+     * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
+     * of our "candidate recipient" listeners.
      *
-     * @see javax.sip.SipListener#processResponse
+     * @param responseEvent the event received for a <tt>SipProvider</tt>.
      */
     public void processResponse(ResponseEvent responseEvent)
     {
@@ -501,9 +512,10 @@ public class SipStackSharing
     }
 
     /**
-     * Dispatches the event received to one of our listeners.
+     * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
+     * of our "candidate recipient" listeners.
      *
-     * @see javax.sip.SipListener#processTimeout
+     * @param timeoutEvent the event received for a <tt>SipProvider</tt>.
      */
     public void processTimeout(TimeoutEvent timeoutEvent)
     {
@@ -526,9 +538,11 @@ public class SipStackSharing
     }
 
     /**
-     * Dispatches the event received to one of our listeners.
+     * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
+     * of our "candidate recipient" listeners.
      *
-     * @see javax.sip.SipListener#processTransactionTerminated
+     * @param event the event received for a
+     * <tt>SipProvider</tt>.
      */
     public void processTransactionTerminated(TransactionTerminatedEvent event)
     {
@@ -551,12 +565,16 @@ public class SipStackSharing
     }
 
     /**
-     * Find the ProtocolProviderServiceSipImpl which this ServerTransaction
-     * should be dispatched to. The strategy is to look first at the request
-     * URI, and then at the To field to find a matching candidate for
-     * dispatching. Note this method takes a Request as param, and not a
-     * ServerTransaction, because sometimes RequestEvent-s have no associated
-     * ServerTransaction.
+     * Find the <tt>ProtocolProviderServiceSipImpl</tt> (one of our
+     * "candidate recipient" listeners) which this <tt>request</tt> should be
+     * dispatched to. The strategy is to look first at the request URI, and
+     * then at the To field to find a matching candidate for dispatching.
+     * Note that this method takes a <tt>Request</tt> as param, and not a
+     * <tt>ServerTransaction</tt>, because sometimes <tt>RequestEvent</tt>s
+     * have no associated <tt>ServerTransaction</tt>.
+     *
+     * @param request the <tt>Request</tt> to find a recipient for.
+     * @return a suitable <tt>ProtocolProviderServiceSipImpl</tt>.
      */
     private ProtocolProviderServiceSipImpl findTargetFor(Request request)
     {
@@ -809,10 +827,14 @@ public class SipStackSharing
     }
 
     /**
-     * Find the ProtocolProviderServiceSipImpl which this ClientTransaction
-     * should be dispatched to. The JAIN-SIP stores the initial request we
-     * made to the UAS. Using the From field we set there, it is possible
-     * to find the ProtocolProviderServiceSipImpl originator of the request.
+     * Finds the <tt>ProtocolProviderServiceSipImpl</tt> which this
+     * <tt>ClientTransaction</tt> should be dispatched to. The JAIN-SIP stack
+     * stores the initial request we made to the UAS. Using the From field we
+     * set ourselves there when generating the request, it is possible to find
+     * the <tt>ProtocolProviderServiceSipImpl</tt> originator of the request.
+     *
+     * @param transaction the <tt>ClientTransaction</tt> to find a target for.
+     * @return a matching <tt>ProtocolProviderServiceSipImpl</tt>.
      */
     private ProtocolProviderServiceSipImpl findTargetFor(
                                                 ClientTransaction transaction)
@@ -838,8 +860,14 @@ public class SipStackSharing
     }
 
     /**
-     * Find the ProtocolProviderServiceSipImpl which would have localParty as
-     * SIP address when contacting the remote end at remoteURI
+     * Find the <tt>ProtocolProviderServiceSipImpl</tt> which would have
+     * <tt>localParty</tt> as SIP address when contacting the remote end at
+     * <tt>remoteURI</tt>.
+     *
+     * @param localParty the local address used to contact a remote end.
+     * @param remoteURI the remote URI used to generate <tt>localParty</tt>.
+     * @return a <tt>ProtocolProviderServiceSipImpl</tt> which would use
+     * <tt>localParty</tt> as local address to contact <tt>remoteURI</tt>.
      */
     private ProtocolProviderServiceSipImpl getListenerFor(Address localParty,
                                                           SipURI remoteURI)

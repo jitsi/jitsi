@@ -16,10 +16,9 @@ import javax.sip.message.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * An implementation of the router implementation
- * wrappring around DefaultRouter in order to be able
- * to change the outbound depending on the account
- * which sent the request.
+ * An implementation of the <tt>Router</tt> interface wrapping around JAIN-SIP
+ * RI <tt>DefaultRouter</tt> in order to be able to change the outbound
+ * proxy depending on the account which sent the request.
  *
  * @author Sebastien Mazy
  */
@@ -27,25 +26,27 @@ public class ProxyRouter
     implements Router
 {
     /**
-     * Logger for this class
+     * Logger for this class.
      */
     private static final Logger logger =
         Logger.getLogger(ProxyRouter.class);
 
     /**
-     * the running JAIN-SIP stack
+     * The running JAIN-SIP stack.
      */
     private final SipStack stack;
 
     /**
-     * Used to cache the DefaultRouter
+     * Used to cache the <tt>DefaultRouter</tt>s. One <tt>DefaultRouter</tt> per
+     * outbound proxy.
      */
     Map<String, Router> routers = new HashMap<String, Router>();
 
     /**
-     * Simple contructor. Ignores the defaultRoute parameter.
+     * Simple contructor. Ignores the <tt>defaultRoute</tt> parameter.
      *
-     * @see javax.sip.address.Router
+     * @param stack the currently running stack.
+     * @param defaultRoute ignored parameter.
      */
     public ProxyRouter(SipStack stack, String defaultRoute)
     {
@@ -56,7 +57,10 @@ public class ProxyRouter
     }
 
     /**
-     * @see javax.sip.address.Router#getNextHop
+     * Returns the next hop for this <tt>Request</tt>.
+     *
+     * @param request <tt>Request</tt> to find the next hop.
+     * @return the next hop for the <tt>request</tt>.
      */
     public Hop getNextHop(Request request)
         throws SipException
@@ -69,8 +73,10 @@ public class ProxyRouter
     }
 
     /**
-     * @see javax.sip.address.Router#getNextHops
-     * @deprecated
+     * Returns the next hops for this <tt>Request</tt>.
+     *
+     * @param request <tt>Request</tt> to find the next hops.
+     * @return the next hops for the <tt>request</tt>.
      */
     @Deprecated
     public ListIterator getNextHops(Request request)
@@ -83,7 +89,9 @@ public class ProxyRouter
     }
 
     /**
-     * @see javax.sip.address.Router#getOutboundProxy
+     * Returns the outbound proxy for this <tt>Router</tt>.
+     *
+     * @return the outbound proxy for this <tt>Router</tt>.
      */
     public Hop getOutboundProxy()
     {
@@ -99,11 +107,12 @@ public class ProxyRouter
     }
 
     /**
-     * Creates a DefaultRouter whose default route
-     * is the outbound proxy of the account which
-     * sent the request.
+     * Creates a DefaultRouter whose default route is the outbound proxy of the
+     * account which sent the <tt>request</tt>.
      *
-     * @param request used to determine a default route
+     * @param request the <tt>Request</tt> which to build a <tt>Router</tt> for.
+     * @return a <tt>Router</tt> with the oubound proxy set for this
+     * <tt>request</tt>.
      */
     private Router getRouterFor(Request request)
     {
