@@ -109,14 +109,14 @@
 
     <target name="build-installation-generic"
             depends="clean-install-generic,define-izpack-task,version">
-                
-        <propertyfile file="${generic.app.dir}/versionupdate.properties" 
+
+        <propertyfile file="${generic.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link" 
+            <entry  key="download_link"
                     value="http://download.sip-communicator.org/nightly/generic/${package.name}-${sip-communicator.version}.jar"/>
         </propertyfile>
-                
+
         <filter token="VERSION" value="${sip-communicator.version}" />
         <filter token="BUILDDATE" value="${build.date}" />
         <filter token="PKG_NAME" value="${package.name}" />
@@ -128,20 +128,20 @@
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
 
-        <copy 
-            tofile="${generic.app.dir}/tmp-installer-generic.xml" 
-            file="${inst.resrc}/generic/installer-generic.xml" 
-            filtering="yes" 
+        <copy
+            tofile="${generic.app.dir}/tmp-installer-generic.xml"
+            file="${inst.resrc}/generic/installer-generic.xml"
+            filtering="yes"
         />
-        <copy 
-            tofile="${generic.app.dir}/tmp-windows_shortcut_specification.xml" 
-            file="${inst.resrc}/windows/windows_shortcut_specification.xml" 
-            filtering="yes" 
+        <copy
+            tofile="${generic.app.dir}/tmp-windows_shortcut_specification.xml"
+            file="${inst.resrc}/windows/windows_shortcut_specification.xml"
+            filtering="yes"
         />
-        <copy 
-            tofile="${generic.app.dir}/tmp-linux_shortcut_specification.xml" 
-            file="${inst.resrc}/linux/linux_shortcut_specification.xml" 
-            filtering="yes" 
+        <copy
+            tofile="${generic.app.dir}/tmp-linux_shortcut_specification.xml"
+            file="${inst.resrc}/linux/linux_shortcut_specification.xml"
+            filtering="yes"
         />
 
         <izpack
@@ -150,7 +150,7 @@
                installerType="standard"
                izPackDir="${izpack.dir}/"
                basedir="${sc.basedir}"/>
-               
+
         <delete quiet="yes" failonerror="false">
             <fileset dir="${generic.app.dir}">
                 <include name="tmp-*"/>
@@ -166,14 +166,14 @@
 
     <target name="build-installation-linux"
             depends="clean-install-linux,define-izpack-task,version">
-        
-        <propertyfile file="${linux.app.dir}/versionupdate.properties" 
+
+        <propertyfile file="${linux.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link" 
+            <entry  key="download_link"
                     value="http://download.sip-communicator.org/nightly/linux/${package.name}-${sip-communicator.version}-linux.bin"/>
         </propertyfile>
-                
+
         <filter token="VERSION" value="${sip-communicator.version}" />
         <filter token="BUILDDATE" value="${build.date}" />
         <filter token="PKG_NAME" value="${package.name}" />
@@ -184,7 +184,7 @@
         <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
-        
+
         <copy todir="${linux.app.dir}/tmp" filtering="yes" >
             <fileset dir="${inst.resrc}/linux">
                 <include name="setup.sh"/>
@@ -197,18 +197,18 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
-    
-        <copy 
-            tofile="${linux.app.dir}/tmp/tmp-installer-linux.xml" 
-            file="${inst.resrc}/linux/installer-linux.xml" 
-            filtering="yes" 
+
+        <copy
+            tofile="${linux.app.dir}/tmp/tmp-installer-linux.xml"
+            file="${inst.resrc}/linux/installer-linux.xml"
+            filtering="yes"
         />
-        <copy 
-            tofile="${linux.app.dir}/tmp-linux_shortcut_specification.xml" 
-            file="${inst.resrc}/linux/linux_shortcut_specification.xml" 
-            filtering="yes" 
+        <copy
+            tofile="${linux.app.dir}/tmp-linux_shortcut_specification.xml"
+            file="${inst.resrc}/linux/linux_shortcut_specification.xml"
+            filtering="yes"
         />
-    
+
         <!-- create izpack installer jar file -->
         <izpack input="${linux.app.dir}/tmp/tmp-installer-linux.xml"
                 output="${linux.app.dir}/tmp/${package.name}-${sip-communicator.version}-linux.jar"
@@ -250,14 +250,14 @@
 
     <target name="build-installation-windows"
             depends="clean-install-windows,define-izpack-task,version">
-               
-        <propertyfile file="${windows.app.dir}/versionupdate.properties" 
+
+        <propertyfile file="${windows.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link" 
+            <entry  key="download_link"
                     value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe"/>
         </propertyfile>
-                
+
         <filter token="VERSION" value="${sip-communicator.version}" />
         <filter token="BUILDDATE" value="${build.date}" />
         <filter token="PKG_NAME" value="${package.name}" />
@@ -268,11 +268,11 @@
         <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
-            
-        <copy 
-            tofile="${windows.app.dir}/tmp-windows_shortcut_specification.xml" 
-            file="${inst.resrc}/windows/windows_shortcut_specification.xml" 
-            filtering="yes" 
+
+        <copy
+            tofile="${windows.app.dir}/tmp-windows_shortcut_specification.xml"
+            file="${inst.resrc}/windows/windows_shortcut_specification.xml"
+            filtering="yes"
         />
 
         <!-- Copy with replacing some parameters in text files -->
@@ -281,7 +281,7 @@
                 <include name="launcher.ini"/>
             </fileset>
         </copy>
-        
+
         <!-- Copy other needed files to tmp folder -->
         <copy todir="${windows.app.dir}/tmp">
             <fileset dir="${inst.resrc}/windows">
@@ -293,12 +293,12 @@
         <copy file="${windows.jre.file}"
               tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
 
-        <copy 
-            tofile="${windows.app.dir}/tmp/tmp-installer-windows.xml" 
-            file="${inst.resrc}/windows/installer-windows.xml" 
-            filtering="yes" 
+        <copy
+            tofile="${windows.app.dir}/tmp/tmp-installer-windows.xml"
+            file="${inst.resrc}/windows/installer-windows.xml"
+            filtering="yes"
         />
-              
+
         <izpack
                input="${windows.app.dir}/tmp/tmp-installer-windows.xml"
                output="${windows.app.dir}/tmp/sip-communicator-windows.jar"
@@ -313,12 +313,12 @@
             <arg line="a -y data.7z *"/>
         </exec>
 
-        <copy 
-            tofile="${windows.app.dir}/tmp/7zip.conf" 
-            file="${inst.resrc}/windows/7zip.conf" 
-            filtering="yes" 
+        <copy
+            tofile="${windows.app.dir}/tmp/7zip.conf"
+            file="${inst.resrc}/windows/7zip.conf"
+            filtering="yes"
         />
-        
+
         <concat destfile="${windows.app.dir}/${package.name}-${sip-communicator.version}.exe"
                 binary="true">
             <fileset dir="${inst.resrc}/windows">
@@ -585,8 +585,8 @@
             tofile="${macosx.resrc.dir}/felix.client.run.properties"
             overwrite="true"/>
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-            token="org.osgi.framework.system.packages="
-            value="org.osgi.framework.system.packages= com.growl;"/>
+            token="org.osgi.framework.system.packages.extra="
+            value="org.osgi.framework.system.packages.extra= com.growl;"/>
       <replaceregexp file="${macosx.resrc.dir}/felix.client.run.properties"
                 match="^org.osgi.framework.storage=\$\{user.home\}/.sip-communicator/sip-communicator.bin"
                 replace="org.osgi.framework.storage=$\{user.home\}/Library/Application Support/${application.name}/sip-communicator.bin"
@@ -594,7 +594,7 @@
       <echo file="${macosx.resrc.dir}/felix.client.run.properties"
             append="true">felix.auto.start.80= reference:file:sc-bundles/growlnotification.jar
       </echo>
-      
+
       <!-- We copy macosx-specific bundles from
            sc-bundles/os-specific/macosx to sc-bundles -->
       <copy todir="${bundles.dest}">
@@ -606,8 +606,8 @@
       <!-- Delete the old .app if it exists -->
       <delete dir="${macosx.app.dir}/${application.name}.app"
               quiet="yes" failonerror="false"/>
-              
-      <!-- Sparkle needs the build number. If it is not 
+
+      <!-- Sparkle needs the build number. If it is not
            available, we use the normal build label -->
       <condition property="sparkle.build"
                  value="${sparkle}"
@@ -670,7 +670,7 @@
         <javafilelist dir="${macosx.resrc.dir}"
                       files="versionupdate.properties"/>
       </jarbundler>
-      
+
       <!-- Add the url types in the Info.plist file -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
@@ -684,7 +684,7 @@
           </array>
         </dict>
       </array>
-      <key>CFBundleName</key>]]></replacevalue>    
+      <key>CFBundleName</key>]]></replacevalue>
       </replace>
       <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib" link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
 
@@ -695,12 +695,12 @@
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.
-         Executed only if the sparkle label property is set, i.e. if the 
+         Executed only if the sparkle label property is set, i.e. if the
          package is built from CruiseControl -->
     <target name="macosx-sparkle" depends="macosx"
             if="sparkle"
             description="Create an .app package for MACOSX with Sparkle support">
-	  
+
       <!-- Add the sparkle bundle path in the felix.client.run.properties file -->
       <echo file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
             append="true">felix.auto.start.71= reference:file:sc-bundles/sparkle.jar
@@ -714,9 +714,9 @@
               failonerror="false" />
 
       <!-- Add the Sparkle bundle and JNI to the application package -->
-      <copy file="${bundles.dest}/sparkle.jar" 
+      <copy file="${bundles.dest}/sparkle.jar"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/sc-bundles/"/>
-      <copy file="lib/native/mac/libsparkle_init.dylib" 
+      <copy file="lib/native/mac/libsparkle_init.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
       <!-- Add the Sparkle properties in the Info.plist file -->
@@ -728,21 +728,21 @@
     <string>http://download.sip-communicator.org/nightly/macosx/sparkle/updates.xml</string>
     <key>SUShowReleaseNotes</key>
     <string>true</string>
-    <key>CFBundleName</key>]]></replacevalue>    
+    <key>CFBundleName</key>]]></replacevalue>
       </replace>
 
       <!-- Install the Sparkle Framework in the application package -->
       <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
-      <unzip src="${macosx.resrc.dir}/Sparkle.framework.zip" 
+      <unzip src="${macosx.resrc.dir}/Sparkle.framework.zip"
             dest="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
       <!-- Ant unzip tasks does not preserve symlinks, so we recreate them -->
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/Current" 
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/Current"
             resource="./A"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Headers" 
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Headers"
             resource="./Versions/Current/Headers"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources" 
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources"
             resource="./Versions/Current/Resources"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Sparkle" 
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Sparkle"
             resource="./Versions/Current/Sparkle"/>
     </target>
 
@@ -751,10 +751,10 @@
             if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
 
-      <propertyfile file="${macosx.app.dir}/versionupdate.properties" 
+      <propertyfile file="${macosx.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link" 
+            <entry  key="download_link"
                     value="http://download.sip-communicator.org/nightly/macosx/${package.name}-${sip-communicator.version}.dmg"/>
       </propertyfile>
 
@@ -906,12 +906,12 @@
             <include name="${package.name}*"/>
         </fileset>
     </move>
-    
+
     <!-- Only i386 for now -->
-    <propertyfile file="${debian.dir}/versionupdate.properties" 
+    <propertyfile file="${debian.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link" 
+            <entry  key="download_link"
                     value="http://download.sip-communicator.org/nightly/debian/${package.name}_${sip-communicator.version}_i386.deb"/>
     </propertyfile>
 
