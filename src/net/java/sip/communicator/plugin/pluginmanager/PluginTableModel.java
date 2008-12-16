@@ -14,20 +14,21 @@ import org.osgi.framework.*;
 
 /**
  * The <tt>TableModel</tt> of the table containing all plug-ins.
- *
+ * 
  * @author Yana Stamcheva
  */
-public class PluginTableModel extends AbstractTableModel
+public class PluginTableModel
+    extends AbstractTableModel
 {
     private BundleContext bundleContext = PluginManagerActivator.bundleContext;
 
     private boolean showSystemBundles;
 
-    private Object showSystemBundlesSync = new Object();
+    private final Object showSystemBundlesSync = new Object();
 
     private Bundle[] bundles = null;
 
-    private BundleComparator bundleComparator = new BundleComparator();
+    private final BundleComparator bundleComparator = new BundleComparator();
 
     /**
      * Create an instance of <tt>PluginTableModel</tt>
@@ -36,7 +37,6 @@ public class PluginTableModel extends AbstractTableModel
     {
         refreshSortedBundlesList();
     }
-
 
     /**
      * Returns the count of table rows.
@@ -93,12 +93,8 @@ public class PluginTableModel extends AbstractTableModel
 
             if(b.equals(bundle))
             {
-                if(showSystem)
-                    return true;
-                else
-                {
-                    return (!PluginManagerActivator.isSystemBundle(bundle));
-                }
+                return showSystem
+                    || !PluginManagerActivator.isSystemBundle(bundle);
             }
         }
 

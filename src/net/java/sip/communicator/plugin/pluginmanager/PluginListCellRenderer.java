@@ -4,13 +4,15 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.pluginmanager;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
+
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -22,7 +24,8 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class PluginListCellRenderer extends JPanel
+public class PluginListCellRenderer
+    extends JPanel
     implements TableCellRenderer
 {
     /**
@@ -36,8 +39,6 @@ public class PluginListCellRenderer extends JPanel
      */
     private static final Color SELECTED_END_COLOR
         = new Color(Resources.getColor("service.gui.GRADIENT_LIGHT_COLOR"));
-
-    private JPanel mainPanel = new JPanel(new BorderLayout());
 
     private JPanel nameVersionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
@@ -56,7 +57,14 @@ public class PluginListCellRenderer extends JPanel
 
     private boolean isSelected = false;
 
-    private String direction;
+    /**
+     * The cache of the <code>ImageIcon</code> values returned by
+     * {@link #getStateIcon(int)} because the method in question is called
+     * whenever a table cell is painted and reading the image data out of a file
+     * and loading it into a new <code>ImageIcon</code> at such a time
+     * noticeably affects execution the speed.
+     */
+    private final ImageIcon[] stateIconCache = new ImageIcon[5];
 
     /**
      * Initialize the panel containing the node.
@@ -65,13 +73,15 @@ public class PluginListCellRenderer extends JPanel
     {
         super(new BorderLayout(8, 8));
 
+        JPanel mainPanel = new JPanel(new BorderLayout());
+
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.setBackground(Color.WHITE);
 
         this.setOpaque(true);
 
-        this.mainPanel.setOpaque(false);
+        mainPanel.setOpaque(false);
         this.nameVersionPanel.setOpaque(false);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -84,8 +94,8 @@ public class PluginListCellRenderer extends JPanel
         this.nameVersionPanel.add(nameLabel);
         this.nameVersionPanel.add(versionLabel);
 
-        this.mainPanel.add(nameVersionPanel, BorderLayout.NORTH);
-        this.mainPanel.add(descriptionLabel, BorderLayout.CENTER);
+        mainPanel.add(nameVersionPanel, BorderLayout.NORTH);
+        mainPanel.add(descriptionLabel, BorderLayout.CENTER);
 
         this.add(iconLabel, BorderLayout.WEST);
 
@@ -104,14 +114,11 @@ public class PluginListCellRenderer extends JPanel
     {
         Bundle bundle = (Bundle) value;
 
-        Object bundleName
-            = bundle.getHeaders().get(Constants.BUNDLE_NAME);
-        Object bundleVersion
-            = bundle.getHeaders().get(Constants.BUNDLE_VERSION);
-        Object bundleDescription
-            = bundle.getHeaders().get(Constants.BUNDLE_DESCRIPTION);
+        Dictionary headers = bundle.getHeaders();
+        Object bundleName = headers.get(Constants.BUNDLE_NAME);
+        Object bundleVersion = headers.get(Constants.BUNDLE_VERSION);
+        Object bundleDescription = headers.get(Constants.BUNDLE_DESCRIPTION);
 
-        Object bundleIconPath = bundle.getHeaders().get("Bundle-Icon-Path");
         Icon stateIcon = getStateIcon(bundle.getState());
 
         if(bundleName != null)
@@ -144,25 +151,38 @@ public class PluginListCellRenderer extends JPanel
 
     private ImageIcon getStateIcon(int state)
     {
+        int cacheIndex;
+        String imageID;
         switch (state)
         {
             case Bundle.INSTALLED:
-                return Resources.getResources()
-                    .getImage("plugin.pluginmanager.INSTALLED_STATE");
+                cacheIndex = 0;
+                imageID = "plugin.pluginmanager.INSTALLED_STATE";
+                break;
             case Bundle.RESOLVED:
-                return Resources.getResources()
-                    .getImage("plugin.pluginmanager.DEACTIVATED_STATE");
+                cacheIndex = 1;
+                imageID = "plugin.pluginmanager.DEACTIVATED_STATE";
+                break;
             case Bundle.STARTING:
-                return Resources.getResources()
-                    .getImage("plugin.pluginmanager.STARTING_STATE");
-            case Bundle.ACTIVE:
-                return Resources.getResources()
-                    .getImage("plugin.pluginmanager.ACTIVATE_STATE");
+                cacheIndex = 2;
+                imageID = "plugin.pluginmanager.STARTING_STATE";
+                break;
             case Bundle.STOPPING:
-                return Resources.getResources()
-                    .getImage("plugin.pluginmanager.STOPPING_STATE");
+                cacheIndex = 3;
+                imageID = "plugin.pluginmanager.STOPPING_STATE";
+                break;
+            case Bundle.ACTIVE:
+                cacheIndex = 4;
+                imageID = "plugin.pluginmanager.ACTIVATE_STATE";
+                break;
+            default:
+                return null;
         }
-        return null;
+        ImageIcon stateIcon = stateIconCache[cacheIndex];
+        if (stateIcon == null)
+            stateIconCache[cacheIndex] =
+                stateIcon = Resources.getResources().getImage(imageID);
+        return stateIcon;
     }
 
     /**
@@ -172,25 +192,36 @@ public class PluginListCellRenderer extends JPanel
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        g = g.create();
+        try
+        {
+            internalPaintComponent(g);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
 
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+    private void internalPaintComponent(Graphics g)
+    {
+        AntialiasingManager.activateAntialiasing(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+        int width = getWidth();
+        int height = getHeight();
 
         if (this.isSelected)
         {
-            GradientPaint p = new GradientPaint(this.getWidth()/2, 0,
-                    SELECTED_START_COLOR,
-                    this.getWidth()/2,
-                    this.getHeight(),
-                    SELECTED_END_COLOR);
+            GradientPaint p =
+                new GradientPaint(width / 2, 0, SELECTED_START_COLOR,
+                    width / 2, height, SELECTED_END_COLOR);
 
             g2.setPaint(p);
-            g2.fillRoundRect(1, 1, this.getWidth(), this.getHeight() - 1, 7, 7);
+            g2.fillRoundRect(1, 1, width, height - 1, 7, 7);
         }
 
         g2.setColor(SELECTED_START_COLOR);
-        g2.drawLine(0, this.getHeight() - 1,
-                this.getWidth(), this.getHeight() - 1);
+        g2.drawLine(0, height - 1, width, height - 1);
     }
 }

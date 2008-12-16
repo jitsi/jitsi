@@ -3,7 +3,6 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.pluginmanager;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -111,9 +110,6 @@ public class PluginManagerActivator
         Object sysBundleProp = bundle.getHeaders().get("System-Bundle");
 
         //ignore if this is a system bundle
-        if(sysBundleProp != null && sysBundleProp.equals("yes"))
-            return true;
-
-        return false;
+        return (sysBundleProp != null && sysBundleProp.equals("yes"));
     }
 }

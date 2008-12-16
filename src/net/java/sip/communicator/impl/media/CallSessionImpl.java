@@ -23,7 +23,6 @@ import javax.sdp.*;
 import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.impl.media.keyshare.*;
 import net.java.sip.communicator.impl.media.transform.*;
-import net.java.sip.communicator.impl.media.transform.srtp.*;
 import net.java.sip.communicator.impl.media.transform.zrtp.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.MediaException;
