@@ -3,6 +3,7 @@ Bundle-Name: Extended Call History Search
 Bundle-Description: An Extended Call History Search
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.callhistory,
  net.java.sip.communicator.service.configuration,

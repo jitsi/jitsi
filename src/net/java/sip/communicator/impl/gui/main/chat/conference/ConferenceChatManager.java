@@ -30,7 +30,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>ConferenceChatManager</tt> is the one that manages chat room
  * invitations.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConferenceChatManager
@@ -52,7 +52,7 @@ public class ConferenceChatManager
     /**
      * Creates an instance of <tt>ConferenceChatManager</tt>, by passing to it
      * the main application window object.
-     * 
+     *
      * @param mainFrame the main application window
      */
     public ConferenceChatManager()
@@ -401,7 +401,7 @@ public class ConferenceChatManager
     /**
      * Called to accept an incoming invitation. Adds the invitation chat room
      * to the list of chat rooms and joins it.
-     * 
+     *
      * @param invitation the invitation to accept.
      */
     public void acceptInvitation(ChatRoomInvitation invitation)
@@ -417,7 +417,7 @@ public class ConferenceChatManager
 
     /**
      * Rejects the given invitation with the specified reason.
-     * 
+     *
      * @param multiUserChatOpSet the operation set to use for rejecting the
      * invitation
      * @param invitation the invitation to reject
@@ -429,11 +429,11 @@ public class ConferenceChatManager
     {
         multiUserChatOpSet.rejectInvitation(invitation, reason);
     }
- 
+
     /**
      * Joins the given chat room with the given password and manages all the
      * exceptions that could occur during the join process.
-     * 
+     *
      * @param chatRoomWrapper the chat room to join.
      * @param nickMame the nickname we choose for the given chat room.
      * @param password the password.
@@ -529,7 +529,7 @@ public class ConferenceChatManager
     }
 
     /**
-     * 
+     *
      * @param chatRoomWrapper
      * @param chatRoom
      */
@@ -553,7 +553,7 @@ public class ConferenceChatManager
 
     /**
      * Removes the given chat room from the UI.
-     * 
+     *
      * @param chatRoomWrapper the chat room to remove.
      */
     public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
@@ -572,7 +572,7 @@ public class ConferenceChatManager
     /**
      * Joins the given chat room and manages all the exceptions that could
      * occur during the join process.
-     * 
+     *
      * @param chatRoom the chat room to join
      */
     public void joinChatRoom(ChatRoom chatRoom)
@@ -601,7 +601,7 @@ public class ConferenceChatManager
     /**
      * Joins the given chat room and manages all the exceptions that could
      * occur during the join process.
-     * 
+     *
      * @param chatRoom the chat room to join
      */
     public void joinChatRoom(   ChatRoom chatRoom,
@@ -631,7 +631,7 @@ public class ConferenceChatManager
 
     /**
      * Joins the room with the given name though the given chat room provider.
-     * 
+     *
      * @param chatRoomName the name of the room to join.
      * @param chatRoomProvider the chat room provider to join through.
      */
@@ -673,7 +673,7 @@ public class ConferenceChatManager
 
     /**
      * Leaves the given <tt>ChatRoom</tt>.
-     * 
+     *
      * @param chatRoom the <tt>ChatRoom</tt> to leave.
      */
     public void leaveChatRoom(ChatRoomWrapper chatRoomWrapper)
@@ -737,7 +737,7 @@ public class ConferenceChatManager
 
     /**
      * Checks if there's an open history window for the given chat room.
-     * 
+     *
      * @param chatRoomWrapper the chat room wrapper to check for
      * @return TRUE if there's an opened history window for the given chat room,
      *         FALSE otherwise.
@@ -750,7 +750,7 @@ public class ConferenceChatManager
 
     /**
      * Returns the history window for the given chat room.
-     * 
+     *
      * @param chatRoomWrapper the chat room wrapper to search for
      * @return the history window for the given chat room
      */
@@ -763,7 +763,7 @@ public class ConferenceChatManager
     /**
      * Adds a history window for a given chat room in the table of opened
      * history windows.
-     * 
+     *
      * @param chatRoomWrapper the chat room wrapper to add
      * @param historyWindow the history window to add
      */
@@ -775,7 +775,7 @@ public class ConferenceChatManager
 
     /**
      * Removes the history window for the given chat room.
-     * 
+     *
      * @param chatRoomWrapper the chat room wrapper to remove the history window
      */
     public void removeHistoryWindowForChatRoom(ChatRoomWrapper chatRoomWrapper)
@@ -786,7 +786,7 @@ public class ConferenceChatManager
     /**
      * Adds the given <tt>ChatRoomListChangeListener</tt> that will listen for
      * all changes of the chat room list data model.
-     * 
+     *
      * @param l the listener to add.
      */
     public void addChatRoomListChangeListener(ChatRoomListChangeListener l)
@@ -799,7 +799,7 @@ public class ConferenceChatManager
 
     /**
      * Removes the given <tt>ChatRoomListChangeListener</tt>.
-     * 
+     *
      * @param l the listener to remove.
      */
     public void removeChatRoomListChangeListener(ChatRoomListChangeListener l)
@@ -829,7 +829,7 @@ public class ConferenceChatManager
     /**
      * Closes the chat corresponding to the given chat room wrapper, if such
      * exists.
-     * 
+     *
      * @param chatRoomWrapper the chat room wrapper for which we search a chat
      * to close.
      */
@@ -858,7 +858,7 @@ public class ConferenceChatManager
      * Handles <tt>ServiceEvent</tt>s triggered by adding or removing a
      * ProtocolProviderService. Updates the list of available chat rooms and
      * chat room servers.
-     * 
+     *
      * @param event The event to handle.
      */
     public void serviceChanged(ServiceEvent event)
@@ -916,7 +916,7 @@ public class ConferenceChatManager
     {
         private static final String SUCCESS = "Success";
 
-        private static final String AUTHENTICATION_FAILED 
+        private static final String AUTHENTICATION_FAILED
             = "AuthenticationFailed";
 
         private static final String REGISTRATION_REQUIRED
@@ -972,7 +972,7 @@ public class ConferenceChatManager
 
                 if(e.getErrorCode()
                     == OperationFailedException.AUTHENTICATION_FAILED)
-                {                
+                {
                     return AUTHENTICATION_FAILED;
                 }
                 else if(e.getErrorCode()

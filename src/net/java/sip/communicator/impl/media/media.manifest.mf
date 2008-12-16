@@ -3,6 +3,7 @@ Bundle-Name: Media Service Implementation
 Bundle-Description: A bundle that offers Media capture and presentation capabilities.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: org.osgi.framework,
  org.bouncycastle.jce.provider,
  org.xml.sax,

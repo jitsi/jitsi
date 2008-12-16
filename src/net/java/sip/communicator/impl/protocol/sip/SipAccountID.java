@@ -25,7 +25,7 @@ public class SipAccountID
 
     /**
      * Creates a SIP account id from the specified ide and account properties.
-     * 
+     *
      * @param userID the user id part of the SIP uri identifying this contact.
      * @param accountProperties any other properties necessary for the account.
      * @param serverName the name of the server that the user belongs to.
@@ -67,12 +67,46 @@ public class SipAccountID
 
     /**
      * Adds a property to the map of properties for this account identifier.
-     * 
+     *
      * @param key the key of the property
      * @param value the property value
      */
     public void putProperty(Object key, Object value)
     {
         accountProperties.put(key, value);
+    }
+
+    /**
+     * The reason we need to override this method here comes from the fact
+     * that the user id that is standardly returned by the parent method
+     * is not sufficient for the user to distinguish this account from other
+     * sip accounts with the same user name. Besides we also need to handle
+     * the case of registrar-less accounts.
+     *
+     * @return A String that can be showed to users when referring to this
+     * account.
+     */
+    public String getDisplayName()
+    {
+        String returnValue = getUserID();
+
+        String protocolName = (String)getAccountProperties()
+            .get(ProtocolProviderFactory.PROTOCOL);
+        String service = getService();
+
+        if (service == null || service.trim().length() == 0)
+        {
+            // this is apparently a no registrar account
+            protocolName = "RegistrarLess " + protocolName;
+        }
+        else
+        {
+            returnValue += "@" + service;
+        }
+
+        if (protocolName != null && protocolName.trim().length() > 0)
+            returnValue += " (" + protocolName + ")";
+
+        return returnValue;
     }
 }

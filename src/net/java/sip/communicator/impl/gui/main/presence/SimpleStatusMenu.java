@@ -61,7 +61,7 @@ public class SimpleStatusMenu
     public SimpleStatusMenu(MainFrame mainFrame,
             ProtocolProviderService protocolProvider)
     {
-        super(protocolProvider.getAccountID().getUserID(),
+        super(protocolProvider.getAccountID().getDisplayName(),
             new ImageIcon(protocolProvider
                 .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
 
@@ -78,7 +78,7 @@ public class SimpleStatusMenu
                     .getIcon(ProtocolIcon.ICON_SIZE_16x16))));
 
         String tooltip = "<html><b>"
-            + protocolProvider.getAccountID().getUserID()
+            + protocolProvider.getAccountID().getDisplayName()
             + "</b><br>Offline</html>";
 
         this.setToolTipText(tooltip);
@@ -89,7 +89,8 @@ public class SimpleStatusMenu
         onlineItem.addActionListener(this);
         offlineItem.addActionListener(this);
 
-        titleLabel = new JLabel(protocolProvider.getAccountID().getUserID());
+        titleLabel = new JLabel(protocolProvider
+                            .getAccountID().getDisplayName());
 
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));

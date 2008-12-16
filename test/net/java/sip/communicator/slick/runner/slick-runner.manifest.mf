@@ -3,6 +3,7 @@ Bundle-Name: Slick Runner
 Bundle-Description: A bundle that runs all SLICKs declared in the corresponding sys property
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
  junit,

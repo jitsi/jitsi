@@ -3,6 +3,7 @@ Bundle-Name: SIP Communicator SIP Protocol Provider
 Bundle-Description: A bundle that implements the Protocol Provider package over SIP.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: org.osgi.framework,
  org.w3c.dom,
  net.java.sip.communicator.service.configuration,

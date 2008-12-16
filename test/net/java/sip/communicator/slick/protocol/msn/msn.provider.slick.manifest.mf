@@ -3,6 +3,7 @@ Bundle-Name: Msn Protocol Provider Service Leveraging Implementation Compatibili
 Bundle-Description: A Service Leveraging Implementation Compatibility Kit for the Msn implementation of the ProtocolProvider Service
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
  junit.framework,

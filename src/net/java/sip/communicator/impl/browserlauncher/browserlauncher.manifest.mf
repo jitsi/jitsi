@@ -3,6 +3,7 @@ Bundle-Name: Browser Launcher
 Bundle-Description: An implementation of the BrowserLauncher service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.browserlauncher
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,

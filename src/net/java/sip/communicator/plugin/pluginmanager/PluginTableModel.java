@@ -14,30 +14,30 @@ import org.osgi.framework.*;
 
 /**
  * The <tt>TableModel</tt> of the table containing all plug-ins.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PluginTableModel extends AbstractTableModel
 {
     private BundleContext bundleContext = PluginManagerActivator.bundleContext;
-    
+
     private boolean showSystemBundles;
-    
+
     private Object showSystemBundlesSync = new Object();
-    
+
     private Bundle[] bundles = null;
-    
+
     private BundleComparator bundleComparator = new BundleComparator();
-    
+
     /**
-     * Create an instance of <tt>PluginTableModel</tt> 
+     * Create an instance of <tt>PluginTableModel</tt>
      */
     public PluginTableModel()
     {
         refreshSortedBundlesList();
     }
 
-    
+
     /**
      * Returns the count of table rows.
      * @return int the count of table rows
@@ -49,7 +49,7 @@ public class PluginTableModel extends AbstractTableModel
         {
             showSystem = showSystemBundles;
         }
-        
+
         if(bundles == null)
             return 0;
         else
@@ -59,14 +59,14 @@ public class PluginTableModel extends AbstractTableModel
             else
             {
                 int bundlesSize = 0;
-                
+
                 for (int i = 0; i < bundles.length; i ++)
                 {
                     Bundle bundle = bundles[i];
-                    
+
                     Object sysBundleProp
                         = bundle.getHeaders().get("System-Bundle");
-                
+
                     if(sysBundleProp == null || !sysBundleProp.equals("yes"))
                         bundlesSize++;
                 }
@@ -89,11 +89,11 @@ public class PluginTableModel extends AbstractTableModel
         {
             showSystem = showSystemBundles;
         }
-        
+
         for (int i = 0; i < bundles.length; i ++)
         {
             Bundle b = bundles[i];
-            
+
             if(b.equals(bundle))
             {
                 if(showSystem)
@@ -102,18 +102,18 @@ public class PluginTableModel extends AbstractTableModel
                 {
                     Object sysBundleProp
                         = bundle.getHeaders().get("System-Bundle");
-            
+
                     if(sysBundleProp == null || !sysBundleProp.equals("yes"))
                         return true;
                     else
                         return false;
                 }
-            }            
+            }
         }
-        
-        return false;        
+
+        return false;
     }
-    
+
     /**
      * Returns the count of table columns.
      * @return int the count of table columns
@@ -150,17 +150,20 @@ public class PluginTableModel extends AbstractTableModel
 
             for(int i = 0; i < bundles.length; i++)
             {
+                Object sysBundleProp
+                    = bundles[i].getHeaders().get("System-Bundle");
+
+                //ignore if this is a system bundle
+                if(sysBundleProp != null && sysBundleProp.equals("yes"))
+                    continue;
+
                 if(bundleCounter == row)
                     return bundles[i];
 
-                Object sysBundleProp
-                    = bundles[i+1].getHeaders().get("System-Bundle");
-
-                if(sysBundleProp == null || !sysBundleProp.equals("yes"))
-                    bundleCounter++;
+                bundleCounter++;
             }
         }
-        
+
         return null;
     }
 
@@ -172,7 +175,7 @@ public class PluginTableModel extends AbstractTableModel
         refreshSortedBundlesList();
         fireTableDataChanged();
     }
-    
+
     /**
      * Returns TRUE if system bundles are show, FALSE - otherwise.
      * @return TRUE if system bundles are show, FALSE - otherwise
@@ -180,12 +183,12 @@ public class PluginTableModel extends AbstractTableModel
     public boolean isShowSystemBundles()
     {
         boolean showSystem;
-        
+
         synchronized (showSystemBundlesSync)
         {
             showSystem = showSystemBundles;
         }
-        
+
         return showSystem;
     }
 
@@ -200,9 +203,9 @@ public class PluginTableModel extends AbstractTableModel
             this.showSystemBundles = showSystemBundles;
         }
     }
-    
+
     /**
-     * Syncs the content of the bundle list with the bundles currently 
+     * Syncs the content of the bundle list with the bundles currently
      * available in the bundle context and sorts it again.
      */
     private void refreshSortedBundlesList()

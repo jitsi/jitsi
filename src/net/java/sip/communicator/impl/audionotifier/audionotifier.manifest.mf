@@ -3,6 +3,7 @@ Bundle-Name: Audio Notifier
 Bundle-Description: An implementation of the AudioNotifier service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.audionotifier
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,

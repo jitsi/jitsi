@@ -4,8 +4,6 @@ Bundle-Description: An implementation of the MetaContactList service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Export-Package: net.java.sip.communicator.service.contactlist,
- net.java.sip.communicator.service.contactlist.event
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.configuration,

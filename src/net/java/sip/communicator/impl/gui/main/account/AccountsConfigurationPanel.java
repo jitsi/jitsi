@@ -122,7 +122,7 @@ public class AccountsConfigurationPanel
     /**
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on on the
      * buttons. Shows the account registration wizard when user clicks on "New".
-     * 
+     *
      * @param evt the action event that has just occurred.
      */
     public void actionPerformed(ActionEvent evt)
@@ -147,7 +147,7 @@ public class AccountsConfigurationPanel
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
      * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
      * corresponding UI controls.
-     * 
+     *
      * @param event The <tt>ServiceEvent</tt> object.
      */
     public void serviceChanged(ServiceEvent event)
@@ -241,7 +241,7 @@ public class AccountsConfigurationPanel
             this.add(protocolLabel, constraints);
 
             this.accountLabel.setText(protocolProvider.getAccountID()
-                .getUserID());
+                .getDisplayName());
             constraints.insets = new Insets(0, 0, 0, 0);
             constraints.gridx = 1;
             constraints.gridy = 0;

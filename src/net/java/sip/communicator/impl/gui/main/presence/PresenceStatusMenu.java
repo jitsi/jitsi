@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.presence;
@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>StatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains
  * the list of statuses for a protocol provider. This is where the user could
  * select its status.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PresenceStatusMenu
@@ -52,7 +52,7 @@ public class PresenceStatusMenu
     /**
      * Creates an instance of <tt>StatusSelectorBox</tt> and initializes the
      * selector box with data.
-     * 
+     *
      * @param mainFrame The main application window.
      * @param protocolProvider The protocol provider.
      * @param accountIndex If we have more than one account for a protocol, each
@@ -61,7 +61,7 @@ public class PresenceStatusMenu
     public PresenceStatusMenu(  MainFrame mainFrame,
                                 ProtocolProviderService protocolProvider)
     {
-        super(protocolProvider.getAccountID().getUserID(),
+        super(protocolProvider.getAccountID().getDisplayName(),
             new ImageIcon(protocolProvider
                 .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
 
@@ -76,12 +76,12 @@ public class PresenceStatusMenu
         this.statusIterator = this.presence.getSupportedStatusSet();
 
         String tooltip =
-            "<html><b>" + protocolProvider.getAccountID().getUserID()
+            "<html><b>" + protocolProvider.getAccountID().getDisplayName()
                 + "</b><br>Connecting</html>";
 
         this.setToolTipText(tooltip);
 
-        titleLabel = new JLabel(protocolProvider.getAccountID().getUserID());
+        titleLabel = new JLabel(protocolProvider.getAccountID().getDisplayName());
 
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -222,7 +222,7 @@ public class PresenceStatusMenu
 
     /**
      * Selects the given status in the status menu.
-     * 
+     *
      * @param status the status to select
      */
     public void setSelectedStatus(PresenceStatus status)
@@ -244,7 +244,7 @@ public class PresenceStatusMenu
 
     /**
      * Returns the Offline status in this selector box.
-     * 
+     *
      * @return the Offline status in this selector box
      */
     public PresenceStatus getOfflineStatus()
@@ -254,7 +254,7 @@ public class PresenceStatusMenu
 
     /**
      * Returns the Online status in this selector box.
-     * 
+     *
      * @return the Online status in this selector box
      */
     public PresenceStatus getOnlineStatus()
@@ -264,7 +264,7 @@ public class PresenceStatusMenu
 
     /**
      * Returns the status that is currently selected.
-     * 
+     *
      * @return the status that is currently selected
      */
     public PresenceStatus getLastSelectedStatus()

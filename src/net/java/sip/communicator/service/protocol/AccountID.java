@@ -128,11 +128,29 @@ public abstract class AccountID
     /**
      * Returns the user id associated with this account.
      *
-     * @return A String identyfying the user inside this particular service.
+     * @return A String identifying the user inside this particular service.
      */
     public String getUserID()
     {
         return userID;
+    }
+
+    /**
+     * Returns a name that can be displayed to the user when referring to this
+     * account.
+     *
+     * @return A String identifying the user inside this particular service.
+     */
+    public String getDisplayName()
+    {
+        String returnValue = getUserID();
+        String protocolName = (String)getAccountProperties()
+                            .get(ProtocolProviderFactory.PROTOCOL);
+
+        if (protocolName != null && protocolName.trim().length() > 0)
+            returnValue += " (" + protocolName + ")";
+
+        return returnValue;
     }
 
     /**

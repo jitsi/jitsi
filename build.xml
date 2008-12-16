@@ -1665,6 +1665,7 @@ javax.swing.event, javax.swing.border"/>
                 <attribute name="Export-Package" value="org.apache.log4j"/>
                 <attribute name="Bundle-Name" value="Apache log4j logging system"/>
                 <attribute name="Bundle-Description" value="Logging system."/>
+                <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>
     </target>
@@ -1928,6 +1929,7 @@ javax.swing.event, javax.swing.border"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.0"/>
+                <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>
     </target>

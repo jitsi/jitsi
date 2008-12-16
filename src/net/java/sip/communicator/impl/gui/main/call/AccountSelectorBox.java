@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.call;
@@ -25,9 +25,9 @@ import net.java.sip.communicator.util.swing.*;
  * support telephony operation set and is meant to be used by user to select the
  * account, which he/she would like to use when calling. The selected account
  * could be changed at any time.
- * 
+ *
  * By default the most connected account is selected.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AccountSelectorBox
@@ -63,15 +63,15 @@ public class AccountSelectorBox
     /**
      * Adds an account to this account selector box. The account is represented
      * by its protocol provider.
-     * 
+     *
      * @param pps the protocol provider for the added account
      */
     public void addAccount(ProtocolProviderService pps)
     {
         Image img = createAccountStatusImage(pps);
 
-        JMenuItem menuItem =
-            new JMenuItem(pps.getAccountID().getUserID(), new ImageIcon(img));
+        JMenuItem menuItem = new JMenuItem(pps.getAccountID().getDisplayName(),
+                        new ImageIcon(img));
 
         menuItem.addActionListener(this);
         this.accountsTable.put(pps, menuItem);
@@ -131,7 +131,7 @@ public class AccountSelectorBox
     /**
      * Obtains the status icon for the given protocol contact and adds to it the
      * account index information.
-     * 
+     *
      * @param pps the protocol provider for which to create the image
      * @return the indexed status image
      */
@@ -190,7 +190,7 @@ public class AccountSelectorBox
 
     /**
      * Updates the protocol account status.
-     * 
+     *
      * @param pps the protocol provider service to update
      */
     public void updateAccountStatus(ProtocolProviderService pps)
@@ -236,14 +236,14 @@ public class AccountSelectorBox
         this.selectedProvider = pps;
 
         this.menu.setSelected(new SelectedObject(icon, pps));
-        this.menu.setToolTipText(pps.getAccountID().getUserID());
+        this.menu.setToolTipText(pps.getAccountID().getDisplayName());
 
         this.parentCallPanel.setCallProvider(pps);
     }
 
     /**
      * Sets the selected contact to the given proto contact.
-     * 
+     *
      * @param pps the protocol provider to select
      */
     public void setSelected(ProtocolProviderService pps)
@@ -253,7 +253,7 @@ public class AccountSelectorBox
 
     /**
      * Returns the protocol menu.
-     * 
+     *
      * @return the protocol menu
      */
     public SIPCommMenu getMenu()
@@ -264,7 +264,7 @@ public class AccountSelectorBox
     /**
      * Returns TRUE if the account corresponding to the given protocol provider
      * is already contained in this selector box, otherwise returns FALSE.
-     * 
+     *
      * @param pps the protocol provider service for the account
      * @return TRUE if the account corresponding to the given protocol provider
      *         is already contained in this selector box, otherwise returns
@@ -277,7 +277,7 @@ public class AccountSelectorBox
 
     /**
      * Returns the number of accounts contained in this account selector box.
-     * 
+     *
      * @return the number of accounts contained in this account selector box
      */
     public int getAccountsNumber()
@@ -287,7 +287,7 @@ public class AccountSelectorBox
 
     /**
      * Removes the given account from this account selector box.
-     * 
+     *
      * @param pps the protocol provider service corresponding to the account to
      *            remove
      */
@@ -305,7 +305,7 @@ public class AccountSelectorBox
 
     /**
      * Returns the first registered protocol provider.
-     * 
+     *
      * @return the first registered protocol provider.
      */
     private ProtocolProviderService findFirstRegisteredProvider()

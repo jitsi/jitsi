@@ -118,7 +118,7 @@ public class SIPCommunicator
 
         //there was no error, continue;
         System.setOut(new ScStdOut(System.out));
-        Main.main(args);
+        Main.main(new String[0]);
     }
 
     /**

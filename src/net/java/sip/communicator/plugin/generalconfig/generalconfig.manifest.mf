@@ -3,6 +3,7 @@ Bundle-Name: General config plugin
 Bundle-Description: The plugin offering general configuration page.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.contactlist,

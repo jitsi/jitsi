@@ -3,5 +3,6 @@ Bundle-Name: Sparkle Auto-Update Service Provider
 Bundle-Description: A bundle that launches the Sparkle framework.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util

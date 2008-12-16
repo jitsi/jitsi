@@ -33,7 +33,7 @@ import org.osgi.framework.*;
  * The GroupRightButtonMenu is the menu, opened when user clicks with the
  * right mouse button on a group in the contact list. Through this menu the
  * user could add a contact to a group.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class GroupRightButtonMenu
@@ -45,83 +45,83 @@ public class GroupRightButtonMenu
 
     private SIPCommMenu addContactMenu = new SIPCommMenu(
         GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
-    
+
     private JMenuItem removeGroupItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.REMOVE_GROUP"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
-    
+
     private JMenuItem renameGroupItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.RENAME_GROUP"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
-    
+
     private MetaContactGroup group;
-    
+
     private MainFrame mainFrame;
-    
+
     /**
      * Creates an instance of GroupRightButtonMenu.
-     * 
-     * @param mainFrame The parent <tt>MainFrame</tt> window. 
+     *
+     * @param mainFrame The parent <tt>MainFrame</tt> window.
      * @param group The <tt>MetaContactGroup</tt> for which the menu is opened.
      */
     public GroupRightButtonMenu(MainFrame mainFrame,
             MetaContactGroup group) {
-        
+
         this.group = group;
         this.mainFrame = mainFrame;
-        
+
         this.addContactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
         this.add(addContactMenu);
-        
+
         Iterator providers = mainFrame.getProtocolProviders();
         while(providers.hasNext()) {
-            ProtocolProviderService pps 
+            ProtocolProviderService pps
                 = (ProtocolProviderService)providers.next();
-            
-            boolean isHidden = 
+
+            boolean isHidden =
                     pps.getAccountID().getAccountProperties().
                         get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-            
+
             if(isHidden)
                 continue;
-            
+
             String protocolName = pps.getProtocolName();
-            
+
             AccountMenuItem menuItem = new AccountMenuItem(pps,
                     new ImageIcon(createAccountStatusImage(pps)));
-            
+
             menuItem.setName(protocolName);
             menuItem.addActionListener(this);
-            
+
             this.addContactMenu.add(menuItem);
         }
-        
+
         this.addSeparator();
-        
+
         this.add(renameGroupItem);
         this.add(removeGroupItem);
-        
+
         this.renameGroupItem.setName("renameGroup");
         this.removeGroupItem.setName("removeGroup");
-        
+
         this.addContactMenu.setMnemonic(GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.ADD_CONTACT"));
-        
+
         this.renameGroupItem.setMnemonic(GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.RENAME_GROUP"));
-        
+
         this.removeGroupItem.setMnemonic(GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.REMOVE_GROUP"));
-        
+
         this.renameGroupItem.addActionListener(this);
         this.removeGroupItem.addActionListener(this);
-        
+
         this.initPluginComponents();
     }
-    
-    
+
+
     private void initPluginComponents()
     {
         // Search for plugin components registered through the OSGI bundle
@@ -160,7 +160,7 @@ public class GroupRightButtonMenu
 
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt>. The choosen menu item should correspond
      * to an account, where the new contact will be added. We obtain here the
@@ -171,15 +171,15 @@ public class GroupRightButtonMenu
         JMenuItem item = (JMenuItem)e.getSource();
         String itemText = item.getText();
         String itemName = item.getName();
-        
+
         if(itemName.equals("removeGroup"))
-        {   
-            if(group != null) 
+        {
+            if(group != null)
                 new RemoveGroupThread(group).start();
         }
         else if(itemName.equals("service.gui.RENAME_GROUP"))
         {
-            
+
             RenameGroupDialog dialog = new RenameGroupDialog(
                     mainFrame, group);
 
@@ -191,35 +191,35 @@ public class GroupRightButtonMenu
                     );
 
             dialog.setVisible(true);
-            
+
             dialog.requestFocusInFiled();
         }
         else if(item instanceof AccountMenuItem)
         {
-            ProtocolProviderService pps 
+            ProtocolProviderService pps
                 = ((AccountMenuItem)item).getProtocolProvider();
 
             AddContactDialog dialog = new AddContactDialog(
                     mainFrame, group, pps);
 
             dialog.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2
                         - 250,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2
                         - 100
                     );
 
             dialog.showDialog();
         }
     }
-    
+
     /**
      * Removes a group from the contact list in a separate thread.
      */
     private class RemoveGroupThread extends Thread
     {
         private MetaContactGroup group;
-        
+
         public RemoveGroupThread(MetaContactGroup group) {
             this.group = group;
         }
@@ -294,7 +294,7 @@ public class GroupRightButtonMenu
             this.remove((Component) c.getComponent());
         }
     }
-    
+
     /**
      * Obtains the status icon for the given protocol contact and
      * adds to it the account index information.
@@ -302,17 +302,17 @@ public class GroupRightButtonMenu
      * @return the indexed status image
      */
     public Image createAccountStatusImage(ProtocolProviderService pps)
-    {  
+    {
         Image statusImage;
-        
+
         OperationSetPresence presence
             = this.mainFrame.getProtocolPresenceOpSet(pps);
-        
+
         if(presence != null)
         {
-            
+
             statusImage = ImageLoader.getBytesInImage(
-                presence.getPresenceStatus().getStatusIcon()); 
+                presence.getPresenceStatus().getStatusIcon());
         }
         else if (pps.isRegistered())
         {
@@ -326,7 +326,7 @@ public class GroupRightButtonMenu
                     ImageLoader.getBytesInImage(pps.getProtocolIcon()
                         .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
         }
-        
+
         int index = mainFrame.getProviderIndex(pps);
 
         Image img = null;
@@ -352,7 +352,7 @@ public class GroupRightButtonMenu
         }
         return img;
     }
- 
+
     /**
      * The <tt>AccountMenuItem</tt> is a <tt>JMenuItem</tt> that stores a
      * <tt>ProtocolProviderService</tt> in it.
@@ -360,14 +360,14 @@ public class GroupRightButtonMenu
     private class AccountMenuItem extends JMenuItem
     {
         private ProtocolProviderService pps;
-        
+
         public AccountMenuItem(ProtocolProviderService pps, Icon icon)
         {
-            super(pps.getAccountID().getUserID(), icon);
-            
+            super(pps.getAccountID().getDisplayName(), icon);
+
             this.pps = pps;
         }
-        
+
         public ProtocolProviderService getProtocolProvider()
         {
             return pps;

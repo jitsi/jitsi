@@ -3,6 +3,7 @@ Bundle-Name: Integrated profiler plugin
 Bundle-Description: A bundle that provides profile cpu and memory of the running app.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: org.osgi.framework,
   net.java.sip.communicator.util,
   net.java.sip.communicator.service.contactlist,

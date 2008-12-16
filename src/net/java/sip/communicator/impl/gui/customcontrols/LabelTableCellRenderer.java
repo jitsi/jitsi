@@ -25,7 +25,7 @@ public class LabelTableCellRenderer extends JLabel
     implements TableCellRenderer
 {
     public LabelTableCellRenderer()
-    {   
+    {
         this.setHorizontalAlignment(JLabel.LEFT);
         this.setOpaque(true);
         this.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
@@ -43,7 +43,7 @@ public class LabelTableCellRenderer extends JLabel
         }
         else if (value instanceof ProtocolProviderService) {
             ProtocolProviderService pps = (ProtocolProviderService)value;
-            this.setText(pps.getAccountID().getUserID());
+            this.setText(pps.getAccountID().getDisplayName());
         }
         else if (value instanceof MetaContactGroup) {
             MetaContactGroup group = (MetaContactGroup) value;

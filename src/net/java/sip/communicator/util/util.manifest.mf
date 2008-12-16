@@ -3,6 +3,7 @@ Bundle-Name: SIP Communicator Utility Packages
 Bundle-Description: A bundle that export packages with utility classes.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: org.xml.sax, 
  org.w3c.dom,
  org.osgi.framework,

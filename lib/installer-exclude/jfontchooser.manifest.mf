@@ -2,6 +2,7 @@ Bundle-Name: JFontChooser
 Bundle-Description: A library containing a Java Font Chooser
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: javax.swing,
  javax.swing.border,
  javax.swing.event,

@@ -2,6 +2,7 @@ Bundle-Name: Smack Lib Provider
 Bundle-Description: Smack Lib Provider
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
+System-Bundle: yes
 Import-Package: javax.net.ssl,
  javax.xml.parsers,
  javax.xml.transform,
