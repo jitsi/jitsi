@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 
@@ -13,7 +13,7 @@ import org.osgi.framework.*;
 
 /**
  * The <tt>BundleActivator</tt> of the PluginManager plugin.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PluginManagerActivator
@@ -49,7 +49,7 @@ public class PluginManagerActivator
 
     /**
      * Returns the <tt>UIService</tt> obtained from the bundle context.
-     * 
+     *
      * @return the <tt>UIService</tt> obtained from the bundle context
      */
     public static UIService getUIService()
@@ -70,7 +70,7 @@ public class PluginManagerActivator
     /**
      * Returns the <tt>ConfigurationService</tt> obtained from the bundle
      * context.
-     * 
+     *
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
      *         context
      */
@@ -88,5 +88,32 @@ public class PluginManagerActivator
         }
 
         return configService;
+    }
+
+    /**
+     * Determines whether <tt>bundle</tt> is system or not. We consider system
+     * bundles those that we have explicitly marked as such with the
+     * <tt>System-Bundle</tt> manifest property or those that belong to the
+     * Apache framework itself.
+     *
+     * @param bundle the bundle that we need to determine as system or not.
+     * @return true if <tt>bundle</tt> is a system bundle and <tt>false</tt>
+     * otherwise.
+     */
+    public static boolean isSystemBundle(Bundle bundle)
+    {
+        if (bundle.getBundleId() <= 1)
+        {
+            //this is one of the felix bundles
+            return true;
+        }
+
+        Object sysBundleProp = bundle.getHeaders().get("System-Bundle");
+
+        //ignore if this is a system bundle
+        if(sysBundleProp != null && sysBundleProp.equals("yes"))
+            return true;
+
+        return false;
     }
 }

@@ -64,10 +64,7 @@ public class PluginTableModel extends AbstractTableModel
                 {
                     Bundle bundle = bundles[i];
 
-                    Object sysBundleProp
-                        = bundle.getHeaders().get("System-Bundle");
-
-                    if(sysBundleProp == null || !sysBundleProp.equals("yes"))
+                    if(!PluginManagerActivator.isSystemBundle(bundle))
                         bundlesSize++;
                 }
                 return bundlesSize;
@@ -100,11 +97,7 @@ public class PluginTableModel extends AbstractTableModel
                     return true;
                 else
                 {
-                    Object sysBundleProp
-                        = bundle.getHeaders().get("System-Bundle");
-
-                    return (sysBundleProp == null || !sysBundleProp
-                        .equals("yes"));
+                    return (!PluginManagerActivator.isSystemBundle(bundle));
                 }
             }
         }
@@ -148,11 +141,8 @@ public class PluginTableModel extends AbstractTableModel
 
             for(int i = 0; i < bundles.length; i++)
             {
-                Object sysBundleProp
-                    = bundles[i].getHeaders().get("System-Bundle");
-
                 //ignore if this is a system bundle
-                if(sysBundleProp != null && sysBundleProp.equals("yes"))
+                if(PluginManagerActivator.isSystemBundle(bundles[i]))
                     continue;
 
                 if(bundleCounter == row)
