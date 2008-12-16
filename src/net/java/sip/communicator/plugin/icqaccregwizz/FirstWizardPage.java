@@ -393,8 +393,8 @@ public class FirstWizardPage
     {
         AccountID accountID = protocolProvider.getAccountID();
         String password =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PASSWORD);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
 
         this.uinField.setText(accountID.getUserID());
 
@@ -408,24 +408,24 @@ public class FirstWizardPage
         }
 
         String proxyAddress =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_ADDRESS);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_ADDRESS);
 
         String proxyPort =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_PORT);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_PORT);
 
         String proxyType =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_TYPE);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_TYPE);
 
         String proxyUsername =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_USERNAME);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_USERNAME);
 
         String proxyPassword =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_PASSWORD);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_PASSWORD);
 
         if (proxyAddress != null || proxyPort != null
             || proxyType != null || proxyUsername != null

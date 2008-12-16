@@ -99,8 +99,8 @@ public class AccountsConfigurationPanel
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
                 boolean isHidden =
-                    (accountID.getAccountProperties().get(
-                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
+                    (accountID
+                        .getAccountProperty(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
 
                 if (isHidden)
                     continue;
@@ -251,8 +251,8 @@ public class AccountsConfigurationPanel
             this.add(accountLabel, constraints);
 
             String passwordRequiredProperty =
-                (String) protocolProvider.getAccountID().getAccountProperties()
-                    .get(ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
+                protocolProvider.getAccountID().getAccountPropertyString(
+                    ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
 
             boolean isPasswordRequired = true;
             if (passwordRequiredProperty != null
@@ -265,9 +265,8 @@ public class AccountsConfigurationPanel
             if (isPasswordRequired)
             {
                 String password =
-                    (String) protocolProvider.getAccountID()
-                        .getAccountProperties().get(
-                            ProtocolProviderFactory.PASSWORD);
+                    protocolProvider.getAccountID().getAccountPropertyString(
+                        ProtocolProviderFactory.PASSWORD);
 
                 passwordField.setText(password);
                 constraints.gridx = 1;

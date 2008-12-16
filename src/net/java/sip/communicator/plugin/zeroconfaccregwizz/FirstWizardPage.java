@@ -6,9 +6,8 @@
  */
 package net.java.sip.communicator.plugin.zeroconfaccregwizz;
 
-import java.util.*;
-
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -339,16 +338,14 @@ public class FirstWizardPage
 
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
-        this.firstField.setText((String)accountID.getAccountProperties()
-                                .get("first"));
-        this.lastField.setText((String)accountID.getAccountProperties()
-                                .get("last"));
-        this.mailField.setText((String)accountID.getAccountProperties()
-                                .get("mail"));
-        Boolean remember = (Boolean)accountID.getAccountProperties()
-                                .get("rememberContacts");
-        if (remember.booleanValue()) this.rememberContacts.setSelected(true);
+        this.firstField.setText(accountID.getAccountPropertyString("first"));
+        this.lastField.setText(accountID.getAccountPropertyString("last"));
+        this.mailField.setText(accountID.getAccountPropertyString("mail"));
 
+        Boolean remember =
+            (Boolean) accountID.getAccountProperty("rememberContacts");
+        if (remember.booleanValue())
+            this.rememberContacts.setSelected(true);
     }
 
     /**
@@ -364,16 +361,10 @@ public class FirstWizardPage
         ProtocolProviderFactory factory
             = ZeroconfAccRegWizzActivator.getZeroconfProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
+        for (AccountID accountID : factory.getRegisteredAccounts())
         {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
             if (userID.equalsIgnoreCase(accountID.getUserID()))
-            {
                 return true;
-            }
         }
         return false;
     }

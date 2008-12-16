@@ -99,7 +99,7 @@ public class SipRegistrarConnection
     /**
     * Default value for keep-alive method - register
     */
-    private static final String KEEP_ALIVE_INTERVAL_DEFAULT_VALUE = "25";
+    private static final int KEEP_ALIVE_INTERVAL_DEFAULT_VALUE = 25;
 
     /**
     * Specifies whether or not we should be using a route header in register
@@ -517,33 +517,20 @@ public class SipRegistrarConnection
             // If KEEP_ALIVE_METHOD is null we default send registers on
             // interval of 25 seconds
             String keepAliveMethod =
-                (String)sipProvider.getAccountID().getAccountProperties().
-                    get(KEEP_ALIVE_METHOD);
+                sipProvider.getAccountID().getAccountPropertyString(
+                    KEEP_ALIVE_METHOD);
 
             if((keepAliveMethod != null &&
                 keepAliveMethod.equalsIgnoreCase("register"))
                 || keepAliveMethod == null )
             {
-                String keepAliveInterval =
-                    (String)sipProvider.getAccountID().getAccountProperties().
-                        get(KEEP_ALIVE_INTERVAL);
+                int registrationInterval =
+                    sipProvider.getAccountID().getAccountPropertyInt(
+                        KEEP_ALIVE_INTERVAL, KEEP_ALIVE_INTERVAL_DEFAULT_VALUE);
 
-                if(keepAliveInterval == null)
-                    keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_VALUE;
-
-                try
+                if (registrationInterval < grantedExpiration)
                 {
-                    int registrationInterval =
-                        Integer.valueOf(keepAliveInterval).intValue();
-
-                    if(registrationInterval < grantedExpiration)
-                    {
-                        scheduleTime = registrationInterval;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.error("Wrong value for KEEP_ALIVE_INTERVAL");
+                    scheduleTime = registrationInterval;
                 }
             }
 
@@ -1293,8 +1280,9 @@ public class SipRegistrarConnection
             return null;
 
         //create our own address.
-        String ourUserID = (String)sipProvider.getAccountID()
-            .getAccountProperties().get(ProtocolProviderFactory.USER_ID);
+        String ourUserID =
+            sipProvider.getAccountID().getAccountPropertyString(
+                ProtocolProviderFactory.USER_ID);
 
         String sipUriHost = null;
         if( ourUserID.indexOf("@") != -1

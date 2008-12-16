@@ -280,8 +280,9 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
-        String password = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PASSWORD);
+        String password =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
 
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());

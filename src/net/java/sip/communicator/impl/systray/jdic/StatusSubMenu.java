@@ -184,9 +184,9 @@ public class StatusSubMenu
                     = (ProtocolProviderService) SystrayActivator.bundleContext
                         .getService(protocolProviderRefs[i]);
 
-                boolean isHidden = 
-                    provider.getAccountID().getAccountProperties().
-                        get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+                boolean isHidden =
+                    provider.getAccountID().getAccountProperty(
+                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
                 
                 if(!isHidden)
                     this.addAccount(provider);

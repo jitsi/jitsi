@@ -375,14 +375,14 @@ public class ProtocolProviderServiceSSHImpl
         // creating a new JSch Stack identifier for contact
         JSch jsch = new JSch();
         
-        String knownHosts = (String)accountID
-                .getAccountProperties().get("KNOWN_HOSTS_FILE");
-        
+        String knownHosts =
+            accountID.getAccountPropertyString("KNOWN_HOSTS_FILE");
+
         if(!knownHosts.equals("Optional"))
             jsch.setKnownHosts(knownHosts);
-        
-        String identitiyKey = (String)accountID
-                .getAccountProperties().get("IDENTITY_FILE");
+
+        String identitiyKey =
+            accountID.getAccountPropertyString("IDENTITY_FILE");
         
         String userName = sshContact.getUserName();
         

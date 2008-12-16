@@ -437,44 +437,30 @@ public class ClientCapabilities
                 }
             } else if (evt.getNewState().equals(RegistrationState.REGISTERED))
             {
-                String keepAliveMethod = (String)provider.getAccountID().
-                    getAccountProperties().
-                        get(ProtocolProviderServiceSipImpl.KEEP_ALIVE_METHOD);
+                String keepAliveMethod =
+                    provider.getAccountID().getAccountPropertyString(
+                        ProtocolProviderServiceSipImpl.KEEP_ALIVE_METHOD);
 
                 logger.trace("Keep alive method " + keepAliveMethod);
                 if(keepAliveMethod == null ||
                     !keepAliveMethod.equalsIgnoreCase("options"))
                     return;
 
-                String keepAliveIntStr = (String)provider.getAccountID().
-                    getAccountProperties().
-                        get(ProtocolProviderServiceSipImpl.KEEP_ALIVE_INTERVAL);
+                int keepAliveInterval =
+                    provider.getAccountID().getAccountPropertyInt(
+                        ProtocolProviderServiceSipImpl.KEEP_ALIVE_INTERVAL, -1);
 
-                logger.trace("Keep alive inerval is " + keepAliveIntStr);
-                if(keepAliveIntStr != null)
+                logger.trace("Keep alive inerval is " + keepAliveInterval);
+                if (keepAliveInterval > 0
+                    && !provider.getRegistrarConnection().isRegistrarless())
                 {
-                    int keepAliveInterval = -1;
-                    try
-                    {
-                        keepAliveInterval = Integer.valueOf(keepAliveIntStr)
-                            .intValue();
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.error("Wrong value for keep-alive interval");
-                    }
+                    if (keepAliveTimer == null)
+                        keepAliveTimer = new Timer();
 
-                    if(keepAliveInterval > 0
-                       && !provider.getRegistrarConnection().isRegistrarless())
-                    {
-                        if(keepAliveTimer == null)
-                            keepAliveTimer = new Timer();
+                    logger.debug("Scheduling OPTIONS keep alives");
 
-                        logger.debug("Scheduling OPTIONS keep alives");
-
-                        keepAliveTimer.schedule(
-                            new KeepAliveTask(), 0, keepAliveInterval * 1000);
-                    }
+                    keepAliveTimer.schedule(new KeepAliveTask(), 0,
+                        keepAliveInterval * 1000);
                 }
             }
         }

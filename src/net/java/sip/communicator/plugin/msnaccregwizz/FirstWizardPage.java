@@ -6,7 +6,6 @@
 package net.java.sip.communicator.plugin.msnaccregwizz;
 
 import java.awt.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -272,8 +271,8 @@ public class FirstWizardPage
     {
         AccountID accountID = protocolProvider.getAccountID();
         String password =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PASSWORD);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
 
         this.uinField.setText(accountID.getUserID());
 
@@ -289,12 +288,8 @@ public class FirstWizardPage
         ProtocolProviderFactory factory =
             MsnAccRegWizzActivator.getMsnProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
+        for (AccountID accountID : factory.getRegisteredAccounts())
         {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
             if (accountName.equalsIgnoreCase(accountID.getUserID()))
                 return true;
         }

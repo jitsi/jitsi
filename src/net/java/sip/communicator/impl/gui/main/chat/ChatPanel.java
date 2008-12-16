@@ -743,16 +743,10 @@ public class ChatPanel
     private boolean isGreyHistoryStyleDisabled(
         ProtocolProviderService protocolProvider)
     {
-        boolean isProtocolHidden = false;
+        boolean isProtocolHidden =
+            protocolProvider.getAccountID().getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN, false);
         boolean isGreyHistoryDisabled = false;
-
-        Object hiddenProperty
-            = protocolProvider.getAccountID().getAccountProperties()
-                .get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN);
-
-        if (hiddenProperty != null)
-            isProtocolHidden
-                = new Boolean((String)hiddenProperty).booleanValue();
 
         String greyHistoryProperty
             = GuiActivator.getResources()

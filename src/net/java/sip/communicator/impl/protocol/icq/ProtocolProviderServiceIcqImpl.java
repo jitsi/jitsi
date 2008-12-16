@@ -311,12 +311,12 @@ public class ProtocolProviderServiceIcqImpl
                 new Screenname(getAccountID().getUserID()));
 
             String proxyAddress =
-                (String)getAccountID().getAccountProperties().get(
+                getAccountID().getAccountPropertyString(
                     ProtocolProviderFactory.PROXY_ADDRESS);
             if(proxyAddress != null && proxyAddress.length() > 0)
             {
                 String proxyPortStr =
-                    (String)getAccountID().getAccountProperties().get(
+                    getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.PROXY_PORT);
                 int proxyPort;
                 try
@@ -330,7 +330,7 @@ public class ProtocolProviderServiceIcqImpl
                 }
 
                 String proxyType =
-                    (String)getAccountID().getAccountProperties().get(
+                    getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.PROXY_TYPE);
 
                 if(proxyType == null)
@@ -338,10 +338,10 @@ public class ProtocolProviderServiceIcqImpl
                         OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
 
                 String proxyUsername =
-                    (String)getAccountID().getAccountProperties().get(
+                    getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.PROXY_USERNAME);
                 String proxyPassword =
-                    (String)getAccountID().getAccountProperties().get(
+                    getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.PROXY_PASSWORD);
 
                 if(proxyType.equals("http"))

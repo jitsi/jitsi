@@ -4,10 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.pluginmanager;
 
 import java.util.*;
+
 import javax.swing.table.*;
 
 import org.osgi.framework.*;
@@ -103,10 +103,8 @@ public class PluginTableModel extends AbstractTableModel
                     Object sysBundleProp
                         = bundle.getHeaders().get("System-Bundle");
 
-                    if(sysBundleProp == null || !sysBundleProp.equals("yes"))
-                        return true;
-                    else
-                        return false;
+                    return (sysBundleProp == null || !sysBundleProp
+                        .equals("yes"));
                 }
             }
         }
@@ -213,5 +211,4 @@ public class PluginTableModel extends AbstractTableModel
         this.bundles = this.bundleContext.getBundles();
         Arrays.sort(this.bundles, bundleComparator);
     }
-
 }

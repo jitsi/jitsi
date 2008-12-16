@@ -31,7 +31,8 @@ import net.java.sip.communicator.util.swing.*;
  * @author Shobhit Jindal
  */
 public class FirstWizardPage
-        extends TransparentPanel implements WizardPage, DocumentListener
+    extends TransparentPanel
+    implements WizardPage, DocumentListener
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
     
@@ -260,11 +261,13 @@ public class FirstWizardPage
 
         AccountID accountID = protocolProvider.getAccountID();
 
-        String identityFile = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactorySSH.IDENTITY_FILE);
+        String identityFile =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactorySSH.IDENTITY_FILE);
 
-        String knownHostsFile = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactorySSH.KNOWN_HOSTS_FILE);
+        String knownHostsFile =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactorySSH.KNOWN_HOSTS_FILE);
 
         this.accountIDField.setText(accountID.getUserID());
 

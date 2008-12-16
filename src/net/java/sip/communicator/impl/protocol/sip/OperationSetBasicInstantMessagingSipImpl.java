@@ -62,7 +62,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * It can be implemented in some servers.
      */
-    private boolean offlineMessageSupported = false;
+    private final boolean offlineMessageSupported;
 
     /**
      * Gives access to presence states for the Sip protocol.
@@ -83,12 +83,9 @@ public class OperationSetBasicInstantMessagingSipImpl
         provider.addRegistrationStateChangeListener(new
             RegistrationStateListener());
 
-        Object isOffMsgsSupported = provider.getAccountID().
-            getAccountProperties().get("OFFLINE_MSG_SUPPORTED");
-
-        if(isOffMsgsSupported != null &&
-            Boolean.valueOf((String)isOffMsgsSupported).booleanValue())
-            offlineMessageSupported = true;
+        offlineMessageSupported =
+            provider.getAccountID().getAccountPropertyBoolean(
+                "OFFLINE_MSG_SUPPORTED", false);
 
         sipProvider.registerMethodProcessor(Request.MESSAGE,
             new BasicInstantMessagingMethodProcessor());

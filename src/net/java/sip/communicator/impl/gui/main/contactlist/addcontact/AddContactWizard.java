@@ -59,8 +59,9 @@ public class AddContactWizard
         {
             ProtocolProviderService p = (ProtocolProviderService)iter.next();
 
-            boolean isHidden = p.getAccountID().getAccountProperties().
-                    get(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+            boolean isHidden =
+                p.getAccountID().getAccountProperty(
+                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
             if(!isHidden)
                 pps.add(p);

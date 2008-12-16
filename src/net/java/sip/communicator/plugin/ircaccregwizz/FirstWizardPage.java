@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.plugin.ircaccregwizz;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -371,20 +369,25 @@ public class FirstWizardPage
     {
         AccountID accountID = protocolProvider.getAccountID();
 
-        String password = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PASSWORD);
+        String password =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
 
-        String server = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_ADDRESS);
+        String server =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
 
-        String port = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_PORT);
+        String port =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT);
 
-        String autoNickChange = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.AUTO_CHANGE_USER_NAME);
+        String autoNickChange =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.AUTO_CHANGE_USER_NAME);
 
-        String noPasswordRequired = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
+        String noPasswordRequired =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
 
         this.nickField.setEnabled(false);
         this.nickField.setText(accountID.getUserID());
@@ -433,16 +436,10 @@ public class FirstWizardPage
         ProtocolProviderFactory factory
             = IrcAccRegWizzActivator.getIrcProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
+        for (AccountID accountID : factory.getRegisteredAccounts())
         {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
             if (userID.equalsIgnoreCase(accountID.getUserID()))
-            {
                 return true;
-            }
         }
         return false;
     }

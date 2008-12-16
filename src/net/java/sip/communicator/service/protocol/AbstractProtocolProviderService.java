@@ -121,8 +121,9 @@ public abstract class AbstractProtocolProviderService
      */
     public String getProtocolDisplayName()
     {
-        String displayName = (String) getAccountID().getAccountProperties()
-            .get(ProtocolProviderFactory.PROTOCOL);
+        String displayName =
+            getAccountID().getAccountPropertyString(
+                ProtocolProviderFactory.PROTOCOL);
         return (displayName == null) ? getProtocolName() : displayName;
     }
 

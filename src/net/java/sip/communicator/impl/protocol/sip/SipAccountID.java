@@ -66,17 +66,6 @@ public class SipAccountID
     }
 
     /**
-     * Adds a property to the map of properties for this account identifier.
-     *
-     * @param key the key of the property
-     * @param value the property value
-     */
-    public void putProperty(Object key, Object value)
-    {
-        accountProperties.put(key, value);
-    }
-
-    /**
      * The reason we need to override this method here comes from the fact
      * that the user id that is standardly returned by the parent method
      * is not sufficient for the user to distinguish this account from other
@@ -90,8 +79,8 @@ public class SipAccountID
     {
         String returnValue = getUserID();
 
-        String protocolName = (String)getAccountProperties()
-            .get(ProtocolProviderFactory.PROTOCOL);
+        String protocolName =
+            getAccountPropertyString(ProtocolProviderFactory.PROTOCOL);
         String service = getService();
 
         if (service == null || service.trim().length() == 0)

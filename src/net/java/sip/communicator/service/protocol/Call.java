@@ -54,7 +54,7 @@ public abstract class Call
      * related with the sourceProvider the associated CallSession will start
      * encrypted by default (where applicable)  
      */
-    private boolean defaultEncryption; 
+    private final boolean defaultEncryption; 
 
     /**
      * Creates a new Call instance.
@@ -69,16 +69,10 @@ public abstract class Call
 
         this.protocolProvider = sourceProvider;
         AccountID accountID = sourceProvider.getAccountID();
-               
-        String defaultEncryptionObj = (String) accountID
-		.getAccountProperties().get(
-				ProtocolProviderFactory.DEFAULT_ENCRYPTION);
 
-        defaultEncryption = false;
-        if (defaultEncryptionObj != null) {
-        	defaultEncryption = Boolean.valueOf(defaultEncryptionObj)
-        	.booleanValue();
-        } 
+        defaultEncryption =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, false);
     }
 
     /**

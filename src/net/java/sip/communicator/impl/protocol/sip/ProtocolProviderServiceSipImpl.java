@@ -367,8 +367,9 @@ public class ProtocolProviderServiceSipImpl
 
             this.accountID = accountID;
 
-            String protocolIconPath = (String) accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.PROTOCOL_ICON_PATH);
+            String protocolIconPath =
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.PROTOCOL_ICON_PATH);
 
             if (protocolIconPath == null)
                 protocolIconPath = "resources/images/protocol/sip";
@@ -412,53 +413,19 @@ public class ProtocolProviderServiceSipImpl
                 sipStackSharing = new SipStackSharing();
 
             // get the presence options
-            String enablePresenceObj = (String) accountID
-                    .getAccountProperties().get(
-                            ProtocolProviderFactory.IS_PRESENCE_ENABLED);
+            boolean enablePresence =
+                accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_PRESENCE_ENABLED, true);
 
-            boolean enablePresence = true;
-            if (enablePresenceObj != null) {
-                enablePresence = Boolean.valueOf(enablePresenceObj)
-                    .booleanValue();
-            }
+            boolean forceP2P = accountID.getAccountPropertyBoolean(ProtocolProviderFactory.FORCE_P2P_MODE, true);
 
-            String forceP2PObj = (String) accountID.getAccountProperties()
-                    .get(ProtocolProviderFactory.FORCE_P2P_MODE);
+            int pollingValue =
+                accountID.getAccountPropertyInt(
+                    ProtocolProviderFactory.POLLING_PERIOD, 30);
 
-            boolean forceP2P = true;
-            if (forceP2PObj != null) {
-                forceP2P = Boolean.valueOf(forceP2PObj).booleanValue();
-            }
-
-            int pollingValue = 30;
-            try {
-                String pollingString = (String) accountID.getAccountProperties()
-                        .get(ProtocolProviderFactory.POLLING_PERIOD);
-                if (pollingString != null) {
-                    pollingValue = Integer.parseInt(pollingString);
-                } else {
-                    logger.warn("no polling value found, using default value"
-                            + " (" + pollingValue + ")");
-                }
-            } catch (NumberFormatException e) {
-                logger.error("wrong polling value stored", e);
-            }
-
-            int subscriptionExpiration = 3600;
-            try {
-                String subscriptionString = (String) accountID
-                    .getAccountProperties().get(ProtocolProviderFactory
-                        .SUBSCRIPTION_EXPIRATION);
-                if (subscriptionString != null) {
-                    subscriptionExpiration = Integer.parseInt(
-                            subscriptionString);
-                } else {
-                    logger.warn("no expiration value found, using default value"
-                            + " (" + subscriptionExpiration + ")");
-                }
-            } catch (NumberFormatException e) {
-                logger.error("wrong expiration value stored", e);
-            }
+            int subscriptionExpiration =
+                accountID.getAccountPropertyInt(
+                    ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION, 3600);
 
             //create SIP factories.
             headerFactory = new HeaderFactoryImpl();
@@ -523,8 +490,9 @@ public class ProtocolProviderServiceSipImpl
             new ClientCapabilities(this);
 
             //initialize our display name
-            ourDisplayName = (String)accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.DISPLAY_NAME);
+            ourDisplayName =
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.DISPLAY_NAME);
 
             if(ourDisplayName == null
                || ourDisplayName.trim().length() == 0)
@@ -1259,15 +1227,17 @@ public class ProtocolProviderServiceSipImpl
         throws IllegalArgumentException
     {
         //First init the registrar address
-        String registrarAddressStr = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_ADDRESS);
+        String registrarAddressStr =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
 
         //if there is no registrar address, parse the user_id and extract it
         //from the domain part of the SIP URI.
         if (registrarAddressStr == null)
         {
-            String userID = (String) accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.USER_ID);
+            String userID =
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.USER_ID);
             int index = userID.indexOf("@");
             if ( index > -1 )
                 registrarAddressStr = userID.substring( index+1);
@@ -1292,8 +1262,9 @@ public class ProtocolProviderServiceSipImpl
         try
         {
             // first check for srv records exists
-            String registrarTransport = (String)accountID.getAccountProperties()
-                        .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+            String registrarTransport =
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
             if(registrarTransport == null)
                 registrarTransport = getDefaultTransport();
@@ -1310,7 +1281,7 @@ public class ProtocolProviderServiceSipImpl
             // address. And this is needed because in the case we don't have
             // network while loading the application we still want to have our
             // accounts loaded.
-            accountID.putProperty(
+            accountID.putAccountProperty(
                 ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED,
                 Boolean.toString(true));
 
@@ -1321,26 +1292,23 @@ public class ProtocolProviderServiceSipImpl
                 + " appears to be an either invalid or inaccessible address: "
                 , ex);
 
-            String serverValidatedString
-                = (String) accountID.getAccountProperties()
-                    .get(ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED);
+            boolean isServerValidated =
+                accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED, false);
 
-            boolean isServerValidated = false;
-            if (serverValidatedString != null)
-                isServerValidated = new Boolean(serverValidatedString)
-                    .booleanValue();
-
-            // We should check here if the server address was already validated.
-            // When we load stored accounts we want to prevent checking again the
-            // server address. This is needed because in the case we don't have
-            // network while loading the application we still want to have our
-            // accounts loaded.
-            if (serverValidatedString == null || !isServerValidated)
+            /*
+             * We should check here if the server address was already validated.
+             * When we load stored accounts we want to prevent checking again
+             * the server address. This is needed because in the case we don't
+             * have network while loading the application we still want to have
+             * our accounts loaded.
+             */
+            if (!isServerValidated)
             {
                 throw new IllegalArgumentException(
                     registrarAddressStr
-                    + " appears to be an either invalid or inaccessible address: "
-                    + ex.getMessage());
+                        + " appears to be an either invalid or inaccessible address: "
+                        + ex.getMessage());
             }
         }
 
@@ -1360,35 +1328,21 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        //check if user has overridden the registrar port.
-        String registrarPortStr = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_PORT);
-
-        if(registrarPortStr != null && registrarPortStr.length() > 0)
+        // check if user has overridden the registrar port.
+        registrarPort =
+            accountID.getAccountPropertyInt(
+                ProtocolProviderFactory.SERVER_PORT, registrarPort);
+        if (registrarPort > NetworkUtils.MAX_PORT_NUMBER)
         {
-            try
-            {
-                registrarPort = Integer.parseInt(registrarPortStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.error(
-                    registrarPortStr
-                    + " is not a valid port value. Expected an integer"
-                    , ex);
-            }
-
-            if ( registrarPort > NetworkUtils.MAX_PORT_NUMBER)
-            {
-                throw new IllegalArgumentException(registrarPort
-                    + " is larger than " + NetworkUtils.MAX_PORT_NUMBER
-                    + " and does not therefore represent a valid port nubmer.");
-            }
+            throw new IllegalArgumentException(registrarPort
+                + " is larger than " + NetworkUtils.MAX_PORT_NUMBER
+                + " and does not therefore represent a valid port nubmer.");
         }
 
         //registrar transport
-        String registrarTransport = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        String registrarTransport =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
         if(registrarTransport != null && registrarTransport.length() > 0)
         {
@@ -1407,25 +1361,10 @@ public class ProtocolProviderServiceSipImpl
         }
 
         //init expiration timeout
-        int expires = SipRegistrarConnection.DEFAULT_REGISTRATION_EXPIRATION;
-
-        String expiresStr = SipActivator.getConfigurationService().getString(
-            REGISTRATION_EXPIRATION);
-
-        if(expiresStr != null && expiresStr.length() > 0)
-        {
-            try
-            {
-                expires = Integer.parseInt(expiresStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.error(
-                    expiresStr
-                    + " is not a valid expires  value. Expexted an integer"
-                    , ex);
-            }
-        }
+        int expires =
+            SipActivator.getConfigurationService().getInt(
+                REGISTRATION_EXPIRATION,
+                SipRegistrarConnection.DEFAULT_REGISTRATION_EXPIRATION);
 
         //Initialize our connection with the registrar
         try
@@ -1437,14 +1376,9 @@ public class ProtocolProviderServiceSipImpl
                 , expires
                 , this);
 
-            //determine whether we should be using route headers or not
-            String useRouteString = (String) accountID.getAccountProperties()
-                .get(REGISTERS_USE_ROUTE);
-
-            boolean useRoute = false;
-
-            if (useRouteString != null)
-                useRoute = new Boolean(useRouteString).booleanValue();
+            // determine whether we should be using route headers or not
+            boolean useRoute =
+                accountID.getAccountPropertyBoolean(REGISTERS_USE_ROUTE, false);
 
             this.sipRegistrarConnection.setRouteHeaderEnabled(useRoute);
         }
@@ -1473,8 +1407,9 @@ public class ProtocolProviderServiceSipImpl
         throws IllegalArgumentException
     {
         //registrar transport
-        String registrarTransport = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        String registrarTransport =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
         if(registrarTransport != null && registrarTransport.length() > 0)
         {
@@ -1611,8 +1546,9 @@ public class ProtocolProviderServiceSipImpl
     private void initOutboundProxy(SipAccountID accountID)
     {
         //First init the proxy address
-        String proxyAddressStr = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_ADDRESS);
+        String proxyAddressStr =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_ADDRESS);
 
         if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
             return;
@@ -1625,8 +1561,9 @@ public class ProtocolProviderServiceSipImpl
         try
         {
             // first check for srv records exists
-            String proxyTransport = (String) accountID.getAccountProperties()
-                            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+            String proxyTransport =
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
             if(proxyTransport == null)
                     proxyTransport = getDefaultTransport();
@@ -1647,7 +1584,7 @@ public class ProtocolProviderServiceSipImpl
             // address. this is needed because in the case we don't have
             // network while loading the application we still want to have
             // our accounts loaded.
-            accountID.putProperty(
+            accountID.putAccountProperty(
                 ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED,
                 Boolean.toString(true));
         }
@@ -1657,21 +1594,16 @@ public class ProtocolProviderServiceSipImpl
                 + " appears to be an either invalid or inaccessible address"
                 , ex);
 
-            String proxyValidatedString = (String) accountID
-                .getAccountProperties().get(
-                            ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED);
-
-            boolean isProxyValidated = false;
-            if (proxyValidatedString != null)
-                isProxyValidated
-                    = new Boolean(proxyValidatedString).booleanValue();
+            boolean isProxyValidated =
+                accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED, false);
 
             // We should check here if the proxy address was already validated.
             // When we load stored accounts we want to prevent checking again the
             // proxy address. This is needed because in the case we don't have
             // network while loading the application we still want to have our
             // accounts loaded.
-            if (proxyValidatedString == null || !isProxyValidated)
+            if (!isProxyValidated)
             {
                 throw new IllegalArgumentException(
                     proxyAddressStr
@@ -1689,36 +1621,20 @@ public class ProtocolProviderServiceSipImpl
         }
 
         //check if user has overridden proxy port.
-        String proxyPortStr = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_PORT);
-
-        if (proxyPortStr != null && proxyPortStr.length() > 0)
+        proxyPort =
+            accountID.getAccountPropertyInt(ProtocolProviderFactory.PROXY_PORT,
+                proxyPort);
+        if (proxyPort > NetworkUtils.MAX_PORT_NUMBER)
         {
-            try
-            {
-                proxyPort = Integer.parseInt(proxyPortStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.error(
-                    proxyPortStr
-                    + " is not a valid port value. Expected an integer"
-                    , ex);
-            }
-
-            if (proxyPort > NetworkUtils.MAX_PORT_NUMBER)
-            {
-                throw new IllegalArgumentException(proxyPort
-                    + " is larger than " +
-                    NetworkUtils.MAX_PORT_NUMBER
-                    +
-                    " and does not therefore represent a valid port nubmer.");
-            }
+            throw new IllegalArgumentException(proxyPort + " is larger than "
+                + NetworkUtils.MAX_PORT_NUMBER
+                + " and does not therefore represent a valid port nubmer.");
         }
 
         //proxy transport
-        String proxyTransport = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        String proxyTransport =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
         if (proxyTransport != null && proxyTransport.length() > 0)
         {

@@ -313,11 +313,14 @@ public class FirstWizardPage
         boolean isModified = false;
         
         if (this.initAccountID instanceof AccountID)
-        {   // We check if there is modifications to the server
-            String accHost = (String) this.initAccountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_ADDRESS);
-            int accPort = Integer.parseInt((String) this.initAccountID.getAccountProperties()
-                .get(ProtocolProviderFactory.SERVER_PORT));
+        { // We check if there is modifications to the server
+            String accHost =
+                this.initAccountID
+                    .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+            int accPort =
+                Integer
+                    .parseInt(this.initAccountID
+                        .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT));
             
             if (accHost != host || accPort != port)
             {
@@ -470,12 +473,15 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
-        String host = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_ADDRESS);
-        String port = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_PORT);
-        String strategy = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.STRATEGY);
+        String host =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+        String port =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT);
+        String strategy =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.STRATEGY);
         
         this.initAccountID = accountID;
 
@@ -530,22 +536,23 @@ public class FirstWizardPage
         ProtocolProviderFactory factory =
             DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-        
         String accHost;
         int accPort;
 
-        for (int i = 0; i < registeredAccounts.size(); i++)
+        for (AccountID accountID : factory.getRegisteredAccounts())
         {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-            accHost = (String) accountID.getAccountProperties()
-                .get(ProtocolProviderFactory.SERVER_ADDRESS);
+            accHost =
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
             
             if (host.equalsIgnoreCase(accHost))
             {
-                // We check the port, only if there is an account with the same host
-                accPort = Integer.parseInt((String) accountID.getAccountProperties()
-                    .get(ProtocolProviderFactory.SERVER_PORT));
+                // We check the port, only if there is an account with the same
+                // host
+                accPort =
+                    Integer
+                        .parseInt(accountID
+                            .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT));
                 
                 if (port == accPort)
                 {

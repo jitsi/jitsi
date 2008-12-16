@@ -13,84 +13,63 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that
- * contains two statuses ONLINE and OFFLINE. It's used to represent the status
- * of a protocol provider which doesn't support presence operation set.
- *
+ * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains
+ * two statuses ONLINE and OFFLINE. It's used to represent the status of a
+ * protocol provider which doesn't support presence operation set.
+ * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class SimpleStatusMenu
     extends StatusSelectorMenu
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(
-            SimpleStatusMenu.class.getName());
+    private final Logger logger = Logger.getLogger(SimpleStatusMenu.class);
 
-    private MainFrame mainFrame;
+    private final ProtocolProviderService protocolProvider;
 
-    private ProtocolProviderService protocolProvider;
+    private final ImageIcon onlineIcon;
 
-    private ImageIcon onlineIcon;
+    private final ImageIcon offlineIcon;
 
-    private ImageIcon offlineIcon;
+    private final JMenuItem onlineItem;
 
-    private JMenuItem onlineItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.ONLINE"),
-            onlineIcon);
-
-    private JMenuItem offlineItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.OFFLINE"),
-            offlineIcon);
-
-    private JLabel titleLabel;
+    private final JMenuItem offlineItem;
 
     /**
-     * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
-     *
-     * @param mainFrame The main application window.
+     * Creates an instance of <tt>SimpleStatusMenu</tt>.
+     * 
      * @param protocolProvider The protocol provider.
-     * @param accountIndex If we have more than one account for a protocol,
-     * each account has an index.
      */
-    public SimpleStatusMenu(MainFrame mainFrame,
-            ProtocolProviderService protocolProvider)
+    public SimpleStatusMenu(ProtocolProviderService protocolProvider)
     {
-        super(protocolProvider.getAccountID().getDisplayName(),
-            new ImageIcon(protocolProvider
-                .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+        this(protocolProvider,
+            protocolProvider.getAccountID().getDisplayName(), new ImageIcon(
+                protocolProvider.getProtocolIcon().getIcon(
+                    ProtocolIcon.ICON_SIZE_16x16)));
+    }
 
-        this.mainFrame = mainFrame;
+    private SimpleStatusMenu(ProtocolProviderService protocolProvider,
+        String displayName, ImageIcon onlineIcon)
+    {
+        super(displayName, onlineIcon);
+
         this.protocolProvider = protocolProvider;
 
-        this.onlineIcon = new ImageIcon(
-                ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
-                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+        this.onlineIcon = onlineIcon;
+        this.offlineIcon =
+            new ImageIcon(LightGrayFilter.createDisabledImage(onlineIcon
+                .getImage()));
 
-        this.offlineIcon = new ImageIcon(
-            LightGrayFilter.createDisabledImage(
-                ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
-                    .getIcon(ProtocolIcon.ICON_SIZE_16x16))));
+        this.setToolTipText("<html><b>" + displayName
+            + "</b><br>Offline</html>");
 
-        String tooltip = "<html><b>"
-            + protocolProvider.getAccountID().getDisplayName()
-            + "</b><br>Offline</html>";
-
-        this.setToolTipText(tooltip);
-
-        onlineItem.setName(Constants.ONLINE_STATUS);
-        offlineItem.setName(Constants.OFFLINE_STATUS);
-
-        onlineItem.addActionListener(this);
-        offlineItem.addActionListener(this);
-
-        titleLabel = new JLabel(protocolProvider
-                            .getAccountID().getDisplayName());
+        JLabel titleLabel = new JLabel(displayName);
 
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -98,44 +77,62 @@ public class SimpleStatusMenu
         this.add(titleLabel);
         this.addSeparator();
 
-        this.add(onlineItem);
-        this.add(offlineItem);
+        onlineItem =
+            createMenuItem("service.gui.ONLINE", onlineIcon,
+                Constants.ONLINE_STATUS);
+        offlineItem =
+            createMenuItem("service.gui.OFFLINE", offlineIcon,
+                Constants.OFFLINE_STATUS);
+    }
 
-//        setSelected(offlineItem, offlineIcon);
+    private JMenuItem createMenuItem(String textKey, Icon icon, String name)
+    {
+        JMenuItem menuItem =
+            new JMenuItem(GuiActivator.getResources().getI18NString(textKey),
+                icon);
+
+        menuItem.setName(Constants.ONLINE_STATUS);
+        menuItem.addActionListener(this);
+        this.add(menuItem);
+        return menuItem;
     }
 
     /**
-     * Handles the <tt>ActionEvent</tt> triggered when one of the items
-     * in the list is selected.
+     * Handles the <tt>ActionEvent</tt> triggered when one of the items in the
+     * list is selected.
      */
     public void actionPerformed(ActionEvent e)
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        if(itemName.equals(Constants.ONLINE_STATUS))
+        if (itemName.equals(Constants.ONLINE_STATUS))
         {
-            if(!protocolProvider.isRegistered()) {
-                GuiActivator.getUIService().getLoginManager()
-                    .login(protocolProvider);
+            if (!protocolProvider.isRegistered())
+            {
+                GuiActivator.getUIService().getLoginManager().login(
+                    protocolProvider);
             }
         }
         else
         {
-            if(    !protocolProvider.getRegistrationState()
-                            .equals(RegistrationState.UNREGISTERED)
-                && !protocolProvider.getRegistrationState()
-                            .equals(RegistrationState.UNREGISTERING))
+            RegistrationState registrationState =
+                protocolProvider.getRegistrationState();
+
+            if (!registrationState.equals(RegistrationState.UNREGISTERED)
+                && !registrationState.equals(RegistrationState.UNREGISTERING))
             {
-                try {
+                try
+                {
                     GuiActivator.getUIService().getLoginManager()
                         .setManuallyDisconnected(true);
                     protocolProvider.unregister();
                 }
-                catch (OperationFailedException e1) {
+                catch (OperationFailedException e1)
+                {
                     logger.error("Unable to unregister the protocol provider: "
-                            + protocolProvider
-                            + " due to the following exception: " + e1);
+                        + protocolProvider
+                        + " due to the following exception: " + e1);
                 }
             }
         }
@@ -152,25 +149,22 @@ public class SimpleStatusMenu
 
         tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
 
-        SelectedObject selectedObject;
-        if(protocolProvider.isRegistered())
+        if (protocolProvider.isRegistered())
         {
-            selectedObject = new SelectedObject(onlineIcon, onlineItem);
+            setSelected(new SelectedObject(onlineIcon, onlineItem));
 
-            setSelected(selectedObject);
-
+            // TODO Technically, we're not closing the html element.
             this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
         }
         else
         {
-            selectedObject = new SelectedObject(offlineIcon, offlineItem);
-
-            setSelected(selectedObject);
+            setSelected(new SelectedObject(offlineIcon, offlineItem));
 
             this.setToolTipText(tooltip.concat("<br>" + offlineItem.getText()));
         }
     }
 
     public void updateStatus(Object status)
-    {}
+    {
+    }
 }

@@ -538,12 +538,10 @@ public class AccountManagerImpl
         }
 
         // store the rest of the properties
-        Map accountProperties = accountID.getAccountProperties();
+        Map<?, ?> accountProperties = accountID.getAccountProperties();
 
-        for (Iterator entryIter = accountProperties.entrySet().iterator();
-             entryIter.hasNext();)
+        for (Map.Entry entry : accountProperties.entrySet())
         {
-            Map.Entry entry = (Map.Entry) entryIter.next();
             String property = (String) entry.getKey();
             String value = (String) entry.getValue();
 

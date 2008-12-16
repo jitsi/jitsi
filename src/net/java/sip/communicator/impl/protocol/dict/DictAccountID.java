@@ -35,27 +35,25 @@ public class DictAccountID
      */
     public String getHost()
     {
-        return (String) this.getAccountProperties()
-                .get(ProtocolProviderFactory.SERVER_ADDRESS);
+        return getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
     }
-    
+
     /**
      * Returns the dict server port
      * @return the dict server port
      */
     public int getPort()
     {
-        return Integer.parseInt((String) this.getAccountProperties()
-                .get(ProtocolProviderFactory.SERVER_PORT)); 
+        return Integer
+            .parseInt(getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT));
     }
-    
+
     /**
      * Returns the selected strategy
      * @return the selected strategy
      */
     public String getStrategy()
     {
-        return (String) this.getAccountProperties()
-                .get(ProtocolProviderFactory.STRATEGY);
+        return getAccountPropertyString(ProtocolProviderFactory.STRATEGY);
     }
 }

@@ -532,56 +532,54 @@ public class FirstWizardPage
     {
         AccountID accountID = protocolProvider.getAccountID();
         String password =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PASSWORD);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
 
         String serverAddress =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.SERVER_ADDRESS);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
 
         String serverPort =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.SERVER_PORT);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT);
 
         String proxyAddress =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_ADDRESS);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_ADDRESS);
 
         String proxyPort =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PROXY_PORT);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PROXY_PORT);
 
         String preferredTransport =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.PREFERRED_TRANSPORT);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
-        boolean enablePresence = new Boolean(
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.IS_PRESENCE_ENABLED)).booleanValue();
+        boolean enablePresence =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_PRESENCE_ENABLED, false);
 
-        boolean forceP2P = new Boolean(
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.FORCE_P2P_MODE)).booleanValue();
-        
-        boolean enabledDefaultEncryption = new Boolean(
-        	(String) accountID.getAccountProperties().get(
-        		ProtocolProviderFactory.DEFAULT_ENCRYPTION)).booleanValue(); 
+        boolean forceP2P =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.FORCE_P2P_MODE, false);
+
+        boolean enabledDefaultEncryption =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, false); 
 
         String pollingPeriod =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.POLLING_PERIOD);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.POLLING_PERIOD);
 
         String subscriptionPeriod =
-            (String) accountID.getAccountProperties().get(
-                ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
 
-        String keepAliveMethod
-            = (String) accountID.getAccountProperties()
-                .get("KEEP_ALIVE_METHOD");
+        String keepAliveMethod =
+            accountID.getAccountPropertyString("KEEP_ALIVE_METHOD");
 
-        String keepAliveInterval
-            = (String) accountID.getAccountProperties()
-                .get("KEEP_ALIVE_INTERVAL");
+        String keepAliveInterval =
+            accountID.getAccountPropertyString("KEEP_ALIVE_INTERVAL");
 
         uinField.setEnabled(false);
         this.uinField.setText((serverAddress == null) ? accountID.getUserID()
@@ -652,21 +650,6 @@ public class FirstWizardPage
 
             serverField.setText(serverAddress);
             proxyField.setText(serverAddress);
-        }
-    }
-
-    /**
-     * Disables Next Button if Port field value is incorrect
-     */
-    private void setNextButtonAccordingToPort()
-    {
-        try
-        {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
-        }
-        catch (NumberFormatException ex)
-        {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
     }
 

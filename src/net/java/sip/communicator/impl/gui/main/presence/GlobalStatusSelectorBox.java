@@ -141,10 +141,9 @@ public class GlobalStatusSelectorBox
             = (OperationSetPersistentPresence) protocolProvider
                 .getOperationSet(OperationSetPresence.class);
 
-        boolean isHidden = 
-            protocolProvider.getAccountID().
-                getAccountProperties().get(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+        boolean isHidden =
+            protocolProvider.getAccountID().getAccountProperty(
+                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
         if (isHidden)
             return;
@@ -158,8 +157,7 @@ public class GlobalStatusSelectorBox
         }
         else
         {
-            statusSelectorMenu
-                = new SimpleStatusMenu(mainFrame, protocolProvider);
+            statusSelectorMenu = new SimpleStatusMenu(protocolProvider);
         }
 
         this.add(statusSelectorMenu);
@@ -501,10 +499,9 @@ public class GlobalStatusSelectorBox
 
             // We do not show hidden protocols in our status bar, so we do not
             // care about their status here.
-            isProtocolHidden = 
-                protocolProvider.getAccountID().
-                    getAccountProperties().get(
-                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+            isProtocolHidden =
+                protocolProvider.getAccountID().getAccountProperty(
+                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
             if (isProtocolHidden)
                 continue;

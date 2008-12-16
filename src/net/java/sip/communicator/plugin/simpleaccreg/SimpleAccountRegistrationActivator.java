@@ -89,8 +89,8 @@ public class SimpleAccountRegistrationActivator
             {
                 AccountID accountID = registeredAccountIter.next();
                 boolean isHidden =
-                    accountID.getAccountProperties().get(
-                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+                    accountID
+                        .getAccountProperty(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
                 if (!isHidden)
                 {

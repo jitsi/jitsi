@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * The AccountID is an account identifier that, uniquely represents a specific
  * user account over a specific protocol. The class needs to be extended by
@@ -18,19 +20,21 @@ import java.util.*;
  * <p>
  * Every instance of the <tt>ProtocolProviderService</tt>, created through the
  * ProtocolProviderFactory is assigned an AccountID instance, that uniquely
- * represents it and whose string representation (obtainted through the
+ * represents it and whose string representation (obtained through the
  * getAccountUID() method) can be used for identification of persistently stored
  * account details.
  * <p>
  * Account id's are guaranteed to be different for different accounts and in the
  * same time are bound to be equal for multiple installations of the same
  * account.
-
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public abstract class AccountID
 {
+    private static final Logger logger = Logger.getLogger(AccountID.class);
+
     /**
      * Allows a specific set of account properties to override a given default
      * protocol name (e.g. account registration wizards which want to present a
@@ -106,7 +110,6 @@ public abstract class AccountID
                          String protocolName,
                          String serviceName)
     {
-        super();
 
         /*
          * Allow account registration wizards to override the default protocol
@@ -144,8 +147,8 @@ public abstract class AccountID
     public String getDisplayName()
     {
         String returnValue = getUserID();
-        String protocolName = (String)getAccountProperties()
-                            .get(ProtocolProviderFactory.PROTOCOL);
+        String protocolName =
+            getAccountPropertyString(ProtocolProviderFactory.PROTOCOL);
 
         if (protocolName != null && protocolName.trim().length() > 0)
             returnValue += " (" + protocolName + ")";
@@ -154,8 +157,8 @@ public abstract class AccountID
     }
 
     /**
-     * Returns a String uniquely idnetifying this account, guaranteed to remain
-     * the same accross multiple installations of the same account and to always
+     * Returns a String uniquely identifying this account, guaranteed to remain
+     * the same across multiple installations of the same account and to always
      * be unique for differing accounts.
      * @return String
      */
@@ -166,13 +169,61 @@ public abstract class AccountID
 
     /**
      * Returns a Map containing protocol and implementation account
-     * initialization propeties.
+     * initialization properties.
      * @return a Map containing protocol and implementation account
-     * initialization propeties.
+     * initialization properties.
      */
     public Map getAccountProperties()
     {
         return new Hashtable(accountProperties);
+    }
+
+    public Object getAccountProperty(Object key)
+    {
+        return accountProperties.get(key);
+    }
+
+    public boolean getAccountPropertyBoolean(Object key, boolean defaultValue)
+    {
+        String value = getAccountPropertyString(key);
+        return (value == null) ? defaultValue : Boolean.parseBoolean(value);
+    }
+
+    public int getAccountPropertyInt(Object key, int defaultValue)
+    {
+        String stringValue = getAccountPropertyString(key);
+        int intValue = defaultValue;
+
+        if (stringValue != null)
+        {
+            try
+            {
+                intValue = Integer.parseInt(stringValue);
+            }
+            catch (NumberFormatException ex)
+            {
+                logger.error("Failed to parse account property " + key
+                    + " value " + stringValue + " as an integer", ex);
+            }
+        }
+        return intValue;
+    }
+
+    public String getAccountPropertyString(Object key)
+    {
+        Object value = getAccountProperty(key);
+        return (value == null) ? null : value.toString();
+    }
+
+    /**
+     * Adds a property to the map of properties for this account identifier.
+     *
+     * @param key the key of the property
+     * @param value the property value
+     */
+    public void putAccountProperty(Object key, Object value)
+    {
+        accountProperties.put(key, value);
     }
 
     /**
@@ -239,7 +290,7 @@ public abstract class AccountID
 
     /**
      * Returns a string that could be directly used (or easily converted to) an
-     * address that other users of the procotol can use to communicate with us.
+     * address that other users of the protocol can use to communicate with us.
      * By default this string is set to userid@servicename. Protocol
      * implementors should override it if they'd need it to respect a different
      * syntax.
@@ -250,10 +301,9 @@ public abstract class AccountID
      */
     public String getAccountAddress()
     {
-        if (getUserID().indexOf('@') > 0)
-            return getUserID();
-        else
-            return getUserID() + "@" + getService();
+        String userID = getUserID();
+        return (userID.indexOf('@') > 0) ? userID
+            : (userID + "@" + getService());
     }
 
     /**

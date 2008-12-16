@@ -152,14 +152,16 @@ public class ProtocolProviderServiceIrcImpl
     public void register(SecurityAuthority authority)
         throws OperationFailedException
     {
-        Map accountProperties = getAccountID().getAccountProperties();
-        
-        String serverAddress = (String) accountProperties
-            .get(ProtocolProviderFactory.SERVER_ADDRESS);
-        
-        String serverPort = (String) accountProperties
-            .get(ProtocolProviderFactory.SERVER_PORT);
-        
+        AccountID accountID = getAccountID();
+
+        String serverAddress =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+
+        String serverPort =
+            accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT);
+
         if(serverPort == null || serverPort.equals(""))
         {
             serverPort = "6667";
@@ -169,25 +171,13 @@ public class ProtocolProviderServiceIrcImpl
         String serverPassword = IrcActivator.
             getProtocolProviderFactory().loadPassword(getAccountID());
 
-        boolean autoNickChange = true;
-        
-        boolean passwordRequired = true;
-        
-        if(accountProperties
-            .get(ProtocolProviderFactory.AUTO_CHANGE_USER_NAME) != null)
-        {
-            autoNickChange = new Boolean((String)accountProperties
-                .get(ProtocolProviderFactory.AUTO_CHANGE_USER_NAME))
-                    .booleanValue();
-        }
-        
-        if(accountProperties
-            .get(ProtocolProviderFactory.NO_PASSWORD_REQUIRED) != null)
-        {
-            passwordRequired = new Boolean((String) accountProperties
-                .get(ProtocolProviderFactory.NO_PASSWORD_REQUIRED))
-                    .booleanValue();
-        }
+        boolean autoNickChange =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.AUTO_CHANGE_USER_NAME, true);
+
+        boolean passwordRequired =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.NO_PASSWORD_REQUIRED, true);
             
         //if we don't - retrieve it from the user through the security authority
         if (serverPassword == null && passwordRequired)

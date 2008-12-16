@@ -292,17 +292,17 @@ public class ProtocolProviderServiceJabberImpl
                 String serviceName =
                     StringUtils.parseServer(getAccountID().getUserID());
 
-                String serverAddress = (String)getAccountID().
-                    getAccountProperties().get(
-                            ProtocolProviderFactory.SERVER_ADDRESS);
+                String serverAddress =
+                    getAccountID().getAccountPropertyString(
+                        ProtocolProviderFactory.SERVER_ADDRESS);
 
-                String serverPort = (String)getAccountID().
-                    getAccountProperties().get(
-                            ProtocolProviderFactory.SERVER_PORT);
+                String serverPort =
+                    getAccountID().getAccountPropertyString(
+                        ProtocolProviderFactory.SERVER_PORT);
 
-                String accountResource = (String)getAccountID().
-                    getAccountProperties().get(
-                            ProtocolProviderFactory.RESOURCE);
+                String accountResource =
+                    getAccountID().getAccountPropertyString(
+                        ProtocolProviderFactory.RESOURCE);
 
                 // check to see is there SRV records for this server domain
                 try
@@ -467,8 +467,8 @@ public class ProtocolProviderServiceJabberImpl
             this.accountID = accountID;
 
             String protocolIconPath =
-                (String) accountID.getAccountProperties().get(
-                    ProtocolProviderFactory.PROTOCOL_ICON_PATH);
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.PROTOCOL_ICON_PATH);
             if (protocolIconPath == null)
             {
                 protocolIconPath = "resources/images/protocol/jabber";
@@ -482,12 +482,12 @@ public class ProtocolProviderServiceJabberImpl
             //this feature is mandatory to be compliant with Service Discovery
             supportedFeatures.add("http://jabber.org/protocol/disco#info");
 
+            String keepAliveStrValue =
+                accountID.getAccountPropertyString("SEND_KEEP_ALIVE");
 
-            String keepAliveStrValue = (String)accountID.getAccountProperties().
-                                get("SEND_KEEP_ALIVE");
-
-            String resourcePriority = (String)accountID.getAccountProperties().
-                get(ProtocolProviderFactory.RESOURCE_PRIORITY);
+            String resourcePriority =
+                accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.RESOURCE_PRIORITY);
 
             //initialize the presence operationset
             OperationSetPersistentPresenceJabberImpl persistentPresence =
@@ -495,8 +495,8 @@ public class ProtocolProviderServiceJabberImpl
 
             if(resourcePriority != null)
             {
-                persistentPresence.setResourcePriority(
-                    new Integer(resourcePriority).intValue());
+                persistentPresence.setResourcePriority(Integer
+                    .parseInt(resourcePriority));
                 // TODO : is this resource priority related to xep-0168
                 // (Resource Application Priority) ?
                 // see http://www.xmpp.org/extensions/xep-0168.html
@@ -521,10 +521,9 @@ public class ProtocolProviderServiceJabberImpl
             OperationSetBasicInstantMessagingJabberImpl basicInstantMessaging =
                 new OperationSetBasicInstantMessagingJabberImpl(this);
 
-            if(keepAliveStrValue != null)
-                basicInstantMessaging.
-                    setKeepAliveEnabled(
-                        new Boolean(keepAliveStrValue).booleanValue());
+            if (keepAliveStrValue != null)
+                basicInstantMessaging.setKeepAliveEnabled(Boolean
+                    .parseBoolean(keepAliveStrValue));
 
             supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
