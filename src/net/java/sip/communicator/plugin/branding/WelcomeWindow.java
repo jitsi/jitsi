@@ -14,6 +14,8 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.util.swing.*;
+
 public class WelcomeWindow extends JDialog
 {
     private static final String APPLICATION_NAME
@@ -234,10 +236,22 @@ public class WelcomeWindow extends JDialog
         {
             super.paintComponent(g);
 
-            Graphics2D g2 = (Graphics2D) g;
+            g = g.create();
+            try
+            {
+                internalPaintComponent(g);
+            }
+            finally
+            {
+                g.dispose();
+            }
+        }
 
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        private void internalPaintComponent(Graphics g)
+        {
+            AntialiasingManager.activateAntialiasing(g);
+
+            Graphics2D g2 = (Graphics2D) g;
 
             /*
              * Drawing an Image with a data layout and color model compatible
@@ -261,9 +275,7 @@ public class WelcomeWindow extends JDialog
                 {
                     super.paintComponent(cacheGraphics);
 
-                    cacheGraphics.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
+                    AntialiasingManager.activateAntialiasing(cacheGraphics);
 
                     imageIsChanging =
                         !cacheGraphics.drawImage(image, 0, 0, null);

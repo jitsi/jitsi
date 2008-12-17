@@ -3,17 +3,19 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.whiteboard.gui;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.awt.print.*;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.*;
+
+import javax.swing.*;
+
 import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Panel for drawing shapes
@@ -21,7 +23,7 @@ import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
  * @author Julien Waechter
  */
 public class WhiteboardPanel
-    extends javax.swing.JPanel
+    extends JPanel
     implements Printable
 {
     /**
@@ -91,26 +93,32 @@ public class WhiteboardPanel
     {
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-            RenderingHints.VALUE_ANTIALIAS_ON);
-
-        if (grid)
+        g = g.create();
+        try
         {
-            for (int x = 0; x < this.getWidth(); x += defaultGrid)
+            AntialiasingManager.activateAntialiasing(g);
+
+            if (grid)
             {
-                for (int y = 0; y < this.getHeight(); y += defaultGrid)
+                for (int x = 0; x < this.getWidth(); x += defaultGrid)
                 {
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillOval(x, y, 2, 2);
+                    for (int y = 0; y < this.getHeight(); y += defaultGrid)
+                    {
+                        g.setColor(Color.LIGHT_GRAY);
+                        g.fillOval(x, y, 2, 2);
+                    }
                 }
             }
+            WhiteboardShape s;
+            for (int i = 0; i < displayList.size(); i++)
+            {
+                s = (WhiteboardShape) displayList.get(i);
+                s.paint(g, affineTrans);
+            }
         }
-        WhiteboardShape s;
-        for (int i = 0; i < displayList.size(); i++)
+        finally
         {
-            s = (WhiteboardShape) displayList.get(i);
-            s.paint(g, affineTrans);
+            g.dispose();
         }
     }
 
@@ -289,7 +297,7 @@ public class WhiteboardPanel
             {
                 pastePopupMenuItem.setEnabled(true);
             }
-            if (e.getButton() == e.BUTTON3)
+            if (e.getButton() == MouseEvent.BUTTON3)
                 popupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }

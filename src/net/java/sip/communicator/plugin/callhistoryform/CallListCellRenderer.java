@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
@@ -12,6 +11,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in
@@ -166,6 +166,19 @@ public class CallListCellRenderer
     {
         super.paintComponent(g);
 
+        g = g.create();
+        try
+        {
+            internalPaintComponent(g);
+        }
+        finally
+        {
+            g.dispose();
+        }
+    }
+
+    private void internalPaintComponent(Graphics g)
+    {
         Graphics2D g2 = (Graphics2D) g;
 
         AntialiasingManager.activateAntialiasing(g2);

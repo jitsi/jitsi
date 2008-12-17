@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -370,10 +371,9 @@ public class InitialAccountRegistrationFrame
             g = g.create();
             try
             {
-                Graphics2D g2d = (Graphics2D) g;
+                AntialiasingManager.activateAntialiasing(g);
 
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
+                Graphics2D g2d = (Graphics2D) g;
 
                 // paint the background with the chosen color
                 g2d.setColor(accountRegistrationPanelBackground);
@@ -525,10 +525,9 @@ public class InitialAccountRegistrationFrame
             g = g.create();
             try
             {
-                Graphics2D g2d = (Graphics2D) g;
+                AntialiasingManager.activateAntialiasing(g);
 
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
+                Graphics2D g2d = (Graphics2D) g;
 
                 // paint the background with the chosen color
                 g2d.setColor(background);

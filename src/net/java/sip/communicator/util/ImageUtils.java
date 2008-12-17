@@ -13,6 +13,8 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.util.swing.*;
+
 /**
  * Utility methods for image manipulation.
  *
@@ -77,17 +79,21 @@ public class ImageUtils
 
         Graphics2D g = destImage.createGraphics();
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g);
 
-        g.setColor(Color.WHITE);
-        g.fillRoundRect(0, 0, 
-                        scaledImage.getIconWidth(),
-                        scaledImage.getIconHeight(),
-                        10, 10);
-        g.setComposite(AlphaComposite.SrcIn);
+            g.setColor(Color.WHITE);
+            g.fillRoundRect(0, 0, scaledImage.getIconWidth(), scaledImage
+                .getIconHeight(), 10, 10);
+            g.setComposite(AlphaComposite.SrcIn);
 
-        g.drawImage(scaledImage.getImage(), 0, 0, null);
+            g.drawImage(scaledImage.getImage(), 0, 0, null);
+        }
+        finally
+        {
+            g.dispose();
+        }
 
         return new ImageIcon(destImage);
     }

@@ -4,15 +4,15 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes;
 
 import java.awt.*;
-
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
-import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 import java.awt.geom.*;
 import java.util.List;
+
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Abstract WhiteboardShape (Shape for the WhitheboardFrame)
@@ -228,21 +228,27 @@ public abstract class WhiteboardShape implements WhiteboardObject
                                     WhiteboardPoint point,
                                     Color color)
     {
-        Point2D v0 = t.transform (
-            new Point2D.Double(point.getX(), point.getY()), null);
+        g = g.create();
+        try
+        {
+            Point2D v0 =
+                t.transform(new Point2D.Double(point.getX(), point.getY()),
+                    null);
 
-        int x = (int) v0.getX ();
-        int y = (int) v0.getY ();
+            int x = (int) v0.getX();
+            int y = (int) v0.getY();
 
-        ((Graphics2D)g).setRenderingHint(   RenderingHints.KEY_ANTIALIASING,
-                                            RenderingHints.VALUE_ANTIALIAS_ON);
+            AntialiasingManager.activateAntialiasing(g);
 
-        g.setColor (new Color(  color.getRed(),
-                                color.getGreen(),
-                                color.getBlue(),
-                                160));
+            g.setColor(new Color(color.getRed(), color.getGreen(), color
+                .getBlue(), 160));
 
-        g.fillOval (x-5, y-5, 10, 10);
+            g.fillOval(x - 5, y - 5, 10, 10);
+        }
+        finally
+        {
+            g.dispose();
+        }
     }
     
     /**

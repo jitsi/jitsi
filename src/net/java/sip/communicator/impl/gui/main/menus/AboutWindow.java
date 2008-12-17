@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.swing.*;
 
 public class AboutWindow
     extends JDialog
@@ -91,10 +92,10 @@ public class AboutWindow
     /**
      * Constructs the window background in order to have a background image.
      */
-    private class WindowBackground
+    private static class WindowBackground
         extends JPanel
     {
-        private Image bgImage;
+        private final Image bgImage;
 
         public WindowBackground()
         {
@@ -111,12 +112,16 @@ public class AboutWindow
         {
             super.paintComponent(g);
 
-            Graphics2D g2 = (Graphics2D) g;
-
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-
-            g2.drawImage(bgImage, 0, 0, null);
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
+                g.drawImage(bgImage, 0, 0, null);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 
@@ -156,14 +161,6 @@ public class AboutWindow
         this.toFront();
     }
 
-    public static void activateAntialiasing(Graphics g)
-    {
-        Graphics2D g2d = (Graphics2D) g;
-
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-    }
-    
     /**
      * The source of the window
      * @return the source of the window
@@ -176,5 +173,7 @@ public class AboutWindow
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
-    public void setParams(Object[] windowParams) {}
+    public void setParams(Object[] windowParams)
+    {
+    }
 }

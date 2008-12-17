@@ -39,11 +39,6 @@ public class ContactInfoContactPanel
     private DefaultListModel contactListModel = new DefaultListModel();
 
     /**
-     * The associated ProtocolPanel on our parent ContactInfoDialog.
-     */
-    private ContactInfoDetailsPanel protocolPanel;
-
-    /**
      * The parent dialog that makes the connection between the contacts and
      * the details panel.
      */
@@ -163,20 +158,28 @@ public class ContactInfoContactPanel
          */
         public void paintComponent(Graphics g)
         {
-            Graphics2D g2 = (Graphics2D) g;
-
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-
             if (this.isSelected)
             {
-                g2.setColor(selectedColor);
-                g2.fillRoundRect(1, 0, this.getWidth(), this.getHeight(), 7, 7);
+                Graphics2D g2 = (Graphics2D) g.create();
 
-                g2.setColor(blueGreyBorderColor);
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.drawRoundRect(1, 0, this.getWidth() - 2, this.getHeight() - 1,
-                        7, 7);
+                try
+                {
+                    AntialiasingManager.activateAntialiasing(g2);
+
+                    int width = getWidth();
+                    int height = getHeight();
+
+                    g2.setColor(selectedColor);
+                    g2.fillRoundRect(1, 0, width, height, 7, 7);
+
+                    g2.setColor(blueGreyBorderColor);
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(1, 0, width - 2, height - 1, 7, 7);
+                }
+                finally
+                {
+                    g2.dispose();
+                }
             }
 
             super.paintComponent(g);

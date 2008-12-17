@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.branding;
 
 import java.awt.*;
@@ -12,11 +18,13 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
-public class AboutWindow extends JDialog implements HyperlinkListener,
-        ActionListener, ExportedWindow
+public class AboutWindow
+    extends JDialog
+    implements HyperlinkListener, ActionListener, ExportedWindow
 {
     private static final int DEFAULT_TEXT_INDENT
         = BrandingActivator.getResources()
@@ -169,15 +177,17 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         {
             super.paintComponent(g);
 
-            activateAntialiasing(g);
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
 
-            Graphics2D g2 = (Graphics2D) g;
-
-            g2.drawImage(bgImage, 0, 0, null);
-
-//            g2.setColor(new Color(255, 255, 255, 100));
-//
-//            g2.fillRect(0, 0, getWidth(), getHeight());
+                g.drawImage(bgImage, 0, 0, null);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 
@@ -239,14 +249,6 @@ public class AboutWindow extends JDialog implements HyperlinkListener,
         this.toFront();
     }
 
-    public static void activateAntialiasing(Graphics g)
-    {
-        Graphics2D g2d = (Graphics2D) g;
-
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-    }
-    
     /**
      * The source of the window
      * @return the source of the window
