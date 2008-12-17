@@ -107,7 +107,7 @@ public class SIPCommButton
         AntialiasingManager.activateAntialiasing(g);
 
         /*
-         * As JComponent#paintComponent says, if you do not invoker super's
+         * As JComponent#paintComponent says, if you do not invoke super's
          * implementation you must honor the opaque property, that is if this
          * component is opaque, you must completely fill in the background in a
          * non-opaque color. If you do not honor the opaque property you will
@@ -163,17 +163,17 @@ public class SIPCommButton
         {
             visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
         }
+        visibility /= 2;
 
-        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility/2));
+        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
 
         if (this.bgImage != null)
         {
-            g.fillRoundRect(this.getWidth()/2 - this.bgImage.getWidth(null)/2,
-                            this.getHeight()/2 - this.bgImage.getHeight(null)/2,
-                            bgImage.getWidth(null), bgImage.getHeight(null),
-                            10, 10);
+            g.fillRoundRect(this.getWidth() / 2 - this.bgImage.getWidth(null)
+                / 2, this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
+                bgImage.getWidth(null), bgImage.getHeight(null), 10, 10);
         }
-        else
+        else if (isContentAreaFilled() || (visibility != 0.0f))
         {
             g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
         }

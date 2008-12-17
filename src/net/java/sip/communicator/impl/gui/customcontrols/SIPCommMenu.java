@@ -125,15 +125,4 @@ public class SIPCommMenu
         this.isMouseOver = isMouseOver;
         this.repaint();
     }
-
-    /**
-     * Overwrites the <tt>paintComponent(Graphics g)</tt> method in order to
-     * provide a new look and the mouse moves over this component.
-     */
-    public void paintComponent(Graphics g)
-    {
-        // AntialiasingManager.activateAntialiasing(g);
-
-        super.paintComponent(g);
-    }
 }

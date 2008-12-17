@@ -40,7 +40,7 @@ public class MainCallPanel
                 RegistrationStateChangeListener,
                 PluginComponentListener
 {
-    private Logger logger = Logger.getLogger(MainCallPanel.class);
+    private final Logger logger = Logger.getLogger(MainCallPanel.class);
 
     private static final String CALL_BUTTON = "CallButton";
 
@@ -73,9 +73,6 @@ public class MainCallPanel
 
     private AccountSelectorBox accountSelectorBox = new AccountSelectorBox(this);
 
-    private SIPCommButton dialButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
-
     private DialpadDialog dialpadDialog;
 
     private boolean isCallMetaContact = false;
@@ -106,20 +103,33 @@ public class MainCallPanel
 
         phoneNumberCombo.setOpaque(false);
 
-        comboPanel.add(dialButton, BorderLayout.WEST);
+        comboPanel.add(createDialButton(), BorderLayout.WEST);
         comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
         comboPanel.add(buttonsPanel, BorderLayout.EAST);
 
         callButton.setName(CALL_BUTTON);
-        dialButton.setName(DIAL_BUTTON);
 
         callButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.CALL"));
 
         callButton.addActionListener(this);
-        dialButton.addActionListener(this);
 
         this.initPluginComponents();
+    }
+
+    private Component createDialButton()
+    {
+        SIPCommButton dialButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+
+        /*
+         * Tell Windows not to show the background in order to respect the blue
+         * theme.
+         */
+        dialButton.setContentAreaFilled(false);
+        dialButton.setName(DIAL_BUTTON);
+        dialButton.addActionListener(this);
+        return dialButton;
     }
 
     /**
@@ -195,7 +205,7 @@ public class MainCallPanel
 
                 dialpadDialog.setLocation(
                     mainFrame.getX() + 10,
-                    dialButton.getLocationOnScreen().y
+                    button.getLocationOnScreen().y
                         - dialpadDialog.getHeight());
 
                 dialpadDialog.setVisible(true);

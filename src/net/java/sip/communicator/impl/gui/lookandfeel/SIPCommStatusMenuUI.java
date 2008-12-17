@@ -39,35 +39,27 @@ public class SIPCommStatusMenuUI
      */
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
     {
-        super.paintBackground(g, menuItem, bgColor);
-
-        g = g.create();
-        try
-        {
-            internalPaintBackground(g, menuItem, bgColor);
-        }
-        finally
-        {
-            g.dispose();
-        }
-    }
-
-    private void internalPaintBackground(Graphics g, JMenuItem menuItem,
-        Color bgColor)
-    {
-        AntialiasingManager.activateAntialiasing(g);
-
-        Color oldColor = g.getColor();
-
-        int menuWidth = menuItem.getWidth();
-        int menuHeight = menuItem.getHeight();
-
         if (menuItem.isSelected())
         {
-            g.setColor(Color.LIGHT_GRAY);
-            g.fillRoundRect(0, 0, menuWidth, menuHeight, 8, 8);
-        }
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
 
-        g.setColor(oldColor);
+                int menuWidth = menuItem.getWidth();
+                int menuHeight = menuItem.getHeight();
+
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRoundRect(0, 0, menuWidth, menuHeight, 8, 8);
+            }
+            finally
+            {
+                g.dispose();
+            }
+        }
+        else
+        {
+            super.paintBackground(g, menuItem, bgColor);
+        }
     }
 }
