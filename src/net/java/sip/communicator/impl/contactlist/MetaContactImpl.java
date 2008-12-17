@@ -13,12 +13,13 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
 /**
  * A default implementation of the MetaContact interface.
  * @author Emil Ivov
  */
 public class MetaContactImpl
-    implements MetaContact, Comparable
+    implements MetaContact
 {
     /**
      * Logger for <tt>MetaContactImpl</tt>.
@@ -85,8 +86,7 @@ public class MetaContactImpl
      * Hashtable containing the contact details.
      * Name -> Value or Name -> (List of values).
      */
-    private Hashtable<String, List<String>> details
-                                        = new Hashtable<String, List<String>>();
+    private final Map<String, List<String>> details;
 
     /**
      * The service that is creating the contact.
@@ -122,6 +122,7 @@ public class MetaContactImpl
         this.uid = String.valueOf( System.currentTimeMillis())
                    + String.valueOf(hashCode());
         this.mclServiceImpl = mclServiceImpl;
+        this.details = new Hashtable<String, List<String>>();
     }
 
     /**
@@ -132,7 +133,7 @@ public class MetaContactImpl
      * @param details the already stored details for the contact.
      */
     MetaContactImpl(MetaContactListServiceImpl mclServiceImpl,
-            String metaUID, Hashtable details)
+            String metaUID, Hashtable<String, List<String>> details)
     {
         this.uid = metaUID;
         this.mclServiceImpl = mclServiceImpl;
@@ -167,13 +168,10 @@ public class MetaContactImpl
     public Iterator<Contact> getContactsForProvider(
                                     ProtocolProviderService provider)
     {
-        Iterator<Contact> contactsIter = protoContacts.iterator();
         LinkedList<Contact> providerContacts = new LinkedList<Contact>();
 
-        while (contactsIter.hasNext())
+        for (Contact contact : protoContacts)
         {
-            Contact contact = contactsIter.next();
-
             if(contact.getProtocolProvider() == provider)
                 providerContacts.add( contact );
         }
@@ -197,13 +195,10 @@ public class MetaContactImpl
     public Iterator<Contact> getContactsForContactGroup(
                                             ContactGroup parentProtoGroup)
     {
-        Iterator<Contact> contactsIter = protoContacts.iterator();
-        LinkedList<Contact> providerContacts = new LinkedList<Contact>();
+        List<Contact> providerContacts = new LinkedList<Contact>();
 
-        while (contactsIter.hasNext())
+        for (Contact contact : protoContacts)
         {
-            Contact contact = contactsIter.next();
-
             if(contact.getParentContactGroup() == parentProtoGroup)
                 providerContacts.add( contact );
         }
@@ -226,19 +221,14 @@ public class MetaContactImpl
     public Contact getContact(String contactAddress,
                               ProtocolProviderService ownerProvider)
     {
-        Iterator<Contact> contactsIter = protoContacts.iterator();
-
-        while (contactsIter.hasNext())
+        for (Contact contact : protoContacts)
         {
-            Contact contact = contactsIter.next();
-
             if(   contact.getProtocolProvider() == ownerProvider
                && contact.getAddress().equals(contactAddress))
                 return contact;
         }
 
         return null;
-
     }
 
     /**
@@ -256,12 +246,8 @@ public class MetaContactImpl
     public Contact getContact(String contactAddress,
                               String accountID)
     {
-        Iterator<Contact> contactsIter = protoContacts.iterator();
-
-        while (contactsIter.hasNext())
+        for (Contact contact : protoContacts)
         {
-            Contact contact = contactsIter.next();
-
             if(  contact.getProtocolProvider().getAccountID()
                     .getAccountUniqueID().equals(accountID)
                && contact.getAddress().equals(contactAddress))
@@ -269,7 +255,6 @@ public class MetaContactImpl
         }
 
         return null;
-
     }
 
 
@@ -281,14 +266,13 @@ public class MetaContactImpl
      * returned by this method is not over the actual list of contacts but over
      * a copy of that list.
      * <p>
-     * @return a <tt>java.util.Ierator</tt> over all protocol specific
+     * @return a <tt>java.util.Iterator</tt> over all protocol specific
      * <tt>Contact</tt>s that were registered as subcontacts for this
      * <tt>MetaContact</tt>
      */
     public Iterator<Contact> getContacts()
     {
-        List<Contact> contactsCopy = new LinkedList<Contact>(protoContacts);
-        return contactsCopy.iterator();
+        return new LinkedList<Contact>(protoContacts).iterator();
     }
 
     /**
@@ -303,12 +287,9 @@ public class MetaContactImpl
     {
         if(defaultContact == null)
         {
-
             PresenceStatus currentStatus = null;
-            for (int i = 0; i < this.protoContacts.size(); i++)
+            for (Contact protoContact : protoContacts)
             {
-                Contact protoContact = (Contact)this.protoContacts.get(i);
-
                 PresenceStatus contactStatus = protoContact.getPresenceStatus();
 
                 if (currentStatus != null)
@@ -336,7 +317,7 @@ public class MetaContactImpl
      * @param operationSet the operation for which the default contact is needed
      * @return the default contact for the specified operation.
      */
-    public Contact getDefaultContact(Class operationSet)
+    public Contact getDefaultContact(Class<? extends OperationSet> operationSet)
     {
         Contact defaultOpSetContact = null;
 
@@ -349,10 +330,9 @@ public class MetaContactImpl
         }
         else
         {
-            for (int i = 0; i < protoContacts.size(); i++)
+            for (Contact protoContact : protoContacts)
             {
                 PresenceStatus currentStatus = null;
-                Contact protoContact = (Contact)this.protoContacts.get(i);
 
                 // we filter to care only about contact which support
                 // the needed opset.
@@ -589,7 +569,7 @@ public class MetaContactImpl
                 parentGroup.lightRemoveMetaContact(this);
             }
 
-            this.displayName = new String((displayName==null)?"":displayName);
+            this.displayName = (displayName == null) ? "" : displayName;
 
             if (parentGroup != null)
             {
@@ -656,11 +636,8 @@ public class MetaContactImpl
             this.contactsOnline = 0;
             int maxContactStatus = 0;
 
-            Iterator<Contact> protoContacts = this.protoContacts.iterator();
-
-            while (protoContacts.hasNext())
+            for (Contact contact : protoContacts)
             {
-                Contact contact = protoContacts.next();
                 int contactStatus = contact.getPresenceStatus()
                         .getStatus();
 
@@ -669,10 +646,10 @@ public class MetaContactImpl
                     maxContactStatus = contactStatus;
                     this.defaultContact = contact;
                 }
-                contact.getPresenceStatus();
-                contactsOnline += contact.getPresenceStatus().isOnline() ? 1 : 0;
+                if (contact.getPresenceStatus().isOnline())
+                    contactsOnline++;
             }
-            //now readd it and the contact would be automatically placed
+            //now read it and the contact would be automatically placed
             //properly by the containing group
             if (parentGroup != null)
             {
@@ -682,8 +659,6 @@ public class MetaContactImpl
 
         return -1;
     }
-
-
 
     /**
      * Removes the specified protocol specific contact from the contacts
@@ -803,17 +778,16 @@ public class MetaContactImpl
      */
     void setParentGroup(MetaContactGroupImpl parentGroup)
     {
-        synchronized(parentGroupModLock)
-        {
-            if (parentGroup == null)
-                throw new NullPointerException(
-                    "Do not call this method with a "
-                    + "null argument even if a group is removing this contact "
-                    + "from itself as this could lead to race conditions "
-                    + "(imagine another group setting itself as the new "
-                    +"parent and you  removing it). Use unsetParentGroup "
-                    +"instead.");
+        if (parentGroup == null)
+            throw new NullPointerException("Do not call this method with a "
+                + "null argument even if a group is removing this contact "
+                + "from itself as this could lead to race conditions "
+                + "(imagine another group setting itself as the new "
+                + "parent and you  removing it). Use unsetParentGroup "
+                + "instead.");
 
+        synchronized (parentGroupModLock)
+        {
             this.parentGroup = parentGroup;
         }
     }
@@ -864,11 +838,12 @@ public class MetaContactImpl
         List<String> values = details.get(name);
 
         if(values == null)
+        {
             values = new ArrayList<String>();
+            details.put(name, values);
+        }
 
         values.add(value);
-
-        details.put(name, values);
 
         mclServiceImpl.fireMetaContactEvent(
             new MetaContactModifiedEvent(
@@ -885,7 +860,7 @@ public class MetaContactImpl
      */
     public void removeDetail(String name, String value)
     {
-        ArrayList values = (ArrayList)details.get(name);
+        List<String> values = details.get(name);
 
         if(values == null)
             return;
@@ -924,22 +899,12 @@ public class MetaContactImpl
      */
     public void changeDetail(String name, String oldValue, String newValue)
     {
-        ArrayList values = (ArrayList)details.get(name);
+        List<String> values = details.get(name);
 
         if(values == null)
             return;
 
-        int changedIx = -1;
-
-        for (int i = 0; i < values.size(); i++)
-        {
-            if(values.get(i).equals(oldValue))
-            {
-                changedIx = i;
-                break;
-            }
-        }
-
+        int changedIx = values.indexOf(oldValue);
         if(changedIx == -1)
             return;
 
@@ -957,14 +922,14 @@ public class MetaContactImpl
      * Get all details with given name.
      * @param name the name of the details we are searching.
      */
-    public List getDetails(String name)
+    public List<String> getDetails(String name)
     {
-        ArrayList values = (ArrayList)details.get(name);
+        List<String> values = details.get(name);
 
         if(values == null)
-            values = new ArrayList();
+            values = new ArrayList<String>();
         else
-            values = (ArrayList)values.clone();
+            values = new ArrayList<String>(values);
 
         return values;
     }
@@ -1075,7 +1040,7 @@ public class MetaContactImpl
      */
     private String escapeSpecialCharacters(String id)
     {
-        String resultId = new String(id);
+        String resultId = id;
         for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
         {
             resultId = resultId.
