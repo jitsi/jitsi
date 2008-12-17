@@ -61,6 +61,15 @@ public class MetaContactImpl
     private byte[] cachedAvatar = null;
 
     /**
+     * A flag that tells us whether or not we have already tried to restore
+     * an avatar from cache. We need this to know whether a <tt>null</tt> cached
+     * avatar implies that there is no locally stored avatar or that we simply
+     * haven't tried to retrieve it. This should allow us to only interrogate
+     * the file system if haven't done so before.
+     */
+    private boolean avatarFileCacheAlreadyQueried = false;
+
+    /**
      * A callback to the meta contact group that is currently our parent. If
      * this is an orphan meta contact that has not yet been added or has been
      * removed from a group this callback is going to be null.
@@ -452,39 +461,31 @@ public class MetaContactImpl
     }
 
     /**
-     * Queries the underlying contacts for an avatar, caches all existing
-     * images, and returns one of them.
+     * Queries all protoco contacts in this meta contact for their avatars.
+     * Beware that this method could cause multiple network operations.
+     * Use with caution.
      *
-     * @return a cached or locally stored copy of an avatar (e.g. user photo) for
-     * this contact.
+     * @return a byte array containing the first avatar returned by any of
+     * this metacontact's child contacts or <tt>null</tt> if none of them
+     * returned an avatar.
      */
-    public byte[] getAvatar()
+    private byte[] queryProtoContactAvatar(Contact contact)
     {
-        Iterator<Contact> i = this.getContacts();
-        byte[] contactImage = null;
-
-        while(i.hasNext())
+        try
         {
-            Contact protoContact = i.next();
+            byte[] contactImage = contact.getImage();
 
-            try
+            if (contactImage != null && contactImage.length > 0)
             {
-                contactImage = protoContact.getImage();
-
-                if (contactImage != null && contactImage.length > 0)
-                {
-                    this.storeAvatar(protoContact, contactImage);
-
-                    cachedAvatar = contactImage;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.error("Failed to load contact photo.", ex);
+                return contactImage;
             }
         }
+        catch (Exception ex)
+        {
+            logger.error("Failed to load contact photo.", ex);
+        }
 
-        return cachedAvatar;
+        return null;
     }
 
     /**
@@ -499,15 +500,44 @@ public class MetaContactImpl
      */
     public byte[] getAvatar(boolean isLazy)
     {
+        byte[] result = null;
         if (!isLazy)
-            return getAvatar();
+        {
+            // the caller is willing to perform a lengthy operation so let's
+            // query the proto contacts for their avatars.
+            Iterator<Contact> protoContacts = getContacts();
 
+            while( protoContacts.hasNext())
+            {
+                Contact contact = protoContacts.next();
+                result = queryProtoContactAvatar(contact);
+
+                // if we got a result from the above, then let's cache and
+                // return it.
+                if (result != null && result.length > 0)
+                {
+                    cacheAvatar(contact, result);
+                    return result;
+                }
+            }
+        }
+
+        //if we get here then the caller is probably not willing to perform
+        //network operations and opted for a lazy retrieve (... or the
+        //queryAvatar method returned null because we are calling it too often)
         if(cachedAvatar != null
            && cachedAvatar.length > 0)
         {
-            //we already have an avatar.
+            //we already have a cached avatar, so let's return it
             return cachedAvatar;
         }
+
+        //no cached avatar. let'r try the file system for previously stored
+        //ones. (unless we already did this)
+        if ( avatarFileCacheAlreadyQueried )
+            return null;
+
+        avatarFileCacheAlreadyQueried = true;
 
         Iterator<Contact> iter = this.getContacts();
         while (iter.hasNext())
@@ -530,6 +560,18 @@ public class MetaContactImpl
         }
 
         return null;
+    }
+
+    /**
+     * Returns an avatar that can be used when presenting this
+     * <tt>MetaContact</tt> in user interface. The method would also make sure
+     * that we try the network for new versions of avatars.
+     *
+     * @return an avatar (e.g. user photo) of this contact.
+     */
+    public byte[] getAvatar()
+    {
+        return getAvatar(false);
     }
 
     /**
@@ -933,9 +975,12 @@ public class MetaContactImpl
      * @param history The history in which we store the avatar.
      * @param avatarBytes The avatar image bytes.
      */
-    public void storeAvatar( Contact protoContact,
+    public void cacheAvatar( Contact protoContact,
                              byte[] avatarBytes)
     {
+        this.cachedAvatar = avatarBytes;
+        this.avatarFileCacheAlreadyQueried = true;
+
         String accountUID = protoContact.getProtocolProvider()
             .getAccountID().getAccountUniqueID();
 

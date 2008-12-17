@@ -526,7 +526,7 @@ public class MetaContactListServiceImpl
         } else {
             parentProtoGroup = resolveProtoPath(protoProvider, parentMetaGroup);
         }
-        
+
         //create the proto group
         BlockingGroupEventRetriever evtRetriever
             = new BlockingGroupEventRetriever(metaGroup.getGroupName());
@@ -727,7 +727,7 @@ public class MetaContactListServiceImpl
         MetaContactGroupImpl newMetaGroup = new MetaContactGroupImpl(groupName);
 
         ( (MetaContactGroupImpl) parent).addSubgroup(newMetaGroup);
-        
+
         //fire the event
         fireMetaContactGroupEvent(newMetaGroup
             , null, null, MetaContactGroupEvent. META_CONTACT_GROUP_ADDED);
@@ -818,7 +818,7 @@ public class MetaContactListServiceImpl
         }
 
         byte[] oldAvatar = metaContact.getAvatar(true);
-        ((MetaContactImpl)metaContact).storeAvatar(protoContact, newAvatar);
+        ((MetaContactImpl)metaContact).cacheAvatar(protoContact, newAvatar);
 
         fireMetaContactPropertyChangeEvent(new MetaContactAvatarUpdate(
             metaContact,
@@ -1393,7 +1393,7 @@ public class MetaContactListServiceImpl
     /**
      * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
      * from the given <tt>ProtocolProviderService</tt>.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
      * contacts we're looking for.
      * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
@@ -1415,11 +1415,11 @@ public class MetaContactListServiceImpl
      * Returns a list of all <tt>MetaContact</tt>s contained in the given group
      * and containing a protocol contact from the given
      * <tt>ProtocolProviderService</tt>.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
      * contacts we're looking for.
      * @param metaContactGroup the parent group.
-     * 
+     *
      * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
      * from the given <tt>ProtocolProviderService</tt>.
      */
@@ -1439,7 +1439,7 @@ public class MetaContactListServiceImpl
      * Returns a list of all <tt>MetaContact</tt>s contained in the given group
      * and containing a protocol contact from the given
      * <tt>ProtocolProviderService</tt>.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
      * contacts we're looking for.
      * @param metaContactGroup the parent group.
