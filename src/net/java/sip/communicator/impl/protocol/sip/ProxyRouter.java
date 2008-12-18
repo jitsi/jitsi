@@ -7,7 +7,9 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.stack.*;
+
 import java.util.*;
+
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -28,8 +30,7 @@ public class ProxyRouter
     /**
      * Logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(ProxyRouter.class);
+    private static final Logger logger = Logger.getLogger(ProxyRouter.class);
 
     /**
      * The running JAIN-SIP stack.
@@ -40,15 +41,15 @@ public class ProxyRouter
      * Used to cache the <tt>DefaultRouter</tt>s. One <tt>DefaultRouter</tt> per
      * outbound proxy.
      */
-    Map<String, Router> routers = new HashMap<String, Router>();
+    private final Map<String, Router> routers = new HashMap<String, Router>();
 
     /**
      * The jain-sip router to use for accounts that do not have a proxy.
      */
-    Router defaultRouter = null;
+    private Router defaultRouter = null;
 
     /**
-     * Simple contructor. Ignores the <tt>defaultRoute</tt> parameter.
+     * Simple constructor. Ignores the <tt>defaultRoute</tt> parameter.
      *
      * @param stack the currently running stack.
      * @param defaultRoute ignored parameter.
@@ -122,7 +123,7 @@ public class ProxyRouter
      * account which sent the <tt>request</tt>.
      *
      * @param request the <tt>Request</tt> which to build a <tt>Router</tt> for.
-     * @return a <tt>Router</tt> with the oubound proxy set for this
+     * @return a <tt>Router</tt> with the outbound proxy set for this
      * <tt>request</tt>.
      */
     private Router getRouterFor(Request request)
