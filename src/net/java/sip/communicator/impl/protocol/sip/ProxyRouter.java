@@ -43,6 +43,11 @@ public class ProxyRouter
     Map<String, Router> routers = new HashMap<String, Router>();
 
     /**
+     * The jain-sip router to use for accounts that do not have a proxy.
+     */
+    Router defaultRouter = null;
+
+    /**
      * Simple contructor. Ignores the <tt>defaultRoute</tt> parameter.
      *
      * @param stack the currently running stack.
@@ -65,10 +70,16 @@ public class ProxyRouter
     public Hop getNextHop(Request request)
         throws SipException
     {
+        logger.debug("Trying to get a router for req: " + request);
+
         Router router =
             this.getRouterFor(request);
         if(router != null)
             return router.getNextHop(request);
+
+        logger.warn(
+            "Hmm we are returning a null router. This doesn't look good",
+            new Exception());
         return null;
     }
 
@@ -130,15 +141,31 @@ public class ProxyRouter
                 String proxy = service.getOutboundProxyString();
 
                 if(proxy == null) // no registrar mode
-                    return null;
+                {
+                    logger.debug("Returning a router for outbound proxy: "
+                        + service.getOutboundProxyString());
+
+                    //no proxy for this account, we need to return the default
+                    //router.
+                    if( defaultRouter == null)
+                        defaultRouter = new DefaultRouter(this.stack, null);
+
+                    return defaultRouter;
+                }
                 else if(this.routers.containsKey(proxy))
                     return this.routers.get(proxy);
                 else
                 {
+
+
                     Router router = new DefaultRouter(
                             this.stack
                             , service.getOutboundProxyString());
                     this.routers.put(proxy, router);
+
+                    logger.debug("Returning a router for outbound proxy: "
+                                 + service.getOutboundProxyString());
+
                     return router;
                 }
             }
