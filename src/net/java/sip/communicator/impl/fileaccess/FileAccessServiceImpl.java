@@ -36,13 +36,6 @@ public class FileAccessServiceImpl implements FileAccessService {
     public static final String TEMP_FILE_SUFFIX = "TEMP";
 
     /**
-     * An synchronization object.
-     *
-     * A lock should be obtained whenever the configuration service is accessed.
-     */
-    private Object syncRoot = new Object();
-
-    /**
      * This method returns a created temporary file. After you close this file
      * it is not guaranteed that you will be able to open it again nor that it
      * will contain any information.

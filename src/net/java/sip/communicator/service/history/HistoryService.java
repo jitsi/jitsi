@@ -29,15 +29,13 @@ public interface HistoryService {
      */
     public static String CACHE_ENABLED_PROPERTY =
         "net.java.sip.communicator.service.history.CACHE_ENABLED";
-    public static String CACHE_ENABLED = "true";
-    public static String CACHE_DISABLED = "false";
 
     /**
      * Returns the IDs of all existing histories.
      *
      * @return An iterator to a list of IDs.
      */
-    Iterator getExistingIDs();
+    Iterator<HistoryID> getExistingIDs();
 
     /**
      * Returns the history associated with this ID.

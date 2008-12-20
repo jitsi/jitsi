@@ -8,9 +8,12 @@ package net.java.sip.communicator.impl.history;
 
 import java.io.*;
 import java.util.*;
+
 import javax.xml.parsers.*;
-import org.xml.sax.*;
+
+import org.osgi.framework.*;
 import org.w3c.dom.*;
+import org.xml.sax.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
@@ -21,9 +24,11 @@ import net.java.sip.communicator.util.*;
 /**
  * @author Alexander Pelov
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
-public class HistoryServiceImpl implements HistoryService {
-
+public class HistoryServiceImpl
+    implements HistoryService
+{
     public static final String DATA_DIRECTORY = "history_ver1.0";
 
     public static final String DATA_FILE = "dbstruct.dat";
@@ -31,25 +36,18 @@ public class HistoryServiceImpl implements HistoryService {
     /**
      * The logger for this class.
      */
-    private static Logger log = Logger.getLogger(HistoryServiceImpl.class);
+    private static final Logger logger =
+        Logger.getLogger(HistoryServiceImpl.class);
 
-    private Map histories = new Hashtable(); // Note: Hashtable is
-                                                // SYNCHRONIZED
+    // Note: Hashtable is SYNCHRONIZED
+    private final Map<HistoryID, History> histories =
+        new Hashtable<HistoryID, History>();
 
-    private Collection loadedFiles = Collections
-            .synchronizedCollection(new Vector());
+    private final FileAccessService fileAccessService;
 
-    private ConfigurationService configurationService;
+    private final DocumentBuilder builder;
 
-    private FileAccessService fileAccessService;
-
-    private Object syncRoot_FileAccess = new Object();
-
-    private Object syncRoot_Config = new Object();
-
-    private DocumentBuilder builder;
-
-    private boolean cacheEnabled = false;
+    private final boolean cacheEnabled;
 
     /**
      *  Characters and their replacement in created folder names
@@ -68,16 +66,20 @@ public class HistoryServiceImpl implements HistoryService {
         {"\\|", "&_pp"}     // the char |
     };
 
-    public HistoryServiceImpl()
+    public HistoryServiceImpl(BundleContext bundleContext)
         throws Exception
     {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        this.builder = factory.newDocumentBuilder();
+        this.builder =
+            DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        this.cacheEnabled =
+            getConfigurationService(bundleContext).getBoolean(
+                CACHE_ENABLED_PROPERTY, false);
+        this.fileAccessService = getFileAccessService(bundleContext);
     }
 
-    public Iterator getExistingIDs()
+    public Iterator<HistoryID> getExistingIDs()
     {
-        Vector vect = new Vector();
+        List<File> vect = new Vector<File>();
         File histDir = null;
         try {
             String userSetDataDirectory = System.getProperty("HistoryServiceDirectory");
@@ -91,33 +93,26 @@ public class HistoryServiceImpl implements HistoryService {
             findDatFiles(vect, histDir);
         } catch (Exception e)
         {
-            log.error("Error opening directory", e);
+            logger.error("Error opening directory", e);
         }
 
         DBStructSerializer structParse = new DBStructSerializer(this);
-        int size = vect.size();
-        for (int i = 0; i < size; i++)
+        for (File f : vect)
         {
-            File f = (File) vect.get(i);
-
-            synchronized (this.loadedFiles)
+            synchronized (this.histories)
             {
-                if (!this.loadedFiles.contains(f))
+                try
                 {
-                    synchronized (this.histories)
+                    History hist = structParse.loadHistory(f);
+                    if (!this.histories.containsKey(hist.getID()))
                     {
-                        try {
-                            History hist = structParse.loadHistory(f);
-                            if (!this.histories.containsKey(hist.getID()))
-                            {
-                                this.histories.put(hist.getID(), hist);
-                            }
-                        } catch (Exception e)
-                        {
-                            log.error("Could not load history from file: "
-                                    + f.getAbsolutePath(), e);
-                        }
+                        this.histories.put(hist.getID(), hist);
                     }
+                }
+                catch (Exception e)
+                {
+                    logger.error("Could not load history from file: "
+                        + f.getAbsolutePath(), e);
                 }
             }
         }
@@ -218,7 +213,7 @@ public class HistoryServiceImpl implements HistoryService {
         return builder.parse(in);
     }
 
-    private void findDatFiles(Vector vect, File directory)
+    private void findDatFiles(List<File> vect, File directory)
     {
         File[] files = directory.listFiles();
         for (int i = 0; i < files.length; i++)
@@ -226,7 +221,8 @@ public class HistoryServiceImpl implements HistoryService {
             if (files[i].isDirectory())
             {
                 findDatFiles(vect, files[i]);
-            } else if (DATA_FILE.equalsIgnoreCase(files[i].getName()))
+            }
+            else if (DATA_FILE.equalsIgnoreCase(files[i].getName()))
             {
                 vect.add(files[i]);
             }
@@ -271,78 +267,6 @@ public class HistoryServiceImpl implements HistoryService {
         return directory;
     }
 
-    // //////////////////////////////////////////////////////////////////////////
-    /**
-     * Set the configuration service.
-     *
-     * @param configurationService ConfigurationService
-     */
-    public void setConfigurationService(
-            ConfigurationService configurationService)
-    {
-        synchronized (this.syncRoot_Config)
-        {
-            this.configurationService = configurationService;
-            log.debug("New configuration service registered.");
-
-            // store some config for further use
-            Object isCacheEnabledObj =
-                this.configurationService.getProperty(HistoryService.CACHE_ENABLED_PROPERTY);
-
-            if(isCacheEnabledObj != null && isCacheEnabledObj.equals(HistoryService.CACHE_ENABLED))
-                cacheEnabled = true;
-        }
-    }
-
-    /**
-     * Remove a configuration service.
-     *
-     * @param configurationService ConfigurationService
-     */
-    public void unsetConfigurationService(
-            ConfigurationService configurationService)
-    {
-        synchronized (this.syncRoot_Config)
-        {
-            if (this.configurationService == configurationService)
-            {
-                this.configurationService = null;
-                log.debug("Configuration service unregistered.");
-            }
-        }
-    }
-
-    /**
-     * Set the file access service.
-     *
-     * @param fileAccessService FileAccessService
-     */
-    public void setFileAccessService(FileAccessService fileAccessService)
-    {
-        synchronized (this.syncRoot_FileAccess)
-        {
-            this.fileAccessService = fileAccessService;
-            log.debug("New file access service registered.");
-        }
-    }
-
-    /**
-     * Remove the file access service.
-     *
-     * @param fileAccessService FileAccessService
-     */
-    public void unsetFileAccessService(FileAccessService fileAccessService)
-    {
-        synchronized (this.syncRoot_FileAccess)
-        {
-            if (this.fileAccessService == fileAccessService)
-            {
-                this.fileAccessService = null;
-                log.debug("File access service unregistered.");
-            }
-        }
-    }
-
     /**
      * Returns whether caching of readed documents is enabled or desibled.
      * @return boolean
@@ -361,9 +285,9 @@ public class HistoryServiceImpl implements HistoryService {
     public void purgeLocallyStoredHistory(HistoryID id)
         throws IOException
     {
-        // get the history direcoty coresponding the given id
+        // get the history directory corresponding the given id
         File dir = this.createHistoryDirectories(id);
-        log.trace("Removing history directory " + dir);
+        logger.trace("Removing history directory " + dir);
         deleteDirAndContent(dir);
     }
 
@@ -413,5 +337,25 @@ public class HistoryServiceImpl implements HistoryService {
             }
             ids[i] = currId;
         }
+    }
+
+    private static ConfigurationService getConfigurationService(
+        BundleContext bundleContext)
+    {
+        ServiceReference serviceReference =
+            bundleContext.getServiceReference(ConfigurationService.class
+                .getName());
+        return (serviceReference == null) ? null
+            : (ConfigurationService) bundleContext.getService(serviceReference);
+    }
+
+    private static FileAccessService getFileAccessService(
+        BundleContext bundleContext)
+    {
+        ServiceReference serviceReference =
+            bundleContext
+                .getServiceReference(FileAccessService.class.getName());
+        return (serviceReference == null) ? null
+            : (FileAccessService) bundleContext.getService(serviceReference);
     }
 }

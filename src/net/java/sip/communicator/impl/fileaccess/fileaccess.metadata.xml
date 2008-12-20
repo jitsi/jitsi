@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<bundle>
-  <component class="net.java.sip.communicator.impl.fileaccess.FileAccessServiceImpl">
-    <provides service="net.java.sip.communicator.service.fileaccess.FileAccessService"/>
-  </component>
-</bundle>
