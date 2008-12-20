@@ -20,22 +20,23 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Sebastien Mazy
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ImageUtils
 {
     private static final Logger logger = Logger.getLogger(ImageUtils.class);
 
     /**
-     * Returns a scaled image fitting within the given bounds
-     * while keeping the aspect ratio.
-     *
+     * Returns a scaled image fitting within the given bounds while keeping the
+     * aspect ratio.
+     * 
      * @param image the image to scale
      * @param width maximum width of the scaled image
      * @param height maximum height of the scaled image
      * @return the scaled image
      */
-    public static ImageIcon
-        scaleIconWithinBounds(Image image, int width, int height)
+    public static Image scaleImageWithinBounds(Image image, int width,
+        int height)
     {
         Image scaledImage;
         int scaleHint = Image.SCALE_SMOOTH;
@@ -51,8 +52,13 @@ public class ImageUtils
         {
             scaledImage = image.getScaledInstance(-1, height, scaleHint);
         }
+        return scaledImage;
+    }
 
-        return new ImageIcon(scaledImage);
+    public static ImageIcon scaleIconWithinBounds(Image image, int width,
+        int height)
+    {
+        return new ImageIcon(scaleImageWithinBounds(image, width, height));
     }
 
     /**
@@ -62,20 +68,16 @@ public class ImageUtils
      * 
      * @return The rounded corner image.
      */
-    public static ImageIcon getScaledRoundedImage(  Image image,
-                                                    int width,
-                                                    int height)
+    public static Image getScaledRoundedImage(Image image, int width, int height)
     {
-        BufferedImage destImage = null;
+        ImageIcon scaledImage =
+            ImageUtils.scaleIconWithinBounds(image, width, height);
+        int scaledImageWidth = scaledImage.getIconWidth();
+        int scaledImageHeight = scaledImage.getIconHeight();
 
-        ImageIcon scaledImage = ImageUtils.scaleIconWithinBounds(   image,
-                                                                    width,
-                                                                    height);
-
-        destImage
-            = new BufferedImage(scaledImage.getImage().getWidth(null),
-                                scaledImage.getImage().getHeight(null),
-                                BufferedImage.TYPE_INT_ARGB);
+        BufferedImage destImage =
+            new BufferedImage(scaledImageWidth, scaledImageHeight,
+                BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = destImage.createGraphics();
 
@@ -84,8 +86,7 @@ public class ImageUtils
             AntialiasingManager.activateAntialiasing(g);
 
             g.setColor(Color.WHITE);
-            g.fillRoundRect(0, 0, scaledImage.getIconWidth(), scaledImage
-                .getIconHeight(), 10, 10);
+            g.fillRoundRect(0, 0, scaledImageWidth, scaledImageHeight, 10, 10);
             g.setComposite(AlphaComposite.SrcIn);
 
             g.drawImage(scaledImage.getImage(), 0, 0, null);
@@ -94,8 +95,13 @@ public class ImageUtils
         {
             g.dispose();
         }
+        return destImage;
+    }
 
-        return new ImageIcon(destImage);
+    public static ImageIcon getScaledRoundedIcon(Image image, int width,
+        int height)
+    {
+        return new ImageIcon(getScaledRoundedImage(image, width, height));
     }
 
     /**
@@ -121,7 +127,7 @@ public class ImageUtils
             InputStream in = new ByteArrayInputStream(imageBytes);
             BufferedImage image = ImageIO.read(in);
 
-            imageIcon = getScaledRoundedImage(image, width, height);
+            imageIcon = getScaledRoundedIcon(image, width, height);
         }
         catch (Exception e)
         {

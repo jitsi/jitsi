@@ -35,10 +35,6 @@ public class ToolsMenu
 {
     private final Logger logger = Logger.getLogger(ToolsMenu.class);
 
-    private MainFrame parentWindow;
-
-    private ExportedWindow configDialog;
-
     /**
      * Creates an instance of <tt>FileMenu</tt>.
      * @param parentWindow The parent <tt>ChatWindow</tt>.
@@ -114,11 +110,7 @@ public class ToolsMenu
 
     void configActionPerformed()
     {
-        ExportedWindow configDialog =
-            GuiActivator.getUIService().getExportedWindow(
-                ExportedWindow.CONFIGURATION_WINDOW);
-
-        configDialog.setVisible(true);
+        GuiActivator.getUIService().setConfigurationWindowVisible(true);
     }
 
     public void pluginComponentAdded(PluginComponentEvent event)

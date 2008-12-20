@@ -18,15 +18,12 @@ import java.text.ParseException;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- *
  * @author Shobhit Jindal
  */
-class SSHContactInfo extends SIPCommDialog
-        implements ConfigurationForm {
+class SSHContactInfo extends SIPCommDialog {
     private ContactSSH sshContact;
     
     private JPanel mainPanel = new TransparentPanel();
@@ -210,15 +207,7 @@ class SSHContactInfo extends SIPCommDialog
     public byte[] getIcon() {
         return Resources.getImage(Resources.SSH_LOGO);
     }
-    
-    /**
-     * Return the main panel
-     *
-     * @return the main panel
-     */
-    public Object getForm() {
-        return mainPanel;
-    }
+
 //
 //    public void setContactGroup(ContactGroup contactGroup)
 //    {
@@ -336,11 +325,6 @@ class SSHContactInfo extends SIPCommDialog
      */
     public void setPort(String port) {
         this.portField.setText(port);
-    }
-
-    public int getIndex()
-    {
-        return -1;
     }
 
     protected void close(boolean isEscaped)

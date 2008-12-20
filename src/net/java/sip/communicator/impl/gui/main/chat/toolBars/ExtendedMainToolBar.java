@@ -492,10 +492,7 @@ public class ExtendedMainToolBar
         }
         else if (buttonText.equalsIgnoreCase("settings"))
         {
-            ExportedWindow configDialog = GuiActivator.getUIService()
-                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
-
-            configDialog.setVisible(true);
+            GuiActivator.getUIService().setConfigurationWindowVisible(true);
         }
     }
 

@@ -33,10 +33,14 @@ public class PluginManagerActivator
     {
         bundleContext = bc;
 
-        PluginManagerConfigForm pluginManager = new PluginManagerConfigForm();
-
-        bundleContext.registerService(ConfigurationForm.class.getName(),
-            pluginManager, null);
+        bundleContext
+            .registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel",
+                    getClass().getClassLoader(),
+                    "plugin.pluginmanager.PLUGIN_ICON",
+                    "plugin.pluginmanager.PLUGINS"), null);
     }
 
     /**

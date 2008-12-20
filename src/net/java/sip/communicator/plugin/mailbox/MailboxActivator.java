@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
 public class MailboxActivator
     implements BundleActivator
 {
-    private static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(BundleActivator.class);
 
     /**
@@ -74,12 +74,13 @@ public class MailboxActivator
         mailbox = new Mailbox();
         mailbox.start(bundleContext);
 
-        MailboxConfigurationForm mailboxForm
-            = new MailboxConfigurationForm();
-
-        bundleContext.registerService(  ConfigurationForm.class.getName(),
-                                        mailboxForm,
-                                        null);
+        bundleContext
+            .registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.mailbox.MailboxConfigurationPanel",
+                    getClass().getClassLoader(), "plugin.mailbox.PLUGIN_ICON",
+                    "plugin.mailbox.MAILBOX"), null);
 
         logger.info("Mailbox plug-in...[STARTED]");
     }

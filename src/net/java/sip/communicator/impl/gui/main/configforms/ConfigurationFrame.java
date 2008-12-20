@@ -12,7 +12,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
@@ -27,24 +26,16 @@ import org.osgi.framework.*;
  */
 public class ConfigurationFrame
     extends SIPCommDialog
-    implements ExportedWindow, ServiceListener
+    implements ServiceListener
 {
-    private Logger logger = Logger.getLogger(ConfigurationFrame.class);
+    private final Logger logger = Logger.getLogger(ConfigurationFrame.class);
 
-    private ConfigFormList configList;
+    private final ConfigFormList configList;
 
-    private SCScrollPane configScrollList;
+    private final TitlePanel titlePanel = new TitlePanel();
 
-    private TitlePanel titlePanel = new TitlePanel();
-
-    private TransparentPanel mainPanel
-        = new TransparentPanel(new BorderLayout(5, 5));
-
-    private TransparentPanel centerPanel
-        = new TransparentPanel(new BorderLayout(5, 5));
-
-    private TransparentPanel buttonsPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+    private final JPanel centerPanel =
+        new TransparentPanel(new BorderLayout(5, 5));
 
     /**
      * Creates an instance of <tt>ConfigurationManagerImpl</tt>.
@@ -55,14 +46,18 @@ public class ConfigurationFrame
     {
         super(mainFrame);
 
+        JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
+        JPanel buttonsPanel =
+            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
         this.configList = new ConfigFormList(this);
 
-        this.configScrollList = new SCScrollPane();
+        SCScrollPane configScrollList = new SCScrollPane();
 
-        this.configScrollList.setHorizontalScrollBarPolicy(
+        configScrollList.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        this.configScrollList.setViewportView(configList);
+        configScrollList.setViewportView(configList);
 
         this.setTitle(GuiActivator.getResources()
                 .getI18NString("service.gui.SETTINGS"));
@@ -71,16 +66,16 @@ public class ConfigurationFrame
 
         this.addDefaultForms();
 
-        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        this.mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        this.mainPanel.add(configScrollList, BorderLayout.WEST);
+        mainPanel.add(configScrollList, BorderLayout.WEST);
 
         buttonsPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
             Constants.BORDER_COLOR));
 
-        this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
 
@@ -116,7 +111,11 @@ public class ConfigurationFrame
      */
     public void addDefaultForms()
     {
-        this.addConfigurationForm(new AccountsConfigurationForm());
+        this
+            .addConfigurationForm(new LazyConfigurationForm(
+                "net.java.sip.communicator.impl.gui.main.account.AccountsConfigurationPanel",
+                getClass().getClassLoader(), "service.gui.icons.ACCOUNT_ICON",
+                "service.gui.ACCOUNTS", 1));
     }
 
     /**
@@ -162,24 +161,6 @@ public class ConfigurationFrame
     }
 
     /**
-     * Implements <code>ApplicationWindow.minimizeWindow</code> method.
-     *
-     * @see net.java.sip.communicator.service.gui.ExportedWindow#minimize()
-     */
-    public void minimize()
-    {
-    }
-
-    /**
-     * Implements <code>ApplicationWindow.maximizeWindow</code> method.
-     *
-     * @see net.java.sip.communicator.service.gui.ExportedWindow#maximize()
-     */
-    public void maximize()
-    {
-    }
-
-    /**
      * Implements <tt>SIPCommFrame.close()</tt> method. Performs a click on
      * the close button.
      *
@@ -188,36 +169,6 @@ public class ConfigurationFrame
      */
     protected void close(boolean isEscaped)
     {
-    }
-
-    /**
-     * Returns the identifier of this <tt>ExportedWindow</tt>.
-     *
-     * @return a reference to the <tt>WindowID</tt> instance representing this
-     *         frame.
-     */
-    public WindowID getIdentifier()
-    {
-        return ExportedWindow.CONFIGURATION_WINDOW;
-    }
-
-    /**
-     * Implements the <tt>ExportedWindow.bringToFront</tt> method. Brings this
-     * window to front.
-     */
-    public void bringToFront()
-    {
-        this.toFront();
-    }
-
-    /**
-     * The source of the window
-     *
-     * @return the source of the window
-     */
-    public Object getSource()
-    {
-        return this;
     }
 
     /**
@@ -289,9 +240,4 @@ public class ConfigurationFrame
     {
         this.configList.removeConfigForm(configForm);
     }
-
-    /**
-     * Implementation of {@link ExportedWindow#setParams(Object[])}.
-     */
-    public void setParams(Object[] windowParams) {}
 }

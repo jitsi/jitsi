@@ -130,8 +130,6 @@ public class UIServiceImpl
 
         this.wizardContainer = new AccountRegWizardContainerImpl(mainFrame);
 
-        this.configurationFrame = new ConfigurationFrame(mainFrame);
-
         if (ConfigurationManager.isTransparentWindowEnabled())
         {
             try
@@ -385,7 +383,6 @@ public class UIServiceImpl
      */
     public void initExportedWindows()
     {
-        registerExportedWindow(configurationFrame);
         registerExportedWindow(new AddContactWizardExportedWindow(mainFrame));
     }
 
@@ -983,5 +980,12 @@ public class UIServiceImpl
                 System.exit(0);
             }
         }
+    }
+
+    public void setConfigurationWindowVisible(boolean visible)
+    {
+        if (configurationFrame == null)
+            configurationFrame = new ConfigurationFrame(mainFrame);
+        configurationFrame.setVisible(visible);
     }
 }

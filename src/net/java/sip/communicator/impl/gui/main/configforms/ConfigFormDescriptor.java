@@ -29,7 +29,9 @@ public class ConfigFormDescriptor
     private final ConfigurationForm configForm;
     
     private ImageIcon configFormIcon;
-    
+
+    private Component configFormPanel;
+
     private String configFormTitle;
 
     /**
@@ -76,14 +78,18 @@ public class ConfigFormDescriptor
      */
     public Component getConfigFormPanel()
     {
-        Object form = configForm.getForm();
-        if ((form instanceof Component) == false)
+        if (configFormPanel == null)
         {
-            throw new ClassCastException("ConfigurationFrame :"
-                + form.getClass()
-                + " is not a class supported by this ui implementation");
+            Object form = configForm.getForm();
+            if ((form instanceof Component) == false)
+            {
+                throw new ClassCastException("ConfigurationFrame :"
+                    + form.getClass()
+                    + " is not a class supported by this ui implementation");
+            }
+            configFormPanel = (Component) form;
         }
-        return (Component) form;
+        return configFormPanel;
     }
 
     /**

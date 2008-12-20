@@ -14,7 +14,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -23,9 +22,8 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Damien Roth
  */
-public class AutoAwayConfigForm
+public class AutoAwayConfigurationPanel
     extends TransparentPanel
-    implements ConfigurationForm
 {
     private JCheckBox enable;
     private JSpinner timer;
@@ -33,7 +31,7 @@ public class AutoAwayConfigForm
     /**
      * Create an instance of <tt>StatusConfigForm</tt>
      */
-    public AutoAwayConfigForm()
+    public AutoAwayConfigurationPanel()
     {
         super(new BorderLayout(10, 10));
 
@@ -155,42 +153,4 @@ public class AutoAwayConfigForm
         Integer interval = (Integer) timer.getValue();
         configService.setProperty(Preferences.TIMER, interval);
     }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getForm()</tt> method. Returns the
-     * component corresponding to this configuration form.
-     */
-    public Object getForm()
-    {
-        return this;
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getIcon()</tt> method. Returns the
-     * icon of this configuration form.
-     */
-    public byte[] getIcon()
-    {
-        return AutoAwayActivator.getResources()
-            .getImageInBytes("plugin.autoaway.PLUGIN_ICON");
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getIndex()</tt> method.
-     */
-    public int getIndex()
-    {
-        return -1;
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getIcon()</tt> method. Returns the
-     * icon of this configuration form.
-     */
-    public String getTitle()
-    {
-        return AutoAwayActivator.getResources()
-            .getI18NString("plugin.autoaway.AUTO_STATUS");
-    }
-
 }

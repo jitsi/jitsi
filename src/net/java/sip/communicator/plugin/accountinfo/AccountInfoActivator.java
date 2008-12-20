@@ -4,16 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.accountinfo;
 
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -25,12 +22,10 @@ import org.osgi.framework.*;
 public class AccountInfoActivator
     implements BundleActivator
 {
-    private static Logger logger =
-        Logger.getLogger(AccountInfoActivator.class.getName());
+    private static final Logger logger =
+        Logger.getLogger(AccountInfoActivator.class);
 
     public static BundleContext bundleContext;
-
-    private static Map providerFactoriesMap = new Hashtable();
 
     private static BrowserLauncherService browserLauncherService;
 
@@ -38,14 +33,10 @@ public class AccountInfoActivator
     {
         AccountInfoActivator.bundleContext = bc;
 
-        ServiceReference uiServiceRef =
-            bc.getServiceReference(UIService.class.getName());
-
-        UIService uiService = (UIService) bc.getService(uiServiceRef);
-
-        ExportedWindow configWindow
-            = uiService.getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
-//        configWindow.addConfigurationForm(new AccountInfoForm());
+//        new LazyConfigurationForm(
+//            "net.java.sip.communicator.plugin.accountinfo.AccountInfoPanel",
+//            getClass().getClassLoader(), "plugin.accountinfo.PLUGIN_ICON",
+//            "plugin.accountinfo.TITLE");
     }
 
     public void stop(BundleContext bc) throws Exception
@@ -59,8 +50,10 @@ public class AccountInfoActivator
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      *         context
      */
-    public static Map getProtocolProviderFactories()
+    public static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
     {
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+            new Hashtable<Object, ProtocolProviderFactory>();
 
         ServiceReference[] serRefs = null;
         try

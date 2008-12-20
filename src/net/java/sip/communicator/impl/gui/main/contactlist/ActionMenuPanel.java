@@ -202,10 +202,7 @@ public class ActionMenuPanel
         }
         else if (buttonName.equals("options"))
         {
-            ExportedWindow optionsDialog = GuiActivator.getUIService()
-                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
-
-            optionsDialog.setVisible(true);
+            GuiActivator.getUIService().setConfigurationWindowVisible(true);
         }
         else if (buttonName.equals("showOffline"))
         {

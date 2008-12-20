@@ -25,7 +25,7 @@ public class NotificationServiceImpl
     private final Logger logger =
         Logger.getLogger(NotificationServiceImpl.class);
 
-    private static String NOTIFICATIONS_PREFIX = 
+    private static final String NOTIFICATIONS_PREFIX = 
         "net.java.sip.communicator.impl.notifications";
     
     /**
@@ -37,23 +37,24 @@ public class NotificationServiceImpl
     /**
      * A set of all registered event notifications.
      */
-    private Hashtable defaultNotificationsTable = new Hashtable();
+    private final Map<String, EventNotification> defaultNotificationsTable =
+        new Hashtable<String, EventNotification>();
 
     /**
      * A list of all registered <tt>NotificationChangeListener</tt>s.
      */
-    private Vector changeListeners = new Vector();
+    private final List<NotificationChangeListener> changeListeners =
+        new Vector<NotificationChangeListener>();
     
-    private ConfigurationService configService = null;
-    
+    private final ConfigurationService configService =
+        NotificationActivator.getConfigurationService();
+
     /**
      * Creates an instance of <tt>NotificationServiceImpl</tt> by loading all
      * previously saved notifications. 
      */
     public NotificationServiceImpl()
     {
-        configService = NotificationActivator.getConfigurationService();
-        
         // Load all previously saved notifications.
         this.loadNotifications();
     }
@@ -753,13 +754,9 @@ public class NotificationServiceImpl
         
         NotificationEventTypeEvent event
             = new NotificationEventTypeEvent(this, eventType, sourceEventType);
-        
-        NotificationChangeListener listener;
-        
-        for (int i = 0 ; i < changeListeners.size(); i ++)
+
+        for (NotificationChangeListener listener : changeListeners)
         {
-            listener = (NotificationChangeListener) changeListeners.get(i);
-            
             if (eventType.equals(NotificationEventTypeEvent.EVENT_TYPE_ADDED))
             {
                 listener.eventTypeAdded(event);
@@ -911,29 +908,17 @@ public class NotificationServiceImpl
             
             // We fire the appropriate event depending on whether this is an
             // already existing actionType or a new one.
-            if (!isNew)
-            {
-                fireNotificationActionTypeEvent(
-                    NotificationActionTypeEvent.ACTION_CHANGED,
-                    eventType,
-                    actionType,
-                    handler);
-            }
-            else
-            {
-                fireNotificationActionTypeEvent(
-                    NotificationActionTypeEvent.ACTION_ADDED,
-                    eventType,
-                    actionType,
-                    handler);
-            }
+            fireNotificationActionTypeEvent(
+                isNew ? NotificationActionTypeEvent.ACTION_ADDED
+                    : NotificationActionTypeEvent.ACTION_CHANGED, eventType,
+                actionType, handler);
         }
         
         // now store this default events if we want to retore them
         EventNotification notification = null;
 
         if(defaultNotificationsTable.containsKey(eventType))
-            notification = (EventNotification) defaultNotificationsTable.get(eventType);
+            notification = defaultNotificationsTable.get(eventType);
         else
         {
             notification = new EventNotification(eventType);
@@ -1016,29 +1001,17 @@ public class NotificationServiceImpl
             
             // We fire the appropriate event depending on whether this is an
             // already existing actionType or a new one.
-            if (!isNew)
-            {
-                fireNotificationActionTypeEvent(
-                    NotificationActionTypeEvent.ACTION_CHANGED,
-                    eventType,
-                    actionType,
-                    handler);
-            }
-            else
-            {
-                fireNotificationActionTypeEvent(
-                    NotificationActionTypeEvent.ACTION_ADDED,
-                    eventType,
-                    actionType,
-                    handler);
-            }
+            fireNotificationActionTypeEvent(
+                isNew ? NotificationActionTypeEvent.ACTION_ADDED
+                    : NotificationActionTypeEvent.ACTION_CHANGED, eventType,
+                actionType, handler);
         }
         
-        // now store this default events if we want to retore them
+        // now store this default events if we want to restore them
         EventNotification notification = null;
 
         if(defaultNotificationsTable.containsKey(eventType))
-            notification = (EventNotification) defaultNotificationsTable.get(eventType);
+            notification = defaultNotificationsTable.get(eventType);
         else
         {
             notification = new EventNotification(eventType);
@@ -1075,16 +1048,14 @@ public class NotificationServiceImpl
      */
     public void restoreDefaults()
     {
-        Iterator iter = 
-            ((Hashtable)notificationsTable.clone()).keySet().iterator();
-        
-        while (iter.hasNext())
+        Set<String> eventTypes =
+            ((Hashtable<String, EventNotification>) notificationsTable.clone())
+                .keySet();
+
+        for (String eventType : eventTypes)
         {
-            String eventType = (String)iter.next();
-            
-            EventNotification notification
-                = (EventNotification) notificationsTable.get(eventType);
-            
+            EventNotification notification = notificationsTable.get(eventType);
+
             Vector actionsToRemove = new Vector(notification.getActions().keySet());
             Iterator actionIter = actionsToRemove.iterator();
             while (actionIter.hasNext())
@@ -1096,16 +1067,12 @@ public class NotificationServiceImpl
             
             removeEventNotification(eventType);
         }
-        
-        iter = defaultNotificationsTable.keySet().iterator();
-        
-        while (iter.hasNext())
+
+        for (Map.Entry<String, EventNotification> entry : defaultNotificationsTable.entrySet())
         {
-            String eventType = (String)iter.next();
-            
-            EventNotification notification
-                = (EventNotification) defaultNotificationsTable.get(eventType);
-            
+            String eventType = entry.getKey();
+            EventNotification notification = entry.getValue();
+
             Iterator actionIter = notification.getActions().keySet().iterator();
             while (actionIter.hasNext())
             {

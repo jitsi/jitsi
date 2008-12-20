@@ -44,15 +44,16 @@ public class AutoAwayActivator implements BundleActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
-        
 
-        
         // Set config form
-        AutoAwayConfigForm statusCF = new AutoAwayConfigForm();
-        bundleContext.registerService(ConfigurationForm.class.getName(),
-                statusCF,
-                null);
-        
+        bundleContext
+            .registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.autoaway.AutoAwayConfigurationPanel",
+                    getClass().getClassLoader(), "plugin.autoaway.PLUGIN_ICON",
+                    "plugin.autoaway.AUTO_STATUS"), null);
+
         new Thread(new Runnable()
         {
 

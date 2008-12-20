@@ -20,7 +20,6 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -57,8 +56,6 @@ public class MainToolBar
                 ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
     private ChatWindow messageWindow;
-
-    private Contact currentChatContact = null;
 
     /**
      * Empty constructor to be used from inheritors.
@@ -192,10 +189,7 @@ public class MainToolBar
         }
         else if (buttonText.equals("options"))
         {
-            ExportedWindow optionsDialog = GuiActivator.getUIService()
-                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
-
-            optionsDialog.setVisible(true);
+            GuiActivator.getUIService().setConfigurationWindowVisible(true);
         }
     }
 

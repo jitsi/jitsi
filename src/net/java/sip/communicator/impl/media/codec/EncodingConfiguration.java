@@ -300,7 +300,7 @@ public class EncodingConfiguration
                             .getSupportedOutputFormats(null),
                             PlugInManager.CODEC);
                     logger.debug("Codec : " + className
-                        + " is succsefully registered : " + result);
+                        + " is successfully registered : " + result);
                 }
                 catch (Throwable ex)
                 {

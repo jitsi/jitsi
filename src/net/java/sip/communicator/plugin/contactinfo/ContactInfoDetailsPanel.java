@@ -191,11 +191,10 @@ public class ContactInfoDetailsPanel
                 );
         }
         else
-            scaledImage = ImageUtils.getScaledRoundedImage(
-                Resources.getImage("service.gui.DEFAULT_USER_PHOTO"),
-                AVATAR_AREA_WIDTH,
-                AVATAR_AREA_HEIGHT
-                );
+            scaledImage =
+                ImageUtils.getScaledRoundedIcon(Resources
+                    .getImage("service.gui.DEFAULT_USER_PHOTO"),
+                    AVATAR_AREA_WIDTH, AVATAR_AREA_HEIGHT);
 
         JLabel label = new JLabel(scaledImage);
         label.setVerticalAlignment(JLabel.CENTER);

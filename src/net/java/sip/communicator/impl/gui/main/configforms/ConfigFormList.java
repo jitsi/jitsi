@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import javax.swing.*;
@@ -22,9 +21,9 @@ public class ConfigFormList
     extends JList
     implements ListSelectionListener
 {
-    private DefaultListModel listModel = new DefaultListModel();
+    private final DefaultListModel listModel = new DefaultListModel();
     
-    private ConfigurationFrame configFrame;
+    private final ConfigurationFrame configFrame;
     
     /**
      * Creates an instance of <tt>ConfigFormList</tt>

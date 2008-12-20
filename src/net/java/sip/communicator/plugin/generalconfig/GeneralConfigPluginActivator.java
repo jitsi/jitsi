@@ -33,12 +33,14 @@ public class GeneralConfigPluginActivator implements BundleActivator
 
         ConfigurationManager.loadGuiConfigurations();
 
-        GeneralConfigurationForm preferencesForm
-            = new GeneralConfigurationForm();
-
-        bundleContext.registerService(  ConfigurationForm.class.getName(),
-                                        preferencesForm,
-                                        null);
+        bundleContext
+            .registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.generalconfig.GeneralConfigurationPanel",
+                    getClass().getClassLoader(),
+                    "plugin.generalconfig.PLUGIN_ICON", "service.gui.GENERAL",
+                    0), null);
 
         logger.info("PREFERENCES PLUGIN... [REGISTERED]");
     }

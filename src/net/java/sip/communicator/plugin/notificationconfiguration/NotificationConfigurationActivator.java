@@ -7,8 +7,8 @@
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -35,9 +35,14 @@ public class NotificationConfigurationActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        bundleContext.registerService(  ConfigurationForm.class.getName(),
-                                        new NotificationConfigurationForm(),
-                                        null);
+        bundleContext
+            .registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.notificationconfiguration.NotificationConfigurationPanel",
+                    getClass().getClassLoader(),
+                    "plugin.notificationconfig.PLUGIN_ICON",
+                    "service.gui.NOTIFICATIONS"), null);
 
         logger.trace("Notification Configuration: [ STARTED ]");
     }

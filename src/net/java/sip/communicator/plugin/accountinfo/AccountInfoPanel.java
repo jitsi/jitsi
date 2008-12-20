@@ -10,7 +10,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
@@ -23,9 +22,8 @@ import org.osgi.framework.*;
  * 
  * @author Adam Goldstein
  */
-public class AccountInfoForm
+public class AccountInfoPanel
     extends TransparentPanel
-    implements ConfigurationForm
 {
     /**
      * The right side of the AccountInfo frame that contains protocol specific
@@ -33,10 +31,8 @@ public class AccountInfoForm
      */
     private AccountDetailsPanel detailsPanel;
 
-    private JTabbedPane accountsTabbedPane = new SIPCommTabbedPane(false, false);
-
-    private Hashtable<ProtocolProviderService, AccountDetailsPanel>
-        accountsTable = new Hashtable();
+    private final Map<ProtocolProviderService, AccountDetailsPanel> accountsTable =
+        new Hashtable<ProtocolProviderService, AccountDetailsPanel>();
 
     /**
      * Constructs a frame with an AccuontInfoAccountPanel to display all
@@ -45,39 +41,23 @@ public class AccountInfoForm
      * 
      * @param metaContact
      */
-    public AccountInfoForm()
+    public AccountInfoPanel()
     {
         super(new BorderLayout());
 
-        Set set = AccountInfoActivator.getProtocolProviderFactories().entrySet();
-        Iterator iter = set.iterator();
+        JTabbedPane accountsTabbedPane = new SIPCommTabbedPane(false, false);
 
-        boolean hasRegisteredAccounts = false;
-
-        while (iter.hasNext())
+        for (ProtocolProviderFactory providerFactory : AccountInfoActivator
+            .getProtocolProviderFactories().values())
         {
-            Map.Entry entry = (Map.Entry) iter.next();
+            ArrayList<AccountID> accountsList =
+                providerFactory.getRegisteredAccounts();
 
-            ProtocolProviderFactory providerFactory
-                = (ProtocolProviderFactory) entry.getValue();
-
-            ArrayList accountsList = providerFactory.getRegisteredAccounts();
-
-            AccountID accountID;
             ServiceReference serRef;
             ProtocolProviderService protocolProvider;
 
-            for (int i = 0; i < accountsList.size(); i++)
+            for (AccountID accountID : accountsList)
             {
-                accountID = (AccountID) accountsList.get(i);
-
-                boolean isHidden =
-                    accountID
-                        .getAccountProperty(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-                if(!isHidden)
-                    hasRegisteredAccounts = true;
-
                 serRef = providerFactory.getProviderForAccount(accountID);
 
                 protocolProvider = (ProtocolProviderService) AccountInfoActivator
@@ -90,42 +70,12 @@ public class AccountInfoForm
                 protocolProvider.addRegistrationStateChangeListener(
                     new RegistrationStateChangeListenerImpl());
 
-                this.accountsTabbedPane.addTab(
+                accountsTabbedPane.addTab(
                     accountID.getUserID(), detailsPanel);
             }
         }
 
         this.add(accountsTabbedPane, BorderLayout.CENTER);
-    }
-
-    /**
-     * Returns the title of this configuration form.
-     * 
-     * @return the icon of this configuration form.
-     */
-    public String getTitle()
-    {
-        return Resources.getString("plugin.accountinfo.TITLE");
-    }
-
-    /**
-     * Returns the icon of this configuration form.
-     * 
-     * @return the icon of this configuration form.
-     */
-    public byte[] getIcon()
-    {
-        return Resources.getImageInBytes("plugin.accountinfo.PLUGIN_ICON");
-    }
-
-    /**
-     * Returns the form of this configuration form.
-     * 
-     * @return the form of this configuration form.
-     */
-    public Object getForm()
-    {
-        return this;
     }
 
     private class RegistrationStateChangeListenerImpl
@@ -149,10 +99,5 @@ public class AccountInfoForm
                 }
             }
         }
-    }
-
-    public int getIndex()
-    {
-        return -1;
     }
 }

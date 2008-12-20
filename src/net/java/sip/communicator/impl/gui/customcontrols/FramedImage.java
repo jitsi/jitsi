@@ -22,15 +22,15 @@ import net.java.sip.communicator.util.*;
 public class FramedImage
     extends JComponent
 {
-    private ImageIcon shadowIcon;
+    private final Image shadowImage;
 
-    private ImageIcon frameIcon;
+    private final Image frameImage;
 
-    private ImageIcon imageIcon;
+    private Image image;
 
-    private int width;
+    private final int width;
 
-    private int height;
+    private final int height;
 
     /**
      * Creates a ContactPhotoLabel by specifying the width and the height of the
@@ -42,27 +42,17 @@ public class FramedImage
      */
     public FramedImage(ImageIcon imageIcon, int width, int height)
     {
-        super();
-
         this.width = width;
-
         this.height = height;
 
         this.setPreferredSize(new Dimension(width, height));
 
-        Image photoFrameImage
-            = ImageLoader.getImage(ImageLoader.USER_PHOTO_FRAME);
-
-        this.frameIcon
-            = ImageUtils.scaleIconWithinBounds( photoFrameImage,
-                                                width,
-                                                height);
-
-        this.shadowIcon
-            = ImageUtils.scaleIconWithinBounds(
-                    ImageLoader.getImage(ImageLoader.USER_PHOTO_SHADOW),
-                    width,
-                    height);
+        this.frameImage =
+            ImageUtils.scaleImageWithinBounds(ImageLoader
+                .getImage(ImageLoader.USER_PHOTO_FRAME), width, height);
+        this.shadowImage =
+            ImageUtils.scaleImageWithinBounds(ImageLoader
+                .getImage(ImageLoader.USER_PHOTO_SHADOW), width, height);
 
         if (imageIcon != null)
         {
@@ -75,34 +65,25 @@ public class FramedImage
         this(null, width, height);
     }
 
-    public ImageIcon getImageIcon()
-    {
-        return imageIcon;
-    }
-
     public void setImageIcon(ImageIcon imageIcon)
     {
-        this.imageIcon
-            = ImageUtils.getScaledRoundedImage( imageIcon.getImage(),
-                                                width - 2,
-                                                height - 2);
+        this.image =
+            ImageUtils.getScaledRoundedImage(imageIcon.getImage(), width - 2,
+                height - 2);
     }
 
-    /**
+    /*
      * Overrides {@link JComponent#paintComponent(Graphics)}.
      */
     public void paintComponent(Graphics g)
     {
-        g.drawImage(imageIcon.getImage(),
-                    width/2 - imageIcon.getIconWidth()/2,
-                    height/2 - imageIcon.getIconHeight()/2, null);
+        g.drawImage(image, width / 2 - image.getWidth(null) / 2, height / 2
+            - image.getHeight(null) / 2, null);
 
-        g.drawImage(frameIcon.getImage(),
-                    width/2 - frameIcon.getIconWidth()/2,
-                    height/2 - frameIcon.getIconHeight()/2, null);
+        g.drawImage(frameImage, width / 2 - frameImage.getWidth(null) / 2,
+            height / 2 - frameImage.getHeight(null) / 2, null);
 
-        g.drawImage(shadowIcon.getImage(),
-            width/2 - shadowIcon.getIconWidth()/2,
-            1, null);
+        g.drawImage(shadowImage, width / 2 - shadowImage.getWidth(null) / 2, 1,
+            null);
     }
 }

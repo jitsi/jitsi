@@ -27,9 +27,6 @@ public interface ExportedWindow
     public static final WindowID CHAT_WINDOW
         = new WindowID("ChatWindow");
     
-    public static final WindowID CONFIGURATION_WINDOW
-        = new WindowID("ConfigurationWindow");
-    
     public static final WindowID AUTHENTICATION_WINDOW
         = new WindowID("AuthenticationWindow");
 

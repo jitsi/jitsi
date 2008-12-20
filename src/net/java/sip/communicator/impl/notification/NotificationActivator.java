@@ -23,13 +23,11 @@ import org.osgi.framework.*;
 public class NotificationActivator
     implements BundleActivator
 {
-    private Logger logger = Logger.getLogger(NotificationActivator.class);
-    
+    private final Logger logger = Logger.getLogger(NotificationActivator.class);
+
     private static BundleContext bundleContext;
     
     private static ConfigurationService configService;
-
-    private NotificationServiceImpl notificationService;
     
     private static AudioNotifierService audioNotifierService;
     
@@ -41,15 +39,14 @@ public class NotificationActivator
 
         try {
             // Create the notification service implementation
-            this.notificationService = new NotificationServiceImpl();
+            NotificationService notificationService =
+                new NotificationServiceImpl();
 
             logger.info("Notification Service...[  STARTED ]");
 
-            bundleContext.registerService(
-                    NotificationService.class.getName(),
-                    this.notificationService,
-                    null);
-            
+            bundleContext.registerService(NotificationService.class.getName(),
+                notificationService, null);
+
             logger.info("Notification Service ...[REGISTERED]");
             
             logger.logEntry();

@@ -38,8 +38,14 @@ public class KeybindingChooserActivator
 
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
-        context.registerService(ConfigurationForm.class.getName(),
-            new KeybindingsConfigForm(), null);
+        context
+            .registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.keybindingchooser.KeybindingsConfigPanel",
+                    getClass().getClassLoader(),
+                    "plugin.keybinding.PLUGIN_ICON",
+                    "plugin.keybindings.PLUGIN_NAME"), null);
     }
 
     /**

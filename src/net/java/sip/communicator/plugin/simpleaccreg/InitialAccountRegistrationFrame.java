@@ -29,6 +29,7 @@ import org.osgi.framework.*;
  * accounts are found.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class InitialAccountRegistrationFrame
     extends JFrame
@@ -179,10 +180,9 @@ public class InitialAccountRegistrationFrame
         }
     }
 
-    private class AccountRegistrationPanel extends JPanel
+    private class AccountRegistrationPanel
+        extends JPanel
     {
-        private JLabel protocolLabel = new JLabel();
-
         private JLabel usernameLabel
             = new JLabel(Resources.getString("service.gui.LOGIN"));
 
@@ -204,19 +204,7 @@ public class InitialAccountRegistrationFrame
 
         private JPanel iconDescriptionPanel = new JPanel(new BorderLayout());
 
-        private JPanel inputRegisterPanel = new JPanel(new BorderLayout());
-
         private JTextArea descriptionArea = new JTextArea();
-
-        private JLabel signupLabel
-            = new JLabel("<html><a href=''>"
-                + Resources.getString("plugin.simpleaccregwizz.SIGNUP")
-                + "</a></html>", JLabel.RIGHT);
-
-        private JLabel specialSignupLabel
-            = new JLabel("<html><a href=''>"
-                + Resources.getString("plugin.simpleaccregwizz.SPECIAL_SIGNUP")
-                + "</a></html>", JLabel.RIGHT);
 
         private final AccountRegistrationWizard wizard;
 
@@ -228,6 +216,9 @@ public class InitialAccountRegistrationFrame
 
             this.wizard = accountWizard;
 
+            JLabel protocolLabel = new JLabel();
+            JPanel inputRegisterPanel = new JPanel(new BorderLayout());
+
             this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
             this.setPreferredSize(new Dimension(230, 150));
@@ -238,25 +229,44 @@ public class InitialAccountRegistrationFrame
             this.labelsPanel.setOpaque(false);
             this.fieldsPanel.setOpaque(false);
             this.emptyPanel.setOpaque(false);
-            this.inputRegisterPanel.setOpaque(false);
+            inputRegisterPanel.setOpaque(false);
             this.iconDescriptionPanel.setOpaque(false);
 
             this.add(inputRegisterPanel, BorderLayout.CENTER);
 
-            this.inputRegisterPanel.add(inputPanel, BorderLayout.NORTH);
+            inputRegisterPanel.add(inputPanel, BorderLayout.NORTH);
 
             if (wizard.isWebSignupSupported())
             {
-                if (isPreferredWizard)
+                String textKey =
+                    isPreferredWizard ? "plugin.simpleaccregwizz.SPECIAL_SIGNUP"
+                        : "plugin.simpleaccregwizz.SIGNUP";
+                JLabel signupLabel =
+                    new JLabel("<html><a href=''>"
+                        + Resources.getString(textKey) + "</a></html>",
+                        JLabel.RIGHT);
+
+                signupLabel.setFont(signupLabel.getFont().deriveFont(10f));
+                signupLabel.addMouseListener(new MouseAdapter()
                 {
-                    this.inputRegisterPanel.add(
-                            specialSignupLabel, BorderLayout.SOUTH);
-                }
-                else
-                {
-                    this.inputRegisterPanel.add(
-                            signupLabel, BorderLayout.SOUTH);
-                }
+                    public void mousePressed(MouseEvent e)
+                    {
+                        try
+                        {
+                            wizard.webSignup();
+                        }
+                        catch (UnsupportedOperationException ex)
+                        {
+                            // This should not happen, because we check if the
+                            // operation is supported, before adding the sign
+                            // up.
+                            logger.error("The web sign up is not supported.",
+                                ex);
+                        }
+                    }
+                });
+
+                inputRegisterPanel.add(signupLabel, BorderLayout.SOUTH);
             }
 
             this.inputPanel.add(labelsPanel, BorderLayout.WEST);
@@ -266,43 +276,7 @@ public class InitialAccountRegistrationFrame
             this.iconDescriptionPanel.add(
                 protocolLabel, BorderLayout.NORTH);
 
-            this.signupLabel.setFont(signupLabel.getFont().deriveFont(10f));
-            this.signupLabel.addMouseListener(new MouseAdapter()
-                {
-                    public void mousePressed(MouseEvent arg0)
-                    {
-                        try
-                        {
-                            wizard.webSignup();
-                        }
-                        catch (UnsupportedOperationException e)
-                        {
-                            // This should not happen, because we check if the
-                            // operation is supported, before adding the sign up.
-                            logger.error("The web sign up is not supported.", e);
-                        }
-                    }
-                });
-
-            this.specialSignupLabel.setFont(signupLabel.getFont().deriveFont(10f));
-            this.specialSignupLabel.addMouseListener(new MouseAdapter()
-                {
-                    public void mousePressed(MouseEvent arg0)
-                    {
-                        try
-                        {
-                            wizard.webSignup();
-                        }
-                        catch (UnsupportedOperationException e)
-                        {
-                            // This should not happen, because we check if the
-                            // operation is supported, before adding the sign up.
-                            logger.error("The web sign up is not supported.", e);
-                        }
-                    }
-                });
-
-            this.protocolLabel.setFont(
+            protocolLabel.setFont(
                 protocolLabel.getFont().deriveFont(Font.BOLD, 14f));
             this.usernameExampleLabel.setForeground(Color.DARK_GRAY);
             this.usernameExampleLabel.setFont(
@@ -319,7 +293,7 @@ public class InitialAccountRegistrationFrame
 
             this.usernameExampleLabel.setText(wizard.getUserNameExample());
 
-            this.protocolLabel.setText(wizard.getProtocolName());
+            protocolLabel.setText(wizard.getProtocolName());
 
             Image image = null;
             try
@@ -418,7 +392,7 @@ public class InitialAccountRegistrationFrame
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
-                this.addAccountRegistrationForm(wizard);
+            this.addAccountRegistrationForm(wizard);
         }
     }
 

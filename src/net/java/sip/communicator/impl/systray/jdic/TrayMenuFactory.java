@@ -47,11 +47,7 @@ public final class TrayMenuFactory
 
         if (itemName.equals("settings"))
         {
-            ExportedWindow configWindow =
-                SystrayActivator.getUIService().getExportedWindow(
-                    ExportedWindow.CONFIGURATION_WINDOW);
-
-            configWindow.setVisible(true);
+            SystrayActivator.getUIService().setConfigurationWindowVisible(true);
         }
         else if (itemName.equals("service.gui.CLOSE"))
         {

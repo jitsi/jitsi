@@ -28,12 +28,13 @@ import net.java.sip.communicator.util.*;
  */
 public class ImageLoader {
 
-    private static Logger log = Logger.getLogger(ImageLoader.class);
+    private static final Logger log = Logger.getLogger(ImageLoader.class);
 
     /**
      * Stores all already loaded images.
      */
-    private static Hashtable loadedImages = new Hashtable();
+    private static final Map<ImageID, BufferedImage> loadedImages =
+        new Hashtable<ImageID, BufferedImage>();
 
     /**
      * The SIP Communicator logo 16x16 icon.
@@ -190,12 +191,6 @@ public class ImageLoader {
      */
     public static final ImageID DOWN_ARROW_ICON
         = new ImageID("service.gui.icons.DOWN_ARROW_ICON");
-
-    /**
-     * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
-     */
-    public static final ImageID ACCOUNT_ICON
-        = new ImageID("service.gui.icons.ACCOUNT_ICON");
 
     /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
@@ -1088,7 +1083,7 @@ public class ImageLoader {
 
         if (loadedImages.containsKey(imageID))
         {
-            image = (BufferedImage) loadedImages.get(imageID);
+            image = loadedImages.get(imageID);
         }
         else
         {
@@ -1192,9 +1187,7 @@ public class ImageLoader {
      */
     public static BufferedImage[] getAnimatedImage(byte[] animatedImage)
     {
-        Iterator readers = ImageIO.getImageReadersBySuffix("gif");
-
-        ImageReader reader = (ImageReader) readers.next();
+        ImageReader reader = ImageIO.getImageReadersBySuffix("gif").next();
 
         ImageInputStream iis;
 
@@ -1234,14 +1227,10 @@ public class ImageLoader {
      */
     public static String getImagePath(Image image)
     {
-        Iterator i = ImageLoader.loadedImages.entrySet().iterator();
-
-        while (i.hasNext()) {
-            Map.Entry entry = (Map.Entry) i.next();
-
+        for (Map.Entry<ImageID, BufferedImage> entry : loadedImages.entrySet()) {
             if (entry.getValue().equals(image))
             {
-                String imageID = ((ImageID) entry.getKey()).getId();
+                String imageID = entry.getKey().getId();
 
                 try
                 {

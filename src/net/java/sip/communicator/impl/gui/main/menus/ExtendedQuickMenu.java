@@ -92,15 +92,13 @@ public class ExtendedQuickMenu
 
     private MoreButton moreButton = new MoreButton();
 
-    private ExportedWindow configDialog;
-
     private MainFrame mainFrame;
 
-    private int movedDownButtons = 0;
+    private final Map<PluginComponent, Component> pluginsTable =
+        new Hashtable<PluginComponent, Component>();
 
-    private Hashtable pluginsTable = new Hashtable();
-
-    private LinkedList components = new LinkedList();
+    private final java.util.List<Component> components =
+        new LinkedList<Component>();
 
     /**
      * Create an instance of the <tt>QuickMenu</tt>.
@@ -273,17 +271,7 @@ public class ExtendedQuickMenu
             wizard.setVisible(true);
         }
     }
-    
-    private class ConfigAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent arg0)
-        {
-            configDialog = GuiActivator.getUIService()
-                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
 
-            configDialog.setVisible(true);
-        }
-    }
     /**
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on one of
      * the buttons in this toolbar.
@@ -379,14 +367,14 @@ public class ExtendedQuickMenu
      */
     public void componentMoved(ComponentEvent e)
     {
-        int compCount = this.components.size();
-
         int maxWidth = this.toolBar.getWidth();
 
         int width = 0;
-        for (int i = 0; i < compCount; i ++)
+        for (Component component : components)
         {
-            JComponent c = (JComponent) this.components.get(i);
+            if (!(component instanceof JComponent))
+                continue;
+            JComponent c = (JComponent) component;
 
             width += c.getWidth() + 10;
 
@@ -420,12 +408,8 @@ public class ExtendedQuickMenu
     {
         if((e.getFirstIndex() != -1 || e.getLastIndex() != -1))
         {
-            Enumeration plugins = pluginsTable.keys();
-
-            while (plugins.hasMoreElements())
+            for (PluginComponent plugin : pluginsTable.keySet())
             {
-                PluginComponent plugin = (PluginComponent) plugins.nextElement();
-
                 Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
 
@@ -457,8 +441,6 @@ public class ExtendedQuickMenu
     private class ToolBarButton
         extends JLabel
     {
-        private Image iconImage;
-
         private boolean isMouseOver = false;
 
         private boolean isMousePressed = false;
@@ -554,10 +536,7 @@ public class ExtendedQuickMenu
         }
         else if (buttonName.equals("config"))
         {
-            configDialog = GuiActivator.getUIService()
-                .getExportedWindow(ExportedWindow.CONFIGURATION_WINDOW);
-
-            configDialog.setVisible(true);
+            GuiActivator.getUIService().setConfigurationWindowVisible(true);
         }
         else if (buttonName.equals("search"))
         {
@@ -635,12 +614,12 @@ public class ExtendedQuickMenu
                     (MetaContact) selectedValue;
 
                 OperationSetWebContactInfo wContactInfo = null;
-                
-                Iterator protocolContacts = selectedMetaContact.getContacts();
-                
-                while(protocolContacts.hasNext())
+
+                Iterator<Contact> protocolContacts = selectedMetaContact.getContacts();
+
+                while (protocolContacts.hasNext())
                 {
-                    Contact protoContact = (Contact) protocolContacts.next();
+                    Contact protoContact = protocolContacts.next();
                     
                     wContactInfo = mainFrame.getWebContactInfoOpSet(
                         protoContact.getProtocolProvider());

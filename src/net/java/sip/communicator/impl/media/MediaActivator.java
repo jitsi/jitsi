@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.media;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
-import net.java.sip.communicator.service.gui.ConfigurationForm;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
@@ -67,7 +67,10 @@ public class MediaActivator
 
         // MediaConfigurationForm
         context.registerService(ConfigurationForm.class.getName(),
-            new MediaConfigurationForm(), null);
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.impl.media.MediaConfigurationPanel",
+                getClass().getClassLoader(), "plugin.mediaconfig.PLUGIN_ICON",
+                "impl.media.configform.TITLE"), null);
     }
 
     /**

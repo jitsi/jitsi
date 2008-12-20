@@ -333,4 +333,6 @@ public interface UIService
     public boolean useMacOSXScreenMenuBar();
 
     public void beginShutdown();
+
+    public void setConfigurationWindowVisible(boolean visible);
 }

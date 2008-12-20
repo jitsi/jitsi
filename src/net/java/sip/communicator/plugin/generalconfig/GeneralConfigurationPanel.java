@@ -22,12 +22,11 @@ import com.izforge.izpack.util.os.*;
 /**
  * @author Yana Stamcheva
  */
-public class GeneralConfigurationForm
-    extends javax.swing.JPanel
-    implements  ConfigurationForm,
-                ActionListener
+public class GeneralConfigurationPanel
+    extends JPanel
+    implements ActionListener
 {
-    private Logger logger = Logger.getLogger(GeneralConfigurationForm.class);
+    private final Logger logger = Logger.getLogger(GeneralConfigurationPanel.class);
 
     private JPanel mainPanel;
     private JCheckBox bringToFrontCheckBox;
@@ -43,9 +42,8 @@ public class GeneralConfigurationForm
     private JCheckBox showHistoryCheckBox;
     private JPanel logHistoryPanel;
 
-    public GeneralConfigurationForm()
+    public GeneralConfigurationPanel()
     {
-        super();
         initGUI();
         initDefaults();
     }
@@ -315,26 +313,6 @@ public class GeneralConfigurationForm
     private String getApplicationName()
     {
         return Resources.getSettingsString("service.gui.APPLICATION_NAME");
-    }
-
-    public Object getForm()
-    {
-        return this;
-    }
-
-    public byte[] getIcon()
-    {
-        return Resources.getImage("plugin.generalconfig.PLUGIN_ICON");
-    }
-
-    public String getTitle()
-    {
-        return Resources.getString("service.gui.GENERAL");
-    }
-
-    public int getIndex()
-    {
-        return 0;
     }
 
     public void actionPerformed(ActionEvent event)

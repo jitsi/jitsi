@@ -13,19 +13,18 @@ import java.io.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.gui.*;
-
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the user interface
- * configuration window. It allows the user to change parameters in the 
- * mailbox configuration
+ * configuration window. It allows the user to change parameters in the mailbox
+ * configuration
+ * 
  * @author Ryan Ricard
  */
-public class MailboxConfigurationForm
+public class MailboxConfigurationPanel
     extends TransparentPanel
-    implements ConfigurationForm, ActionListener
+    implements ActionListener
 {
     private JLabel jlblOutgoingMessage
         = new JLabel(Resources.getString("plugin.mailbox.OUTGOING"));
@@ -85,10 +84,10 @@ public class MailboxConfigurationForm
     private JPanel jpConfirmDefault = new TransparentPanel();
     ConfigurationService config;
 
-    public MailboxConfigurationForm()
+    public MailboxConfigurationPanel()
     {
-
         super(new GridLayout(5,1));
+
         config = MailboxActivator.getConfigurationService();
         //get our outgoing file panel set up
         jtfOutgoingMessage.setText(Mailbox.getOutgoingMessageFileLocation()
@@ -219,37 +218,5 @@ public class MailboxConfigurationForm
             }
         }
 
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getTitle()</tt> method. Returns the
-     * title of this configuration form.
-     */
-    public String getTitle()
-    {
-        return Resources.getString("plugin.mailbox.MAILBOX");
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getIcon()</tt> method. Returns the
-     * icon of this configuration form.
-     */
-    public byte[] getIcon()
-    {
-        return Resources.getImageInBytes("plugin.mailbox.PLUGIN_ICON");
-    }
-
-    /**
-     * Implements the <tt>ConfigurationForm.getForm()</tt> method. Returns the
-     * component corresponding to this configuration form.
-     */
-    public Object getForm()
-    {
-        return this;
-    }
-
-    public int getIndex()
-    {
-        return -1;
     }
 }

@@ -82,8 +82,6 @@ public class NotificationConfigurationPanel
 
     public NotificationConfigurationPanel()
     {
-        super();
-
         JPanel actions = new TransparentPanel();
         GridBagLayout actionsLayout = new GridBagLayout();
         JPanel applyPanel = new TransparentPanel();
