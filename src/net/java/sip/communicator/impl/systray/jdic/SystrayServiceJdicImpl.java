@@ -30,9 +30,10 @@ import net.java.sip.communicator.util.*;
  *
  * @author Nicolas Chamouard
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class SystrayServiceJdicImpl
-    implements  SystrayService
+    implements SystrayService
 {
     /**
      * The systray.
@@ -52,12 +53,14 @@ public class SystrayServiceJdicImpl
     /**
      * The list of all added popup message listeners.
      */
-    private Vector popupMessageListeners = new Vector();
+    private final List<SystrayPopupMessageListener> popupMessageListeners =
+        new Vector<SystrayPopupMessageListener>();
 
     /**
      * List of all messages waiting to be shown.
      */
-    private ArrayList messageQueue = new ArrayList();
+    private final List<SystrayMessage> messageQueue =
+        new ArrayList<SystrayMessage>();
 
     private Timer popupTimer = new Timer();
 
@@ -324,16 +327,12 @@ public class SystrayServiceJdicImpl
         {
             String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-            List accounts = configService
+            List<String> accounts = configService
                     .getPropertyNamesByPrefix(prefix, true);
 
             boolean savedAccount = false;
-            Iterator accountsIter = accounts.iterator();
 
-            while(accountsIter.hasNext()) {
-                String accountRootPropName
-                    = (String) accountsIter.next();
-
+            for (String accountRootPropName : accounts) {
                 String accountUID
                     = configService.getString(accountRootPropName);
 
@@ -439,17 +438,16 @@ public class SystrayServiceJdicImpl
 
         logger.trace("Will dispatch the following systray msg event: " + evt);
 
-        Iterator listeners = null;
+        List<SystrayPopupMessageListener> listeners;
         synchronized (popupMessageListeners)
         {
-            listeners = new ArrayList(popupMessageListeners).iterator();
+            listeners =
+                new ArrayList<SystrayPopupMessageListener>(
+                    popupMessageListeners);
         }
 
-        while (listeners.hasNext())
+        for (SystrayPopupMessageListener listener : listeners)
         {
-            SystrayPopupMessageListener listener
-                = (SystrayPopupMessageListener) listeners.next();
-
             listener.popupMessageClicked(evt);
         }
     }
@@ -576,7 +574,7 @@ public class SystrayServiceJdicImpl
 
             int messageNumber = messageQueue.size();
 
-            SystrayMessage msg = (SystrayMessage) messageQueue.get(0);
+            SystrayMessage msg = messageQueue.get(0);
 
             if(messageNumber > maxMessageNumber)
             {

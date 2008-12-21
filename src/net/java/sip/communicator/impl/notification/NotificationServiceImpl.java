@@ -289,24 +289,20 @@ public class NotificationServiceImpl
      */
     public Map getEventNotifications(String eventType)
     {
-        Hashtable actions = new Hashtable();
+        EventNotification notification = notificationsTable.get(eventType);
 
-        EventNotification notification
-            = (EventNotification) notificationsTable.get(eventType);
-        
         if(notification == null)
             return null;
 
-        Iterator srcActions = notification.getActions().values().iterator();
-        
-        while(srcActions.hasNext())
-        {
-            Action action = (Action) srcActions.next();
+        Hashtable actions = new Hashtable();
 
-            if(action.getActionHandler() != null)
-                actions.put(action.getActionType(), action.getActionHandler());
-            else
-                actions.put(action.getActionType(), "");
+        for (Object value : notification.getActions().values())
+        {
+            Action action = (Action) value;
+            NotificationActionHandler handler = action.getActionHandler();
+
+            actions.put(action.getActionType(), (handler == null) ? ""
+                : handler);
         }
         
         return actions;
@@ -914,7 +910,7 @@ public class NotificationServiceImpl
                 actionType, handler);
         }
         
-        // now store this default events if we want to retore them
+        // now store this default events if we want to restore them
         EventNotification notification = null;
 
         if(defaultNotificationsTable.containsKey(eventType))

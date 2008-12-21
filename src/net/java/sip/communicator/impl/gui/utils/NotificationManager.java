@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.util.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
@@ -24,9 +22,7 @@ public class NotificationManager
     public static final String BUSY_CALL = "BusyCall";
     
     public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
-    
-    private static Hashtable soundHandlers = new Hashtable();
-    
+
     public static void registerGuiNotifications()
     {
         NotificationService notificationService
@@ -64,8 +60,6 @@ public class NotificationManager
                 NotificationService.ACTION_SOUND,
                 inCallSoundHandler);
 
-        soundHandlers.put(INCOMING_CALL, inCallSoundHandler);
-        
         // Register outgoing call notifications.
         SoundNotificationHandler outCallSoundHandler
             = (SoundNotificationHandler) notificationService
@@ -75,8 +69,6 @@ public class NotificationManager
                 OUTGOING_CALL,
                 NotificationService.ACTION_SOUND,
                 outCallSoundHandler);
-    
-        soundHandlers.put(OUTGOING_CALL, outCallSoundHandler);
 
         // Register busy call notifications.
         SoundNotificationHandler busyCallSoundHandler
@@ -87,8 +79,6 @@ public class NotificationManager
                 BUSY_CALL,
                 NotificationService.ACTION_SOUND,
                 busyCallSoundHandler);
-    
-        soundHandlers.put(OUTGOING_CALL, outCallSoundHandler);
 
         // Register proactive notifications.
         notificationService.registerDefaultNotificationForEvent(

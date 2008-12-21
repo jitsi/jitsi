@@ -31,8 +31,8 @@ public class SystrayActivator
 
     private static ConfigurationService configService;
 
-    private static Logger logger = Logger.getLogger(
-            SystrayActivator.class.getName());
+    private static final Logger logger =
+        Logger.getLogger(SystrayActivator.class);
 
     /**
      * Called when this bundle is started.

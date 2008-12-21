@@ -32,8 +32,7 @@ import org.osgi.framework.*;
  */
 public class GuiActivator implements BundleActivator
 {
-    private static Logger logger
-        = Logger.getLogger(GuiActivator.class.getName());
+    private static final Logger logger = Logger.getLogger(GuiActivator.class);
 
     private static UIServiceImpl uiService = null;
 
