@@ -19,9 +19,8 @@ import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the <tt>Router</tt> interface wrapping around JAIN-SIP
- * RI <tt>DefaultRouter</tt> in order to be able to change the outbound
- * proxy depending on the account which sent the request.
- *
+ * RI <tt>DefaultRouter</tt> in order to be able to change the outbound proxy
+ * depending on the account which sent the request.
  * @author Sebastien Mazy
  */
 public class ProxyRouter
@@ -41,10 +40,13 @@ public class ProxyRouter
      * Used to cache the <tt>DefaultRouter</tt>s. One <tt>DefaultRouter</tt> per
      * outbound proxy.
      */
-    private final Map<String, Router> routers = new HashMap<String, Router>();
+    private final Map<String, Router> routerCache
+        = new HashMap<String, Router>();
 
     /**
-     * The jain-sip router to use for accounts that do not have a proxy.
+     * The jain-sip router to use for accounts that do not have a proxy or as a
+     * default. Do not use this attribute directly but getDefaultRouter() (lazy
+     * initialization)
      */
     private Router defaultRouter = null;
 
@@ -56,7 +58,7 @@ public class ProxyRouter
      */
     public ProxyRouter(SipStack stack, String defaultRoute)
     {
-        if(stack == null)
+        if (stack == null)
             throw new IllegalArgumentException("stack shouldn't be null!");
         this.stack = stack;
         // we don't care about the provided default route
@@ -68,20 +70,9 @@ public class ProxyRouter
      * @param request <tt>Request</tt> to find the next hop.
      * @return the next hop for the <tt>request</tt>.
      */
-    public Hop getNextHop(Request request)
-        throws SipException
+    public Hop getNextHop(Request request) throws SipException
     {
-        logger.debug("Trying to get a router for req: " + request);
-
-        Router router =
-            this.getRouterFor(request);
-        if(router != null)
-            return router.getNextHop(request);
-
-        logger.warn(
-            "Hmm we are returning a null router. This doesn't look good",
-            new Exception());
-        return null;
+        return this.getRouterFor(request).getNextHop(request);
     }
 
     /**
@@ -93,11 +84,7 @@ public class ProxyRouter
     @Deprecated
     public ListIterator getNextHops(Request request)
     {
-        Router router =
-            this.getRouterFor(request);
-        if(router != null)
-            return router.getNextHops(request);
-        return null;
+        return this.getRouterFor(request).getNextHops(request);
     }
 
     /**
@@ -112,66 +99,69 @@ public class ProxyRouter
         // Emil: we are not quite certain in which cases this method is needed
         // so we are logging a stack trace here.
         logger.fatal("If you see this then please please describe your SIP "
-                        +"setup and send the following stack trace to"
-                        +"dev@sip-communicator.dev.java.net",
-                        new Exception());
+            + "setup and send the following stack trace to"
+            + "dev@sip-communicator.dev.java.net", new Exception());
         return null;
     }
 
     /**
-     * Creates a DefaultRouter whose default route is the outbound proxy of the
-     * account which sent the <tt>request</tt>.
+     * Retrieves a DefaultRouter whose default route is the outbound proxy of
+     * the account which sent the <tt>request</tt>, or a default one.
      *
-     * @param request the <tt>Request</tt> which to build a <tt>Router</tt> for.
+     * @param request the <tt>Request</tt> which to retrieve a <tt>Router</tt>
+     *            for.
      * @return a <tt>Router</tt> with the outbound proxy set for this
-     * <tt>request</tt>.
+     *         <tt>request</tt> if needed, or a default router
      */
     private Router getRouterFor(Request request)
     {
+        // Tries to guess which account created the request by looking at the
+        // From: header field. For requests that create a dialog, it should
+        // always work as we set the From: header field ourselves. For requests
+        // that are already part of a dialog, the routing decision was
+        // previously taken by inserting a Route: header field if needed and can
+        // be read by any router we might return.
         Address address =
             ((FromHeader) request.getHeader(FromHeader.NAME)).getAddress();
         Set<ProtocolProviderServiceSipImpl> services =
             ProtocolProviderServiceSipImpl.getAllInstances();
-
-        for(ProtocolProviderServiceSipImpl service : services)
+        for (ProtocolProviderServiceSipImpl service : services)
         {
-            if(request.getRequestURI().isSipURI() &&
-                    service.getOurSipAddress((SipURI) request.getRequestURI()).
-                    equals(address))
+            if (request.getRequestURI().isSipURI()
+                && service.getOurSipAddress((SipURI) request.getRequestURI())
+                    .equals(address))
             {
                 String proxy = service.getOutboundProxyString();
 
-                if(proxy == null) // no registrar mode
+                // P2P case
+                if (proxy == null)
+                    return this.getDefaultRouter();
+
+                // outbound proxy case
+                Router router = routerCache.get(proxy);
+                if (router == null)
                 {
-                    logger.debug("Returning a router for outbound proxy: "
-                        + service.getOutboundProxyString());
-
-                    //no proxy for this account, we need to return the default
-                    //router.
-                    if( defaultRouter == null)
-                        defaultRouter = new DefaultRouter(this.stack, null);
-
-                    return defaultRouter;
+                    router = new DefaultRouter(stack, proxy);
+                    routerCache.put(proxy, router);
                 }
-                else if(this.routers.containsKey(proxy))
-                    return this.routers.get(proxy);
-                else
-                {
-
-
-                    Router router = new DefaultRouter(
-                            this.stack
-                            , service.getOutboundProxyString());
-                    this.routers.put(proxy, router);
-
-                    logger.debug("Returning a router for outbound proxy: "
-                                 + service.getOutboundProxyString());
-
-                    return router;
-                }
+                return router;
             }
         }
-        logger.error("couldn't build a router for this request");
-        return null;
+
+        // Let's hope this request is part of a dialog otherwise we are in
+        // trouble. Unfortunately, we have no way to check this.
+        return this.getDefaultRouter();
+    }
+
+    /**
+     * Returns and create if needed a default router (no outbound proxy)
+     *
+     * @return a router with no outbound proxy set
+     */
+    private Router getDefaultRouter()
+    {
+        if (this.defaultRouter == null)
+            this.defaultRouter = new DefaultRouter(stack, null);
+        return this.defaultRouter;
     }
 }
