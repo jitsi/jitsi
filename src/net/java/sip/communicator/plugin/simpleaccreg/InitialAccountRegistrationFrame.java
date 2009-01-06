@@ -32,7 +32,7 @@ import org.osgi.framework.*;
  * @author Lubomir Marinov
  */
 public class InitialAccountRegistrationFrame
-    extends JFrame
+    extends SIPCommFrame
     implements ServiceListener
 {
     private ConfigurationService configurationService;
@@ -40,26 +40,17 @@ public class InitialAccountRegistrationFrame
     private final Logger logger
         = Logger.getLogger(InitialAccountRegistrationFrame.class);
 
-    private final JPanel mainAccountsPanel =
-        new JPanel(new BorderLayout(10, 10));
+    private final TransparentPanel mainAccountsPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
-    private final JPanel accountsPanel =
-        new JPanel(new GridLayout(0, 2, 10, 10));
+    private final TransparentPanel accountsPanel
+        = new TransparentPanel(new GridLayout(0, 2, 10, 10));
 
-    private final JButton signinButton =
-        new JButton(Resources.getString("service.gui.SIGN_IN"));
+    private final JButton signinButton
+        = new JButton(Resources.getString("service.gui.SIGN_IN"));
 
     private final Collection<AccountRegistrationPanel> registrationForms =
         new Vector<AccountRegistrationPanel>();
-
-    /*
-     * The background of all AccountRegistrationPanel instances is one and the
-     * same so it not only makes sense to retrieve it once for each panel but to
-     * also retrieve it once and use it in all AccountRegistrationPanel
-     * instances.
-     */
-    private final Color accountRegistrationPanelBackground =
-        new Color(Resources.getColor("service.gui.DESKTOP_BACKGROUND"));
 
     /**
      * Creates an instance of <tt>NoAccountFoundPage</tt>.
@@ -68,17 +59,21 @@ public class InitialAccountRegistrationFrame
     {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        MainPanel mainPanel = new MainPanel(new BorderLayout(5, 5));
-        JPanel messageAreaPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JTextArea messageArea =
-            new JTextArea(Resources.getString("plugin.simpleaccregwizz.INITIAL_ACCOUNT_REGISTRATION"));
+        TransparentPanel mainPanel
+            = new TransparentPanel(new BorderLayout());
+        JPanel messageAreaPanel
+            = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JTextArea messageArea
+            = new JTextArea(Resources.getString(
+                "plugin.simpleaccregwizz.INITIAL_ACCOUNT_REGISTRATION"));
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelButton
             = new JButton(Resources.getString("service.gui.CANCEL"));
 
         this.setTitle(Resources.getString("service.gui.SIGN_IN"));
 
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainAccountsPanel.setBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         this.getContentPane().add(mainPanel);
 
@@ -350,8 +345,8 @@ public class InitialAccountRegistrationFrame
                 Graphics2D g2d = (Graphics2D) g;
 
                 // paint the background with the chosen color
-                g2d.setColor(accountRegistrationPanelBackground);
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2d.setColor(Color.GRAY);
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
             }
             finally
             {
@@ -471,50 +466,6 @@ public class InitialAccountRegistrationFrame
         }
     }
 
-    private class MainPanel extends JPanel
-    {
-
-        /*
-         * We cannot keep retrieving the definition and creating a new Color
-         * instance on each and every call of paintComponent() - we have to do
-         * the thing once and then reuse it. The InitialAccountRegistrationFrame
-         * will be disposed as soon as it's closed so we're not wasting memory,
-         * only bettering the execution speed.
-         */
-        private final Color background =
-            new Color(
-                Resources
-                    .getColor("plugin.simpleaccreg.ACCOUNT_REGISTRATION_BACKGROUND"));
-
-        public MainPanel(LayoutManager layoutManager)
-        {
-            super(layoutManager);
-        }
-
-        public void paintComponent(Graphics g)
-        {
-            // do the superclass behavior first
-            super.paintComponent(g);
-
-            g = g.create();
-            try
-            {
-                AntialiasingManager.activateAntialiasing(g);
-
-                Graphics2D g2d = (Graphics2D) g;
-
-                // paint the background with the chosen color
-                g2d.setColor(background);
-                g2d.fillRoundRect(10, 10, getWidth() - 20, getHeight() - 20,
-                    15, 15);
-            }
-            finally
-            {
-                g.dispose();
-            }
-        }
-    }
-
     /**
      * Saves the (protocol provider, wizard) pair in through the
      * <tt>ConfigurationService</tt>.
@@ -577,5 +528,10 @@ public class InitialAccountRegistrationFrame
                     .getService(configReference);
         }
         return configurationService;
+    }
+
+    @Override
+    protected void close(boolean isEscaped)
+    {
     }
 }

@@ -83,8 +83,9 @@ public class MainFrame
 
     private MetaContactListService contactList;
 
-    private final Map<ProtocolProviderService, ContactEventHandler> providerContactHandlers =
-        new Hashtable<ProtocolProviderService, ContactEventHandler>();
+    private final Map<ProtocolProviderService, ContactEventHandler>
+        providerContactHandlers =
+            new Hashtable<ProtocolProviderService, ContactEventHandler>();
 
     private final Map<PluginComponent, Component> nativePluginsTable =
         new Hashtable<PluginComponent, Component>();

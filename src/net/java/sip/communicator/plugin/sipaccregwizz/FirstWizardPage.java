@@ -69,7 +69,7 @@ public class FirstWizardPage
     private JPanel valuesAdvOpPanel
         = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox enableAdvOpButton =
+    private JCheckBox overrideServerCheckBox =
         new SIPCommCheckBox(Resources.getString(
             "plugin.sipaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"), false);
 
@@ -241,7 +241,7 @@ public class FirstWizardPage
         proxyPortField.setEnabled(false);
         transportCombo.setEnabled(false);
 
-        enableAdvOpButton.addActionListener(new ActionListener()
+        overrideServerCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -285,7 +285,7 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(proxyPortField);
         valuesAdvOpPanel.add(transportCombo);
 
-        advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
+        advancedOpPanel.add(overrideServerCheckBox, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
         advancedOpPanel.add(enableDefaultEncryption, BorderLayout.SOUTH);
@@ -608,7 +608,7 @@ public class FirstWizardPage
             || !transportCombo.getSelectedItem()
                 .equals(SIPAccountRegistration.DEFAULT_TRANSPORT))
         {
-            enableAdvOpButton.setSelected(true);
+            overrideServerCheckBox.setSelected(true);
 
             // The server field should stay disabled in modification mode,
             // because the user should not be able to change anything concerning
@@ -643,7 +643,7 @@ public class FirstWizardPage
      */
     private void setServerFieldAccordingToUIN()
     {
-        if (!enableAdvOpButton.isSelected())
+        if (!overrideServerCheckBox.isSelected())
         {
             String serverAddress
                 = wizard.getServerFromUserName(uinField.getText());
