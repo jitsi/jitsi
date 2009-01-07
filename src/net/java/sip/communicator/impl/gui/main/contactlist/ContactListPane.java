@@ -27,6 +27,7 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -92,7 +93,12 @@ public class ContactListPane
     {
         this.contactList = new ContactList(mainFrame);
 
-        this.setViewportView(contactList);
+        TransparentPanel transparentPanel
+            = new TransparentPanel(new BorderLayout());
+
+        transparentPanel.add(contactList, BorderLayout.NORTH);
+
+        this.setViewportView(transparentPanel);
 
         this.contactList.addContactListListener(this);
         this.addMouseListener(new MouseAdapter() {
