@@ -2934,7 +2934,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Creates a new {@link Response#OK} response to a specific {@link Request}
      * which is to be sent as part of a specific {@link Dialog}.
-     * 
+     *
      * @param request the <code>Request</code> to create the OK response for
      * @param containingDialog the <code>Dialog</code> to send the response in
      * @return a new <code>Response.OK</code> response to the specified
@@ -2998,7 +2998,7 @@ public class OperationSetBasicTelephonySipImpl
      * Returns a string representation of this OperationSetBasicTelephony
      * instance including information that would permit to distinguish it among
      * other instances when reading a log file.
-     * 
+     *
      * @return a string representation of this operation set.
      */
     public String toString()
@@ -3132,7 +3132,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.protocol.OperationSetAdvancedTelephony
      * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,
@@ -3184,7 +3184,7 @@ public class OperationSetBasicTelephonySipImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.protocol.OperationSetAdvancedTelephony
      * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,

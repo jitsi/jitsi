@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.media.*;
 
 /**
  * A SIP implementation of the Call abstract class encapsulating SIP dialogs.
- * 
+ *
  * @author Emil Ivov
  */
 public class CallSipImpl
@@ -45,7 +45,7 @@ public class CallSipImpl
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
      * initiated by <tt>CallCreator</tt>.
-     * 
+     *
      * @param sourceProvider the ProtocolProviderServiceSipImpl instance in the
      *            context of which this call has been created.
      */
@@ -58,7 +58,7 @@ public class CallSipImpl
      * Adds <tt>callParticipant</tt> to the list of participants in this call.
      * If the call participant is already included in the call, the method has
      * no effect.
-     * 
+     *
      * @param callParticipant the new <tt>CallParticipant</tt>
      */
     public void addCallParticipant(CallParticipantSipImpl callParticipant)
@@ -77,7 +77,7 @@ public class CallSipImpl
      * Removes <tt>callParticipant</tt> from the list of participants in this
      * call. The method has no effect if there was no such participant in the
      * call.
-     * 
+     *
      * @param callParticipant the <tt>CallParticipant</tt> leaving the call;
      */
     public void removeCallParticipant(CallParticipantSipImpl callParticipant)
@@ -110,7 +110,7 @@ public class CallSipImpl
     /**
      * Sets the state of this call and fires a call change event notifying
      * registered listeners for the change.
-     * 
+     *
      * @param newState a reference to the <tt>CallState</tt> instance that the
      *            call is to enter.
      */
@@ -129,7 +129,7 @@ public class CallSipImpl
 
     /**
      * Returns the state that this call is currently in.
-     * 
+     *
      * @return a reference to the <tt>CallState</tt> instance that the call is
      *         currently in.
      */
@@ -140,7 +140,7 @@ public class CallSipImpl
 
     /**
      * Returns an iterator over all call participants.
-     * 
+     *
      * @return an Iterator over all participants currently involved in the call.
      */
     public Iterator<CallParticipant> getCallParticipants()
@@ -150,7 +150,7 @@ public class CallSipImpl
 
     /**
      * Returns the number of participants currently associated with this call.
-     * 
+     *
      * @return an <tt>int</tt> indicating the number of participants currently
      *         associated with this call.
      */
@@ -162,7 +162,7 @@ public class CallSipImpl
     /**
      * Dummy implementation of a method (inherited from CallParticipantListener)
      * that we don't need.
-     * 
+     *
      * @param evt unused.
      */
     public void participantImageChanged(CallParticipantChangeEvent evt)
@@ -172,7 +172,7 @@ public class CallSipImpl
     /**
      * Dummy implementation of a method (inherited from CallParticipantListener)
      * that we don't need.
-     * 
+     *
      * @param evt unused.
      */
     public void participantAddressChanged(CallParticipantChangeEvent evt)
@@ -182,7 +182,7 @@ public class CallSipImpl
     /**
      * Dummy implementation of a method (inherited from CallParticipantListener)
      * that we don't need.
-     * 
+     *
      * @param evt unused.
      */
     public void participantTransportAddressChanged(
@@ -193,7 +193,7 @@ public class CallSipImpl
     /**
      * Dummy implementation of a method (inherited from CallParticipantListener)
      * that we don't need.
-     * 
+     *
      * @param evt unused.
      */
     public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
@@ -202,7 +202,7 @@ public class CallSipImpl
 
     /**
      * Verifies whether the call participant has entered a state.
-     * 
+     *
      * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
      *            the source event as well as its previous and its new status.
      */
@@ -216,7 +216,8 @@ public class CallSipImpl
             removeCallParticipant((CallParticipantSipImpl) evt
                 .getSourceCallParticipant());
         }
-        else if ((newState == CallParticipantState.CONNECTED || newState == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA))
+        else if ((newState == CallParticipantState.CONNECTED
+               || newState == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA))
         {
             setCallState(CallState.CALL_IN_PROGRESS);
         }
@@ -225,7 +226,7 @@ public class CallSipImpl
     /**
      * Returns <tt>true</tt> if <tt>dialog</tt> matches the jain sip dialog
      * established with one of the participants in this call.
-     * 
+     *
      * @param dialog the dialog whose corresponding participant we're looking
      *            for.
      * @return true if this call contains a call participant whose jain sip
@@ -239,7 +240,7 @@ public class CallSipImpl
     /**
      * Returns the call participant whose associated jain sip dialog matches
      * <tt>dialog</tt>.
-     * 
+     *
      * @param dialog the jain sip dialog whose corresponding participant we're
      *            looking for.
      * @return the call participant whose jain sip dialog is the same as the
@@ -278,7 +279,7 @@ public class CallSipImpl
     /**
      * Sets the <tt>CallSession</tt> that the media service has created for this
      * call.
-     * 
+     *
      * @param callSession the <tt>CallSession</tt> that the media service has
      *            created for this call.
      */
@@ -290,7 +291,7 @@ public class CallSipImpl
     /**
      * Sets the <tt>CallSession</tt> that the media service has created for this
      * call.
-     * 
+     *
      * @return the <tt>CallSession</tt> that the media service has created for
      *         this call or null if no call session has been created so far.
      */

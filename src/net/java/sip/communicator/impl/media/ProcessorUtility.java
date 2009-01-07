@@ -97,8 +97,9 @@ public class ProcessorUtility implements ControllerListener {
      * @param state one of the Processor.XXXed sate vars
      * @return boolean true if the state has been reached and false otherwise
      */
-    public synchronized boolean waitForState(Processor processor, int state) 
+    public synchronized boolean waitForState(Processor processor, int state)
     {
+        System.out.println("d1");
         processor.addControllerListener(this);
         setFailed(false);
 

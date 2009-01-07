@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * Provides a default implementation for most of the
  * <code>CallParticipant</code> methods with the purpose of only leaving custom
  * protocol development to clients using the PhoneUI service.
- * 
+ *
  * @author Emil Ivov
  */
 public abstract class AbstractCallParticipant
@@ -226,7 +226,7 @@ public abstract class AbstractCallParticipant
      * Gets the time at which this <code>CallParticipant</code> transitioned
      * into a state (likely {@link CallParticipantState#CONNECTED}) marking the
      * start of the duration of the participation in a <code>Call</code>.
-     * 
+     *
      * @return the time at which this <code>CallParticipant</code> transitioned
      *         into a state marking the start of the duration of the
      *         participation in a <code>Call</code> or

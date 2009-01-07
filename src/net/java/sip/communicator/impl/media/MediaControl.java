@@ -126,7 +126,7 @@ public class MediaControl
      *
      * @throws MediaException if initialization fails.
      */
-    public void initialize( DeviceConfiguration deviceConfig, 
+    public void initialize( DeviceConfiguration deviceConfig,
                             EncodingConfiguration encodingConfig)
         throws MediaException
     {
@@ -470,7 +470,7 @@ public class MediaControl
             transmittableAudioEncodings.size();
         if (transmittableAudioEncodingCount > 0)
         {
-            supportedAudioEncodings = 
+            supportedAudioEncodings =
                 encodingConfiguration.updateEncodings(transmittableAudioEncodings);
         }
         else
@@ -478,7 +478,7 @@ public class MediaControl
             //just leave supportedAudioEncodings as  it was in the beginning
             //as it will be only receiving so it could say it supports
             //everything.
-            supportedAudioEncodings = 
+            supportedAudioEncodings =
                 encodingConfiguration.getSupportedAudioEncodings();
         }
 
@@ -486,7 +486,7 @@ public class MediaControl
             transmittableVideoEncodings.size();
         if (transmittableVideoEncodingCount > 0)
         {
-            supportedVideoEncodings = 
+            supportedVideoEncodings =
                 encodingConfiguration.updateEncodings(transmittableVideoEncodings);
         }
         else
@@ -494,7 +494,7 @@ public class MediaControl
             //just leave supportedVideoEncodings as  it was in the beginning
             //as it will be only receiving so it could say it supports
             //everything.
-            supportedVideoEncodings = 
+            supportedVideoEncodings =
                 encodingConfiguration.getSupportedVideoEncodings();
         }
     }
@@ -576,14 +576,14 @@ public class MediaControl
     /**
      * Creates a processing data source using the <tt>encodingSets</tt> map to
      * determine the formats/encodings allowed for the various media types.
-     * 
+     *
      * @param encodingSets a hashtable mapping media types such as "audio" or
      *            "video" to <tt>List</tt>a of encodings (ordered by preference)
      *            accepted for the corresponding type.
-     * 
+     *
      * @return a processing data source set to generate flows in the encodings
      *         specified by the encodingSets map.
-     * 
+     *
      * @throws MediaException if creating the data source fails for some reason.
      */
     public DataSource createDataSourceForEncodings(
@@ -851,13 +851,13 @@ public class MediaControl
      * Looks for the first encoding (among the requested encodings elements)
      * that is also present in the <tt>availableFormats</tt> array and returns
      * the index of the corresponding <tt>Format</tt>.
-     * 
+     *
      * @param availableFormats an array of JMF <tt>Format</tt>s that we're
      *            currently able to transmit.
      * @param requestedEncodings a table mapping media types (e.g. audio or
      *            video) to a list of encodings that our interlocutor has sent
      *            in order of preference.
-     * 
+     *
      * @return the index of the format corresponding to the first encoding that
      *         had a marching format in the <tt>availableFormats</tt> array.
      */
@@ -990,7 +990,7 @@ public class MediaControl
     /**
      * Selects the nearest size supported by the capture device, to make drivers
      * scale the images.
-     * 
+     *
      * @param videoDS the video <code>DataSource</code>
      */
     private void selectVideoSize(DataSource videoDS)
