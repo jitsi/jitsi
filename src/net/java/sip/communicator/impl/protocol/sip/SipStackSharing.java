@@ -35,6 +35,15 @@ public class SipStackSharing
     implements SipListener
 {
     /**
+     * We set a custom parameter in the contact address for registrar accounts,
+     * so as to ease dispatching of incoming requests in case several accounts
+     * have the same username in their contact address, eg:
+     * sip:username@192.168.0.1:5060;transport=udp;registering_acc=example_com
+     */
+    public static final String CONTACT_ADDRESS_CUSTOM_PARAM_NAME
+        = "registering_acc";
+
+    /**
      * Logger for this class.
      */
     private static final Logger logger
@@ -607,13 +616,30 @@ public class SipStackSharing
                 return perfectMatch;
             }
 
-            // past this point, our guess is not reliable
-            // we try to find the "least worst" match based on parameters
-            // like the To field
-
             // more than one account match
             if(candidates.size() > 1)
             {
+                // check if a custom param exists in the contact
+                // address (set for registrar accounts)
+                for (ProtocolProviderServiceSipImpl candidate : candidates)
+                {
+                    String hostValue = ((SipURI) requestURI).getParameter(
+                            SipStackSharing.CONTACT_ADDRESS_CUSTOM_PARAM_NAME);
+                    if (hostValue == null)
+                        continue;
+                    if (hostValue.equals(candidate
+                                .getContactAddressCustomParamValue()))
+                    {
+                        logger.trace("Will dispatch to \""
+                                + candidate.getAccountID() + "\" because "
+                                + "\" the custom param was set");
+                        return candidate;
+                    }
+                }
+
+                // Past this point, our guess is not reliable. We try to find
+                // the "least worst" match based on parameters like the To field
+
                 // check if the To header field host part
                 // matches any of our SIP hosts
                 for(ProtocolProviderServiceSipImpl candidate : candidates)
@@ -656,7 +682,7 @@ public class SipStackSharing
             // fallback on any account
             ProtocolProviderServiceSipImpl target =
                 currentListeners.iterator().next();
-            logger.warn("Will randomly dispatch to \"" + target.getAccountID()
+            logger.info("Will randomly dispatch to \"" + target.getAccountID()
                 + "\" because the username in the Request-URI "
                 + "is unknown or empty");
             logger.trace("\n" + request);

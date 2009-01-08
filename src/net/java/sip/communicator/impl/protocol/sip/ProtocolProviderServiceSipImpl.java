@@ -1024,6 +1024,17 @@ public class ProtocolProviderServiceSipImpl
 
             contactURI.setTransportParam(srcListeningPoint.getTransport());
             contactURI.setPort(srcListeningPoint.getPort());
+
+            // set a custom param to ease incoming requests dispatching in case
+            // we have several registrar accounts with the same username
+            if (getContactAddressCustomParamValue() != null)
+            {
+                contactURI.setParameter(
+                        SipStackSharing.CONTACT_ADDRESS_CUSTOM_PARAM_NAME,
+                        getContactAddressCustomParamValue()
+                        );
+            }
+
             Address contactAddress = addressFactory.createAddress( contactURI );
 
             if (ourDisplayName != null)
@@ -1044,6 +1055,30 @@ public class ProtocolProviderServiceSipImpl
                 , ex);
         }
         return registrationContactHeader;
+    }
+
+    /**
+     * Returns null for a registraless account, a value for the contact address
+     * custom parameter otherwise. This will help the dispatching of incoming
+     * requests between accounts with the same username. For address-of-record
+     * user@example.com, the returned value woud be example_com.
+     *
+     * @return null for a registraless account, a value for the
+     * "registering_acc" contact address parameter otherwise
+     */
+    public String getContactAddressCustomParamValue()
+    {
+            SipRegistrarConnection src = getRegistrarConnection();
+            if (src != null && !src.isRegistrarless())
+            {
+                // if we don't replace the dots in the hostname, we get
+                // "476 No Server Address in Contacts Allowed"
+                // from certain registrars (ippi.fr for instance)
+                String hostValue = ((SipURI) src.getAddressOfRecord().getURI())
+                    .getHost().replace('.', '_');
+                return hostValue;
+            }
+            return null;
     }
 
     /**
