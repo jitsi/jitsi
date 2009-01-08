@@ -99,7 +99,6 @@ public class ProcessorUtility implements ControllerListener {
      */
     public synchronized boolean waitForState(Processor processor, int state)
     {
-        System.out.println("d1");
         processor.addControllerListener(this);
         setFailed(false);
 
