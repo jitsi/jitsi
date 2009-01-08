@@ -54,10 +54,11 @@ public class CallManager
             receivedCallDialog.pack();
             receivedCallDialog.setVisible(true);
 
+            // FIXME: I18N
             NotificationManager.fireNotification(
                 NotificationManager.INCOMING_CALL,
                 null,
-                "Incoming call recived from: "
+                "Incoming call received from: "
                     + sourceCall.getCallParticipants().next());
         }
 
