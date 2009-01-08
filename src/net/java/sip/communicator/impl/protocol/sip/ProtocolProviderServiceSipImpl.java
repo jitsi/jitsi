@@ -1027,11 +1027,12 @@ public class ProtocolProviderServiceSipImpl
 
             // set a custom param to ease incoming requests dispatching in case
             // we have several registrar accounts with the same username
-            if (getContactAddressCustomParamValue() != null)
+            String paramValue = getContactAddressCustomParamValue();
+            if (paramValue != null)
             {
                 contactURI.setParameter(
                         SipStackSharing.CONTACT_ADDRESS_CUSTOM_PARAM_NAME,
-                        getContactAddressCustomParamValue()
+                        paramValue
                         );
             }
 
