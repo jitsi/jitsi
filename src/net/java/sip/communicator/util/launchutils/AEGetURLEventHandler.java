@@ -10,7 +10,7 @@ package net.java.sip.communicator.util.launchutils;
 /**
  * Registers as listener for Apple Event GURL.
  * And will handle any url comming from the os by passing it to LaunchArgHandler.
- * 
+ *
  * @author Lubomir Marinov
  * @author Damian Minkov
  */
@@ -30,20 +30,31 @@ public class AEGetURLEventHandler
     {
         this.launchArgHandler = launchArgHandler;
 
-        setAEGetURLListener (new IAEGetURLListener ()
+        try
         {
-            public void handleAEGetURLEvent (final String url)
+            setAEGetURLListener (new IAEGetURLListener ()
             {
-                new Thread()
+                public void handleAEGetURLEvent (final String url)
                 {
-                    public void run()
+                    new Thread()
                     {
-                        AEGetURLEventHandler.this.launchArgHandler.
-                            handleArgs(new String[]{url});
-                    }                    
-                }.start();
-            }
-        });
+                        public void run()
+                        {
+                            AEGetURLEventHandler.this.launchArgHandler.
+                                handleArgs(new String[]{url});
+                        }
+                    }.start();
+                }
+            });
+        }
+        catch(Throwable err)
+        {
+            //we don't have logging here so dump to stderr
+            System.err.println("Warning: Failed to register our ARG handler.");
+            System.err.println("We won't be able to handle command line arguments.");
+            err.printStackTrace();
+
+        }
     }
 
     /**
