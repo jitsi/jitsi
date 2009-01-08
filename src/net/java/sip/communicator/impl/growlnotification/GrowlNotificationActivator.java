@@ -30,11 +30,25 @@ public class GrowlNotificationActivator
      */
     public void start(BundleContext bundleContext) throws Exception
     {
-        /* Create and start the Growl Notification service. */
-        growlNotificationService = new GrowlNotificationServiceImpl();
-        growlNotificationService.start(bundleContext);
+        /* Check Java version: do not start if Java 6 */
+        /* Actually, this plugin uses the Growl Java bindings which 
+         * in turn uses the Cocoa Java bridge. Java 6 on Mac OS X is 
+         * 64-bit only (as of 01/2008), and the Cocoa-Java bridge 
+         * will certainly never get any 64-bit support (it has been
+         * deprecated). 
+         */
+        String version = System.getProperty("java.version");
+        char minor = version.charAt(2);
+        if(minor > '5') {
+            logger.info("Growl Notification Plugin cannot be started " +
+                        "on JDK version " + version);
+        } else {
+            /* Create and start the Growl Notification service. */
+            growlNotificationService = new GrowlNotificationServiceImpl();
+            growlNotificationService.start(bundleContext);
 
-        logger.info("Growl Notification Plugin ...[Started]");
+            logger.info("Growl Notification Plugin ...[Started]");
+        }
     }
 
     public void stop(BundleContext bundleContext) throws Exception
