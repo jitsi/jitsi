@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.audionotifier.*;
  */
 public class SCAudioClipImpl implements SCAudioClip
 {
-    private static Constructor acConstructor = null;
+    private static Constructor<AudioClip> acConstructor = null;
     
     private Timer playAudioTimer = new Timer(1000, null);
     
@@ -145,16 +145,17 @@ public class SCAudioClipImpl implements SCAudioClip
         {  
             try
             {
-                acConstructor = (Constructor)AccessController
-                    .doPrivileged(new PrivilegedExceptionAction()
+                acConstructor = AccessController
+                    .doPrivileged(new PrivilegedExceptionAction<Constructor<AudioClip>>()
                 {    
-                    public Object run()
+                    @SuppressWarnings("unchecked")
+                    public Constructor<AudioClip> run()
                         throws  NoSuchMethodException,
                                 SecurityException,
                                 ClassNotFoundException
                     {
                         
-                        Class class1 = null;
+                        Class<?> class1 = null;
                         try
                         {
                             class1 = Class.forName(
@@ -166,9 +167,9 @@ public class SCAudioClipImpl implements SCAudioClip
                             class1 = Class.forName(
                                 "sun.audio.SunAudioClip", true, null);    
                         }
-                        Class aclass[] = new Class[1];
+                        Class<?> aclass[] = new Class[1];
                         aclass[0] = Class.forName("java.io.InputStream");
-                        return class1.getConstructor(aclass);
+                        return (Constructor<AudioClip>) class1.getConstructor(aclass);
                     }
                 });
             }
@@ -184,7 +185,7 @@ public class SCAudioClipImpl implements SCAudioClip
             Object aobj[] = {
                 inputstream
             };
-            audioClip = (AudioClip)acConstructor.newInstance(aobj);            
+            audioClip = acConstructor.newInstance(aobj);            
         }
         catch(Exception exception)
         {
@@ -206,7 +207,8 @@ public class SCAudioClipImpl implements SCAudioClip
         }
         public void actionPerformed(ActionEvent e)
         {
-            this.audio.play();
+            audio.stop();
+            audio.play();
         }
     }
     
