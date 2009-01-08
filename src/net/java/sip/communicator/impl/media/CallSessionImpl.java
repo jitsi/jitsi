@@ -1995,6 +1995,8 @@ public class CallSessionImpl
                                           audioSessionAddress,
                                           bindRetries);
 
+        audioSessionAddress.setControlHostAddress(audioPublicAddress.getAddress());
+        audioSessionAddress.setDataHostAddress(audioPublicAddress.getAddress());     
         logger.debug("AudioSessionAddress="+audioSessionAddress);
         logger.debug("AudioPublicAddress="+audioPublicAddress);
 
@@ -2007,6 +2009,8 @@ public class CallSessionImpl
                                           videoSessionAddress,
                                           bindRetries);
 
+        videoSessionAddress.setControlHostAddress(videoPublicAddress.getAddress());
+        videoSessionAddress.setDataHostAddress(videoPublicAddress.getAddress());     
         //augment min port number so that no one else tries to bind here.
         minPortNumber = videoSessionAddress.getDataPort() + 2;
 
