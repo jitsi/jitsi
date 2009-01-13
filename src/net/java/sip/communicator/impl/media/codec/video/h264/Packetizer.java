@@ -9,7 +9,7 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.util.*;
 
-import com.sun.media.*;
+import net.sf.fmj.media.*;
 
 /**
  * Packest supplied data and encapsulate it in rtp according
@@ -17,11 +17,13 @@ import com.sun.media.*;
  * @author Damian Minkov
  */
 public class Packetizer
-    extends BasicCodec
+    extends AbstractPacketizer
 {
     private final Logger logger = Logger.getLogger(Packetizer.class);
 
     private final static String PLUGIN_NAME = "H264 Packetizer";
+
+    private Format[] supportedOutputFormats = null;
 
     private static int DEF_WIDTH = 352;
     private static int DEF_HEIGHT = 288;
@@ -30,7 +32,7 @@ public class Packetizer
     private final static int MAX_PAYLOAD_SIZE = 512;
 
     private final static Format[] defOutputFormats =
-    { 
+    {
         new VideoFormat(Constants.H264_RTP)
     };
 
@@ -49,7 +51,7 @@ public class Packetizer
         DEF_WIDTH = Constants.VIDEO_WIDTH;
         DEF_HEIGHT = Constants.VIDEO_HEIGHT;
 
-        inputFormats = new Format[]{ 
+        inputFormats = new Format[]{
             new VideoFormat(Constants.H264)
         };
 
@@ -62,14 +64,14 @@ public class Packetizer
         VideoFormat videoIn = (VideoFormat) in;
         Dimension inSize = videoIn.getSize();
 
-        outputFormats =
+        supportedOutputFormats =
             new VideoFormat[]
             {
                 new VideoFormat(Constants.H264_RTP, inSize,
                     Format.NOT_SPECIFIED, Format.byteArray, videoIn
                         .getFrameRate()) };
 
-        return outputFormats;
+        return supportedOutputFormats;
     }
 
     /**
@@ -119,7 +121,7 @@ public class Packetizer
         }
 
         outputFormat =
-            new VideoFormat(videoOut.getEncoding(), 
+            new VideoFormat(videoOut.getEncoding(),
                 outSize, outSize.width * outSize.height,
                 Format.byteArray, videoOut.getFrameRate());
 
@@ -153,7 +155,7 @@ public class Packetizer
                 bufOfset += 1;
                 size -= 1;
                 int currentSIx = 0;
-                while (size + 2 > MAX_PAYLOAD_SIZE) 
+                while (size + 2 > MAX_PAYLOAD_SIZE)
                 {
                     System.arraycopy(buf, bufOfset, tmp, 2, MAX_PAYLOAD_SIZE - 2);
 
@@ -248,13 +250,13 @@ public class Packetizer
             outBuffer.setDiscard(true);
             return BUFFER_PROCESSED_OK;
         }
-            
+
         byte[] b = new byte[len - 3];
         System.arraycopy(r, prevIx+ 3, b, 0, len-3);
         nals.add(b);
-        
+
         lastTimeStamp = inBuffer.getTimeStamp();
-        
+
         return INPUT_BUFFER_NOT_CONSUMED | OUTPUT_BUFFER_NOT_FILLED;
     }
 
@@ -269,11 +271,11 @@ public class Packetizer
     {
         while(startIx < (endIx - 3))
         {
-            if(buff[startIx] == 0 && 
+            if(buff[startIx] == 0 &&
                 buff[startIx + 1] == 0 &&
                 buff[startIx + 2] == 1)
                 return startIx;
-            
+
             startIx++;
         }
         return endIx;
@@ -305,14 +307,17 @@ public class Packetizer
         return PLUGIN_NAME;
     }
 
-    public java.lang.Object[] getControls()
+    /**
+     * Utility to perform format matching.
+     */
+    public static Format matches(Format in, Format outs[])
     {
-        if (controls == null)
-        {
-            controls =
-                new Control[0];
-        }
+       for (int i = 0; i < outs.length; i++)
+       {
+          if (in.matches(outs[i]))
+              return outs[i];
+       }
 
-        return (Object[]) controls;
+       return null;
     }
 }

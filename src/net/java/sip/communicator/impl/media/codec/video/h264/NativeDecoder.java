@@ -7,23 +7,33 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.media.codec.*;
+import net.sf.fmj.media.*;
 import net.sf.ffmpeg_java.*;
 import net.sf.ffmpeg_java.AVCodecLibrary.*;
 
-import com.ibm.media.codec.video.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 
 /**
- * Decodes incoming rtp data of type h264 and returns the result 
+ * Decodes incoming rtp data of type h264 and returns the result
  * frames in RGB format.
- * 
+ *
  * @author Damian Minkov
  */
 public class NativeDecoder
-    extends VideoCodec
+    extends AbstractCodec
+    implements Codec
 {
     private final Logger logger = Logger.getLogger(NativeDecoder.class);
+
+    private final static String PLUGIN_NAME = "H.264 Decoder";
+
+    private VideoFormat[] outputFormats = null;
+    private final VideoFormat[] defaultOutputFormats =
+    new VideoFormat[]
+    {
+        new RGBFormat()
+    };
 
     // Instances for the ffmpeg lib
     private AVFormatLibrary AVFORMAT;
@@ -68,50 +78,42 @@ public class NativeDecoder
      */
     public NativeDecoder()
     {
-        supportedInputFormats =
-            new VideoFormat[]
-            { 
-                new VideoFormat(Constants.H264_RTP)
-            };
-
-        defaultOutputFormats = new VideoFormat[]
-        { 
-            new RGBFormat() 
+        inputFormats = new VideoFormat[]
+        {
+            new VideoFormat(Constants.H264_RTP)
         };
 
-        supportedOutputFormats = new VideoFormat[supportedSizes.length];
-        
-        Dimension targetVideoSize = 
+        outputFormats = new VideoFormat[supportedSizes.length];
+
+        Dimension targetVideoSize =
             new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
-        
+
         for (int i = 0; i < supportedSizes.length; i++)
         {
             Dimension size = supportedSizes[i];
-            
+
             if(size.equals(targetVideoSize))
                 defaultSizeIx = i;
 
-            supportedOutputFormats[i] = 
+            outputFormats[i] =
               //PIX_FMT_RGB32
                 new RGBFormat(
-                    size, 
+                    size,
                     -1,
-                    Format.intArray, 
-                    Format.NOT_SPECIFIED, 
-                    32, 
-                    0xFF0000, 
+                    Format.intArray,
+                    Format.NOT_SPECIFIED,
+                    32,
+                    0xFF0000,
                     0xFF00,
-                    0xFF, 
-                    1, 
-                    size.width, 
-                    Format.FALSE, 
+                    0xFF,
+                    1,
+                    size.width,
+                    Format.FALSE,
                     Format.NOT_SPECIFIED);
         }
 
-        currentVideoWidth = 
-            supportedOutputFormats[defaultSizeIx].getSize().getWidth();
-
-        PLUGIN_NAME = "H.264 Decoder";
+        currentVideoWidth =
+            outputFormats[defaultSizeIx].getSize().getWidth();
 
         AVFORMAT = AVFormatLibrary.INSTANCE;
         AVCODEC = AVCodecLibrary.INSTANCE;
@@ -126,15 +128,15 @@ public class NativeDecoder
     {
         VideoFormat ivf = (VideoFormat) in;
 
-        // return the default size/currently decoder and encoder 
+        // return the default size/currently decoder and encoder
         //set to transmit/receive at this size
         if(ivf.getSize() == null)
-            return new Format[]{supportedOutputFormats[defaultSizeIx]};
+            return new Format[]{outputFormats[defaultSizeIx]};
 
-        for (int i = 0; i < supportedOutputFormats.length; i++)
+        for (int i = 0; i < outputFormats.length; i++)
         {
-            RGBFormat f = (RGBFormat)supportedOutputFormats[i];
-            
+            RGBFormat f = (RGBFormat)outputFormats[i];
+
             if(f.getSize().equals(ivf.getSize()))
                 return new Format[]{f};
         }
@@ -144,9 +146,10 @@ public class NativeDecoder
 
     /**
      * Set the data input format.
-     * 
+     *
      * @return false if the format is not supported.
      */
+    @Override
     public Format setInputFormat(Format format)
     {
         if (super.setInputFormat(format) != null)
@@ -161,7 +164,6 @@ public class NativeDecoder
     @Override
     public Format setOutputFormat(Format format)
     {
-        
         return super.setOutputFormat(format);
     }
 
@@ -175,8 +177,6 @@ public class NativeDecoder
         avcontext = AVCODEC.avcodec_alloc_context();
 
         avpicture = AVCODEC.avcodec_alloc_frame();
-
-        avcontext.lowres = 1;
 
         avcontext.workaround_bugs = 1;
 
@@ -198,6 +198,7 @@ public class NativeDecoder
         opened = true;
     }
 
+    @Override
     public void close()
     {
         if (opened)
@@ -216,7 +217,7 @@ public class NativeDecoder
     }
 
     long lastReceivedSeq = -1;
-    
+
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         if (!checkInputBuffer(inputBuffer))
@@ -236,11 +237,11 @@ public class NativeDecoder
             reset();
             return BUFFER_PROCESSED_OK;
         }
-        
+
         if(lastReceivedSeq != -1 && inputBuffer.getSequenceNumber() - lastReceivedSeq > 1)
         {
             lastReceivedSeq = inputBuffer.getSequenceNumber();
-
+            logger.trace("DROP rtp data!");
             parser.reset();
             inputBuffer.setDiscard(true);
             outputBuffer.setDiscard(true);
@@ -294,13 +295,26 @@ public class NativeDecoder
                 frameRGB, buffer, AVCodecLibrary.PIX_FMT_RGB32, avcontext.width, avcontext.height);
 
             // Convert the image from its native format to RGB
-            AVCODEC.img_convert(frameRGB, AVCodecLibrary.PIX_FMT_RGB32, 
-                avpicture, avcontext.pix_fmt, avcontext.width, 
+            AVCODEC.img_convert(frameRGB, AVCodecLibrary.PIX_FMT_RGB32,
+                avpicture, avcontext.pix_fmt, avcontext.width,
                 avcontext.height);
 
-            int[] data = 
-                frameRGB.data0.getIntArray(0, avcontext.height * avcontext.width);
-            int[] outData = validateIntArraySize(outputBuffer, data.length);
+            int[] data =
+                frameRGB.data0.getIntArray(0, numBytes/4);
+
+            int[] outData;
+
+            Object outDataO = outputBuffer.getData();
+            if(outDataO instanceof int[] &&
+                ((int[])outDataO).length >= data.length)
+            {
+                outData = (int[])outDataO;
+            }
+            else
+            {
+                outData = new int[data.length];
+            }
+
             System.arraycopy(data, 0, outData, 0, data.length);
 
             outputBuffer.setOffset(0);
@@ -341,18 +355,57 @@ public class NativeDecoder
         }
         else
         {
-            return super.checkFormat(format);
+            return false;
         }
     }
 
     private VideoFormat getVideoFormat(double width)
     {
-        for (int i = 0; i < supportedOutputFormats.length; i++)
+        for (int i = 0; i < outputFormats.length; i++)
         {
-            VideoFormat vf = supportedOutputFormats[i];
+            VideoFormat vf = outputFormats[i];
             if(vf.getSize().getWidth() == width)
                 return vf;
         }
         return null;
+    }
+
+    @Override
+    public String getName()
+    {
+        return PLUGIN_NAME;
+    }
+
+    @Override
+    public Format[] getSupportedOutputFormats(Format in)
+    {
+         // null input format
+        if (in == null) {
+            return defaultOutputFormats;
+        }
+
+        // mismatch input format
+        if ( !(in instanceof VideoFormat ) ||
+             (matches(in, inputFormats) == null) ) {
+                return new Format[0];
+
+        }
+
+        // match input format
+        return getMatchingOutputFormats(in);
+    }
+
+    /**
+     * Utility to perform format matching.
+     */
+    public static Format matches(Format in, Format outs[])
+    {
+       for (int i = 0; i < outs.length; i++)
+       {
+          if (in.matches(outs[i]))
+              return outs[i];
+       }
+
+       return null;
     }
 }

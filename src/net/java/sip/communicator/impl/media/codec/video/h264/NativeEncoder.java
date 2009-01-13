@@ -7,10 +7,10 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.util.*;
+import net.sf.fmj.media.*;
 import net.sf.ffmpeg_java.*;
 import net.sf.ffmpeg_java.AVCodecLibrary.*;
 
-import com.sun.media.*;
 import com.sun.jna.*;
 
 /**
@@ -18,10 +18,11 @@ import com.sun.jna.*;
  * @author Damian Minkov
  */
 public class NativeEncoder
-    extends BasicCodec
+    extends AbstractCodec
+    implements Codec
 {
     private final Logger logger = Logger.getLogger(NativeEncoder.class);
-    
+
     private final static String PLUGIN_NAME = "H264 Encoder";
 
     private static int DEF_WIDTH = 352;
@@ -30,9 +31,11 @@ public class NativeEncoder
     private final static int INPUT_BUFFER_PADDING_SIZE = 8;
 
     private final static Format[] defOutputFormats =
-    { 
+    {
         new VideoFormat(Constants.H264)
     };
+
+    private VideoFormat[] outputFormats = null;
 
     // the frame rate we will use
     private final static int TARGET_FRAME_RATE = 15;
@@ -77,11 +80,11 @@ public class NativeEncoder
         int inputYuvLength = (strideY + strideUV) * DEF_HEIGHT;
         float sourceFrameRate = TARGET_FRAME_RATE;
 
-        inputFormats = new Format[]{ 
-            new YUVFormat(new Dimension(DEF_WIDTH, DEF_HEIGHT), 
+        inputFormats = new Format[]{
+            new YUVFormat(new Dimension(DEF_WIDTH, DEF_HEIGHT),
                 inputYuvLength + INPUT_BUFFER_PADDING_SIZE,
                 Format.byteArray, sourceFrameRate, YUVFormat.YUV_420, strideY,
-                strideUV, 0, offsetU, offsetV) 
+                strideUV, 0, offsetU, offsetV)
             };
 
         inputFormat = null;
@@ -181,7 +184,7 @@ public class NativeEncoder
         }
 
         outputFormat =
-            new VideoFormat(videoOut.getEncoding(), 
+            new VideoFormat(videoOut.getEncoding(),
                 outSize, outSize.width * outSize.height,
                 Format.byteArray, videoOut.getFrameRate());
 
@@ -221,7 +224,7 @@ public class NativeEncoder
         synchronized (AVCODEC)
         {
             // copy data to avpicture
-            rawFrameBuffer.write(0, 
+            rawFrameBuffer.write(0,
                 (byte[])inBuffer.getData(), inBuffer.getOffset(), encFrameLen);
 
             if(framesSinceLastIFrame >= IFRAME_INTERVAL )
@@ -236,7 +239,7 @@ public class NativeEncoder
             }
 
             // encode data
-            int encLen = 
+            int encLen =
                 AVCODEC.avcodec_encode_video(
                     avcontext, encFrameBuffer, encFrameLen, avpicture);
 
@@ -250,12 +253,11 @@ public class NativeEncoder
         }
     }
 
+    @Override
     public synchronized void open() throws ResourceUnavailableException
     {
         if (!opened)
         {
-            super.open();
-
             if (inputFormat == null)
                 throw new ResourceUnavailableException(
                     "No input format selected");
@@ -269,36 +271,34 @@ public class NativeEncoder
             avcontext = AVCODEC.avcodec_alloc_context();
             avpicture = AVCODEC.avcodec_alloc_frame();
 
-            avcontext.crf = 1f;
-
             avcontext.pix_fmt = AVFormatLibrary.PIX_FMT_YUV420P;
             avcontext.width  = DEF_WIDTH;
             avcontext.height = DEF_HEIGHT;
-
-            avcontext.time_base = new FFMPEGLibrary.AVRational(1, TARGET_FRAME_RATE);
 
             avpicture.linesize[0] = DEF_WIDTH;
             avpicture.linesize[1] = DEF_WIDTH / 2;
             avpicture.linesize[2] = DEF_WIDTH / 2;
             //avpicture.quality = (int)10;
 
-            avcontext.qcompress = 1;
+            avcontext.qcompress = 0.6f;
 
-            int _bitRate = 9600;
+            int _bitRate = 768000;
             avcontext.bit_rate = _bitRate; // average bit rate
             avcontext.bit_rate_tolerance = _bitRate;// so to be 1 in x264
             avcontext.rc_max_rate = _bitRate;
             avcontext.sample_aspect_ratio.den = 0;
             avcontext.sample_aspect_ratio.num = 0;
             avcontext.thread_count = 0;
-            avcontext.time_base.den = 15;//25500; //???
+            avcontext.time_base.den = 25500; //???
             avcontext.time_base.num = 1000;
             avcontext.qmin = 10;
-            avcontext.qmax = 18;
+            avcontext.qmax = 51;
             avcontext.max_qdiff = 4;
 
+            //avcontext.chromaoffset = -2;
+
             avcontext.partitions |= 0x111;
-            //X264_PART_I4X4 0x001  
+            //X264_PART_I4X4 0x001
             //X264_PART_P8X8 0x010
             //X264_PART_B8X8 0x100
 
@@ -308,13 +308,12 @@ public class NativeEncoder
 
             avcontext.flags |= AVCodecLibrary.CODEC_FLAG_LOOP_FILTER;
             avcontext.me_method = 1;
-            avcontext.me_subpel_quality = 1;//5;
+            avcontext.me_subpel_quality = 6;
             avcontext.me_range = 16;
             avcontext.me_cmp |= AVCodecContext.FF_CMP_CHROMA;
-            avcontext.thread_count = 1;
             avcontext.scenechange_threshold = 40;
             avcontext.crf = 0;// Constant quality mode (also known as constant ratefactor)
-            //avcontext.rc_buffer_size = _bitRate * 64;
+            avcontext.rc_buffer_size = 10000000;
             avcontext.gop_size = IFRAME_INTERVAL;
             framesSinceLastIFrame = IFRAME_INTERVAL + 1;
             avcontext.i_quant_factor = 1f/1.4f;
@@ -326,9 +325,9 @@ public class NativeEncoder
 //                {
 //                    logger.info("encoder: " + fmtS);
 //                }});
-               
+
             if (AVCODEC.avcodec_open(avcontext, avcodec) < 0)
-                 throw new RuntimeException("Could not open codec "); 
+                 throw new RuntimeException("Could not open codec ");
 
             opened = true;
 
@@ -338,12 +337,13 @@ public class NativeEncoder
             encFrameBuffer = AVUTIL.av_malloc(encFrameLen);
 
             int size = DEF_WIDTH * DEF_HEIGHT;
-            avpicture.data0 = rawFrameBuffer;        
+            avpicture.data0 = rawFrameBuffer;
             avpicture.data1 = avpicture.data0.share(size);
             avpicture.data2 = avpicture.data1.share(size/4);
         }
     }
 
+    @Override
     public synchronized void close()
     {
         if (opened)
@@ -351,8 +351,6 @@ public class NativeEncoder
             opened = false;
             synchronized (AVCODEC)
             {
-                super.close();
-
                 AVCODEC.avcodec_close(avcontext);
 
                 AVUTIL.av_free(avpicture.getPointer());
@@ -364,19 +362,23 @@ public class NativeEncoder
         }
     }
 
+    @Override
     public String getName()
     {
         return PLUGIN_NAME;
     }
 
-    public java.lang.Object[] getControls()
+    /**
+     * Utility to perform format matching.
+     */
+    public static Format matches(Format in, Format outs[])
     {
-        if (controls == null)
-        {
-            controls =
-                new Control[0];
-        }
+       for (int i = 0; i < outs.length; i++)
+       {
+          if (in.matches(outs[i]))
+              return outs[i];
+       }
 
-        return (Object[]) controls;
+       return null;
     }
 }
