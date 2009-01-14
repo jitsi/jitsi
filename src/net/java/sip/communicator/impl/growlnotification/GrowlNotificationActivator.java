@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.growlnotification;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.util.*;
 
 /**
@@ -17,10 +18,8 @@ import net.java.sip.communicator.util.*;
 public class GrowlNotificationActivator
     implements BundleActivator
 {
-    private static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(GrowlNotificationActivator.class);
-
-    private GrowlNotificationServiceImpl growlNotificationService = null;
 
     /**
      * Initialize and start Growl Notifications Service
@@ -44,8 +43,7 @@ public class GrowlNotificationActivator
                         "on JDK version " + version);
         } else {
             /* Create and start the Growl Notification service. */
-            growlNotificationService = new GrowlNotificationServiceImpl();
-            growlNotificationService.start(bundleContext);
+            new GrowlNotificationServiceImpl().start(bundleContext);
 
             logger.info("Growl Notification Plugin ...[Started]");
         }
