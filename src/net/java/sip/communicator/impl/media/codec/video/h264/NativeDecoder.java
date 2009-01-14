@@ -318,7 +318,7 @@ public class NativeDecoder
             System.arraycopy(data, 0, outData, 0, data.length);
 
             outputBuffer.setOffset(0);
-            outputBuffer.setLength(outData.length);
+            outputBuffer.setLength(data.length);
             outputBuffer.setData(outData);
 
             AVUTIL.av_free(encBuf);
