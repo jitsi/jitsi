@@ -86,20 +86,14 @@ public class H264Parser
             return false;
         }
 
-        if(hasMarker)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return hasMarker;
     }
 
     /**
-     * Extract data from FU packet. This are packets accross several 
-     * rtp packets, the fisrt has a start bit set, we store all data
-     * and don't care about end bit.
+     * Extract data from FU packet. This are packets across several rtp packets,
+     * the first has a start bit set, we store all data and don't care about end
+     * bit.
+     * 
      * @param nal
      * @param inputBuffer
      */
@@ -127,22 +121,17 @@ public class H264Parser
         offset++;
         len--;
 
-        if(start_bit)
+        if (start_bit)
         {
             // copy in the start sequence, and the reconstructed nal....
-            System.arraycopy(startSequence, 0, 
-                encodedFrame, encodedFrameLen, startSequence.length);
+            System.arraycopy(startSequence, 0, encodedFrame, encodedFrameLen,
+                startSequence.length);
             encodedFrameLen += startSequence.length;
             encodedFrame[encodedFrameLen] = reconstructed_nal;
             encodedFrameLen++;
-            System.arraycopy(buf, offset, encodedFrame, encodedFrameLen, len);
-            encodedFrameLen += len;
-        } 
-        else 
-        {
-            System.arraycopy(buf, offset, encodedFrame, encodedFrameLen, len);
-            encodedFrameLen += len;
         }
+        System.arraycopy(buf, offset, encodedFrame, encodedFrameLen, len);
+        encodedFrameLen += len;
     }
 
     /**
