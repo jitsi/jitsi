@@ -49,6 +49,10 @@ public class SIPCommToggleButton
         this.iconImage = iconImage;
         this.pressedImage = pressedImage;
 
+        // Explicitly remove all borders that may be set from the current
+        // look and feel.
+        this.setBorder(null);
+
         this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
                 this.bgImage.getHeight(null)));
 

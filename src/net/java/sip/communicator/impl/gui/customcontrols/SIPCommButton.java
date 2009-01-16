@@ -48,6 +48,11 @@ public class SIPCommButton
         this.addMouseListener(mouseHandler);
         this.addMouseMotionListener(mouseHandler);
 
+        // Explicitly remove all borders that may be set from the current
+        // look and feel.
+        this.setBorder(null);
+        this.setOpaque(false);
+
         this.bgImage = bgImage;
         this.pressedImage = pressedImage;
         this.iconImage = iconImage;
