@@ -1910,12 +1910,17 @@ public class CallSessionImpl
         //try to initialize a public address for the rtp manager.
         for (int i = bindRetries; i > 0; i--)
         {
-            //first try to obtain a binding for the address.
+            // first try to obtain a binding for the address.
+            // check both ports - data and control port
             try
             {
-                publicAddress = netAddressManager
-                    .getPublicAddressFor(intendedDestination,
-                                         sessionAddress.getDataPort());
+                publicAddress = netAddressManager.getPublicAddressFor(
+                        intendedDestination, sessionAddress.getDataPort());
+
+                // Just check control port, not used here any further
+                netAddressManager.getPublicAddressFor(
+                        intendedDestination, sessionAddress.getControlPort());
+                
                 initialized =true;
                 break;
             }
@@ -1954,21 +1959,12 @@ public class CallSessionImpl
     private void allocateMediaPorts(InetAddress intendedDestination)
         throws MediaException
     {
-        InetAddress inAddrAny = null;
-
-        try
-        {
-            //create an ipv4 any address since it also works when accepting
-            //ipv6 connections.
-            inAddrAny = InetAddress.getByName(NetworkUtils.IN_ADDR_ANY);
-        }
-        catch (UnknownHostException ex)
-        {
-            //this shouldn't happen.
-            throw new MediaException("Failed to create the ANY inet address."
-                                     , MediaException.INTERNAL_ERROR
-                                     , ex);
-        }
+        NetworkAddressManagerService netAddressManager = MediaActivator
+                .getNetworkAddressManagerService();
+        
+        // Get our local address for the intended destination.
+        // Use this address to bind our local RTP sockets
+        InetAddress inAddrLocal = netAddressManager.getLocalHost(intendedDestination);
 
         //check the number of times that we'd have to retry binding to local
         //ports before giving up.
@@ -1990,27 +1986,25 @@ public class CallSessionImpl
         }
 
         //initialize audio rtp manager.
-        audioSessionAddress = new SessionAddress(inAddrAny, minPortNumber);
+        audioSessionAddress = new SessionAddress(inAddrLocal, minPortNumber);
         audioPublicAddress = allocatePort(intendedDestination,
                                           audioSessionAddress,
                                           bindRetries);
 
-        audioSessionAddress.setControlHostAddress(audioPublicAddress.getAddress());
-        audioSessionAddress.setDataHostAddress(audioPublicAddress.getAddress());     
-        logger.debug("AudioSessionAddress="+audioSessionAddress);
-        logger.debug("AudioPublicAddress="+audioPublicAddress);
+        if (logger.isDebugEnabled()) {
+            logger.debug("AudioSessionAddress=" + audioSessionAddress);
+            logger.debug("AudioPublicAddress=" + audioPublicAddress);
+        }
 
         //augment min port number so that no one else tries to bind here.
         minPortNumber = audioSessionAddress.getDataPort() + 2;
 
         //initialize video rtp manager.
-        videoSessionAddress = new SessionAddress(inAddrAny, minPortNumber);
+        videoSessionAddress = new SessionAddress(inAddrLocal, minPortNumber);
         videoPublicAddress = allocatePort(intendedDestination,
                                           videoSessionAddress,
                                           bindRetries);
 
-        videoSessionAddress.setControlHostAddress(videoPublicAddress.getAddress());
-        videoSessionAddress.setDataHostAddress(videoPublicAddress.getAddress());     
         //augment min port number so that no one else tries to bind here.
         minPortNumber = videoSessionAddress.getDataPort() + 2;
 
