@@ -232,12 +232,29 @@ public class CallParticipantState
      * </p>
      */
     public static final String _ON_HOLD_REMOTELY = "Remotely On Hold";
+
     /**
      * The constant value indicating that the state of a call participant is
      * remotely put on hold.
      */
     public static final CallParticipantState ON_HOLD_REMOTELY
                                 = new CallParticipantState(_ON_HOLD_REMOTELY);
+
+    /**
+     * The constant value being a String representation of the MUTED
+     * call participant state.
+     * <p>
+     * This constant has the String value "Muted".
+     * </p>
+     */
+    public static final String _MUTED = "Muted";
+
+    /**
+     * The constant value indicating that the user has muted the conversation
+     * with this call participant.
+     */
+    public static final CallParticipantState MUTED
+                                = new CallParticipantState(_MUTED);
 
     /**
      * Determines whether a specific <tt>CallParticipantState</tt> value
