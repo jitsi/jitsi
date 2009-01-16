@@ -174,7 +174,9 @@ public class PopupDialogImpl
             type = JOptionPane.PLAIN_MESSAGE;
         }
 
-        ImageIcon imageIcon = new ImageIcon(icon);
+        ImageIcon imageIcon = null;
+        if(icon != null)
+            imageIcon = new ImageIcon(icon);
 
        return showInputDialog(null, message, title, type,
                        imageIcon, selectionValues, initialSelectionValue);
@@ -264,7 +266,9 @@ public class PopupDialogImpl
             type = JOptionPane.PLAIN_MESSAGE;
         }
 
-        ImageIcon imageIcon = new ImageIcon(icon);
+        ImageIcon imageIcon = null;
+        if(icon != null)
+            imageIcon = new ImageIcon(icon);
 
         showMessageDialog(null, message, title, type, imageIcon);
     }
@@ -431,7 +435,9 @@ public class PopupDialogImpl
             msgType = JOptionPane.PLAIN_MESSAGE;
         }
 
-        ImageIcon imageIcon = new ImageIcon(icon);
+        ImageIcon imageIcon = null;
+        if(icon != null)
+            imageIcon = new ImageIcon(icon);
 
         return showConfirmDialog(null, message, title,
                 optType, msgType, imageIcon);

@@ -73,6 +73,11 @@ public class NativeDecoder
     // current width of video, so we can detect changes in video size
     private double currentVideoWidth;
 
+    // keep track of last received sequence in order to avoid inconsistent data
+    private long lastReceivedSeq = -1;
+    // in case of inconsistent data drop all data till a marker is received
+    private boolean waitingForMarker = false;
+
     /**
      * Constructs new h264 decoder
      */
@@ -204,7 +209,7 @@ public class NativeDecoder
         if (opened)
         {
             opened = false;
-            synchronized (AVCODEC)
+            synchronized (this)
             {
                 super.close();
 
@@ -215,8 +220,6 @@ public class NativeDecoder
             }
         }
     }
-
-    long lastReceivedSeq = -1;
 
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
@@ -238,15 +241,28 @@ public class NativeDecoder
             return BUFFER_PROCESSED_OK;
         }
 
-        if(lastReceivedSeq != -1 && inputBuffer.getSequenceNumber() - lastReceivedSeq > 1)
+        if(waitingForMarker)
         {
             lastReceivedSeq = inputBuffer.getSequenceNumber();
-            logger.trace("DROP rtp data!");
+            if((inputBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0)
+            {
+                waitingForMarker = false;
+                outputBuffer.setDiscard(true);
+                return BUFFER_PROCESSED_OK;
+            }
+            else
+                return OUTPUT_BUFFER_NOT_FILLED;
+        }
+
+        if(lastReceivedSeq != -1 && inputBuffer.getSequenceNumber() - lastReceivedSeq > 1)
+        {
+            long oldRecv = lastReceivedSeq;
+            lastReceivedSeq = inputBuffer.getSequenceNumber();
+            waitingForMarker = true;
+            logger.trace("DROP rtp data! " + oldRecv + "/" + lastReceivedSeq);
             parser.reset();
-            inputBuffer.setDiscard(true);
-            outputBuffer.setDiscard(true);
             reset();
-            return BUFFER_PROCESSED_OK;
+            return OUTPUT_BUFFER_NOT_FILLED;
         }
         else if(!parser.pushRTPInput(inputBuffer))
         {
@@ -261,22 +277,22 @@ public class NativeDecoder
         Pointer encBuf = AVUTIL.av_malloc(parser.getEncodedFrameLen());
         arraycopy(parser.getEncodedFrame(), 0, encBuf, 0, parser.getEncodedFrameLen());
 
-        synchronized (AVCODEC)
+        synchronized (this)
         {
             // decodes the data
             AVCODEC.avcodec_decode_video(
                 avcontext, avpicture, got_picture, encBuf, parser.getEncodedFrameLen());
 
-            if(currentVideoWidth != avcontext.width)
+            if(avcontext.width != 0 && currentVideoWidth != avcontext.width)
             {
                 currentVideoWidth = avcontext.width;
                 VideoFormat format = getVideoFormat(currentVideoWidth);
                 if(format != null)
                 {
-                    outputBuffer.setFormat(format);
                     outputFormat = format;
                 }
             }
+            outputBuffer.setFormat(outputFormat);
 
             if(got_picture.getValue() == 0)
             {
