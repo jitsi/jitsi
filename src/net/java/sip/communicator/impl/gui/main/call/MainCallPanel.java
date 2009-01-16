@@ -42,9 +42,9 @@ public class MainCallPanel
 {
     private final Logger logger = Logger.getLogger(MainCallPanel.class);
 
-    private static final String CALL_BUTTON = "CallButton";
+    private static final String CALL_BUTTON = "CALL_BUTTON";
 
-    private static final String DIAL_BUTTON = "HangupButton";
+    private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
     private MainFrame mainFrame;
 
@@ -120,6 +120,7 @@ public class MainCallPanel
     private Component createDialButton()
     {
         SIPCommButton dialButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
             ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
 
         /*

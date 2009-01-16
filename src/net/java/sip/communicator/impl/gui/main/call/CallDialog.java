@@ -11,12 +11,14 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.border.*;
 
 /**
  * The dialog created for a given call.
@@ -27,9 +29,9 @@ public class CallDialog
     extends SIPCommFrame
     implements ActionListener
 {
-    private static final String DIAL_BUTTON = "DialButton";
+    private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
-    private static final String HANGUP_BUTTON = "HangupButton";
+    private static final String HANGUP_BUTTON = "HANGUP_BUTTON";
 
     private DialpadDialog dialpadDialog;
 
@@ -52,11 +54,18 @@ public class CallDialog
         TransparentPanel buttonsPanel
             = new TransparentPanel(new BorderLayout(5, 5));
 
+        TransparentPanel settingsPanel
+            = new TransparentPanel();
+
         SIPCommButton hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
         SIPCommButton dialButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
             ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+
+        HoldButton holdButton = new HoldButton(callPanel.getCall());
+        MuteButton muteButton = new MuteButton(callPanel.getCall());
 
         dialButton.setName(DIAL_BUTTON);
 
@@ -76,10 +85,15 @@ public class CallDialog
 
         hangupButton.addActionListener(this);
 
-        buttonsPanel.add(dialButton, BorderLayout.WEST);
+        settingsPanel.add(dialButton);
+        settingsPanel.add(holdButton);
+        settingsPanel.add(muteButton);
+
+        buttonsPanel.add(settingsPanel, BorderLayout.WEST);
         buttonsPanel.add(hangupButton, BorderLayout.EAST);
 
-        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        buttonsPanel.setBorder(
+            new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
     }
 
     public void actionPerformed(ActionEvent evt)

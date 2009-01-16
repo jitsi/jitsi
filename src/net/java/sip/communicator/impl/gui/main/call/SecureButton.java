@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -21,14 +22,14 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emanuel Onica
  */
 public class SecureButton
-    extends JButton
+    extends SIPCommButton
     implements ActionListener
 {
     private final CallParticipant callParticipant;
 
     public SecureButton(CallParticipant callParticipant)
     {
-        super(new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+        super(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF));
         this.callParticipant = callParticipant;
 //        this.addActionListener(this);
     }

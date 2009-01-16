@@ -15,6 +15,7 @@ import javax.swing.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -27,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class TransferCallButton
-    extends JButton
+    extends SIPCommButton
 {
     private static final Logger logger =
         Logger.getLogger(TransferCallButton.class);
@@ -48,8 +49,7 @@ public class TransferCallButton
      */
     public TransferCallButton(CallParticipant callParticipant)
     {
-        super(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.TRANSFER_CALL_BUTTON)));
+        super(ImageLoader.getImage(ImageLoader.TRANSFER_CALL_BUTTON));
 
         this.callParticipant = callParticipant;
 

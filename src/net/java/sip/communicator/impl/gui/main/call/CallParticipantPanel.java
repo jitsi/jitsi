@@ -15,6 +15,7 @@ import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -55,15 +56,17 @@ public class CallParticipantPanel
 
     private final CallParticipant callParticipant;
 
+    private final CallPanel callPanel;
+
     private final java.util.List<Container> videoContainers =
         new ArrayList<Container>();
 
     private OperationSetVideoTelephony videoTelephony;
 
     private Component localVideo;
-    
+
     private SecureButton secureButton;
-    private Container namePanel;
+    private ParticipantStatusPanel statusPanel;
     private ZrtpPanel zrtpPanel = null;
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
@@ -71,10 +74,12 @@ public class CallParticipantPanel
      * @param callManager the <tt>CallManager</tt> that manages the call
      * @param callParticipant a call participant
      */
-    public CallParticipantPanel(CallParticipant callParticipant)
+    public CallParticipantPanel(CallPanel callPanel,
+                                CallParticipant callParticipant)
     {
+        this.callPanel = callPanel;
         this.callParticipant = callParticipant;
-        this.participantName = callParticipant.getAddress();
+        this.participantName = callParticipant.getDisplayName();
 
         // Initialize the date to 0
         // Need to use Calendar because new Date(0) returns a date where the
@@ -84,17 +89,24 @@ public class CallParticipantPanel
         this.callDuration = c.getTime();
 
         /* Create the main Components of the UI. */
+        Component nameBar = createNameBar();
         Component center = createCenter();
-        Component buttonBar = createButtonBar();
         Component statusBar = createStatusBar();
 
         /* Lay out the main Components of the UI. */
         setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
+        if (nameBar != null)
+        {
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 0;
+            constraints.weightx = 0;
+
+            add(nameBar, constraints);
+        }
         if (center != null)
         {
-
             /*
              * Don't let the center dictate the preferred size because it may
              * display large videos. Otherwise, the large video will make this
@@ -105,19 +117,11 @@ public class CallParticipantPanel
 
             constraints.fill = GridBagConstraints.BOTH;
             constraints.gridx = 0;
+            constraints.gridy = GridBagConstraints.RELATIVE;
             constraints.weightx = 1;
             constraints.weighty = 1;
 
             add(center, constraints);
-        }
-        if (buttonBar != null)
-        {
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 0;
-            constraints.weightx = 0;
-            constraints.weighty = 0;
-
-            add(buttonBar, constraints);
         }
         if (statusBar != null)
         {
@@ -125,6 +129,7 @@ public class CallParticipantPanel
             constraints.gridx = 0;
             constraints.weightx = 0;
             constraints.weighty = 0;
+            constraints.insets = new Insets(5, 0, 0, 0);
 
             add(statusBar, constraints);
         }
@@ -135,31 +140,13 @@ public class CallParticipantPanel
         addVideoListener();
     }
 
-    /**
-     * Creates the <code>Component</code> hierarchy of the bar of buttons such
-     * as Hold, Mute, Transfer, Secure.
-     * 
-     * @return the root of the <code>Component</code> hierarchy of the bar of
-     *         buttons such as Hold, Mute, Transfer, Secure
-     */
-    private Component createButtonBar()
-    {
-        Component[] buttons =
-            new Component[]
-            { new HoldButton(callParticipant), new MuteButton(callParticipant),
-                createTransferCallButton(), createSecureCallButton(),
-                createEnterFullScreenButton() };
-        Dimension preferredButtonSize = new Dimension(24, 24);
-
-        return createButtonBar(false, buttons, preferredButtonSize);
-    }
-
-    private Component createButtonBar(boolean heavyweight, Component[] buttons,
-        Dimension preferredButtonSize)
+    private Component createButtonBar(  boolean heavyweight,
+                                        Component[] buttons)
     {
         Container buttonBar =
             heavyweight ? new Container() : new TransparentPanel();
-        buttonBar.setLayout(new GridLayout(1, 0));
+
+        buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 3));
 
         for (int buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++)
         {
@@ -167,11 +154,6 @@ public class CallParticipantPanel
 
             if (button != null)
             {
-                if ((button instanceof JButton)
-                    || (button instanceof JToggleButton))
-                {
-                    button.setPreferredSize(preferredButtonSize);
-                }
                 buttonBar.add(button);
             }
         }
@@ -192,6 +174,7 @@ public class CallParticipantPanel
         final JLabel photoLabel =
             new JLabel(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
+
         photoLabel.setPreferredSize(new Dimension(90, 90));
 
         final Container videoContainer = createVideoContainer(photoLabel);
@@ -245,6 +228,16 @@ public class CallParticipantPanel
         return new VideoContainer(noVideoComponent);
     }
 
+    private Component createNameBar()
+    {
+        // nameLabel
+        JLabel nameLabel = new JLabel("", JLabel.CENTER);
+        nameLabel.setText(participantName);
+        nameLabel.setAlignmentX(JLabel.CENTER);
+
+        return nameLabel;
+    }
+
     /**
      * Creates the <code>Component</code> hierarchy of the area of
      * status-related information such as <code>CallParticipant</code> display
@@ -256,26 +249,38 @@ public class CallParticipantPanel
      */
     private Component createStatusBar()
     {
-        // nameLabel
-        JLabel nameLabel = new JLabel("", JLabel.CENTER);
-        nameLabel.setText(participantName);
-
         // stateLabel
+        stateLabel.setForeground(Color.WHITE);
         stateLabel.setText(callParticipant.getState().getStateString());
 
         // secureLabel
 //        Component secureLabel = createSecureCallLabel();
 //        zrtpPanel = createZrtpPanel();
 
-        namePanel = new TransparentPanel(new GridLayout(0, 1));
-        namePanel.add(nameLabel);
-        namePanel.add(stateLabel);
-        namePanel.add(timeLabel);
+        statusPanel = new ParticipantStatusPanel(new GridLayout(1, 0, 5, 5));
+
+        timeLabel.setForeground(Color.WHITE);
+
+        statusPanel.add(timeLabel);
+        statusPanel.add(stateLabel);
 //        if (secureLabel != null)
 //            namePanel.add(secureLabel);
 //        if (zrtpPanel != null)
 //            namePanel.add(zrtpPanel);
-        return namePanel;
+
+        Component[] buttons =
+            new Component[]
+            {
+                createTransferCallButton(),
+                createSecureCallButton(),
+                createEnterFullScreenButton()
+            };
+
+        Component buttonBar = createButtonBar(false, buttons);
+
+        statusPanel.add(buttonBar);
+
+        return statusPanel;
     }
 
     /**
@@ -355,7 +360,7 @@ public class CallParticipantPanel
                     zrtpPanel = new ZrtpPanel();
                     zrtpPanel.setName("zrtpPanel");
                     zrtpPanel.addComponentsToPane();
-                    namePanel.add(zrtpPanel);
+                    statusPanel.add(zrtpPanel);
                 }
                 zrtpPanel.refreshStates(securityEvent);
                 this.revalidate();
@@ -586,7 +591,7 @@ public class CallParticipantPanel
                         : videos[0];
                 if (video != null)
                     videoContainer
-                        .add(video, VideoLayout.EAST_REMOTE, zOrder++);
+                        .add(video, VideoLayout.CENTER_REMOTE, zOrder++);
 
                 videoContainer.validate();
 
@@ -602,13 +607,16 @@ public class CallParticipantPanel
     }
 
     /**
-     * Sets the state of the contained call participant.
+     * Sets the state of the contained call participant by specifying the
+     * state name and icon.
      * 
      * @param state the state of the contained call participant
+     * @param icon the icon of the state
      */
-    public void setState(String state)
+    public void setState(String state, Icon icon)
     {
         this.stateLabel.setText(state);
+        this.stateLabel.setIcon(icon);
     }
 
     /**
@@ -708,9 +716,9 @@ public class CallParticipantPanel
 
     private Component createEnterFullScreenButton()
     {
-        JButton button =
-            new JButton(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON)));
+        SIPCommButton button =
+            new SIPCommButton(ImageLoader
+                .getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON));
 
         button.setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.ENTER_FULL_SCREEN_TOOL_TIP"));
@@ -751,11 +759,11 @@ public class CallParticipantPanel
     {
         Component[] buttons =
             new Component[]
-            { new HoldButton(callParticipant), new MuteButton(callParticipant),
+            {   new HoldButton(callParticipant.getCall()),
+                new MuteButton(callParticipant.getCall()),
                 createExitFullScreenButton() };
-        Dimension preferredButtonSize = new Dimension(36, 36);
 
-        return createButtonBar(true, buttons, preferredButtonSize);
+        return createButtonBar(true, buttons);
     }
 
     private void enterFullScreen()
@@ -873,6 +881,34 @@ public class CallParticipantPanel
             Component[] components = ((Container) component).getComponents();
             for (int i = 0; i < components.length; i++)
                 addKeyListener(components[i], l);
+        }
+    }
+
+    private class ParticipantStatusPanel extends TransparentPanel
+    {
+        public ParticipantStatusPanel(LayoutManager layout)
+        {
+            super(layout);
+            this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        }
+
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+
+            g = g.create();
+
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
+
+                g.setColor(Color.DARK_GRAY);
+                g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 }

@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.event.*;
-
-import javax.swing.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -21,9 +21,8 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Lubomir Marinov
  */
 public class MuteButton
-    extends JToggleButton
+    extends SIPCommToggleButton
 {
-
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
      * stream to a specific <tt>CallParticipant</tt>.
@@ -31,11 +30,15 @@ public class MuteButton
      * @param callParticipant the <tt>CallParticipant</tt> to be associated with
      *            the new instance and to have the audio stream sent to muted
      */
-    public MuteButton(CallParticipant callParticipant)
+    public MuteButton(Call call)
     {
-        super(new ImageIcon(ImageLoader.getImage(ImageLoader.MUTE_BUTTON)));
+        super(
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+            ImageLoader.getImage(ImageLoader.MUTE_BUTTON),
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
 
-        setModel(new MuteButtonModel(callParticipant));
+        setModel(new MuteButtonModel(call));
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.MUTE_BUTTON_TOOL_TIP"));
     }
@@ -52,7 +55,7 @@ public class MuteButton
          * The <tt>CallParticipant</tt> whose state is being adapted for the
          * purposes of depicting as a toggle button.
          */
-        private final CallParticipant callParticipant;
+        private final Call call;
 
         /**
          * Initializes a new <tt>MuteButtonModel</tt> instance to represent the
@@ -61,9 +64,9 @@ public class MuteButton
          * @param callParticipant the <tt>CallParticipant</tt> whose state is to
          *            be represented as a toggle button
          */
-        public MuteButtonModel(CallParticipant callParticipant)
+        public MuteButtonModel(Call call)
         {
-            this.callParticipant = callParticipant;
+            this.call = call;
 
             addActionListener(new ActionListener()
             {
@@ -93,30 +96,28 @@ public class MuteButton
          */
         private void actionPerformed(ActionListener listener, ActionEvent evt)
         {
-            Call call = callParticipant.getCall();
-
             if (call != null)
             {
-                OperationSetBasicTelephony telephony =
-                    (OperationSetBasicTelephony) call.getProtocolProvider()
-                        .getOperationSet(OperationSetBasicTelephony.class);
+                Iterator<CallParticipant> participants
+                    = call.getCallParticipants();
 
-                telephony.setMute(callParticipant, !callParticipant.isMute());
+                while (participants.hasNext())
+                {
+                    CallParticipant callParticipant = participants.next();
 
-                fireItemStateChanged(new ItemEvent(this,
-                    ItemEvent.ITEM_STATE_CHANGED, this,
-                    isSelected() ? ItemEvent.SELECTED : ItemEvent.DESELECTED));
-                fireStateChanged();
+                    OperationSetBasicTelephony telephony
+                        = (OperationSetBasicTelephony) call.getProtocolProvider()
+                            .getOperationSet(OperationSetBasicTelephony.class);
+
+                    telephony.setMute(  callParticipant,
+                                        !callParticipant.isMute());
+
+                    fireItemStateChanged(new ItemEvent(this,
+                        ItemEvent.ITEM_STATE_CHANGED, this,
+                        isSelected() ? ItemEvent.SELECTED : ItemEvent.DESELECTED));
+                    fireStateChanged();
+                }
             }
-        }
-
-        /**
-         * Determines whether this model represents a state which should be
-         * visualized by the currently depicting toggle button as selected.
-         */
-        public boolean isSelected()
-        {
-            return callParticipant.isMute();
         }
     }
 }

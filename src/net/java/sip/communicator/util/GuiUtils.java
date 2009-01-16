@@ -185,7 +185,7 @@ public class GuiUtils {
                             .getI18NString("service.gui.JANUARY");
         else if(month == 2)
             monthString = UtilActivator.getResources()
-                            .getI18NString("shervice.gui.FEBRUARY");
+                            .getI18NString("service.gui.FEBRUARY");
         else if(month == 3)
             monthString = UtilActivator.getResources()
                             .getI18NString("service.gui.MARCH");

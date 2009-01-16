@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  */
 public class CallPanel
-    extends SCScrollPane
+    extends TransparentPanel
     implements CallChangeListener, CallParticipantListener, SecurityGUIListener
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
@@ -42,10 +42,10 @@ public class CallPanel
 
     public CallPanel(Call call, String callType)
     {
+        super(new BorderLayout());
+
         this.mainPanel.setBorder(BorderFactory
             .createEmptyBorder(5, 5, 5, 5));
-
-        this.setViewportView(mainPanel);
 
         int contactsCount = call.getCallParticipantsCount();
 
@@ -76,13 +76,24 @@ public class CallPanel
 
         if (participantPanel == null)
         {
-            participantPanel = new CallParticipantPanel(participant);
+            participantPanel = new CallParticipantPanel(this, participant);
 
             this.mainPanel.add(participantPanel);
 
             participantPanel.setCallType(callType);
 
             this.participantsPanels.put(participant, participantPanel);
+        }
+
+        if (participantsPanels.size() > 1)
+        {
+            SCScrollPane scrollPane = new SCScrollPane();
+            scrollPane.setViewportView(mainPanel);
+            this.add(scrollPane);
+        }
+        else
+        {
+            this.add(mainPanel);
         }
 
         return participantPanel;
@@ -132,16 +143,9 @@ public class CallPanel
             {
                 CallParticipantState state = participant.getState();
 
-                participantPanel.setState(state.getStateString());
+                participantPanel.setState(state.getStateString(), null);
 
                 participantPanel.stopCallTimer();
-
-                // Create a call record and add it to the call list.
-                GuiCallParticipantRecord participantRecord =
-                    new GuiCallParticipantRecord(participantPanel
-                        .getParticipantName(), participantPanel.getCallType(),
-                        participantPanel.getCallStartTime(), participantPanel
-                            .getCallDuration());
 
                 if (participantsPanels.size() != 0)
                 {
@@ -177,10 +181,10 @@ public class CallPanel
         CallParticipantPanel participantPanel =
             getParticipantPanel(sourceParticipant);
 
-        participantPanel
-            .setState(sourceParticipant.getState().getStateString());
-
         Object newState = evt.getNewValue();
+
+        String newStateString = sourceParticipant.getState().getStateString();
+        Icon newStateIcon = null;
 
         if (newState == CallParticipantState.ALERTING_REMOTE_SIDE)
         {
@@ -208,9 +212,6 @@ public class CallPanel
                 participantPanel.startCallTimer();
             }
         }
-        else if (newState == CallParticipantState.CONNECTING)
-        {
-        }
         else if (newState == CallParticipantState.DISCONNECTED)
         {
             // The call participant should be already removed from the call
@@ -221,18 +222,18 @@ public class CallPanel
             // The call participant should be already removed from the call
             // see callParticipantRemoved
         }
-        else if (newState == CallParticipantState.INCOMING_CALL)
-        {
-        }
-        else if (newState == CallParticipantState.INITIATING_CALL)
-        {
-        }
         else if (CallParticipantState.isOnHold((CallParticipantState) newState))
         {
+            newStateIcon = new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON));
         }
-        else if (newState == CallParticipantState.UNKNOWN)
+        else if (newState == CallParticipantState.MUTED)
         {
+            newStateIcon = new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON));
         }
+
+        participantPanel.setState(newStateString, newStateIcon);
     }
 
     public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
@@ -343,9 +344,19 @@ public class CallPanel
      * @return an <tt>Iterator</tt> over a list of all participant panels
      *         contained in this call panel
      */
-    public Iterator<CallParticipantPanel> getParticipantsPanels()
+    public Iterator<CallParticipantPanel> getParticipantPanels()
     {
         return participantsPanels.values().iterator();
+    }
+
+    /**
+     * Returns the number of participants for this call.
+     * 
+     * @return the number of participants for this call.
+     */
+    public int getParticipantCount()
+    {
+        return participantsPanels.size();
     }
 
     /**
@@ -358,8 +369,8 @@ public class CallPanel
      */
     public CallParticipantPanel getParticipantPanel(CallParticipant participant)
     {
-        for (Map.Entry<CallParticipant, CallParticipantPanel> participantEntry : participantsPanels
-            .entrySet())
+        for (Map.Entry<CallParticipant, CallParticipantPanel> participantEntry :
+                participantsPanels.entrySet())
         {
             CallParticipant entryParticipant = participantEntry.getKey();
 

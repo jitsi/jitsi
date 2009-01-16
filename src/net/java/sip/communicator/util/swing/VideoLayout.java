@@ -8,6 +8,8 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 
+import javax.swing.*;
+
 /**
  * @author Lubomir Marinov
  */
@@ -71,10 +73,32 @@ public class VideoLayout extends FitLayout
         {
             Dimension parentSize = parent.getSize();
             int height = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
+            int width = Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO);
 
-            super.layoutComponent(local, new Rectangle(0, parentSize.height
-                - height, Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO),
-                height), Component.LEFT_ALIGNMENT, Component.BOTTOM_ALIGNMENT);
+            if (remote instanceof JLabel)
+            {
+                super.layoutComponent(
+                    local,
+                    new Rectangle(
+                        parentSize.width/2 - width/2,
+                        parentSize.height - height,
+                        Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO),
+                        height),
+                    Component.CENTER_ALIGNMENT,
+                    Component.BOTTOM_ALIGNMENT);
+            }
+            else
+            {
+                super.layoutComponent(
+                    local,
+                    new Rectangle(
+                        remote.getX() + 5,
+                        parentSize.height - height - 5,
+                        Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO),
+                        height),
+                    Component.LEFT_ALIGNMENT,
+                    Component.BOTTOM_ALIGNMENT);
+            }
         }
     }
 

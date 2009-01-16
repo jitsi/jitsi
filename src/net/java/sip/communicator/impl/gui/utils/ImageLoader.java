@@ -273,6 +273,18 @@ public class ImageLoader {
         = new ImageID("service.gui.buttons.HANGUP_BUTTON_PRESSED_BG");
 
     /**
+     * The background image for all setting buttons in the call panel.
+     */
+    public static final ImageID CALL_SETTING_BUTTON_BG
+        = new ImageID("service.gui.buttons.CALL_SETTING_BUTTON_BG");
+
+    /**
+     * The background image for all pressed setting buttons in the call panel.
+     */
+    public static final ImageID CALL_SETTING_BUTTON_PRESSED_BG
+        = new ImageID("service.gui.buttons.CALL_SETTING_BUTTON_PRESSED_BG");
+
+    /**
      * The background image for the <tt>StatusSelectorBox</tt>.
      */
     public static final ImageID STATUS_SELECTOR_BOX
@@ -362,6 +374,18 @@ public class ImageLoader {
      */
     public static final ImageID HOLD_BUTTON
         = new ImageID("service.gui.buttons.HOLD_BUTTON");
+
+    /**
+     * The icon shown when the status of the call is "On hold".
+     */
+    public static final ImageID HOLD_STATUS_ICON
+        = new ImageID("service.gui.icons.HOLD_STATUS_ICON");
+
+    /**
+     * The icon shown when the status of the call is "Mute".
+     */
+    public static final ImageID MUTE_STATUS_ICON
+        = new ImageID("service.gui.icons.MUTE_STATUS_ICON");
 
     /**
      * A mute button icon. The icon shown in the CallParticipant panel.
