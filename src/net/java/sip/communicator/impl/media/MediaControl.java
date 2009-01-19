@@ -103,6 +103,7 @@ public class MediaControl
      */
     public MediaControl()
     {
+        //com.sun.media.util.Registry.set("allowLogging", Boolean.TRUE);
     }
 
     /**
@@ -948,12 +949,12 @@ public class MediaControl
 
         if( sourceProcessor.getState() ==  Processor.Started )
         {
+            avDataSource.disconnect();
             sourceProcessor.stop();
 
-            avDataSource.disconnect();
             try
             {
-                initProcessor(avDataSource);
+                initCaptureDevices();
             }
             catch (Exception e)
             {

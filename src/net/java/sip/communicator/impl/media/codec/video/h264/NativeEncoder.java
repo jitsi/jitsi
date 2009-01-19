@@ -221,7 +221,7 @@ public class NativeEncoder
             return BUFFER_PROCESSED_OK;
         }
 
-        synchronized (AVCODEC)
+        synchronized (this)
         {
             // copy data to avpicture
             rawFrameBuffer.write(0,
@@ -349,7 +349,7 @@ public class NativeEncoder
         if (opened)
         {
             opened = false;
-            synchronized (AVCODEC)
+            synchronized (this)
             {
                 AVCODEC.avcodec_close(avcontext);
 
