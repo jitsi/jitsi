@@ -51,7 +51,7 @@ public class SIPCommButton
         // Explicitly remove all borders that may be set from the current
         // look and feel.
         this.setBorder(null);
-        this.setOpaque(false);
+        this.setContentAreaFilled(false);
 
         this.bgImage = bgImage;
         this.pressedImage = pressedImage;
@@ -85,6 +85,18 @@ public class SIPCommButton
     public SIPCommButton(Image bgImage)
     {
         this(bgImage, null);
+    }
+
+    /**
+     * Resets the background image for this button.
+     * 
+     * @param bgImage the new image to set.
+     */
+    public void setImage(Image bgImage)
+    {
+        this.bgImage = bgImage;
+
+        this.repaint();
     }
 
     /**
