@@ -51,6 +51,7 @@ public class ReceivedCallDialog
         this.incomingCall = call;
 
         this.setUndecorated(true);
+        this.setAlwaysOnTop(true);
 
         this.initComponents();
 
