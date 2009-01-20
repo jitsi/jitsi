@@ -30,7 +30,6 @@ import net.java.sip.communicator.service.protocol.*;
 public class ContactListModel
     extends AbstractListModel
 {
-
     private MetaContactListService contactList;
 
     private MetaContactGroup rootGroup;
@@ -391,9 +390,10 @@ public class ContactListModel
      */
     public void closeGroup(MetaContactGroup group)
     {
-        if (!isGroupClosed(group))
+        if (!isGroupClosed(group)
+            && !isGroupEmpty(group))
         {
-            if(showOffline || containsOnlineContacts(group))
+            if (showOffline || containsOnlineContacts(group))
             {
                 contentRemoved(this.indexOf(group.getMetaContact(0)),
                     this.indexOf(group.getMetaContact(
@@ -415,13 +415,16 @@ public class ContactListModel
      */
     public void openGroup(MetaContactGroup group)
     {
-        this.closedGroups.remove(group);
-        contentAdded(this.indexOf(group.getMetaContact(0)), this.indexOf(group
-            .getMetaContact(countContactsAndSubgroups(group) - 1)));
+        if (isGroupClosed(group))
+        {
+            this.closedGroups.remove(group);
+            contentAdded(this.indexOf(group.getMetaContact(0)), this.indexOf(group
+                .getMetaContact(countContactsAndSubgroups(group) - 1)));
 
-        ConfigurationManager.storeContactListGroupStatus(
-            group.getMetaUID(),
-            false);
+            ConfigurationManager.storeContactListGroupStatus(
+                group.getMetaUID(),
+                false);
+        }
     }
 
     /**
@@ -436,6 +439,17 @@ public class ContactListModel
             return true;
         else
             return false;
+    }
+
+    /**
+     * Checks whether the group is closed.
+     *
+     * @param group The group to check.
+     * @return True if the group is closed, false - otherwise.
+     */
+    public boolean isGroupEmpty(MetaContactGroup group)
+    {
+        return !(group.countChildContacts() > 0 || group.countSubgroups() > 0);
     }
 
     /**
