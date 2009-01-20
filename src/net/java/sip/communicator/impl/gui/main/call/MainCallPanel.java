@@ -127,9 +127,9 @@ public class MainCallPanel
          * Tell Windows not to show the background in order to respect the blue
          * theme.
          */
-        dialButton.setContentAreaFilled(false);
         dialButton.setName(DIAL_BUTTON);
         dialButton.addActionListener(this);
+
         return dialButton;
     }
 
@@ -197,7 +197,6 @@ public class MainCallPanel
         }
         else if (buttonName.equals(DIAL_BUTTON))
         {
-
             if(!dialpadDialog.isVisible())
             {
                 dialpadDialog.setSize(
