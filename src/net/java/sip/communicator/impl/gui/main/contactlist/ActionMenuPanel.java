@@ -57,7 +57,7 @@ public class ActionMenuPanel
 
     public ActionMenuPanel()
     {
-        super(new FlowLayout(FlowLayout.LEFT, 15, 15));
+        super(new FlowLayout(FlowLayout.CENTER, 15, 15));
 
         this.setOpaque(false);
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
