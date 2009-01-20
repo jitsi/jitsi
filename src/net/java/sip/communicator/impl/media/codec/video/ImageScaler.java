@@ -44,7 +44,7 @@ public class ImageScaler extends AbstractCodec implements Codec
         new RGBFormat(new Dimension(128, 96), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         };
     
-    private boolean toProcess = true;
+    private boolean passthrough;
 
     @Override
     public Format[] getSupportedInputFormats()
@@ -74,20 +74,41 @@ public class ImageScaler extends AbstractCodec implements Codec
         if (videoFormat.getSize() == null)
             return null;    // must set a size.
         
-//      logger.fine("FORMAT: " + MediaCGUtils.formatToStr(format));
-
-        if(outputFormat != null)
-        {
-            VideoFormat outVFormat = (VideoFormat)outputFormat;
-            if(outVFormat.getSize() != null)
-                toProcess = !outVFormat.getSize().equals(videoFormat.getSize());
-        }
-        
         // TODO: check VideoFormat and compatibility
-        bufferToImage = new BufferToImage((VideoFormat) format);
-        return super.setInputFormat(format);
+        bufferToImage = new BufferToImage(videoFormat);
+
+        format = super.setInputFormat(format);
+        updatePassthrough();
+        return format;
     }
-    
+
+    @Override
+    public Format setOutputFormat(Format format)
+    {
+        format = super.setOutputFormat(format);
+        updatePassthrough();
+        return format;
+    }
+
+    private void updatePassthrough()
+    {
+        Format outputFormat = getOutputFormat();
+        if (outputFormat != null)
+        {
+            Dimension outputSize = ((VideoFormat) outputFormat).getSize();
+            if (outputSize != null)
+            {
+                Format inputFormat = getInputFormat();
+                passthrough =
+                    (inputFormat != null)
+                        && outputSize.equals(((VideoFormat) inputFormat)
+                            .getSize());
+                return;
+            }
+        }
+        passthrough = false;
+    }
+
     @Override
     public int process(Buffer input, Buffer output) 
     {
@@ -106,7 +127,7 @@ public class ImageScaler extends AbstractCodec implements Codec
         // and jmf use the scaler (in my case length field was not sent in 
         // one of the formats) the check for sizes is made in method
         // setInputFormat
-        if(!toProcess)
+        if(passthrough)
         {
             output.setData(input.getData());
             output.setLength(input.getLength());
