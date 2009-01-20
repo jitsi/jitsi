@@ -63,30 +63,26 @@ public class PopupDialogImpl
      * @param title the String to display in the dialog title bar
      */
     public String showInputPopupDialog(Object message, String title,
-            int messageType)
+        int messageType)
     {
+        return (String) showInputDialog(null, message, title,
+            popupDialog2JOptionPaneMessageType(messageType));
+    }
 
-        int type;
-        if (messageType == PopupDialog.ERROR_MESSAGE)
-        {
-            type = JOptionPane.ERROR_MESSAGE;
+    private static int popupDialog2JOptionPaneMessageType(int type)
+    {
+        switch (type) {
+        case PopupDialog.ERROR_MESSAGE:
+            return JOptionPane.ERROR_MESSAGE;
+        case PopupDialog.INFORMATION_MESSAGE:
+            return JOptionPane.INFORMATION_MESSAGE;
+        case PopupDialog.QUESTION_MESSAGE:
+            return JOptionPane.QUESTION_MESSAGE;
+        case PopupDialog.WARNING_MESSAGE:
+            return JOptionPane.WARNING_MESSAGE;
+        default:
+            return JOptionPane.PLAIN_MESSAGE;
         }
-        else if (messageType == PopupDialog.INFORMATION_MESSAGE)
-        {
-            type = JOptionPane.INFORMATION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.QUESTION_MESSAGE)
-        {
-            type = JOptionPane.QUESTION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.WARNING_MESSAGE)
-        {
-            type = JOptionPane.WARNING_MESSAGE;
-        }
-        else {
-            type = JOptionPane.PLAIN_MESSAGE;
-        }
-        return (String)showInputDialog(null, message, title, type);
     }
 
     /**
@@ -104,33 +100,11 @@ public class PopupDialogImpl
      * @param initialSelectionValue the value used to initialize the input field
      */
     public Object showInputPopupDialog(Object message, String title,
-            int messageType, Object[] selectionValues,
-            Object initialSelectionValue)
+        int messageType, Object[] selectionValues, Object initialSelectionValue)
     {
-
-        int type;
-        if (messageType == PopupDialog.ERROR_MESSAGE)
-        {
-            type = JOptionPane.ERROR_MESSAGE;
-        }
-        else if (messageType == PopupDialog.INFORMATION_MESSAGE)
-        {
-            type = JOptionPane.INFORMATION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.QUESTION_MESSAGE)
-        {
-            type = JOptionPane.QUESTION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.WARNING_MESSAGE)
-        {
-            type = JOptionPane.WARNING_MESSAGE;
-        }
-        else {
-            type = JOptionPane.PLAIN_MESSAGE;
-        }
-
-       return showInputDialog(null, message, title, type,
-               null, selectionValues, initialSelectionValue);
+        return showInputDialog(null, message, title,
+            popupDialog2JOptionPaneMessageType(messageType), null,
+            selectionValues, initialSelectionValue);
     }
 
     /**
@@ -149,37 +123,17 @@ public class PopupDialogImpl
      * @param icon the icon to show in the input window.
      */
     public Object showInputPopupDialog(Object message, String title,
-            int messageType, Object[] selectionValues,
-            Object initialSelectionValue, byte[] icon)
+        int messageType, Object[] selectionValues,
+        Object initialSelectionValue, byte[] icon)
     {
+        return showInputDialog(null, message, title,
+            popupDialog2JOptionPaneMessageType(messageType),
+            createImageIcon(icon), selectionValues, initialSelectionValue);
+    }
 
-        int type;
-        if (messageType == PopupDialog.ERROR_MESSAGE)
-        {
-            type = JOptionPane.ERROR_MESSAGE;
-        }
-        else if (messageType == PopupDialog.INFORMATION_MESSAGE)
-        {
-            type = JOptionPane.INFORMATION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.QUESTION_MESSAGE)
-        {
-            type = JOptionPane.QUESTION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.WARNING_MESSAGE)
-        {
-            type = JOptionPane.WARNING_MESSAGE;
-        }
-        else {
-            type = JOptionPane.PLAIN_MESSAGE;
-        }
-
-        ImageIcon imageIcon = null;
-        if(icon != null)
-            imageIcon = new ImageIcon(icon);
-
-       return showInputDialog(null, message, title, type,
-                       imageIcon, selectionValues, initialSelectionValue);
+    private static ImageIcon createImageIcon(byte[] icon)
+    {
+        return (icon == null) ? null : new ImageIcon(icon);
     }
 
     /**
@@ -205,30 +159,10 @@ public class PopupDialogImpl
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      */
     public void showMessagePopupDialog(Object message, String title,
-            int messageType)
+        int messageType)
     {
-        int type;
-        if (messageType == PopupDialog.ERROR_MESSAGE)
-        {
-            type = JOptionPane.ERROR_MESSAGE;
-        }
-        else if (messageType == PopupDialog.INFORMATION_MESSAGE)
-        {
-            type = JOptionPane.INFORMATION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.QUESTION_MESSAGE)
-        {
-            type = JOptionPane.QUESTION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.WARNING_MESSAGE)
-        {
-            type = JOptionPane.WARNING_MESSAGE;
-        }
-        else {
-            type = JOptionPane.PLAIN_MESSAGE;
-        }
-
-        showMessageDialog(null, message, title, type);
+        showMessageDialog(null, message, title,
+            popupDialog2JOptionPaneMessageType(messageType));
     }
 
     /**
@@ -243,34 +177,11 @@ public class PopupDialogImpl
      * @param icon the image to display in the message dialog.
      */
     public void showMessagePopupDialog(Object message, String title,
-            int messageType, byte[] icon)
+        int messageType, byte[] icon)
     {
-        int type;
-        if (messageType == PopupDialog.ERROR_MESSAGE)
-        {
-            type = JOptionPane.ERROR_MESSAGE;
-        }
-        else if (messageType == PopupDialog.INFORMATION_MESSAGE)
-        {
-            type = JOptionPane.INFORMATION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.QUESTION_MESSAGE)
-        {
-            type = JOptionPane.QUESTION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.WARNING_MESSAGE)
-        {
-            type = JOptionPane.WARNING_MESSAGE;
-        }
-        else {
-            type = JOptionPane.PLAIN_MESSAGE;
-        }
-
-        ImageIcon imageIcon = null;
-        if(icon != null)
-            imageIcon = new ImageIcon(icon);
-
-        showMessageDialog(null, message, title, type, imageIcon);
+        showMessageDialog(null, message, title,
+            popupDialog2JOptionPaneMessageType(messageType),
+            createImageIcon(icon));
     }
 
     /**
@@ -296,26 +207,24 @@ public class PopupDialogImpl
      * dialog: YES_NO_OPTION, or YES_NO_CANCEL_OPTION
      */
     public int showConfirmPopupDialog(Object message, String title,
-            int optionType)
+        int optionType)
     {
-        int type;
-        if (optionType == PopupDialog.OK_CANCEL_OPTION)
-        {
-            type = JOptionPane.OK_CANCEL_OPTION;
-        }
-        else if (optionType == PopupDialog.YES_NO_OPTION)
-        {
-            type = JOptionPane.YES_NO_OPTION;
-        }
-        else if (optionType == PopupDialog.YES_NO_CANCEL_OPTION)
-        {
-            type = JOptionPane.YES_NO_CANCEL_OPTION;
-        }
-        else {
-            type = JOptionPane.DEFAULT_OPTION;
-        }
+        return showConfirmDialog(null, message, title,
+            popupDialog2JOptionPaneOptionType(optionType));
+    }
 
-        return showConfirmDialog(null, message, title, type);
+    private static int popupDialog2JOptionPaneOptionType(int optionType)
+    {
+        switch (optionType) {
+        case PopupDialog.OK_CANCEL_OPTION:
+            return JOptionPane.OK_CANCEL_OPTION;
+        case PopupDialog.YES_NO_OPTION:
+            return JOptionPane.YES_NO_OPTION;
+        case PopupDialog.YES_NO_CANCEL_OPTION:
+            return JOptionPane.YES_NO_CANCEL_OPTION;
+        default:
+            return JOptionPane.DEFAULT_OPTION;
+        }
     }
 
     /**
@@ -333,49 +242,11 @@ public class PopupDialogImpl
      * or PLAIN_MESSAGE
      */
     public int showConfirmPopupDialog(Object message, String title,
-            int optionType, int messageType)
+        int optionType, int messageType)
     {
-
-        int optType;
-        if (optionType == PopupDialog.OK_CANCEL_OPTION)
-        {
-            optType = JOptionPane.OK_CANCEL_OPTION;
-        }
-        else if (optionType == PopupDialog.YES_NO_OPTION)
-        {
-            optType = JOptionPane.YES_NO_OPTION;
-        }
-        else if (optionType == PopupDialog.YES_NO_CANCEL_OPTION)
-        {
-            optType = JOptionPane.YES_NO_CANCEL_OPTION;
-        }
-        else {
-            optType = JOptionPane.DEFAULT_OPTION;
-        }
-
-        int msgType;
-        if (messageType == PopupDialog.ERROR_MESSAGE)
-        {
-            msgType = JOptionPane.ERROR_MESSAGE;
-        }
-        else if (messageType == PopupDialog.INFORMATION_MESSAGE)
-        {
-            msgType = JOptionPane.INFORMATION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.QUESTION_MESSAGE)
-        {
-            msgType = JOptionPane.QUESTION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.WARNING_MESSAGE)
-        {
-            msgType = JOptionPane.WARNING_MESSAGE;
-        }
-        else {
-            msgType = JOptionPane.PLAIN_MESSAGE;
-        }
-
         return showConfirmDialog(null, message, title,
-                optType, msgType);
+            popupDialog2JOptionPaneOptionType(optionType),
+            popupDialog2JOptionPaneMessageType(messageType));
     }
 
     /**
@@ -394,53 +265,12 @@ public class PopupDialogImpl
      * @param icon the icon to display in the dialog
      */
     public int showConfirmPopupDialog(Object message, String title,
-            int optionType, int messageType, byte[] icon)
+        int optionType, int messageType, byte[] icon)
     {
-
-        int optType;
-        if (optionType == PopupDialog.OK_CANCEL_OPTION)
-        {
-            optType = JOptionPane.OK_CANCEL_OPTION;
-        }
-        else if (optionType == PopupDialog.YES_NO_OPTION)
-        {
-            optType = JOptionPane.YES_NO_OPTION;
-        }
-        else if (optionType == PopupDialog.YES_NO_CANCEL_OPTION)
-        {
-            optType = JOptionPane.YES_NO_CANCEL_OPTION;
-        }
-        else {
-            optType = JOptionPane.DEFAULT_OPTION;
-        }
-
-        int msgType;
-        if (messageType == PopupDialog.ERROR_MESSAGE)
-        {
-            msgType = JOptionPane.ERROR_MESSAGE;
-        }
-        else if (messageType == PopupDialog.INFORMATION_MESSAGE)
-        {
-            msgType = JOptionPane.INFORMATION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.QUESTION_MESSAGE)
-        {
-            msgType = JOptionPane.QUESTION_MESSAGE;
-        }
-        else if (messageType == PopupDialog.WARNING_MESSAGE)
-        {
-            msgType = JOptionPane.WARNING_MESSAGE;
-        }
-        else {
-            msgType = JOptionPane.PLAIN_MESSAGE;
-        }
-
-        ImageIcon imageIcon = null;
-        if(icon != null)
-            imageIcon = new ImageIcon(icon);
-
         return showConfirmDialog(null, message, title,
-                optType, msgType, imageIcon);
+            popupDialog2JOptionPaneOptionType(optionType),
+            popupDialog2JOptionPaneMessageType(messageType),
+            createImageIcon(icon));
     }
 
     /**
@@ -491,9 +321,11 @@ public class PopupDialogImpl
     {
         return this;
     }
-    
+
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
-    public void setParams(Object[] windowParams) {}
+    public void setParams(Object[] windowParams)
+    {
+    }
 }
