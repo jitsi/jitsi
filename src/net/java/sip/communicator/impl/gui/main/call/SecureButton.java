@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Emanuel Onica
  */
+@SuppressWarnings("serial")
 public class SecureButton
     extends SIPCommButton
     implements ActionListener
@@ -29,6 +30,9 @@ public class SecureButton
         super(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF));
 
         this.callParticipant = callParticipant;
+        setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                "impl.media.security.SECURITY_OFF"));
 //        this.addActionListener(this);
     }
 
@@ -75,12 +79,8 @@ public class SecureButton
         if(isSecure)
         {
             this.setImage(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON));
-            // TODO GoClear
-            // We deactivate the tooltip at the moment, because the 
-            // secure mode cannot be toggled off
-            // this.setToolTipText(
-            //        GuiActivator.getResources().getI18NString("impl.media.security.TOGGLE_OFF_SECURITY").getText());
-            this.setToolTipText(null);
+            this.setToolTipText(GuiActivator.getResources().getI18NString(
+                    "impl.media.security.SECURITY_ON"));
         }
         else
         {
