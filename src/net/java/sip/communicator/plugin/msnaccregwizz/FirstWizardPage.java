@@ -42,9 +42,6 @@ public class FirstWizardPage
     private JLabel passLabel
         = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
-    private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
-
     private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
@@ -103,8 +100,6 @@ public class FirstWizardPage
 
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
-
-        this.existingAccountLabel.setForeground(Color.RED);
 
         this.uinExampleLabel.setForeground(Color.GRAY);
         this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
@@ -181,29 +176,17 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String uin = uinField.getText();
+        MsnAccountRegistration registration
+            = wizard.getRegistration();
 
-        if (!wizard.isModification() && isExistingAccount(uin))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            uinPassPanel.remove(existingAccountLabel);
+        registration.setId(uinField.getText());
 
-            MsnAccountRegistration registration
-                = wizard.getRegistration();
+        if (passField.getPassword() != null)
+            registration.setPassword(new String(passField.getPassword()));
 
-            registration.setId(uinField.getText());
+        registration.setRememberPassword(rememberPassBox.isSelected());
 
-            if (passField.getPassword() != null)
-                registration.setPassword(new String(passField.getPassword()));
-
-            registration.setRememberPassword(rememberPassBox.isSelected());
-        }
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         isCommitted = true;
     }
@@ -281,19 +264,6 @@ public class FirstWizardPage
             this.passField.setText(password);
             this.rememberPassBox.setSelected(true);
         }
-    }
-
-    private boolean isExistingAccount(String accountName)
-    {
-        ProtocolProviderFactory factory =
-            MsnAccRegWizzActivator.getMsnProtocolProviderFactory();
-
-        for (AccountID accountID : factory.getRegisteredAccounts())
-        {
-            if (accountName.equalsIgnoreCase(accountID.getUserID()))
-                return true;
-        }
-        return false;
     }
 
     public Object getSimpleForm()

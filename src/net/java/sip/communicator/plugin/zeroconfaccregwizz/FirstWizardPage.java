@@ -46,9 +46,6 @@ public class FirstWizardPage
     private JLabel mailLabel
         = new JLabel(Resources.getString("plugin.zeroaccregwizz.EMAIL"));
 
-    private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
-
     private JPanel emptyPanel = new TransparentPanel();
     private JPanel emptyPanel2 = new TransparentPanel();
     private JPanel emptyPanel3 = new TransparentPanel();
@@ -112,8 +109,6 @@ public class FirstWizardPage
 
         // not used so disable it for the moment
         this.rememberContacts.setEnabled(false);
-
-        this.existingAccountLabel.setForeground(Color.RED);
 
         this.userIDExampleLabel.setForeground(Color.GRAY);
         this.userIDExampleLabel.setFont(
@@ -228,32 +223,19 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String userID = userIDField.getText();
+        ZeroconfAccountRegistration registration
+            = wizard.getRegistration();
 
-        // TODO: isExistingAccount blocks (probably badly/not implemented) !!!!
-       if (!wizard.isModification() && isExistingAccount(userID))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            userPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            userPassPanel.remove(existingAccountLabel);
+        registration.setUserID(userIDField.getText());
+        registration.setFirst(firstField.getText());
+        registration.setLast(lastField.getText());
+        registration.setMail(mailField.getText());
 
-            ZeroconfAccountRegistration registration
-                = wizard.getRegistration();
+        registration.setRememberContacts(rememberContacts.isSelected());
 
-            registration.setUserID(userIDField.getText());
-            registration.setFirst(firstField.getText());
-            registration.setLast(lastField.getText());
-            registration.setMail(mailField.getText());
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
-            registration.setRememberContacts(rememberContacts.isSelected());
-        }
-       
-       isCommitted = true;
+        isCommitted = true;
     }
 
     /**
@@ -348,27 +330,6 @@ public class FirstWizardPage
             this.rememberContacts.setSelected(true);
     }
 
-    /**
-     * Verifies whether there is already an account installed with the same
-     * details as the one that the user has just entered.
-     *
-     * @param userID the name of the user that the account is registered for
-     * @return true if there is already an account for this userID and false
-     * otherwise.
-     */
-    private boolean isExistingAccount(String userID)
-    {
-        ProtocolProviderFactory factory
-            = ZeroconfAccRegWizzActivator.getZeroconfProtocolProviderFactory();
-
-        for (AccountID accountID : factory.getRegisteredAccounts())
-        {
-            if (userID.equalsIgnoreCase(accountID.getUserID()))
-                return true;
-        }
-        return false;
-    }
-    
     public Object getSimpleForm()
     {
         JPanel simplePanel = new TransparentPanel(new BorderLayout());

@@ -206,9 +206,9 @@ public class SIPAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(registration.getId(), registration.getPassword());
     }
@@ -219,6 +219,7 @@ public class SIPAccountRegistrationWizard
      * created account.
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
         ProtocolProviderFactory factory
             = SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
@@ -245,8 +246,10 @@ public class SIPAccountRegistrationWizard
             ProtocolProviderFactory providerFactory,
             String userName,
             String passwd)
+        throws OperationFailedException
     {
-        Hashtable<String, String> accountProperties = new Hashtable<String, String>();
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
 
         if(registration.isRememberPassword())
         {
@@ -258,9 +261,17 @@ public class SIPAccountRegistrationWizard
             serverAddress = registration.getServerAddress();
         else
             serverAddress = getServerFromUserName(userName);
+ 
         if (serverAddress != null)
+        {
             accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
                 serverAddress);
+
+            if (userName.indexOf(serverAddress) < 0)
+                accountProperties.put(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                    Boolean.toString(true));
+        }
 
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                 registration.getServerPort());
@@ -270,6 +281,7 @@ public class SIPAccountRegistrationWizard
             proxyAddress = registration.getProxy();
         else
             proxyAddress = getServerFromUserName(userName);
+
         if (proxyAddress != null)
             accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
                 proxyAddress);
@@ -324,19 +336,21 @@ public class SIPAccountRegistrationWizard
                 = (ProtocolProviderService) SIPAccRegWizzActivator.bundleContext
                     .getService(serRef);
         }
-        catch (IllegalArgumentException exc)
-        {
-            SIPAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
-        }
         catch (IllegalStateException exc)
         {
-            SIPAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
+        }
+        catch (Exception exc)
+        {
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;

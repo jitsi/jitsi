@@ -160,17 +160,17 @@ public class JabberAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(  registration.getUserID(),
                         registration.getPassword());
     }
 
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory
             = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
 
@@ -192,12 +192,14 @@ public class JabberAccountRegistrationWizard
         ProtocolProviderFactory providerFactory,
         String userName,
         String passwd)
+        throws OperationFailedException
     {
         if(logger.isTraceEnabled())
         {
             logger.trace("Preparing to install account for user " + userName);
         }
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
 
         if (registration.isRememberPassword())
         {
@@ -211,6 +213,11 @@ public class JabberAccountRegistrationWizard
         if (registration.getServerAddress() != null)
         {
             serverName = registration.getServerAddress();
+
+            if (userName.indexOf(serverName) < 0)
+                accountProperties.put(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                    Boolean.toString(true));
         }
         else
         {
@@ -248,7 +255,8 @@ public class JabberAccountRegistrationWizard
             }
 
             AccountID accountID = providerFactory.installAccount(
-                userName, accountProperties);
+                userName,
+                accountProperties);
 
             ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
@@ -259,19 +267,27 @@ public class JabberAccountRegistrationWizard
         }
         catch (IllegalArgumentException exc)
         {
-            logger.warn("Failed to create a jabber account.", exc);
-            JabberAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Username or password is null.",
+                OperationFailedException.ILLEGAL_ARGUMENT);
         }
         catch (IllegalStateException exc)
         {
-            logger.warn("Failed to create a jabber account.", exc);
-            JabberAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
+        }
+        catch (Exception exc)
+        {
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;

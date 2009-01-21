@@ -13,6 +13,7 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>IrcAccountRegistrationWizard</tt> is an implementation of the
@@ -24,6 +25,8 @@ import net.java.sip.communicator.service.protocol.*;
 public class IrcAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(IrcAccountRegistrationWizard.class);
 
     /**
      * The first page of the IRC account registration wizard.
@@ -140,9 +143,9 @@ public class IrcAccountRegistrationWizard
      * @return ProtocolProviderService for the newly created account.
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         String password = null;
         if (registration.isRememberPassword()
@@ -159,8 +162,8 @@ public class IrcAccountRegistrationWizard
      * @return ProtocolProviderService for the newly created account.
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory
             = IrcAccRegWizzActivator.getIrcProtocolProviderFactory();
 
@@ -180,8 +183,10 @@ public class IrcAccountRegistrationWizard
                                         ProtocolProviderFactory providerFactory,
                                         String user,
                                         String password)
+        throws OperationFailedException
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
 
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             registration.getServer());
@@ -225,19 +230,21 @@ public class IrcAccountRegistrationWizard
                 IrcAccRegWizzActivator.bundleContext
                 .getService(serRef);
         }
-        catch (IllegalArgumentException exc)
-        {
-            IrcAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
-        }
         catch (IllegalStateException exc)
         {
-            IrcAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
+        }
+        catch (Exception exc)
+        {
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;

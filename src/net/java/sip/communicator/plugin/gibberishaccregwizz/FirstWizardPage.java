@@ -43,9 +43,6 @@ public class FirstWizardPage
     private JLabel passLabel = new JLabel(
         Resources.getString("service.gui.PASSWORD"));
 
-    private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
-
     private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
@@ -102,8 +99,6 @@ public class FirstWizardPage
         this.userIDField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
 
-        this.existingAccountLabel.setForeground(Color.RED);
-
         this.userIDExampleLabel.setForeground(Color.GRAY);
         this.userIDExampleLabel.setFont(
                 userIDExampleLabel.getFont().deriveFont(8));
@@ -123,9 +118,9 @@ public class FirstWizardPage
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
         userPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
 
-        userPassPanel.setBorder(BorderFactory
-                                .createTitledBorder(Resources.getString(
-                                    "plugin.gibberishaccregwizz.USERNAME_AND_PASSWORD")));
+        userPassPanel.setBorder(
+            BorderFactory.createTitledBorder(Resources.getString(
+                "plugin.gibberishaccregwizz.USERNAME_AND_PASSWORD")));
 
         this.add(userPassPanel, BorderLayout.NORTH);
     }
@@ -188,29 +183,17 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String userID = userIDField.getText();
+        GibberishAccountRegistration registration
+            = wizard.getRegistration();
 
-        if (!wizard.isModification() && isExistingAccount(userID))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            userPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            userPassPanel.remove(existingAccountLabel);
+        registration.setUserID(userIDField.getText());
 
-            GibberishAccountRegistration registration
-                = wizard.getRegistration();
+        if (passField.getPassword() != null)
+            registration.setPassword(new String(passField.getPassword()));
 
-            registration.setUserID(userIDField.getText());
+        registration.setRememberPassword(rememberPassBox.isSelected());
 
-            if (passField.getPassword() != null)
-                registration.setPassword(new String(passField.getPassword()));
-
-            registration.setRememberPassword(rememberPassBox.isSelected());
-        }
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         isCommitted = true;
     }
@@ -294,38 +277,11 @@ public class FirstWizardPage
         }
     }
 
-    /**
-     * Verifies whether there is already an account installed with the same
-     * details as the one that the user has just entered.
-     *
-     * @param userID the name of the user that the account is registered for
-     * @return true if there is already an account for this userID and false
-     * otherwise.
-     */
-    private boolean isExistingAccount(String userID)
-    {
-        ProtocolProviderFactory factory
-            = GibberishAccRegWizzActivator.getGibberishProtocolProviderFactory();
-
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
-        {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
-            if (userID.equalsIgnoreCase(accountID.getUserID()))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-    
     public Object getSimpleForm()
     {
         return userPassPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

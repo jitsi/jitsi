@@ -22,6 +22,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.impl.protocol.ssh.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SSHAccountRegistrationWizard</tt> is an implementation of the
@@ -31,8 +32,11 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Shobhit Jindal
  */
 public class SSHAccountRegistrationWizard
-        implements AccountRegistrationWizard {
-    
+        implements AccountRegistrationWizard
+{
+    private final Logger logger
+        = Logger.getLogger(SSHAccountRegistrationWizard.class);
+
     /**
      * The first page of the ssh account registration wizard.
      */
@@ -146,9 +150,9 @@ public class SSHAccountRegistrationWizard
      * created account.
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(registration.getAccountID(), null);
     }
@@ -160,8 +164,8 @@ public class SSHAccountRegistrationWizard
      * created account.
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory
                 = SSHAccRegWizzActivator.getSSHProtocolProviderFactory();
 
@@ -180,9 +184,11 @@ public class SSHAccountRegistrationWizard
      */
     public ProtocolProviderService installAccount(
             ProtocolProviderFactory providerFactory,
-            String user) {
-        
-        Hashtable accountProperties = new Hashtable();
+            String user)
+        throws OperationFailedException
+    {
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
         
         accountProperties.put(
             ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
@@ -205,21 +211,23 @@ public class SSHAccountRegistrationWizard
             SSHAccRegWizzActivator.bundleContext
                     .getService(serRef);
         }
-        catch (IllegalArgumentException exc)
-        {
-            SSHAccRegWizzActivator.getUIService().getPopupDialog()
-            .showMessagePopupDialog(exc.getMessage(),
-                Resources.getString("service.gui.ERROR"),
-                PopupDialog.ERROR_MESSAGE);
-        }
         catch (IllegalStateException exc)
         {
-            SSHAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
         }
-        
+        catch (Exception exc)
+        {
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
+        }
+
         return protocolProvider;
     }
     

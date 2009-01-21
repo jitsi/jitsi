@@ -160,26 +160,4 @@ public class IcqAccountRegistration
    public void setProxyUsername(String username) {
        this.proxyUsername = username;
    }
-
-   /**
-    * Indicates if the advanced server settings are enabled.
-    * 
-    * @return <code>true</code> to indicate that the advanced server settings
-    * are enabled, <code>false</code> - otherwise.
-    */
-    public boolean isAdvancedSettingsEnabled()
-    {
-        return isAdvancedSettingsEnabled;
-    }
-
-    /**
-     * Enables or disables the advanced server settings.
-     * 
-     * @param isAdvancedSettingsEnabled <code>true</code> to indicate that the
-     * advanced server settings are enabled, <code>false</code> - otherwise
-     */
-    public void setAdvancedSettingsEnabled(boolean isAdvancedSettingsEnabled)
-    {
-        this.isAdvancedSettingsEnabled = isAdvancedSettingsEnabled;
-    }
 }

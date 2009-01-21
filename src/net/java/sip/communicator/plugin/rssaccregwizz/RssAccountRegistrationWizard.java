@@ -13,6 +13,7 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>RssAccountRegistrationWizard</tt> is an implementation of the
@@ -24,6 +25,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class RssAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(RssAccountRegistrationWizard.class);
+
     /**
      * The first page of the rss account registration wizard.
      */
@@ -131,9 +135,9 @@ public class RssAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(registration.getUserID(), null);
     }
@@ -143,8 +147,8 @@ public class RssAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory
             = RssAccRegWizzActivator.getRssProtocolProviderFactory();
 
@@ -162,6 +166,7 @@ public class RssAccountRegistrationWizard
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory,
         String user)
+        throws OperationFailedException
     {
 
         Hashtable accountProperties = new Hashtable();
@@ -182,19 +187,21 @@ public class RssAccountRegistrationWizard
                 RssAccRegWizzActivator.bundleContext
                 .getService(serRef);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalStateException exc)
         {
-            RssAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                        Resources.getString("service.gui.ERROR"),
-                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
         }
-        catch (IllegalStateException e)
+        catch (Exception exc)
         {
-            RssAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                        Resources.getString("service.gui.ERROR"),
-                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;

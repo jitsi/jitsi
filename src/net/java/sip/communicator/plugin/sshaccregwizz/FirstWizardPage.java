@@ -51,9 +51,6 @@ public class FirstWizardPage
     private JLabel knownHostsFile
         = new JLabel(Resources.getString("plugin.sshaccregwizz.KNOWN_HOSTS"));
     
-    private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
-    
     private JPanel emptyPanel1 = new TransparentPanel();
     
     private JPanel emptyPanel2 = new TransparentPanel();
@@ -172,7 +169,6 @@ public class FirstWizardPage
         this.emptyPanel9.setOpaque(false);
 
         this.accountIDField.getDocument().addDocumentListener(this);
-        this.existingAccountLabel.setForeground(Color.RED);
 
         /*
          * Following empty panels cover the space needed between key labels
@@ -334,23 +330,12 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String userID = accountIDField.getText();
-        
-        if (isExistingAccount(userID))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            accountPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            accountPanel.remove(existingAccountLabel);
-            
-            registration.setAccountID(accountIDField.getText());
-            registration.setIdentityFile(identityFileField.getText());
-            registration.setKnownHostsFile(knownHostsFileField.getText());
-        }
+        registration.setAccountID(accountIDField.getText());
+        registration.setIdentityFile(identityFileField.getText());
+        registration.setKnownHostsFile(knownHostsFileField.getText());
+
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
+
         isCommitted = true;
     }
     
@@ -409,33 +394,6 @@ public class FirstWizardPage
     
     public void pageBack()
     {
-    }
-    
-    /**
-     * Verifies whether there is already an account installed with the same
-     * details as the one that the user has just entered.
-     *
-     * @param accountID the name of the user that the account is registered for
-     * @return true if there is already an account for this accountID and false
-     * otherwise.
-     */
-    private boolean isExistingAccount(String userID)
-    {
-        ProtocolProviderFactory factory
-                = SSHAccRegWizzActivator.getSSHProtocolProviderFactory();
-        
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-        
-        for (int i = 0; i < registeredAccounts.size(); i++)
-        {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-            
-            if (userID.equalsIgnoreCase(accountID.getUserID()))
-            {
-                return true;
-            }
-        }
-        return false;
     }
     
     public Object getSimpleForm()

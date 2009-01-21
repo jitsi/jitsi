@@ -118,9 +118,9 @@ public interface AccountRegistrationWizard
     /**
      * Defines the operations that will be executed when the user clicks on
      * the wizard "Signin" button.
-     * 
      */
-    public ProtocolProviderService signin();
+    public ProtocolProviderService signin()
+        throws OperationFailedException;
 
     /**
      * Defines the operations that will be executed when the user clicks on
@@ -130,7 +130,8 @@ public interface AccountRegistrationWizard
      * @param password the password to sign in with
      */
     public ProtocolProviderService signin(  String userName,
-                                            String password);
+                                            String password)
+        throws OperationFailedException;
 
     /**
      * Returns <code>true</code> if the web sign up is supported by the current

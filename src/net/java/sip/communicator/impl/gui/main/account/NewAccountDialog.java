@@ -234,9 +234,29 @@ public class NewAccountDialog
         JComponent simpleWizardForm = (JComponent) wizard.getSimpleForm();
         simpleWizardForm.setOpaque(false);
 
-        accountPanel.add(simpleWizardForm, BorderLayout.NORTH);
+        accountPanel.add(simpleWizardForm);
         accountPanel.revalidate();
         accountPanel.repaint();
+
+        this.pack();
+    }
+
+    /**
+     * Loads the given error message in the current dialog, by re-validating the
+     * content.
+     * 
+     * @param errorMessage The error message to load.
+     */
+    private void loadErrorMessage(String errorMessage)
+    {
+        JLabel errorMessageLabel = new JLabel(errorMessage);
+
+        errorMessageLabel.setForeground(Color.RED);
+
+        accountPanel.add(errorMessageLabel, BorderLayout.NORTH);
+        accountPanel.revalidate();
+        accountPanel.repaint();
+
         this.pack();
     }
 
@@ -275,12 +295,36 @@ public class NewAccountDialog
         }
         else if (sourceButton.equals(addAccountButton))
         {
-            ProtocolProviderService protocolProvider = wizard.signin();
+            ProtocolProviderService protocolProvider;
+            try
+            {
+                protocolProvider = wizard.signin();
 
-            if (protocolProvider != null)
-                wizardContainer.saveAccountWizard(protocolProvider, wizard);
+                if (protocolProvider != null)
+                    wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
-            this.dispose();
+                this.dispose();
+            }
+            catch (OperationFailedException e)
+            {
+                // If the sign in operation has failed we don't want to close
+                // the dialog in order to give the user the possibility to
+                // retry.
+                logger.debug("The sign in operation has failed.");
+
+                if (e.getErrorCode()
+                        == OperationFailedException.ILLEGAL_ARGUMENT)
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                        "service.gui.USERNAME_NULL"));
+                }
+                else if (e.getErrorCode()
+                        == OperationFailedException.IDENTIFICATION_CONFLICT)
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                        "service.gui.USER_EXISTS_ERROR"));
+                }
+            }
         }
         else if (sourceButton.equals(cancelButton))
         {

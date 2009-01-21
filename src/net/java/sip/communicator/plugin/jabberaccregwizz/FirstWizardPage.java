@@ -39,7 +39,8 @@ public class FirstWizardPage
 
     private JabberNewAccountDialog jabberNewAccountDialog;
 
-    private JPanel userIDPassPanel = new TransparentPanel(new BorderLayout(10, 10));
+    private JPanel userIDPassPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new TransparentPanel();
 
@@ -50,9 +51,6 @@ public class FirstWizardPage
 
     private JLabel passLabel
         = new JLabel(Resources.getString("service.gui.PASSWORD"));
-
-    private JLabel existingAccountLabel = new JLabel(Resources
-        .getString("plugin.jabberaccregwizz.USER_EXISTS_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -76,11 +74,6 @@ public class FirstWizardPage
 
     private JCheckBox sendKeepAliveBox = new SIPCommCheckBox(Resources
         .getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"));
-
-    private JCheckBox enableAdvOpButton = new SIPCommCheckBox(
-        Resources.getString(
-            "plugin.jabberaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"),
-        false);
 
     private JLabel resourceLabel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.RESOURCE"));
@@ -107,7 +100,8 @@ public class FirstWizardPage
 
     private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
 
-    private JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JTextArea registerArea = new JTextArea(Resources
         .getString("plugin.jabberaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
@@ -122,6 +116,8 @@ public class FirstWizardPage
     private JabberAccountRegistrationWizard wizard;
 
     private boolean isCommitted = false;
+
+    private boolean isServerOverridden = false;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
@@ -161,8 +157,6 @@ public class FirstWizardPage
         this.userIDField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
 
-        this.existingAccountLabel.setForeground(Color.RED);
-
         this.userIDExampleLabel.setForeground(Color.GRAY);
         this.userIDExampleLabel.setFont(userIDExampleLabel.getFont()
             .deriveFont(8));
@@ -186,39 +180,6 @@ public class FirstWizardPage
             .getString("plugin.jabberaccregwizz.USERNAME_AND_PASSWORD")));
 
         mainPanel.add(userIDPassPanel);
-
-        serverField.setEnabled(false);
-        portField.setEnabled(false);
-        resourceField.setEnabled(false);
-        priorityField.setEnabled(false);
-
-        enableAdvOpButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                // Perform action
-                JCheckBox cb = (JCheckBox) evt.getSource();
-
-                if (!wizard.isModification())
-                    serverField.setEnabled(cb.isSelected());
-
-                portField.setEnabled(cb.isSelected());
-                resourceField.setEnabled(cb.isSelected());
-                priorityField.setEnabled(cb.isSelected());
-
-                if(!cb.isSelected())
-                {
-                    setServerFieldAccordingToUserID();
-
-                    portField.setText(
-                        JabberAccountRegistration.DEFAULT_PORT);
-                    resourceField.setText(
-                        JabberAccountRegistration.DEFAULT_RESOURCE);
-                    priorityField.setText(
-                        JabberAccountRegistration.DEFAULT_PRIORITY);
-                }
-            }
-        });
 
         portField.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -264,9 +225,9 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(resourceField);
         valuesAdvOpPanel.add(priorityField);
 
-        JPanel checkBoxesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel checkBoxesPanel
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
         checkBoxesPanel.add(sendKeepAliveBox);
-        checkBoxesPanel.add(enableAdvOpButton);
 
         advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
@@ -378,38 +339,26 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String userID = userIDField.getText();
+        JabberAccountRegistration registration = wizard.getRegistration();
 
-        if (!wizard.isModification() && isExistingAccount(userID))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            userIDPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            userIDPassPanel.remove(existingAccountLabel);
+        registration.setUserID(userIDField.getText());
+        registration.setPassword(new String(passField.getPassword()));
+        registration.setRememberPassword(rememberPassBox.isSelected());
 
-            JabberAccountRegistration registration = wizard.getRegistration();
+        registration.setServerAddress(serverField.getText());
+        registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
+        registration.setResource(resourceField.getText());
 
-            registration.setUserID(userIDField.getText());
-            registration.setPassword(new String(passField.getPassword()));
-            registration.setRememberPassword(rememberPassBox.isSelected());
+        if (portField.getText() != null)
+            registration.setPort(Integer.parseInt(portField.getText()));
 
-            registration.setServerAddress(serverField.getText());
-            registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
-            registration.setResource(resourceField.getText());
+        if (priorityField.getText() != null)
+            registration.setPriority(
+                Integer.parseInt(priorityField.getText()));
 
-            if (portField.getText() != null)
-                registration.setPort(Integer.parseInt(portField.getText()));
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
-            if (priorityField.getText() != null)
-                registration.setPriority(
-                    Integer.parseInt(priorityField.getText()));
-        }
-
-        isCommitted = true;
+        this.isCommitted = true;
     }
 
     /**
@@ -525,21 +474,8 @@ public class FirstWizardPage
 
         priorityField.setText(priority);
 
-        if (!serverPort.equals(JabberAccountRegistration.DEFAULT_PORT)
-            || !resource.equals(JabberAccountRegistration.DEFAULT_RESOURCE)
-            || !priority.equals(JabberAccountRegistration.DEFAULT_PRIORITY))
-        {
-            enableAdvOpButton.setSelected(true);
-
-            // The server field should stay disabled in modification mode,
-            // because the user should not be able to change anything concerning
-            // the account identifier and server name is part of it.
-            serverField.setEnabled(false);
-
-            portField.setEnabled(true);
-            resourceField.setEnabled(true);
-            priorityField.setEnabled(true);
-        }
+        this.isServerOverridden = accountID.getAccountPropertyBoolean(
+            ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
     }
 
     /**
@@ -548,7 +484,7 @@ public class FirstWizardPage
      */
     private void setServerFieldAccordingToUserID()
     {
-        if (!enableAdvOpButton.isSelected())
+        if (!wizard.isModification() || !isServerOverridden)
         {
             String userId = userIDField.getText();
 
@@ -571,32 +507,6 @@ public class FirstWizardPage
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
-    }
-
-    /**
-     * Checks if the accountName corresponds to an already existing account.
-     *
-     * @param accountName the name of the account to check
-     * @return TRUE if an account with the specified name already exists, FALSE -
-     * otherwise.
-     */
-    private boolean isExistingAccount(String accountName)
-    {
-        ProtocolProviderFactory factory = JabberAccRegWizzActivator
-            .getJabberProtocolProviderFactory();
-
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
-        {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
-            if (accountName.equalsIgnoreCase(accountID.getUserID()))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     public Object getSimpleForm()

@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -23,6 +24,9 @@ import org.osgi.framework.*;
 public class IcqAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(IcqAccountRegistrationWizard.class);
+
     private FirstWizardPage firstWizardPage;
 
     private IcqAccountRegistration registration = new IcqAccountRegistration();
@@ -42,7 +46,8 @@ public class IcqAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
+        this.wizardContainer
+            .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -102,34 +107,33 @@ public class IcqAccountRegistrationWizard
      */
     public Iterator getSummary()
     {
-        LinkedHashMap summaryTable = new LinkedHashMap();
+        LinkedHashMap<String, Object> summaryTable
+            = new LinkedHashMap<String, Object>();
 
-        summaryTable.put(Resources.getString("service.gui.USER_IDENTIFIER"), registration.getUin());
+        summaryTable.put(Resources.getString("service.gui.USER_IDENTIFIER"),
+                        registration.getUin());
         summaryTable.put(Resources.getString("service.gui.REMEMBER_PASSWORD"),
                 new Boolean(registration.isRememberPassword()));
 
-        if(registration.isAdvancedSettingsEnabled())
-        {
-            if (registration.getProxy() != null)
-                summaryTable.put(Resources.getString("plugin.icqaccregwizz.PROXY"),
-                    registration.getProxy());
+        if (registration.getProxy() != null)
+            summaryTable.put(Resources.getString("plugin.icqaccregwizz.PROXY"),
+                registration.getProxy());
 
-            if (registration.getProxyPort() != null)
-                summaryTable.put(Resources.getString("proxyPort"),
-                    registration.getProxyPort());
+        if (registration.getProxyPort() != null)
+            summaryTable.put(Resources.getString("proxyPort"),
+                registration.getProxyPort());
 
-            if (registration.getProxyType() != null)
-                summaryTable.put(Resources.getString("proxyType"),
-                    registration.getProxyType());
+        if (registration.getProxyType() != null)
+            summaryTable.put(Resources.getString("proxyType"),
+                registration.getProxyType());
 
-            if (registration.getProxyPort() != null)
-                summaryTable.put(Resources.getString("proxyUsername"),
-                    registration.getProxyUsername());
+        if (registration.getProxyPort() != null)
+            summaryTable.put(Resources.getString("proxyUsername"),
+                registration.getProxyUsername());
 
-            if (registration.getProxyType() != null)
-                summaryTable.put(Resources.getString("proxyPassword"),
-                    registration.getProxyPassword());
-        }
+        if (registration.getProxyType() != null)
+            summaryTable.put(Resources.getString("proxyPassword"),
+                registration.getProxyPassword());
 
         return summaryTable.entrySet().iterator();
     }
@@ -141,17 +145,17 @@ public class IcqAccountRegistrationWizard
      * account.
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return this.signin(registration.getUin(), registration
             .getPassword());
     }
 
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory =
             IcqAccRegWizzActivator.getIcqProtocolProviderFactory();
 
@@ -171,36 +175,40 @@ public class IcqAccountRegistrationWizard
         ProtocolProviderFactory providerFactory,
         String user,
         String passwd)
+        throws OperationFailedException
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
 
         if (registration.isRememberPassword())
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
-        if (registration.isAdvancedSettingsEnabled())
-        {
-            if (registration.getProxy() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                    registration.getProxy());
+        if (registration.getProxy() != null
+            && registration.getProxy() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+                registration.getProxy());
 
-            if (registration.getProxyPort() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                    registration.getProxyPort());
+        if (registration.getProxyPort() != null
+            && registration.getProxyPort() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                registration.getProxyPort());
 
-            if (registration.getProxyType() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
-                    registration.getProxyType());
+        if (registration.getProxyType() != null
+            && registration.getProxyType() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
+                registration.getProxyType());
 
-            if (registration.getProxyUsername() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
-                    registration.getProxyUsername());
+        if (registration.getProxyUsername() != null
+            && registration.getProxyUsername() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
+                registration.getProxyUsername());
 
-            if (registration.getProxyPassword() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
-                    registration.getProxyPassword());
-        }
+        if (registration.getProxyPassword() != null
+            && registration.getProxyPassword() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
+                registration.getProxyPassword());
 
         if (isModification)
         {
@@ -224,19 +232,21 @@ public class IcqAccountRegistrationWizard
                 (ProtocolProviderService) IcqAccRegWizzActivator.bundleContext
                     .getService(serRef);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalStateException exc)
         {
-            IcqAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("service.gui.ERROR"),
-                                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
         }
-        catch (IllegalStateException e)
+        catch (Exception exc)
         {
-            IcqAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("service.gui.ERROR"),
-                                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;

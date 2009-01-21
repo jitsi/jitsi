@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -24,6 +25,8 @@ import org.osgi.framework.*;
 public class GibberishAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(GibberishAccountRegistrationWizard.class);
 
     /**
      * The first page of the gibberish account registration wizard.
@@ -131,9 +134,9 @@ public class GibberishAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(registration.getUserID(), null);
     }
@@ -143,13 +146,12 @@ public class GibberishAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory
             = GibberishAccRegWizzActivator.getGibberishProtocolProviderFactory();
 
-        return this.installAccount(factory,
-                                   userName);
+        return this.installAccount(factory, userName);
     }
 
     /**
@@ -162,6 +164,7 @@ public class GibberishAccountRegistrationWizard
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory,
         String user)
+        throws OperationFailedException
     {
 
         Hashtable accountProperties = new Hashtable();
@@ -191,19 +194,21 @@ public class GibberishAccountRegistrationWizard
                 GibberishAccRegWizzActivator.bundleContext
                 .getService(serRef);
         }
-        catch (IllegalArgumentException exc)
-        {
-            GibberishAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                                        Resources.getString("service.gui.ERROR"),
-                                        PopupDialog.ERROR_MESSAGE);
-        }
         catch (IllegalStateException exc)
         {
-            GibberishAccRegWizzActivator.getUIService().getPopupDialog()
-            .showMessagePopupDialog(exc.getMessage(),
-                                    Resources.getString("service.gui.ERROR"),
-                                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
+        }
+        catch (Exception exc)
+        {
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;

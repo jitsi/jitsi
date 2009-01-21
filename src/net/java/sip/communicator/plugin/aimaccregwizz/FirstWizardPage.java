@@ -7,7 +7,6 @@ package net.java.sip.communicator.plugin.aimaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -48,10 +47,6 @@ public class FirstWizardPage
     private JPanel valuesAdvOpPanel =
         new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox enableAdvOpButton =
-        new SIPCommCheckBox(Resources.getString(
-            "plugin.aimaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"), false);
-
     private JLabel uinLabel = new JLabel(
         Resources.getString("plugin.aimaccregwizz.USERNAME"));
 
@@ -61,9 +56,6 @@ public class FirstWizardPage
 
     private JLabel passLabel = new JLabel(
         Resources.getString("service.gui.PASSWORD"));
-
-    private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JTextField uinField = new JTextField();
 
@@ -79,12 +71,15 @@ public class FirstWizardPage
         new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JTextArea registerArea =
-        new JTextArea(Resources.getString("plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
+        new JTextArea(Resources.getString(
+            "plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
 
     private JButton registerButton =
-        new JButton(Resources.getString("plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT"));
+        new JButton(Resources.getString(
+            "plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT"));
 
-    private JLabel proxyLabel = new JLabel(Resources.getString("plugin.aimaccregwizz.PROXY"));
+    private JLabel proxyLabel = new JLabel(
+        Resources.getString("plugin.aimaccregwizz.PROXY"));
 
     private JLabel proxyPortLabel =
         new JLabel(Resources.getString("plugin.aimaccregwizz.PROXY"));
@@ -159,8 +154,6 @@ public class FirstWizardPage
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
 
-        this.existingAccountLabel.setForeground(Color.RED);
-
         this.uinExampleLabel.setForeground(Color.GRAY);
         this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
         this.emptyPanel.setMaximumSize(new Dimension(40, 35));
@@ -184,23 +177,6 @@ public class FirstWizardPage
 
         mainPanel.add(uinPassPanel);
 
-        proxyField.setEditable(false);
-        proxyPortField.setEditable(false);
-        proxyTypeCombo.setEnabled(false);
-
-        enableAdvOpButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                // Perform action
-                JCheckBox cb = (JCheckBox) evt.getSource();
-
-                proxyField.setEditable(cb.isSelected());
-                proxyPortField.setEditable(cb.isSelected());
-                proxyTypeCombo.setEnabled(cb.isSelected());
-            }
-        });
-
         proxyTypeCombo.setSelectedItem(wizard.getRegistration().getProxyType());
 
         labelsAdvOpPanel.add(proxyLabel);
@@ -215,7 +191,6 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(proxyUsernameField);
         valuesAdvOpPanel.add(proxyPassField);
 
-        advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
@@ -293,38 +268,25 @@ public class FirstWizardPage
     {
         String uin = uinField.getText();
 
-        if (!wizard.isModification() && isExistingAccount(uin))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            uinPassPanel.remove(existingAccountLabel);
+        AimAccountRegistration registration = wizard.getRegistration();
 
-            AimAccountRegistration registration = wizard.getRegistration();
+        registration.setUin(uin);
+        registration.setPassword(new String(passField.getPassword()));
+        registration.setRememberPassword(rememberPassBox.isSelected());
 
-            registration.setUin(uin);
-            registration.setPassword(new String(passField.getPassword()));
-            registration.setRememberPassword(rememberPassBox.isSelected());
+        registration.setProxy(proxyField.getText());
+        registration.setProxyPort(proxyPortField.getText());
+        registration.setProxyUsername(proxyUsernameField.getText());
 
-            if (enableAdvOpButton.isSelected())
-            {
-                registration.setProxy(proxyField.getText());
-                registration.setProxyPort(proxyPortField.getText());
-                registration.setProxyUsername(proxyUsernameField.getText());
+        if (proxyTypeCombo.getSelectedItem() != null)
+            registration.setProxyType(proxyTypeCombo.getSelectedItem()
+                .toString());
 
-                if (proxyTypeCombo.getSelectedItem() != null)
-                    registration.setProxyType(proxyTypeCombo.getSelectedItem()
-                        .toString());
+        if (proxyPassField.getPassword() != null)
+            registration.setProxyPassword(new String(proxyPassField
+                .getPassword()));
 
-                if (proxyPassField.getPassword() != null)
-                    registration.setProxyPassword(new String(proxyPassField
-                        .getPassword()));
-            }
-        }
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         isCommitted = true;
     }
@@ -425,13 +387,6 @@ public class FirstWizardPage
             accountID
                 .getAccountPropertyString(ProtocolProviderFactory.PROXY_PASSWORD);
 
-        if (proxyAddress != null || proxyPort != null
-            || proxyType != null || proxyUsername != null
-            || proxyPassword != null)
-        {
-            enableAdvOpButton.setSelected(true);
-        }
-
         proxyField.setText(proxyAddress);
         proxyPortField.setText(proxyPort);
         proxyTypeCombo.setSelectedItem(proxyType);
@@ -444,35 +399,11 @@ public class FirstWizardPage
         wizard.webSignup();
     }
 
-    /**
-     * Checks if an acount with the given account already exists.
-     * 
-     * @param accountName the name of the account to check
-     * @return TRUE, if an account with the given name already exists, FALSE -
-     *         otherwise
-     */
-    private boolean isExistingAccount(String accountName)
-    {
-        ProtocolProviderFactory factory =
-            AimAccRegWizzActivator.getAimProtocolProviderFactory();
-
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
-        {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
-            if (accountName.equalsIgnoreCase(accountID.getUserID()))
-                return true;
-        }
-        return false;
-    }
-
     public Object getSimpleForm()
     {
         return uinPassPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

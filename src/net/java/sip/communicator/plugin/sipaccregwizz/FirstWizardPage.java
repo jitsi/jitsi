@@ -49,9 +49,6 @@ public class FirstWizardPage
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JLabel existingAccountLabel =
-        new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
-
     private JTextField uinField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
@@ -68,10 +65,6 @@ public class FirstWizardPage
 
     private JPanel valuesAdvOpPanel
         = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-
-    private JCheckBox overrideServerCheckBox =
-        new SIPCommCheckBox(Resources.getString(
-            "plugin.sipaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"), false);
 
     private JLabel serverLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.REGISTRAR"));
@@ -111,9 +104,11 @@ public class FirstWizardPage
     private JPanel buttonsPresOpPanel =
         new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel labelsPresOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsPresOpPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel valuesPresOpPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesPresOpPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enablePresOpButton =
         new SIPCommCheckBox(Resources
@@ -124,7 +119,8 @@ public class FirstWizardPage
             .getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"), true);
 
     private JLabel pollPeriodLabel = new JLabel(
-        Resources.getString("plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"));
+        Resources.getString(
+            "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"));
 
     private JLabel subscribeExpiresLabel = new JLabel(
         Resources.getString("plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"));
@@ -135,11 +131,14 @@ public class FirstWizardPage
     private JTextField subscribeExpiresField =
         new JTextField(SIPAccountRegistration.DEFAULT_SUBSCRIBE_EXPIRES);
 
-    private JPanel keepAlivePanel = new TransparentPanel(new BorderLayout(10, 10));
+    private JPanel keepAlivePanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel keepAliveLabels = new TransparentPanel(new GridLayout(0, 1, 5, 5));
+    private JPanel keepAliveLabels
+        = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
-    private JPanel keepAliveValues = new TransparentPanel(new GridLayout(0, 1, 5, 5));
+    private JPanel keepAliveValues
+        = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
     private JLabel keepAliveMethodLabel = new JLabel(
         Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_METHOD"));
@@ -168,6 +167,8 @@ public class FirstWizardPage
     private SIPAccountRegistrationWizard wizard;
 
     private boolean isCommitted = false;
+
+    private boolean isServerOverridden = false;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
@@ -207,8 +208,6 @@ public class FirstWizardPage
         this.transportCombo.addItemListener(this);
         this.rememberPassBox.setSelected(true);
 
-        existingAccountLabel.setForeground(Color.RED);
-
         this.uinExampleLabel.setForeground(Color.GRAY);
         this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
         this.emptyPanel.setMaximumSize(new Dimension(40, 35));
@@ -235,41 +234,6 @@ public class FirstWizardPage
         tabbedPane.addTab(  Resources.getString("service.gui.SUMMARY"),
                             firstTabPanel);
 
-        serverField.setEnabled(false);
-        serverPortField.setEnabled(false);
-        proxyField.setEnabled(false);
-        proxyPortField.setEnabled(false);
-        transportCombo.setEnabled(false);
-
-        overrideServerCheckBox.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                // Perform action
-                JCheckBox cb = (JCheckBox) evt.getSource();
-
-                if (!wizard.isModification())
-                    serverField.setEnabled(cb.isSelected());
-
-                serverPortField.setEnabled(cb.isSelected());
-                proxyField.setEnabled(cb.isSelected());
-                proxyPortField.setEnabled(cb.isSelected());
-                transportCombo.setEnabled(cb.isSelected());
-                
-                if(!cb.isSelected())
-                {
-                    setServerFieldAccordingToUIN();
-
-                    serverPortField
-                        .setText(SIPAccountRegistration.DEFAULT_PORT);
-                    proxyPortField
-                        .setText(SIPAccountRegistration.DEFAULT_PORT);
-                    transportCombo
-                        .setSelectedItem(SIPAccountRegistration.DEFAULT_TRANSPORT);
-                }
-            }
-        });
-
         transportCombo
             .setSelectedItem(SIPAccountRegistration.DEFAULT_TRANSPORT);
 
@@ -285,11 +249,10 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(proxyPortField);
         valuesAdvOpPanel.add(transportCombo);
 
-        advancedOpPanel.add(overrideServerCheckBox, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
         advancedOpPanel.add(enableDefaultEncryption, BorderLayout.SOUTH);
-        
+
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.aimaccregwizz.ADVANCED_OPTIONS")));
 
@@ -302,9 +265,7 @@ public class FirstWizardPage
                 // Perform action
                 JCheckBox cb = (JCheckBox) evt.getSource();
 
-                forceP2PPresOpButton.setEnabled(cb.isSelected());
-                pollPeriodField.setEnabled(cb.isSelected());
-                subscribeExpiresField.setEnabled(cb.isSelected());
+                setPresenceOptionsEnabled(cb.isSelected());
             }
         });
 
@@ -423,46 +384,35 @@ public class FirstWizardPage
             uin = uin.substring(0, indexOfSeparator);
         }
 
-        String server = serverField.getText();
+        SIPAccountRegistration registration = wizard.getRegistration();
 
-        if (!wizard.isModification() && isExistingAccount(uin, server))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            uinPassPanel.remove(existingAccountLabel);
+        registration.setId(uinField.getText());
 
-            SIPAccountRegistration registration = wizard.getRegistration();
+        if (passField.getPassword() != null)
+            registration.setPassword(new String(passField.getPassword()));
 
-            registration.setId(uinField.getText());
+        registration.setRememberPassword(rememberPassBox.isSelected());
 
-            if (passField.getPassword() != null)
-                registration.setPassword(new String(passField.getPassword()));
+        registration.setServerAddress(serverField.getText());
+        registration.setServerPort(serverPortField.getText());
+        registration.setProxy(proxyField.getText());
+        registration.setProxyPort(proxyPortField.getText());
+        registration.setPreferredTransport(transportCombo.getSelectedItem()
+            .toString());
 
-            registration.setRememberPassword(rememberPassBox.isSelected());
+        registration.setEnablePresence(enablePresOpButton.isSelected());
+        registration.setForceP2PMode(forceP2PPresOpButton.isSelected());
+        registration.setDefaultEncryption(enableDefaultEncryption.isSelected()); 
+        registration.setPollingPeriod(pollPeriodField.getText());
+        registration.setSubscriptionExpiration(subscribeExpiresField
+            .getText());
+        registration.setKeepAliveMethod(
+            keepAliveMethodBox.getSelectedItem().toString());
+        registration.setKeepAliveInterval(keepAliveIntervalValue.getText());
 
-            registration.setServerAddress(serverField.getText());
-            registration.setServerPort(serverPortField.getText());
-            registration.setProxy(proxyField.getText());
-            registration.setProxyPort(proxyPortField.getText());
-            registration.setPreferredTransport(transportCombo.getSelectedItem()
-                .toString());
-
-            registration.setEnablePresence(enablePresOpButton.isSelected());
-            registration.setForceP2PMode(forceP2PPresOpButton.isSelected());
-            registration.setDefaultEncryption(enableDefaultEncryption.isSelected()); 
-            registration.setPollingPeriod(pollPeriodField.getText());
-            registration.setSubscriptionExpiration(subscribeExpiresField
-                .getText());
-            registration.setKeepAliveMethod(
-                keepAliveMethodBox.getSelectedItem().toString());
-            registration.setKeepAliveInterval(keepAliveIntervalValue.getText());
-        }
         wizard.getWizardContainer().setBackButtonEnabled(true);
+
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         this.isCommitted = true;
     }
@@ -531,55 +481,47 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
-        String password =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
+        String password = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.PASSWORD);
 
-        String serverAddress =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+        String serverAddress = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.SERVER_ADDRESS);
 
-        String serverPort =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT);
+        String serverPort = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.SERVER_PORT);
 
-        String proxyAddress =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_ADDRESS);
+        String proxyAddress = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.PROXY_ADDRESS);
 
-        String proxyPort =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_PORT);
+        String proxyPort = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.PROXY_PORT);
 
-        String preferredTransport =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        String preferredTransport = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
-        boolean enablePresence =
-            accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_PRESENCE_ENABLED, false);
+        boolean enablePresence = accountID.getAccountPropertyBoolean(
+                            ProtocolProviderFactory.IS_PRESENCE_ENABLED, false);
 
-        boolean forceP2P =
-            accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.FORCE_P2P_MODE, false);
+        boolean forceP2P = accountID.getAccountPropertyBoolean(
+                            ProtocolProviderFactory.FORCE_P2P_MODE, false);
 
-        boolean enabledDefaultEncryption =
-            accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_ENCRYPTION, false); 
+        boolean enabledDefaultEncryption = accountID.getAccountPropertyBoolean(
+                            ProtocolProviderFactory.DEFAULT_ENCRYPTION, false);
 
-        String pollingPeriod =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.POLLING_PERIOD);
+        String pollingPeriod = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.POLLING_PERIOD);
 
-        String subscriptionPeriod =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
+        String subscriptionPeriod = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
 
         String keepAliveMethod =
             accountID.getAccountPropertyString("KEEP_ALIVE_METHOD");
 
         String keepAliveInterval =
             accountID.getAccountPropertyString("KEEP_ALIVE_INTERVAL");
+
+        this.isServerOverridden = accountID.getAccountPropertyBoolean(
+            ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
 
         uinField.setEnabled(false);
         this.uinField.setText((serverAddress == null) ? accountID.getUserID()
@@ -596,30 +538,10 @@ public class FirstWizardPage
         serverPortField.setText(serverPort);
         proxyField.setText(proxyAddress);
 
-        // The order of the next two fields is important, as a changelister of
-        // the transportCombo sets the proxyPortField to its default
+        // The order of the next two fields is important, as a change listener
+        // of the transportCombo sets the proxyPortField to its default
         transportCombo.setSelectedItem(preferredTransport);
         proxyPortField.setText(proxyPort);
-
-        if (!(SIPAccountRegistration.DEFAULT_PORT.equals(serverPort)
-                || SIPAccountRegistration.DEFAULT_TLS_PORT.equals(serverPort))
-            || !(SIPAccountRegistration.DEFAULT_PORT.equals(proxyPort)
-                || SIPAccountRegistration.DEFAULT_TLS_PORT.equals(proxyPort))
-            || !transportCombo.getSelectedItem()
-                .equals(SIPAccountRegistration.DEFAULT_TRANSPORT))
-        {
-            overrideServerCheckBox.setSelected(true);
-
-            // The server field should stay disabled in modification mode,
-            // because the user should not be able to change anything concerning
-            // the account identifier and server name is part of it.
-            serverField.setEnabled(false);
-
-            serverPortField.setEnabled(true);
-            proxyField.setEnabled(true);
-            proxyPortField.setEnabled(true);
-            transportCombo.setEnabled(true);
-        }
 
         enablePresOpButton.setSelected(enablePresence);
         forceP2PPresOpButton.setSelected(forceP2P);
@@ -629,8 +551,7 @@ public class FirstWizardPage
 
         if (!enablePresence)
         {
-            pollPeriodField.setEnabled(false);
-            subscribeExpiresField.setEnabled(false);
+            setPresenceOptionsEnabled(enablePresence);
         }
 
         keepAliveMethodBox.setSelectedItem(keepAliveMethod);
@@ -643,14 +564,27 @@ public class FirstWizardPage
      */
     private void setServerFieldAccordingToUIN()
     {
-        if (!overrideServerCheckBox.isSelected())
-        {
-            String serverAddress
-                = wizard.getServerFromUserName(uinField.getText());
+        String serverAddress
+            = wizard.getServerFromUserName(uinField.getText());
 
+        if (!wizard.isModification() || !isServerOverridden)
+        {
             serverField.setText(serverAddress);
             proxyField.setText(serverAddress);
         }
+    }
+
+    /**
+     * Enables or disable all presence related options.
+     * 
+     * @param isEnabled <code>true</code> to enable the presence related
+     * options, <code>false</code> - to disable them.
+     */
+    private void setPresenceOptionsEnabled(boolean isEnabled)
+    {
+        forceP2PPresOpButton.setEnabled(isEnabled);
+        pollPeriodField.setEnabled(isEnabled);
+        subscribeExpiresField.setEnabled(isEnabled);
     }
 
     public void itemStateChanged(ItemEvent e)
@@ -666,22 +600,6 @@ public class FirstWizardPage
             serverPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
             proxyPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
         }
-    }
-
-    private boolean isExistingAccount(String accountName, String serverName)
-    {
-        ProtocolProviderFactory factory =
-            SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
-        java.util.List<AccountID> registeredAccounts =
-            factory.getRegisteredAccounts();
-
-        for (AccountID accountID : registeredAccounts)
-        {
-            if (accountName.equalsIgnoreCase(accountID.getUserID())
-                    && serverName.equalsIgnoreCase(accountID.getService()))
-                return true;
-        }
-        return false;
     }
 
     public Object getSimpleForm()

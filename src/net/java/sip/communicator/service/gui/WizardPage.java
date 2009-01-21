@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.gui;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * The <tt>WizardPage</tt> represents a page in a <tt>WizardContainer</tt>.
  * A page has a unique identifier. Each page should specify the identifier
@@ -26,8 +28,8 @@ package net.java.sip.communicator.service.gui;
  *
  * @author Yana Stamcheva
  */
-public interface WizardPage {
-
+public interface WizardPage
+{
     /**
      * The identifier of the last wizard page.
      */

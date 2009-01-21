@@ -360,7 +360,7 @@ public class InitialAccountRegistrationFrame
             return (username != null) && (username.length() > 0);
         }
 
-        public void signin()
+        public void signin() throws OperationFailedException
         {
             ProtocolProviderService protocolProvider =
                 wizard.signin(usernameField.getText(), new String(passwordField
@@ -452,9 +452,40 @@ public class InitialAccountRegistrationFrame
                 {
                     AccountRegistrationPanel regForm = regIterator.next();
 
-                    if (regForm.isFilled())
+                    try
                     {
-                        regForm.signin();
+                        if (regForm.isFilled())
+                            regForm.signin();
+                    }
+                    catch (OperationFailedException e)
+                    {
+                        logger.debug("The sign in operation has failed.");
+
+                        PopupDialog popupDialog
+                            = SimpleAccountRegistrationActivator.getUIService()
+                                .getPopupDialog();
+
+                        if (e.getErrorCode()
+                            == OperationFailedException.ILLEGAL_ARGUMENT)
+                        {
+                            popupDialog.showMessagePopupDialog(
+                                Resources.getString(
+                                    "service.gui.USERNAME_NULL"),
+                                Resources.getString(
+                                    "service.gui.ERROR"),
+                                PopupDialog.ERROR_MESSAGE);
+                        }
+                        else if (e.getErrorCode()
+                                    == OperationFailedException
+                                        .IDENTIFICATION_CONFLICT)
+                        {
+                            popupDialog.showMessagePopupDialog(
+                                Resources.getString(
+                                    "service.gui.USER_EXISTS_ERROR"),
+                                Resources.getString(
+                                    "service.gui.ERROR"),
+                                PopupDialog.ERROR_MESSAGE);
+                        }
                     }
                 }
             }

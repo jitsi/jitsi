@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -24,6 +25,9 @@ import org.osgi.framework.*;
 public class DictAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(DictAccountRegistrationWizard.class);
+
     /**
      * The reference to the first page of the wizard.
      */
@@ -129,28 +133,12 @@ public class DictAccountRegistrationWizard
 
     /**
      * Installs the account created through this wizard.
-     * 
-     * @return The ProtocoleProviderService installed for the account.
-     */
-    public ProtocolProviderService finish()
-    {
-        firstWizardPage = null;
-        ProtocolProviderFactory factory =
-            DictAccRegWizzActivator.getDictProtocolProviderFactory();
-        
-        return this.installAccount(factory, registration.getHost(),
-                                   registration.getPort(),
-                                   registration.getStrategy().getCode());
-    }
-
-    /**
-     * Installs the account created through this wizard.
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(registration.getUserID(), null);
     }
@@ -160,8 +148,8 @@ public class DictAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory
             = DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
@@ -186,6 +174,7 @@ public class DictAccountRegistrationWizard
         String host,
         int port,
         String strategy)
+        throws OperationFailedException
     {
         Hashtable accountProperties = new Hashtable();
         
@@ -198,7 +187,8 @@ public class DictAccountRegistrationWizard
         // Save host
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS, host);
         // Save port
-        accountProperties.put(ProtocolProviderFactory.SERVER_PORT, String.valueOf(port));
+        accountProperties.put(  ProtocolProviderFactory.SERVER_PORT,
+                                String.valueOf(port));
         // Save strategy
         accountProperties.put(ProtocolProviderFactory.STRATEGY, strategy);
 
@@ -222,20 +212,23 @@ public class DictAccountRegistrationWizard
                 (ProtocolProviderService) DictAccRegWizzActivator.bundleContext
                     .getService(serRef);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalStateException exc)
         {
-            DictAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("service.gui.ERROR"),
-                                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
         }
-        catch (IllegalStateException e)
+        catch (Exception exc)
         {
-            DictAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("service.gui.ERROR"),
-                                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
+
 
         return protocolProvider;
     }

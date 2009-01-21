@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -24,6 +25,9 @@ import org.osgi.framework.*;
 public class GoogleTalkAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(GoogleTalkAccountRegistrationWizard.class);
+
     private static final String GOOGLE_USER_SUFFIX = "gmail.com";
 
     private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
@@ -156,19 +160,20 @@ public class GoogleTalkAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(  registration.getUserID(),
                         registration.getPassword());
     }
 
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory
-            = GoogleTalkAccRegWizzActivator.getGoogleTalkProtocolProviderFactory();
+            = GoogleTalkAccRegWizzActivator
+                .getGoogleTalkProtocolProviderFactory();
 
         return this.installAccount(factory,
                                    userName,
@@ -188,8 +193,10 @@ public class GoogleTalkAccountRegistrationWizard
         ProtocolProviderFactory providerFactory,
         String userName,
         String passwd)
+        throws OperationFailedException
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
 
         /* Make the account use the resources specific to Google Talk. */
         accountProperties.put(ProtocolProviderFactory.PROTOCOL, PROTOCOL);
@@ -209,11 +216,17 @@ public class GoogleTalkAccountRegistrationWizard
         if (registration.getServerAddress() != null)
         {
             serverName = registration.getServerAddress();
+
+            if (userName.indexOf(serverName) < 0)
+                accountProperties.put(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                    Boolean.toString(true));
         }
         else
         {
             serverName = getServerFromUserName(userName);
         }
+
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             serverName);
 
@@ -248,19 +261,21 @@ public class GoogleTalkAccountRegistrationWizard
                 GoogleTalkAccRegWizzActivator.bundleContext
                 .getService(serRef);
         }
-        catch (IllegalArgumentException exc)
-        {
-            GoogleTalkAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
-        }
         catch (IllegalStateException exc)
         {
-            GoogleTalkAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(exc.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
+        }
+        catch (Exception exc)
+        {
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;

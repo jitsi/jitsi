@@ -189,6 +189,11 @@ public abstract class ProtocolProviderFactory
                                                 = "SERVER_ADDRESS_VALIDATED";
 
     /**
+     * Indicates if the server settings are over
+     */
+    public static final String IS_SERVER_OVERRIDDEN
+                                                = "IS_SERVER_OVERRIDDEN";
+    /**
      * Indicates if the proxy address has been validated.
      */
     public static final String PROXY_ADDRESS_VALIDATED

@@ -10,6 +10,7 @@ import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -84,13 +85,12 @@ public class SimpleAccountRegistrationActivator
                     .getService(serRefs[serRefIndex]);
 
             for (Iterator<AccountID> registeredAccountIter =
-                providerFactory.getRegisteredAccounts().iterator(); registeredAccountIter
-                .hasNext();)
+                providerFactory.getRegisteredAccounts().iterator();
+                registeredAccountIter.hasNext();)
             {
                 AccountID accountID = registeredAccountIter.next();
-                boolean isHidden =
-                    accountID
-                        .getAccountProperty(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+                boolean isHidden = accountID.getAccountProperty(
+                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
                 if (!isHidden)
                 {
@@ -147,6 +147,28 @@ public class SimpleAccountRegistrationActivator
                 .getName());
 
         return (MetaContactListService) bundleContext
+            .getService(serviceReference);
+    }
+    
+    /**
+     * Returns the <tt>UIService</tt> obtained from the bundle
+     * context.
+     * <p>
+     * <b>Note</b>: Because this plug-in is meant to be initially displayed (if
+     * necessary) and not get used afterwards, the method doesn't cache the
+     * return value. Make sure you call it as little as possible if execution
+     * speed is under consideration.
+     * </p>
+     * 
+     * @return the <tt>MetaContactListService</tt> obtained from the bundle
+     *         context
+     */
+    public static UIService getUIService()
+    {
+        ServiceReference serviceReference
+            = bundleContext.getServiceReference(UIService.class.getName());
+
+        return (UIService) bundleContext
             .getService(serviceReference);
     }
 }

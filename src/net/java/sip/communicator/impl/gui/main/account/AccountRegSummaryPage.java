@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -27,13 +28,18 @@ public class AccountRegSummaryPage
     extends SCScrollPane
     implements WizardPage
 {
-    private JPanel keysPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private final Logger logger = Logger.getLogger(AccountRegSummaryPage.class);
 
-    private JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private final JPanel keysPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
+    private final JPanel valuesPanel
+        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel wrapPanel = new TransparentPanel(new BorderLayout());
+    private final JPanel mainPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
+
+    private final JPanel wrapPanel = new TransparentPanel(new BorderLayout());
 
     private AccountRegWizardContainerImpl wizardContainer;
 
@@ -150,13 +156,41 @@ public class AccountRegSummaryPage
         AccountRegistrationWizard wizard =
             this.wizardContainer.getCurrentWizard();
 
-        ProtocolProviderService protocolProvider = wizard.signin();
+        try
+        {
+            ProtocolProviderService protocolProvider = wizard.signin();
 
-        if (protocolProvider != null)
-            this.wizardContainer.saveAccountWizard(protocolProvider, wizard);
+            if (protocolProvider != null)
+                this.wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
-        this.wizardContainer.unregisterWizardPages();
-        this.wizardContainer.removeWizzardIcon();
+            this.wizardContainer.unregisterWizardPages();
+            this.wizardContainer.removeWizzardIcon();
+        }
+        catch (OperationFailedException e)
+        {
+            logger.debug("The sign in operation has failed.");
+
+            if (e.getErrorCode()
+                    == OperationFailedException.ILLEGAL_ARGUMENT)
+            {
+                new ErrorDialog(
+                    GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.USERNAME_NULL"));
+            }
+            else if (e.getErrorCode()
+                    == OperationFailedException.IDENTIFICATION_CONFLICT)
+            {
+                new ErrorDialog(
+                    GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.USER_EXISTS_ERROR"));
+            }
+        }
     }
 
     public void pageBack()

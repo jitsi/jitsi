@@ -37,22 +37,20 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel hostLabel = new JLabel(Resources.getString("plugin.dictaccregwizz.HOST"));
+    private JLabel hostLabel
+        = new JLabel(Resources.getString("plugin.dictaccregwizz.HOST"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel hostExampleLabel = new JLabel("Ex: dict.org");
 
-    private JLabel portLabel = new JLabel(Resources.getString("plugin.dictaccregwizz.PORT"));
-
-    private JLabel existingAccountLabel =
-        new JLabel(Resources.getString(
-            "service.gui.EXISTING_ACCOUNT_ERROR"));
+    private JLabel portLabel
+        = new JLabel(Resources.getString("plugin.dictaccregwizz.PORT"));
 
     private JTextField hostField = new JTextField();
 
     private JTextField portField = new JTextField("2628");
-    
+
     private JPanel strategyPanel = new TransparentPanel(new BorderLayout(10, 10));
     
     private JPanel strategyTitleBloc = new TransparentPanel(new BorderLayout());
@@ -132,12 +130,9 @@ public class FirstWizardPage
         // Host and port Field
         this.hostField = new JTextField();
         this.portField = new JTextField("2628");
-        
+
         this.hostField.getDocument().addDocumentListener(this);
         this.portField.getDocument().addDocumentListener(this);
-        
-        // Server informations
-        this.existingAccountLabel.setForeground(Color.RED);
 
         this.hostExampleLabel.setForeground(Color.GRAY);
         this.hostExampleLabel.setFont(hostExampleLabel.getFont().deriveFont(8));
@@ -232,9 +227,14 @@ public class FirstWizardPage
         
         this.mainPanel = new TransparentPanel(new BorderLayout());
 
-        JPanel infoTitlePanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-        JTextArea firstDescription = new JTextArea(Resources.getString("plugin.dictaccregwizz.FIRST_ACCOUNT"));
-        JLabel title = new JLabel(Resources.getString("plugin.dictaccregwizz.ACCOUNT_INFO_TITLE"));
+        JPanel infoTitlePanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        JTextArea firstDescription
+            = new JTextArea(Resources.getString(
+                "plugin.dictaccregwizz.FIRST_ACCOUNT"));
+        JLabel title
+            = new JLabel(Resources.getString(
+                "plugin.dictaccregwizz.ACCOUNT_INFO_TITLE"));
 
         // Title
         title.setFont(title.getFont().deriveFont(Font.BOLD, 14.0f));
@@ -255,7 +255,8 @@ public class FirstWizardPage
      * Implements the <code>WizardPage.getIdentifier</code> to return this
      * page identifier.
      *
-     * @return Returns the identifier of the current (the first) page of the wizard.
+     * @return Returns the identifier of the current (the first) page of the
+     * wizard.
      */
     public Object getIdentifier()
     {
@@ -311,23 +312,22 @@ public class FirstWizardPage
         String host = hostField.getText();
         int port = Integer.parseInt(portField.getText());
         boolean isModified = false;
-        
+
         if (this.initAccountID instanceof AccountID)
-        { // We check if there is modifications to the server
+        { // We check if there are modifications to the server
             String accHost =
-                this.initAccountID
-                    .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+                this.initAccountID.getAccountPropertyString(
+                    ProtocolProviderFactory.SERVER_ADDRESS);
             int accPort =
-                Integer
-                    .parseInt(this.initAccountID
-                        .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT));
-            
+                Integer.parseInt(this.initAccountID
+                    .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT));
+
             if (accHost != host || accPort != port)
             {
                 isModified = true;
             }
         }
-        
+
         // We check if a strategy has been selected
         if (this.strategiesList.getModel().getSize() == 0)
         {   // No Strategy, we get them
@@ -347,24 +347,18 @@ public class FirstWizardPage
             nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
             this.revalidate();
         }
-        else if ((!wizard.isModification() && isExistingAccount(host, port)) 
-               || (isModified && isExistingAccount(host, port)))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            hostPortPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
         else
         {
             nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            hostPortPanel.remove(existingAccountLabel);
 
             DictAccountRegistration registration = wizard.getRegistration();
 
             registration.setHost(host);
             registration.setPort(port);
-            registration.setStrategy((Strategy) this.strategiesList.getSelectedValue());
+            registration.setStrategy(
+                (Strategy) this.strategiesList.getSelectedValue());
         }
+
         isPageCommitted = true;
     }
 
@@ -509,7 +503,7 @@ public class FirstWizardPage
             this.populateStrategies();
         }
     }
-    
+
     /**
      * Checks if an account is stored for this protocol
      * @return TRUE, if an account is stored - FALSE otherwise
@@ -522,47 +516,7 @@ public class FirstWizardPage
         ArrayList registeredAccounts = factory.getRegisteredAccounts();
         return !registeredAccounts.isEmpty();
     }
-    
-    /**
-     * Checks if an acount with the given account already exists.
-     * 
-     * @param host the host of the account to check
-     * @param port the port of the account to check
-     * @return TRUE, if an account with the given name already exists, FALSE -
-     *         otherwise
-     */
-    private boolean isExistingAccount(String host, int port)
-    {
-        ProtocolProviderFactory factory =
-            DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
-        String accHost;
-        int accPort;
-
-        for (AccountID accountID : factory.getRegisteredAccounts())
-        {
-            accHost =
-                accountID
-                    .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
-            
-            if (host.equalsIgnoreCase(accHost))
-            {
-                // We check the port, only if there is an account with the same
-                // host
-                accPort =
-                    Integer
-                        .parseInt(accountID
-                            .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT));
-                
-                if (port == accPort)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-       
     /**
      * Start the thread which will populate the Strategies List
      */
@@ -596,7 +550,7 @@ public class FirstWizardPage
     {
         this.strategiesList.setStrategies(strategies);
     }
-    
+
     /**
      * Informs the user of the current status of the search
      * Should only be called by the thread
@@ -607,7 +561,6 @@ public class FirstWizardPage
         this.searchProgressPanel.nextStep(message);
     }
 
-    
     /**
      * Informs the wizard that the search of the strategies is complete.
      * Should only be called by the thread
@@ -617,7 +570,7 @@ public class FirstWizardPage
         setStrategyButtonEnable(true);
         this.searchProgressPanel.finish();
     }
-    
+
     /**
      * Informs the wizard that the search of the strategies is a failure
      * Should only be called by the thread
@@ -644,12 +597,12 @@ public class FirstWizardPage
         this.strategyLoader.setEnabled(e);
         wizard.getWizardContainer().setNextFinishButtonEnabled(e);
     }
-    
+
     public Object getSimpleForm()
     {
         return mainPanel;
     }
-    
+
     /**
      * Indicates if this is the first dict account
      * 
@@ -659,7 +612,7 @@ public class FirstWizardPage
     {
         return this.firstAccount;
     }
-    
+
     public boolean isCommitted()
     {
         return isPageCommitted;

@@ -26,8 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class FirstWizardPage
     extends TransparentPanel
-    implements  WizardPage,
-                DocumentListener
+    implements  WizardPage
 {
     private static final Logger logger = Logger
         .getLogger(FirstWizardPage.class);
@@ -36,7 +35,8 @@ public class FirstWizardPage
 
     public static final String USER_NAME_EXAMPLE = "Ex: johnsmith@gmail.com";
 
-    private JPanel userIDPassPanel = new TransparentPanel(new BorderLayout(10, 10));
+    private JPanel userIDPassPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new TransparentPanel();
 
@@ -47,9 +47,6 @@ public class FirstWizardPage
 
     private JLabel passLabel
         = new JLabel(Resources.getString("service.gui.PASSWORD"));
-
-    private JLabel existingAccountLabel = new JLabel(Resources
-        .getString("service.gui.EXISTING_ACCOUNT_ERROR"));
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -75,11 +72,6 @@ public class FirstWizardPage
     private JCheckBox sendKeepAliveBox
         = new SIPCommCheckBox(Resources
             .getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"));
-
-    private JCheckBox enableAdvOpButton = new SIPCommCheckBox(
-        Resources.getString(
-            "plugin.jabberaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"),
-        false);
 
     private JLabel resourceLabel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.RESOURCE"));
@@ -122,6 +114,8 @@ public class FirstWizardPage
 
     private boolean isCommitted = false;
 
+    private boolean isServerOverridden = false;
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * 
@@ -158,10 +152,26 @@ public class FirstWizardPage
         this.userIDPassPanel.setOpaque(false);
         this.emptyPanel.setOpaque(false);
 
-        this.userIDField.getDocument().addDocumentListener(this);
-        this.rememberPassBox.setSelected(true);
+        this.userIDField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void insertUpdate(DocumentEvent evt)
+            {
+                setNextButtonAccordingToUserIDAndResource();
 
-        this.existingAccountLabel.setForeground(Color.RED);
+                setServerFieldAccordingToUserID();
+            }
+
+            public void removeUpdate(DocumentEvent evt)
+            {
+                setNextButtonAccordingToUserIDAndResource();
+
+                setServerFieldAccordingToUserID();
+            }
+
+            public void changedUpdate(DocumentEvent evt) {}
+        });
+
+        this.rememberPassBox.setSelected(true);
 
         this.userIDExampleLabel.setForeground(Color.GRAY);
         this.userIDExampleLabel.setFont(userIDExampleLabel.getFont()
@@ -186,39 +196,6 @@ public class FirstWizardPage
             .getString("plugin.jabberaccregwizz.USERNAME_AND_PASSWORD")));
 
         mainPanel.add(userIDPassPanel);
-
-        serverField.setEnabled(false);
-        portField.setEnabled(false);
-        resourceField.setEnabled(false);
-        priorityField.setEnabled(false);
-
-        enableAdvOpButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                // Perform action
-                JCheckBox cb = (JCheckBox) evt.getSource();
-
-                if (!wizard.isModification())
-                    serverField.setEnabled(cb.isSelected());
-
-                portField.setEnabled(cb.isSelected());
-                resourceField.setEnabled(cb.isSelected());
-                priorityField.setEnabled(cb.isSelected());
-
-                if(!cb.isSelected())
-                {
-                    setServerFieldAccordingToUserID();
-
-                    portField.setText(
-                        GoogleTalkAccountRegistration.DEFAULT_PORT);
-                    resourceField.setText(
-                        GoogleTalkAccountRegistration.DEFAULT_RESOURCE);
-                    priorityField.setText(
-                        GoogleTalkAccountRegistration.DEFAULT_PRIORITY);
-                }
-            }
-        });
 
         portField.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -264,9 +241,9 @@ public class FirstWizardPage
         valuesAdvOpPanel.add(resourceField);
         valuesAdvOpPanel.add(priorityField);
 
-        JPanel checkBoxesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel checkBoxesPanel
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
         checkBoxesPanel.add(sendKeepAliveBox);
-        checkBoxesPanel.add(enableAdvOpButton);
 
         advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
@@ -369,36 +346,24 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String userID = userIDField.getText();
+        GoogleTalkAccountRegistration registration = wizard.getRegistration();
 
-        if (!wizard.isModification() && isExistingAccount(userID))
-        {
-            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
-            userIDPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
-            this.revalidate();
-        }
-        else
-        {
-            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-            userIDPassPanel.remove(existingAccountLabel);
+        registration.setUserID(userIDField.getText());
+        registration.setPassword(new String(passField.getPassword()));
+        registration.setRememberPassword(rememberPassBox.isSelected());
 
-            GoogleTalkAccountRegistration registration = wizard.getRegistration();
+        registration.setServerAddress(serverField.getText());
+        registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
+        registration.setResource(resourceField.getText());
 
-            registration.setUserID(userIDField.getText());
-            registration.setPassword(new String(passField.getPassword()));
-            registration.setRememberPassword(rememberPassBox.isSelected());
+        if (portField.getText() != null)
+            registration.setPort(Integer.parseInt(portField.getText()));
 
-            registration.setServerAddress(serverField.getText());
-            registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
-            registration.setResource(resourceField.getText());
+        if (priorityField.getText() != null)
+            registration.setPriority(
+                Integer.parseInt(priorityField.getText()));
 
-            if (portField.getText() != null)
-                registration.setPort(Integer.parseInt(portField.getText()));
-
-            if (priorityField.getText() != null)
-                registration.setPriority(
-                    Integer.parseInt(priorityField.getText()));
-        }
+        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         isCommitted = true;
     }
@@ -420,38 +385,6 @@ public class FirstWizardPage
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
-    }
-
-    /**
-     * Handles the <tt>DocumentEvent</tt> triggered when user types in the
-     * UserID field. Enables or disables the "Next" wizard button according to
-     * whether the UserID field is empty.
-     * 
-     * @param evt the document event that has triggered this method call.
-     */
-    public void insertUpdate(DocumentEvent evt)
-    {
-        this.setNextButtonAccordingToUserIDAndResource();
-
-        this.setServerFieldAccordingToUserID();
-    }
-
-    /**
-     * Handles the <tt>DocumentEvent</tt> triggered when user deletes letters
-     * from the User ID field. Enables or disables the "Next" wizard button
-     * according to whether the User ID field is empty.
-     * 
-     * @param evt the document event that has triggered this method call.
-     */
-    public void removeUpdate(DocumentEvent evt)
-    {
-        this.setNextButtonAccordingToUserIDAndResource();
-
-        this.setServerFieldAccordingToUserID();
-    }
-
-    public void changedUpdate(DocumentEvent evt)
-    {
     }
 
     public void pageHiding()
@@ -516,21 +449,9 @@ public class FirstWizardPage
 
         priorityField.setText(priority);
 
-        if (!serverPort.equals(GoogleTalkAccountRegistration.DEFAULT_PORT)
-            || !resource.equals(GoogleTalkAccountRegistration.DEFAULT_RESOURCE)
-            || !priority.equals(GoogleTalkAccountRegistration.DEFAULT_PRIORITY))
-        {
-            enableAdvOpButton.setSelected(true);
+        this.isServerOverridden = accountID.getAccountPropertyBoolean(
+            ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
 
-            // The server field should stay disabled in modification mode,
-            // because the user should not be able to change anything concerning
-            // the account identifier and server name is part of it.
-            serverField.setEnabled(false);
-
-            portField.setEnabled(true);
-            resourceField.setEnabled(true);
-            priorityField.setEnabled(true);
-        }
     }
 
     /**
@@ -539,7 +460,7 @@ public class FirstWizardPage
      */
     private void setServerFieldAccordingToUserID()
     {
-        if (!enableAdvOpButton.isSelected())
+        if (!wizard.isModification() || !isServerOverridden)
         {
             String userId = userIDField.getText();
 
@@ -564,32 +485,6 @@ public class FirstWizardPage
         }
     }
 
-    /**
-     * Checks if the accountName corresponds to an already existing account.
-     * 
-     * @param accountName the name of the account to check
-     * @return TRUE if an account with the specified name already exists, FALSE -
-     * otherwise. 
-     */
-    private boolean isExistingAccount(String accountName)
-    {
-        ProtocolProviderFactory factory = GoogleTalkAccRegWizzActivator
-            .getGoogleTalkProtocolProviderFactory();
-
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-
-        for (int i = 0; i < registeredAccounts.size(); i++)
-        {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
-            if (accountName.equalsIgnoreCase(accountID.getUserID()))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-    
     public Object getSimpleForm()
     {
         return userIDPassPanel;

@@ -71,9 +71,6 @@ public class FirstWizardPage
     private JLabel port
         = new JLabel(Resources.getString("plugin.ircaccregwizz.PORT"));
 
-    private JLabel existingAccountLabel
-        = new JLabel(Resources.getString("service.gui.EXISTING_ACCOUNT_ERROR"));
-
     private JPanel emptyPanel = new TransparentPanel();
 
     private JPanel emptyPanel2 = new TransparentPanel();
@@ -169,8 +166,6 @@ public class FirstWizardPage
         this.autoNickChange.setSelected(true);
         this.defaultPort.setSelected(true);
         this.passwordNotRequired.setSelected(false);
-
-        this.existingAccountLabel.setForeground(Color.RED);
 
         this.nickExampleLabel.setForeground(Color.GRAY);
         this.nickExampleLabel.setFont(
@@ -295,7 +290,6 @@ public class FirstWizardPage
     public void commitPage()
     {
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-        userPassPanel.remove(existingAccountLabel);
 
         IrcAccountRegistration registration = wizard.getRegistration();
 
@@ -421,27 +415,6 @@ public class FirstWizardPage
 
             passField.setEnabled(isPassRequired);
         }
-    }
-
-    /**
-     * Verifies whether there is already an account installed with the same
-     * details as the one that the user has just entered.
-     *
-     * @param userID the name of the user that the account is registered for
-     * @return true if there is already an account for this userID and false
-     * otherwise.
-     */
-    private boolean isExistingAccount(String userID)
-    {
-        ProtocolProviderFactory factory
-            = IrcAccRegWizzActivator.getIrcProtocolProviderFactory();
-
-        for (AccountID accountID : factory.getRegisteredAccounts())
-        {
-            if (userID.equalsIgnoreCase(accountID.getUserID()))
-                return true;
-        }
-        return false;
     }
 
     /**

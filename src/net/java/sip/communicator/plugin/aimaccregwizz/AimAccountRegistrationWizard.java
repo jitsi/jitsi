@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -23,6 +24,9 @@ import org.osgi.framework.*;
 public class AimAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(AimAccountRegistrationWizard.class);
+
     private FirstWizardPage firstWizardPage;
 
     private AimAccountRegistration registration = new AimAccountRegistration();
@@ -42,7 +46,8 @@ public class AimAccountRegistrationWizard
     {
         this.wizardContainer = wizardContainer;
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
+        this.wizardContainer.setFinishButtonText(
+            Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -104,7 +109,8 @@ public class AimAccountRegistrationWizard
     {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put(Resources.getString("plugin.aimaccregwizz.USERNAME"), registration.getUin());
+        summaryTable.put(Resources.getString("plugin.aimaccregwizz.USERNAME"),
+            registration.getUin());
         summaryTable.put(Resources.getString("service.gui.REMEMBER_PASSWORD"),
                 new Boolean(registration.isRememberPassword()));
 
@@ -117,15 +123,18 @@ public class AimAccountRegistrationWizard
                 registration.getProxyPort());
 
         if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY_TYPE"),
+            summaryTable.put(
+                Resources.getString("plugin.aimaccregwizz.PROXY_TYPE"),
                 registration.getProxyType());
 
         if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY_USERNAME"),
+            summaryTable.put(
+                Resources.getString("plugin.aimaccregwizz.PROXY_USERNAME"),
                 registration.getProxyPort());
 
         if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY_PASSWORD"),
+            summaryTable.put(
+                Resources.getString("plugin.aimaccregwizz.PROXY_PASSWORD"),
                 registration.getProxyType());
 
         return summaryTable.entrySet().iterator();
@@ -135,11 +144,10 @@ public class AimAccountRegistrationWizard
      * Installs the account created through this wizard.
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
-
         firstWizardPage.commitPage();
+
         return this.signin(registration.getUin(), registration.getPassword());
     }
 
@@ -151,8 +159,8 @@ public class AimAccountRegistrationWizard
      * @param password the password to sign in with
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory =
             AimAccRegWizzActivator.getAimProtocolProviderFactory();
 
@@ -170,36 +178,40 @@ public class AimAccountRegistrationWizard
      */
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory, String user, String passwd)
+        throws OperationFailedException
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties
+            = new Hashtable<String, String>();
 
         if (registration.isRememberPassword())
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
-        if (registration.getProxyType() != null)
-        {
-            if (registration.getProxy() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                    registration.getProxy());
+        if (registration.getProxy() != null
+            && registration.getProxy() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+                registration.getProxy());
 
-            if (registration.getProxyPort() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                    registration.getProxyPort());
+        if (registration.getProxyPort() != null
+            && registration.getProxyPort() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                registration.getProxyPort());
 
-            if (registration.getProxyType() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
-                    registration.getProxyType());
+        if (registration.getProxyType() != null
+            && registration.getProxyType() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
+                registration.getProxyType());
 
-            if (registration.getProxyUsername() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
-                    registration.getProxyUsername());
+        if (registration.getProxyUsername() != null
+            && registration.getProxyUsername() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
+                registration.getProxyUsername());
 
-            if (registration.getProxyPassword() != null)
-                accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
-                    registration.getProxyPassword());
-        }
+        if (registration.getProxyPassword() != null
+            && registration.getProxyPassword() != "")
+            accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
+                registration.getProxyPassword());
 
         if (isModification)
         {
@@ -223,20 +235,23 @@ public class AimAccountRegistrationWizard
                 (ProtocolProviderService) AimAccRegWizzActivator.bundleContext
                     .getService(serRef);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalStateException exc)
         {
-            AimAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("service.gui.ERROR"),
-                                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
         }
-        catch (IllegalStateException e)
+        catch (Exception exc)
         {
-            AimAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                                        Resources.getString("service.gui.ERROR"),
-                                        PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
+
 
         return protocolProvider;
     }

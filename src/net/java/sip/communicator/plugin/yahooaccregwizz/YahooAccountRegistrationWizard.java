@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -23,6 +24,8 @@ import org.osgi.framework.*;
 public class YahooAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    private final Logger logger
+        = Logger.getLogger(YahooAccountRegistrationWizard.class);
 
     private FirstWizardPage firstWizardPage;
 
@@ -136,9 +139,9 @@ public class YahooAccountRegistrationWizard
      * @return ProtocolProviderService
      */
     public ProtocolProviderService signin()
+        throws OperationFailedException
     {
-        if (!firstWizardPage.isCommitted())
-            firstWizardPage.commitPage();
+        firstWizardPage.commitPage();
 
         return signin(  registration.getUin(),
                         registration.getPassword());
@@ -151,8 +154,8 @@ public class YahooAccountRegistrationWizard
      * created account.
      */
     public ProtocolProviderService signin(String userName, String password)
+        throws OperationFailedException
     {
-        firstWizardPage = null;
         ProtocolProviderFactory factory =
             YahooAccRegWizzActivator.getYahooProtocolProviderFactory();
 
@@ -172,6 +175,7 @@ public class YahooAccountRegistrationWizard
      */
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory, String user, String passwd)
+        throws OperationFailedException
     {
         Hashtable accountProperties = new Hashtable();
 
@@ -202,19 +206,21 @@ public class YahooAccountRegistrationWizard
                 (ProtocolProviderService) YahooAccRegWizzActivator
                     .bundleContext.getService(serRef);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalStateException exc)
         {
-            YahooAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Account already exists.",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
         }
-        catch (IllegalStateException e)
+        catch (Exception exc)
         {
-            YahooAccRegWizzActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(e.getMessage(),
-                    Resources.getString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
+            logger.warn(exc.getMessage());
+
+            throw new OperationFailedException(
+                "Failed to add account",
+                OperationFailedException.GENERAL_ERROR);
         }
 
         return protocolProvider;
