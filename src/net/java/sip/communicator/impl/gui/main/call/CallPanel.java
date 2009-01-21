@@ -248,17 +248,22 @@ public class CallPanel
     {
     }
 
-    public void securityStatusChanged(SecurityGUIEvent securityEvent) {
+    public void securityStatusChanged(SecurityGUIEvent securityEvent)
+    {
         CallParticipant part = (CallParticipant)securityEvent.getSource();
         CallParticipantPanel panel = getParticipantPanel(part);
-        
-        if (securityEvent.getEventID() == SecurityGUIEvent.SECURITY_ENABLED) {
-           panel.changeSecureCallButton(true);
+
+        if (securityEvent.getEventID() == SecurityGUIEvent.SECURITY_ENABLED)
+        {
+            panel.changeSecureCallButton(true);
         }
-        if (securityEvent.getProvider() == SecurityGUIEvent.ZRTP) {
-            panel.changeZrtpPanel((SecurityGUIEventZrtp)securityEvent);
+
+        if (securityEvent.getProvider() == SecurityGUIEvent.ZRTP)
+        {
+            panel.changeZrtpPanel((SecurityGUIEventZrtp) securityEvent);
         }
     }
+
     /**
      * Returns the call for this call panel.
      * 

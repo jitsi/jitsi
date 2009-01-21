@@ -8,10 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.event.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.*;
-
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -30,6 +27,7 @@ public class SecureButton
     public SecureButton(CallParticipant callParticipant)
     {
         super(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF));
+
         this.callParticipant = callParticipant;
 //        this.addActionListener(this);
     }
@@ -40,30 +38,27 @@ public class SecureButton
 
         if (call != null)
         {
-            String command = evt.getActionCommand();
-            if (command.equals("startSecureMode"))
-            {
-                OperationSetSecureTelephony telephony =
-                    (OperationSetSecureTelephony) call.getProtocolProvider()
+            OperationSetSecureTelephony telephony
+                = (OperationSetSecureTelephony) call.getProtocolProvider()
                     .getOperationSet(OperationSetSecureTelephony.class);
 
-                if (telephony != null && telephony.isSecure(callParticipant))
+            if (telephony != null )
+            {
+                if (!telephony.isSecure(callParticipant))
                 {
-                    updateSecureButton(false);
                     telephony.setSecure(callParticipant,
-                                        false,
-                                        OperationSetSecureTelephony.
-                                        SecureStatusChangeSource
-                                            .SECURE_STATUS_CHANGE_BY_LOCAL);
+                        true,
+                        OperationSetSecureTelephony.
+                        SecureStatusChangeSource
+                            .SECURE_STATUS_CHANGE_BY_LOCAL);
                 }
-                else if (telephony != null)
+                else
                 {
-                    updateSecureButton(true);
                     telephony.setSecure(callParticipant,
-                                        true,
-                                        OperationSetSecureTelephony.
-                                        SecureStatusChangeSource
-                                            .SECURE_STATUS_CHANGE_BY_LOCAL);
+                        false,
+                        OperationSetSecureTelephony.
+                        SecureStatusChangeSource
+                            .SECURE_STATUS_CHANGE_BY_LOCAL);
                 }
             }
         }
@@ -79,21 +74,17 @@ public class SecureButton
     {
         if(isSecure)
         {
-            this.setIcon(
-                new ImageIcon(
-                    ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON)));
+            this.setImage(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON));
             // TODO GoClear
             // We deactivate the tooltip at the moment, because the 
             // secure mode cannot be toggled off
-            //this.setToolTipText(
+            // this.setToolTipText(
             //        GuiActivator.getResources().getI18NString("impl.media.security.TOGGLE_OFF_SECURITY").getText());
             this.setToolTipText(null);
         }
         else
         {
-            this.setIcon(
-                new ImageIcon(
-                    ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+            this.setImage(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF));
             this.setToolTipText(
                 GuiActivator.getResources()
                     .getI18NString("impl.media.security.TOGGLE_ON_SECURITY"));

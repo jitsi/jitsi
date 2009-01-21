@@ -127,16 +127,16 @@ public class SIPCommSmartComboBox extends JComboBox
         }
         
         public void setSelectedItem(Object val)
-        {   
+        {
             if ((selectedItem == null) && (val == null))
                 return;
-        
+            
             if ((selectedItem != null) && selectedItem.equals(val))
                 return;
-        
+            
             if ((val != null) && val.equals(selectedItem))
                 return;
-        
+            
             selectedItem = val;
             fireContentsChanged(this, -1, -1);
         }
@@ -227,11 +227,12 @@ public class SIPCommSmartComboBox extends JComboBox
         {
             if (setting)
                 return;
-        
+            
             filtering = true;
             
             Filter filter = null;
-            if (text.getText().length() > 0) {
+            if (text.getText().length() > 0)
+            {
                 filter = new StartsWithFilter(text.getText());
             }
             

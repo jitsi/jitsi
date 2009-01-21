@@ -331,20 +331,19 @@ public class CallParticipantPanel
             {
                 secureButton = new SecureButton(callParticipant);
 
-                secureButton.setActionCommand("startSecureMode");
-                secureButton.setName("secureButton");
                 secureButton.setToolTipText(
                     GuiActivator.getResources().getI18NString(
                     "impl.media.security.TOGGLE_ON_SECURITY"));
+
                 return secureButton;
             }
         }
         return null;
     }
 
-    public void changeSecureCallButton(boolean onOff)
+    public void changeSecureCallButton(boolean isEnabled)
     {
-        secureButton.updateSecureButton(onOff);
+        secureButton.updateSecureButton(isEnabled);
     }
 
     public void changeZrtpPanel(SecurityGUIEventZrtp securityEvent)
