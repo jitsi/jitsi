@@ -62,8 +62,7 @@ public class PresenceStatusMenu
                                 ProtocolProviderService protocolProvider)
     {
         super(protocolProvider.getAccountID().getDisplayName(),
-            new ImageIcon(protocolProvider
-                .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+            new ImageIcon(ImageLoader.getAccountStatusImage(protocolProvider)));
 
         this.protocolProvider = protocolProvider;
 
@@ -106,8 +105,9 @@ public class PresenceStatusMenu
                 this.onlineStatus = status;
             }
 
-            this.addItem(status.getStatusName(), new ImageIcon(ImageLoader
-                .getBytesInImage(status.getStatusIcon())),
+            this.addItem(status.getStatusName(),
+                new ImageIcon(
+                    ImageLoader.getBytesInImage(status.getStatusIcon())),
                 new ItemActionListener());
         }
 
@@ -227,7 +227,7 @@ public class PresenceStatusMenu
      */
     public void setSelectedStatus(PresenceStatus status)
     {
-        Image statusImage = ImageLoader.getBytesInImage(status.getStatusIcon());
+        Image statusImage = ImageLoader.getAccountStatusImage(protocolProvider);
 
         SelectedObject selectedObject
             = new SelectedObject(new ImageIcon(statusImage),

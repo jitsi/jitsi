@@ -7,7 +7,6 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -17,7 +16,6 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The AccountSelectorBox is located in the main application window under the
@@ -68,7 +66,7 @@ public class AccountSelectorBox
      */
     public void addAccount(ProtocolProviderService pps)
     {
-        Image img = createAccountStatusImage(pps);
+        Image img = ImageLoader.getAccountStatusImage(pps);
 
         JMenuItem menuItem = new JMenuItem(pps.getAccountID().getDisplayName(),
                         new ImageIcon(img));
@@ -129,66 +127,6 @@ public class AccountSelectorBox
     }
 
     /**
-     * Obtains the status icon for the given protocol contact and adds to it the
-     * account index information.
-     *
-     * @param pps the protocol provider for which to create the image
-     * @return the indexed status image
-     */
-    public Image createAccountStatusImage(ProtocolProviderService pps)
-    {
-        Image statusImage;
-
-        OperationSetPresence presence =
-            (OperationSetPresence) pps
-                .getOperationSet(OperationSetPresence.class);
-
-        if (presence != null)
-        {
-            statusImage =
-                ImageLoader.getBytesInImage(presence.getPresenceStatus()
-                    .getStatusIcon());
-        }
-        else
-        {
-            statusImage =
-                ImageLoader.getBytesInImage(pps.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16));
-            if (!pps.isRegistered())
-            {
-                statusImage = LightGrayFilter.createDisabledImage(statusImage);
-            }
-        }
-
-        int index = parentCallPanel.getMainFrame().getProviderIndex(pps);
-
-        Image img = null;
-        if (index > 0)
-        {
-            BufferedImage buffImage =
-                new BufferedImage(22, 16, BufferedImage.TYPE_INT_ARGB);
-
-            Graphics2D g = (Graphics2D) buffImage.getGraphics();
-            AlphaComposite ac =
-                AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
-
-            AntialiasingManager.activateAntialiasing(g);
-            g.setColor(Color.DARK_GRAY);
-            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-            g.drawImage(statusImage, 0, 0, null);
-            g.setComposite(ac);
-            g.drawString(new Integer(index + 1).toString(), 14, 8);
-
-            img = buffImage;
-        }
-        else
-        {
-            img = statusImage;
-        }
-        return img;
-    }
-
-    /**
      * Updates the protocol account status.
      *
      * @param pps the protocol provider service to update
@@ -197,7 +135,7 @@ public class AccountSelectorBox
     {
         JMenuItem menuItem = accountsTable.get(pps);
 
-        Icon icon = new ImageIcon(createAccountStatusImage(pps));
+        Icon icon = new ImageIcon(ImageLoader.getAccountStatusImage(pps));
 
         ProtocolProviderService selectedPPS =
             (ProtocolProviderService) menu.getSelectedObject();
@@ -248,7 +186,7 @@ public class AccountSelectorBox
      */
     public void setSelected(ProtocolProviderService pps)
     {
-        this.setSelected(pps, new ImageIcon(createAccountStatusImage(pps)));
+        this.setSelected(pps, new ImageIcon(ImageLoader.getAccountStatusImage(pps)));
     }
 
     /**

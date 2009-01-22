@@ -33,10 +33,6 @@ public class SimpleStatusMenu
 
     private final ProtocolProviderService protocolProvider;
 
-    private final ImageIcon onlineIcon;
-
-    private final ImageIcon offlineIcon;
-
     private final JMenuItem onlineItem;
 
     private final JMenuItem offlineItem;
@@ -49,22 +45,17 @@ public class SimpleStatusMenu
     public SimpleStatusMenu(ProtocolProviderService protocolProvider)
     {
         this(protocolProvider,
-            protocolProvider.getAccountID().getDisplayName(), new ImageIcon(
-                protocolProvider.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16)));
+            protocolProvider.getAccountID().getDisplayName(),
+            new ImageIcon(ImageLoader.getAccountStatusImage(protocolProvider)));
     }
 
-    private SimpleStatusMenu(ProtocolProviderService protocolProvider,
-        String displayName, ImageIcon onlineIcon)
+    private SimpleStatusMenu(   ProtocolProviderService protocolProvider,
+                                String displayName,
+                                ImageIcon statusIcon)
     {
-        super(displayName, onlineIcon);
+        super(displayName, statusIcon);
 
         this.protocolProvider = protocolProvider;
-
-        this.onlineIcon = onlineIcon;
-        this.offlineIcon =
-            new ImageIcon(LightGrayFilter.createDisabledImage(onlineIcon
-                .getImage()));
 
         this.setToolTipText("<html><b>" + displayName
             + "</b><br>Offline</html>");
@@ -78,10 +69,10 @@ public class SimpleStatusMenu
         this.addSeparator();
 
         onlineItem =
-            createMenuItem("service.gui.ONLINE", onlineIcon,
+            createMenuItem("service.gui.ONLINE", statusIcon,
                 Constants.ONLINE_STATUS);
         offlineItem =
-            createMenuItem("service.gui.OFFLINE", offlineIcon,
+            createMenuItem("service.gui.OFFLINE", statusIcon,
                 Constants.OFFLINE_STATUS);
     }
 
@@ -149,16 +140,20 @@ public class SimpleStatusMenu
 
         tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
 
+        Image statusImage = ImageLoader.getAccountStatusImage(protocolProvider);
+
         if (protocolProvider.isRegistered())
         {
-            setSelected(new SelectedObject(onlineIcon, onlineItem));
+            setSelected(
+                new SelectedObject(new ImageIcon(statusImage), onlineItem));
 
             // TODO Technically, we're not closing the html element.
             this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
         }
         else
         {
-            setSelected(new SelectedObject(offlineIcon, offlineItem));
+            setSelected(
+                new SelectedObject(new ImageIcon(statusImage), offlineItem));
 
             this.setToolTipText(tooltip.concat("<br>" + offlineItem.getText()));
         }

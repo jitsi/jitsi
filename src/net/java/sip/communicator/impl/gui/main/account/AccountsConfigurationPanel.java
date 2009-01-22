@@ -7,17 +7,18 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
+import java.beans.PropertyChangeEvent;
 import java.util.*;
 import java.util.List;
 
-import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -28,7 +29,9 @@ import org.osgi.framework.*;
  */
 public class AccountsConfigurationPanel
     extends TransparentPanel
-    implements ActionListener, ServiceListener
+    implements  ActionListener,
+                ServiceListener,
+                ProviderPresenceStatusListener
 {
     private final Logger logger =
         Logger.getLogger(AccountsConfigurationPanel.class.getName());
@@ -98,9 +101,9 @@ public class AccountsConfigurationPanel
 
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                boolean isHidden =
-                    (accountID
-                        .getAccountProperty(ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
+                boolean isHidden
+                    = (accountID.getAccountProperty
+                        (ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
 
                 if (isHidden)
                     continue;
@@ -110,6 +113,15 @@ public class AccountsConfigurationPanel
                 protocolProvider =
                     (ProtocolProviderService) GuiActivator.bundleContext
                         .getService(serRef);
+
+                OperationSetPresence presence
+                    = (OperationSetPresence) protocolProvider
+                        .getOperationSet(OperationSetPresence.class);
+
+                if (presence != null)
+                {
+                    presence.addProviderPresenceStatusListener(this);
+                }
 
                 AccountPanel accountPanel = new AccountPanel(protocolProvider);
 
@@ -187,6 +199,20 @@ public class AccountsConfigurationPanel
         }
     }
 
+    /**
+     * Refreshes the account status icon, when the status is changed.
+     */
+    public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
+    {
+        ProtocolProviderService pps = evt.getProvider();
+
+        AccountPanel accountPanel = accounts.get(pps);
+
+        accountPanel.updateStatus();
+    }
+
+    public void providerStatusMessageChanged(PropertyChangeEvent evt) {}
+
     private class AccountPanel
         extends TransparentPanel
         implements ActionListener
@@ -207,8 +233,6 @@ public class AccountsConfigurationPanel
 
         private GridBagConstraints constraints = new GridBagConstraints();
 
-        private Image protocolImage;
-
         private ProtocolProviderService protocolProvider;
 
         public AccountPanel(ProtocolProviderService protocolProvider)
@@ -221,17 +245,9 @@ public class AccountsConfigurationPanel
             this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,
                 Color.GRAY));
 
-            try
-            {
-                protocolImage =
-                    ImageIO.read(new ByteArrayInputStream(protocolProvider
-                        .getProtocolIcon()
-                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
-            }
-            catch (IOException e)
-            {
-                logger.error("Could not read image.", e);
-            }
+            Image protocolImage =
+                ImageLoader.getAccountStatusImage(protocolProvider);
+
             protocolLabel.setIcon(new ImageIcon(protocolImage));
             constraints.insets = new Insets(0, 5, 0, 5);
             constraints.weightx = 0;
@@ -307,6 +323,14 @@ public class AccountsConfigurationPanel
                 providerFactory.modifyAccount(protocolProvider,
                     accountProperties);
             }
+        }
+
+        public void updateStatus()
+        {
+            Image protocolImage
+                = ImageLoader.getAccountStatusImage(protocolProvider);
+
+            protocolLabel.setIcon(new ImageIcon(protocolImage));
         }
 
         public void actionPerformed(ActionEvent e)

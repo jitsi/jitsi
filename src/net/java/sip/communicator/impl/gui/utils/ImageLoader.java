@@ -17,8 +17,10 @@ import javax.imageio.*;
 import javax.imageio.stream.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Stores and loads images used throughout this ui implementation.
@@ -1269,5 +1271,67 @@ public class ImageLoader {
         }
 
         return null;
+    }
+
+    /**
+     * Obtains the indexed status image for the given protocol provider.
+     *
+     * @param pps the protocol provider for which to create the image
+     * 
+     * @return the indexed status image
+     */
+    public static Image getAccountStatusImage(ProtocolProviderService pps)
+    {
+        Image statusImage;
+
+        OperationSetPresence presence
+            = (OperationSetPresence) pps
+                .getOperationSet(OperationSetPresence.class);
+
+        if (presence != null)
+        {
+            statusImage
+                = ImageLoader.getBytesInImage(presence.getPresenceStatus()
+                    .getStatusIcon());
+        }
+        else
+        {
+            statusImage
+                = ImageLoader.getBytesInImage(pps.getProtocolIcon().getIcon(
+                    ProtocolIcon.ICON_SIZE_16x16));
+
+            if (!pps.isRegistered())
+            {
+                statusImage = LightGrayFilter.createDisabledImage(statusImage);
+            }
+        }
+
+        int index
+            = GuiActivator.getUIService().getMainFrame().getProviderIndex(pps);
+
+        Image img = null;
+        if (index > 0)
+        {
+            BufferedImage buffImage =
+                new BufferedImage(22, 16, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D g = (Graphics2D) buffImage.getGraphics();
+            AlphaComposite ac =
+                AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+
+            AntialiasingManager.activateAntialiasing(g);
+            g.setColor(Color.DARK_GRAY);
+            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
+            g.drawImage(statusImage, 0, 0, null);
+            g.setComposite(ac);
+            g.drawString(new Integer(index + 1).toString(), 14, 8);
+
+            img = buffImage;
+        }
+        else
+        {
+            img = statusImage;
+        }
+        return img;
     }
 }
