@@ -483,18 +483,24 @@ public class OperationSetBasicInstantMessagingIcqImpl
             }
 
             String msgContent;
+            String msgContentType;
             if (msgBody.startsWith(defaultHtmlStartTag))
             {
                 msgContent = msgBody.substring(
                     msgBody.indexOf(defaultHtmlStartTag)
                         + defaultHtmlStartTag.length(),
                     msgBody.indexOf(defaultHtmlEndTag));
+
+                msgContentType = HTML_MIME_TYPE;
             }
             else
+            {
                 msgContent = msgBody;
+                msgContentType = DEFAULT_MIME_TYPE;
+            }
 
             Message newMessage =
-                createMessage(msgContent, HTML_MIME_TYPE,
+                createMessage(msgContent, msgContentType,
                     DEFAULT_MIME_ENCODING, null);
 
             Contact sourceContact =
