@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.media.transform.zrtp;
 
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.impl.media.*;
+//import net.java.sip.communicator.service.resources.*;
+//import net.java.sip.communicator.impl.media.*;
 
-import org.osgi.framework.*;
+//import org.osgi.framework.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization

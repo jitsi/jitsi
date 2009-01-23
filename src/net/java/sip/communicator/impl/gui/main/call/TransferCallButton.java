@@ -10,8 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
-import javax.swing.*;
-
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
