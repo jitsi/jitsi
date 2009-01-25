@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.media.codec.video.h264;
 
+import java.util.*;
+
 import javax.media.*;
 
 import net.java.sip.communicator.util.*;
@@ -15,6 +17,7 @@ import net.java.sip.communicator.util.*;
  * the decoder expects it. RFC3984.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class H264Parser
 {
@@ -30,9 +33,24 @@ public class H264Parser
     private long lastTimestamp = -1;
 
     // the result data is collected in this buffer
-    private byte[] encodedFrame = new byte[MAX_FRAME_SIZE];
+    private final byte[] encodedFrame;
+
     // the size of the result data
     private int encodedFrameLen;
+
+    private final int encodedFramePaddingSize;
+
+    public H264Parser()
+    {
+        this(0);
+    }
+
+    public H264Parser(int encodedFramePaddingSize)
+    {
+        this.encodedFramePaddingSize = encodedFramePaddingSize;
+        this.encodedFrame =
+            new byte[MAX_FRAME_SIZE + this.encodedFramePaddingSize];
+    }
 
     /**
      * New rtp packet is received. We push it to the parser to extract the data.
@@ -70,11 +88,12 @@ public class H264Parser
                 int len = inputBuffer.getLength();
                 System.arraycopy(inData, inputOffset, encodedFrame, encodedFrameLen, len);
                 encodedFrameLen += len;
+                ensureEncodedFramePaddingSize();
             }
-            else if (type == 24)
-            {
+            //else if (type == 24)
+            //{
                 //return deencapsulateSTAP(inputBuffer);
-            }
+            //}
             else if (type == 28)
             {
                 deencapsulateFU(fByte, inputBuffer);
@@ -138,6 +157,7 @@ public class H264Parser
         }
         System.arraycopy(buf, offset, encodedFrame, encodedFrameLen, len);
         encodedFrameLen += len;
+        ensureEncodedFramePaddingSize();
     }
 
     /**
@@ -160,7 +180,13 @@ public class H264Parser
 
     void reset()
     {
-        encodedFrame = new byte[MAX_FRAME_SIZE];
         encodedFrameLen = 0;
+        ensureEncodedFramePaddingSize();
+    }
+
+    private void ensureEncodedFramePaddingSize()
+    {
+        Arrays.fill(encodedFrame, encodedFrameLen, encodedFrameLen
+            + encodedFramePaddingSize, (byte) 0);
     }
 }
