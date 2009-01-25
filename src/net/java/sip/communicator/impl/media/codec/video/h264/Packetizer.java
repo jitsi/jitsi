@@ -13,20 +13,18 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.media.codec.*;
-import net.java.sip.communicator.util.*;
 
 import net.sf.fmj.media.*;
 
 /**
- * Packest supplied data and encapsulate it in rtp according
- * rfc RFC3984.
+ * Packets supplied data and encapsulates it in RTP in accord with RFC3984.
+ * 
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class Packetizer
     extends AbstractPacketizer
 {
-    private final Logger logger = Logger.getLogger(Packetizer.class);
-
     private final static String PLUGIN_NAME = "H264 Packetizer";
 
     private Format[] supportedOutputFormats = null;
@@ -218,31 +216,31 @@ public class Packetizer
         }
 
         Format inFormat = inBuffer.getFormat();
-        if (inFormat != inputFormat && !(inFormat.matches(inputFormat)))
+        if (inFormat != inputFormat && !inFormat.matches(inputFormat))
         {
             setInputFormat(inFormat);
         }
 
-        if (inBuffer.getLength() < 10)
+        int inputLength = inBuffer.getLength();
+        if (inputLength < 10)
         {
             outBuffer.setDiscard(true);
             reset();
             return BUFFER_PROCESSED_OK;
         }
 
-        byte[] r = new byte[inBuffer.getLength()];
-        System.arraycopy(
-            inBuffer.getData(), inBuffer.getOffset(), r, 0, inBuffer.getLength());
+        byte[] r = (byte[]) inBuffer.getData();
+        int inputOffset = inBuffer.getOffset();
 
         // split encoded data to nals
         // we know it starts with 00 00 01
-        int ix = 3;
-        int prevIx = 1;
+        int ix = 3 + inputOffset;
+        int prevIx = 1 + inputOffset;
         while((ix = ff_avc_find_startcode(r, ix, r.length)) < r.length)
         {
             int len = ix - prevIx;
             byte[] b = new byte[len -4];
-            System.arraycopy(r, prevIx+ 3, b, 0, len-4);
+            System.arraycopy(r, prevIx+ 3, b, 0, b.length);
             nals.add(b);
 
             prevIx = ix;
@@ -252,13 +250,12 @@ public class Packetizer
         int len = ix - prevIx;
         if(len < 0)
         {
-            logger.warn("aaaa");
             outBuffer.setDiscard(true);
             return BUFFER_PROCESSED_OK;
         }
 
         byte[] b = new byte[len - 3];
-        System.arraycopy(r, prevIx+ 3, b, 0, len-3);
+        System.arraycopy(r, prevIx+ 3, b, 0, b.length);
         nals.add(b);
 
         lastTimeStamp = inBuffer.getTimeStamp();
