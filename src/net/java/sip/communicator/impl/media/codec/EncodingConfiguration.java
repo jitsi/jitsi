@@ -90,7 +90,8 @@ public class EncodingConfiguration
      * less efficient JNA ones on the platforms without JNI counterparts.
      */
     private static final boolean H264_JNI =
-        System.getProperty("os.name").contains("Windows");
+        System.getProperty("os.name").contains("Windows")
+            || System.getProperty("os.name").contains("Mac OS X");
 
     private static final String[] customCodecs =
         new String[]
