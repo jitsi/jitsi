@@ -91,7 +91,8 @@ public class EncodingConfiguration
      */
     private static final boolean H264_JNI =
         System.getProperty("os.name").contains("Windows")
-            || System.getProperty("os.name").contains("Mac OS X");
+            || System.getProperty("os.name").contains("Mac OS X")
+            || System.getProperty("os.name").contains("Linux");
 
     private static final String[] customCodecs =
         new String[]
