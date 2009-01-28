@@ -430,7 +430,6 @@ public class ProtocolProviderServiceSipImpl
             //create SIP factories.
             headerFactory = new HeaderFactoryImpl();
             addressFactory = new AddressFactoryImpl();
-            messageFactory = new MessageFactoryImpl();
 
             //create a connection with the registrar
             initRegistrarConnection(accountID);
@@ -1109,7 +1108,13 @@ public class ProtocolProviderServiceSipImpl
      */
     public MessageFactory getMessageFactory()
     {
-        return messageFactory;
+        if(this.messageFactory == null)
+        {
+            MessageFactory wrappedFactory
+                = new MessageFactoryImpl();
+            this.messageFactory = new SipMessageFactory(this, wrappedFactory);
+        }
+        return this.messageFactory;
     }
 
     /**
