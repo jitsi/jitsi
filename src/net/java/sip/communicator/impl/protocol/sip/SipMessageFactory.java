@@ -65,42 +65,6 @@ public class SipMessageFactory
     }
 
     /**
-     * Marks the given <tt>request</tt> with the service this
-     * <tt>SipMessageFactory</tt> belongs to.
-     *
-     * @param request the <tt>Request</tt> to mark.
-     */
-    private void markRequest(Request request)
-    {
-        if (request instanceof SIPRequest)
-        {
-            SipApplicationData data = new SipApplicationData();
-            data.put(SipApplicationData.APPDATA_KEY_SERVICE, this.service_);
-            ((SIPRequest) request).setApplicationData(data);
-        }
-        else
-            logger.error("the internal factory didn't provide a SIPRequest");
-    }
-
-    /**
-     * Marks the given <tt>response</tt> with the service this
-     * <tt>SipMessageFactory</tt> belongs to.
-     *
-     * @param request the <tt>Response</tt> to mark.
-     */
-    private void markResponse(Response response)
-    {
-        if (response instanceof SIPResponse)
-        {
-            SipApplicationData data = new SipApplicationData();
-            data.put(SipApplicationData.APPDATA_KEY_SERVICE, this.service_);
-            ((SIPResponse) response).setApplicationData(data);
-        }
-        else
-            logger.error("the internal factory didn't provide a SIPResponse");
-    }
-
-    /**
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Request</tt> marked with its service.
      *
@@ -114,7 +78,8 @@ public class SipMessageFactory
     {
         Request request = this.factory_.createRequest(requestURI, method,
                 callId, cSeq, from, to, via, maxForwards, contentType, content);
-        this.markRequest(request);
+        SipApplicationData.setApplicationData(request,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return request;
     }
 
@@ -132,7 +97,8 @@ public class SipMessageFactory
     {
         Request request = this.factory_.createRequest(requestURI, method,
                 callId, cSeq, from, to, via, maxForwards, contentType, content);
-        this.markRequest(request);
+        SipApplicationData.setApplicationData(request,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return request;
     }
 
@@ -149,7 +115,8 @@ public class SipMessageFactory
     {
         Request request = this.factory_.createRequest(requestURI, method,
                 callId, cSeq, from, to, via, maxForwards);
-        this.markRequest(request);
+        SipApplicationData.setApplicationData(request,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return request;
     }
 
@@ -163,7 +130,8 @@ public class SipMessageFactory
         throws ParseException
     {
         Request request = this.factory_.createRequest(requestParam);
-        this.markRequest(request);
+        SipApplicationData.setApplicationData(request,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return request;
     }
 
@@ -181,7 +149,8 @@ public class SipMessageFactory
     {
         Response response = this.factory_.createResponse(statusCode, callId,
                 cSeq, from, to, via, maxForwards, contentType, content);
-        this.markResponse(response);
+        SipApplicationData.setApplicationData(response,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
 
@@ -199,7 +168,8 @@ public class SipMessageFactory
     {
         Response response = this.factory_.createResponse(statusCode, callId,
                 cSeq, from, to, via, maxForwards, contentType, content);
-        this.markResponse(response);
+        SipApplicationData.setApplicationData(response,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
 
@@ -216,7 +186,8 @@ public class SipMessageFactory
     {
         Response response = this.factory_.createResponse(statusCode, callId,
                 cSeq, from, to, via, maxForwards);
-        this.markResponse(response);
+        SipApplicationData.setApplicationData(response,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
 
@@ -232,7 +203,8 @@ public class SipMessageFactory
     {
         Response response = this.factory_.createResponse(statusCode, request,
                 contentType, content);
-        this.markResponse(response);
+        SipApplicationData.setApplicationData(response,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
 
@@ -248,7 +220,8 @@ public class SipMessageFactory
     {
         Response response = this.factory_.createResponse(statusCode, request,
                 contentType, content);
-        this.markResponse(response);
+        SipApplicationData.setApplicationData(response,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
 
@@ -262,7 +235,8 @@ public class SipMessageFactory
         throws ParseException
     {
         Response response = this.factory_.createResponse(statusCode, request);
-        this.markResponse(response);
+        SipApplicationData.setApplicationData(response,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
 
@@ -276,7 +250,8 @@ public class SipMessageFactory
         throws ParseException
     {
         Response response = this.factory_.createResponse(responseParam);
-        this.markResponse(response);
+        SipApplicationData.setApplicationData(response,
+                SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
 }

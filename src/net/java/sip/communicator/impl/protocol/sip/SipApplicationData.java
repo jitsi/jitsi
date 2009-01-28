@@ -6,20 +6,32 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.message.*;
 import java.util.*;
+import javax.sip.*;
+
+import net.java.sip.communicator.util.*;
 
 /**
  * The only Object with should be used as parameter for any JAIN-SIP class
  * setApplicationData() method (available for instance with Dialog-s and
  * Transaction-s). Allows several parts of SC code to interact independantly
  * with setApplicationData(...)/getApplicationData() without stepping on
- * eachother's toes.
+ * eachother's toes. Utility functions are provided to set/get data from
+ * a supported object.
  *
  * @author Sebastien Mazy
  */
 public class SipApplicationData
 {
-    public static final String APPDATA_KEY_SERVICE = "service";
+    public static final String KEY_SERVICE = "service";
+    public static final String KEY_SUBSCRIPTIONS = "subscriptions";
+
+    /**
+     * Logger for this class.
+     */
+    private static final Logger logger
+        = Logger.getLogger(SipApplicationData.class);
 
     /**
      * Internal representation of the store.
@@ -28,12 +40,70 @@ public class SipApplicationData
 
     /**
      * Stores a <tt>value</tt> associated to the a <tt>key</tt> string in the
+     * <tt>container</tt>. Currently <tt>SIPMessage</tt>, <tt>Transaction</tt>
+     * and <tt>Dialog</tt> are supported as container.
+     *
+     * @param container the <tt>Object</tt> to attach the
+     * <tt>key</tt>/<tt>value</tt> pair to.
+     * @param key the key string to retrieve the value later with get()
+     * @param value the value to store
+     */
+    public static void setApplicationData(
+            Object container, String key, Object value)
+    {
+        if (container == null)
+            throw new NullPointerException("container is null");
+        if (key == null)
+            throw new NullPointerException("key is null");
+
+        SipApplicationData appData = getSipApplicationData(container);
+        if (appData == null)
+        {
+            appData = new SipApplicationData();
+            if (container instanceof SIPMessage)
+                ((SIPMessage) container).setApplicationData(appData);
+            else if (container instanceof Transaction)
+                ((Transaction) container).setApplicationData(appData);
+            else if (container instanceof Dialog)
+                ((Dialog) container).setApplicationData(appData);
+            else
+                logger.error("container should be of type " +
+                        "SIPMessage, Transaction or Dialog");
+        }
+
+        appData.put(key, value);
+    }
+
+    /**
+     * Retrieves a value associated to the a <tt>key</tt> string in the
+     * <tt>container</tt>. Currently <tt>SIPMessage</tt>, <tt>Transaction</tt>
+     * and <tt>Dialog</tt> are supported as container.
+     *
+     * @param container the <tt>Object</tt> to retrieve a value from.
+     * @param key the key string to identify the value to retrieve
+     * @return the returned value or null if it is not found
+     */
+    public static Object getApplicationData(Object container, String key)
+    {
+        if (container == null)
+            throw new NullPointerException("container is null");
+        if (key == null)
+            throw new NullPointerException("key is null");
+
+        SipApplicationData appData = getSipApplicationData(container);
+        if (appData == null)
+            return null;
+        return appData.get(key);
+    }
+
+    /**
+     * Stores a <tt>value</tt> associated to the a <tt>key</tt> string in the
      * <tt>SipApplicationData</tt>.
      *
      * @param key the key string to retrieve the value later with get()
      * @param value the value to store
      */
-    public void put(String key, Object value)
+    private void put(String key, Object value)
     {
         this.storage_.put(key, value);
     }
@@ -44,9 +114,44 @@ public class SipApplicationData
      * @param key the key string to identify the value to retrieve
      * @return the returned value or null if it is not found
      */
-    public Object get(String key)
+    private Object get(String key)
     {
         return this.storage_.get(key);
+    }
+
+    /**
+     * Tries to use the setApplicationData() method on the provided container
+     * and returns the SipApplicationData stored there, or null if there is none
+     * or if another type of instance is found.
+     *
+     * @param container the <tt>Object</tt> to retrieve a
+     * <tt>SipApplicationData</tt> from.
+     * @return the <tt>SipApplicationData</tt> rerieved, or null.
+     */
+    private static SipApplicationData getSipApplicationData(Object container)
+    {
+        Object appData;
+        if (container instanceof SIPMessage)
+            appData = ((SIPMessage) container).getApplicationData();
+        else if (container instanceof Transaction)
+            appData = ((Transaction) container).getApplicationData();
+        else if (container instanceof Dialog)
+            appData = ((Dialog) container).getApplicationData();
+        else
+        {
+            logger.error("container should be of type " +
+                    "SIPMessage, Transaction or Dialog");
+            appData = null;
+        }
+
+        if (appData == null)
+            return null;
+        if (appData instanceof SipApplicationData)
+            return (SipApplicationData) appData;
+
+        logger.error("application data should be of type " +
+                "SipApplicationData");
+        return null;
     }
 }
 

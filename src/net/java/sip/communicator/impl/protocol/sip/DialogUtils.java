@@ -38,11 +38,15 @@ public final class DialogUtils
         synchronized (dialog)
         {
             DialogApplicationData applicationData =
-                (DialogApplicationData) dialog.getApplicationData();
+                (DialogApplicationData) SipApplicationData.getApplicationData(
+                        dialog, SipApplicationData.KEY_SUBSCRIPTIONS);
             if (applicationData == null)
             {
                 applicationData = new DialogApplicationData();
-                dialog.setApplicationData(applicationData);
+                SipApplicationData.setApplicationData(
+                        dialog,
+                        SipApplicationData.KEY_SUBSCRIPTIONS,
+                        applicationData);
             }
 
             if (applicationData.addSubscription(subscription))
@@ -82,7 +86,8 @@ public final class DialogUtils
         synchronized (dialog)
         {
             DialogApplicationData applicationData =
-                (DialogApplicationData) dialog.getApplicationData();
+                (DialogApplicationData) SipApplicationData.getApplicationData(
+                        dialog, SipApplicationData.KEY_SUBSCRIPTIONS);
             return (applicationData == null) ? false : applicationData
                 .isByeProcessed();
         }
@@ -107,7 +112,8 @@ public final class DialogUtils
         synchronized (dialog)
         {
             DialogApplicationData applicationData =
-                (DialogApplicationData) dialog.getApplicationData();
+                (DialogApplicationData) SipApplicationData.getApplicationData(
+                        dialog, SipApplicationData.KEY_SUBSCRIPTIONS);
             if (applicationData != null)
             {
                 applicationData.setByeProcessed(true);
@@ -146,7 +152,8 @@ public final class DialogUtils
         synchronized (dialog)
         {
             DialogApplicationData applicationData =
-                (DialogApplicationData) dialog.getApplicationData();
+                (DialogApplicationData) SipApplicationData.getApplicationData(
+                        dialog, SipApplicationData.KEY_SUBSCRIPTIONS);
             if ((applicationData != null)
                 && applicationData.removeSubscription(subscription)
                 && (applicationData.getSubscriptionCount() <= 0)

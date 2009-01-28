@@ -10,7 +10,6 @@ import gov.nist.javax.sip.stack.*;
 
 import java.util.*;
 
-import gov.nist.javax.sip.message.*;
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -118,38 +117,30 @@ public class ProxyRouter
     {
         // any out-of-dialog or dialog creating request should be marked with
         // the service which created it
-        if(request instanceof SIPRequest)
+        Object service  = SipApplicationData.getApplicationData(request,
+                SipApplicationData.KEY_SERVICE);
+        if (service instanceof ProtocolProviderServiceSipImpl)
         {
-            Object appData  = ((SIPRequest) request).getApplicationData();
-            if(appData instanceof SipApplicationData)
+            String proxy = ((ProtocolProviderServiceSipImpl) service)
+                .getOutboundProxyString();
+
+            // P2P case
+            if (proxy == null)
+                return this.getDefaultRouter();
+
+            // outbound proxy case
+            Router router = routerCache.get(proxy);
+            if (router == null)
             {
-                Object service
-                    = ((SipApplicationData) appData)
-                    .get(SipApplicationData.APPDATA_KEY_SERVICE);
-                if(service instanceof ProtocolProviderServiceSipImpl)
-                {
-                    String proxy = ((ProtocolProviderServiceSipImpl) service)
-                        .getOutboundProxyString();
-
-                    // P2P case
-                    if (proxy == null)
-                        return this.getDefaultRouter();
-
-                    // outbound proxy case
-                    Router router = routerCache.get(proxy);
-                    if (router == null)
-                    {
-                        router = new DefaultRouter(stack, proxy);
-                        routerCache.put(proxy, router);
-                    }
-                    return router;
-                }
+                router = new DefaultRouter(stack, proxy);
+                routerCache.put(proxy, router);
             }
+            return router;
         }
 
         // check the request is in-dialog
         ToHeader to = (ToHeader) request.getHeader(ToHeader.NAME);
-        if(to.getTag() == null)
+        if (to.getTag() == null)
             logger.error("unable to identify the service which created this "
                     + "out-of-dialog request");
 
