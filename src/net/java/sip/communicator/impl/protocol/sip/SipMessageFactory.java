@@ -6,21 +6,22 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import gov.nist.javax.sip.message.*;
 import java.text.*;
 import java.util.*;
+
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
+
 import net.java.sip.communicator.util.*;
 
 /**
  * This <tt>MessageFactory</tt> is just a wrapper around a "real"
- * <tt>Messagefactory</tt>, wich will be passed to the constructor.
- * Its only purpose is to mark every created message with its
+ * <tt>Messagefactory</tt>, which will be passed to the constructor. Its only
+ * purpose is to mark every created message with its
  * <tt>ProtocolProviderServiceSipImpl</tt>, so that the generated
  * <tt>Message</tt>-s will be easy to route or dispatch.
- *
+ * 
  * @author Sebastien Mazy
  */
 public class SipMessageFactory
@@ -255,4 +256,3 @@ public class SipMessageFactory
         return response;
     }
 }
-

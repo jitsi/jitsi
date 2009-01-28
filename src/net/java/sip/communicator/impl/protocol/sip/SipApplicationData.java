@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The only Object with should be used as parameter for any JAIN-SIP class
  * setApplicationData() method (available for instance with Dialog-s and
- * Transaction-s). Allows several parts of SC code to interact independantly
+ * Transaction-s). Allows several parts of SC code to interact independently
  * with setApplicationData(...)/getApplicationData() without stepping on
  * eachother's toes. Utility functions are provided to set/get data from
  * a supported object.
@@ -36,7 +36,7 @@ public class SipApplicationData
     /**
      * Internal representation of the store.
      */
-    private Map<String, Object> storage_ = new HashMap<String, Object>();
+    private final Map<String, Object> storage_ = new HashMap<String, Object>();
 
     /**
      * Stores a <tt>value</tt> associated to the a <tt>key</tt> string in the
