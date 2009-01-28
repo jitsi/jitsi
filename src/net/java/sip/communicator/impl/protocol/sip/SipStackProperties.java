@@ -45,6 +45,34 @@ public class SipStackProperties
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
+     * if the debug log file has to be overwritten when starting.
+     */
+    private static String NSPNAME_DEBUG_LOG_OVERWRITE
+        = "gov.nist.javax.sip.DEBUG_LOG_OVERWRITE";
+
+    /**
+     * A string indicating to jain-sip-ri if the debug log file has to be
+     * overwritten when starting.
+     */
+    private static String NSPVALUE_DEBUG_LOG_OVERWRITE
+        = "true";
+
+    /**
+     * The name of the property under which the jain-sip-ri would expect to find
+     * if the server log file has to be overwritten when starting.
+     */
+    private static String NSPNAME_SERVER_LOG_OVERWRITE
+        = "gov.nist.javax.sip.SERVER_LOG_OVERWRITE";
+
+    /**
+     * A string indicating to jain-sip-ri if the server log file has to be
+     * overwritten when starting.
+     */
+    private static String NSPVALUE_SERVER_LOG_OVERWRITE
+        = "true";
+
+    /**
+     * The name of the property under which the jain-sip-ri would expect to find
      * a property specifying whether or not it is to cache client connections.
      */
     private static final String NSPNAME_CACHE_CLIENT_CONNECTIONS =
@@ -144,6 +172,10 @@ public class SipStackProperties
         this.setProperty(NSPNAME_DEBUG_LOG, NSPVALUE_DEBUG_LOG);
 
         this.setProperty(NSPNAME_SERVER_LOG, NSPVALUE_SERVER_LOG);
+
+        this.setProperty(NSPNAME_DEBUG_LOG_OVERWRITE, NSPVALUE_DEBUG_LOG_OVERWRITE);
+
+        this.setProperty(NSPNAME_SERVER_LOG_OVERWRITE, NSPVALUE_SERVER_LOG_OVERWRITE);
 
         // Drop the client connection after we are done with the transaction.
         this.setProperty(NSPNAME_CACHE_CLIENT_CONNECTIONS,
