@@ -10,6 +10,7 @@ import gov.nist.javax.sip.stack.*;
 
 import java.util.*;
 
+import gov.nist.javax.sip.message.*;
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -115,41 +116,43 @@ public class ProxyRouter
      */
     private Router getRouterFor(Request request)
     {
-        // Tries to guess which account created the request by looking at the
-        // From: header field. For requests that create a dialog, it should
-        // always work as we set the From: header field ourselves. For requests
-        // that are already part of a dialog, the routing decision was
-        // previously taken by inserting a Route: header field if needed and can
-        // be read by any router we might return.
-        Address address =
-            ((FromHeader) request.getHeader(FromHeader.NAME)).getAddress();
-        Set<ProtocolProviderServiceSipImpl> services =
-            ProtocolProviderServiceSipImpl.getAllInstances();
-        for (ProtocolProviderServiceSipImpl service : services)
+        // any out-of-dialog or dialog creating request should be marked with
+        // the service which created it
+        if(request instanceof SIPRequest)
         {
-            if (request.getRequestURI().isSipURI()
-                && service.getOurSipAddress((SipURI) request.getRequestURI())
-                    .equals(address))
+            Object appData  = ((SIPRequest) request).getApplicationData();
+            if(appData instanceof SipApplicationData)
             {
-                String proxy = service.getOutboundProxyString();
-
-                // P2P case
-                if (proxy == null)
-                    return this.getDefaultRouter();
-
-                // outbound proxy case
-                Router router = routerCache.get(proxy);
-                if (router == null)
+                Object service
+                    = ((SipApplicationData) appData)
+                    .get(SipApplicationData.APPDATA_KEY_SERVICE);
+                if(service instanceof ProtocolProviderServiceSipImpl)
                 {
-                    router = new DefaultRouter(stack, proxy);
-                    routerCache.put(proxy, router);
+                    String proxy = ((ProtocolProviderServiceSipImpl) service)
+                        .getOutboundProxyString();
+
+                    // P2P case
+                    if (proxy == null)
+                        return this.getDefaultRouter();
+
+                    // outbound proxy case
+                    Router router = routerCache.get(proxy);
+                    if (router == null)
+                    {
+                        router = new DefaultRouter(stack, proxy);
+                        routerCache.put(proxy, router);
+                    }
+                    return router;
                 }
-                return router;
             }
         }
 
-        // Let's hope this request is part of a dialog otherwise we are in
-        // trouble. Unfortunately, we have no way to check this.
+        // check the request is in-dialog
+        ToHeader to = (ToHeader) request.getHeader(ToHeader.NAME);
+        if(to.getTag() == null)
+            logger.error("unable to identify the service which created this "
+                    + "out-of-dialog request");
+
         return this.getDefaultRouter();
     }
 
