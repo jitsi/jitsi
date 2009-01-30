@@ -263,14 +263,14 @@ public class SIPCommButton
         {
             if (isEnabled())
             {
-            getModel().setRollover(false);
+                getModel().setRollover(false);
 
-            FadeTracker fadeTracker = FadeTracker.getInstance();
+                FadeTracker fadeTracker = FadeTracker.getInstance();
 
-            fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
-                SIPCommButton.this,
-                true,
-                new ButtonRepaintCallback());
+                fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
+                    SIPCommButton.this,
+                    true,
+                    new ButtonRepaintCallback());
             }
         }
 
@@ -281,14 +281,14 @@ public class SIPCommButton
         {
             if (isEnabled())
             {
-            getModel().setRollover(true);
+                getModel().setRollover(true);
 
-            FadeTracker fadeTracker = FadeTracker.getInstance();
+                FadeTracker fadeTracker = FadeTracker.getInstance();
 
-            fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
-                SIPCommButton.this,
-                true,
-                new ButtonRepaintCallback());
+                fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
+                    SIPCommButton.this,
+                    true,
+                    new ButtonRepaintCallback());
             }
         }
 
