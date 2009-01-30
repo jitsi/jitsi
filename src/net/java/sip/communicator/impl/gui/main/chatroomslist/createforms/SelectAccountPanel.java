@@ -188,6 +188,7 @@ public class SelectAccountPanel extends TransparentPanel
 
             noAccountsTextArea.setLineWrap(true);
             noAccountsTextArea.setPreferredSize(new Dimension(400, 200));
+            noAccountsTextArea.setOpaque(false);
 
             this.rightPanel.add(noAccountsTextArea, BorderLayout.SOUTH);
         }
