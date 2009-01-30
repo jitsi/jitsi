@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.simpleaccreg;
 
+import javax.swing.*;
 import net.java.sip.communicator.service.resources.*;
 
 /**
@@ -63,6 +64,16 @@ public class Resources
     public static String getApplicationProperty(String key)
     {
         return getResources().getSettingsString(key);
+    }
+
+    /**
+     * Loads an image from a given image identifier.
+     * @param imageID The identifier of the image.
+     * @return The image for the given identifier.
+     */
+    public static ImageIcon getImage(String imageID)
+    {
+        return getResources().getImage(imageID);
     }
 
     public static ResourceManagementService getResources()
