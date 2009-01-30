@@ -72,6 +72,13 @@ public class InitialAccountRegistrationFrame
 
         this.setTitle(Resources.getString("service.gui.SIGN_IN"));
 
+        this.setIconImage(
+            Resources.getImage("service.gui.SIP_COMMUNICATOR_LOGO").getImage());
+
+        // In order to have the same icon when using option panes
+        JOptionPane.getRootFrame().setIconImage(
+            Resources.getImage("service.gui.SIP_COMMUNICATOR_LOGO").getImage());
+
         mainAccountsPanel.setBorder(
             BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
