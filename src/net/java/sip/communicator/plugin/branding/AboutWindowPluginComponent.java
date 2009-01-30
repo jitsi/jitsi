@@ -31,6 +31,10 @@ public class AboutWindowPluginComponent
     {
         this.container = c;
 
+        aboutMenuItem.setMnemonic(
+            BrandingActivator.getResources().getI18nMnemonic(
+                "plugin.branding.ABOUT_MENU_ENTRY"));
+
         aboutMenuItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
