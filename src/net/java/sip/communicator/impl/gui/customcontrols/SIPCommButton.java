@@ -261,6 +261,8 @@ public class SIPCommButton
 
         public void mouseExited(MouseEvent e)
         {
+            if (isEnabled())
+            {
             getModel().setRollover(false);
 
             FadeTracker fadeTracker = FadeTracker.getInstance();
@@ -269,6 +271,7 @@ public class SIPCommButton
                 SIPCommButton.this,
                 true,
                 new ButtonRepaintCallback());
+            }
         }
 
         public void mouseClicked(MouseEvent e)
@@ -276,6 +279,8 @@ public class SIPCommButton
 
         public void mouseEntered(MouseEvent e)
         {
+            if (isEnabled())
+            {
             getModel().setRollover(true);
 
             FadeTracker fadeTracker = FadeTracker.getInstance();
@@ -284,6 +289,7 @@ public class SIPCommButton
                 SIPCommButton.this,
                 true,
                 new ButtonRepaintCallback());
+            }
         }
 
         public void mousePressed(MouseEvent e)
