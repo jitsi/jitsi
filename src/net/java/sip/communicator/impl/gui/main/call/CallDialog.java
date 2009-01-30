@@ -27,7 +27,8 @@ import net.java.sip.communicator.util.swing.border.*;
  */
 public class CallDialog
     extends SIPCommFrame
-    implements ActionListener
+    implements ActionListener,
+    MouseListener
 {
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
@@ -73,6 +74,7 @@ public class CallDialog
             GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
 
         dialButton.addActionListener(this);
+        dialButton.addMouseListener(this);
 
         Container contentPane = getContentPane();
         contentPane.add(callPanel, BorderLayout.CENTER);
@@ -108,14 +110,7 @@ public class CallDialog
         else if (buttonName.equals(DIAL_BUTTON))
         {
             if (dialpadDialog == null)
-            {
-                Call call = callPanel.getCall();
-                Iterator<CallParticipant> callParticipants =
-                    (call == null) ? new Vector<CallParticipant>().iterator()
-                        : callPanel.getCall().getCallParticipants();
-
-                dialpadDialog = new DialpadDialog(callParticipants);
-            }
+                dialpadDialog = this.getDialpadDialog();
 
             if(!dialpadDialog.isVisible())
             {
@@ -135,6 +130,32 @@ public class CallDialog
                 dialpadDialog.setVisible(false);
             }
         }
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {
+    }
+
+    public void mousePressed(MouseEvent e)
+    {
+    }
+
+    public void mouseReleased(MouseEvent e)
+    {
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {
+        if (dialpadDialog == null)
+            dialpadDialog = this.getDialpadDialog();
+        dialpadDialog.removeWindowFocusListener(dialpadDialog);
+    }
+
+    public void mouseExited(MouseEvent e)
+    {
+        if (dialpadDialog == null)
+            dialpadDialog = this.getDialpadDialog();
+        dialpadDialog.addWindowFocusListener(dialpadDialog);
     }
 
     /**
@@ -168,5 +189,20 @@ public class CallDialog
         {
             actionPerformedOnHangupButton();
         }
+    }
+    
+    /**
+     * Returns the <tt>DialpadDialog</tt> corresponding to this CallDialog.
+     * 
+     * @return the <tt>DialpadDialog</tt> corresponding to this CallDialog.
+     */
+    private DialpadDialog getDialpadDialog()
+    {
+        Call call = callPanel.getCall();
+        Iterator<CallParticipant> callParticipants =
+            (call == null) ? new Vector<CallParticipant>().iterator()
+                : callPanel.getCall().getCallParticipants();
+
+        return new DialpadDialog(callParticipants);
     }
 }

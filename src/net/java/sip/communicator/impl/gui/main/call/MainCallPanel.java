@@ -38,7 +38,8 @@ public class MainCallPanel
     implements  ActionListener,
                 ListSelectionListener,
                 RegistrationStateChangeListener,
-                PluginComponentListener
+                PluginComponentListener,
+                MouseListener
 {
     private final Logger logger = Logger.getLogger(MainCallPanel.class);
 
@@ -129,6 +130,7 @@ public class MainCallPanel
          */
         dialButton.setName(DIAL_BUTTON);
         dialButton.addActionListener(this);
+        dialButton.addMouseListener(this);
 
         return dialButton;
     }
@@ -441,7 +443,7 @@ public class MainCallPanel
             for (int i = 0; i < serRefs.length; i ++)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                    .bundleContext.getService(serRefs[i]);
 
                     Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
@@ -524,5 +526,27 @@ public class MainCallPanel
             return;
 
         this.buttonsPanel.remove((Component) c.getComponent());
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {
+    }
+
+    public void mousePressed(MouseEvent e)
+    {
+    }
+
+    public void mouseReleased(MouseEvent e)
+    {
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {
+        this.dialpadDialog.removeWindowFocusListener(dialpadDialog);
+    }
+
+    public void mouseExited(MouseEvent e)
+    {
+        this.dialpadDialog.addWindowFocusListener(dialpadDialog);
     }
 }
