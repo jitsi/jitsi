@@ -20,7 +20,7 @@ import javax.swing.text.*;
  * accept pasting of plain text. We do this in order to avoid html support
  * problems that appear when pasting formatted text into our editable area.
  */
-public class ChatPanelTransferHandler
+public class ChatWritePanelTransferHandler
     extends TransferHandler
 {
 

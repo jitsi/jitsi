@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.swing.*;
  * allows user to choose to not be questioned any more over this subject.
  * <p>
  * The message and the name of the "OK" button could be configured.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class MessageDialog
@@ -56,22 +56,32 @@ public class MessageDialog
     private boolean isConfirmationEnabled = true;
 
     private int returnCode;
-    
+
     /**
      * Indicates that the OK button is pressed.
      */
     public static final int OK_RETURN_CODE = 0;
-    
+
     /**
      * Indicates that the Cancel button is pressed.
      */
     public static final int CANCEL_RETURN_CODE = 1;
-    
+
     /**
      * Indicates that the OK button is pressed and the Don't ask check box is
      * checked.
      */
     public static final int OK_DONT_ASK_CODE = 2;
+
+    /**
+     * The maximum width that we allow message dialogs to have.
+     */
+    private static final int MAX_MSG_PANE_WIDTH = 600;
+
+    /**
+     * The maximum height that we allow message dialogs to have.
+     */
+    private static final int MAX_MSG_PANE_HEIGHT = 800;
 
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
@@ -109,7 +119,7 @@ public class MessageDialog
 
         this.setTitle(title);
 
-        this.messageArea.setText(message);
+        setMessage(message);
     }
 
     /**
@@ -212,12 +222,19 @@ public class MessageDialog
     public void setMessage(String message)
     {
         this.messageArea.setText(message);
+
+        //try to reevaluate the preferred size of the message pane.
+        //(this is definitely not a neat way to do it ... but it works).
+        this.messageArea.setSize(
+                        new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
+        int height = this.messageArea.getPreferredSize().height;
+        this.messageArea.setPreferredSize(new Dimension(600, height));
     }
 
     /**
      * Shows the dialog.
      * @return The return code that should indicate what was the choice of
-     * the user. If the user chooses cancel, the return code is the 
+     * the user. If the user chooses cancel, the return code is the
      * CANCEL_RETURN_CODE.
      */
     public int showDialog()

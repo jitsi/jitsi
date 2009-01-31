@@ -79,7 +79,7 @@ public class ChatWritePanel
         this.editorPane.addMouseListener(this);
 
         //set our own transfer (i.e. copy/paste) handler
-        this.editorPane.setTransferHandler(new ChatPanelTransferHandler());
+        this.editorPane.setTransferHandler(new ChatWritePanelTransferHandler());
 
         this.editTextToolBar = new EditTextToolBar(this);
 

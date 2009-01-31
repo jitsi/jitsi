@@ -44,7 +44,7 @@ public class LoginManager
     /**
      * Creates an instance of the <tt>LoginManager</tt>, by specifying the main
      * application window.
-     * 
+     *
      * @param mainFrame the main application window
      */
     public LoginManager(MainFrame mainFrame)
@@ -56,7 +56,7 @@ public class LoginManager
 
     /**
      * Registers the given protocol provider.
-     * 
+     *
      * @param protocolProvider the ProtocolProviderService to register.
      */
     public void login(ProtocolProviderService protocolProvider)
@@ -69,7 +69,7 @@ public class LoginManager
 
     /**
      * Unregisters the given protocol provider.
-     * 
+     *
      * @param protocolProvider the ProtocolProviderService to unregister
      */
     public void logoff(ProtocolProviderService protocolProvider)
@@ -79,7 +79,7 @@ public class LoginManager
 
     /**
      * Shows login window for each registered account.
-     * 
+     *
      * @param parent The parent MainFrame window.
      */
     public void runLogin(MainFrame parent)
@@ -121,7 +121,7 @@ public class LoginManager
      * The method is called by a ProtocolProvider implementation whenever a
      * change in the registration state of the corresponding provider had
      * occurred.
-     * 
+     *
      * @param evt ProviderStatusChangeEvent the event describing the status
      *            change.
      */
@@ -152,7 +152,7 @@ public class LoginManager
             {
                 GuiActivator.getUIService().getConferenceChatManager()
                     .getChatRoomList().synchronizeOpSetWithLocalContactList(
-                        protocolProvider, multiUserChat); 
+                        protocolProvider, multiUserChat);
             }
         }
         else if (evt.getNewState().equals(
@@ -275,7 +275,7 @@ public class LoginManager
 
     /**
      * Returns the MainFrame.
-     * 
+     *
      * @return The MainFrame.
      */
     public MainFrame getMainFrame()
@@ -285,7 +285,7 @@ public class LoginManager
 
     /**
      * Sets the MainFrame.
-     * 
+     *
      * @param mainFrame The main frame.
      */
     public void setMainFrame(MainFrame mainFrame)
@@ -297,7 +297,7 @@ public class LoginManager
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
      * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
      * corresponding UI controls.
-     * 
+     *
      * @param event The <tt>ServiceEvent</tt> object.
      */
     public void serviceChanged(ServiceEvent event)
@@ -332,7 +332,7 @@ public class LoginManager
     /**
      * Adds all UI components (status selector box, etc) related to the given
      * protocol provider.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderAdded(ProtocolProviderService protocolProvider)
@@ -357,7 +357,7 @@ public class LoginManager
 
     /**
      * Removes all UI components related to the given protocol provider.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderRemoved(ProtocolProviderService protocolProvider)
