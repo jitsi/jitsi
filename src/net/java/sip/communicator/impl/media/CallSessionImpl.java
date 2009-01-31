@@ -1613,6 +1613,17 @@ public class CallSessionImpl
                 onHold |= ON_HOLD_REMOTELY;
             }
             setAttributeOnHold(am, onHold);
+            
+            // check if ZRTP engine is used and set SDP attribute
+            TransformConnector transConnector = this.transConnectors
+                    .get(audioRtpManager);
+            if (transConnector != null) {
+                TransformEngine engine = transConnector.getEngine();
+                if (engine instanceof ZRTPTransformEngine) {
+                    ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
+                    am.setAttribute("zrtp-hash", ze.getHelloHash());
+                }
+            }
             mediaDescs.add(am);
         }
         //--------Video media description
@@ -1648,6 +1659,17 @@ public class CallSessionImpl
                 onHold |= ON_HOLD_REMOTELY;
             }
             setAttributeOnHold(vm, onHold);
+            
+            // check if ZRTP engine is used and set SDP attribute
+            TransformConnector transConnector = this.transConnectors
+                    .get(videoRtpManager);
+            if (transConnector != null) {
+                TransformEngine engine = transConnector.getEngine();
+                if (engine instanceof ZRTPTransformEngine) {
+                    ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
+                    vm.setAttribute("zrtp-hash", ze.getHelloHash());
+                }
+            }
             mediaDescs.add(vm);
         }
 
@@ -1810,7 +1832,9 @@ public class CallSessionImpl
         {
             MediaDescription mediaDescription
                 = descriptionsIter.next();
+
             Media media = mediaDescription.getMedia();
+            
             Vector<String> mediaFormats = null;
             String mediaType = null;
             try
@@ -1825,7 +1849,6 @@ public class CallSessionImpl
                 logger.warn("Error parsing sdp.",ex);
                 continue;
             }
-
 
             if(mediaFormats.size() > 0)
             {
@@ -2080,10 +2103,6 @@ public class CallSessionImpl
                     callback.setType(SecurityGUIEventZrtp.VIDEO);
                 }
                 // ZRTP engine initialization
-                // TODO: 1. must query/randomize/find a method for the zid file
-                //          name
-                //       2. must define an exception for initialization failure
-
                 ZRTPTransformEngine engine
                     = (ZRTPTransformEngine)transConnector.getEngine();
                 engine.setUserCallback(callback);
