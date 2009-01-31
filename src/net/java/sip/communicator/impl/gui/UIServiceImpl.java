@@ -167,7 +167,7 @@ public class UIServiceImpl
      * Creates the corresponding PluginComponentEvent and notifies all
      * <tt>ContainerPluginListener</tt>s that a plugin component is added or
      * removed from the container.
-     * 
+     *
      * @param pluginComponent the plugin component that is added to the
      *            container.
      * @param containerID the containerID that corresponds to the container
@@ -469,7 +469,7 @@ public class UIServiceImpl
     /**
      * Implements the <code>getExportedWindow</code> in the UIService interface.
      * Returns the window corresponding to the given <tt>WindowID</tt>.
-     * 
+     *
      * @param windowID the id of the window we'd like to retrieve.
      * @param params the params to be passed to the returned window.
      * @return a reference to the <tt>ExportedWindow</tt> instance corresponding
@@ -671,7 +671,7 @@ public class UIServiceImpl
 
     /**
      * Returns the chat conference manager.
-     * 
+     *
      * @return the chat conference manager.
      */
     public ConferenceChatManager getConferenceChatManager()
@@ -681,7 +681,7 @@ public class UIServiceImpl
 
     /**
      * Returns the chat window manager.
-     * 
+     *
      * @return the chat window manager.
      */
     public ChatWindowManager getChatWindowManager()
@@ -797,7 +797,8 @@ public class UIServiceImpl
                 // default decoration.
                 boolean isDecorated =
                     new Boolean(GuiActivator.getResources()
-                        .getSettingsString("impl.gui.IS_LOOK_AND_FEEL_DECORATED"))
+                        .getSettingsString(
+                                        "impl.gui.IS_LOOK_AND_FEEL_DECORATED"))
                         .booleanValue();
 
                 if (isDecorated)
@@ -958,7 +959,8 @@ public class UIServiceImpl
     {
         String osName = System.getProperty("os.name");
         return (osName != null)
-            && ((osName.indexOf("Mac OS X") != -1) || (osName.indexOf("Darwin") != -1));
+            && ((osName.indexOf("Mac OS X") != -1)
+                            || (osName.indexOf("Darwin") != -1));
     }
 
     public void beginShutdown()

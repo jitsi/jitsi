@@ -19,13 +19,13 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 /**
  * <tt>SIPCommSmartComboBox</tt> is an editable combo box which selects an item
  * according to user input.
- *  
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommSmartComboBox extends JComboBox
 {
     private ArrayList historyList = new ArrayList();
-    
+
     /**
      * Creates an instance of <tt>SIPCommSmartComboBox</tt>.
      */
@@ -36,10 +36,10 @@ public class SIPCommSmartComboBox extends JComboBox
         setEditable(true);
         setFocusable(true);
     }
-        
+
     /**
      * The data model used for this combo box. Filters the contents of the
-     * combo box popup according to the user input. 
+     * combo box popup according to the user input.
      */
     public class FilterableComboBoxModel
         extends AbstractListModel
@@ -50,7 +50,7 @@ public class SIPCommSmartComboBox extends JComboBox
         private Filter filter;
         private List filteredItems;
         private Object selectedItem;
-        
+
         public FilterableComboBoxModel(List items)
         {
             this.items = new ArrayList(items);
@@ -76,18 +76,19 @@ public class SIPCommSmartComboBox extends JComboBox
         }
 
         public void removeElementAt(int index)
-        {   
+        {
             items.remove(index);
             updateFilteredItems();
         }
 
-        public void insertElementAt( Object obj, int index ) {
+        public void insertElementAt( Object obj, int index )
+        {
             items.add(index, obj);
             updateFilteredItems();
         }
 
         public void setFilter(Filter filter)
-        {   
+        {
             this.filter = filter;
             updateFilteredItems();
         }
@@ -98,10 +99,13 @@ public class SIPCommSmartComboBox extends JComboBox
             filteredItems.clear();
 
             if (filter == null)
+            {
                 filteredItems.addAll(items);
-            else {
+            }
+            else
+            {
                 for (Iterator iterator = items.iterator(); iterator.hasNext();) {
-                    
+
                     Object item = iterator.next();
 
                     if (filter.accept(item))
@@ -125,48 +129,49 @@ public class SIPCommSmartComboBox extends JComboBox
         {
             return selectedItem;
         }
-        
+
         public void setSelectedItem(Object val)
         {
             if ((selectedItem == null) && (val == null))
                 return;
-            
+
             if ((selectedItem != null) && selectedItem.equals(val))
                 return;
-            
+
             if ((val != null) && val.equals(selectedItem))
                 return;
-            
+
             selectedItem = val;
             fireContentsChanged(this, -1, -1);
         }
     }
-    
+
     public static interface Filter
     {
         public boolean accept(Object obj);
     }
-    
+
     class StartsWithFilter implements Filter
     {
         private String prefix;
-        
+
         public StartsWithFilter(String prefix)
-        { 
+        {
             this.prefix = prefix.toLowerCase();
         }
-        
+
         public boolean accept(Object o)
         {
-            if(o != null) {
-                String objectString = o.toString().toLowerCase(); 
+            if(o != null)
+            {
+                String objectString = o.toString().toLowerCase();
                 return (objectString.indexOf(prefix) >= 0) ? true : false;
             }
-            
+
             return false;
         }
     }
-    
+
     public class CallComboEditor
     implements  ComboBoxEditor,
                 DocumentListener
@@ -174,7 +179,7 @@ public class SIPCommSmartComboBox extends JComboBox
         private JTextField text;
         private volatile boolean filtering = false;
         private volatile boolean setting = false;
-        
+
         public CallComboEditor()
         {
             text = new JTextField(15);
@@ -201,48 +206,48 @@ public class SIPCommSmartComboBox extends JComboBox
             text.setText(newText);
             setting = false;
         }
-        
+
         public Object getItem()
         {
             return text.getText();
         }
-        
+
         public void selectAll() { text.selectAll(); }
-        
+
         public void addActionListener(ActionListener l)
         {
             text.addActionListener(l);
         }
-        
+
         public void removeActionListener(ActionListener l)
         {
             text.removeActionListener(l);
         }
-        
+
         public void insertUpdate(DocumentEvent e) { handleChange(); }
         public void removeUpdate(DocumentEvent e) { handleChange(); }
         public void changedUpdate(DocumentEvent e) { }
-        
+
         protected void handleChange()
         {
             if (setting)
                 return;
-            
+
             filtering = true;
-            
+
             Filter filter = null;
             if (text.getText().length() > 0)
             {
                 filter = new StartsWithFilter(text.getText());
             }
-            
+
             ((FilterableComboBoxModel) getModel()).setFilter(filter);
-            
+
             setPopupVisible(false);
-            
+
             if(getModel().getSize() > 0)
                 setPopupVisible(true);
-            
+
             filtering = false;
         }
     }

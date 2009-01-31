@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * SIPCommTextFieldUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommTextFieldUI
@@ -60,9 +60,9 @@ public class SIPCommTextFieldUI
     }
 
     /**
-     * Returns <code>true</code> if the delete buttons is enabled and false - 
+     * Returns <code>true</code> if the delete buttons is enabled and false -
      * otherwise.
-     * @return <code>true</code> if the delete buttons is enabled and false - 
+     * @return <code>true</code> if the delete buttons is enabled and false -
      * otherwise
      */
     public boolean isDeleteButtonEnabled()
@@ -72,7 +72,7 @@ public class SIPCommTextFieldUI
 
     /**
      * Updates the isDeleteButtonEnabled field.
-     * 
+     *
      * @param isDeleteButtonEnabled indicates if the delete buttons is enabled
      * or not
      */
@@ -98,7 +98,7 @@ public class SIPCommTextFieldUI
 
     /**
      * Creates the UI.
-     * 
+     *
      * @param c the component associated with this UI implementation.
      * @return an instance of this UI implementation
      */
@@ -144,12 +144,14 @@ public class SIPCommTextFieldUI
      * Updates the delete icon, changes the cursor and deletes the content of
      * the associated text component when the mouse is pressed over the delete
      * icon.
-     * 
-     * @param x the x coordinate of the mouse event
-     * @param y the y coordinate of the mouse event
+     *
+     * @param evt the mouse event that has prompted us to update the delete
+     * icon.
      */
-    protected void updateDeleteIcon(int x, int y)
+    protected void updateDeleteIcon(MouseEvent evt)
     {
+        int x = evt.getX();
+        int y = evt.getY();
         if (!isDeleteButtonEnabled)
             return;
 
@@ -160,7 +162,7 @@ public class SIPCommTextFieldUI
             mouseOver = true;
             getComponent().setCursor(Cursor.getDefaultCursor());
 
-            if (mousePressed)
+            if (evt.getID() == MouseEvent.MOUSE_CLICKED)
                 getComponent().setText("");
         }
         else
@@ -175,7 +177,7 @@ public class SIPCommTextFieldUI
 
     /**
      * Calculates the delete button rectangle.
-     * 
+     *
      * @return the delete button rectangle
      */
     protected Rectangle getDeleteButtonRect()
@@ -194,7 +196,7 @@ public class SIPCommTextFieldUI
     /**
      * If we are in the case of disabled delete button, we simply call the
      * parent implementation of this method, otherwise we recalculate the editor
-     * rectangle in order to leave place for the delete button. 
+     * rectangle in order to leave place for the delete button.
      */
     protected Rectangle getVisibleEditorRect()
     {
@@ -229,30 +231,26 @@ public class SIPCommTextFieldUI
     protected class TextFieldMouseListener implements MouseListener
     {
         public void mouseClicked(MouseEvent e)
-        {}
+        {
+            updateDeleteIcon(e);
+        }
 
         public void mouseEntered(MouseEvent e)
         {
-            updateDeleteIcon(e.getX(), e.getY());
+            updateDeleteIcon(e);
         }
 
         public void mouseExited(MouseEvent e)
         {
-            updateDeleteIcon(e.getX(), e.getY());
+            updateDeleteIcon(e);
         }
 
         public void mousePressed(MouseEvent e)
         {
-            mousePressed = true;
-
-            updateDeleteIcon(e.getX(), e.getY());
         }
 
         public void mouseReleased(MouseEvent e)
         {
-            mousePressed = false;
-
-            updateDeleteIcon(e.getX(), e.getY());
         }
     }
 
@@ -264,12 +262,12 @@ public class SIPCommTextFieldUI
     {
         public void mouseDragged(MouseEvent e)
         {
-            updateDeleteIcon(e.getX(), e.getY());
+            updateDeleteIcon(e);
         }
 
         public void mouseMoved(MouseEvent e)
         {
-            updateDeleteIcon(e.getX(), e.getY());
+            updateDeleteIcon(e);
         }
     }
 }
