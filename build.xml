@@ -488,7 +488,7 @@
 
     <!--RUN-TESTS-->
     <target name="test"
-        depends="prepare-all-tests,prepare-local-accounts,-deploy-os-specific-bundles"
+        depends="prepare-all-tests,prepare-local-accounts,deploy-os-specific-bundles"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
         <!-- Do the testing itself. Note that we don't fail on error as we need
@@ -576,7 +576,7 @@
 
     
     <target name="run-simple-tests"
-            depends="prepare-all-tests,prepare-local-accounts,-deploy-os-specific-bundles"
+            depends="prepare-all-tests,prepare-local-accounts,deploy-os-specific-bundles"
             description="runs selected non-felix tests under junit.">
 
         <junit haltonfailure="true" fork="true">
@@ -613,7 +613,7 @@
 
 
     <!--RUN-SIP-COMMUNICATOR -->
-    <target name="run" depends="-deploy-os-specific-bundles"
+    <target name="run" depends="deploy-os-specific-bundles"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
         <!-- we allow users to pass command line args using the "args" system
@@ -700,7 +700,7 @@
     </target>
 
     <!--PROFILE-SIP-COMMUNICATOR-IN-NETBEANS-IDE -->
-    <target name="profile" depends="bundle-plugin-profiler4j,-deploy-os-specific-bundles"
+    <target name="profile" depends="bundle-plugin-profiler4j,deploy-os-specific-bundles"
         description="Profile Project">
         <fail unless="netbeans.home">
             This target can only run inside the NetBeans IDE.
@@ -752,7 +752,7 @@
 
     <!-- we run this target before we run SC in order to copy os-specific
              bundles from sc-bundles/osname to its parent sc-bundles-->
-    <target name="-deploy-os-specific-bundles" if="bundles.dest.os">
+    <target name="deploy-os-specific-bundles" if="bundles.dest.os">
 
         <copy todir="${bundles.dest}">
             <fileset dir="${bundles.dest.os}">
