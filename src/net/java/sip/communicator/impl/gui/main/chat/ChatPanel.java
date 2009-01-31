@@ -165,7 +165,7 @@ public class ChatPanel
             amap.put("ChangeProtocol", new ChangeTransportAction());
 
             InputMap imap = this.getInputMap(
-                JComponent.WHEN_IN_FOCUSED_WINDOW); 
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
 
             imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
                 KeyEvent.CTRL_DOWN_MASK), "ChangeProtocol");
@@ -238,7 +238,7 @@ public class ChatPanel
 
     /**
      * Returns the chat window, where this chat panel is added.
-     * 
+     *
      * @return the chat window, where this chat panel is added
      */
     public ChatWindow getChatWindow()
@@ -271,7 +271,7 @@ public class ChatPanel
 
     /**
      * Returns the conversation panel, contained in this chat panel.
-     * 
+     *
      * @return the conversation panel, contained in this chat panel
      */
     public ChatConversationPanel getChatConversationPanel()
@@ -281,7 +281,7 @@ public class ChatPanel
 
     /**
      * Returns the write area panel, contained in this chat panel.
-     * 
+     *
      * @return the write area panel, contained in this chat panel
      */
     public ChatWritePanel getChatWritePanel()
@@ -291,7 +291,7 @@ public class ChatPanel
 
     /**
      * Returns the send panel, contained in this chat panel.
-     * 
+     *
      * @return the send panel, contained in this chat panel
      */
     public ChatSendPanel getChatSendPanel()
@@ -414,10 +414,10 @@ public class ChatPanel
      * @param escapedMessageID The incoming message needed to be ignored if
      * contained in history.
      */
-    public void processHistory( Collection historyList,
+    public void processHistory( Collection<EventObject> historyList,
                                 String escapedMessageID)
     {
-        Iterator iterator = historyList.iterator();
+        Iterator<EventObject> iterator = historyList.iterator();
         String historyString = "";
 
         String messageType;
@@ -426,7 +426,7 @@ public class ChatPanel
         {
             Object o = iterator.next();
 
-            
+
             if(o instanceof MessageDeliveredEvent)
             {
                 MessageDeliveredEvent evt
@@ -504,9 +504,9 @@ public class ChatPanel
                 }
             }
         }
-        
+
         conversationPanel.insertMessageAfterStart(historyString);
-        
+
         getChatWindow().getMainToolBar()
             .changeHistoryButtonsState(this);
     }
@@ -581,7 +581,7 @@ public class ChatPanel
      * @return The text contained in the write area editor.
      */
     public String getTextFromWriteArea(String mimeType)
-    { 
+    {
         if (mimeType.equals(
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE))
         {
@@ -645,7 +645,7 @@ public class ChatPanel
         sendButton.requestFocus();
         sendButton.doClick();
     }
-    
+
     /**
      * Returns TRUE if this chat panel is added to a container (window or
      * tabbed pane), which is shown on the screen, FALSE - otherwise.
@@ -691,26 +691,26 @@ public class ChatPanel
      * Adds the given {@link KeyListener} to this <tt>Chat</tt>.
      * The <tt>KeyListener</tt> is used to inform other bundles when a user has
      * typed in the chat editor area.
-     * 
+     *
      * @param l the <tt>KeyListener</tt> to add
      */
     public void addChatEditorKeyListener(KeyListener l)
     {
         this.getChatWritePanel().getEditorPane().addKeyListener(l);
     }
-    
+
     /**
      * Removes the given {@link KeyListener} from this <tt>Chat</tt>.
      * The <tt>KeyListener</tt> is used to inform other bundles when a user has
      * typed in the chat editor area.
-     * 
+     *
      * @param l the <tt>ChatFocusListener</tt> to remove
      */
     public void removeChatEditorKeyListener(KeyListener l)
     {
         this.getChatWritePanel().getEditorPane().removeKeyListener(l);
     }
-    
+
     /**
      * Returns the message written by user in the chat write area.
      *
@@ -735,7 +735,7 @@ public class ChatPanel
      * Indicates if the history of a hidden protocol should be shown to the
      * user in the default <b>grey</b> history style or it should be shown as
      * a normal message.
-     * 
+     *
      * @param protocolProvider the protocol provider to check
      * @return <code>true</code> if the given protocol is a hidden one and the
      * "hiddenProtocolGreyHistoryDisabled" property is set to true.
@@ -1001,7 +1001,7 @@ public class ChatPanel
             MetaContact metaContact = GuiActivator.getUIService().getMainFrame()
                 .getContactList().findMetaContactByContact(sourceContact);
 
-            if (evt.getErrorCode() 
+            if (evt.getErrorCode()
                     == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
             {
                 errorMsg = GuiActivator.getResources().getI18NString(
@@ -1051,7 +1051,7 @@ public class ChatPanel
 
     /**
      * Returns the date of the first message in history for this chat.
-     * 
+     *
      * @return the date of the first message in history for this chat.
      */
     public Date getFirstHistoryMsgTimestamp()
@@ -1061,7 +1061,7 @@ public class ChatPanel
 
     /**
      * Returns the date of the last message in history for this chat.
-     * 
+     *
      * @return the date of the last message in history for this chat.
      */
     public Date getLastHistoryMsgTimestamp()
@@ -1114,7 +1114,7 @@ public class ChatPanel
      * Loads history messages ignoring the message given by the
      * escapedMessageID. Implements the
      * <tt>ChatPanel.loadHistory(String)</tt> method.
-     * 
+     *
      * @param escapedMessageID The id of the message that should be ignored.
      */
     public void loadHistory(final String escapedMessageID)
@@ -1130,7 +1130,7 @@ public class ChatPanel
 
         processHistory(historyList, escapedMessageID);
     }
-    
+
     /**
      * Loads history period dates for the current chat.
      */
@@ -1143,9 +1143,9 @@ public class ChatPanel
 
     /**
      * Changes the "Send as SMS" check box state.
-     * 
+     *
      * @param isSmsSelected <code>true</code> to set the "Send as SMS" check box
-     * selected, <code>false</code> - otherwise. 
+     * selected, <code>false</code> - otherwise.
      */
     public void setSmsSelected(boolean isSmsSelected)
     {
@@ -1196,7 +1196,7 @@ public class ChatPanel
     {
         transportSelectorBox.removeChatTransport(chatTransport);
     }
-    
+
     public void setSelectedChatTransport(ChatTransport chatTransport)
     {
         transportSelectorBox.setSelected(chatTransport);
@@ -1248,25 +1248,25 @@ public class ChatPanel
             {
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
-                
+
                 Date firstMsgDate
                     = conversationPanel.getPageFirstMsgTimestamp();
-                
+
                 Collection c = null;
-                
+
                 if(firstMsgDate != null)
                 {
                     c = chatSession.getHistoryBeforeDate(
                         firstMsgDate,
                         MESSAGES_PER_PAGE);
                 }
-                 
+
                 if(c !=null && c.size() > 0)
-                {   
+                {
                     SwingUtilities.invokeLater(
                             new HistoryMessagesLoader(c));
                 }
-            }   
+            }
         }.start();
     }
 
@@ -1294,7 +1294,7 @@ public class ChatPanel
 
                 Collection c = null;
                 if(lastMsgDate != null)
-                {  
+                {
                     c = chatSession.getHistoryAfterDate(
                         lastMsgDate,
                         MESSAGES_PER_PAGE);
@@ -1369,7 +1369,7 @@ public class ChatPanel
                 ChatConversationPanel.TEXT_CONTENT_TYPE);
         }
     }
-    
+
     /**
      * Implements <tt>Chat.addChatFocusListener</tt> method. Adds the given
      * <tt>ChatFocusListener</tt> to the list of listeners.
@@ -1402,7 +1402,7 @@ public class ChatPanel
     /**
      * Returns the first chat transport for the current chat session that
      * supports group chat.
-     * 
+     *
      * @return the first chat transport for the current chat session that
      * supports group chat.
      */
@@ -1510,7 +1510,7 @@ public class ChatPanel
             }
         }
     }
-    
+
     /**
      * The <tt>FocusPropertyChangeListener</tt> listens for events triggered
      * when the "focusOwner" property has changed. It is used to change the

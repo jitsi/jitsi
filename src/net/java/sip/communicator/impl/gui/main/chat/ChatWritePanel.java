@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.chat;
@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>ChatWritePanel</tt> is the panel, where user writes her messages.
  * It is located at the bottom of the split in the <tt>ChatPanel</tt> and it
  * contains an editor, where user writes the text.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -60,7 +60,7 @@ public class ChatWritePanel
 
     /**
      * Creates an instance of <tt>ChatWritePanel</tt>.
-     * 
+     *
      * @param panel The parent <tt>ChatPanel</tt>.
      */
     public ChatWritePanel(ChatPanel panel)
@@ -77,6 +77,9 @@ public class ChatWritePanel
         this.editorPane.getDocument().addUndoableEditListener(this);
         this.editorPane.addKeyListener(this);
         this.editorPane.addMouseListener(this);
+
+        //set our own transfer (i.e. copy/paste) handler
+        this.editorPane.setTransferHandler(new ChatPanelTransferHandler());
 
         this.editTextToolBar = new EditTextToolBar(this);
 
@@ -97,12 +100,12 @@ public class ChatWritePanel
         ConfigurationService configService =
             GuiActivator.getConfigurationService();
 
-        String messageCommandProperty = 
+        String messageCommandProperty =
             "service.gui.SEND_MESSAGE_COMMAND";
         String messageCommand = configService.getString(messageCommandProperty);
 
         if(messageCommand == null)
-            messageCommand = 
+            messageCommand =
                 GuiActivator.getResources().
                     getSettingsString(messageCommandProperty);
 
@@ -134,7 +137,7 @@ public class ChatWritePanel
 
     /**
      * Returns the editor panel, contained in this <tt>ChatWritePanel</tt>.
-     * 
+     *
      * @return The editor panel, contained in this <tt>ChatWritePanel</tt>.
      */
     public JEditorPane getEditorPane()
@@ -225,7 +228,7 @@ public class ChatWritePanel
     /**
      * Handles the <tt>UndoableEditEvent</tt>, by adding the content edit to
      * the <tt>UndoManager</tt>.
-     * 
+     *
      * @param e The <tt>UndoableEditEvent</tt>.
      */
     public void undoableEditHappened(UndoableEditEvent e)
@@ -408,7 +411,7 @@ public class ChatWritePanel
      * Returns the <tt>WritePanelRightButtonMenu</tt> opened in this panel.
      * Used by the <tt>ChatWindow</tt>, when the ESC button is pressed, to
      * check if there is an open menu, which should be closed.
-     * 
+     *
      * @return the <tt>WritePanelRightButtonMenu</tt> opened in this panel
      */
     public WritePanelRightButtonMenu getRightButtonMenu()
@@ -418,7 +421,7 @@ public class ChatWritePanel
 
     /**
      * Returns the write area text as an html text.
-     * 
+     *
      * @return the write area text as an html text.
      */
     public String getTextAsHtml()
@@ -439,7 +442,7 @@ public class ChatWritePanel
 
     /**
      * Returns the write area text as a plain text without any formatting.
-     * 
+     *
      * @return the write area text as a plain text without any formatting.
      */
     public String getText()
@@ -457,8 +460,8 @@ public class ChatWritePanel
 
         return null;
     }
-    
-    
+
+
     /**
      * Clears write message area.
      */
@@ -479,7 +482,7 @@ public class ChatWritePanel
      * Appends the given text to the end of the contained HTML document. This
      * method is used to insert smilies when user selects a smiley from the
      * menu.
-     * 
+     *
      * @param text the text to append.
      */
     public void appendText(String text)
@@ -507,7 +510,7 @@ public class ChatWritePanel
 
     /**
      * Return all html paragraph content separated by <BR/> tags.
-     * 
+     *
      * @param msgText the html text.
      * @return the string containing only paragraph content.
      */
@@ -520,7 +523,7 @@ public class ChatWritePanel
 
     /**
      * Returns the toolbar above the chat write area.
-     * 
+     *
      * @return the toolbar above the chat write area.
      */
     public EditTextToolBar getEditTextToolBar()
