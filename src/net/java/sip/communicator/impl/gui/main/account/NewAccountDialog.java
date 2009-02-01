@@ -138,14 +138,14 @@ public class NewAccountDialog
             logger.debug("Found "
                          + accountWizardRefs.length
                          + " already installed providers.");
-            
+
             // Create a list to sort the wizards
             ArrayList<AccountRegistrationWizard> list =
                 new ArrayList<AccountRegistrationWizard>();
             list.ensureCapacity(accountWizardRefs.length);
-            
-            AccountRegistrationWizard prefWiz = null; 
-            
+
+            AccountRegistrationWizard prefWiz = null;
+
             for (int i = 0; i < accountWizardRefs.length; i++)
             {
                 AccountRegistrationWizard wizard
@@ -161,7 +161,7 @@ public class NewAccountDialog
                     prefWiz = wizard;
                 }
             }
-            
+
             // Sort the list
             Collections.sort(list, new Comparator<AccountRegistrationWizard>() {
                 public int compare(AccountRegistrationWizard arg0,
@@ -170,7 +170,7 @@ public class NewAccountDialog
                     return arg0.getProtocolName().compareTo(arg1.getProtocolName());
                 }
             });
-            
+
             // Add the item in the combobox and if
             // there is a prefered wizard auto select it
             for (int i=0; i<list.size(); i++)
@@ -244,20 +244,30 @@ public class NewAccountDialog
     /**
      * Loads the given error message in the current dialog, by re-validating the
      * content.
-     * 
+     *
      * @param errorMessage The error message to load.
      */
     private void loadErrorMessage(String errorMessage)
     {
-        JLabel errorMessageLabel = new JLabel(errorMessage);
+        JEditorPane errorMessagePane = new JEditorPane();
+        errorMessagePane.setOpaque(false);
+        errorMessagePane.setText(errorMessage);
 
-        errorMessageLabel.setForeground(Color.RED);
+        errorMessagePane.setForeground(Color.RED);
 
-        accountPanel.add(errorMessageLabel, BorderLayout.NORTH);
+        accountPanel.add(errorMessagePane, BorderLayout.NORTH);
         accountPanel.revalidate();
         accountPanel.repaint();
 
         this.pack();
+
+        //WORKAROUND: there's something wrong happening in this pack and
+        //components get cluttered, partially hiding the password text field.
+        //I am under the impression that this has something to do with the
+        //message pane preferred size being ignored (or being 0) which is why
+        //I am adding it's height to the dialog. It's quite ugly so please fix
+        //if you have something better in mind.
+        this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
     }
 
     @Override
@@ -266,7 +276,7 @@ public class NewAccountDialog
     }
 
     /**
-     * 
+     *
      */
     public void actionPerformed(ActionEvent event)
     {
@@ -323,6 +333,12 @@ public class NewAccountDialog
                 {
                     loadErrorMessage(GuiActivator.getResources().getI18NString(
                         "service.gui.USER_EXISTS_ERROR"));
+                }
+                else
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                                "service.gui.ACCOUNT_CREATION_FAILED",
+                                new String[]{e.getMessage()}));
                 }
             }
         }

@@ -1330,8 +1330,9 @@ public class ProtocolProviderServiceSipImpl
         catch (UnknownHostException ex)
         {
             logger.debug(registrarAddressStr
-                + " appears to be an either invalid or inaccessible address: "
-                , ex);
+                            + " appears to be an either invalid"
+                            + " or inaccessible address.",
+                            ex);
 
             boolean isServerValidated =
                 accountID.getAccountPropertyBoolean(
@@ -1348,8 +1349,9 @@ public class ProtocolProviderServiceSipImpl
             {
                 throw new IllegalArgumentException(
                     registrarAddressStr
-                        + " appears to be an either invalid or inaccessible address: "
-                        + ex.getMessage());
+                    + " appears to be an either invalid"
+                    + " or inaccessible address.",
+                    ex);
             }
         }
 
@@ -1632,8 +1634,9 @@ public class ProtocolProviderServiceSipImpl
         catch (UnknownHostException ex)
         {
             logger.error(proxyAddressStr
-                + " appears to be an either invalid or inaccessible address"
-                , ex);
+                            + " appears to be an either invalid"
+                            + " or inaccessible address.",
+                            ex);
 
             boolean isProxyValidated =
                 accountID.getAccountPropertyBoolean(
@@ -1648,8 +1651,9 @@ public class ProtocolProviderServiceSipImpl
             {
                 throw new IllegalArgumentException(
                     proxyAddressStr
-                    + " appears to be an either invalid or inaccessible address "
-                    + ex.getMessage());
+                    + " appears to be an either invalid or"
+                    + " inaccessible address.",
+                    ex);
             }
         }
 
@@ -2200,8 +2204,12 @@ public class ProtocolProviderServiceSipImpl
      *
      * @return the <tt>InetAddress</tt> that is most likely to be to be used
      * as a next hop when contacting the specified <tt>destination</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
+     * host/ip/fqdn
      */
     private InetAddress getIntendedDestination(SipURI destination)
+        throws IllegalArgumentException
     {
         return getIntendedDestination(destination.getHost());
     }
@@ -2217,8 +2225,12 @@ public class ProtocolProviderServiceSipImpl
      *
      * @return the <tt>InetAddress</tt> that is most likely to be to be used
      * as a next hop when contacting the specified <tt>destination</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
+     * host/ip/fqdn.
      */
     private InetAddress getIntendedDestination(String host)
+        throws IllegalArgumentException
     {
         // Address
         InetAddress destinationInetAddress = null;
@@ -2241,8 +2253,7 @@ public class ProtocolProviderServiceSipImpl
             catch (UnknownHostException ex)
             {
                 throw new IllegalArgumentException(
-                    host
-                    + " is not a valid internet address " + ex.getMessage(),
+                    host + " is not a valid internet address.",
                     ex);
             }
         }

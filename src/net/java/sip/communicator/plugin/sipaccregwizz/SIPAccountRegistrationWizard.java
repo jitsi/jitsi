@@ -171,7 +171,7 @@ public class SIPAccountRegistrationWizard
                 Resources.getString("service.gui.NO"));
         }
 
-        if (registration.isDefaultEncryption()) 
+        if (registration.isDefaultEncryption())
         {
             summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
@@ -180,9 +180,9 @@ public class SIPAccountRegistrationWizard
         else
         {
             summaryTable.put(Resources.getString(
-                "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), 
+                "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
                 Resources.getString("service.gui.NO"));
-        } 
+        }
 
         summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"),
@@ -235,7 +235,7 @@ public class SIPAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
-     * 
+     *
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
      * @param userName the user identifier
@@ -261,7 +261,7 @@ public class SIPAccountRegistrationWizard
             serverAddress = registration.getServerAddress();
         else
             serverAddress = getServerFromUserName(userName);
- 
+
         if (serverAddress != null)
         {
             accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
@@ -298,8 +298,8 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
                 Boolean.toString(registration.isForceP2PMode()));
 
-        accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION, 
-                Boolean.toString(registration.isDefaultEncryption())); 
+        accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                Boolean.toString(registration.isDefaultEncryption()));
 
         accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
                 registration.getPollingPeriod());
@@ -349,7 +349,7 @@ public class SIPAccountRegistrationWizard
             logger.warn(exc.getMessage());
 
             throw new OperationFailedException(
-                "Failed to add account",
+                exc.getMessage(),
                 OperationFailedException.GENERAL_ERROR);
         }
 
@@ -376,7 +376,7 @@ public class SIPAccountRegistrationWizard
     /**
      * Indicates if this wizard is opened for modification or for creating a
      * new account.
-     * 
+     *
      * @return <code>true</code> if this wizard is opened for modification and
      * <code>false</code> otherwise.
      */
@@ -387,7 +387,7 @@ public class SIPAccountRegistrationWizard
 
     /**
      * Returns the wizard container, where all pages are added.
-     * 
+     *
      * @return the wizard container, where all pages are added
      */
     public WizardContainer getWizardContainer()
@@ -398,7 +398,7 @@ public class SIPAccountRegistrationWizard
     /**
      * Returns the registration object, which will store all the data through
      * the wizard.
-     * 
+     *
      * @return the registration object, which will store all the data through
      * the wizard
      */
@@ -406,7 +406,7 @@ public class SIPAccountRegistrationWizard
     {
         return registration;
     }
-    
+
     /**
      * Returns the size of this wizard.
      * @return the size of this wizard
@@ -415,7 +415,7 @@ public class SIPAccountRegistrationWizard
     {
         return new Dimension(600, 500);
     }
-    
+
     /**
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
@@ -437,9 +437,9 @@ public class SIPAccountRegistrationWizard
     /**
      * Sets the modification property to indicate if this wizard is opened for
      * a modification.
-     * 
+     *
      * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
+     * or for creating a new account.
      */
     public void setModification(boolean isModification)
     {
@@ -467,7 +467,7 @@ public class SIPAccountRegistrationWizard
 
     /**
      * Return the server part of the sip user name.
-     * 
+     *
      * @return the server part of the sip user name.
      */
     protected String getServerFromUserName(String userName)

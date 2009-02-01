@@ -174,7 +174,20 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // create the invite request
-        Request invite = createInviteRequest(calleeAddress);
+        Request invite;
+        try
+        {
+            invite = createInviteRequest(calleeAddress);
+        }
+        catch (IllegalArgumentException exc)
+        {
+            // encapsulate the illegal argument exception into an OpFailedExc
+            // so that the UI would notice it.
+            throw new OperationFailedException(
+                            exc.getMessage(),
+                            OperationFailedException.ILLEGAL_ARGUMENT,
+                            exc);
+        }
 
         // Content
         ContentTypeHeader contentTypeHeader = null;
@@ -1333,9 +1346,11 @@ public class OperationSetBasicTelephonySipImpl
      *         .
      * @throws OperationFailedException with the corresponding code if creating
      *             the request fails.
+     * @throws IllegalArgumentException if <tt>toAddress</tt> does not appear
+     * to be a valid destination.
      */
     private Request createInviteRequest(Address toAddress)
-        throws OperationFailedException
+        throws OperationFailedException, IllegalArgumentException
     {
         // Call ID
         CallIdHeader callIdHeader =
