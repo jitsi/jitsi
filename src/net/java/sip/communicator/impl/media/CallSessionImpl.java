@@ -1613,15 +1613,21 @@ public class CallSessionImpl
                 onHold |= ON_HOLD_REMOTELY;
             }
             setAttributeOnHold(am, onHold);
-            
+
             // check if ZRTP engine is used and set SDP attribute
             TransformConnector transConnector = this.transConnectors
                     .get(audioRtpManager);
-            if (transConnector != null) {
+            if (transConnector != null)
+            {
                 TransformEngine engine = transConnector.getEngine();
-                if (engine instanceof ZRTPTransformEngine) {
+                if (engine instanceof ZRTPTransformEngine)
+                {
                     ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
-                    am.setAttribute("zrtp-hash", ze.getHelloHash());
+
+                    String helloHash = ze.getHelloHash();
+
+                    if( helloHash != null && helloHash.length() > 0)
+                        am.setAttribute("zrtp-hash", ze.getHelloHash());
                 }
             }
             mediaDescs.add(am);
@@ -1659,15 +1665,21 @@ public class CallSessionImpl
                 onHold |= ON_HOLD_REMOTELY;
             }
             setAttributeOnHold(vm, onHold);
-            
+
             // check if ZRTP engine is used and set SDP attribute
             TransformConnector transConnector = this.transConnectors
                     .get(videoRtpManager);
-            if (transConnector != null) {
+            if (transConnector != null)
+            {
                 TransformEngine engine = transConnector.getEngine();
-                if (engine instanceof ZRTPTransformEngine) {
+                if (engine instanceof ZRTPTransformEngine)
+                {
                     ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
-                    vm.setAttribute("zrtp-hash", ze.getHelloHash());
+
+                    String helloHash = ze.getHelloHash();
+
+                    if( helloHash != null && helloHash.length() > 0)
+                        vm.setAttribute("zrtp-hash", ze.getHelloHash());
                 }
             }
             mediaDescs.add(vm);
@@ -1834,7 +1846,7 @@ public class CallSessionImpl
                 = descriptionsIter.next();
 
             Media media = mediaDescription.getMedia();
-            
+
             Vector<String> mediaFormats = null;
             String mediaType = null;
             try
@@ -1943,7 +1955,7 @@ public class CallSessionImpl
                 // Just check control port, not used here any further
                 netAddressManager.getPublicAddressFor(
                         intendedDestination, sessionAddress.getControlPort());
-                
+
                 initialized =true;
                 break;
             }
@@ -1984,7 +1996,7 @@ public class CallSessionImpl
     {
         NetworkAddressManagerService netAddressManager = MediaActivator
                 .getNetworkAddressManagerService();
-        
+
         // Get our local address for the intended destination.
         // Use this address to bind our local RTP sockets
         InetAddress inAddrLocal = netAddressManager.getLocalHost(intendedDestination);
