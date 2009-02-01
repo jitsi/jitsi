@@ -764,6 +764,17 @@ public class UIServiceImpl
                     uiDefaults.put( "TextArea.font",
                                     uiDefaults.get("TextField.font"));
                 }
+                // Workaround for SC issue #516
+                // "GNOME SCScrollPane has rounded and rectangular borders"
+                if(laf.equals("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+                   || laf
+                      .equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
+                {
+                    UIDefaults metalDefaults = (new javax.swing.plaf.metal
+                            .MetalLookAndFeel()).getDefaults();
+                    uiDefaults.put("ScrollPaneUI",
+                            metalDefaults.get("ScrollPaneUI"));
+                }
             }
             catch (ClassNotFoundException ex)
             {
