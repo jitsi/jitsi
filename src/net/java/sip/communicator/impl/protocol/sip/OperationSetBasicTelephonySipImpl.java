@@ -933,6 +933,7 @@ public class OperationSetBasicTelephonySipImpl
                 "There was an error parsing the SDP description of "
                     + callParticipant.getDisplayName() + "("
                     + callParticipant.getAddress() + ")", exc, callParticipant);
+            return;
         }
         catch (MediaException exc)
         {
@@ -941,6 +942,7 @@ public class OperationSetBasicTelephonySipImpl
                     + callParticipant.getDisplayName() + "("
                     + callParticipant.getAddress() + ")" + ". Error was: "
                     + exc.getMessage(), exc, callParticipant);
+            return;
         }
 
         // set the call url in case there was one
@@ -1046,6 +1048,7 @@ public class OperationSetBasicTelephonySipImpl
             logErrorAndFailCallParticipant(
                 "Failed to create a content type header for the ACK request",
                 ex, callParticipant);
+            return;
         }
         catch (InvalidArgumentException ex)
         {
@@ -1053,6 +1056,7 @@ public class OperationSetBasicTelephonySipImpl
             logErrorAndFailCallParticipant(
                 "Failed ACK request, problem with the supplied cseq", ex,
                 callParticipant);
+            return;
         }
         catch (SipException ex)
         {
@@ -1132,20 +1136,27 @@ public class OperationSetBasicTelephonySipImpl
              */
             callParticipant.setCallInfoURL(callSession.getCallInfoURL());
         }
-        catch (ParseException exc)
+        //at this point we have already sent our ack so in adition to logging
+        //an error we also need to hangup the call participant.
+        catch (Exception exc)//Media or parse exception.
         {
-            logErrorAndFailCallParticipant(
-                "There was an error parsing the SDP description of "
-                    + callParticipant.getDisplayName() + "("
-                    + callParticipant.getAddress() + ")", exc, callParticipant);
-        }
-        catch (MediaException exc)
-        {
-            logErrorAndFailCallParticipant(
-                "We failed to process the SDP description of "
-                    + callParticipant.getDisplayName() + "("
-                    + callParticipant.getAddress() + ")" + ". Error was: "
-                    + exc.getMessage(), exc, callParticipant);
+            logger.error("There was an error parsing the SDP description of "
+                            + callParticipant.getDisplayName() + "("
+                            + callParticipant.getAddress() + ")", exc);
+            try{
+                //we are connected from a SIP point of view (cause we sent our
+                //ack) sp make sure we set the state accordingly or the hangup
+                //method won't know how to end the call.
+                callParticipant.setState(CallParticipantState.CONNECTED);
+                hangupCallParticipant(callParticipant);
+            }
+            catch (Exception e){
+                //I don't see what more we could do.
+                logger.error(e);
+                callParticipant.setState(CallParticipantState.FAILED,
+                                e.getMessage());
+            }
+            return;
         }
 
         // change status
@@ -1242,6 +1253,7 @@ public class OperationSetBasicTelephonySipImpl
             logErrorAndFailCallParticipant(
                 "We failed to authenticate an INVITE request.", exc,
                 callParticipant);
+            return;
         }
     }
 
@@ -1990,12 +2002,14 @@ public class OperationSetBasicTelephonySipImpl
             logErrorAndFailCallParticipant(
                 "Failed to create an OK Response to an CANCEL request.", ex,
                 callParticipant);
+            return;
         }
         catch (Exception ex)
         {
             logErrorAndFailCallParticipant(
                 "Failed to send an OK Response to an CANCEL request.", ex,
                 callParticipant);
+            return;
         }
         try
         {
@@ -2609,7 +2623,8 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
-    public void sayError(CallParticipantSipImpl callParticipant, int errorCode)
+    public void sayError(CallParticipantSipImpl callParticipant,
+                         int errorCode)
         throws OperationFailedException
     {
         Dialog dialog = callParticipant.getDialog();
@@ -2634,13 +2649,13 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         ServerTransaction serverTransaction = (ServerTransaction) transaction;
-        Response internalError = null;
+        Response errorResponse = null;
         try
         {
-            internalError =
+            errorResponse =
                 protocolProvider.getMessageFactory().createResponse(errorCode,
                     callParticipant.getFirstTransaction().getRequest());
-            protocolProvider.attachToTag(internalError, dialog);
+            protocolProvider.attachToTag(errorResponse, dialog);
         }
         catch (ParseException ex)
         {
@@ -2651,12 +2666,12 @@ public class OperationSetBasicTelephonySipImpl
         ContactHeader contactHeader = protocolProvider
             .getContactHeader(dialog.getRemoteTarget());
 
-        internalError.addHeader(contactHeader);
+        errorResponse.addHeader(contactHeader);
         try
         {
-            serverTransaction.sendResponse(internalError);
+            serverTransaction.sendResponse(errorResponse);
             if (logger.isDebugEnabled())
-                logger.debug("sent response: " + internalError);
+                logger.debug("sent response: " + errorResponse);
         }
         catch (Exception ex)
         {
@@ -2913,19 +2928,26 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (MediaException ex)
         {
+            //log, the error and tell the remote party. do not throw an
+            //exception as it would go to the stack and there's nothing it could
+            //do with it.
+            logger.error(
+                "Failed to created an SDP description for an ok response "
+                + "to an INVITE request!",
+                ex);
             this.sayError((CallParticipantSipImpl) participant,
                 Response.NOT_ACCEPTABLE_HERE);
-            throwOperationFailedException(
-                "Failed to created an SDP description for an ok response "
-                    + "to an INVITE request!",
-                OperationFailedException.INTERNAL_ERROR, ex);
         }
         catch (ParseException ex)
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
-            throwOperationFailedException(
+            //log, the error and tell the remote party. do not throw an
+            //exception as it would go to the stack and there's nothing it could
+            //do with it.
+            logger.error(
                 "Failed to parse sdp data while creating invite request!",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                ex);
+            this.sayError((CallParticipantSipImpl) participant,
+                            Response.NOT_ACCEPTABLE_HERE);
         }
 
         ContactHeader contactHeader = protocolProvider.getContactHeader(

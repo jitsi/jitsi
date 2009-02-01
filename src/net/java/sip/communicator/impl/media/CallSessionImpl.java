@@ -500,7 +500,19 @@ public class CallSessionImpl
             stoppedAtLeastOneStream = true;
         }
 
-        Vector<ReceiveStream> receiveStreams = rtpManager.getReceiveStreams();
+        Vector<ReceiveStream> receiveStreams;
+        try
+        {
+            receiveStreams = rtpManager.getReceiveStreams();
+        }
+        //it appears that in early call states, when there are no streams
+        //this method could throug a null pointer exception. Make sure we handle
+        //it gracefully
+        catch (Exception e)
+        {
+            logger.trace("Failed to retrieve receive streams", e);
+            receiveStreams = new Vector<ReceiveStream>();
+        }
         Iterator<ReceiveStream> rsIter = receiveStreams.iterator();
         while(rsIter.hasNext())
         {
@@ -1039,6 +1051,15 @@ public class CallSessionImpl
             throw new ParseException("Failed to parse SDPOffer: "
                                      + ex.getMessage()
                                      , ex.getCharOffset());
+        }
+        //it appears that in some cases parsing could also fail with
+        //other exceptions such as a NullPointerException for example so make
+        //sure we get those too.
+        catch(Exception ex)
+        {
+            throw new ParseException("Failed to parse SDPOffer: "
+                                     + ex.getMessage()
+                                     , 0);
         }
 
         //create an sdp answer.

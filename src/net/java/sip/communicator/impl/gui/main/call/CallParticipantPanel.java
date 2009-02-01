@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>CallParticipantPanel</tt> is the panel containing data for a call
  * participant in a given call. It contains information like call participant
  * name, photo, call duration, etc.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -70,7 +70,7 @@ public class CallParticipantPanel
     private ZrtpPanel zrtpPanel = null;
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
-     * 
+     *
      * @param callManager the <tt>CallManager</tt> that manages the call
      * @param callParticipant a call participant
      */
@@ -164,7 +164,7 @@ public class CallParticipantPanel
      * Creates the <code>Component</code> hierarchy of the central area of this
      * <code>CallParticipantPanel</code> which displays the photo of the
      * <code>CallParticipant</code> or the video if any.
-     * 
+     *
      * @return the root of the <code>Component</code> hierarchy of the central
      *         area of this <code>CallParticipantPanel</code> which displays the
      *         photo of the <code>CallParticipant</code> or the video if any
@@ -215,7 +215,7 @@ public class CallParticipantPanel
      * returned <code>Container</code> will track the <code>Components</code>s
      * added to and removed from it in order to make sure that
      * <code>noVideoContainer</code> is displayed as described.
-     * 
+     *
      * @param noVideoComponent the predefined default <code>Component</code> to
      *            be displayed in the returned <code>Container</code> when there
      *            is no other <code>Component</code> in it
@@ -242,7 +242,7 @@ public class CallParticipantPanel
      * Creates the <code>Component</code> hierarchy of the area of
      * status-related information such as <code>CallParticipant</code> display
      * name, call duration, security status.
-     * 
+     *
      * @return the root of the <code>Component</code> hierarchy of the area of
      *         status-related information such as <code>CallParticipant</code>
      *         display name, call duration, security status
@@ -287,7 +287,7 @@ public class CallParticipantPanel
      * Creates a new <code>Component</code> representing a UI means to transfer
      * the <code>Call</code> of the associated <code>callParticipant</code> or
      * <tt>null</tt> if call-transfer is unsupported.
-     * 
+     *
      * @return a new <code>Component</code> representing the UI means to
      *         transfer the <code>Call</code> of <code>callParticipant</code> or
      *         <tt>null</tt> if call-transfer is unsupported
@@ -312,7 +312,7 @@ public class CallParticipantPanel
      * Creates a new <code>Component</code> representing a UI means to secure
      * the <code>Call</code> of the associated <code>callParticipant</code> or
      * <tt>null</tt> if secure call is unsupported.
-     * 
+     *
      * @return a new <code>Component</code> representing the UI means to secure
      *         the <code>Call</code> of <code>callParticipant</code> or
      *         <tt>null</tt> if secure call is unsupported
@@ -518,7 +518,7 @@ public class CallParticipantPanel
     /**
      * When a video is added or removed for the <code>callParticipant</code>,
      * makes sure to display or hide it respectively.
-     * 
+     *
      * @param event a <code>VideoEvent</code> describing the added visual
      *            <code>Component</code> representing video and the provider it
      *            was added into or <code>null</code> if such information is not
@@ -608,7 +608,7 @@ public class CallParticipantPanel
     /**
      * Sets the state of the contained call participant by specifying the
      * state name and icon.
-     * 
+     *
      * @param state the state of the contained call participant
      * @param icon the icon of the state
      */
@@ -659,7 +659,7 @@ public class CallParticipantPanel
      * example if we receive a call, the call start time is when the call is
      * received and the conversation start time would be when we accept the
      * call.
-     * 
+     *
      * @return the start time of the contained participant call
      */
     public Date getCallStartTime()
@@ -669,7 +669,7 @@ public class CallParticipantPanel
 
     /**
      * Returns the duration of the contained participant call.
-     * 
+     *
      * @return the duration of the contained participant call
      */
     public Date getCallDuration()
@@ -680,7 +680,7 @@ public class CallParticipantPanel
     /**
      * Returns this call type - GuiCallParticipantRecord: INCOMING_CALL or
      * OUTGOING_CALL
-     * 
+     *
      * @return Returns this call type : INCOMING_CALL or OUTGOING_CALL
      */
     public String getCallType()
@@ -695,7 +695,7 @@ public class CallParticipantPanel
      * Sets the type of the call. Call type could be
      * <tt>GuiCallParticipantRecord.INCOMING_CALL</tt> or
      * <tt>GuiCallParticipantRecord.INCOMING_CALL</tt>.
-     * 
+     *
      * @param callType the type of call to set
      */
     public void setCallType(String callType)
@@ -705,7 +705,7 @@ public class CallParticipantPanel
 
     /**
      * Returns the name of the participant, contained in this panel.
-     * 
+     *
      * @return the name of the participant, contained in this panel
      */
     public String getParticipantName()
@@ -852,7 +852,11 @@ public class CallParticipantPanel
 
     private void exitFullScreen(Window fullScreenWindow)
     {
-        getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+        GraphicsConfiguration gConfig = getGraphicsConfiguration();
+
+        if(gConfig != null)
+            gConfig.getDevice().setFullScreenWindow(null);
+
         if (fullScreenWindow != null)
         {
             if (fullScreenWindow.isVisible())
