@@ -52,9 +52,15 @@ public class SipApplicationData
             Object container, String key, Object value)
     {
         if (container == null)
-            throw new NullPointerException("container is null");
+        {
+            logger.warn("container is null");
+            return;
+        }
         if (key == null)
-            throw new NullPointerException("key is null");
+        {
+            logger.warn("key is null");
+            return;
+        }
 
         SipApplicationData appData = getSipApplicationData(container);
         if (appData == null)
@@ -86,9 +92,15 @@ public class SipApplicationData
     public static Object getApplicationData(Object container, String key)
     {
         if (container == null)
-            throw new NullPointerException("container is null");
+        {
+            logger.warn("container is null");
+            return null;
+        }
         if (key == null)
-            throw new NullPointerException("key is null");
+        {
+            logger.warn("key is null");
+            return null;
+        }
 
         SipApplicationData appData = getSipApplicationData(container);
         if (appData == null)

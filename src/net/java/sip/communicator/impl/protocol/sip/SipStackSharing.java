@@ -422,39 +422,34 @@ public class SipStackSharing
      * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
      * of our "candidate recipient" listeners.
      *
-     * @param dialogTerminatedEvent the event received for a
+     * @param event the event received for a
      * <tt>SipProvider</tt>.
      */
-    public void processDialogTerminated(
-                                DialogTerminatedEvent dialogTerminatedEvent)
+    public void processDialogTerminated(DialogTerminatedEvent event)
     {
-        logger.trace(dialogTerminatedEvent);
-
-        Dialog dialog = dialogTerminatedEvent.getDialog();
-        Address address = dialog.getLocalParty();
-        if(dialog.getRemoteTarget().getURI() instanceof SipURI)
+        ProtocolProviderServiceSipImpl recipient
+            = (ProtocolProviderServiceSipImpl) SipApplicationData
+            .getApplicationData(event.getDialog(),
+                    SipApplicationData.KEY_SERVICE);
+        if(recipient == null)
+            logger.error("Dialog wasn't marked, please report this to "
+                    + "dev@sip-communicator.dev.java.net");
+        else
         {
-            SipURI remoteURI = (SipURI) dialog.getRemoteTarget().getURI();
-            ProtocolProviderServiceSipImpl pp
-                                        = getListenerFor(address, remoteURI);
-            if(pp != null)
-                pp.processDialogTerminated(dialogTerminatedEvent);
+            logger.trace("service was found with dialog data");
+            recipient.processDialogTerminated(event);
         }
-
-
-        logger.debug("Dialog terminated for req="
-                + dialogTerminatedEvent.getDialog());
     }
 
     /**
      * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
      * of our "candidate recipient" listeners.
      *
-     * @param exceptionEvent the event received for a <tt>SipProvider</tt>.
+     * @param event the event received for a <tt>SipProvider</tt>.
      */
-    public void processIOException(IOExceptionEvent exceptionEvent)
+    public void processIOException(IOExceptionEvent event)
     {
-        logger.trace(exceptionEvent);
+        logger.trace(event);
 
         // impossible to dispatch, log here
         logger.debug("@todo implement processIOException()");
@@ -464,20 +459,61 @@ public class SipStackSharing
      * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
      * of our "candidate recipient" listeners.
      *
-     * @param requestEvent the event received for a <tt>SipProvider</tt>.
+     * @param event the event received for a <tt>SipProvider</tt>.
      */
-    public void processRequest(RequestEvent requestEvent)
+    public void processRequest(RequestEvent event)
     {
-        logger.trace(requestEvent);
+        logger.trace("received request: " + event.getRequest().getMethod());
+        Request request = event.getRequest();
 
-        ProtocolProviderServiceSipImpl recipient =
-            findTargetFor(requestEvent.getRequest());
+        // Create the transaction if it doesn't exist yet. If it is a
+        // dialog-creating request, the dialog will also be automatically
+        // created by the stack.
+        if (event.getServerTransaction() == null)
+        {
+            try
+            {
+                SipProvider source = (SipProvider) event.getSource();
+                ServerTransaction transaction
+                    = source.getNewServerTransaction(request);
+                // Update the event, otherwise getServerTransaction() and
+                // getDialog() will still return their previous value.
+                event = new RequestEvent(source, transaction,
+                        transaction.getDialog(), request);
+            }
+            catch (SipException ex)
+            {
+                logger.error("couldn't create transaction, please report "
+                        + "this to dev@sip-communicator.dev.java.net", ex);
+            }
+        }
 
-        if(recipient != null)
-            recipient.processRequest(requestEvent);
+        ProtocolProviderServiceSipImpl service
+            = getServiceData(event.getServerTransaction());
+        if (service != null)
+        {
+            service.processRequest(event);
+        }
         else
-            logger.error("couldn't find a ProtocolProviderServiceSipImpl "
-                            +"to dispatch to");
+        {
+            service = findTargetFor(request);
+            if (service == null)
+                logger.error("couldn't find a ProtocolProviderServiceSipImpl "
+                        +"to dispatch to");
+            else
+            {
+                // Mark the dialog for the dispatching of later in-dialog
+                // requests. If there is no dialog, we need to mark the request
+                // to dispatch a possible timeout when sending the response.
+                if (event.getDialog() != null)
+                    SipApplicationData.setApplicationData(event.getDialog(),
+                            SipApplicationData.KEY_SERVICE, service);
+                else
+                    SipApplicationData.setApplicationData(request,
+                            SipApplicationData.KEY_SERVICE, service);
+                service.processRequest(event);
+            }
+        }
     }
 
     /**
@@ -486,18 +522,30 @@ public class SipStackSharing
      *
      * @param responseEvent the event received for a <tt>SipProvider</tt>.
      */
-    public void processResponse(ResponseEvent responseEvent)
+    public void processResponse(ResponseEvent event)
     {
-        logger.trace(responseEvent);
+        // we don't have to accept the transaction since we created the request
+        ClientTransaction transaction = event.getClientTransaction();
+        logger.trace("received response: " + event.getResponse().getStatusCode()
+                + " " + event.getResponse().getReasonPhrase());
 
-        ProtocolProviderServiceSipImpl recipient =
-            findTargetFor(responseEvent.getClientTransaction());
-
-        if(recipient != null)
-            recipient.processResponse(responseEvent);
+        ProtocolProviderServiceSipImpl service = getServiceData(transaction);
+        if (service != null)
+        {
+            // Mark the dialog for the dispatching of later in-dialog responses.
+            // If there is no dialog then the initial request sure is marked
+            // otherwise we won't have found the service with getServiceData().
+            // The request has to be marked in case we receive one more response
+            // in an out-of-dialog transaction.
+            if (event.getDialog() != null)
+                SipApplicationData.setApplicationData(event.getDialog(),
+                        SipApplicationData.KEY_SERVICE, service);
+            service.processResponse(event);
+        }
         else
-            logger.error("couldn't find a ProtocolProviderServiceSipImpl "
-                            +"to dispatch to");
+            logger.error("We received a response which "
+                    + "wasn't marked, please report this to "
+                    + "dev@sip-communicator.dev.java.net");
     }
 
     /**
@@ -506,24 +554,21 @@ public class SipStackSharing
      *
      * @param timeoutEvent the event received for a <tt>SipProvider</tt>.
      */
-    public void processTimeout(TimeoutEvent timeoutEvent)
+    public void processTimeout(TimeoutEvent event)
     {
-        logger.trace(timeoutEvent);
-
-        ProtocolProviderServiceSipImpl recipient;
-        if(timeoutEvent.isServerTransaction())
-        {
-            recipient = findTargetFor(
-                            timeoutEvent.getServerTransaction().getRequest());
-            if(recipient != null)
-                recipient.processTimeout(timeoutEvent);
-        }
+        Transaction transaction;
+        if (event.isServerTransaction())
+            transaction = event.getServerTransaction();
         else
-        {
-            recipient = findTargetFor(timeoutEvent.getClientTransaction());
-            if(recipient != null)
-                recipient.processTimeout(timeoutEvent);
-        }
+            transaction = event.getClientTransaction();
+
+        ProtocolProviderServiceSipImpl recipient = getServiceData(transaction);
+        if (recipient == null)
+            logger.error("We received a timeout which wasn't "
+                    + "marked, please report this to "
+                    + "dev@sip-communicator.dev.java.net");
+        else
+            recipient.processTimeout(event);
     }
 
     /**
@@ -535,22 +580,19 @@ public class SipStackSharing
      */
     public void processTransactionTerminated(TransactionTerminatedEvent event)
     {
-        ProtocolProviderServiceSipImpl recipient;
-        if(event.isServerTransaction())
-        {
-            logger.trace("server transaction terminated");
-            recipient = findTargetFor(
-                    event.getServerTransaction().getRequest());
-            if(recipient != null)
-                recipient.processTransactionTerminated(event);
-        }
+        Transaction transaction;
+        if (event.isServerTransaction())
+            transaction = event.getServerTransaction();
         else
-        {
-            logger.trace("client transaction terminated");
-            recipient = findTargetFor(event.getClientTransaction());
-            if(recipient != null)
-                recipient.processTransactionTerminated(event);
-        }
+            transaction = event.getClientTransaction();
+
+        ProtocolProviderServiceSipImpl recipient = getServiceData(transaction);
+        if (recipient == null)
+            logger.error("We received a transaction terminated which wasn't "
+                    + "marked, please report this to "
+                    + "dev@sip-communicator.dev.java.net");
+        else
+            recipient.processTransactionTerminated(event);
     }
 
     /**
@@ -695,63 +737,24 @@ public class SipStackSharing
         return null;
     }
 
-    /**
-     * Finds the <tt>ProtocolProviderServiceSipImpl</tt> which this
-     * <tt>ClientTransaction</tt> should be dispatched to. The JAIN-SIP stack
-     * stores the initial request we made to the UAS. Using the From field we
-     * set ourselves there when generating the request, it is possible to find
-     * the <tt>ProtocolProviderServiceSipImpl</tt> originator of the request.
-     *
-     * @param transaction the <tt>ClientTransaction</tt> to find a target for.
-     * @return a matching <tt>ProtocolProviderServiceSipImpl</tt>.
-     */
-    private ProtocolProviderServiceSipImpl findTargetFor(
-                                                ClientTransaction transaction)
+    private ProtocolProviderServiceSipImpl
+        getServiceData(Transaction transaction)
     {
-        if(transaction == null)
+        ProtocolProviderServiceSipImpl service
+            = (ProtocolProviderServiceSipImpl) SipApplicationData
+            .getApplicationData(transaction.getRequest(),
+                    SipApplicationData.KEY_SERVICE);
+        if (service != null)
         {
-            logger.error("transaction shouldn't be null.");
-            return null;
+            logger.trace("service was found in request data");
+            return service;
         }
 
-        Request request = transaction.getRequest();
-
-        if(request.getRequestURI().isSipURI() == false)
-        {
-            logger.error("requested URI wasn't a SIP URI.");
-            return null;
-        }
-
-        Address address = ((FromHeader) request.getHeader(FromHeader.NAME)).
-            getAddress();
-        SipURI remoteURI = (SipURI) request.getRequestURI();
-        return getListenerFor(address, remoteURI);
-    }
-
-    /**
-     * Find the <tt>ProtocolProviderServiceSipImpl</tt> which would have
-     * <tt>localParty</tt> as SIP address when contacting the remote end at
-     * <tt>remoteURI</tt>.
-     *
-     * @param localParty the local address used to contact a remote end.
-     * @param remoteURI the remote URI used to generate <tt>localParty</tt>.
-     * @return a <tt>ProtocolProviderServiceSipImpl</tt> which would use
-     * <tt>localParty</tt> as local address to contact <tt>remoteURI</tt>.
-     */
-    private ProtocolProviderServiceSipImpl getListenerFor(Address localParty,
-                                                          SipURI remoteURI)
-    {
-        Set<ProtocolProviderServiceSipImpl> currentListeners
-            = this.getSipListeners();
-
-        for(ProtocolProviderServiceSipImpl listener : currentListeners)
-            if(listener.getOurSipAddress(remoteURI).equals(localParty))
-            {
-                logger.trace("found listener for local party: " + localParty);
-                return listener;
-            }
-
-        logger.error("no listener found for local party: " + localParty);
-        return null;
+        service = (ProtocolProviderServiceSipImpl) SipApplicationData
+            .getApplicationData(transaction.getDialog(),
+                    SipApplicationData.KEY_SERVICE);
+        if (service != null)
+            logger.trace("service was found in dialog data");
+        return service;
     }
 }
