@@ -111,7 +111,7 @@ public class JNIEncoder
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
-            || null == NativeDecoder.matches(in, inputFormats))
+            || null == JNIDecoder.matches(in, inputFormats))
             return new Format[0];
 
         return getMatchingOutputFormats(in);
@@ -121,7 +121,7 @@ public class JNIEncoder
     {
         // mismatch input format
         if (!(in instanceof VideoFormat)
-            || null == NativeDecoder.matches(in, inputFormats))
+            || null == JNIDecoder.matches(in, inputFormats))
             return null;
 
         VideoFormat videoIn = (VideoFormat) in;
@@ -156,7 +156,7 @@ public class JNIEncoder
     {
         // mismatch output format
         if (!(out instanceof VideoFormat)
-            || null == NativeDecoder.matches(out,
+            || null == JNIDecoder.matches(out,
                 getMatchingOutputFormats(inputFormat)))
             return null;
 
