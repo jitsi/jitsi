@@ -30,7 +30,7 @@ import org.osgi.framework.*;
 
 /**
  * The panel containing the call field and button, serving to make calls.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class MainCallPanel
@@ -188,8 +188,7 @@ public class MainCallPanel
             else if (!phoneNumberCombo.isComboFieldEmpty())
             {
                 // if no contact is selected checks if the user has chosen
-                // or has
-                // writen something in the phone combo box
+                // or has writen something in the phone combo box
 
                 String stringContact = phoneNumberCombo.getEditor()
                     .getItem().toString();
@@ -221,7 +220,7 @@ public class MainCallPanel
 
     /**
      * Returns the main application window, which is the parent of this panel.
-     * 
+     *
      * @return the main application window, which is the parent of this panel.
      */
     public MainFrame getMainFrame()
@@ -231,7 +230,7 @@ public class MainCallPanel
 
     /**
      * Sets the protocol provider to be used for making calls.
-     * 
+     *
      * @param protocolProvider the protocol provider to be used for making calls.
      */
     public ProtocolProviderService getCallProvider()
@@ -241,7 +240,7 @@ public class MainCallPanel
 
     /**
      * Sets the protocol provider to be used for making calls.
-     * 
+     *
      * @param protocolProvider the protocol provider to be used for making calls.
      */
     public void setCallProvider(ProtocolProviderService protocolProvider)
@@ -253,7 +252,7 @@ public class MainCallPanel
      * Sets the isCallMetaContact variable to TRUE or FALSE. This defines if
      * this call is a call to a given meta contact selected from the contact
      * list or a call to an external contact or phone number.
-     * 
+     *
      * @param isCallMetaContact TRUE to define this call as a call to an
      *            internal meta contact and FALSE to define it as a call to an
      *            external contact or phone number.
@@ -265,7 +264,7 @@ public class MainCallPanel
 
     /**
      * Enables or disabled the call button.
-     * 
+     *
      * @param isEnabled <code>true</code> to enable the call button and
      * <tt>false</tt> otherwise.
      */
@@ -276,7 +275,7 @@ public class MainCallPanel
 
     /**
      * Sets the given <tt>phoneNumber</tt> to the phone number combo box.
-     * 
+     *
      * @param phoneNumber the phone number to set.
      */
     public void setPhoneNumberComboText(String phoneNumber)
@@ -286,14 +285,14 @@ public class MainCallPanel
 
     /**
      * Returns the content of the phone number combo box.
-     * 
+     *
      * @return the content of the phone number combo box.
      */
     public String getPhoneNumberComboText()
     {
         return (String) this.phoneNumberCombo.getEditor().getItem();
     }
-    
+
     /**
      * Requests the focus in the phone number combo box.
      */
@@ -304,7 +303,7 @@ public class MainCallPanel
 
     /**
      * Adds the given call account to the list of call via accounts.
-     * 
+     *
      * @param pps the protocol provider service corresponding to the account
      */
     public void addCallAccount(ProtocolProviderService pps)
@@ -322,7 +321,7 @@ public class MainCallPanel
     /**
      * Removes the account corresponding to the given protocol provider from the
      * call via selector box.
-     * 
+     *
      * @param pps the protocol provider service to remove
      */
     public void removeCallAccount(ProtocolProviderService pps)
@@ -341,7 +340,7 @@ public class MainCallPanel
      * Returns TRUE if the account corresponding to the given protocol provider
      * is already contained in the call via selector box, otherwise returns
      * FALSE.
-     * 
+     *
      * @param pps the protocol provider service for the account
      * @return TRUE if the account corresponding to the given protocol provider
      *         is already contained in the call via selector box, otherwise
@@ -354,7 +353,7 @@ public class MainCallPanel
 
     /**
      * Updates the call via account status.
-     * 
+     *
      * @param pps the protocol provider service for the account
      */
     public void updateCallAccountStatus(ProtocolProviderService pps)
@@ -364,7 +363,7 @@ public class MainCallPanel
 
     /**
      * Returns the account selector box.
-     * 
+     *
      * @return the account selector box.
      */
     public AccountSelectorBox getAccountSelectorBox()

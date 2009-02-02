@@ -173,8 +173,8 @@ public class SIPCommSmartComboBox extends JComboBox
     }
 
     public class CallComboEditor
-    implements  ComboBoxEditor,
-                DocumentListener
+        implements  ComboBoxEditor,
+                    DocumentListener
     {
         private JTextField text;
         private volatile boolean filtering = false;
