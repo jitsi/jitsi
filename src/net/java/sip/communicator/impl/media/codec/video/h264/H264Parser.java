@@ -78,6 +78,11 @@ public class H264Parser
         int inputOffset = inputBuffer.getOffset();
         byte fByte = inData[inputOffset];
         int type = fByte & 0x1f;
+        int nri = (fByte & 0x60) >> 5;
+
+        if(nri == 0)
+            return false;
+
         try
         {
             // types from 1 to 23 are treated the same way

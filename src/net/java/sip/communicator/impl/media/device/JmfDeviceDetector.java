@@ -390,6 +390,21 @@ public class JmfDeviceDetector
                     PlugInManager.RENDERER);
             }
         }
+        else if(!isLinux32())
+        {
+            Vector renderers =
+                PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
+            
+            if (renderers.contains("com.sun.media.renderer.video.LightWeightRenderer") ||
+                renderers.contains("com.sun.media.renderer.video.AWTRenderer"))
+            {
+                // remove xlib renderer cause its native one and jmf is supported
+                // only on 32bit machines
+                PlugInManager.removePlugIn(
+                    "com.sun.media.renderer.video.XLibRenderer",
+                    PlugInManager.RENDERER);
+            }
+        }
     }
 
     private static boolean isWindowsVista()
@@ -402,6 +417,15 @@ public class JmfDeviceDetector
          */
         return (osName != null) && (osName.indexOf("Windows") != -1)
             && (osName.indexOf("Vista") != -1);
+    }
+
+    private static boolean isLinux32()
+    {
+        String osName = System.getProperty("os.name");
+        String arch = System.getProperty("sun.arch.data.model");
+
+        return (osName != null) && (arch != null) && (osName.indexOf("Linux") != -1)
+            && (arch.indexOf("32") != -1);
     }
 
     /**

@@ -82,18 +82,6 @@ public class EncodingConfiguration
     private final Map<String, Integer> encodingPreferences =
         new Hashtable<String, Integer>();
 
-    /**
-     * The indicator which determines whether the JNI implementations of the
-     * H.264 encoder and decoder are to be preferred to the JNA ones. It's
-     * currently <tt>true</tt> for platforms which actually have JNI
-     * implementations and allows testing on them while still defaulting the the
-     * less efficient JNA ones on the platforms without JNI counterparts.
-     */
-    private static final boolean H264_JNI =
-        System.getProperty("os.name").contains("Windows")
-            || System.getProperty("os.name").contains("Mac OS X")
-            || System.getProperty("os.name").contains("Linux");
-
     private static final String[] customCodecs =
         new String[]
         {
@@ -105,11 +93,9 @@ public class EncodingConfiguration
                 : "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
             FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
                 : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
-            "net.java.sip.communicator.impl.media.codec.video.h264."
-                + (H264_JNI ? "JNI" : "Native") + "Encoder",
+            "net.java.sip.communicator.impl.media.codec.video.h264.JNIEncoder",
             "net.java.sip.communicator.impl.media.codec.video.h264.Packetizer",
-            "net.java.sip.communicator.impl.media.codec.video.h264."
-                + (H264_JNI ? "JNI" : "Native") + "Decoder",
+            "net.java.sip.communicator.impl.media.codec.video.h264.JNIDecoder",
             "net.java.sip.communicator.impl.media.codec.video.ImageScaler",
             "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
             "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",

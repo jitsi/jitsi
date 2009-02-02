@@ -687,11 +687,6 @@
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
       <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib" link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
-
-      <!-- Symlinks for ffmpeg libs to working dir or a problem opening codecs -->
-      <symlink resource="lib/native/mac/libavcodec.dylib" link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libavcodec.dylib"/>
-      <symlink resource="lib/native/mac/libavformat.dylib" link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libavformat.dylib"/>
-      <symlink resource="lib/native/mac/libavutil.dylib" link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libavutil.dylib"/>
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.
