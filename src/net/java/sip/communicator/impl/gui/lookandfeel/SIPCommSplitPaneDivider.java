@@ -38,15 +38,15 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
         
         if(getOrientationFromSuper() == JSplitPane.VERTICAL_SPLIT)
             g.drawImage(horizontalDivider, 
-                (getSize().width - horizontalDivider.getWidth(null))/2 ,
-                clip.y + (getSize().height - horizontalDivider.getHeight(null))/2,
+                (getWidth() - horizontalDivider.getWidth(null))/2 ,
+                clip.y + (getHeight() - horizontalDivider.getHeight(null))/2,
                 horizontalDivider.getWidth(null), 
                 horizontalDivider.getHeight(null),
                 null);
         else
             g.drawImage(verticalDivider, 
-                clip.x + (getSize().width - verticalDivider.getWidth(null))/2 ,
-                (getSize().height - verticalDivider.getHeight(null))/2,
+                clip.x + (getWidth() - verticalDivider.getWidth(null))/2 ,
+                (getHeight() - verticalDivider.getHeight(null))/2,
                 verticalDivider.getWidth(null), 
                 verticalDivider.getHeight(null),
                 null);
@@ -262,7 +262,7 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
                 if (orientation == JSplitPane.VERTICAL_SPLIT) {
                   int blockSize = getDividerSize() 
                       - (insets.left + insets.right);
-                  int y = (c.getSize().height - blockSize) / 2;
+                  int y = (c.getHeight() - blockSize) / 2;
                   leftButton.setBounds(insets.left + leftSize.width, y, 
                           leftSize.width, leftSize.height);
                   rightButton.setBounds((insets.left * 2) + leftSize.width 
@@ -272,7 +272,7 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
                 else {
                   int blockSize = getDividerSize() 
                       - (insets.top + insets.bottom);
-                  int x = (c.getSize().width - blockSize) / 2;
+                  int x = (c.getWidth() - blockSize) / 2;
                   leftButton.setBounds(x, insets.top + leftSize.height,
                           leftSize.width, leftSize.height);
                   rightButton.setBounds(x, (insets.top * 2) + leftSize.height +

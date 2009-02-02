@@ -1303,13 +1303,9 @@ public class SIPCommTabbedPaneUI
 
         protected void calculateTabRects(int tabPlacement, int tabCount)
         {
-            FontMetrics metrics = getFontMetrics();
-            Dimension size = tabPane.getSize();
-            Insets insets = tabPane.getInsets();
+            FontMetrics metrics = getFontMetrics();;
             Insets tabAreaInsets = getTabAreaInsets(tabPlacement);
-            int fontHeight = metrics.getHeight();
-            int selectedIndex = tabPane.getSelectedIndex();
-            int i, j;
+            int i;
 
             int x = tabAreaInsets.left - 2;
             int y = tabAreaInsets.top;

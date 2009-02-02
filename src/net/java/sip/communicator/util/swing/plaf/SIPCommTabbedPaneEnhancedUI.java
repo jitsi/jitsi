@@ -298,8 +298,8 @@ public class SIPCommTabbedPaneEnhancedUI
             boolean isPressed, isRollOver, isEnabled;
             int w, h, size;
 
-            w = getSize().width;
-            h = getSize().height;
+            w = getWidth();
+            h = getHeight();
             origColor = g.getColor();
             isPressed = getModel().isPressed();
             isRollOver = getModel().isRollover();
