@@ -356,7 +356,7 @@ public class SRTPCryptoContext
         /* Authenticate the packet */
         if (this.policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION)
         {
-            byte[] tag = authenticatePacketHMCSHA1(pkt);
+            byte[] tag = authenticatePacketHMCSHA1(pkt, this.roc);
             pkt.append(tag, policy.getAuthTagLength());
         }
 
@@ -388,6 +388,12 @@ public class SRTPCryptoContext
      */
     public boolean reverseTransformPacket(RawPacket pkt)
     {
+        int seqNum = PacketManipulator.GetRTPSequenceNumber(pkt);
+
+        /* Replay control */
+        if (!checkReplay(seqNum)) {
+            return false;
+        }
         /* Authenticate the packet */
         if (this.policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION)
         {
@@ -398,7 +404,11 @@ public class SRTPCryptoContext
             
             pkt.shrink(tagLength);
             
-            byte[] calculatedTag = authenticatePacketHMCSHA1(pkt);
+            /* Guess the SRTP index (48 bit) */
+            long guessedIndex = guessIndex(seqNum);
+            int guessedRoc = (int)(guessedIndex >> 16); // extract the roc (32 bit)
+
+            byte[] calculatedTag = authenticatePacketHMCSHA1(pkt, guessedRoc);
 
             for (int i = 0; i < tagLength; i++) {
                 if ((originalTag[i]&0xff) == (calculatedTag[i]&0xff))
@@ -406,14 +416,6 @@ public class SRTPCryptoContext
                 else 
                     return false;
             }
-        }
-
-        int seqNum = PacketManipulator.GetRTPSequenceNumber(pkt);
-
-        /* Replay control */
-        if (!checkReplay(seqNum))
-        {
-            return false;
         }
         
         /* Decrypt the packet using Counter Mode encryption*/
@@ -522,14 +524,14 @@ public class SRTPCryptoContext
      * @param pkt the RTP packet to be authenticated
      * @return authentication tag of pkt
      */
-    private byte[] authenticatePacketHMCSHA1(RawPacket pkt)
+    private byte[] authenticatePacketHMCSHA1(RawPacket pkt, int rocIn)
     {
         hmacSha1.update(pkt.getBuffer(), 0, pkt.getLength());
         byte[] rb = new byte[4];
-        rb[0] = (byte) (this.roc >> 24);
-        rb[1] = (byte) (this.roc >> 16);
-        rb[2] = (byte) (this.roc >> 8);
-        rb[3] = (byte) this.roc;
+        rb[0] = (byte) (rocIn >> 24);
+        rb[1] = (byte) (rocIn >> 16);
+        rb[2] = (byte) (rocIn >> 8);
+        rb[3] = (byte) rocIn;
         hmacSha1.update(rb);
         
         return hmacSha1.doFinal();
