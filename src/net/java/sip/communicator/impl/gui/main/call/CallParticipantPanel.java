@@ -65,9 +65,18 @@ public class CallParticipantPanel
 
     private Component localVideo;
 
+    /**
+     * The current <code>Window</code> being displayed in full-screen. Because
+     * the AWT API with respect to the full-screen support doesn't seem
+     * sophisticated enough, the field is used sparingly i.e. when there are no
+     * other means (such as a local variable) of acquiring the instance.
+     */
+    private Window fullScreenWindow;
+
     private SecureButton secureButton;
     private ParticipantStatusPanel statusPanel;
     private ZrtpPanel zrtpPanel = null;
+
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      *
@@ -506,6 +515,8 @@ public class CallParticipantPanel
                     if (telephony.equals(videoTelephony))
                         videoTelephony = null;
                 }
+
+                exitFullScreen(fullScreenWindow);
             }
         };
         call.addCallChangeListener(callListener);
@@ -848,20 +859,23 @@ public class CallParticipantPanel
         frame.addWindowStateListener(listener);
 
         getGraphicsConfiguration().getDevice().setFullScreenWindow(frame);
+        this.fullScreenWindow = frame;
     }
 
     private void exitFullScreen(Window fullScreenWindow)
     {
-        GraphicsConfiguration gConfig = getGraphicsConfiguration();
-
-        if(gConfig != null)
-            gConfig.getDevice().setFullScreenWindow(null);
+        GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
+        if (graphicsConfig != null)
+            graphicsConfig.getDevice().setFullScreenWindow(null);
 
         if (fullScreenWindow != null)
         {
             if (fullScreenWindow.isVisible())
                 fullScreenWindow.setVisible(false);
             fullScreenWindow.dispose();
+
+            if (this.fullScreenWindow == fullScreenWindow)
+                this.fullScreenWindow = null;
         }
     }
 
