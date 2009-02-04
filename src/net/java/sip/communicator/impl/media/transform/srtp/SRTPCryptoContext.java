@@ -561,7 +561,7 @@ public class SRTPCryptoContext
         }
 
         long guessedIndex = guessIndex( seqNum );
-        long localIndex = (((long)this.roc) << 16 & 0xFFFF) | this.seqNum;
+        long localIndex = ((long)this.roc) << 16 | this.seqNum;
 
         long delta = guessedIndex - localIndex;
         if (delta > 0)
@@ -751,16 +751,25 @@ public class SRTPCryptoContext
      */
     private void update(int seqNum)
     {
-        guessIndex(seqNum);
+        long delta = guessIndex(seqNum) - (((long) this.roc) << 16 | this.seqNum);
+
+        /* update the replay bit mask */
+        if( delta > 0 ){
+          replayWindow = replayWindow << delta;
+          replayWindow |= 1;
+        }
+        else {
+          replayWindow |= ( 1 << delta );
+        }
 
         if (seqNum > this.seqNum)
         {
-            this.seqNum = seqNum;
+            this.seqNum = seqNum & 0xffff;  // make short
         }
         if (this.guessedROC > this.roc)
         {
             this.roc = this.guessedROC;
-            this.seqNum = seqNum;
+            this.seqNum = seqNum & 0xffff;  // make short
         }
     }
 
