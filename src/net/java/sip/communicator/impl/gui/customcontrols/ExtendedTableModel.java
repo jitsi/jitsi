@@ -17,8 +17,10 @@ import javax.swing.table.*;
  * @author Yana Stamcheva
  */
 public class ExtendedTableModel extends DefaultTableModel
-{   
-    /**
+{
+	private static final long serialVersionUID = 0L;
+
+	/**
      * Returns the index of the row, in which the given value is contained.
      * @param value the value to search for
      * @return the index of the row, in which the given value is contained.

@@ -705,12 +705,12 @@ public class MetaContactListServiceImpl
 
         //make sure that "parent" does not already contain a subgroup called
         //"groupName"
-        Iterator<MetaContactGroupImpl> subgroups
+        Iterator<MetaContactGroup> subgroups
                             = ((MetaContactGroupImpl)parent).getSubgroups();
 
         while(subgroups.hasNext())
         {
-            MetaContactGroupImpl group = subgroups.next();
+            MetaContactGroup group = subgroups.next();
 
             if(group.getGroupName().equals(groupName))
             {
@@ -1227,7 +1227,7 @@ public class MetaContactListServiceImpl
                         MetaContactGroupImpl parentMetaGroup,
                         ContactGroup         groupToRemove)
     {
-        Iterator<MetaContactImpl> childrenContactsIter
+        Iterator<MetaContact> childrenContactsIter
                                         = parentMetaGroup.getChildContacts();
 
         //first go through all direct children.
@@ -1268,13 +1268,13 @@ public class MetaContactListServiceImpl
             }
         }
 
-        Iterator<MetaContactGroupImpl> subgroupsIter
+        Iterator<MetaContactGroup> subgroupsIter
             = parentMetaGroup.getSubgroups();
 
         //then go through all subgroups.
         while (subgroupsIter.hasNext())
         {
-            MetaContactGroupImpl subMetaGroup = subgroupsIter.next();
+            MetaContactGroupImpl subMetaGroup = (MetaContactGroupImpl) subgroupsIter.next();
 
             Iterator<ContactGroup> contactGroups
                 = subMetaGroup.getContactGroups();
@@ -2703,12 +2703,12 @@ public class MetaContactListServiceImpl
      * @return the newly created meta contact group.
      */
     MetaContactGroupImpl loadStoredMetaContactGroup(
-        MetaContactGroup parentGroup,
+        MetaContactGroupImpl parentGroup,
         String metaContactGroupUID,
         String displayName)
     {
         //first check if the group exists already.
-        MetaContactGroupImpl newMetaGroup = ((MetaContactGroupImpl)parentGroup)
+        MetaContactGroupImpl newMetaGroup = (MetaContactGroupImpl) parentGroup
             .getMetaContactSubgroupByUID(metaContactGroupUID);
 
         //if the group exists then we have already loaded it for another
@@ -2719,7 +2719,7 @@ public class MetaContactListServiceImpl
         newMetaGroup
             = new MetaContactGroupImpl(displayName, metaContactGroupUID);
 
-        ((MetaContactGroupImpl)parentGroup).addSubgroup(newMetaGroup);
+        parentGroup.addSubgroup(newMetaGroup);
 
         //I don't think this method needs to produce events since it is
         //currently only called upon initialization ... but it doesn't hurt

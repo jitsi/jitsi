@@ -15,22 +15,20 @@ import javax.swing.table.*;
  * @author Yana Stamcheva
  */
 public class BooleanToCheckTableModel extends DefaultTableModel {
+    private static final long serialVersionUID = 0L;
 
-    /*
+	/*
      * JTable uses this method to determine the default renderer/
      * editor for each cell.  If we didn't implement this method,
      * then the first column in the wizard would contain text 
      * ("true"/"false"), rather than a check box.
      */
-    public Class getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
         return getValueAt(0, c).getClass();
     }
     
     public boolean isCellEditable(int row, int col)
     {        
-        if(col < 1)
-            return true;
-        else
-            return false;
+        return (col < 1);
     }
 }

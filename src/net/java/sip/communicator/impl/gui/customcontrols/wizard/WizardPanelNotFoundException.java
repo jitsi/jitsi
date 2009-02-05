@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.customcontrols.wizard;
 
 /**
@@ -13,9 +12,11 @@ package net.java.sip.communicator.impl.gui.customcontrols.wizard;
  * 
  * @author Yana Stamcheva
  */
-public class WizardPanelNotFoundException extends RuntimeException {
-        
-    public WizardPanelNotFoundException() {
-        super();
+public class WizardPanelNotFoundException
+    extends RuntimeException
+{
+    private static final long serialVersionUID = 0L;
+
+	public WizardPanelNotFoundException() {
     }
 }

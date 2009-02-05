@@ -22,16 +22,17 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
  *
  * @author Yana Stamcheva
  */
-public class SIPCommSmartComboBox extends JComboBox
+public class SIPCommSmartComboBox
+    extends JComboBox
 {
-    private ArrayList historyList = new ArrayList();
+	private static final long serialVersionUID = 0L;
 
-    /**
+	/**
      * Creates an instance of <tt>SIPCommSmartComboBox</tt>.
      */
     public SIPCommSmartComboBox()
     {
-        setModel(new FilterableComboBoxModel(historyList));
+        setModel(new FilterableComboBoxModel(new ArrayList()));
         setEditor(new CallComboEditor());
         setEditable(true);
         setFocusable(true);
@@ -41,7 +42,7 @@ public class SIPCommSmartComboBox extends JComboBox
      * The data model used for this combo box. Filters the contents of the
      * combo box popup according to the user input.
      */
-    public class FilterableComboBoxModel
+    public static class FilterableComboBoxModel
         extends AbstractListModel
         implements MutableComboBoxModel
     {
@@ -151,9 +152,9 @@ public class SIPCommSmartComboBox extends JComboBox
         public boolean accept(Object obj);
     }
 
-    class StartsWithFilter implements Filter
+    private static class StartsWithFilter implements Filter
     {
-        private String prefix;
+        private final String prefix;
 
         public StartsWithFilter(String prefix)
         {

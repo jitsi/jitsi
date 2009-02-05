@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.contactlist;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
@@ -15,7 +13,6 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- *
  * @author Emil Ivov
  */
 public class ContactlistActivator
@@ -24,8 +21,7 @@ public class ContactlistActivator
     private static final Logger logger =
         Logger.getLogger(ContactlistActivator.class);
 
-    ServiceRegistration mclServiceRegistration = null;
-    MetaContactListServiceImpl mclServiceImpl  = null;
+    private MetaContactListServiceImpl mclServiceImpl  = null;
 
     private static FileAccessService fileAccessService;
 
@@ -42,15 +38,12 @@ public class ContactlistActivator
         bundleContext = context;
 
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
-        Hashtable hashtable = new Hashtable();
 
         mclServiceImpl = new MetaContactListServiceImpl();
 
         //reg the icq account man.
-        mclServiceRegistration =  context.registerService(
-                    MetaContactListService.class.getName(),
-                    mclServiceImpl,
-                    hashtable);
+        context.registerService(MetaContactListService.class.getName(),
+                mclServiceImpl, null);
 
         mclServiceImpl.start(context);
 

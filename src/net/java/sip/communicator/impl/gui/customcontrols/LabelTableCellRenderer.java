@@ -21,10 +21,13 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  */
-public class LabelTableCellRenderer extends JLabel
+public class LabelTableCellRenderer
+    extends JLabel
     implements TableCellRenderer
 {
-    public LabelTableCellRenderer()
+    private static final long serialVersionUID = 0L;
+
+	public LabelTableCellRenderer()
     {
         this.setHorizontalAlignment(JLabel.LEFT);
         this.setOpaque(true);

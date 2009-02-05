@@ -18,7 +18,9 @@ import net.java.sip.communicator.util.swing.*;
 public class SCScrollPane
     extends JScrollPane
 {
-    public SCScrollPane()
+    private static final long serialVersionUID = 0L;
+
+	public SCScrollPane()
     {
         this.setBorder(null);
         this.setOpaque(false);

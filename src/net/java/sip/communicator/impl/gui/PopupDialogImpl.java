@@ -19,7 +19,9 @@ public class PopupDialogImpl
     extends JOptionPane
     implements PopupDialog
 {
-    /**
+    private static final long serialVersionUID = 0L;
+
+	/**
      * Creates an instance of <tt>PopupDialogImpl</tt>.
      */
     public PopupDialogImpl()

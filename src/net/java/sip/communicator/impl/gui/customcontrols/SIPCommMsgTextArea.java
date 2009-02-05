@@ -15,9 +15,12 @@ import javax.swing.*;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommMsgTextArea extends JTextArea {
+public class SIPCommMsgTextArea
+    extends JTextArea
+{
+    private static final long serialVersionUID = 0L;
 
-    public SIPCommMsgTextArea()
+	public SIPCommMsgTextArea()
     {
         this.setEditable(false);
         this.setLineWrap(true);

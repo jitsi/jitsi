@@ -56,8 +56,8 @@ public class MetaContactGroupImpl
      * in order to avoid creating it upon each query. The copy is updated upon
      * each modification
      */
-    private List<MetaContactImpl> childContactsOrderedCopy
-                                            = new LinkedList<MetaContactImpl>();
+    private List<MetaContact> childContactsOrderedCopy
+                                            = new LinkedList<MetaContact>();
 
     /**
      * The meta contact group that is currently containing us.
@@ -173,7 +173,7 @@ public class MetaContactGroupImpl
      *
      * @return a <tt>java.util.Iterator</tt> over an empty contacts list.
      */
-    public Iterator<MetaContactImpl> getChildContacts()
+    public Iterator<MetaContact> getChildContacts()
     {
         return childContactsOrderedCopy.iterator();
     }
@@ -187,10 +187,10 @@ public class MetaContactGroupImpl
      */
     public MetaContact getMetaContact(String metaContactID)
     {
-        Iterator<MetaContactImpl> contactsIter = getChildContacts();
+        Iterator<MetaContact> contactsIter = getChildContacts();
         while(contactsIter.hasNext())
         {
-            MetaContactImpl contact = contactsIter.next();
+            MetaContact contact = contactsIter.next();
 
             if (contact.getMetaUID().equals(metaContactID))
                 return contact;
@@ -215,11 +215,11 @@ public class MetaContactGroupImpl
     {
         int i = 0;
 
-        Iterator<MetaContactImpl> childrenIter = getChildContacts();
+        Iterator<MetaContact> childrenIter = getChildContacts();
 
         while (childrenIter.hasNext())
         {
-            MetaContactImpl current = childrenIter.next();
+            MetaContact current = childrenIter.next();
 
             if (current == metaContact)
             {
@@ -256,15 +256,15 @@ public class MetaContactGroupImpl
      * <tt>contactID</tt> is pertaining to.
      * @param contactID a String identifier of the protocol specific contact
      * whose container meta contact we're looking for.
-     * @return the <tt>MetaContact</tt> with the specified idnetifier.
+     * @return the <tt>MetaContact</tt> with the specified identifier.
      */
     public MetaContact getMetaContact(ProtocolProviderService provider,
                                       String contactID)
     {
-        Iterator<MetaContactImpl> contactsIter = getChildContacts();
+        Iterator<MetaContact> contactsIter = getChildContacts();
         while(contactsIter.hasNext())
         {
-            MetaContactImpl contact = contactsIter.next();
+            MetaContact contact = contactsIter.next();
 
             if (contact.getContact(contactID, provider) != null)
                 return contact;
@@ -283,27 +283,27 @@ public class MetaContactGroupImpl
      * @return the MetaContact with the specified UID or null if no such
      * contact exists.
      */
-    public MetaContactImpl findMetaContactByMetaUID(String metaUID)
+    public MetaContact findMetaContactByMetaUID(String metaUID)
     {
         //first go through the contacts that are direct children of this method.
-        Iterator<MetaContactImpl> contactsIter = getChildContacts();
+        Iterator<MetaContact> contactsIter = getChildContacts();
 
         while(contactsIter.hasNext())
         {
-            MetaContactImpl mContact = contactsIter.next();
+            MetaContact mContact = contactsIter.next();
 
             if( mContact.getMetaUID().equals(metaUID) )
                 return mContact;
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator<MetaContactGroupImpl> groupsIter = getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
         {
-            MetaContactGroupImpl mGroup = groupsIter.next();
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl) groupsIter.next();
 
-            MetaContactImpl mContact = mGroup.findMetaContactByMetaUID(metaUID);
+            MetaContact mContact = mGroup.findMetaContactByMetaUID(metaUID);
 
             if (mContact != null)
                 return mContact;
@@ -321,13 +321,13 @@ public class MetaContactGroupImpl
      * @return the MetaContactGroup with the specified UID or null if no such
      * contact exists.
      */
-    public MetaContactGroupImpl findMetaContactGroupByMetaUID(String metaUID)
+    public MetaContactGroup findMetaContactGroupByMetaUID(String metaUID)
     {
         if (metaUID.equals(groupUID))
             return this;
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator<MetaContactGroupImpl> groupsIter = getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
         {
@@ -462,14 +462,14 @@ public class MetaContactGroupImpl
      * @return the MetaContactImpl that contains the specified protocol specific
      * contact.
      */
-    public MetaContactImpl findMetaContactByContact(Contact protoContact)
+    public MetaContact findMetaContactByContact(Contact protoContact)
     {
         //first go through the contacts that are direct children of this method.
-        Iterator<MetaContactImpl> contactsIter = getChildContacts();
+        Iterator<MetaContact> contactsIter = getChildContacts();
 
         while(contactsIter.hasNext())
         {
-            MetaContactImpl mContact = contactsIter.next();
+            MetaContact mContact = contactsIter.next();
 
             Contact storedProtoContact = mContact.getContact(
                 protoContact.getAddress(), protoContact.getProtocolProvider());
@@ -479,13 +479,13 @@ public class MetaContactGroupImpl
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator<MetaContactGroupImpl> groupsIter = getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
         {
-            MetaContactGroupImpl mGroup = groupsIter.next();
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl) groupsIter.next();
 
-            MetaContactImpl mContact = mGroup.findMetaContactByContact(
+            MetaContact mContact = mGroup.findMetaContactByContact(
                                                                 protoContact);
 
             if (mContact != null)
@@ -509,15 +509,15 @@ public class MetaContactGroupImpl
      * @return the MetaContactImpl that contains the specified protocol specific
      * contact.
      */
-    public MetaContactImpl findMetaContactByContact(String contactAddress,
+    public MetaContact findMetaContactByContact(String contactAddress,
                                                     String accountID)
     {
         //first go through the contacts that are direct children of this method.
-        Iterator<MetaContactImpl> contactsIter = getChildContacts();
+        Iterator<MetaContact> contactsIter = getChildContacts();
 
         while(contactsIter.hasNext())
         {
-            MetaContactImpl mContact = contactsIter.next();
+            MetaContactImpl mContact = (MetaContactImpl) contactsIter.next();
 
             Contact storedProtoContact = mContact.getContact(
                 contactAddress, accountID);
@@ -527,13 +527,13 @@ public class MetaContactGroupImpl
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator<MetaContactGroupImpl> groupsIter = getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
         {
-            MetaContactGroupImpl mGroup = groupsIter.next();
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl) groupsIter.next();
 
-            MetaContactImpl mContact = mGroup.findMetaContactByContact(
+            MetaContact mContact = mGroup.findMetaContactByContact(
                                         contactAddress, accountID);
 
             if (mContact != null)
@@ -563,11 +563,11 @@ public class MetaContactGroupImpl
 
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator<MetaContactGroupImpl> groupsIter = getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
         {
-            MetaContactGroupImpl mGroup = groupsIter.next();
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl) groupsIter.next();
 
             MetaContactGroupImpl foundMetaContactGroup = mGroup
                     .findMetaContactGroupByContactGroup( protoContactGroup );
@@ -590,7 +590,7 @@ public class MetaContactGroupImpl
     public MetaContact getMetaContact(int index) throws
         IndexOutOfBoundsException
     {
-            return (MetaContactImpl)this.childContactsOrderedCopy.get(index);
+            return this.childContactsOrderedCopy.get(index);
     }
 
     /**
@@ -623,7 +623,7 @@ public class MetaContactGroupImpl
             this.childContacts.add(metaContact);
             //no need to synch it's not a disaster if s.o. else reads the old copy.
             childContactsOrderedCopy
-                = new LinkedList<MetaContactImpl>(childContacts);
+                = new LinkedList<MetaContact>(childContacts);
             return childContactsOrderedCopy.indexOf(metaContact);
         }
     }
@@ -647,7 +647,7 @@ public class MetaContactGroupImpl
             this.childContacts.remove(metaContact);
             //no need to synch it's not a disaster if s.o. else reads the old copy.
             childContactsOrderedCopy
-                            = new LinkedList<MetaContactImpl>(childContacts);
+                            = new LinkedList<MetaContact>(childContacts);
         }
     }
 
@@ -686,11 +686,11 @@ public class MetaContactGroupImpl
      */
     public MetaContactGroup getMetaContactSubgroup(String groupName)
     {
-        Iterator<MetaContactGroupImpl> groupsIter = getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while(groupsIter.hasNext())
         {
-            MetaContactGroupImpl mcGroup = groupsIter.next();
+            MetaContactGroup mcGroup = groupsIter.next();
 
             if(mcGroup.getGroupName().equals(groupName))
                 return mcGroup;
@@ -706,13 +706,13 @@ public class MetaContactGroupImpl
      * @return the <tt>MetaContactGroup</tt> with the specified uid or null
      *   if no such group exists.
      */
-    public MetaContactGroupImpl getMetaContactSubgroupByUID(String groupUID)
+    public MetaContactGroup getMetaContactSubgroupByUID(String groupUID)
     {
-        Iterator<MetaContactGroupImpl> groupsIter = getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while(groupsIter.hasNext())
         {
-            MetaContactGroupImpl mcGroup = groupsIter.next();
+            MetaContactGroup mcGroup = groupsIter.next();
 
             if(mcGroup.getMetaUID().equals(groupUID))
                 return mcGroup;
@@ -762,9 +762,9 @@ public class MetaContactGroupImpl
      * <p>
      * @return a <tt>java.util.Iterator</tt> containing all subgroups.
      */
-    public Iterator<MetaContactGroupImpl> getSubgroups()
+    public Iterator<MetaContactGroup> getSubgroups()
     {
-        return new LinkedList<MetaContactGroupImpl>( subgroups ).iterator();
+        return new LinkedList<MetaContactGroup>( subgroups ).iterator();
     }
 
     /**
@@ -797,10 +797,10 @@ public class MetaContactGroupImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator<MetaContactGroupImpl> subGroups = getSubgroups();
+        Iterator<MetaContactGroup> subGroups = getSubgroups();
         while (subGroups.hasNext())
         {
-            MetaContactGroupImpl group = (MetaContactGroupImpl)subGroups.next();
+            MetaContactGroup group = subGroups.next();
             buff.append(group.getGroupName());
             if (subGroups.hasNext())
                 buff.append("\n");
@@ -822,10 +822,10 @@ public class MetaContactGroupImpl
 
         buff.append("\nRootChildContacts="+countChildContacts()+":[");
 
-        Iterator<MetaContactImpl> contacts = getChildContacts();
+        Iterator<MetaContact> contacts = getChildContacts();
         while (contacts.hasNext())
         {
-            MetaContactImpl contact = contacts.next();
+            MetaContact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");

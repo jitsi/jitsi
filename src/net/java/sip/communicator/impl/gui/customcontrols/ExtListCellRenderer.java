@@ -16,23 +16,26 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * @author Yana Stamcheva
  */
-public class ExtListCellRenderer extends JPanel
-    implements ListCellRenderer {
-
+public class ExtListCellRenderer
+    extends JPanel
+    implements ListCellRenderer
+{
     private final JLabel label = new JLabel();
     private boolean isSelected;
     
-    public ExtListCellRenderer() {
+    public ExtListCellRenderer()
+    {
         super(new BorderLayout());
         
         this.add(label);
     }
+
     /**
      * Implements the <tt>ListCellRenderer</tt> method.
      */
     public Component getListCellRendererComponent(JList list, Object value,
-            int index, boolean isSelected, boolean cellHasFocus) {
-
+            int index, boolean isSelected, boolean cellHasFocus)
+    {
         this.label.setText(value.toString());
         this.isSelected = isSelected;
         

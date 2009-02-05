@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.customcontrols.wizard;
 
 import java.beans.*;
@@ -22,8 +21,6 @@ import net.java.sip.communicator.service.gui.*;
  * 
  * @author Yana Stamcheva
  */
-
-
 public class WizardModel {
 
     /**

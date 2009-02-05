@@ -22,11 +22,7 @@ import javax.swing.*;
 public class SIPCommMenu
     extends JMenu
 {
-    private Object selectedItem;
-
     private Object selectedObject;
-
-    private boolean isMouseOver;
 
     /**
      * Creates an instance of <tt>SIPCommMenu</tt>.
@@ -121,7 +117,6 @@ public class SIPCommMenu
      */
     public void setMouseOver(boolean isMouseOver)
     {
-        this.isMouseOver = isMouseOver;
         this.repaint();
     }
 }

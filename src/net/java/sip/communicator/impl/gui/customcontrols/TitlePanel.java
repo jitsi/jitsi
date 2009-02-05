@@ -22,11 +22,11 @@ import net.java.sip.communicator.util.swing.*;
 public class TitlePanel
     extends TransparentPanel
 {
-    private JLabel titleLabel = new JLabel();
+    private final JLabel titleLabel = new JLabel();
 
-    private Color gradientStartColor = new Color(255, 255, 255, 200);
+    private final Color gradientStartColor = new Color(255, 255, 255, 200);
 
-    private Color gradientEndColor = new Color(255, 255, 255, 50);
+    private final Color gradientEndColor = new Color(255, 255, 255, 50);
 
     /**
      * Creates an instance of <tt>TitlePanel</tt>.

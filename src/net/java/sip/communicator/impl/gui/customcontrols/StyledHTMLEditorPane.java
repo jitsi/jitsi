@@ -6,26 +6,23 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.io.IOException;
+import java.io.*;
 
-import javax.swing.JEditorPane;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.*;
+import javax.swing.text.*;
+import javax.swing.text.html.*;
 
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.SIPCommHTMLEditorKit;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 
 public class StyledHTMLEditorPane
     extends JEditorPane
 {
-    private Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
+    private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
     
-    private HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
+    private final HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
     
-    private HTMLDocument document;
+    private final HTMLDocument document;
     
     public StyledHTMLEditorPane()
     {

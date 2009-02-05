@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
@@ -18,7 +17,9 @@ import java.awt.*;
  */
 public class ChatToolbarButton extends SIPCommButton
 {
-    /**
+    private static final long serialVersionUID = 0L;
+
+	/**
      * Creates an instance of <tt>MsgToolbarButton</tt>.
      * @param iconImage The icon to display on this button.
      */

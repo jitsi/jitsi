@@ -33,7 +33,7 @@ public class ErrorDialog
     implements  ActionListener,
                 HyperlinkListener
 {
-    private Logger logger = Logger.getLogger(ErrorDialog.class);
+    private final Logger logger = Logger.getLogger(ErrorDialog.class);
 
     private JButton okButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.OK"));

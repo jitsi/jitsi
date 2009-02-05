@@ -85,9 +85,9 @@ public class GrowlNotificationServiceImpl
         /* Register to Growl */
         try
         {
-            Constructor constructor = Growl.class.getConstructor(new Class[]
-                                {String.class, String.class});
-            notifier = (Growl)constructor.newInstance(
+            Constructor<Growl> constructor = Growl.class.getConstructor(
+                    new Class[] { String.class, String.class });
+            notifier = constructor.newInstance(
                     new Object[]{"SIP Communicator", sipIconPath});
 
             //init the setAllowedNotifications method

@@ -16,21 +16,23 @@ import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The SIPCommToolBar is a <tt>JToolBar</tt>, which has its own drag icon
- * and seperatator. The drag icon is shown in the beginning of the toolbar,
+ * and separator. The drag icon is shown in the beginning of the toolbar,
  * before any of the containing toolbar buttons. It allows to drag the toolbar
  * out of the container, where it is added and show it in a separate window.
  * The separator is a line that could be added between two buttons. This way
- * the developer could visualy group buttons with similar functionality.
+ * the developer could visually group buttons with similar functionality.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommToolBar extends JToolBar {
+public class SIPCommToolBar
+    extends JToolBar
+{
+    private static final long serialVersionUID = 0L;
 
-    /**
+	/**
      * Creates an instance of <tt>SIPCommToolBar</tt>.
      */
     public SIPCommToolBar() {
-
         this.add(Box.createRigidArea(new Dimension(4, 4)));
     }
 

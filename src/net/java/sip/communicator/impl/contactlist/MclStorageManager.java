@@ -671,7 +671,7 @@ public class MclStorageManager
      *            level groups.
      */
     private void processGroupXmlNode(MetaContactListServiceImpl mclServiceImpl,
-        String accountID, Element groupNode, MetaContactGroup parentGroup,
+        String accountID, Element groupNode, MetaContactGroupImpl parentGroup,
         Map<String, ContactGroup> parentProtoGroups)
     {
         // first resolve the group itself.(unless this is the meta contact list
@@ -1151,11 +1151,11 @@ public class MclStorageManager
             this.contactListDocument.createElement(SUBGROUPS_NODE_NAME);
         metaGroupElement.appendChild(subgroupsElement);
 
-        Iterator subroups = metaGroup.getSubgroups();
+        Iterator<MetaContactGroup> subroups = metaGroup.getSubgroups();
 
         while (subroups.hasNext())
         {
-            MetaContactGroup subgroup = (MetaContactGroup) subroups.next();
+            MetaContactGroup subgroup = subroups.next();
             Element subgroupEl = createMetaContactGroupNode(subgroup);
             subgroupsElement.appendChild(subgroupEl);
         }
@@ -1166,11 +1166,11 @@ public class MclStorageManager
             this.contactListDocument.createElement(CHILD_CONTACTS_NODE_NAME);
         metaGroupElement.appendChild(childContactsElement);
 
-        Iterator childContacts = metaGroup.getChildContacts();
+        Iterator<MetaContact> childContacts = metaGroup.getChildContacts();
 
         while (childContacts.hasNext())
         {
-            MetaContact metaContact = (MetaContact) childContacts.next();
+            MetaContact metaContact = childContacts.next();
             Element metaContactEl = createMetaContactNode(metaContact);
             childContactsElement.appendChild(metaContactEl);
         }
