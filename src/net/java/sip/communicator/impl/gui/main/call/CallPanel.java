@@ -76,7 +76,7 @@ public class CallPanel
 
         if (participantPanel == null)
         {
-            participantPanel = new CallParticipantPanel(this, participant);
+            participantPanel = new CallParticipantPanel(participant);
 
             this.mainPanel.add(participantPanel);
 

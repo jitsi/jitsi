@@ -56,8 +56,6 @@ public class CallParticipantPanel
 
     private final CallParticipant callParticipant;
 
-    private final CallPanel callPanel;
-
     private final java.util.List<Container> videoContainers =
         new ArrayList<Container>();
 
@@ -80,13 +78,10 @@ public class CallParticipantPanel
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      *
-     * @param callManager the <tt>CallManager</tt> that manages the call
      * @param callParticipant a call participant
      */
-    public CallParticipantPanel(CallPanel callPanel,
-                                CallParticipant callParticipant)
+    public CallParticipantPanel(CallParticipant callParticipant)
     {
-        this.callPanel = callPanel;
         this.callParticipant = callParticipant;
         this.participantName = callParticipant.getDisplayName();
 
@@ -903,9 +898,18 @@ public class CallParticipantPanel
         }
     }
 
-    private class ParticipantStatusPanel extends TransparentPanel
+    private static class ParticipantStatusPanel
+        extends TransparentPanel
     {
-        public ParticipantStatusPanel(LayoutManager layout)
+
+        /*
+         * Silence the serial warning. Though there isn't a plan to serialize
+         * the instances of the class, there're no fields so the default
+         * serialization routine will work.
+         */
+		private static final long serialVersionUID = 0L;
+
+		public ParticipantStatusPanel(LayoutManager layout)
         {
             super(layout);
             this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
