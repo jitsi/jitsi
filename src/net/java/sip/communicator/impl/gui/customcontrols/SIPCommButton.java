@@ -27,29 +27,30 @@ public class SIPCommButton
 {
     private Image bgImage;
 
-    private Image pressedImage;
+    private final Image pressedImage;
 
-    private Image iconImage;
+    private final Image iconImage;
 
     /**
      * Creates a button with custom background image and icon image.
      * 
      * @param bgImage       The background image.
+     * @param pressedImage
      * @param iconImage     The icon.
      */
     public SIPCommButton(   Image bgImage,
                             Image pressedImage,
                             Image iconImage)
     {
-        super();
-
         MouseRolloverHandler mouseHandler = new MouseRolloverHandler();
 
         this.addMouseListener(mouseHandler);
         this.addMouseMotionListener(mouseHandler);
 
-        // Explicitly remove all borders that may be set from the current
-        // look and feel.
+        /*
+         * Explicitly remove all borders that may be set from the current look
+         * and feel.
+         */
         this.setBorder(null);
         this.setContentAreaFilled(false);
 
@@ -222,7 +223,7 @@ public class SIPCommButton
         this.bgImage = bgImage;
     }
 
-    protected class ButtonRepaintCallback implements FadeTrackerCallback
+    private class ButtonRepaintCallback implements FadeTrackerCallback
     {
         public void fadeEnded(FadeKind arg0)
         {
@@ -248,16 +249,16 @@ public class SIPCommButton
 
         public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
         {
-            
         }
     }
 
-    protected class MouseRolloverHandler
+    private class MouseRolloverHandler
         implements  MouseListener,
                     MouseMotionListener
     {
         public void mouseMoved(MouseEvent e)
-        {}
+        {
+        }
 
         public void mouseExited(MouseEvent e)
         {
@@ -275,7 +276,8 @@ public class SIPCommButton
         }
 
         public void mouseClicked(MouseEvent e)
-        {}
+        {
+        }
 
         public void mouseEntered(MouseEvent e)
         {
@@ -293,12 +295,15 @@ public class SIPCommButton
         }
 
         public void mousePressed(MouseEvent e)
-        {}
+        {
+        }
 
         public void mouseReleased(MouseEvent e)
-        {}
+        {
+        }
 
         public void mouseDragged(MouseEvent e)
-        {}
+        {
+        }
     }
 }

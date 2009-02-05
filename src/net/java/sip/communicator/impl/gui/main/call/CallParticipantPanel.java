@@ -745,8 +745,10 @@ public class CallParticipantPanel
     private Component createExitFullScreenButton()
     {
         JButton button =
-            new JButton(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON)));
+            new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG),
+                ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
 
         button.setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.EXIT_FULL_SCREEN_TOOL_TIP"));
