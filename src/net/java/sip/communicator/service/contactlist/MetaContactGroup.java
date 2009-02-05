@@ -120,7 +120,7 @@ public interface MetaContactGroup
      * @return a <tt>java.util.Iterator</tt> over the <tt>MetaContacts</tt> in
      * this group.
      */
-    public Iterator getChildContacts();
+    public Iterator<MetaContact> getChildContacts();
 
     /**
      * Returns the number of <tt>MetaContact</tt>s that this group contains
@@ -154,7 +154,7 @@ public interface MetaContactGroup
      * <p>
      * @return a <tt>java.util.Iterator</tt> containing all subgroups.
      */
-    public Iterator getSubgroups();
+    public Iterator<MetaContactGroup> getSubgroups();
 
     /**
      * Returns the number of subgroups that this <tt>MetaContactGroup</tt>
