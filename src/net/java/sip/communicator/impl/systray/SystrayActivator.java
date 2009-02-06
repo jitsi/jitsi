@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.systray;
 import net.java.sip.communicator.impl.systray.jdic.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
@@ -31,6 +32,8 @@ public class SystrayActivator
 
     private static ConfigurationService configService;
 
+    private static ResourceManagementService resourcesService;
+
     private static final Logger logger =
         Logger.getLogger(SystrayActivator.class);
 
@@ -40,7 +43,8 @@ public class SystrayActivator
      * @param bc The execution context of the bundle being started.
      * @throws Exception If
      */
-    public void start(BundleContext bc) throws Exception
+    public void start(BundleContext bc)
+            throws Exception
     {
         bundleContext = bc;
 
@@ -74,7 +78,9 @@ public class SystrayActivator
      *   listeners, unregister all services registered by the bundle, and
      *   release all services used by the bundle.
      */
-    public void stop(BundleContext bc) throws Exception {
+    public void stop(BundleContext bc)
+            throws Exception
+    {
     }
 
 
@@ -115,5 +121,29 @@ public class SystrayActivator
         }
 
         return uiService;
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     *
+     * @return the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
     }
 }

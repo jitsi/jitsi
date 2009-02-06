@@ -86,6 +86,7 @@ public class NewStatusMessageDialog
         this.infoArea.setEditable(false);
         this.infoArea.setLineWrap(true);
         this.infoArea.setWrapStyleWord(true);
+        this.infoArea.setOpaque(false);
 
         this.dataPanel.add(messageLabel, BorderLayout.WEST);
 
