@@ -356,7 +356,7 @@ public class ContactList
      *
      * @return The list of all groups.
      */
-    public Iterator getAllGroups()
+    public Iterator<MetaContactGroup> getAllGroups()
     {
         return contactListService.getRoot().getSubgroups();
     }

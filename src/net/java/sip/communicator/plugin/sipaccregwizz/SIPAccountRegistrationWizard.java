@@ -98,8 +98,8 @@ public class SIPAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
-    public Iterator getPages() {
-        ArrayList pages = new ArrayList();
+    public Iterator<WizardPage> getPages() {
+        java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
         firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
@@ -111,7 +111,7 @@ public class SIPAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator getSummary() {
+    public Iterator<Map.Entry> getSummary() {
         Hashtable<String, String> summaryTable = new Hashtable<String, String>();
 
         boolean rememberPswd = new Boolean(registration.isRememberPassword())
@@ -198,7 +198,7 @@ public class SIPAccountRegistrationWizard
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
             registration.getKeepAliveInterval());
 
-        return summaryTable.entrySet().iterator();
+        return ((Map) summaryTable).entrySet().iterator();
     }
 
     /**

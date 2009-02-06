@@ -106,9 +106,9 @@ public class GibberishAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
-    public Iterator getPages()
+    public Iterator<WizardPage> getPages()
     {
-        ArrayList pages = new ArrayList();
+        java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
         firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
@@ -120,9 +120,9 @@ public class GibberishAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator getSummary()
+    public Iterator<Map.Entry> getSummary()
     {
-        Hashtable summaryTable = new Hashtable();
+        Map summaryTable = new Hashtable();
 
         summaryTable.put("User ID", registration.getUserID());
 

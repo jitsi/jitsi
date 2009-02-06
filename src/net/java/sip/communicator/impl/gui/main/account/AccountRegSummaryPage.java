@@ -36,16 +36,7 @@ public class AccountRegSummaryPage
     private final JPanel valuesPanel
         = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private final JPanel mainPanel
-        = new TransparentPanel(new BorderLayout(10, 10));
-
-    private final JPanel wrapPanel = new TransparentPanel(new BorderLayout());
-
     private AccountRegWizardContainerImpl wizardContainer;
-
-    private JLabel pageTitleLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.SUMMARY"),
-        JLabel.CENTER);
 
     /**
      * Creates an <tt>AccountRegSummaryPage</tt>.
@@ -57,13 +48,18 @@ public class AccountRegSummaryPage
     {
         this.wizardContainer = wizardContainer;
 
-        this.pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
+        JLabel pageTitleLabel = new JLabel(
+                GuiActivator.getResources().getI18NString("service.gui.SUMMARY"),
+                JLabel.CENTER);
+        pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
 
-        this.mainPanel.add(pageTitleLabel, BorderLayout.NORTH);
-        this.mainPanel.add(keysPanel, BorderLayout.WEST);
-        this.mainPanel.add(valuesPanel, BorderLayout.CENTER);
+        JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
+        mainPanel.add(pageTitleLabel, BorderLayout.NORTH);
+        mainPanel.add(keysPanel, BorderLayout.WEST);
+        mainPanel.add(valuesPanel, BorderLayout.CENTER);
 
-        this.wrapPanel.add(mainPanel, BorderLayout.NORTH);
+        JPanel wrapPanel = new TransparentPanel(new BorderLayout());
+        wrapPanel.add(mainPanel, BorderLayout.NORTH);
 
         this.setViewportView(wrapPanel);
 
@@ -75,11 +71,11 @@ public class AccountRegSummaryPage
      *
      * @param summaryData The data to insert in the summary page.
      */
-    private void init(Iterator summaryData)
+    private void init(Iterator<Map.Entry> summaryData)
     {
         while (summaryData.hasNext())
         {
-            Map.Entry entry = (Map.Entry) summaryData.next();
+            Map.Entry entry = summaryData.next();
 
             JLabel keyLabel = new JLabel(entry.getKey().toString() + ":");
             JLabel valueLabel = new JLabel(entry.getValue().toString());

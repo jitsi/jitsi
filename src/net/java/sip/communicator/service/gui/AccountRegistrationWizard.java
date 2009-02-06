@@ -86,7 +86,7 @@ public interface AccountRegistrationWizard
      * @return the set of <tt>WizardPage</tt>-s for this
      * wizard. 
      */
-    public Iterator getPages();
+    public Iterator<WizardPage> getPages();
 
     /**
      * Returns the identifier of the first account registration wizard page.
@@ -113,7 +113,7 @@ public interface AccountRegistrationWizard
      * @return a set of key-value pairs that will represent the summary for
      * this wizard. 
      */
-    public Iterator getSummary();
+    public Iterator<Map.Entry> getSummary();
 
     /**
      * Defines the operations that will be executed when the user clicks on

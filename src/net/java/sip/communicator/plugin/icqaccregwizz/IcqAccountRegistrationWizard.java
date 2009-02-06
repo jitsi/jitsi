@@ -92,9 +92,9 @@ public class IcqAccountRegistrationWizard
     /**
      * Returns the set of pages contained in this wizard.
      */
-    public Iterator getPages()
+    public Iterator<WizardPage> getPages()
     {
-        ArrayList pages = new ArrayList();
+        java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
         firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
@@ -105,9 +105,9 @@ public class IcqAccountRegistrationWizard
     /**
      * Returns the set of data that user has entered through this wizard.
      */
-    public Iterator getSummary()
+    public Iterator<Map.Entry> getSummary()
     {
-        LinkedHashMap<String, Object> summaryTable
+        Map<String, Object> summaryTable
             = new LinkedHashMap<String, Object>();
 
         summaryTable.put(Resources.getString("service.gui.USER_IDENTIFIER"),
@@ -135,7 +135,7 @@ public class IcqAccountRegistrationWizard
             summaryTable.put(Resources.getString("proxyPassword"),
                 registration.getProxyPassword());
 
-        return summaryTable.entrySet().iterator();
+        return ((Map) summaryTable).entrySet().iterator();
     }
 
     /**

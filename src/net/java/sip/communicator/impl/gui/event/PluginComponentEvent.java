@@ -17,8 +17,7 @@ import net.java.sip.communicator.service.gui.*;
 public class PluginComponentEvent
     extends EventObject
 {
-
-    private int eventID = -1;
+    private final int eventID;
 
     /**
      * Indicates that the PluginComponentEvent instance was triggered by
@@ -43,6 +42,7 @@ public class PluginComponentEvent
                                 int eventID)
     {
         super(pluginComponent);
+
         this.eventID = eventID;
     }
 

@@ -41,7 +41,8 @@ public class AccountRegWizardContainerImpl
 
     ConfigurationService configService = GuiActivator.getConfigurationService();
 
-    private Hashtable registeredWizards = new Hashtable();
+    private final Map<String, AccountRegistrationWizard> registeredWizards =
+        new Hashtable<String, AccountRegistrationWizard>();
 
     public AccountRegWizardContainerImpl(MainFrame mainFrame)
     {
@@ -145,23 +146,20 @@ public class AccountRegWizardContainerImpl
     public void modifyAccount(ProtocolProviderService protocolProvider)
     {
         AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard) registeredWizards
-                .get(protocolProvider.getProtocolDisplayName());
+            = registeredWizards.get(protocolProvider.getProtocolDisplayName());
 
         this.setCurrentWizard(wizard);
 
         wizard.setModification(true);
 
-        Iterator i = wizard.getPages();
+        Iterator<WizardPage> i = wizard.getPages();
 
-        Object identifier = null;
         boolean firstPage = true;
 
         while (i.hasNext())
         {
-            WizardPage page = (WizardPage) i.next();
-
-            identifier = page.getIdentifier();
+            WizardPage page = i.next();
+            Object identifier = page.getIdentifier();
 
             this.registerWizardPage(identifier, page);
 
@@ -256,11 +254,11 @@ public class AccountRegWizardContainerImpl
 
         summaryPage.setPreferredSize(wizardSize);
 
-        Iterator i = wizard.getPages();
+        Iterator<WizardPage> i = wizard.getPages();
 
         while(i.hasNext())
         {
-            WizardPage page = (WizardPage)i.next();
+            WizardPage page = i.next();
 
             this.registerWizardPage(page.getIdentifier(), page);
         }
@@ -281,17 +279,13 @@ public class AccountRegWizardContainerImpl
      */
     public void unregisterWizardPages()
     {
-        Iterator i = this.getCurrentWizard().getPages();
-
-        Object identifier = null;
+        Iterator<WizardPage> i = this.getCurrentWizard().getPages();
 
         while (i.hasNext())
         {
-            WizardPage page = (WizardPage) i.next();
+            WizardPage page = i.next();
 
-            identifier = page.getIdentifier();
-
-            this.unregisterWizardPage(identifier);
+            this.unregisterWizardPage(page.getIdentifier());
         }
     }
 
@@ -320,16 +314,16 @@ public class AccountRegWizardContainerImpl
         AccountRegistrationWizard wizard
             = (AccountRegistrationWizard) sService;
 
-        if (event.getType() == ServiceEvent.REGISTERED)
-        {
+        switch (event.getType()) {
+        case ServiceEvent.REGISTERED:
             logger
                 .info("Handling registration of a new Account Wizard.");
 
             this.addAccountRegistrationWizard(protocolName, wizard);
-        }
-        else if (event.getType() == ServiceEvent.UNREGISTERING)
-        {
+            break;
+        case ServiceEvent.UNREGISTERING:
             this.removeAccountRegistrationWizard(protocolName, wizard);
+            break;
         }
     }
 }

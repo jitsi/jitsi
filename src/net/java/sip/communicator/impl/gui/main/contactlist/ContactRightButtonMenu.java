@@ -217,7 +217,7 @@ public class ContactRightButtonMenu
         }
 
         //Initialize moveTo menu.
-        Iterator groups = this.mainFrame.getAllGroups();
+        Iterator<MetaContactGroup> groups = this.mainFrame.getAllGroups();
 
         if(groups.hasNext())
         {
@@ -234,7 +234,7 @@ public class ContactRightButtonMenu
 
         while (groups.hasNext())
         {
-            MetaContactGroup group = (MetaContactGroup)groups.next();
+            MetaContactGroup group = groups.next();
 
             JMenuItem menuItem = new JMenuItem(group.getGroupName());
 
@@ -245,7 +245,7 @@ public class ContactRightButtonMenu
         }
 
         //Initialize removeContact menu.
-        Iterator contacts = contactItem.getContacts();
+        Iterator<Contact> contacts = contactItem.getContacts();
 
         if (contactItem.getContactCount() > 1)
         {
@@ -266,7 +266,7 @@ public class ContactRightButtonMenu
 
         while (contacts.hasNext())
         {
-            Contact contact = (Contact)contacts.next();
+            Contact contact = contacts.next();
 
             ProtocolProviderService protocolProvider
                 = contact.getProtocolProvider();

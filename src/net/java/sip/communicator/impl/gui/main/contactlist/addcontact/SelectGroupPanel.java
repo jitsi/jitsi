@@ -106,7 +106,7 @@ public class SelectGroupPanel
         
         Object lastSelectedGroup = null;
         
-        Iterator groupsList = wizard.getMainFrame().getAllGroups();
+        Iterator<MetaContactGroup> groupsList = wizard.getMainFrame().getAllGroups();
 
         if (groupsList.hasNext())
         {
@@ -119,8 +119,7 @@ public class SelectGroupPanel
 
             while(groupsList.hasNext())
             {
-                MetaContactGroup group
-                    = (MetaContactGroup)groupsList.next();
+                MetaContactGroup group = groupsList.next();
                 
                 GroupWrapper gr = new GroupWrapper(group);
                 

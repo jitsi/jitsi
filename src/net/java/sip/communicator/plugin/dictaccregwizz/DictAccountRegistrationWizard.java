@@ -108,9 +108,9 @@ public class DictAccountRegistrationWizard
      *
      * @return Returns the set of pages contained in this wizard.
      */
-    public Iterator getPages()
+    public Iterator<WizardPage> getPages()
     {
-        ArrayList pages = new ArrayList();
+        java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
         this.firstWizardPage = new FirstWizardPage(this);
         pages.add(this.firstWizardPage);
         return pages.iterator();
@@ -120,15 +120,15 @@ public class DictAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Returns the set of data that user has entered through this wizard.
      */
-    public Iterator getSummary()
+    public Iterator<Map.Entry> getSummary()
     {
-        LinkedHashMap<String, String> summaryTable = new LinkedHashMap<String, String>();
+        Map<String, String> summaryTable = new LinkedHashMap<String, String>();
 
         summaryTable.put("Host", registration.getHost());
         summaryTable.put("Port", String.valueOf(registration.getPort()));
         summaryTable.put("Strategy", registration.getStrategy().getName());
 
-        return summaryTable.entrySet().iterator();
+        return ((Map) summaryTable).entrySet().iterator();
     }
 
     /**

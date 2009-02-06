@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
@@ -33,9 +32,6 @@ public class AccountsConfigurationPanel
                 ServiceListener,
                 ProviderPresenceStatusListener
 {
-    private final Logger logger =
-        Logger.getLogger(AccountsConfigurationPanel.class.getName());
-
     private final JPanel accountsPanel = new TransparentPanel();
 
     private final JButton newButton =

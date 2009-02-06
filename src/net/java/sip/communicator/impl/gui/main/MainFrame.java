@@ -54,27 +54,23 @@ public class MainFrame
     implements  ExportedWindow,
                 PluginComponentListener
 {
-    private Logger logger = Logger.getLogger(MainFrame.class.getName());
+    private final Logger logger = Logger.getLogger(MainFrame.class);
 
-    private TransparentPanel mainPanel
+    private final TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(0, 8));
 
-    private TransparentPanel statusBarPanel
+    private final TransparentPanel statusBarPanel
         = new TransparentPanel(new BorderLayout());
 
-    private ImageIcon moreActionsIcon = new ImageIcon(ImageLoader
+    private final ImageIcon moreActionsIcon = new ImageIcon(ImageLoader
         .getImage(ImageLoader.MORE_ACTIONS_BUTTON));
 
-    private ImageIcon moreActionsRolloverIcon = new ImageIcon(ImageLoader
+    private final ImageIcon moreActionsRolloverIcon = new ImageIcon(ImageLoader
         .getImage(ImageLoader.MORE_ACTIONS_ROLLOVER_BUTTON));
-
-    private JLabel moreActionsLabel = new JLabel(moreActionsIcon);
 
     private MainMenu menu;
 
     private MainCallPanel mainCallPanel;
-
-    private JComponent quickMenu;
 
     private final HashMap<ProtocolProviderService, Integer> protocolProviders =
         new LinkedHashMap<ProtocolProviderService, Integer>();
@@ -90,10 +86,10 @@ public class MainFrame
     private final Map<PluginComponent, Component> nativePluginsTable =
         new Hashtable<PluginComponent, Component>();
 
-    private JPanel pluginPanelNorth = new JPanel();
-    private JPanel pluginPanelSouth = new JPanel();
-    private JPanel pluginPanelWest = new JPanel();
-    private JPanel pluginPanelEast = new JPanel();
+    private final JPanel pluginPanelNorth = new JPanel();
+    private final JPanel pluginPanelSouth = new JPanel();
+    private final JPanel pluginPanelWest = new JPanel();
+    private final JPanel pluginPanelEast = new JPanel();
 
     private ContactListPane contactListPanel;
 
@@ -179,9 +175,7 @@ public class MainFrame
 
         if (isToolBarExtended)
         {
-            quickMenu = new ExtendedQuickMenu(this);
-
-            menusPanel.add(quickMenu, BorderLayout.SOUTH);
+            menusPanel.add(new ExtendedQuickMenu(this), BorderLayout.SOUTH);
         }
 
         this.setJMenuBar(menu);
@@ -192,14 +186,14 @@ public class MainFrame
         northPanel.add(menusPanel, BorderLayout.CENTER);
         northPanel.add(accountStatusPanel, BorderLayout.SOUTH);
 
-        TransparentPanel moreActionsPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-
-        moreActionsPanel.add(moreActionsLabel);
+        JLabel moreActionsLabel = new JLabel(moreActionsIcon);
         moreActionsLabel.setToolTipText(GuiActivator.getResources()
             .getI18NString("service.gui.OPEN_TOOLS"));
-
         moreActionsLabel.addMouseListener(new ActionMenuMouseListener());
+
+        TransparentPanel moreActionsPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        moreActionsPanel.add(moreActionsLabel);
 
         centerPanel.add(moreActionsPanel, BorderLayout.NORTH);
         centerPanel.add(contactListPanel, BorderLayout.CENTER);
@@ -297,7 +291,7 @@ public class MainFrame
     public void addProtocolSupportedOperationSets(
             ProtocolProviderService protocolProvider)
     {
-        Map supportedOperationSets
+        Map<String, OperationSet> supportedOperationSets
             = protocolProvider.getSupportedOperationSets();
 
         String ppOpSetClassName = OperationSetPersistentPresence
@@ -629,7 +623,6 @@ public class MainFrame
         }
 
         public void providerStatusMessageChanged(PropertyChangeEvent evt) {
-
         }
     }
 
@@ -637,10 +630,9 @@ public class MainFrame
      * Returns the list of all groups.
      * @return The list of all groups.
      */
-    public Iterator getAllGroups()
+    public Iterator<MetaContactGroup> getAllGroups()
     {
-        return getContactListPanel()
-            .getContactList().getAllGroups();
+        return getContactListPanel().getContactList().getAllGroups();
     }
 
     /**
@@ -840,7 +832,9 @@ public class MainFrame
      */
     private class RenameAction extends AbstractAction
     {
-        public void actionPerformed(ActionEvent e)
+        private static final long serialVersionUID = 0L;
+
+		public void actionPerformed(ActionEvent e)
         {
             Object selectedObject
                 = getContactListPanel().getContactList().getSelectedValue();
@@ -1152,10 +1146,10 @@ public class MainFrame
      * The logo bar is positioned on the top of the window and is meant to
      * contain the application logo.
      */
-    private class LogoBar
+    private static class LogoBar
         extends JPanel
     {
-        private TexturePaint texture;
+        private final TexturePaint texture;
 
         /**
          * Creates the logo bar and specify the size.
@@ -1477,6 +1471,8 @@ public class MainFrame
     {
         public void mouseEntered(MouseEvent e)
         {
+            JLabel moreActionsLabel = (JLabel) e.getComponent();
+
             moreActionsLabel.setIcon(moreActionsRolloverIcon);
             moreActionsLabel.revalidate();
             moreActionsLabel.repaint();
@@ -1484,6 +1480,8 @@ public class MainFrame
 
         public void mouseExited(MouseEvent e)
         {
+            JLabel moreActionsLabel = (JLabel) e.getComponent();
+
             moreActionsLabel.setIcon(moreActionsIcon);
             moreActionsLabel.revalidate();
             moreActionsLabel.repaint();
