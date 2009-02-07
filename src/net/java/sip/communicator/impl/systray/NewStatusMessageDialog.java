@@ -25,35 +25,14 @@ public class NewStatusMessageDialog
     extends SIPCommDialog
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
+    private final Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
 
-    private JLabel messageLabel = new JLabel(
-        SystrayActivator.getResources().getI18NString(
-            "service.gui.NEW_STATUS_MESSAGE"));
+    private final JTextField messageTextField = new JTextField();
 
-    private JTextField messageTextField = new JTextField();
-
-    private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
-
-    private JTextArea infoArea = new JTextArea(
-        SystrayActivator.getResources().getI18NString(
-            "service.gui.STATUS_MESSAGE_INFO"));
-
-    private JLabel infoTitleLabel = new JLabel(
-        SystrayActivator.getResources().getI18NString(
-            "service.gui.NEW_STATUS_MESSAGE"));
-
-    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
-
-    private JButton okButton
-        = new JButton(SystrayActivator.getResources().getI18NString("service.gui.OK"));
-
-    private JButton cancelButton = new JButton(
+    private final JButton cancelButton = new JButton(
         SystrayActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-
-    private ProtocolProviderService protocolProvider;
+    private final ProtocolProviderService protocolProvider;
 
     /**
      * Creates an instance of <tt>NewStatusMessageDialog</tt>.
@@ -77,26 +56,39 @@ public class NewStatusMessageDialog
         this.setTitle(SystrayActivator.getResources()
                 .getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
+        JButton okButton =
+            new JButton(SystrayActivator.getResources().getI18NString("service.gui.OK"));
         this.getRootPane().setDefaultButton(okButton);
 
         this.setPreferredSize(new Dimension(500, 200));
 
-        this.infoArea.setEditable(false);
-        this.infoArea.setLineWrap(true);
-        this.infoArea.setWrapStyleWord(true);
-        this.infoArea.setOpaque(false);
+        JTextArea infoArea = new JTextArea(
+                SystrayActivator.getResources().getI18NString(
+                    "service.gui.STATUS_MESSAGE_INFO"));
+        infoArea.setEditable(false);
+        infoArea.setLineWrap(true);
+        infoArea.setWrapStyleWord(true);
+        infoArea.setOpaque(false);
 
-        this.dataPanel.add(messageLabel, BorderLayout.WEST);
+        JLabel messageLabel = new JLabel(
+                SystrayActivator.getResources().getI18NString(
+                    "service.gui.NEW_STATUS_MESSAGE"));
 
-        this.dataPanel.add(messageTextField, BorderLayout.CENTER);
+        JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
+        dataPanel.add(messageLabel, BorderLayout.WEST);
+        dataPanel.add(messageTextField, BorderLayout.CENTER);
 
-        this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
-        this.infoTitleLabel.setFont(
+        JLabel infoTitleLabel = new JLabel(
+                SystrayActivator.getResources().getI18NString(
+                    "service.gui.NEW_STATUS_MESSAGE"));
+        infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
+        infoTitleLabel.setFont(
             infoTitleLabel.getFont().deriveFont(Font.BOLD, 18.0f));
 
-        this.labelsPanel.add(infoTitleLabel);
-        this.labelsPanel.add(infoArea);
-        this.labelsPanel.add(dataPanel);
+        JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
+        labelsPanel.add(infoTitleLabel);
+        labelsPanel.add(infoArea);
+        labelsPanel.add(dataPanel);
 
         JPanel messagePanel = new TransparentPanel(new GridBagLayout());
         GridBagConstraints messagePanelConstraints = new GridBagConstraints();
@@ -118,19 +110,21 @@ public class NewStatusMessageDialog
         messagePanelConstraints.weightx = 1;
         messagePanel.add(labelsPanel, messagePanelConstraints);
 
-        this.okButton.setName("ok");
+        okButton.setName("ok");
         this.cancelButton.setName("cancel");
 
-        this.okButton.setMnemonic(
+        okButton.setMnemonic(
             SystrayActivator.getResources().getI18nMnemonic("service.gui.OK"));
         this.cancelButton.setMnemonic(
             SystrayActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
-        this.okButton.addActionListener(this);
+        okButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
 
-        this.buttonsPanel.add(okButton);
-        this.buttonsPanel.add(cancelButton);
+        JPanel buttonsPanel =
+            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
 
         JPanel mainPanel = new TransparentPanel(new GridBagLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
