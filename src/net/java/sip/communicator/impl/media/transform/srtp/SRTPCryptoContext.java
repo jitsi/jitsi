@@ -26,10 +26,11 @@
 */
 package net.java.sip.communicator.impl.media.transform.srtp;
 
-import java.security.*;
+import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.crypto.params.KeyParameter;
 
-import javax.crypto.*;
-import javax.crypto.spec.*;
+import org.bouncycastle.crypto.engines.AESFastEngine;
 
 import net.java.sip.communicator.impl.media.transform.*;
 
@@ -135,29 +136,27 @@ public class SRTPCryptoContext
     private final SRTPPolicy policy;
     
     /**
-     * The SRTPDigest object we used to do packet authentication
+     * The HMAC object we used to do packet authentication
      */
-    private SRTPDigest digest;
+    private HMac hmacSha1;             // used for various HMAC computations
     
-    /**
-     * The cryptographic services provider
-     */
-    private Provider cryptoProvider;
+    // The symmetric cipher engines we need here
+    private AESFastEngine AEScipher = null;
+    private AESFastEngine AEScipherF8 = null; // used inside F8 mode only
     
-    /**
-     * Used for various HMAC computations
-     */
-    private Mac hmacSha1;
+    // implements the counter cipher mode for RTP according to RFC 3711
+    private final SRTPCipherCTR cipherCtr = new SRTPCipherCTR();
+
+    // Here some fields that a allocated here or in constructor. The methods
+    // use these fields to avoid too many new operations
     
-    /**
-     * The AES cipher for counter mode
-     */
-    private Cipher AEScipher = null;
+    private final byte[] tagStore;
+    private final byte[] ivStore = new byte[16];
+    private final byte[] rbStore = new byte[4];
     
-    /**
-     * The AES cipher for F8 mode
-     */
-    private Cipher AEScipherF8 = null;
+    // this is some working store, used by some methods to avoid new operations
+    // the methods must use this only to store some reults for immediate processing
+    private final byte[] tempStore = new byte[100];
 
     /**
      * Construct an empty SRTPCryptoContext using ssrc.
@@ -165,129 +164,122 @@ public class SRTPCryptoContext
      * 
      * @param ssrc SSRC of this SRTPCryptoContext
      */
-    public SRTPCryptoContext(long ssrc)
+    public SRTPCryptoContext(long ssrcIn)
     {
-        this.ssrc = ssrc;
-        this.mki = null;
-        this.roc = 0;
-        this.guessedROC = 0;
-        this.seqNum = 0;
-        this.keyDerivationRate = 0;
-        this.masterKey = null;
-        this.masterSalt = null;
-        this.encKey = null;
-        this.authKey = null;
-        this.saltKey = null;
-        this.seqNumSet = false;
-        this.policy = null;
-        this.cryptoProvider = null;
+        ssrc = ssrcIn;
+        mki = null;
+        roc = 0;
+        guessedROC = 0;
+        seqNum = 0;
+        keyDerivationRate = 0;
+        masterKey = null;
+        masterSalt = null;
+        encKey = null;
+        authKey = null;
+        saltKey = null;
+        seqNumSet = false;
+        policy = null;
+        tagStore = null;
     }
 
     /**
      * Construct a normal SRTPCryptoContext based on the given parameters.
-     *
-     * @param ssrc the RTP SSRC that this SRTP cryptographic context protects.
-     * @param roc the initial Roll-Over-Counter according to RFC 3711.
-     * These are the upper 32 bit of the overall 48 bit SRTP packet index.
-     * Refer to chapter 3.2.1 of the RFC.
-     * @param keyDerivationRate the key derivation rate defines when to recompute
-     * the SRTP session keys. Refer to chapter 4.3.1 in the RFC.
-     * @param masterKey byte array holding the master key for this SRTP
-     * cryptographic context. Refer to chapter 3.2.1 of the RFC about the
-     * role of the master key.
-     * @param masterSalt byte array holding the master salt for this SRTP 
-     * cryptographic context. It is used to computer the initialization vector
-     * that in turn is input to compute the session key, session
-     * authentication key and the session salt.
-     * @param policy SRTP policy for this SRTP cryptographic context, defined 
-     * the encryption algorithm, the authentication algorithm, etc 
-     * @param cryptoProvider cryptographic services provider
+     * 
+     * @param ssrc
+     *            the RTP SSRC that this SRTP cryptographic context protects.
+     * @param roc
+     *            the initial Roll-Over-Counter according to RFC 3711. These are
+     *            the upper 32 bit of the overall 48 bit SRTP packet index.
+     *            Refer to chapter 3.2.1 of the RFC.
+     * @param keyDerivationRate
+     *            the key derivation rate defines when to recompute the SRTP
+     *            session keys. Refer to chapter 4.3.1 in the RFC.
+     * @param masterKey
+     *            byte array holding the master key for this SRTP cryptographic
+     *            context. Refer to chapter 3.2.1 of the RFC about the role of
+     *            the master key.
+     * @param masterSalt
+     *            byte array holding the master salt for this SRTP cryptographic
+     *            context. It is used to computer the initialization vector that
+     *            in turn is input to compute the session key, session
+     *            authentication key and the session salt.
+     * @param policy
+     *            SRTP policy for this SRTP cryptographic context, defined the
+     *            encryption algorithm, the authentication algorithm, etc
      */
-    public SRTPCryptoContext(long ssrc,
-                             int roc,
-                             long keyDerivationRate,
-                             byte[] masterKey,
-                             byte[] masterSalt,
-                             SRTPPolicy policy,
-                             Provider cryptoProvider)
-    throws GeneralSecurityException
+    public SRTPCryptoContext(long ssrcIn, int rocIn, long kdr,
+            byte[] masterK, byte[] masterS, SRTPPolicy policyIn) 
     {
-        this.ssrc = ssrc;
-        this.mki = null;
-        this.roc = roc;
-        this.guessedROC = 0;
-        this.seqNum = 0;
-        this.keyDerivationRate = keyDerivationRate;
-        this.seqNumSet = false;
-        this.cryptoProvider = cryptoProvider;
+        ssrc = ssrcIn;
+        mki = null;
+        roc = rocIn;
+        guessedROC = 0;
+        seqNum = 0;
+        keyDerivationRate = kdr;
+        seqNumSet = false;
 
-        this.policy = policy;
+        policy = policyIn;
 
-        this.masterKey = new byte[this.policy.getEncKeyLength()];
-        System.arraycopy(masterKey, 0, this.masterKey, 0, this.policy.getEncKeyLength());
+        masterKey = new byte[policy.getEncKeyLength()];
+        System.arraycopy(masterK, 0, masterKey, 0, policy
+                .getEncKeyLength());
 
-        this.masterSalt = new byte[this.policy.getSaltKeyLength()];
-        System.arraycopy(masterSalt, 0, this.masterSalt, 0, this.policy.getSaltKeyLength());
-         
+        masterSalt = new byte[policy.getSaltKeyLength()];
+        System.arraycopy(masterS, 0, masterSalt, 0, policy
+                .getSaltKeyLength());
 
-        switch (policy.getEncType())
-        {
-            case SRTPPolicy.NULL_ENCRYPTION:
-                this.encKey = null;
-                this.saltKey = null;
-                break;
+        hmacSha1 = new HMac(new SHA1Digest());
+        AEScipher = new AESFastEngine();
+        
+        switch (policy.getEncType()) {
+        case SRTPPolicy.NULL_ENCRYPTION:
+            encKey = null;
+            saltKey = null;
+            break;
 
-            case SRTPPolicy.AESCM_ENCRYPTION:
-                hmacSha1 = Mac.getInstance("HMACSHA1", cryptoProvider);
-                AEScipher = Cipher.getInstance("AES/ECB/NOPADDING", cryptoProvider);
-                this.encKey  = new byte[this.policy.getEncKeyLength()];
-                this.saltKey = new byte[this.policy.getSaltKeyLength()];
-                break;
-                
-            case SRTPPolicy.AESF8_ENCRYPTION:
-                hmacSha1 = Mac.getInstance("HMACSHA1", cryptoProvider);
-                AEScipher = Cipher.getInstance("AES/ECB/NOPADDING", cryptoProvider);
-                AEScipherF8 = Cipher.getInstance("AES/ECB/NOPADDING", cryptoProvider);
-                this.encKey  = new byte[this.policy.getEncKeyLength()];
-                this.saltKey = new byte[this.policy.getSaltKeyLength()];
-                break;
+        case SRTPPolicy.AESF8_ENCRYPTION:
+            AEScipherF8 = new AESFastEngine(); 
+           
+        case SRTPPolicy.AESCM_ENCRYPTION:
+            encKey = new byte[policy.getEncKeyLength()];
+            saltKey = new byte[policy.getSaltKeyLength()];
+            break;
         }
 
-        switch (policy.getAuthType())
-        {
-            case SRTPPolicy.NULL_AUTHENTICATION:
-                this.authKey = null;
-                break;
+        switch (policy.getAuthType()) {
+        case SRTPPolicy.NULL_AUTHENTICATION:
+            authKey = null;
+            tagStore = null;
+            break;
 
-            case SRTPPolicy.HMACSHA1_AUTHENTICATION:
-                this.authKey = new byte[policy.getAuthKeyLength()];
-                break;
+        case SRTPPolicy.HMACSHA1_AUTHENTICATION:
+            authKey = new byte[policy.getAuthKeyLength()];
+            tagStore = new byte[hmacSha1.getMacSize()];
+            break;
+            
+        default:
+            tagStore = null;
         }
     }
 
     /**
      * Get the authentication tag length of this SRTP cryptographic context
-     *
+     * 
      * @return the authentication tag length of this SRTP cryptographic context
      */
-    public int getAuthTagLength()
-    {
-        return this.policy.getAuthTagLength();
+    public int getAuthTagLength() {
+        return policy.getAuthTagLength();
     }
 
     /**
      * Get the MKI length of this SRTP cryptographic context
-     *
+     * 
      * @return the MKI length of this SRTP cryptographic context
      */
-    public int getMKILength()
-    {
-        if (this.mki != null)
-        {
-            return this.mki.length;
-        }
-        else
-        {
+    public int getMKILength() {
+        if (mki != null) {
+            return mki.length;
+        } else {
             return 0;
         }
     }
@@ -297,19 +289,17 @@ public class SRTPCryptoContext
      *
      * @return the SSRC of this SRTP cryptographic context
      */
-    public long getSSRC()
-    {
-        return this.ssrc;
+    public long getSSRC() {
+        return ssrc;
     }
-    
+
     /**
      * Get the Roll-Over-Counter of this SRTP cryptographic context
      *
      * @return the Roll-Over-Counter of this SRTP cryptographic context
      */
-    public int getROC()
-    {
-        return this.roc;
+    public int getROC() {
+        return roc;
     }
 
     /**
@@ -317,9 +307,8 @@ public class SRTPCryptoContext
      *
      * @param roc the Roll-Over-Counter of this SRTP cryptographic context
      */
-    public void setROC(int roc)
-    {
-        this.roc = roc;
+    public void setROC(int rocIn) {
+        roc = rocIn;
     }
 
     /**
@@ -339,32 +328,27 @@ public class SRTPCryptoContext
      * 
      * @param pkt the RTP packet that is going to be sent out
      */
-    public void transformPacket(RawPacket pkt)
-    {
+    public void transformPacket(RawPacket pkt) {
         /* Encrypt the packet using Counter Mode encryption */
-        if (this.policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION)
-        {
+        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION) {
             processPacketAESCM(pkt);
         }
 
         /* Encrypt the packet using F8 Mode encryption */
-        else if (this.policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION)
-        {
+        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION) {
             processPacketAESF8(pkt);
         }
 
         /* Authenticate the packet */
-        if (this.policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION)
-        {
-            byte[] tag = authenticatePacketHMCSHA1(pkt, this.roc);
-            pkt.append(tag, policy.getAuthTagLength());
+        if (policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION) {
+            authenticatePacketHMCSHA1(pkt, roc);
+            pkt.append(tagStore, policy.getAuthTagLength());
         }
 
         /* Update the ROC if necessary */
-        int seqNum = PacketManipulator.GetRTPSequenceNumber(pkt);
-        if (seqNum == 0xFFFF)
-        {
-            this.roc++;
+        int seqNo = PacketManipulator.GetRTPSequenceNumber(pkt);
+        if (seqNo == 0xFFFF) {
+            roc++;
         }
     }
 
@@ -386,51 +370,53 @@ public class SRTPCryptoContext
      * @return true if the packet can be accepted
      *         false if the packet failed authentication or failed replay check 
      */
-    public boolean reverseTransformPacket(RawPacket pkt)
-    {
-        int seqNum = PacketManipulator.GetRTPSequenceNumber(pkt);
+    public boolean reverseTransformPacket(RawPacket pkt) {
+        int seqNo = PacketManipulator.GetRTPSequenceNumber(pkt);
+
+        if (!seqNumSet) {
+            seqNumSet = true;
+            seqNum = seqNo;
+        }
+        // Guess the SRTP index (48 bit), see rFC 3711, 3.3.1
+        // Stores the guessed roc in this.guessedROC
+        long guessedIndex = guessIndex(seqNo);
 
         /* Replay control */
-        if (!checkReplay(seqNum)) {
+        if (!checkReplay(seqNo, guessedIndex)) {
             return false;
         }
         /* Authenticate the packet */
-        if (this.policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION)
-        {
-            int tagLength = this.policy.getAuthTagLength();
+        if (policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION) {
+            int tagLength = policy.getAuthTagLength();
 
-            byte[] originalTag =
-                pkt.readRegion(pkt.getLength() - tagLength, tagLength);
-            
+            // get original authentication and store in tempStore
+            pkt.readRegionToBuff(pkt.getLength() - tagLength,
+                    tagLength, tempStore);
+
             pkt.shrink(tagLength);
-            
-            /* Guess the SRTP index (48 bit) */
-            long guessedIndex = guessIndex(seqNum);
-            int guessedRoc = (int)(guessedIndex >> 16); // extract the roc (32 bit)
 
-            byte[] calculatedTag = authenticatePacketHMCSHA1(pkt, guessedRoc);
+            // save computed authentication in tagStore
+            authenticatePacketHMCSHA1(pkt, guessedROC);
 
             for (int i = 0; i < tagLength; i++) {
-                if ((originalTag[i]&0xff) == (calculatedTag[i]&0xff))
+                if ((tempStore[i]&0xff) == (tagStore[i]&0xff))
                     continue;
                 else 
                     return false;
             }
         }
-        
+
         /* Decrypt the packet using Counter Mode encryption*/
-        if (this.policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION)
-        {
+        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION) {
             processPacketAESCM(pkt);
         }
 
         /* Decrypt the packet using F8 Mode encryption*/
-        else if (this.policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION)
-        {
+        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION) {
             processPacketAESF8(pkt);
         }
 
-        update(seqNum);
+        update(seqNo, guessedIndex);
 
         return true;
     }
@@ -439,82 +425,59 @@ public class SRTPCryptoContext
      * Perform Counter Mode AES encryption / decryption 
      * @param pkt the RTP packet to be encrypted / decrypted
      */
-    public void processPacketAESCM(RawPacket pkt)
-    {
-        long  ssrc   = PacketManipulator.GetRTPSSRC(pkt);
-        int   seqNum = PacketManipulator.GetRTPSequenceNumber(pkt);
-        long  index  = ((long) this.roc << 16) | (long) seqNum;
+    public void processPacketAESCM(RawPacket pkt) {
+        long ssrc = PacketManipulator.GetRTPSSRC(pkt);
+        int seqNum = PacketManipulator.GetRTPSequenceNumber(pkt);
+        long index = ((long) this.roc << 16) | (long) seqNum;
 
-        byte[] iv = new byte[16];
-        System.arraycopy(this.saltKey, 0, iv, 0, 4);
+        // byte[] iv = new byte[16];
+        ivStore[0] = saltKey[0];
+        ivStore[1] = saltKey[1];
+        ivStore[2] = saltKey[2];
+        ivStore[3] = saltKey[3];
 
         int i;
-        for (i = 4; i < 8; i++)
-        {
-            iv[i] = (byte)((0xFF & (ssrc >> ((7 - i) * 8))) ^ this.saltKey[i]);
+        for (i = 4; i < 8; i++) {
+            ivStore[i] = (byte) ((0xFF & (ssrc >> ((7 - i) * 8))) ^ this.saltKey[i]);
         }
 
-        for (i = 8; i < 14; i++)
-        {
-            iv[i] =
-                (byte)((0xFF & (byte)(index >> ((13 - i) * 8))) ^ this.saltKey[i]);
+        for (i = 8; i < 14; i++) {
+            ivStore[i] = (byte) ((0xFF & (byte) (index >> ((13 - i) * 8))) ^ this.saltKey[i]);
         }
 
-        iv[14] = iv[15] = 0;
+        ivStore[14] = ivStore[15] = 0;
 
         final int payloadOffset = PacketManipulator.GetRTPHeaderLength(pkt);
         final int payloadLength = PacketManipulator.GetRTPPayloadLength(pkt);
-        
-        SRTPCipherCTR.process(AEScipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
-                              payloadLength, iv);
+
+        cipherCtr.process(AEScipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
+                payloadLength, ivStore);
     }
-    
+
     /**
      * Perform F8 Mode AES encryption / decryption
      *
      * @param pkt the RTP packet to be encrypted / decrypted
      */
-    public void processPacketAESF8(RawPacket pkt)
-    {
-        //long    ssrc     = PacketManipulator.GetRTPSSRC(pkt);
-        //boolean isMarked = PacketManipulator.IsPacketMarked(pkt);
-        //int     seqNum   = PacketManipulator.GetRTPSequenceNumber(pkt);
-        //byte    payload  = PacketManipulator.GetRTPPayloadType(pkt);
+    public void processPacketAESF8(RawPacket pkt) {
+        // byte[] iv = new byte[16];
 
-        byte[] iv = new byte[16];
-        
-        //iv[0] = 0;
-        //iv[1] = (byte) (isMarked ? 0x80 : 0x00);
-        //iv[1] |= payload & 0x7f;
-        //iv[2] = (byte) (seqNum >> 8);
-        //iv[3] = (byte) seqNum;
-
-        // set the TimeStamp in network order into IV
-        //byte[] timeStamp = PacketManipulator.ReadTimeStampIntoByteArray(pkt);
-        //System.arraycopy(timeStamp, 0, iv, 4, 4);
-        
-        // set the SSRC in network order into IV
-        //iv[8]  = (byte) (ssrc >> 24);
-        //iv[9]  = (byte) (ssrc >> 16);
-        //iv[10] = (byte) (ssrc >> 8);
-        //iv[11] = (byte) ssrc;
-        
-        // set the ROC in network order into IV
         // 11 bytes of the RTP header are the 11 bytes of the iv
         // the first byte of the RTP header is not used.
-        System.arraycopy(pkt.getBuffer(), pkt.getOffset(), iv, 0, 12);
-        iv[0] = 0;
-        
-        iv[12] = (byte) (this.roc >> 24);
-        iv[13] = (byte) (this.roc >> 16);
-        iv[14] = (byte) (this.roc >>  8);
-        iv[15] = (byte) this.roc;
-        
+        System.arraycopy(pkt.getBuffer(), pkt.getOffset(), ivStore, 0, 12);
+        ivStore[0] = 0;
+       
+        // set the ROC in network order into IV
+        ivStore[12] = (byte) (this.roc >> 24);
+        ivStore[13] = (byte) (this.roc >> 16);
+        ivStore[14] = (byte) (this.roc >> 8);
+        ivStore[15] = (byte) this.roc;
+
         final int payloadOffset = PacketManipulator.GetRTPHeaderLength(pkt);
         final int payloadLength = PacketManipulator.GetRTPPayloadLength(pkt);
 
         SRTPCipherF8.process(AEScipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
-                             payloadLength, iv, encKey, saltKey, AEScipherF8);
+                payloadLength, ivStore, encKey, saltKey, AEScipherF8);
     }
 
     /**
@@ -524,19 +487,18 @@ public class SRTPCryptoContext
      * @param pkt the RTP packet to be authenticated
      * @return authentication tag of pkt
      */
-    private byte[] authenticatePacketHMCSHA1(RawPacket pkt, int rocIn)
-    {
+    private void authenticatePacketHMCSHA1(RawPacket pkt, int rocIn) {
+
         hmacSha1.update(pkt.getBuffer(), 0, pkt.getLength());
-        byte[] rb = new byte[4];
-        rb[0] = (byte) (rocIn >> 24);
-        rb[1] = (byte) (rocIn >> 16);
-        rb[2] = (byte) (rocIn >> 8);
-        rb[3] = (byte) rocIn;
-        hmacSha1.update(rb);
-        
-        return hmacSha1.doFinal();
+        // byte[] rb = new byte[4];
+        rbStore[0] = (byte) (rocIn >> 24);
+        rbStore[1] = (byte) (rocIn >> 16);
+        rbStore[2] = (byte) (rocIn >> 8);
+        rbStore[3] = (byte) rocIn;
+        hmacSha1.update(rbStore, 0, rbStore.length);
+        hmacSha1.doFinal(tagStore, 0);
     }
-    
+
     /**
      * Checks if a packet is a replayed on based on its sequence number.
      * 
@@ -550,50 +512,30 @@ public class SRTPCryptoContext
      * @return true if this sequence number indicates the packet is not a
      * replayed one, false if not
      */
-    boolean checkReplay(int seqNum)
-    {
-        /*
-         * Initialize the sequences number on first call that uses the
-         * sequence number. Either guessIndex() or checkReplay().
-         */
-        if (!this.seqNumSet)
-        {
-            this.seqNumSet = true;
-            this.seqNum = seqNum;
-        }
-
-        long guessedIndex = guessIndex( seqNum );
-        long localIndex = ((long)this.roc) << 16 | this.seqNum;
-
+    boolean checkReplay(int seqNo, long guessedIndex) {
+        // compute the index of previously received packet and its
+        // delta to the new received packet
+        long localIndex = (((long) this.roc) << 16) | this.seqNum;
         long delta = guessedIndex - localIndex;
-        if (delta > 0)
-        {
+        
+        if (delta > 0) {
             /* Packet not yet received */
             return true;
-        }
-        else
-        {
-            if( -delta > REPLAY_WINDOW_SIZE )
-            {
+        } else {
+            if (-delta > REPLAY_WINDOW_SIZE) {
                 /* Packet too old */
                 return false;
-            }
-            else
-            {
-                if(((this.replayWindow >> (-delta)) & 0x1) != 0)
-                {
+            } else {
+                if (((this.replayWindow >> (-delta)) & 0x1) != 0) {
                     /* Packet already received ! */
                     return false;
-                }
-                else
-                {
+                } else {
                     /* Packet not yet received */
                     return true;
                 }
             }
         }
     }
-
 
     /**
      * Compute the initialization vector, used later by encryption algorithms,
@@ -606,141 +548,83 @@ public class SRTPCryptoContext
      * @param kdv key derivation rate of this SRTPCryptoContext
      * @param masterSalt master salt key
      */
-    private static void computeIv(byte[] iv, long label, long index,
-                                  long kdv, byte[] masterSalt)
-    {
+    private void computeIv(long label, long index) {
         long key_id;
 
-        if (kdv == 0)
-        {
+        if (keyDerivationRate == 0) {
             key_id = label << 48;
+        } else {
+            key_id = ((label << 48) | (index / keyDerivationRate));
         }
-        else
-        {
-            key_id = ((label << 48) | (index / kdv));
+        for (int i = 0; i < 7; i++) {
+            ivStore[i] = masterSalt[i];
         }
-
-        for (int i = 0; i < 7; i++)
-        {
-            iv[i] = masterSalt[i];
+        for (int i = 7; i < 14; i++) {
+            ivStore[i] = (byte) ((byte) (0xFF & (key_id >> (8 * (13 - i)))) ^ masterSalt[i]);
         }
-
-        for (int i = 7; i < 14; i++)
-        {
-            iv[i] = (byte)
-                   ((byte)(0xFF & (key_id >> (8 * (13 - i)))) ^ masterSalt[i]);
-        }
-
-        iv[14] = iv[15] = 0;
+        ivStore[14] = ivStore[15] = 0;
     }
 
     /**
      * Derives the srtp session keys from the master key
-     * @param index the 48 bit SRTP packet index
+     * 
+     * @param index
+     *            the 48 bit SRTP packet index
      */
-    public void deriveSrtpKeys(long index)
-    {
-        byte[] iv = new byte[16];
-
+    public void deriveSrtpKeys(long index) {
         // compute the session encryption key
         long label = 0;
-        computeIv(iv, label, index, this.keyDerivationRate, this.masterSalt);
-        
-        SecretKey encryptionKey = new SecretKeySpec(masterKey, 0, policy.getEncKeyLength(), "AES");
-        
-        try 
-        {
-            AEScipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-        } 
-        catch (InvalidKeyException e1) 
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
-        SRTPCipherCTR.getCipherStream(AEScipher, encKey, policy.getEncKeyLength(), iv);
+        computeIv(label, index);
 
+        KeyParameter encryptionKey = new KeyParameter(masterKey);
+        AEScipher.init(true, encryptionKey);
+        cipherCtr.getCipherStream(AEScipher, encKey, policy.getEncKeyLength(), ivStore);
 
         // compute the session authentication key
-        if (this.authKey != null)
-        {
+        if (authKey != null) {
             label = 0x01;
-            computeIv(iv, label, index, this.keyDerivationRate, this.masterSalt);
-            
-            SRTPCipherCTR.getCipherStream(AEScipher, authKey, policy.getAuthKeyLength(), iv);
+            computeIv(label, index);
+            cipherCtr.getCipherStream(AEScipher, authKey, policy.getAuthKeyLength(), ivStore);
 
-            SecretKey key = new SecretKeySpec(authKey, "HMAC");
-            try 
-            {
-                hmacSha1.init(key);
-            } 
-            catch (InvalidKeyException e) 
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
+            KeyParameter key =  new KeyParameter(authKey);
+            hmacSha1.init(key);
         }
 
         // compute the session salt
         label = 0x02;
-        computeIv(iv, label, index, this.keyDerivationRate, this.masterSalt);
-        
-        SRTPCipherCTR.getCipherStream(AEScipher, saltKey, policy.getSaltKeyLength(), iv);
+        computeIv(label, index);
+        cipherCtr.getCipherStream(AEScipher, saltKey, policy.getSaltKeyLength(), ivStore);
         
         // As last step: initialize AES cipher with derived encryption key.
-        encryptionKey = new SecretKeySpec(encKey, 0, policy.getEncKeyLength(), "AES");
-        try 
-        {
-            AEScipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-        } 
-        catch (InvalidKeyException e) 
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
+        encryptionKey = new KeyParameter(encKey);
+        AEScipher.init(true, encryptionKey);
     }
 
     /**
-     * Compute (guess) the new SRTP index based on the sequence number of
-     * a received RTP packet.
+     * Compute (guess) the new SRTP index based on the sequence number of a
+     * received RTP packet.
      * 
-     * @param seqNum sequence number of the received RTP packet
+     * @param seqNum
+     *            sequence number of the received RTP packet
      * @return the new SRTP packet index
      */
-    private long guessIndex(int seqNum)
-    {
-        if (!this.seqNumSet)
-        {
-            this.seqNumSet = true;
-            this.seqNum = seqNum;
-        }
+    private long guessIndex(int seqNo) {
 
-        if (this.seqNum < 32768)
-        {
-            if (seqNum - this.seqNum > 32768)
-            {
-                this.guessedROC = this.roc - 1;
+        if (this.seqNum < 32768) {
+            if (seqNo - this.seqNum > 32768) {
+                guessedROC = roc - 1;
+            } else {
+                guessedROC = roc;
             }
-            else
-            {
-                this.guessedROC = this.roc;
-            }
-        }
-        else
-        {
-            if (this.seqNum - 32768 > seqNum)
-            {
-                this.guessedROC = this.roc + 1;
-            }
-            else
-            {
-                this.guessedROC = this.roc;
+        } else {
+            if (seqNum - 32768 > seqNo) {
+                guessedROC = roc + 1;
+            } else {
+                guessedROC = roc;
             }
         }
 
-        return ((long) this.guessedROC) << 16 | seqNum;
+        return ((long) guessedROC) << 16 | seqNo;
     }
 
     /**
@@ -751,9 +635,8 @@ public class SRTPCryptoContext
      * 
      * @param seqNum sequence number of the accepted packet
      */
-    private void update(int seqNum)
-    {
-        long delta = guessIndex(seqNum) - (((long) this.roc) << 16 | this.seqNum);
+    private void update(int seqNo, long guessedIndex) {
+        long delta = guessedIndex - (((long) this.roc) << 16 | this.seqNum);
 
         /* update the replay bit mask */
         if( delta > 0 ){
@@ -764,49 +647,39 @@ public class SRTPCryptoContext
           replayWindow |= ( 1 << delta );
         }
 
-        if (seqNum > this.seqNum)
-        {
-            this.seqNum = seqNum & 0xffff;  // make short
+        if (seqNo > seqNum) {
+            seqNum = seqNo & 0xffff;
         }
-        if (this.guessedROC > this.roc)
-        {
-            this.roc = this.guessedROC;
-            this.seqNum = seqNum & 0xffff;  // make short
+        if (this.guessedROC > this.roc) {
+            roc = guessedROC;
+            seqNum = seqNo & 0xffff;
         }
     }
 
     /**
      * Derive a new SRTPCryptoContext for use with a new SSRC
-     *
-     * This method returns a new SRTPCryptoContext initialized with the data
-     * of this SRTPCryptoContext. Replacing the SSRC, Roll-over-Counter, and
-     * the key derivation rate the application cab use this SRTPCryptoContext
-     * to encrypt / decrypt a new stream (Synchronization source) inside
-     * one RTP session.
-     *
+     * 
+     * This method returns a new SRTPCryptoContext initialized with the data of
+     * this SRTPCryptoContext. Replacing the SSRC, Roll-over-Counter, and the
+     * key derivation rate the application cab use this SRTPCryptoContext to
+     * encrypt / decrypt a new stream (Synchronization source) inside one RTP
+     * session.
+     * 
      * Before the application can use this SRTPCryptoContext it must call the
      * deriveSrtpKeys method.
-     *
-     * @param ssrc The SSRC for this context
-     * @param roc The Roll-Over-Counter for this context
-     * @param deriveRate The key derivation rate for this context
+     * 
+     * @param ssrc
+     *            The SSRC for this context
+     * @param roc
+     *            The Roll-Over-Counter for this context
+     * @param deriveRate
+     *            The key derivation rate for this context
      * @return a new SRTPCryptoContext with all relevant data set.
      */
-    public SRTPCryptoContext deriveContext(long ssrc, int roc, long deriveRate)
-    {
+    public SRTPCryptoContext deriveContext(long ssrc, int roc, long deriveRate) {
         SRTPCryptoContext pcc = null;
-        try 
-        {
-            pcc = new SRTPCryptoContext(ssrc, roc, deriveRate,
-                                        this.masterKey, this.masterSalt, this.policy,
-                                        this.cryptoProvider);
-        } 
-        catch (GeneralSecurityException e) 
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        pcc = new SRTPCryptoContext(ssrc, roc, deriveRate, masterKey,
+                masterSalt, policy);
         return pcc;
-
     }
 }

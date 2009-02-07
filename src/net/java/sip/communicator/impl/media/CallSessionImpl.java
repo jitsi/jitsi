@@ -2103,13 +2103,11 @@ public class CallSessionImpl
                 selectedKeyProviderAlgorithm.getProviderType()
                     == KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
             {
-                TransformManager.initializeProviders();
-
                 // The connector is created based also on the crypto services
                 // The crypto provider solution should be queried somehow
                 // or taken from a resources file
                 TransformConnector transConnector = TransformManager.createZRTPConnector(
-                                            bindAddress, "BouncyCastle", this);
+                                            bindAddress, this);
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
 

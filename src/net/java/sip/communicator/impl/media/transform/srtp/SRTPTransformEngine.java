@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.media.transform.srtp;
 
 import net.java.sip.communicator.impl.media.transform.*;
-import java.security.*;
 
 /**
  * SRTPTransformEngine class implements TransformEngine interface.
@@ -58,9 +57,7 @@ public class SRTPTransformEngine
      * @param cryptoProvider cryptography services provider
      */
     public SRTPTransformEngine(byte[] masterKey, byte[] masterSalt,
-                               SRTPPolicy srtpPolicy, SRTPPolicy srtcpPolicy,
-                               Provider cryptoProvider)
-    throws GeneralSecurityException
+                               SRTPPolicy srtpPolicy, SRTPPolicy srtcpPolicy)
     {
         this.masterKey = new byte[masterKey.length];
         System.arraycopy(masterKey, 0, this.masterKey, 0, masterKey.length);
@@ -74,8 +71,7 @@ public class SRTPTransformEngine
         this.defaultContext = new SRTPCryptoContext(0, 0, 0, 
                                                     this.masterKey,
                                                     this.masterSalt, 
-                                                    this.srtpPolicy,
-                                                    cryptoProvider);
+                                                    this.srtpPolicy);
     }
     
     /* (non-Javadoc)

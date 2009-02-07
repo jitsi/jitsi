@@ -17,6 +17,7 @@ package net.java.sip.communicator.impl.media.transform;
  * Besides packet info storage, RawPacket also provides some other operations
  * such as readInt() to ease the development process.
  * 
+ * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
  */
 public class RawPacket
@@ -172,6 +173,29 @@ public class RawPacket
         return region;
     }
     
+    /**
+     * Read a byte region from specified offset with specified length in given buffer
+     *
+     * @param off start offset of the region to be read 
+     * @param len length of the region to be read
+     * @param outBuff output buffer
+     */
+    public void readRegionToBuff(int off, int len, byte[] outBuff)
+    {
+        int startOffset = this.offset + off;
+        if (off < 0 || len <= 0 
+            || startOffset + len > this.buffer.length)
+        {
+            return;
+        }
+
+        if (outBuff.length < len)
+        {
+            return;
+        }
+        System.arraycopy(this.buffer, startOffset, outBuff, 0, len);
+    }
+
     /**
      * Append a byte array to then end of the packet. This will change the data
      * buffer of this packet. 

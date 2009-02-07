@@ -1916,13 +1916,13 @@ javax.swing.event, javax.swing.border"/>
         <jar compress="true" destfile="${bundles.dest}/zrtp4j.jar"
             filesetmanifest="merge">
 
-            <zipfileset src="${lib.noinst}/zrtp4j-1.4.2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/zrtp4j-1.4.3.jar" prefix=""/>
             <manifest>
                 <attribute name="Export-Package" value="gnu.java.zrtp,gnu.java.zrtp.packets,gnu.java.zrtp.utils,gnu.java.zrtp.zidfile"/>
                 <attribute name="Import-Package" value="javax.crypto,javax.crypto.spec,javax.crypto.interfaces"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
-                <attribute name="Bundle-Version" value="1.4.2"/>
+                <attribute name="Bundle-Version" value="1.4.3"/>
                 <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>

@@ -26,9 +26,9 @@
 package net.java.sip.communicator.impl.media.transform.srtp;
 
 import java.util.*;
-import javax.crypto.*;
-import javax.crypto.spec.*;
-import java.security.*;
+
+import org.bouncycastle.crypto.engines.AESFastEngine;
+import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
  * SRTPCipherF8 implements SRTP F8 Mode AES Encryption (AES-f8).
@@ -54,6 +54,7 @@ import java.security.*;
  *
  * We use AESCipher to handle basic AES encryption / decryption.
  * 
+ * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
  */
 public class SRTPCipherF8 
@@ -75,22 +76,12 @@ public class SRTPCipherF8
         long J;
     }
 
-    /**
-     * Process (encrypt / decrypt) a byte stream, using the supplied 
-     * initial vector.
-     * 
-     * @param aesCipher the AES cipher object used for block processing 
-     * @param data byte array containing the byte stream to be processed
-     * @param off byte stream star offset with data byte array
-     * @param len byte stream length in bytes
-     * @param iv initial vector for this operation
-     * @param key the encryption key
-     * @param salt the salt key
-     * @param f8Cipher the F8 cipher object used for iv processing
+    /* (non-Javadoc)
+     * @see net.java.sip.communicator.impl.media.transform.srtp.
+     * SRTPCipher#process(byte[], int, int, byte[])
      */
-    public static void process(Cipher aesCipher, byte[] data, int off, int len, byte[] iv,
-                               byte[] key, byte[] salt, Cipher f8Cipher)
-    {
+    public static void process(AESFastEngine aesCipher, byte[] data, int off, int len,
+            byte[] iv, byte[] key, byte[] salt, AESFastEngine f8Cipher) {
         F8Context f8ctx = new SRTPCipherF8().new F8Context();
 
         /*
@@ -102,96 +93,81 @@ public class SRTPCipherF8
          * Get memory for the special key. This is the key to compute the
          * derived IV (IV').
          */
-        byte[] saltMask  = new byte[key.length];
+        byte[] saltMask = new byte[key.length];
         byte[] maskedKey = new byte[key.length];
-        
+
         /*
-         * First copy the salt into the mask field, then fill with 0x55 to
-         * get a full key.
+         * First copy the salt into the mask field, then fill with 0x55 to get a
+         * full key.
          */
         System.arraycopy(salt, 0, saltMask, 0, salt.length);
-        for (int i = salt.length; i < saltMask.length; ++i)
-        {
+        for (int i = salt.length; i < saltMask.length; ++i) {
             saltMask[i] = 0x55;
         }
 
         /*
-         * XOR the original key with the above created mask to
-         * get the special key.
+         * XOR the original key with the above created mask to get the special
+         * key.
          */
-        for (int i = 0; i < key.length; i++)
-        {
+        for (int i = 0; i < key.length; i++) {
             maskedKey[i] = (byte) (key[i] ^ saltMask[i]);
         }
 
         /*
          * Prepare the f8Cipher with the special key to compute IV'
          */
-        SecretKey encryptionKey = new SecretKeySpec(maskedKey, 0,
-                                                    maskedKey.length, "AES");
-
-        try 
-        {
-            f8Cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-            /*
-             * Use the masked key to encrypt the original IV to produce IV'.
-             */
-            f8Cipher.doFinal(iv, 0, BLKLEN, f8ctx.ivAccent, 0);
-        } 
-        catch (GeneralSecurityException e) 
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-
+        KeyParameter encryptionKey = new KeyParameter(maskedKey);
+        f8Cipher.init(true, encryptionKey);
+        /*
+         * Use the masked key to encrypt the original IV to produce IV'.
+         */
+        f8Cipher.processBlock(iv, 0, f8ctx.ivAccent, 0);
         saltMask = null;
         maskedKey = null;
 
-        f8ctx.J = 0;                    // initialize the counter
-        f8ctx.S = new byte[BLKLEN];     // get the key stream buffer
-        
-        Arrays.fill(f8ctx.S, (byte) 0);
-        
-        int inLen = len;
-        
-        while (inLen >= BLKLEN)
-        {
-            processBlock(aesCipher, f8ctx, data, off, data, off, BLKLEN);
+        f8ctx.J = 0; // initialize the counter
+        f8ctx.S = new byte[BLKLEN]; // get the key stream buffer
 
+        Arrays.fill(f8ctx.S, (byte) 0);
+
+        int inLen = len;
+
+        while (inLen >= BLKLEN) {
+            processBlock(aesCipher, f8ctx, data, off, data, off, BLKLEN);
             inLen -= BLKLEN;
             off += BLKLEN;
         }
-        
-        if (inLen > 0)
-        {
-            processBlock(aesCipher, f8ctx, data, off, data, off, inLen);
 
+        if (inLen > 0) {
+            processBlock(aesCipher, f8ctx, data, off, data, off, inLen);
         }
     }
     
     /**
-     * Encrypt / Decrypt a block using F8 Mode AES algorithm, read len bytes 
+     * Encrypt / Decrypt a block using F8 Mode AES algorithm, read len bytes
      * data from in at inOff and write the output into out at outOff
      * 
-     * @param aesCipher the AES cipher object used for block processing 
-     * @param f8ctx F8 encryption context
-     * @param in byte array holding the data to be processed
-     * @param inOff start offset of the data to be processed inside in array
-     * @param out byte array that will hold the processed data
-     * @param outOff start offset of output data in out
-     * @param len length of the input data
+     * @param f8ctx
+     *            F8 encryption context
+     * @param in
+     *            byte array holding the data to be processed
+     * @param inOff
+     *            start offset of the data to be processed inside in array
+     * @param out
+     *            byte array that will hold the processed data
+     * @param outOff
+     *            start offset of output data in out
+     * @param len
+     *            length of the input data
      */
-    private static void processBlock(Cipher aesCipher, F8Context f8ctx, byte[] in,  int inOff,
-                                     byte[] out, int outOff, int len)
-    {
+    private static void processBlock(AESFastEngine aesCipher, F8Context f8ctx,
+            byte[] in, int inOff, byte[] out, int outOff, int len) {
 
         /*
          * XOR the previous key stream with IV'
          * ( S(-1) xor IV' )
          */
-        for (int i = 0; i < BLKLEN; i++)
-        {
+        for (int i = 0; i < BLKLEN; i++) {
             f8ctx.S[i] ^= f8ctx.ivAccent[i];
         }
 
@@ -208,23 +184,13 @@ public class SRTPCipherF8
         /*
          * Now compute the new key stream using AES encrypt
          */
-        try 
-        {
-            aesCipher.doFinal(f8ctx.S, 0, BLKLEN, f8ctx.S, 0);
-        } 
-        catch (GeneralSecurityException e) 
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
+        aesCipher.processBlock(f8ctx.S, 0, f8ctx.S, 0);
 
         /*
          * As the last step XOR the plain text with the key stream to produce
          * the cipher text.
          */
-        for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
             out[outOff + i] = (byte) (in[inOff + i] ^ f8ctx.S[i]);
         }
     }

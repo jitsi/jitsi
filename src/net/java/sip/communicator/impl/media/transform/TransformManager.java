@@ -6,9 +6,6 @@
  */
 package net.java.sip.communicator.impl.media.transform;
 
-import java.security.*;
-import java.util.*;
-
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.media.transform.dummy.*;
@@ -25,60 +22,7 @@ import net.java.sip.communicator.service.media.*;
  * @author Emanuel Onica (eonica@info.uaic.ro)
  */
 public class TransformManager
-{
-     
-    /**
-     * Map of supported cryptography services providers
-     */
-    public static HashMap cryptoProviders = null;
-    
-    /**
-     * Initialize the supported cryptography services providers
-     */
-    public static void initializeProviders()
-    {
-        if (cryptoProviders == null)
-        {
-            cryptoProviders = new HashMap();
-            
-            Provider cryptoProvider = null ;
-            
-            try 
-            {
-                Class<?> c = Class
-                        .forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
-                cryptoProvider = (Provider) c.newInstance();
-            } 
-            catch (ClassNotFoundException e) 
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } 
-            catch (InstantiationException e) 
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } 
-            catch (IllegalAccessException e) 
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            cryptoProviders.put("BouncyCastle", cryptoProvider);
-        }
-    }
-    
-    /**
-     * Select a cryptography services provider to use from the supported ones 
-     * 
-     * @param cryptoProvider cryptography provider selection string
-     * @return the actual cryptography provider to use
-     */
-    public static Provider selectProvider(String cryptoProvider)
-    {
-        return (Provider)cryptoProviders.get(cryptoProvider);
-    }
+{    
     
     /**
      * Create a SRTP TransformConnector, which will provide SRTP encryption /
@@ -99,30 +43,16 @@ public class TransformManager
                                                          byte[] masterKey, 
                                                          byte[] masterSalt, 
                                                          SRTPPolicy srtpPolicy,
-                                                         SRTPPolicy srtcpPolicy, 
-                                                         String cryptoProvider)
+                                                         SRTPPolicy srtcpPolicy)
     throws InvalidSessionAddressException 
     {
         SRTPTransformEngine engine = null;
-        
-        Provider cp = selectProvider(cryptoProvider);
-        
-        try 
-        {
-            engine = new SRTPTransformEngine(masterKey, 
-                                             masterSalt, 
-                                             srtpPolicy,
-                                             srtcpPolicy, 
-                                             cp);
-        } 
-        catch (GeneralSecurityException e) 
-        {
-            e.printStackTrace();
-            return null;
-        }
+
+        engine = new SRTPTransformEngine(masterKey, masterSalt, srtpPolicy,
+                srtcpPolicy);
 
         TransformConnector connector = null;
-        
+
         connector = new TransformConnector(addr, engine);
 
         return connector;
@@ -138,7 +68,6 @@ public class TransformManager
      * @throws InvalidSessionAddressException
      */
     public static TransformConnector createZRTPConnector(SessionAddress addr,
-                                                         String cryptoProvider,
                                                          CallSession callSession)
         throws InvalidSessionAddressException
     {
@@ -147,8 +76,6 @@ public class TransformManager
     	//connector as a parameter
         ZRTPTransformEngine engine = new ZRTPTransformEngine(); 
         
-        Provider cp = selectProvider(cryptoProvider);
-
         TransformConnector connector = null;
         
         connector = new ZrtpTransformConnector(addr, engine);
@@ -159,8 +86,6 @@ public class TransformManager
         //the proper management of this connector array - practically every 
         //stream has it's own connector
         engine.setConnector(connector);     
-        
-        engine.setCryptoProvider(cp);
         
         return connector;  
     }

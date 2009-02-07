@@ -17,8 +17,6 @@ import net.java.sip.communicator.impl.media.transform.srtp.*;
 import net.java.sip.communicator.service.fileaccess.*;
 
 import java.io.*;
-import java.security.GeneralSecurityException;
-import java.security.Provider;
 import java.util.EnumSet;
 
 
@@ -302,12 +300,6 @@ public class ZRTPTransformEngine
     private short senderZrtpSeqNo = 0;
 
     /**
-     * The cryptographic algorithms provider
-     * (currently BouncyCastle is used)
-     */
-    private Provider cryptoProvider= null;
-
-    /**
      * The number of sent packets
      */
     private long sendPacketCount = 0;
@@ -416,11 +408,6 @@ public class ZRTPTransformEngine
             e.printStackTrace();
         }
 
-        if (cryptoProvider == null)
-        {
-            return false;
-        }
-
         ZidFile zf = ZidFile.getInstance();
         if (!zf.isOpen())
         {
@@ -442,17 +429,7 @@ public class ZRTPTransformEngine
                 return false;
             }
         }
-        try
-        {
-            zrtpEngine = new ZRtp(
-                            zf.getZid(), this, clientIdString, cryptoProvider);
-        }
-        catch (GeneralSecurityException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
-        }
+        zrtpEngine = new ZRtp(zf.getZid(), this, clientIdString);
 
         if (timeoutProvider == null)
         {
@@ -674,19 +651,10 @@ public class ZRTPTransformEngine
                         secrets.getSrtpAuthTagLen() / 8,// auth tag length
                         secrets.getInitSaltLen() / 8    // salt length
                 );
-                try
-                {
                     SRTPTransformEngine engine = new SRTPTransformEngine(secrets
                             .getKeyInitiator(), secrets.getSaltInitiator(),
-                            srtpPolicy, srtpPolicy, cryptoProvider);
+                            srtpPolicy, srtpPolicy);
                     srtpOutTransformer = engine.getRTPTransformer();
-                }
-                catch (GeneralSecurityException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    return false;
-                }
             }
             else
             {
@@ -698,19 +666,10 @@ public class ZRTPTransformEngine
                         secrets.getRespSaltLen() / 8    // salt length
                 );
 
-                try
-                {
-                    SRTPTransformEngine engine = new SRTPTransformEngine(secrets
-                            .getKeyResponder(), secrets.getSaltResponder(),
-                            srtpPolicy, srtpPolicy, cryptoProvider);
-                    srtpOutTransformer = engine.getRTPTransformer();
-                }
-                catch (GeneralSecurityException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    return false;
-                }
+                SRTPTransformEngine engine = new SRTPTransformEngine(secrets
+                        .getKeyResponder(), secrets.getSaltResponder(),
+                        srtpPolicy, srtpPolicy);
+                srtpOutTransformer = engine.getRTPTransformer();
             }
         }
         if (part == EnableSecurity.ForReceiver)
@@ -728,19 +687,10 @@ public class ZRTPTransformEngine
                         secrets.getRespSaltLen() / 8    // salt length
                 );
 
-                try
-                {
-                    SRTPTransformEngine engine = new SRTPTransformEngine(secrets
-                            .getKeyResponder(), secrets.getSaltResponder(),
-                            srtpPolicy, srtpPolicy, cryptoProvider);
-                    srtpInTransformer = engine.getRTPTransformer();
-                }
-                catch (GeneralSecurityException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    return false;
-                }
+                SRTPTransformEngine engine = new SRTPTransformEngine(secrets
+                        .getKeyResponder(), secrets.getSaltResponder(),
+                        srtpPolicy, srtpPolicy);
+                srtpInTransformer = engine.getRTPTransformer();
             }
             else
             {
@@ -752,19 +702,10 @@ public class ZRTPTransformEngine
                         secrets.getInitSaltLen() / 8    // salt length
                 );
 
-                try
-                {
-                    SRTPTransformEngine engine = new SRTPTransformEngine(secrets
-                            .getKeyInitiator(), secrets.getSaltInitiator(),
-                            srtpPolicy, srtpPolicy, cryptoProvider);
-                    srtpInTransformer = engine.getRTPTransformer();
-                }
-                catch (GeneralSecurityException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    return false;
-                }
+                SRTPTransformEngine engine = new SRTPTransformEngine(secrets
+                        .getKeyInitiator(), secrets.getSaltInitiator(),
+                        srtpPolicy, srtpPolicy);
+                srtpInTransformer = engine.getRTPTransformer();
             }
         }
         return true;
@@ -1175,17 +1116,6 @@ public class ZRTPTransformEngine
     public void setUserCallback(SCCallback ub)
     {
         userCallback = ub;
-    }
-
-    /**
-     * Sets the cryptography provider responsible with the crypto algorithms
-     * (Currently BouncyCastle is used)
-     *
-     * @param cryptoProvider the cryptoProvider to set
-     */
-    public void setCryptoProvider(Provider cryptoProvider)
-    {
-        this.cryptoProvider = cryptoProvider;
     }
 
     /**
