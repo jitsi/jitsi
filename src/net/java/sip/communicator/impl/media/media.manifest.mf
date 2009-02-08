@@ -5,11 +5,7 @@ Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
- org.bouncycastle.jce.provider,
  org.xml.sax,
- javax.crypto,
- javax.crypto.interfaces,
- javax.crypto.spec,
  org.bouncycastle.crypto,
  org.bouncycastle.crypto.digests,
  org.bouncycastle.crypto.macs,
