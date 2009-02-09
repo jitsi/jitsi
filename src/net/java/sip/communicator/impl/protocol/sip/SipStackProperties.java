@@ -31,8 +31,7 @@ public class SipStackProperties
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
-     * the name of a server log file (I don't really know what is the
-     * difference between this and the DEBUG_LOG).
+     * the name of the server log file.
      */
     private static final String NSPNAME_SERVER_LOG =
         "gov.nist.javax.sip.SERVER_LOG";
@@ -155,17 +154,13 @@ public class SipStackProperties
             + SipActivator.getConfigurationService().getScHomeDirName()
             + System.getProperty("file.separator");
 
-        // don't do it more than one time if many provider are initialised
-        if (!NSPVALUE_DEBUG_LOG.startsWith(logDir)) {
+        // don't do it more than one time if many providers are initialised
+        if (!NSPVALUE_DEBUG_LOG.startsWith(logDir))
             NSPVALUE_DEBUG_LOG = logDir + NSPVALUE_DEBUG_LOG;
-        }
 
-        if (!NSPVALUE_SERVER_LOG.startsWith(logDir)) {
+        if (!NSPVALUE_SERVER_LOG.startsWith(logDir))
             NSPVALUE_SERVER_LOG = logDir + NSPVALUE_SERVER_LOG;
-        }
 
-        // If you want to use UDP then uncomment this.
-        //this.setProperty(
         this.setProperty(JSPNAME_STACK_NAME, "Sip Communicator");
 
         // NIST SIP specific properties
@@ -173,9 +168,11 @@ public class SipStackProperties
 
         this.setProperty(NSPNAME_SERVER_LOG, NSPVALUE_SERVER_LOG);
 
-        this.setProperty(NSPNAME_DEBUG_LOG_OVERWRITE, NSPVALUE_DEBUG_LOG_OVERWRITE);
+        this.setProperty(NSPNAME_DEBUG_LOG_OVERWRITE,
+                         NSPVALUE_DEBUG_LOG_OVERWRITE);
 
-        this.setProperty(NSPNAME_SERVER_LOG_OVERWRITE, NSPVALUE_SERVER_LOG_OVERWRITE);
+        this.setProperty(NSPNAME_SERVER_LOG_OVERWRITE,
+                         NSPVALUE_SERVER_LOG_OVERWRITE);
 
         // Drop the client connection after we are done with the transaction.
         this.setProperty(NSPNAME_CACHE_CLIENT_CONNECTIONS,
