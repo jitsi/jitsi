@@ -26,27 +26,13 @@ public class WhiteboardSessionManager
     implements WhiteboardObjectListener
 {
     private static final Logger logger =
-      Logger.getLogger (WhiteboardSessionManager.class);
-
-    /**
-     * A protocol provider map.
-     */
-    private Map protocolProviderTable = new LinkedHashMap ();
-
-    /**
-     * The default start WhiteboardSession.
-     */
-    private WhiteboardSession wbTmpSession;
+        Logger.getLogger (WhiteboardSessionManager.class);
 
     /**
      * List active WhitboarFrame started.
      */
-    private Vector wbFrames = new Vector ();
-
-    /**
-     * List active WhitboarSession started.
-     */
-    private Vector wbSessions;
+    private final java.util.List<WhiteboardFrame> wbFrames =
+        new Vector<WhiteboardFrame>();
 
     private OperationSetWhiteboarding opSetWb;
 
@@ -456,12 +442,8 @@ public class WhiteboardSessionManager
      */
     private WhiteboardFrame getWhiteboardFrame (WhiteboardSession session)
     {
-        WhiteboardFrame whiteboardFrame = null;
-
-        for(int i =0; i < wbFrames.size (); i++)
+        for (WhiteboardFrame whiteboardFrame : wbFrames)
         {
-            whiteboardFrame = (WhiteboardFrame) wbFrames.get (i);
-
             if (whiteboardFrame.getWhiteboardSession().equals (session))
                 return whiteboardFrame;
         }

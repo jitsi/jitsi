@@ -24,13 +24,12 @@ public class MoreButton
                 MouseListener,
                 FocusListener
 {
-    private Image iconImage;
-
     private boolean isMouseOver = false;
 
     private JPopupMenu menu = new JPopupMenu();
 
-    private Hashtable menuItemsTable = new Hashtable();
+    private final Map<String, Component> menuItemsTable =
+        new Hashtable<String, Component>();
 
     public MoreButton()
     {
@@ -178,7 +177,7 @@ public class MoreButton
     public void removeMenuItem(JComponent c)
     {
         String name = c.getToolTipText();
-        Component item = (Component) this.menuItemsTable.get(name);
+        Component item = this.menuItemsTable.get(name);
 
         if (item != null)
         {

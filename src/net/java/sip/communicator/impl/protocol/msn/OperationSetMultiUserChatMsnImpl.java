@@ -45,8 +45,6 @@ public class OperationSetMultiUserChatMsnImpl
      */
     private Vector presenceListeners = new Vector();
 
-    private OperationSetPersistentPresenceMsnImpl opSetPersPresence = null;
-
     /**
      * A list of the rooms that are currently open by this account. Note that
      * this list only contains chat rooms where the user is not the initiator.
@@ -564,10 +562,6 @@ public class OperationSetMultiUserChatMsnImpl
         {
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                opSetPersPresence =
-                    (OperationSetPersistentPresenceMsnImpl) msnProvider
-                        .getOperationSet(OperationSetPersistentPresence.class);
-
                 msnProvider.getMessenger().addSwitchboardListener(
                     new MsnSwitchboardListener());
                 msnProvider.getMessenger().addMessageListener(

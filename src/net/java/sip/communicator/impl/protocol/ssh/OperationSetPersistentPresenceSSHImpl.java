@@ -732,8 +732,6 @@ public class OperationSetPersistentPresenceSSHImpl
                    IllegalStateException,
                    OperationFailedException
     {
-        BundleContext context = SSHActivator.getBundleContext();
-        
         ContactSSH sshContact = new ContactSSHImpl(contactIdentifier,
                 parentProvider);
         
@@ -1158,7 +1156,6 @@ public class OperationSetPersistentPresenceSSHImpl
         //if the parent volatile group is null then we create it
         if (theVolatileGroup == null)
         {
-            List emptyBuddies = new LinkedList();
             theVolatileGroup = new ContactGroupSSHImpl(
                     "NotInContactList"
                     , parentProvider);

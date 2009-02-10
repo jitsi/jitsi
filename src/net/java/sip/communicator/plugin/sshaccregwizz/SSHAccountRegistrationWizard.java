@@ -49,12 +49,9 @@ public class SSHAccountRegistrationWizard
     private SSHAccountRegistration registration
             = new SSHAccountRegistration();
     
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
     
     private ProtocolProviderService protocolProvider;
-    
-    private String propertiesPackage
-            = "net.java.sip.communicator.plugin.sshaccregwizz";
     
     private boolean isModification;
     

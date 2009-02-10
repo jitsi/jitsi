@@ -9,7 +9,7 @@ package net.java.sip.communicator.plugin.rssaccregwizz;
 import java.util.*;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.configuration.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -29,11 +29,6 @@ public class RssAccRegWizzActivator
      * A currently valid bundle context.
      */
     public static BundleContext bundleContext;
-
-    /**
-     * A currently valid reference to the configuration service.
-     */
-    private static ConfigurationService configService;
     
     private static UIService uiService;
 

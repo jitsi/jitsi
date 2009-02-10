@@ -31,12 +31,9 @@ public class MsnAccountRegistrationWizard
 
     private MsnAccountRegistration registration = new MsnAccountRegistration();
 
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
 
     private ProtocolProviderService protocolProvider;
-
-    private String propertiesPackage =
-        "net.java.sip.communicator.plugin.msnaccregwizz";
 
     private boolean isModification;
 

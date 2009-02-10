@@ -1198,7 +1198,6 @@ public class OperationSetPersistentPresenceGibberishImpl
         //if the parent volatile group is null then we create it
         if (theVolatileGroup == null)
         {
-            List emptyBuddies = new LinkedList();
             theVolatileGroup = new ContactGroupGibberishImpl(
                 "NotInContactList"
                 , parentProvider);

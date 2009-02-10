@@ -27,7 +27,7 @@ public class CreateGroupDialog
     extends SIPCommDialog
     implements ActionListener {
     
-    private Logger logger = Logger.getLogger(CreateGroupDialog.class.getName());
+    private final Logger logger = Logger.getLogger(CreateGroupDialog.class.getName());
     
     private CreateGroupPanel groupPanel = new CreateGroupPanel();
     
@@ -44,8 +44,7 @@ public class CreateGroupDialog
         = new TransparentPanel(new BorderLayout());
     
     private MetaContactListService clist;
-    
-    private MainFrame mainFrame;
+
     /**
      * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
      * that creates a new contact group.
@@ -56,7 +55,6 @@ public class CreateGroupDialog
     {
         super(mainFrame);
 
-        this.mainFrame = mainFrame;
         this.clist = mainFrame.getContactList();
 
         this.setSize(520, 250);

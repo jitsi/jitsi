@@ -37,12 +37,9 @@ public class JabberAccountRegistrationWizard
     private JabberAccountRegistration registration
         = new JabberAccountRegistration();
 
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
 
     private ProtocolProviderService protocolProvider;
-
-    private String propertiesPackage =
-        "net.java.sip.communicator.plugin.jabberaccregwizz";
 
     private boolean isModification;
 

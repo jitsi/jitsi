@@ -32,12 +32,9 @@ public class YahooAccountRegistrationWizard
     private YahooAccountRegistration registration =
         new YahooAccountRegistration();
 
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
 
     private ProtocolProviderService protocolProvider;
-
-    private String propertiesPackage =
-        "net.java.sip.communicator.plugin.yahooaccregwizz";
 
     private boolean isModification;
 

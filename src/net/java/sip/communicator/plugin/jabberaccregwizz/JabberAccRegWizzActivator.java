@@ -11,7 +11,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -27,12 +26,10 @@ public class JabberAccRegWizzActivator
 
     public static BundleContext bundleContext;
 
-    private static Logger logger = Logger.getLogger(
-        JabberAccRegWizzActivator.class.getName());
+    private static final Logger logger =
+        Logger.getLogger(JabberAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;
-
-    private static ConfigurationService configService;
 
     private static WizardContainer wizardContainer;
 

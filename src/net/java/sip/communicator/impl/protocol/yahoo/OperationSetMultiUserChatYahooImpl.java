@@ -38,8 +38,6 @@ public class OperationSetMultiUserChatYahooImpl
     */
    private Vector presenceListeners = new Vector();
 
-   private OperationSetPersistentPresenceYahooImpl opSetPersPresence = null;
-
    /**
     * A list of the rooms that are currently open by this account.
     */
@@ -582,10 +580,6 @@ public class OperationSetMultiUserChatYahooImpl
        {
            if (evt.getNewState() == RegistrationState.REGISTERED)
            {
-               opSetPersPresence =
-                    (OperationSetPersistentPresenceYahooImpl) yahooProvider
-                        .getOperationSet(OperationSetPersistentPresence.class);
-
                yahooProvider.getYahooSession().addSessionListener(
                        new YahooMessageListener());
            }

@@ -8,14 +8,12 @@ package net.java.sip.communicator.impl.protocol.zeroconf;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Instant messaging functionalites for the Zeroconf protocol.
+ * Instant messaging functionalities for the Zeroconf protocol.
  *
  * @author Christian Vincenot
  *
@@ -23,7 +21,7 @@ import net.java.sip.communicator.util.*;
 public class OperationSetBasicInstantMessagingZeroconfImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
-      private static final Logger logger
+    private static final Logger logger
         = Logger.getLogger(OperationSetBasicInstantMessagingZeroconfImpl.class);
 
     /**
@@ -80,13 +78,8 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
         
         MessageZeroconfImpl msg = 
             (MessageZeroconfImpl)createMessage(message.getContent());
-        
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(
-                msg, to, new Date());
 
         deliverMessage(msg, (ContactZeroconfImpl)to);
-        
     }
 
     /**
@@ -95,10 +88,6 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
      * the message to them, in case the <tt>to</tt> Contact represents us, we
      * fire a <tt>MessageReceivedEvent</tt>, and if <tt>to</tt> is simply
      * a contact in our contact list, then we simply echo the message.
-     *
-     *
-     *
-     *
      *
      * @param message the <tt>Message</tt> the message to deliver.
      * @param to the <tt>Contact</tt> that we should deliver the message to.
@@ -142,7 +131,6 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
             {
                 logger.error(ex);
             }
-              
     }
 
     /**
@@ -158,7 +146,7 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
     }
 
     /**
-     * Determines wheter the protocol provider (or the protocol itself) support
+     * Determines whether the protocol provider (or the protocol itself) support
      * sending and receiving offline messages. Most often this method would
      * return true for protocols that support offline messages and false for
      * those that don't. It is however possible for a protocol to support these
@@ -177,7 +165,7 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
     }
     
     /**
-     * Determines wheter the protocol supports the supplied content type
+     * Determines whether the protocol supports the supplied content type
      *
      * @param contentType the type we want to check
      * @return <tt>true</tt> if the protocol supports it and
@@ -185,9 +173,6 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE))
-            return true;
-        else
-           return false;
+        return contentType.equals(DEFAULT_MIME_TYPE);
     }
 }

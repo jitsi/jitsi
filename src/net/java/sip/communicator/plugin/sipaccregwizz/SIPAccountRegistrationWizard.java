@@ -30,12 +30,9 @@ public class SIPAccountRegistrationWizard
     private SIPAccountRegistration registration
         = new SIPAccountRegistration();
 
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
 
     private ProtocolProviderService protocolProvider;
-
-    private String propertiesPackage
-        = "net.java.sip.communicator.plugin.sipaccregwizz";
 
     private boolean isModification;
 

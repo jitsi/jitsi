@@ -9,7 +9,6 @@ package net.java.sip.communicator.plugin.yahooaccregwizz;
 import java.util.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -25,10 +24,8 @@ public class YahooAccRegWizzActivator implements BundleActivator {
 
     public static BundleContext bundleContext;
 
-    private static Logger logger = Logger.getLogger(
-            YahooAccRegWizzActivator.class.getName());
-
-    private static ConfigurationService configService;
+    private static final Logger logger =
+        Logger.getLogger(YahooAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;
 

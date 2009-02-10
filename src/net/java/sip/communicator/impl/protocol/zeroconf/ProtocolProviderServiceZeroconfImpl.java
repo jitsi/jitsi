@@ -25,7 +25,7 @@ public class ProtocolProviderServiceZeroconfImpl
     /**
      * We use this to lock access to initialization.
      */
-    private Object initializationLock = new Object();
+    private final Object initializationLock = new Object();
     
     /**
      * The id of the account that this protocol provider represents.
@@ -40,7 +40,7 @@ public class ProtocolProviderServiceZeroconfImpl
     /**
      * The logo corresponding to the zeroconf protocol.
      */
-    private ProtocolIconZeroconfImpl zeroconfIcon
+    private final ProtocolIconZeroconfImpl zeroconfIcon
         = new ProtocolIconZeroconfImpl();
     
     /**
@@ -105,7 +105,7 @@ public class ProtocolProviderServiceZeroconfImpl
     {
         synchronized(initializationLock)
         {
-            this.accountID = accountID;
+            this.accountID = (ZeroconfAccountID) accountID;
 
            
            //initialize the presence operationset
@@ -193,7 +193,6 @@ public class ProtocolProviderServiceZeroconfImpl
         
         //ICI : creer le service Zeroconf !!
         logger.info("ZEROCONF: Starting the service");
-        ZeroconfAccountID acc = (ZeroconfAccountID)accountID;
         this.bonjourService = new BonjourService(5298, this);
         
         //bonjourService.changeStatus(ZeroconfStatusEnum.ONLINE);

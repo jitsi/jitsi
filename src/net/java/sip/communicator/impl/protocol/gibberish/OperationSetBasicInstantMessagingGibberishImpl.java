@@ -6,10 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.gibberish;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Instant messaging functionalites for the Gibberish protocol.
@@ -70,10 +67,6 @@ public class OperationSetBasicInstantMessagingGibberishImpl
            throw new IllegalArgumentException(
                "The specified contact is not a Gibberish contact."
                + to);
-
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(
-                message, to, new Date());
 
         //first fire an event that we've delivered the message.
         //Note that in a real world protocol implementation we would first wait

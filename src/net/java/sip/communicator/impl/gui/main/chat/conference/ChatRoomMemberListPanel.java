@@ -29,13 +29,11 @@ public class ChatRoomMemberListPanel
     extends JPanel
     implements  MouseListener
 {
-    private ContactList memberList;
+    private final ContactList memberList;
 
-    private DefaultListModel memberListModel = new DefaultListModel();
+    private final DefaultListModel memberListModel = new DefaultListModel();
 
-    private JScrollPane contactsScrollPane = new JScrollPane();
-
-    private ChatPanel chatPanel;
+    // private final ChatPanel chatPanel;
 
     /**
      * Creates an instance of <tt>ChatContactListPanel</tt>.
@@ -47,7 +45,7 @@ public class ChatRoomMemberListPanel
         this.memberList = new ContactList(
             GuiActivator.getUIService().getMainFrame());
 
-        this.chatPanel = chat;
+        // this.chatPanel = chat;
 
         this.memberList.setModel(memberListModel);
         this.memberList.setCellRenderer(new ChatContactCellRenderer());
@@ -56,10 +54,11 @@ public class ChatRoomMemberListPanel
         this.memberList.setMouseMotionListener(null);
         this.memberList.setMouseListener(null);
 
-        this.contactsScrollPane.setHorizontalScrollBarPolicy(
+        JScrollPane contactsScrollPane = new JScrollPane();
+        contactsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        this.contactsScrollPane.getViewport().add(memberList);
+        contactsScrollPane.getViewport().add(memberList);
 
         this.add(contactsScrollPane);
     }
@@ -154,6 +153,4 @@ public class ChatRoomMemberListPanel
 //            }
 //        }
 //    }
-
 }
-

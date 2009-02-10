@@ -551,11 +551,10 @@ public class ChatWindow
     private class SendMessageAction
         extends AbstractAction
     {
-        public void actionPerformed(ActionEvent e)
+		public void actionPerformed(ActionEvent e)
         {
-            ChatPanel chatPanel = getCurrentChatPanel();
             // chatPanel.stopTypingNotifications();
-            chatPanel.sendButtonDoClick();
+            getCurrentChatPanel().sendButtonDoClick();
         }
     }
 
@@ -566,7 +565,7 @@ public class ChatWindow
     private class OpenSmileyAction
         extends AbstractAction
     {
-        public void actionPerformed(ActionEvent e)
+		public void actionPerformed(ActionEvent e)
         {
             getCurrentChatPanel().getChatWritePanel()
                 .getEditTextToolBar().getSmiliesSelectorBox().open();

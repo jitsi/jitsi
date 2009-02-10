@@ -9,7 +9,6 @@
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.util.*;
@@ -35,16 +34,6 @@ public class OperationSetFileTransferSSHImpl
     private Vector fileTransferListeners = new Vector();
     
     /**
-     * The currently valid persistent presence operation set..
-     */
-    private OperationSetPersistentPresenceSSHImpl opSetPersPresence = null;
-    
-    /**
-     * The currently valid ssh instant messaging operation set
-     */
-    private OperationSetBasicInstantMessagingSSHImpl instantMessaging = null;
-    
-    /**
      * The protocol provider that created us.
      */
     private ProtocolProviderServiceSSHImpl parentProvider = null;
@@ -55,10 +44,6 @@ public class OperationSetFileTransferSSHImpl
             ProtocolProviderServiceSSHImpl        parentProvider)
     {
         this.parentProvider = parentProvider;
-        this.opSetPersPresence = (OperationSetPersistentPresenceSSHImpl)
-                parentProvider.getOperationSet(OperationSetPersistentPresence.class);
-        this.instantMessaging = (OperationSetBasicInstantMessagingSSHImpl)
-                parentProvider.getOperationSet(OperationSetBasicInstantMessaging.class);
     }
     
     /**

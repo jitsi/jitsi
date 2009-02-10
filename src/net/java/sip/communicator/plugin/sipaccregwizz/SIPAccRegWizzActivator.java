@@ -10,7 +10,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -26,10 +25,8 @@ public class SIPAccRegWizzActivator
 
     public static BundleContext bundleContext;
 
-    private static Logger logger =
-        Logger.getLogger(SIPAccRegWizzActivator.class.getName());
-
-    private static ConfigurationService configService;
+    private static final Logger logger =
+        Logger.getLogger(SIPAccRegWizzActivator.class);
 
     private static WizardContainer wizardContainer;
 

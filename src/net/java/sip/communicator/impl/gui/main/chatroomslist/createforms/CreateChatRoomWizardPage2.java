@@ -23,9 +23,7 @@ public class CreateChatRoomWizardPage2
     public static final String IDENTIFIER = "NAME_PANEL";
     
     private ChatRoomNamePanel namePanel;
-    
-    private WizardContainer wizard;
-    
+
     private NewChatRoom newChatRoom;
     
     /**
@@ -36,9 +34,7 @@ public class CreateChatRoomWizardPage2
      */
     public CreateChatRoomWizardPage2(WizardContainer wizard,
             NewChatRoom newChatRoom)
-    {        
-        this.wizard = wizard;
-        
+    {
         this.newChatRoom = newChatRoom;
         
         namePanel = new ChatRoomNamePanel(wizard);                

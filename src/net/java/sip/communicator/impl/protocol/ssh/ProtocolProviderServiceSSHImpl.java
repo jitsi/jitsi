@@ -50,8 +50,8 @@ public class ProtocolProviderServiceSSHImpl
      * The test command given after each command to determine the reply length 
      * of the command
      */
-    private final String testCommand = 
-        Resources.getString("testCommand");
+    //private final String testCommand = 
+    //    Resources.getString("testCommand");
     
     /**
      * A reference to the protocol provider of UIService
@@ -237,9 +237,7 @@ public class ProtocolProviderServiceSSHImpl
             final Message firstMessage)
     {
         sshContact.setConnectionInProgress(true);
-        
-        final UIService uiService = this.uiService;
-        
+
         final Thread newConnection = new Thread((new Runnable()
         {
             public void run()
@@ -259,7 +257,7 @@ public class ProtocolProviderServiceSSHImpl
                     
                     createShellChannel(sshContact);
                     
-                    //initalizing the reader and writers of ssh contact
+                    //initializing the reader and writers of ssh contact
                     
                     persistentPresence.changeContactPresenceStatus(
                             sshContact,
@@ -267,7 +265,7 @@ public class ProtocolProviderServiceSSHImpl
                     
                     showWelcomeMessage(sshContact);
                     
-                    sshContact.setMessageType(sshContact
+                    sshContact.setMessageType(ContactSSH
                             .CONVERSATION_MESSAGE_RECEIVED);
                     
                     sshContact.setConnectionInProgress(false);
@@ -280,7 +278,7 @@ public class ProtocolProviderServiceSSHImpl
                             sshContact,
                             firstMessage);
                 }
-                // rigoruos Exception Checking in future
+                // rigorous Exception Checking in future
                 catch (Exception ex)
                 {
                     persistentPresence.changeContactPresenceStatus(

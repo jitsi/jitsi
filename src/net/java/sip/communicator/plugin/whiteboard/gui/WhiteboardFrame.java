@@ -807,7 +807,6 @@ public class WhiteboardFrame
         modifButton = new JToggleButton();
         jPanel2 = new TransparentPanel();
         jLabelThickness = new JLabel();
-        jLabel1 = new JLabel();
         jSpinnerThickness = new JSpinner();
         menuBar = new JMenuBar();
         fileMenu = new JMenu();
@@ -1489,8 +1488,6 @@ public class WhiteboardFrame
     private javax.swing.JButton jButtonPaste;
 
     private javax.swing.JButton jButtonSave;
-
-    private javax.swing.JLabel jLabel1;
 
     private javax.swing.JLabel jLabelColor;
 

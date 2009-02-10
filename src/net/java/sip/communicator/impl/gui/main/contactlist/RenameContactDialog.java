@@ -44,8 +44,6 @@ public class RenameContactDialog
     private MetaContactListService clist;
     
     private MetaContact metaContact;
-    
-    private MainFrame mainFrame;
         
     /**
      * Creates an instance of <tt>RenameContactDialog</tt>.
@@ -55,10 +53,7 @@ public class RenameContactDialog
      */
     public RenameContactDialog(MainFrame mainFrame,
             MetaContact metaContact) {
-        
         super(mainFrame);
-       
-        this.mainFrame = mainFrame;
             
         this.setSize(new Dimension(520, 270));
         

@@ -24,27 +24,17 @@ public class ChatRoomPropertyChangeFailedEvent
      * Indicates that the current implementation doesn't support the given
      * property.
      */
-    public static int PROPERTY_NOT_SUPPORTED = 0;
-    
-    /**
-     * The value of the property.
-     */
-    private Object propertyValue;
-    
-    /**
-     * The value of the propertythat was expected after the change.
-     */
-    private Object expectedValue;
+    public static final int PROPERTY_NOT_SUPPORTED = 0;
     
     /**
      * The reason of the failure.
      */
-    private String reason;
+    private final String reason;
     
     /**
-     * Indicates why the failure occured.
+     * Indicates why the failure occurred.
      */
-    private int reasonCode;
+    private final int reasonCode;
     
     /**
      * Creates a <tt>ChatRoomPropertyChangeEvent</tt> indicating that a change
@@ -52,10 +42,10 @@ public class ChatRoomPropertyChangeFailedEvent
      * chat room and that its value has changed from <tt>oldValue</tt> to
      * <tt>newValue</tt>.
      * <p>
-     * @param source the <tt>ChatRoom</tt>, to which the propery belongs
+     * @param source the <tt>ChatRoom</tt>, to which the property belongs
      * @param propertyName the name of the property
      * @param propertyValue the value of the property
-     * @param expectedValue the extected after the change value of the property
+     * @param expectedValue the expected after the change value of the property
      * @param reasonCode the code indicating the reason for the failure
      * @param reason more detailed explanation of the failure
      */
@@ -69,7 +59,6 @@ public class ChatRoomPropertyChangeFailedEvent
         super(source, propertyName, propertyValue, expectedValue);
         
         this.reasonCode = reasonCode;
-        
         this.reason = reason;
     }
 

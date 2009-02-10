@@ -35,20 +35,17 @@ public class ChatTransportSelectorBox
     private static final Logger logger
         = Logger.getLogger(ChatTransportSelectorBox.class);
 
-    private Hashtable transportMenuItems = new Hashtable();
+    private final Map<ChatTransport, JMenuItem> transportMenuItems =
+        new Hashtable<ChatTransport, JMenuItem>();
 
-    private SIPCommMenu menu = new SIPCommMenu();
+    private final SIPCommMenu menu = new SIPCommMenu();
 
-    private ChatPanel chatPanel;
-
-    private ChatSession chatSession;
+    private final ChatSession chatSession;
 
     public ChatTransportSelectorBox(ChatPanel chatPanel,
                                     ChatSession chatSession,
                                     ChatTransport selectedChatTransport)
     {
-        this.chatPanel = chatPanel;
-
         this.chatSession = chatSession;
 
         this.menu.setPreferredSize(new Dimension(28, 24));
@@ -95,7 +92,7 @@ public class ChatTransportSelectorBox
      */
     public void removeChatTransport(ChatTransport chatTransport)
     {
-        this.menu.remove((JMenuItem)transportMenuItems.get(chatTransport));
+        this.menu.remove(transportMenuItems.get(chatTransport));
         this.transportMenuItems.remove(chatTransport);
     }
     
@@ -106,12 +103,11 @@ public class ChatTransportSelectorBox
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
 
-        Enumeration<ChatTransport> chatTransports = transportMenuItems.keys();
-        while(chatTransports.hasMoreElements())
+        for (Map.Entry<ChatTransport, JMenuItem> transportMenuItem : transportMenuItems.entrySet())
         {
-            ChatTransport chatTransport = chatTransports.nextElement();
+            ChatTransport chatTransport = transportMenuItem.getKey();
 
-            if (transportMenuItems.get(chatTransport).equals(menuItem))
+            if (transportMenuItem.getValue().equals(menuItem))
             {
                 this.setSelected(chatTransport, (ImageIcon) menuItem.getIcon());
 
@@ -190,7 +186,7 @@ public class ChatTransportSelectorBox
             this.setSelected(chatTransport);
         }
 
-        menuItem = (JMenuItem) transportMenuItems.get(chatTransport);
+        menuItem = transportMenuItems.get(chatTransport);
         icon = new ImageIcon(createTransportStatusImage(chatTransport));
 
         menuItem.setIcon(icon);
@@ -255,17 +251,12 @@ public class ChatTransportSelectorBox
      */
     private boolean containsOtherOnlineContacts(ChatTransport chatTransport)
     {
-        Enumeration e = transportMenuItems.keys();
-
-        while(e.hasMoreElements())
+        for (ChatTransport comboChatTransport : transportMenuItems.keySet())
         {
-            ChatTransport comboChatTransport = (ChatTransport) e.nextElement();
-
             if(!comboChatTransport.equals(chatTransport)
                 && comboChatTransport.getStatus().isOnline())
                 return true;
         }
-
         return false;
     }
 }

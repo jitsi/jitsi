@@ -40,12 +40,9 @@ public class RssAccountRegistrationWizard
     private RssAccountRegistration registration
         = new RssAccountRegistration();
 
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
 
     private ProtocolProviderService protocolProvider;
-
-    private String propertiesPackage
-        = "net.java.sip.communicator.plugin.rssaccregwizz";
 
     private boolean isModification;
 

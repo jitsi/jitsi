@@ -40,12 +40,9 @@ public class GibberishAccountRegistrationWizard
     private GibberishAccountRegistration registration
         = new GibberishAccountRegistration();
 
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
 
     private ProtocolProviderService protocolProvider;
-
-    private String propertiesPackage
-        = "net.java.sip.communicator.plugin.gibberishaccregwizz";
 
     private boolean isModification;
 
