@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.sf.jml.MsnGroup;
 import net.sf.jml.MsnContact;
 
@@ -31,9 +30,6 @@ import net.sf.jml.MsnContact;
 public class ContactGroupMsnImpl
     extends AbstractContactGroupMsnImpl
 {
-    private static final Logger logger =
-        Logger.getLogger(ContactGroupMsnImpl.class);
-
     private List buddies = new LinkedList();
     private boolean isResolved = false;
 

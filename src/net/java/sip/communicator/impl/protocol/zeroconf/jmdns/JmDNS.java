@@ -2851,8 +2851,7 @@ public class JmDNS
      */
     private static class ServiceCollector implements ServiceListener
     {
-        private static Logger logger =
-            Logger.getLogger(ServiceCollector.class.toString());
+
         /**
          * A set of collected service instance names.
          */

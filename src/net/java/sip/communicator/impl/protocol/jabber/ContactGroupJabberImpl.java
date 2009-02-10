@@ -9,8 +9,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
+
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The Jabber implementation of the ContactGroup interface. Intances of this class
@@ -30,8 +30,6 @@ import net.java.sip.communicator.util.*;
 public class ContactGroupJabberImpl
     extends AbstractContactGroupJabberImpl
 {
-    private static final Logger logger =
-        Logger.getLogger(ContactGroupJabberImpl.class);
 
     private List buddies = new LinkedList();
     private boolean isResolved = false;

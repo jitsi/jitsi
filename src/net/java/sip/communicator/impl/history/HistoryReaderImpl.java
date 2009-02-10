@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.history;
 import java.util.*;
 
 import org.w3c.dom.*;
+
 import net.java.sip.communicator.service.history.*;
-import net.java.sip.communicator.service.history.records.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.history.event.*;
+import net.java.sip.communicator.service.history.records.*;
 
 /**
  * @author Alexander Pelov
@@ -21,8 +21,6 @@ import net.java.sip.communicator.service.history.event.*;
 public class HistoryReaderImpl
     implements HistoryReader
 {
-    private static Logger logger = Logger.getLogger(HistoryReaderImpl.class);
-
     private HistoryImpl historyImpl;
     private Vector progressListeners = new Vector();
 

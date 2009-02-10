@@ -9,7 +9,6 @@
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.util.*;
@@ -17,7 +16,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The SSH protocol provider factory creates instances of the SSH
@@ -28,10 +26,7 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderFactorySSHImpl
         extends ProtocolProviderFactorySSH
 {
-    private static final Logger logger
-            = Logger.getLogger(ProtocolProviderFactorySSHImpl.class);
-    
-    
+
     /**
      * Creates an instance of the ProtocolProviderFactorySSHImpl.
      */

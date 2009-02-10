@@ -9,7 +9,6 @@ package net.java.sip.communicator.plugin.defaultresourcepack;
 import java.util.*;
 
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The default image resource pack.
@@ -20,8 +19,6 @@ import net.java.sip.communicator.util.*;
 public class DefaultImagePackImpl
     implements ImagePack
 {
-    private Logger logger = Logger.getLogger(DefaultImagePackImpl.class);
-
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.images.images";
 

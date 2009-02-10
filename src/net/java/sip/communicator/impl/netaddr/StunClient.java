@@ -1,6 +1,5 @@
 package net.java.sip.communicator.impl.netaddr;
 
-import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;
 import net.java.stun4j.attribute.*;
 import net.java.stun4j.message.*;
@@ -72,11 +71,9 @@ import net.java.stun4j.stack.*;
  * @author Emil Ivov
  * @version 0.1
  */
-
 public class StunClient
 {
-    private static final Logger logger =
-        Logger.getLogger(StunClient.class);
+
     /**
      * Indicates whether the underlying stack has been initialized and started
      * and that the discoverer is operational.

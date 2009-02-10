@@ -11,13 +11,10 @@ import java.util.*;
 import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 public class TestAccountInstallation
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestAccountInstallation.class);
 
     /**
      * Creates the test with the specified method name.

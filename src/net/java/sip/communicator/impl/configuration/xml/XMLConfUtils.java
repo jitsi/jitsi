@@ -7,10 +7,8 @@
 package net.java.sip.communicator.impl.configuration.xml;
 
 import org.w3c.dom.*;
-import net.java.sip.communicator.util.*;
+
 import net.java.sip.communicator.util.xml.*;
-
-
 
 /**
  * Common XML Tasks.
@@ -20,7 +18,6 @@ import net.java.sip.communicator.util.xml.*;
  */
 public class XMLConfUtils extends XMLUtils
 {
-    private static Logger logger = Logger.getLogger(XMLConfUtils.class);
 
     /**
      * Returns the element which is at the end of the specified

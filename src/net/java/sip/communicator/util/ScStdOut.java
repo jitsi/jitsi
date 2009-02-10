@@ -17,9 +17,6 @@ import java.io.*;
  */
 public class ScStdOut extends PrintStream
 {
-    private static final Logger logger =
-        Logger.getLogger(ScStdOut.class);
-
     private static boolean stdOutPrintingEnabled = false;
 
     public static void setStdOutPrintingEnabled(boolean enabled)

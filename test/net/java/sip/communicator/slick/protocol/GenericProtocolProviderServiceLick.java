@@ -7,8 +7,8 @@
 package net.java.sip.communicator.slick.protocol;
 
 import org.osgi.framework.*;
+
 import junit.framework.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The generic protocol provider SLICK implements a set of tests that any
@@ -29,8 +29,6 @@ public class GenericProtocolProviderServiceLick
     extends TestCase
     implements BundleActivator
 {
-    private static final Logger logger =
-        Logger.getLogger(GenericProtocolProviderServiceLick.class);
 
     /**
      * Registers generic protocol test suits for currently registered protocol

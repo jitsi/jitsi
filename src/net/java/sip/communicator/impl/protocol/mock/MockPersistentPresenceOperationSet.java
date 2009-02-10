@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A mock implementation of a persistent presence operation set containing a
@@ -20,8 +19,6 @@ import net.java.sip.communicator.util.*;
 public class MockPersistentPresenceOperationSet
     extends AbstractOperationSetPersistentPresence<MockProvider>
 {
-    private static final Logger logger =
-        Logger.getLogger(MockPersistentPresenceOperationSet.class);
 
     /**
      * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.

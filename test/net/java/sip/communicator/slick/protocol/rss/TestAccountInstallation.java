@@ -8,7 +8,6 @@ package net.java.sip.communicator.slick.protocol.rss;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import junit.framework.*;
 import java.util.*;
 
@@ -20,9 +19,7 @@ import java.util.*;
 public class TestAccountInstallation
 	extends TestCase
 {
-    private static final Logger logger = 
-    	Logger.getLogger(TestAccountInstallation.class);
-    
+
     /**
      * Creates a test with the specified method name.
      * @param name the name of the method tu execute.

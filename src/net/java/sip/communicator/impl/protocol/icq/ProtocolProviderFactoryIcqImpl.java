@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.icq;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -19,10 +18,8 @@ import org.osgi.framework.*;
  */
 public class ProtocolProviderFactoryIcqImpl
     extends ProtocolProviderFactory
-{    
-    private Logger logger = Logger.getLogger(
-            ProtocolProviderFactoryIcqImpl.class);
-    
+{
+
     /**
      * Is this factory is created for aim or icq accounts
      */

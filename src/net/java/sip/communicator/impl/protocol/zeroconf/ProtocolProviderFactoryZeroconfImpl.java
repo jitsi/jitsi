@@ -11,7 +11,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The Zeroconf protocol provider factory creates instances of the Zeroconf
@@ -24,8 +23,6 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderFactoryZeroconfImpl
     extends ProtocolProviderFactory
 {
-    private static final Logger logger
-        = Logger.getLogger(ProtocolProviderFactoryZeroconfImpl.class);
 
     /**
      * Creates an instance of the ProtocolProviderFactoryZeroconfImpl.

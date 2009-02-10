@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.rss;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A simple, straightforward implementation of a rss ContactGroup. Since
@@ -24,8 +23,6 @@ import net.java.sip.communicator.util.*;
 public class ContactGroupRssImpl
     implements ContactGroup
 {
-    private static final Logger logger
-        = Logger.getLogger(ContactGroupRssImpl.class);
 
     /**
      * The name of this Rss contact group.

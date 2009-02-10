@@ -10,7 +10,6 @@ import javax.sip.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Allows SIP communicator to create SIP accounts without a registrar. We use
@@ -22,9 +21,6 @@ import net.java.sip.communicator.util.*;
 public class SipRegistrarlessConnection
         extends SipRegistrarConnection
 {
-
-    private static final Logger logger =
-        Logger.getLogger(SipRegistrarlessConnection.class);
 
     /**
      * A reference to the sip provider that created us.

@@ -9,7 +9,6 @@ package net.java.sip.communicator.plugin.defaultresourcepack;
 import java.util.*;
 
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The default color resource pack.
@@ -20,8 +19,6 @@ import net.java.sip.communicator.util.*;
 public class DefaultColorPackImpl
     implements ColorPack
 {
-    private Logger logger = Logger.getLogger(DefaultColorPackImpl.class);
-
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.colors.colors";
 

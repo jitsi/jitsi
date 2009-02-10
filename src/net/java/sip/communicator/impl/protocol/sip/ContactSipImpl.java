@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
@@ -28,8 +27,6 @@ import java.util.*;
 public class ContactSipImpl
     implements Contact
 {
-    private static final Logger logger
-        = Logger.getLogger(ContactSipImpl.class);
 
     /**
      * The id of the contact.

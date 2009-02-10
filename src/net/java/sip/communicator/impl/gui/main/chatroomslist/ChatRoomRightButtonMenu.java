@@ -14,7 +14,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -27,8 +26,6 @@ public class ChatRoomRightButtonMenu
     extends JPopupMenu
     implements  ActionListener
 {
-    private Logger logger = Logger.getLogger(ChatRoomRightButtonMenu.class);
-
     private JMenuItem leaveChatRoomItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.LEAVE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.LEAVE_ICON)));

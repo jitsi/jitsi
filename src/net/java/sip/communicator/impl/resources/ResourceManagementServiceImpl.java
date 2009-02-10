@@ -129,18 +129,11 @@ public class ResourceManagementServiceImpl
             logger.error("Could not obtain resource packs reference.", exc);
         }
 
-        if (serRefs != null)
+        if ((serRefs != null) && (serRefs.length > 0))
         {
-            for (int i = 0; i < serRefs.length; i++)
-            {
-                ResourcePack rp =
-                    (ResourcePack) ResourceManagementActivator.bundleContext.
-                        getService(serRefs[i]);
-
-                return rp;
-            }
+            return (ResourcePack)
+                ResourceManagementActivator.bundleContext.getService(serRefs[0]);
         }
-
         return null;
     }
 

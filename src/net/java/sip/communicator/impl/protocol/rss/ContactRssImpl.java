@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of a rss Contact.
@@ -21,8 +20,6 @@ import net.java.sip.communicator.util.*;
 public class ContactRssImpl
     implements Contact
 {
-    private static final Logger logger
-        = Logger.getLogger(ContactRssImpl.class);
 
     /**
      * Item key identifying the last item retrieved and displayed.

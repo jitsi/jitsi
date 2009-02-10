@@ -9,17 +9,12 @@ package net.java.sip.communicator.impl.media.device;
 import net.java.sip.communicator.util.*;
 
 /**
- *
  * @author Martin Andre
  */
 public class ConfigurationListener
     implements PropertyChangeListener
 {
-    private Logger logger = Logger.getLogger(ConfigurationListener.class);
-
     public void propertyChange(PropertyChangeEvent evt) {
-        // TODO Auto-generated method stub
-        
+        // TODO Auto-generated method stub       
     }
-    
 }

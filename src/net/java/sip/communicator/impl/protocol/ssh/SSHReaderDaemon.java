@@ -13,7 +13,6 @@ package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
 
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -23,9 +22,7 @@ import net.java.sip.communicator.service.protocol.*;
 public class SSHReaderDaemon
         extends Thread
 {
-    private static final Logger logger =
-            Logger.getLogger(SSHReaderDaemon.class);
-    
+
     /**
      * A Buffer to aggregate replies to be sent as one message
      */

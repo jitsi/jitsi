@@ -9,7 +9,6 @@ package net.java.sip.communicator.slick.protocol.gibberish;
 import junit.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -25,9 +24,6 @@ import org.osgi.framework.*;
 public class TestAccountUninstallation
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestAccountUninstallation.class);
-
     private GibberishSlickFixture fixture = new GibberishSlickFixture();
 
     /**

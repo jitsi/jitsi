@@ -8,7 +8,6 @@ package net.java.sip.communicator.slick.protocol.icq;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Phoney tests to signal specific problems with the
@@ -17,13 +16,6 @@ import net.java.sip.communicator.util.*;
  */
 public class TestAccountInvalidNotification extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestAccountInstallation.class);
-    /**
-     * The lock that we wait on until registration is finalized.
-     */
-    private Object registrationLock = new Object();
-
     ProtocolProviderFactory icqProviderFactory  = null;
 
     public TestAccountInvalidNotification(String name)

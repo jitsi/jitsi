@@ -4,23 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Represents a chat room member.
  * 
  * @author Stephane Remy
  */
-
 public class ChatRoomMemberIrcImpl implements ChatRoomMember
 {
-    private static final Logger logger
-        = Logger.getLogger(ChatRoomMemberIrcImpl.class);
-    
+
     /**
      * The ChatRoom.
      */

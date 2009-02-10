@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Allows creating, configuring, joining and administrating of individual
@@ -23,9 +22,6 @@ import net.java.sip.communicator.util.*;
 public class OperationSetMultiUserChatIrcImpl
     implements  OperationSetMultiUserChat
 {
-
-    private static final Logger logger =
-        Logger.getLogger(OperationSetMultiUserChatIrcImpl.class);
 
     /**
      * A call back to the IRC provider that created us.

@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.icq;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.kano.joustsim.Screenname;
 
 /**
@@ -20,8 +19,6 @@ import net.kano.joustsim.Screenname;
 public class OperationSetExtendedAuthorizationsIcqImpl 
     implements OperationSetExtendedAuthorizations
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetExtendedAuthorizationsIcqImpl.class);
 
     /**
      * A callback to the ICQ provider that created us.

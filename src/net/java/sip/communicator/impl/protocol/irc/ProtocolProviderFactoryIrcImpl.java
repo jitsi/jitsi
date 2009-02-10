@@ -11,7 +11,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The IRC protocol provider factory creates instances of the IRC protocol
@@ -23,9 +22,6 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderFactoryIrcImpl
     extends ProtocolProviderFactory
 {
-    private static final Logger logger
-        = Logger.getLogger(ProtocolProviderFactoryIrcImpl.class);
-
     public ProtocolProviderFactoryIrcImpl()
     {
         super(IrcActivator.bundleContext, ProtocolNames.IRC);

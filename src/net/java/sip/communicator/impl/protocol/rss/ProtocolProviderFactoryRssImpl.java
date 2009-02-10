@@ -11,7 +11,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The Rss protocol provider factory creates instances of the Rss
@@ -22,8 +21,6 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderFactoryRssImpl
     extends ProtocolProviderFactory
 {
-    private static final Logger logger
-        = Logger.getLogger(ProtocolProviderFactoryRssImpl.class);
 
     /**
      * Creates an instance of the ProtocolProviderFactoryRssImpl.

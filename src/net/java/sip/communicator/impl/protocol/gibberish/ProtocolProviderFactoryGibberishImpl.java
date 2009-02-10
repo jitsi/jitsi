@@ -11,7 +11,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The Gibberish protocol provider factory creates instances of the Gibberish
@@ -22,9 +21,6 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderFactoryGibberishImpl
     extends ProtocolProviderFactory
 {
-    private static final Logger logger
-        = Logger.getLogger(ProtocolProviderFactoryGibberishImpl.class);
-
     /**
      * Creates an instance of the ProtocolProviderFactoryGibberishImpl.
      */
@@ -34,11 +30,11 @@ public class ProtocolProviderFactoryGibberishImpl
     }
 
     /**
-     * Initializaed and creates an account corresponding to the specified
+     * Initialized and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter.
      *
-     * @param userIDStr tha/a user identifier uniquely representing the newly
+     * @param userIDStr the/a user identifier uniquely representing the newly
      *   created account within the protocol namespace.
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.

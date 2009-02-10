@@ -7,8 +7,8 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import org.jivesoftware.smack.*;
+
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 /**
@@ -19,9 +19,6 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 public class ContactJabberImpl
     implements Contact
 {
-    private static final Logger logger = Logger.getLogger(ContactJabberImpl.class);
-
-
     private RosterEntry rosterEntry = null;
     private boolean isLocal = false;
     private byte[] image = null;

@@ -2,8 +2,6 @@ package net.java.sip.communicator.impl.netaddr;
 
 import java.net.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * todo: add a type for the open internet
  *
@@ -12,8 +10,6 @@ import net.java.sip.communicator.util.*;
  */
 public class FirewallDescriptor
 {
-    private static final Logger logger =
-        Logger.getLogger(FirewallDescriptor.class);
 
     /**
      * The amount of preference points that a firewall corresponding to this

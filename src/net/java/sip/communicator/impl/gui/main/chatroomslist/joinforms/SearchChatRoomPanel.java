@@ -17,15 +17,12 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 public class SearchChatRoomPanel
     extends TransparentPanel
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(SearchChatRoomPanel.class);
-    
     private ChatRoomNamePanel namePanel = new ChatRoomNamePanel();
     
     private JPanel mainPanel = new TransparentPanel();

@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>CreateChatRoomWizard</tt> is the wizard through which the user could
@@ -21,9 +20,6 @@ public class CreateChatRoomWizard
     extends Wizard
     implements  WizardListener
 {
-    private Logger logger
-        = Logger.getLogger(CreateChatRoomWizard.class.getName());
-    
     private NewChatRoom newChatRoom = new NewChatRoom();
     
     private CreateChatRoomWizardPage1 page1;

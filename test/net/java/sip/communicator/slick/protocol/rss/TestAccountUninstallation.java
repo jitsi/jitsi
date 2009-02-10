@@ -8,7 +8,6 @@ package net.java.sip.communicator.slick.protocol.rss;
 
 import junit.framework.*;
 import org.osgi.framework.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -23,8 +22,6 @@ import net.java.sip.communicator.service.protocol.*;
 public class TestAccountUninstallation
     extends TestCase
 {
-    private Logger logger = Logger.getLogger(TestAccountUninstallation.class);
-    
     private RssSlickFixture fixture = new RssSlickFixture();
     
     /**

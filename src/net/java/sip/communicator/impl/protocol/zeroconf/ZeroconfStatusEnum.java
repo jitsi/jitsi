@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.zeroconf;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that enumerates all states that
@@ -21,8 +20,6 @@ import net.java.sip.communicator.util.*;
 public class ZeroconfStatusEnum
     extends PresenceStatus
 {
-    private static final Logger logger
-        = Logger.getLogger(ZeroconfStatusEnum.class);
 
     /**
      * Indicates an Offline status or status with 0 connectivity.

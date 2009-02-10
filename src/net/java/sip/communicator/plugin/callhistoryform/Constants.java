@@ -4,22 +4,17 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
-
-import net.java.sip.communicator.util.*;
 
 /**
  * All look and feel related constants are stored here.
  *
  * @author Yana Stamcheva
  */
-
-public class Constants {
-
-    private static Logger logger = Logger.getLogger(Constants.class);
+public class Constants
+{
 
      /*
      * ===================================================================

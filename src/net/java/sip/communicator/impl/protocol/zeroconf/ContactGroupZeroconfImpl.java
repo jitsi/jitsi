@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.zeroconf;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A simple, straightforward implementation of a zeroconf ContactGroup. Since
@@ -26,8 +25,6 @@ import net.java.sip.communicator.util.*;
 public class ContactGroupZeroconfImpl
     implements ContactGroup
 {
-    private static final Logger logger
-        = Logger.getLogger(ContactGroupZeroconfImpl.class);
 
     /**
      * The name of this Zeroconf contact group.

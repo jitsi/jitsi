@@ -3,7 +3,6 @@ package net.java.sip.communicator.slick.protocol.icq;
 import java.io.*;
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
@@ -18,7 +17,6 @@ import net.kano.joscar.tlv.*;
 public class FullUserInfoCmd
     extends SnacCommand
 {
-    private static final Logger logger = Logger.getLogger(FullUserInfoCmd.class);
 
     /** A TLV type containing the ICQ-specific data. */
     private static final int TYPE_ICQ_DATA = 0x0001;

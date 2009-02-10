@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.util.*;
 import org.osgi.framework.*;
@@ -21,8 +20,6 @@ import org.osgi.framework.*;
 public class ProtocolProviderFactoryJabberImpl
     extends ProtocolProviderFactory
 {
-    private Logger logger = Logger.getLogger(
-            ProtocolProviderFactoryJabberImpl.class);
 
     /**
      * Creates an instance of the ProtocolProviderFactoryJabberImpl.

@@ -13,7 +13,6 @@ package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A simple, straightforward implementation of a ssh ContactGroup. Since
@@ -28,8 +27,6 @@ import net.java.sip.communicator.util.*;
 public class ContactGroupSSHImpl
     implements ContactGroup
 {
-    private static final Logger logger
-        = Logger.getLogger(ContactGroupSSHImpl.class);
 
     /**
      * The name of this SSH contact group.

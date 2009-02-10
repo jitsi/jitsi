@@ -12,7 +12,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>JoinChatRoomWizard</tt> is the wizard through which the user could
@@ -24,11 +23,6 @@ public class JoinChatRoomWizard
     extends Wizard
     implements  WizardListener
 {
-    private Logger logger
-        = Logger.getLogger(JoinChatRoomWizard.class.getName());
-    
-    private MainFrame mainFrame;
-    
     private NewChatRoom newChatRoom = new NewChatRoom();
     
     private JoinChatRoomWizardPage1 page1;
@@ -43,8 +37,6 @@ public class JoinChatRoomWizard
     public JoinChatRoomWizard(MainFrame mainFrame)
     {
         super(mainFrame);
-
-        this.mainFrame = mainFrame;
 
         super.addWizardListener(this);
 

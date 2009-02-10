@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
+
 import ymsg.network.*;
 
 /**
@@ -30,9 +30,6 @@ import ymsg.network.*;
 public class ContactGroupYahooImpl
     extends AbstractContactGroupYahooImpl
 {
-    private static final Logger logger =
-        Logger.getLogger(ContactGroupYahooImpl.class);
-
     private List buddies = new LinkedList();
     private boolean isResolved = false;
 

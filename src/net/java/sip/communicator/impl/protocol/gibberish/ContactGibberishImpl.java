@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.gibberish;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A simple, straightforward implementation of a gibberish Contact. Since
@@ -22,8 +21,6 @@ import net.java.sip.communicator.util.*;
 public class ContactGibberishImpl
     implements Contact
 {
-    private static final Logger logger
-        = Logger.getLogger(ContactGibberishImpl.class);
 
     /**
      * The id of the contact.
