@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.List;
 
@@ -1506,27 +1507,22 @@ public class MainFrame
                 glassPane = new ActionMenuGlassPane();
                 glassPane.add(new ActionMenuPanel());
                 KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                        .addPropertyChangeListener(
-                        new java.beans.PropertyChangeListener()
-                {
-                    public void propertyChange(java.beans.PropertyChangeEvent e)
+                    .addPropertyChangeListener(new PropertyChangeListener()
                     {
-                        String prop = e.getPropertyName();
-                        if ("focusOwner".equals(prop))
+                        public void propertyChange(PropertyChangeEvent e)
                         {
-                            if (!glassPane.isVisible())
-                                return;
-                            Object newValue = e.getNewValue();
-
-                            // we dont want the glasspane staying on top
-                            // ot certains components
-                            if (newValue == rootPane)
+                            if ("focusOwner".equals(e.getPropertyName())
+                                && glassPane.isVisible())
                             {
-                                glassPane.setVisible(false);
+                                // we don't want the glasspane staying on top
+                                // of certain components
+                                if (e.getNewValue() == rootPane)
+                                {
+                                    glassPane.setVisible(false);
+                                }
                             }
                         }
-                    }
-                });
+                    });
 
                 rootPane.setGlassPane(glassPane);
                 glassPane.setVisible(true);
