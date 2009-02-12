@@ -93,11 +93,14 @@ public class MainFrame
 
     private ContactListPane contactListPanel;
 
+    private ActionMenuGlassPane glassPane = null;
+
     /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
     public MainFrame()
     {
+        logger.setLevelOff();
         if (!ConfigurationManager.isWindowDecorated())
         {
             this.setUndecorated(true);
@@ -125,6 +128,16 @@ public class MainFrame
             public void windowClosing(WindowEvent event)
             {
                 MainFrame.this.windowClosing(event);
+            }
+        });
+
+        addComponentListener(new ComponentAdapter()
+        {
+            @Override
+            public void componentResized(ComponentEvent e)
+            {
+                if ((glassPane != null) && glassPane.isVisible())
+                    glassPane.revalidate();
             }
         });
 
@@ -1402,7 +1415,7 @@ public class MainFrame
 
     /**
      * Returns the phone number currently entered in the phone number field.
-     * 
+     *
      * @return the phone number currently entered in the phone number field.
      */
     public String getCurrentPhoneNumber()
@@ -1489,16 +1502,47 @@ public class MainFrame
 
         public void mousePressed(MouseEvent e)
         {
-            ActionMenuGlassPane glassPane = new ActionMenuGlassPane();
+            if (glassPane == null)
+            {
+                if (rootPane != null)
+                {
+                    glassPane = new ActionMenuGlassPane();
+                    glassPane.add(new ActionMenuPanel());
+                    KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                            .addPropertyChangeListener(
+                            new java.beans.PropertyChangeListener()
+                    {
+                        public void propertyChange(java.beans.PropertyChangeEvent e)
+                        {
+                            String prop = e.getPropertyName();
+                            if ("focusOwner".equals(prop))
+                            {
+                                if (!glassPane.isVisible())
+                                    return;
+                                Object newValue = e.getNewValue();
 
-            glassPane.add(new ActionMenuPanel());
+                                // we dont want the glasspane staying on top
+                                // ot certains components
+                                if (newValue == rootPane) {
+//                                if ((newValue == rootPane)
+//                                        || (newValue instanceof JTextField)) {
+                                    glassPane.setVisible(false);
+                                }
+                            }
+                        }
+                    });
 
-            if ((rootPane != null) && isVisible())
-                rootPane.setGlassPane(glassPane);
-
-            glassPane.revalidate();
-            glassPane.setVisible(!glassPane.isVisible());
-            glassPane.repaint();
+                    rootPane.setGlassPane(glassPane);
+                    glassPane.setVisible(true);
+                    glassPane.requestFocusInWindow();
+                }
+            }
+            else
+            {
+                glassPane.setVisible(!glassPane.isVisible());
+                if (glassPane.isVisible())
+                    glassPane.requestFocusInWindow();
+            }
         }
     }
 }
