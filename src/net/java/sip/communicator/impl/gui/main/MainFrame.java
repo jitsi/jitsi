@@ -100,7 +100,6 @@ public class MainFrame
      */
     public MainFrame()
     {
-        logger.setLevelOff();
         if (!ConfigurationManager.isWindowDecorated())
         {
             this.setUndecorated(true);
@@ -1502,46 +1501,39 @@ public class MainFrame
 
         public void mousePressed(MouseEvent e)
         {
-            if (glassPane == null)
+            if ((glassPane == null) && (rootPane != null))
             {
-                if (rootPane != null)
+                glassPane = new ActionMenuGlassPane();
+                glassPane.add(new ActionMenuPanel());
+                KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                        .addPropertyChangeListener(
+                        new java.beans.PropertyChangeListener()
                 {
-                    glassPane = new ActionMenuGlassPane();
-                    glassPane.add(new ActionMenuPanel());
-                    KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                            .addPropertyChangeListener(
-                            new java.beans.PropertyChangeListener()
+                    public void propertyChange(java.beans.PropertyChangeEvent e)
                     {
-                        public void propertyChange(java.beans.PropertyChangeEvent e)
+                        String prop = e.getPropertyName();
+                        if ("focusOwner".equals(prop))
                         {
-                            String prop = e.getPropertyName();
-                            if ("focusOwner".equals(prop))
-                            {
-                                if (!glassPane.isVisible())
-                                    return;
-                                Object newValue = e.getNewValue();
+                            if (!glassPane.isVisible())
+                                return;
+                            Object newValue = e.getNewValue();
 
-                                // we dont want the glasspane staying on top
-                                // ot certains components
-                                if (newValue == rootPane) {
-//                                if ((newValue == rootPane)
-//                                        || (newValue instanceof JTextField)) {
-                                    glassPane.setVisible(false);
-                                }
+                            // we dont want the glasspane staying on top
+                            // ot certains components
+                            if (newValue == rootPane)
+                            {
+                                glassPane.setVisible(false);
                             }
                         }
-                    });
+                    }
+                });
 
-                    rootPane.setGlassPane(glassPane);
-                    glassPane.setVisible(true);
-                    glassPane.requestFocusInWindow();
-                }
+                rootPane.setGlassPane(glassPane);
+                glassPane.setVisible(true);
             }
             else
             {
                 glassPane.setVisible(!glassPane.isVisible());
-                if (glassPane.isVisible())
-                    glassPane.requestFocusInWindow();
             }
         }
     }
