@@ -719,8 +719,10 @@ public class OperationSetBasicTelephonySipImpl
             processed = true;
             break;
 
-        // Busy here.
+        // Busy
         case Response.BUSY_HERE:
+        case Response.BUSY_EVERYWHERE:
+        case Response.DECLINE:
             processBusyHere(clientTransaction, response);
             processed = true;
             break;
@@ -745,7 +747,8 @@ public class OperationSetBasicTelephonySipImpl
         // errors
         default:
             if ((responseStatusCode / 100 == 4)
-                || (responseStatusCode / 100 == 5))
+                || (responseStatusCode / 100 == 5)
+                || (responseStatusCode / 100 == 6))
             {
                 CallParticipantSipImpl callParticipant =
                     activeCallsRepository.findCallParticipant(clientTransaction
