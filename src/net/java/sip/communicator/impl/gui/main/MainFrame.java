@@ -87,10 +87,10 @@ public class MainFrame
     private final Map<PluginComponent, Component> nativePluginsTable =
         new Hashtable<PluginComponent, Component>();
 
-    private final JPanel pluginPanelNorth = new JPanel();
-    private final JPanel pluginPanelSouth = new JPanel();
-    private final JPanel pluginPanelWest = new JPanel();
-    private final JPanel pluginPanelEast = new JPanel();
+    private final JPanel pluginPanelNorth = new TransparentPanel();
+    private final JPanel pluginPanelSouth = new TransparentPanel();
+    private final JPanel pluginPanelWest = new TransparentPanel();
+    private final JPanel pluginPanelEast = new TransparentPanel();
 
     private ContactListPane contactListPanel;
 
@@ -1374,6 +1374,7 @@ public class MainFrame
         }
 
         this.getContentPane().repaint();
+        this.getContentPane().validate();
     }
 
     /**
