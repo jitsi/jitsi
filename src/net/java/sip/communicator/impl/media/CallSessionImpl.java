@@ -2862,14 +2862,19 @@ public class CallSessionImpl
      * (non-Javadoc)
      * @see net.java.sip.communicator.service.media.CallSession#setZrtpSASVerification(boolean)
      */
-    public boolean setZrtpSASVerification(boolean verified) {
-        ZRTPTransformEngine engine = (ZRTPTransformEngine) zrtpDHSession
-                .getEngine();
-        if (verified) {
+    public boolean setZrtpSASVerification(boolean verified)
+    {
+        ZRTPTransformEngine engine =
+            (ZRTPTransformEngine) zrtpDHSession.getEngine();
+
+        if (verified)
+        {
             engine.SASVerified();
-        } else {
+        } else
+        {
             engine.resetSASVerified();
         }
+
         return true;
     }
 
@@ -2886,7 +2891,7 @@ public class CallSessionImpl
     {
         int newStatus = event.getEventID();
         OperationSetSecureTelephony.SecureStatusChangeSource source
-                                                            = event.getSource();
+            = event.getSource();
 
         TransformConnector transConnector = this.transConnectors.get(manager);
 
@@ -2930,18 +2935,21 @@ public class CallSessionImpl
      *
      * @return Number of started ZRTP multi-stream mode sessions
      */
-    public int startZrtpMultiStreams() {
+    public int startZrtpMultiStreams()
+    {
         ZRTPTransformEngine engine
-        = (ZRTPTransformEngine)zrtpDHSession.getEngine();
+            = (ZRTPTransformEngine)zrtpDHSession.getEngine();
 
         int counter = 0;
         byte[] multiStreamData = engine.getMultiStrParams();
 
         Enumeration<TransformConnector> tcs = transConnectors.elements();
 
-        while (tcs.hasMoreElements()) {
+        while (tcs.hasMoreElements())
+        {
             TransformConnector tc = tcs.nextElement();
-            if (tc.equals(zrtpDHSession)) {
+            if (tc.equals(zrtpDHSession))
+            {
                 continue;
             }
             engine = (ZRTPTransformEngine)tc.getEngine();
@@ -3227,12 +3235,12 @@ public class CallSessionImpl
 
                 switch (type)
                 {
-                case VideoEvent.VIDEO_ADDED:
-                    listener.videoAdded(event);
-                    break;
-                case VideoEvent.VIDEO_REMOVED:
-                    listener.videoRemoved(event);
-                    break;
+                    case VideoEvent.VIDEO_ADDED:
+                        listener.videoAdded(event);
+                        break;
+                    case VideoEvent.VIDEO_REMOVED:
+                        listener.videoRemoved(event);
+                        break;
                 }
             }
         }
