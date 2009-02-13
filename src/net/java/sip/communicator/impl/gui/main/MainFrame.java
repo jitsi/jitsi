@@ -1524,13 +1524,18 @@ public class MainFrame
                         }
                     });
 
-                rootPane.setGlassPane(glassPane);
-                glassPane.setVisible(true);
-            }
-            else
-            {
-                glassPane.setVisible(!glassPane.isVisible());
-            }
+                    rootPane.setGlassPane(glassPane);
+                    glassPane.setVisible(true);
+                }
+                else if (!glassPane.isVisible())
+                {
+                    // we re-set the same glasspane in the root pane otherwise
+                    // we are not guaranteed it will be painted in some case
+                    rootPane.setGlassPane(glassPane);
+                    glassPane.setVisible(true);
+                }
+                else
+                    glassPane.setVisible(false);
         }
     }
 }
