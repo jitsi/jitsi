@@ -393,6 +393,6 @@ public class SIPCommTabbedPaneEnhancedUI
                 width = PREFERRED_WIDTH;
         }
         
-        return width;
+        return width + WIDTHDELTA;
     }   
 }
