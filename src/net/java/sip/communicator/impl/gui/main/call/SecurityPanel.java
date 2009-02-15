@@ -128,14 +128,15 @@ public class SecurityPanel
         if (securityString != null)
         {
             securityStringLabel.setText(securityString);
-
-            if (event.isSecurityVerified())
-            {
-                sasVerificationButton.setImage(iconEncrVerified);
-            }
         }
 
-        sasVerificationButton.setImage(iconEncr);
+        if (event.isSecurityVerified())
+        {
+            sasVerificationButton.setImage(iconEncrVerified);
+        }
+        else {
+            sasVerificationButton.setImage(iconEncr);
+        }
         notificationService.fireNotification(ZRTP_SECURE_NOTIFICATION);
 
         revalidate();
