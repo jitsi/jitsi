@@ -1097,7 +1097,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
-            <zipfileset src="${lib.noinst}/jain-sip-ri-1.2.91.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sip-ri-1.2.92.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sip-api-1.2.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
