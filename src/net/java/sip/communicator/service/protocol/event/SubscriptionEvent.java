@@ -32,7 +32,7 @@ public class SubscriptionEvent
 
     /**
      * Indicates that the SubscriptionEvent instance was triggered by the
-     * removal of an existing subscriptionl'
+     * removal of an existing subscription
      */
     public static final int SUBSCRIPTION_REMOVED = 2;
 
@@ -49,7 +49,7 @@ public class SubscriptionEvent
      * confirmed by the server (resolved).
      */
     public static final int SUBSCRIPTION_RESOLVED  = 4;
-    
+
     /**
      * Error code unknown
      */
@@ -78,7 +78,7 @@ public class SubscriptionEvent
     {
         this(source, provider, parentGroup, eventID, ERROR_UNSPECIFIED, null);
     }
-    
+
     /**
      * Creates a new Subscription event according to the specified parameters.
      * @param source the Contact instance that this subscription pertains to.
@@ -146,7 +146,8 @@ public class SubscriptionEvent
         buff.append(getSourceContact().getAddress());
         buff.append(", eventID=").append(getEventID());
         if(getParentGroup() != null)
-            buff.append(", ParentGroup=").append(getParentGroup().getGroupName());
+            buff.append(", ParentGroup=").append(getParentGroup()
+                    .getGroupName());
         return buff.toString();
     }
 
@@ -159,19 +160,19 @@ public class SubscriptionEvent
     {
         return eventID;
     }
-    
+
     /**
      * If event is SUBSCRIPTION_FAILED, returns the error code
      * of the failed event
      * @return error code
-     */ 
+     */
     public int getErrorCode()
     {
         return errorCode;
     }
-    
+
     /**
-     * If event is SUBSCRIPTION_FAILED, returns the reason of the error 
+     * If event is SUBSCRIPTION_FAILED, returns the reason of the error
      * for the failed event
      * @return the String reason for the error
      */

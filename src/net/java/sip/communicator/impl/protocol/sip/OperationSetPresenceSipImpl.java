@@ -1618,7 +1618,7 @@ public class OperationSetPresenceSipImpl
                         "not registered contact");
             }
 
-            // we stop the subscribtion if we're subscribed to this contact
+            // we stop the subscription if we're subscribed to this contact
             if (sipcontact.isResolvable())
             {
                 assertConnected();
@@ -1923,8 +1923,8 @@ public class OperationSetPresenceSipImpl
 
             processed = true;
 
-            // NOTIFY
         }
+        // NOTIFY
         else if (method.equals(Request.NOTIFY))
         {
 
@@ -2510,9 +2510,7 @@ public class OperationSetPresenceSipImpl
     public boolean processRequest(RequestEvent requestEvent)
     {
         if (this.presenceEnabled == false)
-        {
             return false;
-        }
 
         ServerTransaction serverTransaction = requestEvent
             .getServerTransaction();
@@ -2760,9 +2758,8 @@ public class OperationSetPresenceSipImpl
             }
 
             processed = true;
-
-        // SUBSCRIBE
         }
+        // SUBSCRIBE
         else if (request.getMethod().equals(Request.SUBSCRIBE))
         {
             FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
@@ -3122,9 +3119,8 @@ public class OperationSetPresenceSipImpl
             getTimer().schedule(timeout, expires * 1000);
 
             processed = true;
-
-        // PUBLISH
         }
+        // PUBLISH
         else if (request.getMethod().equals(Request.PUBLISH))
         {
             // we aren't supposed to receive a publish so just say "not
@@ -4482,16 +4478,12 @@ public class OperationSetPresenceSipImpl
       */
      public void forcePollContact(ContactSipImpl contact)
      {
-         if (this.presenceEnabled == false)
-         {
+         if (this.presenceEnabled == false || !contact.isResolvable())
              return;
-         }
 
          // if we are already subscribed to this contact, just return
-         if (contact.getClientDialog() != null || !contact.isResolvable())
-         {
+         if (contact.getClientDialog() != null)
              return;
-         }
 
          // create the subscription
          Request subscription;

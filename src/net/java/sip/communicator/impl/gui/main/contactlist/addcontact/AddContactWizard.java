@@ -28,17 +28,17 @@ public class AddContactWizard
     implements  WizardListener
 {
     private Logger logger = Logger.getLogger(AddContactWizard.class.getName());
-    
+
     private MainFrame mainFrame;
-    
+
     private NewContact newContact = new NewContact();
-    
+
     private AddContactWizardPage1 page1;
-    
+
     private AddContactWizardPage2 page2;
-    
+
     private AddContactWizardPage3 page3;
-    
+
     public AddContactWizard(MainFrame mainFrame)
     {
         super(mainFrame);
