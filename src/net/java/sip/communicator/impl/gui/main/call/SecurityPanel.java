@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.main.call.CallParticipantPanel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -48,6 +47,8 @@ public class SecurityPanel
         this.participant = participant;
 
         this.setLayout(new GridLayout(1, 0, 5, 5));
+
+        this.setPreferredSize(new Dimension(200, 60));
 
         this.setBorder(
             BorderFactory.createTitledBorder("Compare with partner"));
