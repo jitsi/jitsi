@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
@@ -1107,7 +1106,7 @@ public class ChatWindow
          */
         public JToolTip createToolTip()
         {
-            MetaContactTooltip tip = new MetaContactTooltip();
+            ExtendedTooltip tip = new ExtendedTooltip();
 
             if (tooltipIcon != null)
                 tip.setImage(tooltipIcon);
@@ -1131,7 +1130,7 @@ public class ChatWindow
 
                 String transportAddress = transport.getName();
 
-                tip.addProtocolContact( protocolStatusIcon,
+                tip.addLine( protocolStatusIcon,
                                         transportAddress);
             }
 
