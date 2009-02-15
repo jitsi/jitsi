@@ -588,19 +588,6 @@ public class ContactList
         {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
 
-            // Closes or opens a group on a double click.
-            if (e.getClickCount() > 1)
-            {
-                if (listModel.isGroupClosed(group))
-                {
-                    listModel.openGroup(group);
-                }
-                else
-                {
-                    listModel.closeGroup(group);
-                }
-            }
-
             if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
                 || (e.isControlDown() && !e.isMetaDown()))
             {
@@ -619,6 +606,11 @@ public class ContactList
             }
             else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
             {
+                if (listModel.isGroupClosed(group))
+                    listModel.openGroup(group);
+                else
+                    listModel.closeGroup(group);
+
                 fireContactListEvent(   group,
                                         ContactListEvent.GROUP_SELECTED,
                                         e.getClickCount());
