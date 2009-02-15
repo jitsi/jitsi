@@ -22,14 +22,15 @@ import net.java.sip.communicator.util.swing.*;
 public class SecurityPanel
     extends TransparentPanel
 {
-    private CallParticipant participant;
+    private final CallParticipant participant;
 
-    private Image iconEncr;
-    private Image iconEncrVerified;
+    private final Image iconEncr;
+    private final Image iconEncrVerified;
 
     private boolean sasVerified = false;
 
-    private NotificationService notificationService = null;
+    private final NotificationService notificationService =
+        GuiActivator.getNotificationService();
 
     private static final String ZRTP_SECURE_NOTIFICATION
         = "ZrtpSecureNotification";
@@ -37,10 +38,9 @@ public class SecurityPanel
     private static final String ZRTP_ALERT_NOTIFICATION
         = "ZrtpAlertNotification";
 
-    private SIPCommButton sasVerificationButton
-        = new SIPCommButton(iconEncr);
+    private final SIPCommButton sasVerificationButton;
 
-    private JLabel securityStringLabel = new JLabel();
+    private final JLabel securityStringLabel = new JLabel();
 
     public SecurityPanel(CallParticipant participant)
     {
@@ -56,10 +56,9 @@ public class SecurityPanel
         iconEncrVerified =
                 ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
         iconEncr = ImageLoader.getImage(ImageLoader.ENCR);
+        sasVerificationButton = new SIPCommButton(iconEncr);
 
-        notificationService = GuiActivator.getNotificationService();
-
-        if(notificationService != null)
+        if (notificationService != null)
         {
             notificationService.registerDefaultNotificationForEvent(
                     ZRTP_SECURE_NOTIFICATION,
@@ -131,13 +130,9 @@ public class SecurityPanel
             securityStringLabel.setText(securityString);
         }
 
-        if (event.isSecurityVerified())
-        {
-            sasVerificationButton.setImage(iconEncrVerified);
-        }
-        else {
-            sasVerificationButton.setImage(iconEncr);
-        }
+        sasVerificationButton
+            .setImage(event.isSecurityVerified() ? iconEncrVerified : iconEncr);
+
         notificationService.fireNotification(ZRTP_SECURE_NOTIFICATION);
 
         revalidate();

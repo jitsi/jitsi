@@ -13,9 +13,9 @@ import net.java.sip.communicator.util.*;
 
 
 /**
- * A represenation of a Call. The Call class must obly be created by users (i.e.
+ * A representation of a Call. The Call class must only be created by users (i.e.
  * telephony protocols) of the PhoneUIService such as a SIP protocol
- * implemenation. Extensions of this class might have names like SipCall
+ * implementation. Extensions of this class might have names like SipCall
  * or H323Call or AnyOtherTelephonyProtocolCall
  *
  * @author Emil Ivov
@@ -41,13 +41,6 @@ public abstract class Call
      * A reference to the ProtocolProviderService instance that created us.
      */
     private ProtocolProviderService protocolProvider = null;
-
-    /**
-     * A collection of various GUI components used for a call management that might
-     * be needed inside specific layers of the call securing, depending on the
-     * securing algorithm used
-     */
-    private Hashtable<Object, CallParticipantSecurityListener> securityGUIListeners;
 
     /**
      * If this flag is set to true according to the account properties

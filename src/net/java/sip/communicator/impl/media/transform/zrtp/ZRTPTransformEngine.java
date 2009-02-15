@@ -159,22 +159,22 @@ public class ZRTPTransformEngine
      *
      * @author Werner Dittmann <Werner.Dittmann@t-online.de>
      */
-    class TimeoutProvider extends Thread
+    private static class TimeoutProvider extends Thread
     {
         public TimeoutProvider(String name)
         {
             super(name);
         }
 
-        ZRTPTransformEngine executor;
+        private ZRTPTransformEngine executor;
 
-        long nextDelay = 0;
+        private long nextDelay = 0;
 
-        boolean newTask = false;
+        private boolean newTask = false;
 
-        boolean stop = false;
+        private boolean stop = false;
 
-        Object sync = new Object();
+        private final Object sync = new Object();
 
         public synchronized void requestTimeout(long delay,
                                                 ZRTPTransformEngine tt)
@@ -246,7 +246,6 @@ public class ZRTPTransformEngine
                     executor.handleTimeout();
                 }
             }
-
         }
     }
 

@@ -53,6 +53,8 @@ public abstract class AbstractCallParticipant
      */
     public void addCallParticipantListener(CallParticipantListener listener)
     {
+        if (listener == null)
+            return;
         synchronized(callParticipantListeners)
         {
             if (!callParticipantListeners.contains(listener))
@@ -83,6 +85,8 @@ public abstract class AbstractCallParticipant
     public void addCallParticipantSecurityListener(
         CallParticipantSecurityListener listener)
     {
+        if (listener == null)
+            return;
         synchronized(callParticipantSecurityListeners)
         {
             if (!callParticipantSecurityListeners.contains(listener))
@@ -189,7 +193,7 @@ public abstract class AbstractCallParticipant
      * @param eventID the identifier of the event
      */
     protected void fireCallParticipantSecurityOnEvent(
-        String sessionType,
+        int sessionType,
         String cipher,
         String securityString,
         boolean isVerified)
@@ -229,7 +233,7 @@ public abstract class AbstractCallParticipant
      * @param sessionType the type of the session - audio or video
      * @param eventID the identifier of the event
      */
-    protected void fireCallParticipantSecurityOffEvent(String sessionType)
+    protected void fireCallParticipantSecurityOffEvent(int sessionType)
     {
         CallParticipantSecurityOffEvent event
             = new CallParticipantSecurityOffEvent(   this,
@@ -416,7 +420,7 @@ public abstract class AbstractCallParticipant
      * @param sessionType the type of the call session - audio or video.
      */
     public void setSecurityOn(  boolean isSecurityOn,
-                                String sessionType,
+                                int sessionType,
                                 String cipher,
                                 String securityString,
                                 boolean isVerified)
@@ -429,7 +433,7 @@ public abstract class AbstractCallParticipant
                 isVerified);
     }
 
-    public void setSecurityOff(String sessionType)
+    public void setSecurityOff(int sessionType)
     {
         fireCallParticipantSecurityOffEvent(sessionType);
     }

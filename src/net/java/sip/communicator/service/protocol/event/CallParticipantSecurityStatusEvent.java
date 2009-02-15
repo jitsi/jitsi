@@ -19,20 +19,34 @@ public abstract class CallParticipantSecurityStatusEvent
     /**
      * Constant value defining that security is enabled.
      */
-    public static final String AUDIO_SESSION = "AUDIO_SESSION";
+    public static final int AUDIO_SESSION = 1 << 0;
 
     /**
      * Constant value defining that security is disabled.
      */
-    public static final String VIDEO_SESSION = "VIDEO_SESSION";
+    public static final int VIDEO_SESSION = 1 << 1;
+
+    private final int sessionType;
 
     /**
      * Constructor required by the EventObject.
      * 
      * @param source the source object for this event.
      */
-    public CallParticipantSecurityStatusEvent(Object source)
+    public CallParticipantSecurityStatusEvent(Object source, int sessionType)
     {
         super(source);
+
+        this.sessionType = sessionType;
+    }
+
+    /**
+     * Returns the type of the session, either AUDIO_SESSION or VIDEO_SESSION.
+     * 
+     * @return the type of the session, either AUDIO_SESSION or VIDEO_SESSION.
+     */
+    public int getSessionType()
+    {
+        return sessionType;
     }
 }

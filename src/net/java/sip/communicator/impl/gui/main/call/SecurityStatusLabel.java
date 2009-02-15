@@ -11,10 +11,10 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
- * 
  * @author Yana Stamcheva
  */
-public class SecurityStatusLabel extends JLabel
+public class SecurityStatusLabel
+    extends JLabel
 {
     private final CallParticipantPanel callParticipantPanel;
 

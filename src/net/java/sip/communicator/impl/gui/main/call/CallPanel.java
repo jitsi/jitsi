@@ -252,24 +252,23 @@ public class CallPanel
 
     public void securityOn(CallParticipantSecurityOnEvent securityEvent)
     {
-        CallParticipant participant = (CallParticipant)securityEvent.getSource();
+        CallParticipant participant =
+            (CallParticipant) securityEvent.getSource();
+        CallParticipantPanel participantPanel =
+            getParticipantPanel(participant);
 
-        CallParticipantPanel participantPanel = getParticipantPanel(participant);
-
-        participantPanel.setStateIcon(
-            new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON)));
+        participantPanel.setStateIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_BUTTON_ON)));
 
         participantPanel.setEncryptionCipher(securityEvent.getCipher());
 
-        if (securityEvent.getSessionType()
-            .equals(CallParticipantSecurityOnEvent.AUDIO_SESSION))
-        {
+        switch (securityEvent.getSessionType()) {
+        case CallParticipantSecurityOnEvent.AUDIO_SESSION:
             participantPanel.setAudioSecurityOn(true);
-        }
-        else if (securityEvent.getSessionType()
-            .equals(CallParticipantSecurityOnEvent.VIDEO_SESSION))
-        {
+            break;
+        case CallParticipantSecurityOnEvent.VIDEO_SESSION:
             participantPanel.setVideoSecurityOn(true);
+            break;
         }
 
         participantPanel.createSecurityPanel(securityEvent);
@@ -277,22 +276,21 @@ public class CallPanel
 
     public void securityOff(CallParticipantSecurityOffEvent securityEvent)
     {
-        CallParticipant participant = (CallParticipant)securityEvent.getSource();
+        CallParticipant participant =
+            (CallParticipant) securityEvent.getSource();
+        CallParticipantPanel participantPanel =
+            getParticipantPanel(participant);
 
-        CallParticipantPanel participantPanel = getParticipantPanel(participant);
+        participantPanel.setStateIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_BUTTON_OFF)));
 
-        participantPanel.setStateIcon(
-            new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
-
-        if (securityEvent.getSessionType()
-            .equals(CallParticipantSecurityOnEvent.AUDIO_SESSION))
-        {
+        switch (securityEvent.getSessionType()) {
+        case CallParticipantSecurityOnEvent.AUDIO_SESSION:
             participantPanel.setAudioSecurityOn(false);
-        }
-        else if (securityEvent.getSessionType()
-            .equals(CallParticipantSecurityOnEvent.VIDEO_SESSION))
-        {
+            break;
+        case CallParticipantSecurityOnEvent.VIDEO_SESSION:
             participantPanel.setVideoSecurityOn(false);
+            break;
         }
     }
 

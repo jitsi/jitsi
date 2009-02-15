@@ -58,7 +58,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     /**
      * Type of session
      */
-    private String sessionType;
+    private int sessionType;
 
     /**
      * SAS string.
@@ -130,7 +130,8 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void secureOn(String cipher)
     {
         if (logger.isInfoEnabled())
-            logger.info(sessionType + ": cipher enabled: " + cipher);
+            logger.info(sessionTypeToString(sessionType) + ": cipher enabled: "
+                + cipher);
 
         this.cipher = cipher;
     }
@@ -144,7 +145,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void showSAS(String sas, boolean isVerified)
     {
         if (logger.isInfoEnabled())
-            logger.info(sessionType + ": SAS is: " + sas);
+            logger.info(sessionTypeToString(sessionType) + ": SAS is: " + sas);
 
         this.sas = sas;
         this.isSasVerified = isVerified;
@@ -277,9 +278,9 @@ public class SecurityEventManager extends ZrtpUserCallback
 
         if (logger.isInfoEnabled())
         {
-            logger.info(sessionType + ": " + "ZRTP message: severity: " + sev
-                    + ", sub code: " + msgCode + ", DH session: " + isDHSession
-                    + ", multi: " + multiStreams);
+            logger.info(sessionTypeToString(sessionType) + ": "
+                + "ZRTP message: severity: " + sev + ", sub code: " + msgCode
+                + ", DH session: " + isDHSession + ", multi: " + multiStreams);
         }
     }
 
@@ -294,8 +295,8 @@ public class SecurityEventManager extends ZrtpUserCallback
         Object msgCode = ii.next();
 
         if (logger.isInfoEnabled())
-            logger.info(sessionType
-                    + ": ZRTP key negotiation failed, sub code: " + msgCode);
+            logger.info(sessionTypeToString(sessionType)
+                + ": ZRTP key negotiation failed, sub code: " + msgCode);
     }
 
     /**
@@ -304,7 +305,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void secureOff()
     {
         if (logger.isInfoEnabled())
-            logger.info(sessionType + ": Security off");
+            logger.info(sessionTypeToString(sessionType) + ": Security off");
 
         ((AbstractCallParticipant) callParticipant)
             .setSecurityOff(sessionType);
@@ -316,9 +317,10 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void zrtpNotSuppOther()
     {
         if (logger.isInfoEnabled())
-            logger.info(sessionType
-                + ": Other party does not support ZRTP key negotiation protocol,"
-                + " no secure calls possible.");
+            logger
+                .info(sessionTypeToString(sessionType)
+                    + ": Other party does not support ZRTP key negotiation protocol,"
+                    + " no secure calls possible.");
     }
 
     /**
@@ -327,7 +329,20 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void confirmGoClear()
     {
         if (logger.isInfoEnabled())
-            logger.info(sessionType + ": GoClear confirmation requested.");
+            logger.info(sessionTypeToString(sessionType)
+                + ": GoClear confirmation requested.");
     }
 
+    private String sessionTypeToString(int sessionType)
+    {
+        switch (sessionType)
+        {
+        case CallParticipantSecurityStatusEvent.AUDIO_SESSION:
+            return "AUDIO_SESSION";
+        case CallParticipantSecurityStatusEvent.VIDEO_SESSION:
+            return "VIDEO_SESSION";
+        default:
+            throw new IllegalArgumentException("sessionType");
+        }
+    }
 }

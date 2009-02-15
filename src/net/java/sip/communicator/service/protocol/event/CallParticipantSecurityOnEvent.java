@@ -18,13 +18,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallParticipantSecurityOnEvent
     extends CallParticipantSecurityStatusEvent
 {
-    private final String sessionType;
+    private final String securityString;
 
-    private String securityString;
+    private final boolean isVerified;
 
-    private boolean isVerified;
-
-    private String cipher;
+    private final String cipher;
 
     /**
      * The event constructor
@@ -42,14 +40,13 @@ public class CallParticipantSecurityOnEvent
      */
     public CallParticipantSecurityOnEvent(
                                         CallParticipant callParticipant,
-                                        String sessionType,
+                                        int sessionType,
                                         String cipher,
                                         String securityString,
                                         boolean isVerified)
     {
-        super(callParticipant);
+        super(callParticipant, sessionType);
 
-        this.sessionType = sessionType;
         this.cipher = cipher;
         this.securityString = securityString;
         this.isVerified = isVerified;
@@ -63,16 +60,6 @@ public class CallParticipantSecurityOnEvent
     public CallParticipant getCallParticipant()
     {
         return (CallParticipant) getSource();
-    }
-
-    /**
-     * Returns the type of the session, either AUDIO_SESSION or VIDEO_SESSION.
-     * 
-     * @return the type of the session, either AUDIO_SESSION or VIDEO_SESSION.
-     */
-    public String getSessionType()
-    {
-        return sessionType;
     }
 
     /**

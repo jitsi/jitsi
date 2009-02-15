@@ -101,17 +101,17 @@ public class CallParticipantSecurityMessageEvent
     /**
      * One of the event types defined in this class.
      */
-    private String eventType;
+    private final String eventType;
 
     /**
      * The message associated with this event.
      */
-    private String eventMessage;
+    private final String eventMessage;
 
     /**
      * The internationalized message associated with this event.
      */
-    private String eventI18nMessage;
+    private final String eventI18nMessage;
 
     /**
      * Creates a <tt>CallParticipantSecurityFailedEvent</tt> by specifying the

@@ -17,7 +17,6 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallParticipantSecurityOffEvent
     extends CallParticipantSecurityStatusEvent
 {
-    private final String sessionType;
 
     /**
      * The event constructor.
@@ -28,20 +27,8 @@ public class CallParticipantSecurityOffEvent
      *              the type of the session: audio or video
      */
     public CallParticipantSecurityOffEvent( CallParticipant callParticipant,
-                                            String sessionType)
+                                            int sessionType)
     {
-        super(callParticipant);
-
-        this.sessionType = sessionType;
-    }
-
-    /**
-     * Returns the type of the session, either AUDIO_SESSION or VIDEO_SESSION.
-     * 
-     * @return the type of the session, either AUDIO_SESSION or VIDEO_SESSION.
-     */
-    public String getSessionType()
-    {
-        return sessionType;
+        super(callParticipant, sessionType);
     }
 }

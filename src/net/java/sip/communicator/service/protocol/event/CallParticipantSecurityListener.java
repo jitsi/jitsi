@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
-import java.util.EventListener;
+import java.util.*;
 
 /**
  * CallParticipantSecurityListener interface extends EventListener. This is the
@@ -20,8 +20,8 @@ import java.util.EventListener;
  * @author Werner Dittmann
  * @author Yana Stamcheva
  */
-
-public interface CallParticipantSecurityListener extends EventListener
+public interface CallParticipantSecurityListener
+    extends EventListener
 {
     /**
      * The handler for the security event received. The security event
