@@ -127,7 +127,7 @@ public class ZrtpRawPacket extends RawPacket
     {
         int at = 2;
         buffer[offset + at++] = (byte)(seq>>8);
-        buffer[offset + at] = (byte)seq;        
+        buffer[offset + at] = (byte)seq;
     }
 
     /**

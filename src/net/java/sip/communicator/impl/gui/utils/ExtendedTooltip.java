@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
 
@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class MetaContactTooltip
+public class ExtendedTooltip
     extends JToolTip
 {
     private static final int textRowHeight = 25;
@@ -27,7 +27,7 @@ public class MetaContactTooltip
 
     private final JLabel titleLabel = new JLabel();
 
-    private final JPanel protocolContactsPanel = new JPanel();
+    private final JPanel linesPanel = new JPanel();
 
     private int textWidth;
 
@@ -36,7 +36,7 @@ public class MetaContactTooltip
     /**
      * Created a <tt>MetaContactTooltip</tt>.
      */
-    public MetaContactTooltip()
+    public ExtendedTooltip()
     {
         this.setUI(new ImageToolTipUI());
 
@@ -47,7 +47,7 @@ public class MetaContactTooltip
 
         mainPanel.setOpaque(false);
         centerPanel.setOpaque(false);
-        protocolContactsPanel.setOpaque(false);
+        linesPanel.setOpaque(false);
 
         mainPanel.add(imageLabel, BorderLayout.WEST);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
@@ -55,10 +55,10 @@ public class MetaContactTooltip
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
         centerPanel.add(titleLabel, BorderLayout.NORTH);
-        centerPanel.add(protocolContactsPanel, BorderLayout.CENTER);
+        centerPanel.add(linesPanel, BorderLayout.CENTER);
 
-        protocolContactsPanel.setLayout(
-            new BoxLayout(protocolContactsPanel, BoxLayout.Y_AXIS));
+        linesPanel.setLayout(
+            new BoxLayout(linesPanel, BoxLayout.Y_AXIS));
 
         this.add(mainPanel); 
     }
@@ -97,19 +97,23 @@ public class MetaContactTooltip
      * @param protocolContactIcon The icon for the protocol contact to add.
      * @param protocolContactName The name of the protocol contact to add.
      */
-    public void addProtocolContact( ImageIcon protocolContactIcon,
-                                    String protocolContactName)
+    public void addLine(ImageIcon icon,
+                        String text)
     {
-        JLabel protocolContactLabel = new JLabel(   protocolContactName,
-                                                    protocolContactIcon,
-                                                    JLabel.CENTER);
+        JLabel lineLabel = new JLabel(  text,
+                                        icon,
+                                        JLabel.CENTER);
 
-        protocolContactsPanel.add(protocolContactLabel);
+        linesPanel.add(lineLabel);
+
+        int iconWidth = 0;
+        if (icon != null)
+            iconWidth = icon.getIconWidth();
 
         int stringWidth
-            = GuiUtils.getStringWidth(protocolContactLabel, protocolContactName)
-                + protocolContactIcon.getIconWidth()
-                + protocolContactLabel.getIconTextGap();
+            = GuiUtils.getStringWidth(lineLabel, text)
+                + iconWidth
+                + lineLabel.getIconTextGap();
 
         if (textWidth < stringWidth)
             textWidth = stringWidth;

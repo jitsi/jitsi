@@ -32,6 +32,14 @@ public abstract class AbstractCallParticipant
                             = new ArrayList<CallParticipantListener>();
 
     /**
+     * All the CallParticipantSecurityListener-s registered with this
+     * CallParticipant.
+     */
+    protected final List<CallParticipantSecurityListener>
+        callParticipantSecurityListeners
+            = new ArrayList<CallParticipantSecurityListener>();
+
+    /**
      * The state of the call participant.
      */
     private CallParticipantState state = CallParticipantState.UNKNOWN;
@@ -63,6 +71,38 @@ public abstract class AbstractCallParticipant
         synchronized(callParticipantListeners)
         {
             callParticipantListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Registers the <tt>listener</tt> to the list of listeners that would be
+     * receiving CallParticipantSecurityEvents
+     * 
+     * @param listener a listener instance to register with this participant.
+     */
+    public void addCallParticipantSecurityListener(
+        CallParticipantSecurityListener listener)
+    {
+        synchronized(callParticipantSecurityListeners)
+        {
+            if (!callParticipantSecurityListeners.contains(listener))
+                callParticipantSecurityListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters the specified listener.
+     * 
+     * @param listener the listener to unregister.
+     */
+    public void removeCallParticipantSecurityListener(
+        CallParticipantSecurityListener listener)
+    {
+        if (listener == null)
+            return;
+        synchronized(callParticipantSecurityListeners)
+        {
+            callParticipantSecurityListeners.remove(listener);
         }
     }
 
@@ -137,6 +177,121 @@ public abstract class AbstractCallParticipant
             {
                 listener.participantStateChanged(evt);
             }
+        }
+    }
+
+    /**
+     * Constructs a <tt>CallParticipantSecurityStatusEvent</tt> using this call
+     * participant as source, setting it to be of type <tt>eventType</tt> and
+     * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>,
+     *
+     * @param sessionType the type of the session - audio or video
+     * @param eventID the identifier of the event
+     */
+    protected void fireCallParticipantSecurityOnEvent(
+        String sessionType,
+        String cipher,
+        String securityString,
+        boolean isVerified)
+    {
+        CallParticipantSecurityOnEvent evt
+            = new CallParticipantSecurityOnEvent(   this,
+                                                    sessionType,
+                                                    cipher,
+                                                    securityString,
+                                                    isVerified);
+
+        logger.debug("Dispatching a CallParticipantSecurityStatusEvent event to "
+                     + callParticipantSecurityListeners.size()
+                     +" listeners. event is: " + evt.toString());
+
+        Iterator<CallParticipantSecurityListener> listeners = null;
+        synchronized (callParticipantSecurityListeners)
+        {
+            listeners = new ArrayList<CallParticipantSecurityListener>(
+                                callParticipantSecurityListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            CallParticipantSecurityListener listener
+                = (CallParticipantSecurityListener) listeners.next();
+
+            listener.securityOn(evt);
+        }
+    }
+
+    /**
+     * Constructs a <tt>CallParticipantSecurityStatusEvent</tt> using this call
+     * participant as source, setting it to be of type <tt>eventType</tt> and
+     * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>,
+     *
+     * @param sessionType the type of the session - audio or video
+     * @param eventID the identifier of the event
+     */
+    protected void fireCallParticipantSecurityOffEvent(String sessionType)
+    {
+        CallParticipantSecurityOffEvent event
+            = new CallParticipantSecurityOffEvent(   this,
+                                                     sessionType);
+
+        logger.debug(
+            "Dispatching a CallParticipantSecurityAuthenticationEvent event to "
+                     + callParticipantSecurityListeners.size()
+                     +" listeners. event is: " + event.toString());
+
+        Iterator<CallParticipantSecurityListener> listeners = null;
+        synchronized (callParticipantSecurityListeners)
+        {
+            listeners = new ArrayList<CallParticipantSecurityListener>(
+                                callParticipantSecurityListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            CallParticipantSecurityListener listener
+                = (CallParticipantSecurityListener) listeners.next();
+
+            listener.securityOff(event);
+        }
+    }
+
+    /**
+     * Constructs a <tt>CallParticipantSecurityStatusEvent</tt> using this call
+     * participant as source, setting it to be of type <tt>eventType</tt> and
+     * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>,
+     *
+     * @param sessionType the type of the session - audio or video
+     * @param eventID the identifier of the event
+     */
+    protected void fireCallParticipantSecurityMessageEvent(
+        String messageType,
+        String message,
+        String i18nMessage)
+    {
+        CallParticipantSecurityMessageEvent evt
+            = new CallParticipantSecurityMessageEvent(   this,
+                                                        messageType,
+                                                        message,
+                                                        i18nMessage);
+
+        logger.debug("Dispatching a CallParticipantSecurityFailedEvent event to "
+                     + callParticipantSecurityListeners.size()
+                     +" listeners. event is: " + evt.toString());
+
+        Iterator<CallParticipantSecurityListener> listeners = null;
+        synchronized (callParticipantSecurityListeners)
+        {
+            listeners = new ArrayList<CallParticipantSecurityListener>(
+                                callParticipantSecurityListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            CallParticipantSecurityListener listener
+                = (CallParticipantSecurityListener) listeners.next();
+
+            listener.securityMessageRecieved(evt);
         }
     }
 
@@ -251,5 +406,47 @@ public abstract class AbstractCallParticipant
     public boolean isMute()
     {
         return false;
+    }
+
+    /**
+     * Sets the security status for this call participant.
+     * 
+     * @param isSecurityOn <code>true</code> to indicate that the security is
+     * turned on and <code>false</code> - otherwise.
+     * @param sessionType the type of the call session - audio or video.
+     */
+    public void setSecurityOn(  boolean isSecurityOn,
+                                String sessionType,
+                                String cipher,
+                                String securityString,
+                                boolean isVerified)
+    {
+        if (isSecurityOn)
+            fireCallParticipantSecurityOnEvent(
+                sessionType,
+                cipher,
+                securityString,
+                isVerified);
+    }
+
+    public void setSecurityOff(String sessionType)
+    {
+        fireCallParticipantSecurityOffEvent(sessionType);
+    }
+
+    /**
+     * Sets the security message associated with a failure/warning or
+     * information coming from the encryption protocol.
+     * 
+     * @param messageType the type of the message.
+     * @param message the message
+     */
+    public void setSecurityMessage( String messageType,
+                                    String message,
+                                    String i18nMessage)
+    {
+        fireCallParticipantSecurityMessageEvent(messageType,
+                                                message,
+                                                i18nMessage);
     }
 }

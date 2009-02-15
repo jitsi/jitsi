@@ -545,7 +545,8 @@ public class MainFrame
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetWebContactInfo.class);
 
-        return (opSet instanceof OperationSetWebContactInfo) ? (OperationSetWebContactInfo) opSet
+        return (opSet instanceof OperationSetWebContactInfo)
+            ? (OperationSetWebContactInfo) opSet
             : null;
     }
 
@@ -563,7 +564,8 @@ public class MainFrame
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetBasicTelephony.class);
 
-        return (opSet instanceof OperationSetBasicTelephony) ? (OperationSetBasicTelephony) opSet
+        return (opSet instanceof OperationSetBasicTelephony)
+            ? (OperationSetBasicTelephony) opSet
             : null;
     }
 

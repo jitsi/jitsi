@@ -28,7 +28,9 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CallPanel
     extends TransparentPanel
-    implements CallChangeListener, CallParticipantListener, SecurityGUIListener
+    implements  CallChangeListener,
+                CallParticipantListener,
+                CallParticipantSecurityListener
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
 
@@ -248,19 +250,49 @@ public class CallPanel
     {
     }
 
-    public void securityStatusChanged(SecurityGUIEvent securityEvent)
+    public void securityOn(CallParticipantSecurityOnEvent securityEvent)
     {
-        CallParticipant part = (CallParticipant)securityEvent.getSource();
-        CallParticipantPanel panel = getParticipantPanel(part);
+        CallParticipant participant = (CallParticipant)securityEvent.getSource();
 
-        if (securityEvent.getEventID() == SecurityGUIEvent.SECURITY_ENABLED)
+        CallParticipantPanel participantPanel = getParticipantPanel(participant);
+
+        participantPanel.setStateIcon(
+            new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_ON)));
+
+        participantPanel.setEncryptionCipher(securityEvent.getCipher());
+
+        if (securityEvent.getSessionType()
+            .equals(CallParticipantSecurityOnEvent.AUDIO_SESSION))
         {
-            panel.changeSecureCallButton(true);
+            participantPanel.setAudioSecurityOn(true);
+        }
+        else if (securityEvent.getSessionType()
+            .equals(CallParticipantSecurityOnEvent.VIDEO_SESSION))
+        {
+            participantPanel.setVideoSecurityOn(true);
         }
 
-        if (securityEvent.getProvider() == SecurityGUIEvent.ZRTP)
+        participantPanel.createSecurityPanel(securityEvent);
+    }
+
+    public void securityOff(CallParticipantSecurityOffEvent securityEvent)
+    {
+        CallParticipant participant = (CallParticipant)securityEvent.getSource();
+
+        CallParticipantPanel participantPanel = getParticipantPanel(participant);
+
+        participantPanel.setStateIcon(
+            new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+
+        if (securityEvent.getSessionType()
+            .equals(CallParticipantSecurityOnEvent.AUDIO_SESSION))
         {
-            panel.changeZrtpPanel((SecurityGUIEventZrtp) securityEvent);
+            participantPanel.setAudioSecurityOn(false);
+        }
+        else if (securityEvent.getSessionType()
+            .equals(CallParticipantSecurityOnEvent.VIDEO_SESSION))
+        {
+            participantPanel.setVideoSecurityOn(false);
         }
     }
 
@@ -285,7 +317,6 @@ public class CallPanel
         this.call = call;
 
         this.call.addCallChangeListener(this);
-        this.call.addSecurityGUIListener("zrtp", this);
 
         // Remove all previously added participant panels, because they do not
         // correspond to real participants.
@@ -299,6 +330,7 @@ public class CallPanel
             CallParticipant participant = participants.next();
 
             participant.addCallParticipantListener(this);
+            participant.addCallParticipantSecurityListener(this);
 
             this.addCallParticipant(participant, callType);
         }
@@ -386,5 +418,14 @@ public class CallPanel
             }
         }
         return null;
+    }
+
+    public void securityMessageRecieved(
+        CallParticipantSecurityMessageEvent event)
+    {
+        NotificationManager.fireNotification(
+            NotificationManager.WARNING_MESSAGE,
+            "Security error",
+            event.getI18nMessage());
     }
 }

@@ -321,7 +321,6 @@ public class ContactListPane
             // Show an envelope on the sender contact in the contact list and
             // in the systray.
             contactList.addActiveContact(metaContact);
-            contactList.refreshContact(metaContact);
 
             // Obtain the corresponding chat panel.
             final ChatPanel chatPanel

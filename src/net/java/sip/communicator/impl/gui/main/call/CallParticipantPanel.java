@@ -14,7 +14,6 @@ import javax.swing.*;
 import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
-
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -36,7 +35,7 @@ public class CallParticipantPanel
     private static final Logger logger =
         Logger.getLogger(CallParticipantPanel.class);
 
-    private final JLabel stateLabel = new JLabel("Unknown", JLabel.CENTER);
+    private final SecurityStatusLabel securityStatusLabel;
 
     private final JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
 
@@ -63,6 +62,12 @@ public class CallParticipantPanel
 
     private Component localVideo;
 
+    private boolean isAudioSecurityOn = false;
+
+    private boolean isVideoSecurityOn = false;
+
+    private String encryptionCipher;
+
     /**
      * The current <code>Window</code> being displayed in full-screen. Because
      * the AWT API with respect to the full-screen support doesn't seem
@@ -71,9 +76,8 @@ public class CallParticipantPanel
      */
     private Window fullScreenWindow;
 
-    private SecureButton secureButton;
     private ParticipantStatusPanel statusPanel;
-    private ZrtpPanel zrtpPanel = null;
+    private SecurityPanel securityPanel = null;
 
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
@@ -84,6 +88,12 @@ public class CallParticipantPanel
     {
         this.callParticipant = callParticipant;
         this.participantName = callParticipant.getDisplayName();
+
+        this.securityStatusLabel = new SecurityStatusLabel(
+            this,
+            "Unknown",
+            new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)),
+            JLabel.CENTER);
 
         // Initialize the date to 0
         // Need to use Calendar because new Date(0) returns a date where the
@@ -105,6 +115,7 @@ public class CallParticipantPanel
         {
             constraints.fill = GridBagConstraints.NONE;
             constraints.gridx = 0;
+            constraints.gridy = 0;
             constraints.weightx = 0;
 
             add(nameBar, constraints);
@@ -121,7 +132,7 @@ public class CallParticipantPanel
 
             constraints.fill = GridBagConstraints.BOTH;
             constraints.gridx = 0;
-            constraints.gridy = GridBagConstraints.RELATIVE;
+            constraints.gridy = 1;
             constraints.weightx = 1;
             constraints.weighty = 1;
 
@@ -131,6 +142,7 @@ public class CallParticipantPanel
         {
             constraints.fill = GridBagConstraints.NONE;
             constraints.gridx = 0;
+            constraints.gridy = 3;
             constraints.weightx = 0;
             constraints.weighty = 0;
             constraints.insets = new Insets(5, 0, 0, 0);
@@ -147,10 +159,10 @@ public class CallParticipantPanel
     private Component createButtonBar(  boolean heavyweight,
                                         Component[] buttons)
     {
-        Container buttonBar =
-            heavyweight ? new Container() : new TransparentPanel();
+        Container buttonBar
+            = heavyweight ? new Container() : new TransparentPanel();
 
-        buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 3));
+        buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
         for (int buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++)
         {
@@ -254,29 +266,20 @@ public class CallParticipantPanel
     private Component createStatusBar()
     {
         // stateLabel
-        stateLabel.setForeground(Color.WHITE);
-        stateLabel.setText(callParticipant.getState().getStateString());
-
-        // secureLabel
-//        Component secureLabel = createSecureCallLabel();
-//        zrtpPanel = createZrtpPanel();
+        securityStatusLabel.setForeground(Color.WHITE);
+        securityStatusLabel.setText(callParticipant.getState().getStateString());
 
         statusPanel = new ParticipantStatusPanel(new GridLayout(1, 0, 5, 5));
 
         timeLabel.setForeground(Color.WHITE);
 
         statusPanel.add(timeLabel);
-        statusPanel.add(stateLabel);
-//        if (secureLabel != null)
-//            namePanel.add(secureLabel);
-//        if (zrtpPanel != null)
-//            namePanel.add(zrtpPanel);
+        statusPanel.add(securityStatusLabel);
 
         Component[] buttons =
             new Component[]
             {
                 createTransferCallButton(),
-                createSecureCallButton(),
                 createEnterFullScreenButton()
             };
 
@@ -312,60 +315,38 @@ public class CallParticipantPanel
         return null;
     }
 
-    /**
-     * Creates a new <code>Component</code> representing a UI means to secure
-     * the <code>Call</code> of the associated <code>callParticipant</code> or
-     * <tt>null</tt> if secure call is unsupported.
-     *
-     * @return a new <code>Component</code> representing the UI means to secure
-     *         the <code>Call</code> of <code>callParticipant</code> or
-     *         <tt>null</tt> if secure call is unsupported
-     */
-    private Component createSecureCallButton()
+    public void createSecurityPanel(
+        CallParticipantSecurityOnEvent event)
     {
         Call call = callParticipant.getCall();
 
         if (call != null)
         {
-            OperationSetSecureTelephony secure =
-                (OperationSetSecureTelephony) call.getProtocolProvider()
-                    .getOperationSet(OperationSetSecureTelephony.class);
+            OperationSetSecureTelephony secure
+                = (OperationSetSecureTelephony) call
+                    .getProtocolProvider().getOperationSet(
+                            OperationSetSecureTelephony.class);
 
             if (secure != null)
             {
-                secureButton = new SecureButton(callParticipant);
+                if (securityPanel == null)
+                {
+                    securityPanel = new SecurityPanel(callParticipant);
 
-                secureButton.setToolTipText(
-                    GuiActivator.getResources().getI18NString(
-                    "impl.media.security.TOGGLE_ON_SECURITY"));
+                    GridBagConstraints constraints = new GridBagConstraints();
 
-                return secureButton;
-            }
-        }
-        return null;
-    }
+                    constraints.fill = GridBagConstraints.NONE;
+                    constraints.gridx = 0;
+                    constraints.gridy = 2;
+                    constraints.weightx = 0;
+                    constraints.weighty = 0;
+                    constraints.insets = new Insets(5, 0, 0, 0);
 
-    public void changeSecureCallButton(boolean isEnabled)
-    {
-        secureButton.updateSecureButton(isEnabled);
-    }
-
-    public void changeZrtpPanel(SecurityGUIEventZrtp securityEvent)
-    {
-        Call call = callParticipant.getCall();
-
-        if (call != null) {
-            OperationSetSecureTelephony secure = (OperationSetSecureTelephony) call
-                    .getProtocolProvider().getOperationSet(
-                            OperationSetSecureTelephony.class);
-            if (secure != null) {
-                if (zrtpPanel == null) {
-                    zrtpPanel = new ZrtpPanel();
-                    zrtpPanel.setName("zrtpPanel");
-                    zrtpPanel.addComponentsToPane();
-                    statusPanel.add(zrtpPanel);
+                    this.add(securityPanel, constraints);
                 }
-                zrtpPanel.refreshStates(securityEvent);
+
+                securityPanel.refreshStates(event);
+
                 this.revalidate();
             }
         }
@@ -620,9 +601,95 @@ public class CallParticipantPanel
      */
     public void setState(String state, Icon icon)
     {
-        this.stateLabel.setText(state);
-        this.stateLabel.setIcon(icon);
+        this.securityStatusLabel.setText(state);
+        this.securityStatusLabel.setIcon(icon);
     }
+
+    /**
+     * Sets the state string.
+     * 
+     * @param stateString the state string
+     */
+    public void setStateString(String stateString)
+    {
+        this.securityStatusLabel.setText(stateString);
+    }
+
+    /**
+     * Sets the states icon.
+     * 
+     * @param icon the state icon
+     */
+    public void setStateIcon(Icon icon)
+    {
+        this.securityStatusLabel.setIcon(icon);
+    }
+
+    /**
+     * Sets the audio security on or off.
+     * 
+     * @param isAudioSecurityOn indicates if the audio security is turned on or
+     * off.
+     */
+    public void setAudioSecurityOn(boolean isAudioSecurityOn)
+    {
+        this.isAudioSecurityOn = isAudioSecurityOn;
+    }
+
+    /**
+     * Sets the video security on or off.
+     * 
+     * @param isVideoSecurityOn indicates if the video security is turned on or
+     * off.
+     */
+    public void setVideoSecurityOn(boolean isVideoSecurityOn)
+    {
+        this.isVideoSecurityOn = isVideoSecurityOn;
+    }
+
+    /**
+     * Indicates if the audio security is turned on or off.
+     * 
+     * @return <code>true</code> if the audio security is on, otherwise -
+     * <code>false</code>.
+     */
+    public boolean isAudioSecurityOn()
+    {
+        return isAudioSecurityOn;
+    }
+
+    /**
+     * Indicates if the video security is turned on or off.
+     * 
+     * @return <code>true</code> if the video security is on, otherwise -
+     * <code>false</code>.
+     */
+    public boolean isVideoSecurityOn()
+    {
+        return isVideoSecurityOn;
+    }
+
+    /**
+     * Returns the cipher used for the encryption of the current call.
+     * 
+     * @return the cipher used for the encryption of the current call.
+     */
+    public String getEncryptionCipher()
+    {
+        return encryptionCipher;
+    }
+
+    /**
+     * Sets the cipher used for the encryption of the current call.
+     * 
+     * @param encryptionCipher the cipher used for the encryption of the
+     * current call.
+     */
+    public void setEncryptionCipher(String encryptionCipher)
+    {
+        this.encryptionCipher = encryptionCipher;
+    }
+
 
     /**
      * Starts the timer that counts call duration.
@@ -766,7 +833,7 @@ public class CallParticipantPanel
     {
         Component[] buttons =
             new Component[]
-            {   new HoldButton(callParticipant.getCall()),
+            {   new HoldButton(callParticipant.getCall(), true),
                 new MuteButton(callParticipant.getCall()),
                 createExitFullScreenButton() };
 
@@ -907,9 +974,9 @@ public class CallParticipantPanel
          * the instances of the class, there're no fields so the default
          * serialization routine will work.
          */
-		private static final long serialVersionUID = 0L;
+        private static final long serialVersionUID = 0L;
 
-		public ParticipantStatusPanel(LayoutManager layout)
+        public ParticipantStatusPanel(LayoutManager layout)
         {
             super(layout);
             this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));

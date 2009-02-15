@@ -1602,7 +1602,7 @@ public class ContactList
 
         Object element = listModel.getElementAt(index);
 
-        MetaContactTooltip tip = new MetaContactTooltip();
+        ExtendedTooltip tip = new ExtendedTooltip();
         if (element instanceof MetaContact)
         {
             MetaContact metaContact = (MetaContact) element;
@@ -1627,7 +1627,7 @@ public class ContactList
                 String contactAddress = protocolContact.getAddress();
                 String statusMessage = protocolContact.getStatusMessage();
 
-                tip.addProtocolContact(new ImageIcon(protocolStatusIcon),
+                tip.addLine(new ImageIcon(protocolStatusIcon),
                                         contactAddress);
             }
         }
@@ -1696,6 +1696,8 @@ public class ContactList
             if(!activeContacts.contains(metaContact))
                 this.activeContacts.add(metaContact);
         }
+
+        this.refreshContact(metaContact);
     }
     
     /**
@@ -1714,6 +1716,8 @@ public class ContactList
                 GuiActivator.getSystrayService().setSystrayIcon(
                    SystrayService.SC_IMG_TYPE);
         }
+
+        this.refreshContact(metaContact);
     }
     
     /**

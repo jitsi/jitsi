@@ -44,6 +44,22 @@ public class HoldButton
             "service.gui.HOLD_BUTTON_TOOL_TIP"));
     }
 
+    public HoldButton(Call call, boolean isFullScreenMode)
+    {
+        this(call);
+
+        if (isFullScreenMode)
+        {
+            this.setBgImage(
+                ImageLoader.getImage(ImageLoader.HOLD_BUTTON_FULL_SCREEN));
+            this.setBgRolloverImage(
+                ImageLoader.getImage(ImageLoader.HOLD_BUTTON_FULL_SCREEN));
+            this.setPressedImage(
+                ImageLoader.getImage(ImageLoader.HOLD_BUTTON_FULL_SCREEN));
+            this.setIconImage(null);
+        }
+    }
+
     /**
      * Represents the model of a toggle button that puts an associated
      * <tt>CallParticipant</tt> on/off hold.

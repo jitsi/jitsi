@@ -360,9 +360,9 @@ public class CallParticipantSipImpl
 
         this.fireCallParticipantChangeEvent(
             CallParticipantChangeEvent
-                .CALL_PARTICIPANT_TRANSPORT_ADDRESS_CHANGE
-            , oldTransportAddress
-            , transportAddress);
+                .CALL_PARTICIPANT_TRANSPORT_ADDRESS_CHANGE,
+                oldTransportAddress,
+                transportAddress);
     }
 
     /**

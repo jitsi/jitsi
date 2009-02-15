@@ -47,7 +47,7 @@ public abstract class Call
      * be needed inside specific layers of the call securing, depending on the
      * securing algorithm used
      */
-    private Hashtable<Object, SecurityGUIListener> securityGUIListeners;
+    private Hashtable<Object, CallParticipantSecurityListener> securityGUIListeners;
 
     /**
      * If this flag is set to true according to the account properties
@@ -261,42 +261,6 @@ public abstract class Call
      * currently in.
      */
     public abstract CallState getCallState();
-
-    /**
-     * This method is used to add references to various GUI components related to
-     * securing the call that might be used in different way in by various securing
-     * algorithms, and consequently might be needed for particular usage at the layers
-     * where the specified algorithms operate
-     *
-     * @param key a key used by a securing algorithm implementation
-     *               to identify the GUI item needed
-     * @param the GUI listener
-     */
-    public void addSecurityGUIListener(Object key, SecurityGUIListener value)
-    {
-        if (securityGUIListeners == null)
-            securityGUIListeners = new Hashtable<Object, SecurityGUIListener>();
-
-        securityGUIListeners.put(key, value);
-    }
-
-    /**
-     * This method is used to obtain the reference to various GUI components related to
-     * securing the call that might be used in different way in by various securing
-     * algorithms, and consequently might be needed for particular usage at the layers
-     * where the specified algorithms operate
-     *
-     * @param key a key used by a securing algorithm implementation
-     *               to identify the GUI item needed
-     * @return the GUI listener
-     */
-    public SecurityGUIListener getSecurityGUIListener(Object key)
-    {
-        if (securityGUIListeners == null)
-            return null;
-        else
-            return securityGUIListeners.get(key);
-    }
 
     /**
      * Returns the default call encryption flag

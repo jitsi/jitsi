@@ -378,6 +378,12 @@ public class ImageLoader {
         = new ImageID("service.gui.buttons.HOLD_BUTTON");
 
     /**
+     * A hold button icon for the full screen mode.
+     */
+    public static final ImageID HOLD_BUTTON_FULL_SCREEN
+        = new ImageID("service.gui.buttons.HOLD_BUTTON_FULL_SCREEN");
+
+    /**
      * The icon shown when the status of the call is "On hold".
      */
     public static final ImageID HOLD_STATUS_ICON
@@ -396,6 +402,12 @@ public class ImageLoader {
         = new ImageID("service.gui.buttons.MUTE_BUTTON");
 
     /**
+     * A mute button icon for the full screen mode.
+     */
+    public static final ImageID MUTE_BUTTON_FULL_SCREEN
+        = new ImageID("service.gui.buttons.MUTE_BUTTON_FULL_SCREEN");
+
+    /**
      * A call-transfer button icon. The icon shown in the CallParticipant panel.
      */
     public static final ImageID TRANSFER_CALL_BUTTON =
@@ -412,6 +424,30 @@ public class ImageLoader {
      */
     public static final ImageID SECURE_BUTTON_OFF =
         new ImageID("service.gui.buttons.SECURE_BUTTON_OFF");
+
+    /**
+     * The secure button on icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID SECURE_AUDIO_ON =
+        new ImageID("service.gui.buttons.SECURE_AUDIO_ON");
+
+    /**
+     * The secure button off icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID SECURE_AUDIO_OFF =
+        new ImageID("service.gui.buttons.SECURE_AUDIO_OFF");
+
+    /**
+     * The secure button on icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID SECURE_VIDEO_ON =
+        new ImageID("service.gui.buttons.SECURE_VIDEO_ON");
+
+    /**
+     * The secure button off icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID SECURE_VIDEO_OFF =
+        new ImageID("service.gui.buttons.SECURE_VIDEO_OFF");
 
     /**
      * The security button: encryted and SAS verified, encrypted only, security off.

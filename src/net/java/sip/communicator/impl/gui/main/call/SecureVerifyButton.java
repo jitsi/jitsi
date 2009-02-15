@@ -19,13 +19,13 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emanuel Onica
  */
 @SuppressWarnings("serial")
-public class SecureButton
+public class SecureVerifyButton
     extends SIPCommButton
     implements ActionListener
 {
     private final CallParticipant callParticipant;
 
-    public SecureButton(CallParticipant callParticipant)
+    public SecureVerifyButton(CallParticipant callParticipant)
     {
         super(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF));
 

@@ -22,7 +22,9 @@ public class NotificationManager
     public static final String BUSY_CALL = "BusyCall";
     
     public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
-
+    
+    public static final String WARNING_MESSAGE = "WarningMessage";
+    
     public static void registerGuiNotifications()
     {
         NotificationService notificationService

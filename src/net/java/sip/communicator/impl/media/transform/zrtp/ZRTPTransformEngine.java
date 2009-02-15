@@ -15,10 +15,10 @@ import net.java.sip.communicator.impl.media.*;
 import net.java.sip.communicator.impl.media.transform.*;
 import net.java.sip.communicator.impl.media.transform.srtp.*;
 import net.java.sip.communicator.service.fileaccess.*;
+import net.java.sip.communicator.util.*;
 
 import java.io.*;
 import java.util.EnumSet;
-
 
 /**
  * JMF extension/connector to support GNU ZRTP4J.
@@ -146,9 +146,10 @@ import java.util.EnumSet;
  *
  */
 public class ZRTPTransformEngine
-    implements TransformEngine, PacketTransformer, ZrtpCallback
+    implements  TransformEngine,
+                PacketTransformer,
+                ZrtpCallback
 {
-
     /**
      * Very simple Timeout provider class.
      *
@@ -160,7 +161,6 @@ public class ZRTPTransformEngine
      */
     class TimeoutProvider extends Thread
     {
-
         public TimeoutProvider(String name)
         {
             super(name);
@@ -250,7 +250,12 @@ public class ZRTPTransformEngine
         }
     }
 
-    // each ZRTP packet has a fixed header of 12 bytes
+    private static final Logger logger
+        = Logger.getLogger(ZRTPTransformEngine.class);
+
+    /**
+     * Each ZRTP packet has a fixed header of 12 bytes.
+     */
     protected static final int ZRTP_PACKET_HEADER = 12;
 
     /**
@@ -272,7 +277,7 @@ public class ZRTPTransformEngine
     /**
      * User callback class.
      */
-    private SCCallback userCallback = null;
+    private SecurityEventManager securityEventManager = null;
 
     /**
      * The ZRTP engine.
@@ -327,12 +332,12 @@ public class ZRTPTransformEngine
      */
     public ZRTPTransformEngine()
     {
-        senderZrtpSeqNo = 1;        // should be a random number
+        senderZrtpSeqNo = 1;    // should be a random number
     }
 
-    /*
-     * (non-Javadoc)
-     *
+    /**
+     * Returns an instance of <tt>ZRTPCTransformer</tt>.
+     * 
      * @see net.java.sip.communicator.impl.media.transform.
      *      TransformEngine#getRTCPTransformer()
      */
@@ -341,9 +346,9 @@ public class ZRTPTransformEngine
         return new ZRTPCTransformer(this);
     }
 
-    /*
-     * (non-Javadoc)
-     *
+    /**
+     * Returns this RTPTransformer.
+     * 
      * @see net.java.sip.communicator.impl.media.transform.
      *      TransformEngine#getRTPTransformer()
      */
@@ -392,8 +397,10 @@ public class ZRTPTransformEngine
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("Failed to create the zid file.");
+
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to create the zid file.", e);
         }
 
         String zidFilePath = null;
@@ -404,8 +411,9 @@ public class ZRTPTransformEngine
         }
         catch (SecurityException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (logger.isDebugEnabled())
+                logger.debug(
+                    "Failed to obtain the absolute path of the zid file.", e);
         }
 
         ZidFile zf = ZidFile.getInstance();
@@ -429,6 +437,7 @@ public class ZRTPTransformEngine
                 return false;
             }
         }
+
         zrtpEngine = new ZRtp(zf.getZid(), this, clientIdString);
 
         if (timeoutProvider == null)
@@ -437,17 +446,18 @@ public class ZRTPTransformEngine
             timeoutProvider.setDaemon(true);
             timeoutProvider.start();
         }
-        userCallback.init();
+
         enableZrtp = autoEnable;
         return true;
     }
 
     /**
      * Start the ZRTP stack immediately, not autosensing mode.
-     *
      */
-    public void startZrtp() {
-        if (zrtpEngine != null) {
+    public void startZrtp()
+    {
+        if (zrtpEngine != null)
+        {
             zrtpEngine.startZrtpEngine();
             started = true;
         }
@@ -455,10 +465,11 @@ public class ZRTPTransformEngine
 
     /**
      * Stop ZRTP engine.
-     *
      */
-    public void stopZrtp() {
-        if (zrtpEngine != null) {
+    public void stopZrtp()
+    {
+        if (zrtpEngine != null)
+        {
             zrtpEngine.stopZrtp();
             zrtpEngine = null;
             started = false;
@@ -468,20 +479,21 @@ public class ZRTPTransformEngine
     /**
      * Cleanup function for any remaining timers
      */
-    public void cleanup() {
-        if (timeoutProvider != null) {
+    public void cleanup()
+    {
+        if (timeoutProvider != null)
+        {
             timeoutProvider.stopRun();
             timeoutProvider = null;
         }
     }
 
-    /* (non-Javadoc)
-     * @see net.java.sip.communicator.impl.media.transform.PacketTransformer#
-     * transform(net.java.sip.communicator.impl.media.transform.RawPacket)
-     */
-    /*
+    /**
      * The data output stream calls this method to transform outgoing
      * packets.
+     * 
+     * @see net.java.sip.communicator.impl.media.transform.PacketTransformer#
+     * transform(net.java.sip.communicator.impl.media.transform.RawPacket)
      */
     public RawPacket transform(RawPacket pkt)
     {
@@ -507,32 +519,29 @@ public class ZRTPTransformEngine
             return null;
         */
 
-        /*
-         * ZRTP needs the SSRC of the sending stream.
-         */
+        // ZRTP needs the SSRC of the sending stream.
         if (enableZrtp && ownSSRC == 0)
         {
             ownSSRC = zPkt.getSSRC();
         }
-        /*
-         * If SRTP is active then srtpTransformer is set, use it.
-         */
+
+        // If SRTP is active then srtpTransformer is set, use it.
         sendPacketCount++;
         if (srtpOutTransformer == null)
         {
             return pkt;
         }
+
         return srtpOutTransformer.transform(pkt);
     }
 
-    /* (non-Javadoc)
+    /**
+     * The input data stream calls this method to transform
+     * incoming packets.
+     * 
      * @see net.java.sip.communicator.impl.media.transform.PacketTransformer#
      * reverseTransform(
      *      net.java.sip.communicator.impl.media.transform.RawPacket)
-     */
-    /*
-     * The input data stream calls this method to transfrom
-     * incoming packets.
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
@@ -572,7 +581,7 @@ public class ZRTPTransformEngine
         {
             if (!zPkt.checkCrc())
             {
-                userCallback.showMessage(ZrtpCodes.MessageSeverity.Warning,
+                securityEventManager.showMessage(ZrtpCodes.MessageSeverity.Warning,
                         EnumSet.of(ZrtpCodes.WarningCodes.WarningCRCmismatch));
                 return null;
             }
@@ -588,7 +597,7 @@ public class ZRTPTransformEngine
     }
 
     /**
-     * The callback method required by the ZRTP implementation
+     * The callback method required by the ZRTP implementation.
      * First allocate space to hold the complete ZRTP packet, copy
      * the message part in its place, the initalize the header, counter,
      * SSRC and crc.
@@ -598,7 +607,6 @@ public class ZRTPTransformEngine
      */
     public boolean sendDataZRTP(byte[] data)
     {
-
         int totalLength = ZRTP_PACKET_HEADER + data.length;
         byte[] tmp = new byte[totalLength];
         System.arraycopy(data, 0, tmp, ZRTP_PACKET_HEADER, data.length);
@@ -612,20 +620,24 @@ public class ZRTPTransformEngine
 
         try
         {
-            zrtpConnector.getDataOutputStream().write(packet.getBuffer(),
-                    packet.getOffset(), packet.getLength());
+            zrtpConnector.getDataOutputStream().write(  packet.getBuffer(),
+                                                        packet.getOffset(),
+                                                        packet.getLength());
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("Failed to send ZRTP data.");
+
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to send ZRTP data.", e);
+
             return false;
         }
         return true;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#srtpSecretsReady(
      *          gnu.java.zrtp.ZrtpSrtpSecrets,
      *          gnu.java.zrtp.ZrtpCallback.EnableSecurity)
@@ -633,12 +645,11 @@ public class ZRTPTransformEngine
     public boolean srtpSecretsReady(ZrtpSrtpSecrets secrets,
                                     EnableSecurity part)
     {
-
         SRTPPolicy srtpPolicy = null;
 
         if (part == EnableSecurity.ForSender)
         {
-            // To encrypt packets: intiator uses initiator keys,
+            // To encrypt packets: initiator uses initiator keys,
             // responder uses responder keys
             // Create a "half baked" crypto context first and store it. This is
             // the main crypto context for the sending part of the connection.
@@ -651,9 +662,11 @@ public class ZRTPTransformEngine
                         secrets.getSrtpAuthTagLen() / 8,// auth tag length
                         secrets.getInitSaltLen() / 8    // salt length
                 );
+
                     SRTPTransformEngine engine = new SRTPTransformEngine(secrets
                             .getKeyInitiator(), secrets.getSaltInitiator(),
                             srtpPolicy, srtpPolicy);
+
                     srtpOutTransformer = engine.getRTPTransformer();
             }
             else
@@ -672,9 +685,10 @@ public class ZRTPTransformEngine
                 srtpOutTransformer = engine.getRTPTransformer();
             }
         }
+
         if (part == EnableSecurity.ForReceiver)
         {
-            // To decrypt packets: intiator uses responder keys,
+            // To decrypt packets: initiator uses responder keys,
             // responder initiator keys
             // See comment above.
             if (secrets.getRole() == Role.Initiator)
@@ -711,25 +725,26 @@ public class ZRTPTransformEngine
         return true;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#srtpSecretsOn(java.lang.String,
      *                                               java.lang.String, boolean)
      */
     public void srtpSecretsOn(String c, String s, boolean verified)
     {
-        if (userCallback != null)
+        if (securityEventManager != null)
         {
-            userCallback.secureOn(c);
+            securityEventManager.secureOn(c);
         }
-        if (userCallback != null && s != null)
+
+        if (securityEventManager != null && s != null)
         {
-            userCallback.showSAS(s, verified);
+            securityEventManager.showSAS(s, verified);
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#srtpSecretsOff(
      *                              gnu.java.zrtp.ZrtpCallback.EnableSecurity)
      */
@@ -739,18 +754,20 @@ public class ZRTPTransformEngine
         {
             srtpOutTransformer = null;
         }
+
         if (part == EnableSecurity.ForReceiver)
         {
             srtpInTransformer = null;
         }
-        if (userCallback != null)
+
+        if (securityEventManager != null)
         {
-            userCallback.secureOff();
+            securityEventManager.secureOff();
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#activateTimer(int)
      */
     public int activateTimer(int time)
@@ -759,11 +776,12 @@ public class ZRTPTransformEngine
         {
             timeoutProvider.requestTimeout(time, this);
         }
+
         return 1;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#cancelTimer()
      */
     public int cancelTimer()
@@ -781,27 +799,28 @@ public class ZRTPTransformEngine
      */
     public void handleTimeout()
     {
-        if (zrtpEngine != null) {
+        if (zrtpEngine != null)
+        {
             zrtpEngine.processTimeout();
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#sendInfo(
      *                                 gnu.java.zrtp.ZrtpCodes.MessageSeverity,
      *                                 java.util.EnumSet)
      */
     public void sendInfo(ZrtpCodes.MessageSeverity severity, EnumSet<?> subCode)
     {
-        if (userCallback != null)
+        if (securityEventManager != null)
         {
-            userCallback.showMessage(severity, subCode);
+            securityEventManager.showMessage(severity, subCode);
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#zrtpNegotiationFailed(
      *                              gnu.java.zrtp.ZrtpCodes.MessageSeverity,
      *                              java.util.EnumSet)
@@ -809,14 +828,14 @@ public class ZRTPTransformEngine
     public void zrtpNegotiationFailed(ZrtpCodes.MessageSeverity severity,
                                       EnumSet<?> subCode)
     {
-        if (userCallback != null)
+        if (securityEventManager != null)
         {
-            userCallback.zrtpNegotiationFailed(severity, subCode);
+            securityEventManager.zrtpNegotiationFailed(severity, subCode);
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#goClearProcedureFailed(
      *                                 gnu.java.zrtp.ZrtpCodes.MessageSeverity,
      *                                 java.util.EnumSet, boolean)
@@ -832,69 +851,68 @@ public class ZRTPTransformEngine
 //        }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#zrtpNotSuppOther()
      */
     public void zrtpNotSuppOther()
     {
-        if (userCallback != null)
+        if (securityEventManager != null)
         {
-            userCallback.zrtpNotSuppOther();
+            securityEventManager.zrtpNotSuppOther();
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see gnu.java.zrtp.ZrtpCallback#zrtpAskEnrollment(java.lang.String)
      */
     public void zrtpAskEnrollment(String info)
     {
-        if (userCallback != null)
+        if (securityEventManager != null)
         {
-            userCallback.zrtpAskEnrollment(info);
+            securityEventManager.zrtpAskEnrollment(info);
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#zrtpInformEnrollment(java.lang.String)
      */
     public void zrtpInformEnrollment(String info)
     {
-        if (userCallback != null)
+        if (securityEventManager != null)
         {
-            userCallback.zrtpInformEnrollment(info);
+            securityEventManager.zrtpInformEnrollment(info);
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#signSAS(java.lang.String)
      */
     public void signSAS(String sas)
     {
-        if (userCallback != null)
+        if (securityEventManager != null)
         {
-            userCallback.signSAS(sas);
+            securityEventManager.signSAS(sas);
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * 
      * @see gnu.java.zrtp.ZrtpCallback#checkSASSignature(java.lang.String)
      */
     public boolean checkSASSignature(String sas)
     {
-        return ((userCallback != null)
-                        ? userCallback.checkSASSignature(sas)
+        return ((securityEventManager != null)
+                        ? securityEventManager.checkSASSignature(sas)
                         : false);
     }
 
     /**
-     * Sets the enableZrtp flag
+     * Sets the enableZrtp flag.
      *
-     * @param onOff The value for the enableZrtp flag
+     * @param onOff The value for the enableZrtp flag.
      */
     public void setEnableZrtp(boolean onOff)
     {
@@ -902,9 +920,9 @@ public class ZRTPTransformEngine
     }
 
     /**
-     * Returns the enableZrtp flag
+     * Returns the enableZrtp flag.
      *
-     * @return the enableZrtp flag
+     * @return the enableZrtp flag.
      */
     public boolean isEnableZrtp()
     {
@@ -1093,7 +1111,7 @@ public class ZRTPTransformEngine
      */
     public void handleGoClear()
     {
-        userCallback.confirmGoClear();
+        securityEventManager.confirmGoClear();
     }
 
     /**
@@ -1113,9 +1131,9 @@ public class ZRTPTransformEngine
      *
      * @param ub The user callback class
      */
-    public void setUserCallback(SCCallback ub)
+    public void setUserCallback(SecurityEventManager ub)
     {
-        userCallback = ub;
+        securityEventManager = ub;
     }
 
     /**
@@ -1142,11 +1160,11 @@ public class ZRTPTransformEngine
      *
      * @return the user callback
      */
-    public SCCallback getUserCallback()
+    public SecurityEventManager getUserCallback()
     {
-        return userCallback;
+        return securityEventManager;
     }
-    
+
     /**
      * Get other party's ZID (ZRTP Identifier) data
      *
@@ -1160,7 +1178,8 @@ public class ZRTPTransformEngine
      *
      * @return the ZID data as byte array.
      */
-    public byte[] getZid() {
+    public byte[] getZid()
+    {
          return ((zrtpEngine != null) ? zrtpEngine.getZid() : null);
     }
 }

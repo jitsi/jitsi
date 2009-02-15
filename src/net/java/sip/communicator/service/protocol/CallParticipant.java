@@ -88,6 +88,23 @@ public interface CallParticipant
     public void removeCallParticipantListener(CallParticipantListener listener);
 
     /**
+     * Allows the user interface to register a listener interested in security
+     * status changes.
+     * 
+     * @param listener a listener instance to register with this participant
+     */
+    public void addCallParticipantSecurityListener(
+        CallParticipantSecurityListener listener);
+
+    /**
+     * Unregisters the specified listener.
+     * 
+     * @param listener the listener to unregister
+     */
+    public void removeCallParticipantSecurityListener(
+        CallParticipantSecurityListener listener);
+
+    /**
      * Gets the time at which this <code>CallParticipant</code> transitioned
      * into a state (likely {@link CallParticipantState#CONNECTED}) marking the
      * start of the duration of the participation in a <code>Call</code>.

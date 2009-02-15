@@ -202,6 +202,16 @@ public class CallSessionImpl
     private static final byte ON_HOLD_REMOTELY = 1 << 2;
 
     /**
+     * Indicates an audio session type.
+     */
+    public static final String AUDIO_SESSION = "AUDIO_SESSION";
+
+    /**
+     * Indicates a video session type.
+     */
+    public static final String VIDEO_SESSION = "VIDEO_SESSION";
+
+    /**
      * The flags which determine whether this side of the call has put the other
      * on hold and whether the other side of the call has put this on hold.
      */
@@ -2106,37 +2116,51 @@ public class CallSessionImpl
                 // The connector is created based also on the crypto services
                 // The crypto provider solution should be queried somehow
                 // or taken from a resources file
-                TransformConnector transConnector = TransformManager.createZRTPConnector(
+                TransformConnector transConnector
+                    = TransformManager.createZRTPConnector(
                                             bindAddress, this);
+
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
 
-                SCCallback callback = new SCCallback(this);
+                // Create security user callback for each participant.
+                SecurityEventManager securityEventManager
+                    = new SecurityEventManager(this);
+
                 boolean zrtpAutoStart = false;
 
                 // Decide if this will become the ZRTP Master session:
-                // - Statement: audio media session will be started before video media session
-                // - if no other audio session was started before then this will become
+                // - Statement: audio media session will be started before video
+                //   media session
+                // - if no other audio session was started before then this will
+                //   become
                 //   ZRTP Master session
-                // - only the ZRTP master sessions start in "auto-sensing" mode to
-                //   immediately catch ZRTP communication from other client
-                // - after the master session has completed its key negotiation it will
-                //   start other media sessions (see SCCallback)
-                if (rtpManager.equals(audioRtpManager)) {
-                    if (zrtpDHSession == null) {
+                // - only the ZRTP master sessions start in "auto-sensing" mode 
+                //   to immediately catch ZRTP communication from other client
+                // - after the master session has completed its key negotiation 
+                //   it will start other media sessions (see SCCallback)
+                if (rtpManager.equals(audioRtpManager))
+                {
+                    if (zrtpDHSession == null)
+                    {
                         zrtpDHSession = transConnector;
                         zrtpAutoStart = true;
-                        callback.setDHSession(true);
+
+                        securityEventManager.setDHSession(true);
                     }
-                    callback.setType(SecurityGUIEventZrtp.AUDIO);
+
+                    securityEventManager.setSessionType(AUDIO_SESSION);
                 }
-                else if (rtpManager.equals(videoRtpManager)) {
-                    callback.setType(SecurityGUIEventZrtp.VIDEO);
+                else if (rtpManager.equals(videoRtpManager))
+                {
+                    securityEventManager.setSessionType(VIDEO_SESSION);
                 }
+
                 // ZRTP engine initialization
                 ZRTPTransformEngine engine
-                    = (ZRTPTransformEngine)transConnector.getEngine();
-                engine.setUserCallback(callback);
+                    = (ZRTPTransformEngine) transConnector.getEngine();
+
+                engine.setUserCallback(securityEventManager);
 
                 // Case 1: user toggled secure communication prior to the call
                 // call is encrypted by default due to the option set in
@@ -2145,16 +2169,16 @@ public class CallSessionImpl
                 {
                     if (engine.initialize("GNUZRTP4J.zid", zrtpAutoStart))
                     {
-                       usingZRTP = true;
-                       engine.sendInfo(
-                                ZrtpCodes.MessageSeverity.Info,
-                                EnumSet.of(
+                        usingZRTP = true;
+                        engine.sendInfo(
+                            ZrtpCodes.MessageSeverity.Info,
+                            EnumSet.of(
                                     ZRTPCustomInfoCodes.ZRTPEnabledByDefault));
                     }
                     else
                     {
-                       engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
-                                EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
+                        engine.sendInfo(ZrtpCodes.MessageSeverity.Info,
+                           EnumSet.of(ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
                     }
                 }
                 // Case 2: user will toggle secure communication during the call
@@ -2938,7 +2962,7 @@ public class CallSessionImpl
     public int startZrtpMultiStreams()
     {
         ZRTPTransformEngine engine
-            = (ZRTPTransformEngine)zrtpDHSession.getEngine();
+            = (ZRTPTransformEngine) zrtpDHSession.getEngine();
 
         int counter = 0;
         byte[] multiStreamData = engine.getMultiStrParams();
@@ -2948,11 +2972,11 @@ public class CallSessionImpl
         while (tcs.hasMoreElements())
         {
             TransformConnector tc = tcs.nextElement();
+
             if (tc.equals(zrtpDHSession))
-            {
                 continue;
-            }
-            engine = (ZRTPTransformEngine)tc.getEngine();
+
+            engine = (ZRTPTransformEngine) tc.getEngine();
             engine.setMultiStrParams(multiStreamData);
             engine.setEnableZrtp(true);
             counter++;
