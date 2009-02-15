@@ -833,7 +833,7 @@ public class CallParticipantPanel
     {
         Component[] buttons =
             new Component[]
-            {   new HoldButton(callParticipant.getCall(), true),
+            {   new HoldButton(callParticipant.getCall()),
                 new MuteButton(callParticipant.getCall()),
                 createExitFullScreenButton() };
 
