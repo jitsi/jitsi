@@ -1110,32 +1110,20 @@ public class OperationSetPresenceSipImpl
                 contactIdentifier + " is not a valid string.", exc);
         }
 
+        // create a new contact, marked as resolvable and non resolved
+        contact = new ContactSipImpl(contactAddress, this.parentProvider);
+        ((ContactGroupSipImpl) parentGroup).addContact(contact);
+
+        fireSubscriptionEvent(contact,
+                parentGroup,
+                SubscriptionEvent.SUBSCRIPTION_CREATED);
+
+        // do not query the presence state
         if (this.presenceEnabled == false)
-        {
-            // create the contact
-            contact = new ContactSipImpl(contactAddress,
-                    this.parentProvider);
-
-            ((ContactGroupSipImpl) parentGroup).addContact(contact);
-
-            // pretend that the contact is created
-            fireSubscriptionEvent(contact,
-                    parentGroup,
-                    SubscriptionEvent.SUBSCRIPTION_CREATED);
-
-            // and resolved
-            fireSubscriptionEvent(contact,
-                    parentGroup,
-                    SubscriptionEvent.SUBSCRIPTION_RESOLVED);
-
             return;
-        }
 
         assertConnected();
 
-        // create the contact
-        contact = new ContactSipImpl(contactAddress, this.parentProvider);
-        contact.setParentGroup((ContactGroupSipImpl)parentGroup);
         //create the subscription
         Request subscription;
         try
@@ -1906,15 +1894,12 @@ public class OperationSetPresenceSipImpl
                         contact.setClientDialog(null);
                     }
                 // 408 480 486 600 603 : non definitive reject
+                // others: definitive reject (or not implemented)
                 }
-                else if (response.getStatusCode() == Response.REQUEST_TIMEOUT
-                    || response.getStatusCode() == Response
-                        .TEMPORARILY_UNAVAILABLE
-                    || response.getStatusCode() == Response.BUSY_HERE
-                    || response.getStatusCode() == Response.BUSY_EVERYWHERE
-                    || response.getStatusCode() == Response.DECLINE)
+                else
                 {
-                    logger.debug("error received from the network" + response);
+                    logger.debug("error received from the network:\n"
+                            + response);
 
                     if (response.getStatusCode() == Response
                             .TEMPORARILY_UNAVAILABLE)
@@ -1931,27 +1916,8 @@ public class OperationSetPresenceSipImpl
                     this.subscribedContacts.remove(idheader.getCallId());
                     contact.setClientDialog(null);
 
-                    fireSubscriptionEvent(contact, contact.getParentContactGroup(),
-                        SubscriptionEvent.SUBSCRIPTION_FAILED,
-                        response.getStatusCode(),
-                        response.getReasonPhrase());
-                // definitive reject (or not implemented)
-                }
-                else
-                {
-                    logger.debug("error received from the network" + response);
-
                     // we'll never be able to resolve this contact
                     contact.setResolvable(false);
-                    changePresenceStatusForContact(contact,
-                        sipStatusEnum.getStatus(SipStatusEnum.UNKNOWN));
-                    this.subscribedContacts.remove(idheader.getCallId());
-                    contact.setClientDialog(null);
-
-                    fireSubscriptionEvent(contact, contact.getParentContactGroup(),
-                        SubscriptionEvent.SUBSCRIPTION_FAILED,
-                        response.getStatusCode(),
-                        response.getReasonPhrase());
                 }
             }
 
