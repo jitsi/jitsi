@@ -339,9 +339,9 @@ public class ChatWindowManager
      * excluded from the history when the last one is loaded in the chat
      * @return the chat panel corresponding to the given meta contact
      */
-    public ChatPanel getContactChat( MetaContact metaContact,
-                                                Contact protocolContact,
-                                                String escapedMessageID)
+    public ChatPanel getContactChat(MetaContact metaContact,
+                                    Contact protocolContact,
+                                    String escapedMessageID)
     {
         synchronized (syncChat)
         {

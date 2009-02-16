@@ -318,15 +318,16 @@ public class ContactListPane
 
         if(metaContact != null)
         {
-            // Show an envelope on the sender contact in the contact list and
-            // in the systray.
-            contactList.addActiveContact(metaContact);
-
             // Obtain the corresponding chat panel.
             final ChatPanel chatPanel
                 = chatWindowManager.getContactChat( metaContact,
                                                     protocolContact,
                                                     message.getMessageUID());
+
+            // Show an envelope on the sender contact in the contact list and
+            // in the systray.
+            if (!chatPanel.isChatFocused())
+                contactList.addActiveContact(metaContact);
 
             // Distinguish the message type, depending on the type of event that
             // we have received.
