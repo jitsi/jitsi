@@ -44,6 +44,19 @@ public class SipStackProperties
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
+     * if the content of the messages (eg SDP) has to be logged
+     */
+    private static final String NSPNAME_LOG_MESSAGE_CONTENT
+        = "gov.nist.javax.sip.LOG_MESSAGE_CONTENT";
+
+    /**
+     * A string indicating to jain-sip-ri if the content of the messages (eg
+     * SDP) has to be logged
+     */
+    private static final String NSPVALUE_LOG_MESSAGE_CONTENT = "true";
+
+    /**
+     * The name of the property under which the jain-sip-ri would expect to find
      * if the debug log file has to be overwritten when starting.
      */
     private static final String NSPNAME_DEBUG_LOG_OVERWRITE
@@ -166,7 +179,10 @@ public class SipStackProperties
         // NIST SIP specific properties
         this.setProperty(NSPNAME_DEBUG_LOG, NSPVALUE_DEBUG_LOG);
 
-        this.setProperty(NSPNAME_SERVER_LOG, NSPVALUE_SERVER_LOG);
+        // uncomment the following lines to capture messages in the server log
+        //this.setProperty(NSPNAME_SERVER_LOG, NSPVALUE_SERVER_LOG);
+        //this.setProperty(NSPNAME_LOG_MESSAGE_CONTENT,
+        //        NSPVALUE_LOG_MESSAGE_CONTENT);
 
         this.setProperty(NSPNAME_DEBUG_LOG_OVERWRITE,
                          NSPVALUE_DEBUG_LOG_OVERWRITE);
