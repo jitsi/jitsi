@@ -22,8 +22,6 @@ import net.java.sip.communicator.util.*;
 public class FramedImage
     extends JComponent
 {
-    private final Image shadowImage;
-
     private final Image frameImage;
 
     private Image image;
@@ -50,9 +48,6 @@ public class FramedImage
         this.frameImage =
             ImageUtils.scaleImageWithinBounds(ImageLoader
                 .getImage(ImageLoader.USER_PHOTO_FRAME), width, height);
-        this.shadowImage =
-            ImageUtils.scaleImageWithinBounds(ImageLoader
-                .getImage(ImageLoader.USER_PHOTO_SHADOW), width, height);
 
         if (imageIcon != null)
         {
@@ -82,8 +77,5 @@ public class FramedImage
 
         g.drawImage(frameImage, width / 2 - frameImage.getWidth(null) / 2,
             height / 2 - frameImage.getHeight(null) / 2, null);
-
-        g.drawImage(shadowImage, width / 2 - shadowImage.getWidth(null) / 2, 1,
-            null);
     }
 }
