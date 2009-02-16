@@ -35,11 +35,11 @@ public class AccountRegWizardContainerImpl
     private static final Logger logger =
         Logger.getLogger(AccountRegWizardContainerImpl.class);
 
-    private AccountRegSummaryPage summaryPage;
+    private final AccountRegSummaryPage summaryPage;
 
     private AccountRegistrationWizard currentWizard;
 
-    ConfigurationService configService = GuiActivator.getConfigurationService();
+    private final ConfigurationService configService = GuiActivator.getConfigurationService();
 
     private final Map<String, AccountRegistrationWizard> registeredWizards =
         new Hashtable<String, AccountRegistrationWizard>();

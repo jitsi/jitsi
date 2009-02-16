@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.util.*;
@@ -18,8 +17,9 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class ChatBuffer extends ArrayList {
+	private static final long serialVersionUID = 0L;
 
-    /**
+	/**
      * Creates an instance of <tt>ChatBuffer</tt>. The buffer
      * is initialized with the CHAT_BUFFER_SIZE constant in the
      * <tt>Constants</tt> class.
@@ -33,7 +33,6 @@ public class ChatBuffer extends ArrayList {
      * reached.
      */
     private void recalculateBuffer() {
-
         if (this.size() >= Constants.CHAT_BUFFER_SIZE) {
             this.remove(0);
         }

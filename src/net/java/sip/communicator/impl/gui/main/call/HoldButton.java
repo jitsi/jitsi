@@ -23,7 +23,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class HoldButton
     extends SIPCommToggleButton
 {
-    /**
+    private static final long serialVersionUID = 0L;
+
+	/**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
      * <tt>CallParticipant</tt> on/off hold.
      * 

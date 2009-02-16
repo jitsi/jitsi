@@ -25,7 +25,7 @@ public class NewAccountDialog
     extends SIPCommDialog
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(NewAccountDialog.class);
+    private final Logger logger = Logger.getLogger(NewAccountDialog.class);
 
     private TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(5, 5));
@@ -184,11 +184,13 @@ public class NewAccountDialog
         }
     }
 
-    private class NetworkListCellRenderer
+    private static class NetworkListCellRenderer
         extends JLabel
         implements ListCellRenderer
     {
-        public NetworkListCellRenderer()
+        private static final long serialVersionUID = 0L;
+
+		public NetworkListCellRenderer()
         {
             this.setOpaque(true);
 
@@ -275,9 +277,6 @@ public class NewAccountDialog
     {
     }
 
-    /**
-     *
-     */
     public void actionPerformed(ActionEvent event)
     {
         JButton sourceButton = (JButton) event.getSource();

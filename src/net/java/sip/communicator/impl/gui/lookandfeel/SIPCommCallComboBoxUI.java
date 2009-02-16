@@ -35,7 +35,9 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
     
     private class SIPCommComboPopup extends BasicComboPopup
     {
-        public SIPCommComboPopup(JComboBox combo)
+        private static final long serialVersionUID = 0L;
+
+		public SIPCommComboPopup(JComboBox combo)
         {
             super(combo);
         }

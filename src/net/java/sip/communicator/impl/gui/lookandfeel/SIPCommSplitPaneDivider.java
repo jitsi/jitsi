@@ -23,9 +23,9 @@ import net.java.sip.communicator.impl.gui.utils.*;
  */
 class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
 
-    private BufferedImage horizontalDivider 
+    private final BufferedImage horizontalDivider 
         = ImageLoader.getImage(ImageLoader.SPLITPANE_HORIZONTAL);
-    private BufferedImage verticalDivider 
+    private final BufferedImage verticalDivider 
         = ImageLoader.getImage(ImageLoader.SPLITPANE_VERTICAL);
     
     public SIPCommSplitPaneDivider(BasicSplitPaneUI ui) {

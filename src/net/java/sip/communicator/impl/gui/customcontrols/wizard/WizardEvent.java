@@ -11,7 +11,7 @@ import java.util.*;
 public class WizardEvent
     extends EventObject
 {
-    private int eventCode = -1;
+    private final int eventCode;
     
     /**
      * Indicates that the wizard triggering this event has finished
@@ -31,9 +31,9 @@ public class WizardEvent
     public static final int ERROR = 3;
     
     /**
-     * Creates a new WizardEvent accoriding to the given source and event code.
+     * Creates a new WizardEvent according to the given source and event code.
      * 
-     * @param source the source where this event occured
+     * @param source the source where this event occurred
      * @param eventCode the event code : SUCCESS or ERROR
      */
     public WizardEvent(Object source, int eventCode) {

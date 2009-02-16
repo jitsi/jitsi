@@ -227,16 +227,15 @@ public class SIPCommButton
     {
         public void fadeEnded(FadeKind arg0)
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    SIPCommButton.this.repaint();
-                }
-            });
+            repaintLater();
         }
 
         public void fadePerformed(FadeKind arg0, float arg1)
+        {
+        	repaintLater();
+        }
+
+        private void repaintLater()
         {
             SwingUtilities.invokeLater(new Runnable()
             {

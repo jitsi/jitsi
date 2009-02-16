@@ -17,9 +17,12 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommLookAndFeel extends MetalLookAndFeel {
+public class SIPCommLookAndFeel
+    extends MetalLookAndFeel
+{
+    private static final long serialVersionUID = 0L;
 
-    public boolean isNativeLookAndFeel() {
+	public boolean isNativeLookAndFeel() {
         return false;
     }
 

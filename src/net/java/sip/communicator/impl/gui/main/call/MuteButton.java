@@ -23,7 +23,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class MuteButton
     extends SIPCommToggleButton
 {
-    /**
+    private static final long serialVersionUID = 0L;
+
+	/**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
      * stream to a specific <tt>CallParticipant</tt>.
      * 

@@ -29,7 +29,7 @@ public class SIPCommToggleButton
 
     private Image iconImage;
 
-    private Image pressedImage;
+    private final Image pressedImage;
 
     /**
      * Creates a button with custom background image, rollover image and
@@ -69,6 +69,7 @@ public class SIPCommToggleButton
     {
         this.bgImage = bgImage;
         this.bgRolloverImage = rolloverImage;
+        this.pressedImage = null;
 
         this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
                 this.bgImage.getHeight(null)));

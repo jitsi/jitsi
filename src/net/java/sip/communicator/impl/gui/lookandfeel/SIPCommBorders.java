@@ -28,7 +28,9 @@ public class SIPCommBorders
         extends AbstractBorder
         implements UIResource
     {
-        private static final Insets insets = new Insets(2, 2, 2, 2);
+        private static final long serialVersionUID = 0L;
+
+		private static final Insets insets = new Insets(2, 2, 2, 2);
 
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
             int h)
@@ -82,7 +84,9 @@ public class SIPCommBorders
         extends AbstractBorder
         implements UIResource
     {
-        private static final Insets insets = new Insets(2, 2, 2, 2);
+        private static final long serialVersionUID = 0L;
+
+		private static final Insets insets = new Insets(2, 2, 2, 2);
 
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
             int h)
@@ -145,7 +149,9 @@ public class SIPCommBorders
     public static class TextFieldBorder
         extends RoundBorder
     {
-        public void paintBorder(Component c,
+        private static final long serialVersionUID = 0L;
+
+		public void paintBorder(Component c,
                                 Graphics g,
                                 int x,
                                 int y,

@@ -27,10 +27,6 @@ public class SIPCommTextFieldUI
 {
     private boolean mouseOver = false;
 
-    private boolean mousePressed = false;
-
-    private int buttonState;
-
     private static int BUTTON_GAP = 5;
 
     private Image deleteButtonImg;

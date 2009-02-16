@@ -36,7 +36,7 @@ public class AccountRegSummaryPage
     private final JPanel valuesPanel
         = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private AccountRegWizardContainerImpl wizardContainer;
+    private final AccountRegWizardContainerImpl wizardContainer;
 
     /**
      * Creates an <tt>AccountRegSummaryPage</tt>.

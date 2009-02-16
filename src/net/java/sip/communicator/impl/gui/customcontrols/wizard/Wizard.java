@@ -15,8 +15,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
-
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -33,15 +33,6 @@ public class Wizard
                 WizardContainer,
                 PropertyChangeListener
 {
-    /**
-     * The identifier of the summary wizard page.
-     */
-    String SUMMARY_PAGE_IDENTIFIER = "SUMMARY";
-
-    /**
-     * The identifier of the default wizard page.
-     */
-    String DEFAULT_PAGE_IDENTIFIER = "DEFAULT";
 
     /**
      * Indicates that the 'Finish' button was pressed to close the dialog.
@@ -107,7 +98,7 @@ public class Wizard
 
     static Icon CANCEL_ICON;
 
-    private WizardModel wizardModel;
+    private final WizardModel wizardModel;
 
     private WizardController wizardController;
 
@@ -168,7 +159,7 @@ public class Wizard
     }
 
     /**
-     * Convienence method that displays a modal wizard dialog and blocks until
+     * Convenience method that displays a modal wizard dialog and blocks until
      * the dialog has completed.
      * 
      * @param modal whether to show a modal dialog
@@ -243,10 +234,7 @@ public class Wizard
      */
     public boolean containsPage(Object id)
     {
-        if (wizardModel.getWizardPage(id) != null)
-            return true;
-        else
-            return false;
+        return (wizardModel.getWizardPage(id) != null);
     }
 
     /**
@@ -494,9 +482,10 @@ public class Wizard
 
         buttonPanel.add(buttonBox, java.awt.BorderLayout.EAST);
 
-        this.getContentPane().add(buttonPanel, java.awt.BorderLayout.SOUTH);
-        this.getContentPane().add(cardPanel, java.awt.BorderLayout.CENTER);
-        this.getContentPane().add(wizardIconPanel, java.awt.BorderLayout.WEST);
+        java.awt.Container contentPane = getContentPane();
+        contentPane.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+        contentPane.add(cardPanel, java.awt.BorderLayout.CENTER);
+        contentPane.add(wizardIconPanel, java.awt.BorderLayout.WEST);
     }
 
     /**
@@ -511,17 +500,13 @@ public class Wizard
         this.close(Wizard.CANCEL_RETURN_CODE);
     }
 
-    static
-    {
-        BACK_TEXT
-            = GuiActivator.getResources().getI18NString("service.gui.PREVIOUS");
-        NEXT_TEXT
-            = GuiActivator.getResources().getI18NString("service.gui.NEXT");
-        CANCEL_TEXT
-            = GuiActivator.getResources().getI18NString("service.gui.CANCEL");
-        FINISH_TEXT
-            = GuiActivator.getResources().getI18NString("service.gui.FINISH");
-    }
+	static {
+        ResourceManagementService resources = GuiActivator.getResources();
+        BACK_TEXT = resources.getI18NString("service.gui.PREVIOUS");
+        NEXT_TEXT = resources.getI18NString("service.gui.NEXT");
+        CANCEL_TEXT = resources.getI18NString("service.gui.CANCEL");
+        FINISH_TEXT = resources.getI18NString("service.gui.FINISH");
+	}
 
     public BufferedImage getWizzardIcon()
     {

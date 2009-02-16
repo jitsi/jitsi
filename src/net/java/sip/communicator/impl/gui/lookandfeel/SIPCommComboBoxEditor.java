@@ -23,8 +23,6 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
 
     public SIPCommComboBoxEditor()
     {
-        super();
-
         editor.setBorder(new EditorBorder());
 
         // enables delete button
@@ -35,12 +33,12 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
         }
     }
 
-    protected static Insets editorBorderInsets 
+    protected static final Insets editorBorderInsets 
         = new Insets(2, 2, 2, 0);
     private static final Insets SAFE_EDITOR_BORDER_INSETS 
         = new Insets(2, 2, 2, 0);
 
-    class EditorBorder extends AbstractBorder {
+    private class EditorBorder extends AbstractBorder {
         public void paintBorder(Component c, Graphics g, 
                 int x, int y, int w, int h) {
             Graphics2D g2d = (Graphics2D)g;

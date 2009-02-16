@@ -37,7 +37,7 @@ public class ReceivedCallDialog
 
     private static final int HGAP = 5;
 
-    private Call incomingCall;
+    private final Call incomingCall;
 
     /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
@@ -46,8 +46,6 @@ public class ReceivedCallDialog
      */
     public ReceivedCallDialog(Call call)
     {
-        super();
-
         this.incomingCall = call;
 
         this.setUndecorated(true);
