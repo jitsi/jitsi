@@ -31,32 +31,32 @@ public class MoveSubcontactMessageDialog
     private SIPCommMsgTextArea infoArea = new SIPCommMsgTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.MOVE_SUBCONTACT_MSG"));
-    
+
     private JLabel infoTitleLabel = new JLabel(
         GuiActivator.getResources()
             .getI18NString("service.gui.MOVE_SUBCONTACT"));
-    
+
     private JLabel iconLabel = new JLabel(
             new ImageIcon(ImageLoader.getImage(ImageLoader.INFO_ICON)));
-    
+
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-    
+
     private TransparentPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1));
-    
+
     private TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(10, 10));
-    
+
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-    
+
     private int dialogWidth = 350;
     private int dialogHeight = 150;
-    
+
     private MainFrame mainFrame;
     private ContactListListener clistListener;
-    
+
     /**
      * Creates an instance of MoveSubcontactMessageDialog and constructs
      * all panels contained in this dialog.
@@ -67,26 +67,26 @@ public class MoveSubcontactMessageDialog
             ContactListListener listener)
     {
         super(parentWindow);
-        
+
         this.mainFrame = parentWindow;
         this.clistListener = listener;
-        
+
         this.setTitle(GuiActivator.getResources()
             .getI18NString("service.gui.MOVE_SUBCONTACT"));
-        
+
         this.mainPanel.setPreferredSize(
                 new Dimension(dialogWidth, dialogHeight));
-        
+
         this.cancelButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
-        
+
         this.cancelButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                
+
                 ContactList clist
                     = mainFrame.getContactListPanel().getContactList();
-                
+
                 clist.removeExcContactListListener(clistListener);
 
                 // FIXME: unset the special cursor after a subcontact has been
@@ -95,22 +95,22 @@ public class MoveSubcontactMessageDialog
                 //        Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             }
         });
-        
+
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
-        
+
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoArea);
-        
+
         this.mainPanel.setBorder(
                 BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         this.buttonsPanel.add(cancelButton);
-        
+
         this.mainPanel.add(labelsPanel, BorderLayout.CENTER);
         this.mainPanel.add(iconLabel, BorderLayout.WEST);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-        
+
         this.getContentPane().add(mainPanel);
         this.pack();
     }
@@ -124,9 +124,9 @@ public class MoveSubcontactMessageDialog
     {
         int dialogY = (int) Toolkit.getDefaultToolkit()
             .getScreenSize().getHeight()/2 - dialogHeight/2;
-        
+
         int parentX = parentWindow.getLocation().x;
-        
+
         if ((parentX - dialogWidth) > 0) {
             this.setLocation(parentX - dialogWidth,
                 dialogY);
@@ -141,11 +141,11 @@ public class MoveSubcontactMessageDialog
     {
         this.cancelButton.doClick();
     }
-    
+
     public void setVisible(boolean isVisible)
     {
         super.setVisible(isVisible);
-        
+
         this.setDialogLocation(mainFrame);
     }
 }

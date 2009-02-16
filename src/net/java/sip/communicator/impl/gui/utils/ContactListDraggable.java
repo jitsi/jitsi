@@ -68,7 +68,7 @@ public class ContactListDraggable extends JComponent
      */
     private static Hashtable cursors = new Hashtable(2);
     static {
-        try 
+        try
         {
             cursors.put("valid", Cursor.getSystemCustomCursor("MoveDrop.32x32"));
         }
@@ -78,7 +78,7 @@ public class ContactListDraggable extends JComponent
                 "will use Cursor.MOVE_CURSOR instead", ex);
             cursors.put("valid", Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
         }
-        try 
+        try
         {
             cursors.put("invalid", Cursor.getSystemCustomCursor("Invalid.32x32"));
         }
@@ -89,7 +89,7 @@ public class ContactListDraggable extends JComponent
             cursors.put("invalid", Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         }
     }
-    
+
     /**
      * Creates a new instance of ContactListDraggable which is a represantation
      * of an object currently dragged over the contactlist.
@@ -105,9 +105,9 @@ public class ContactListDraggable extends JComponent
         MetaContact metaContact, Contact contact, Image image)
     {
         setOpaque(false);
-        
+
         this.contactList = contactList;
-        
+
         setMetaContact(metaContact);
         setContact(contact);
         setImage(image);
@@ -145,7 +145,7 @@ public class ContactListDraggable extends JComponent
         return contact;
     }
 
-    /**     
+    /**
      * Set the <tt>Contact</tt> associated with this <tt>ContactListDraggable</tt>.
      * Could be null if we are dragging a whole <tt>MetaContact</tt>.
      * If not null, this <tt>Contact</tt> <b>is</b> a subcontact of the
@@ -220,19 +220,19 @@ public class ContactListDraggable extends JComponent
         Graphics2D g2 = (Graphics2D) g;
         g2.setComposite(AlphaComposite.
             getInstance(AlphaComposite.SRC_OVER, 0.8f));
-        
+
         g2.drawImage(
             image,
             (int) (location.getX() - image.getWidth(null) / 2),
             (int) (location.getY() - image.getHeight(null) / 2),
             null);
-        
+
         g2.setColor(Color.GRAY);
         g2.drawRect((int) (location.getX() - image.getWidth(null) / 2),
                     (int) (location.getY() - image.getHeight(null) / 2),
                     image.getWidth(null),
                     image.getHeight(null));
-        
+
         // check if we are located over the contact list
         Point p = SwingUtilities.convertPoint(this, location, contactList);
         if (contactList.contains(p))

@@ -33,8 +33,8 @@ public class SipStackProperties
      * The name of the property under which the jain-sip-ri would expect to find
      * the name of the server log file.
      */
-    private static final String NSPNAME_SERVER_LOG =
-        "gov.nist.javax.sip.SERVER_LOG";
+    private static final String NSPNAME_SERVER_LOG
+        = "gov.nist.javax.sip.SERVER_LOG";
 
     /**
      * The default name of a server log file for the jain-sip RI.
@@ -46,28 +46,28 @@ public class SipStackProperties
      * The name of the property under which the jain-sip-ri would expect to find
      * if the debug log file has to be overwritten when starting.
      */
-    private static String NSPNAME_DEBUG_LOG_OVERWRITE
+    private static final String NSPNAME_DEBUG_LOG_OVERWRITE
         = "gov.nist.javax.sip.DEBUG_LOG_OVERWRITE";
 
     /**
      * A string indicating to jain-sip-ri if the debug log file has to be
      * overwritten when starting.
      */
-    private static String NSPVALUE_DEBUG_LOG_OVERWRITE
+    private static final String NSPVALUE_DEBUG_LOG_OVERWRITE
         = "true";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
      * if the server log file has to be overwritten when starting.
      */
-    private static String NSPNAME_SERVER_LOG_OVERWRITE
+    private static final String NSPNAME_SERVER_LOG_OVERWRITE
         = "gov.nist.javax.sip.SERVER_LOG_OVERWRITE";
 
     /**
      * A string indicating to jain-sip-ri if the server log file has to be
      * overwritten when starting.
      */
-    private static String NSPVALUE_SERVER_LOG_OVERWRITE
+    private static final String NSPVALUE_SERVER_LOG_OVERWRITE
         = "true";
 
     /**

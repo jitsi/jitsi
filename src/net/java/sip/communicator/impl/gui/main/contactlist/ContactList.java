@@ -75,7 +75,7 @@ public class ContactList
      * these contacts with a special icon. 
      */
     private Vector activeContacts = new Vector();
-    
+
     /**
      * Creates an instance of the <tt>ContactList</tt>.
      *
