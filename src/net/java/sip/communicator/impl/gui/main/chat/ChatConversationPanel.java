@@ -592,13 +592,13 @@ public class ChatConversationPanel
     private String formatMessage(String message, String contentType)
     {
         String processedString = message;
-        
+
         // If the message content type is HTML we won't process links and
         // new lines, but only the smilies.
         if (contentType == null || !contentType.equals(HTML_CONTENT_TYPE))
-        {   
+        {
             String linkProcessedString = processLinks(message, contentType);
-            
+
             processedString = processNewLines(linkProcessedString,
                 contentType);
         }

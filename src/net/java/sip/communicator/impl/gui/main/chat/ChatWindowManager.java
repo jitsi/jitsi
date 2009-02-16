@@ -783,7 +783,5 @@ public class ChatWindowManager
 
         // Remove the envelope from the all active contacts in the contact list.
         clist.removeAllActiveContacts();
-
-        clist.refreshAll();
     }
 }

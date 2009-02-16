@@ -1727,6 +1727,8 @@ public class ContactList
                    SystrayService.SC_IMG_TYPE);
             }
         }
+
+        this.refreshAll();
     }
     
     /**

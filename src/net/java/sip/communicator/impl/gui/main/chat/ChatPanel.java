@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 import java.awt.Container;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
 
@@ -21,7 +19,6 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -1483,7 +1480,7 @@ public class ChatPanel
      *
      * @param eventID the type of the <tt>ChatFocusEvent</tt>
      */
-    private void fireChatFocusEvent(int eventID)
+    public void fireChatFocusEvent(int eventID)
     {
         ChatFocusEvent evt = new ChatFocusEvent(this, eventID);
 
@@ -1507,71 +1504,6 @@ public class ChatPanel
                 break;
             default:
                 logger.error("Unknown event type " + evt.getEventID());
-            }
-        }
-    }
-
-    /**
-     * The <tt>FocusPropertyChangeListener</tt> listens for events triggered
-     * when the "focusOwner" property has changed. It is used to change the
-     * state of a contact from active (we have non read messages from this
-     * contact) to inactive, when user has opened a chat.
-     */
-    private class FocusPropertyChangeListener implements PropertyChangeListener
-    {
-        private final KeyboardFocusManager keyboardFocusManager;
-
-        private final String propertyName = "focusOwner";
-
-        public FocusPropertyChangeListener(
-            KeyboardFocusManager keyboardFocusManager)
-        {
-            this.keyboardFocusManager = keyboardFocusManager;
-
-            this.keyboardFocusManager.addPropertyChangeListener(propertyName,
-                this);
-        }
-
-        public void dispose()
-        {
-            keyboardFocusManager.removePropertyChangeListener(propertyName,
-                this);
-        }
-
-        public void propertyChange(PropertyChangeEvent evt)
-        {
-            String prop = evt.getPropertyName();
-            if ((prop.equals(propertyName)) &&
-                  (evt.getNewValue() != null) &&
-                  (evt.getNewValue() instanceof Component) &&
-                  ((Component)evt.getNewValue())
-                      .getFocusCycleRootAncestor() instanceof ChatWindow)
-            {
-                ChatWindow chatWindow = (ChatWindow)((Component)evt
-                        .getNewValue()).getFocusCycleRootAncestor();
-
-                ChatSession chatSession
-                    = chatWindow.getCurrentChatPanel().getChatSession();
-
-                if(chatSession instanceof MetaContactChatSession)
-                {
-                    MetaContact selectedMetaContact
-                        = (MetaContact) chatSession.getDescriptor();
-
-                    ContactList clist
-                        = GuiActivator.getUIService().getMainFrame()
-                            .getContactListPanel().getContactList();
-
-                    // Remove the envelope from the contact when the chat has
-                    // gained the focus.
-                    if(clist.isMetaContactActive(selectedMetaContact))
-                    {
-                        clist.removeActiveContact(selectedMetaContact);
-                        clist.refreshContact(selectedMetaContact);
-                    }
-
-                    fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
-                }
             }
         }
     }

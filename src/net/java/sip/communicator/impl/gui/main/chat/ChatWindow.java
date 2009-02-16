@@ -12,16 +12,20 @@ import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -45,7 +49,8 @@ import org.osgi.framework.*;
 public class ChatWindow
     extends SIPCommFrame
     implements  ExportedWindow,
-                PluginComponentListener
+                PluginComponentListener,
+                WindowFocusListener
 {
     private final Logger logger = Logger.getLogger(ChatWindow.class);
 
@@ -86,6 +91,8 @@ public class ChatWindow
             this.setUndecorated(true);
         }
 
+        this.addWindowFocusListener(this);
+
         this.setHierarchicallyOpaque(false);
 
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -95,7 +102,8 @@ public class ChatWindow
         {
             chatTabbedPane = new SIPCommTabbedPane(true, false);
 
-            chatTabbedPane.addCloseListener(new CloseListener() {
+            chatTabbedPane.addCloseListener(new CloseListener()
+            {
                 public void closeOperation(MouseEvent e)
                 {
                     int tabIndex = chatTabbedPane.getOverTabIndex();
@@ -105,6 +113,14 @@ public class ChatWindow
 
                     GuiActivator.getUIService()
                         .getChatWindowManager().closeChat(chatPanel);
+                }
+            });
+
+            chatTabbedPane.addChangeListener(new ChangeListener()
+            {
+                public void stateChanged(ChangeEvent evt)
+                {
+                    removeNonReadChatState();
                 }
             });
         }
@@ -135,13 +151,20 @@ public class ChatWindow
         this.initPluginComponents();
 
         this.setKeybindingInput(KeybindingSet.Category.CHAT);
-        this.addKeybindingAction("plugin.keybindings.CHAT_NEXT_TAB", new ForwordTabAction());
-        this.addKeybindingAction("plugin.keybindings.CHAT_PREVIOUS_TAB", new BackwordTabAction());
-        this.addKeybindingAction("plugin.keybindings.CHAT_COPY", new CopyAction());
-        this.addKeybindingAction("plugin.keybindings.CHAT_PASTE", new PasteAction());
-        this.addKeybindingAction("chat-openSmilies", new OpenSmileyAction());
-        this.addKeybindingAction("chat-openHistory", new OpenHistoryAction());
-        this.addKeybindingAction("chat-close", new CloseAction());
+        this.addKeybindingAction(   "plugin.keybindings.CHAT_NEXT_TAB",
+                                    new ForwordTabAction());
+        this.addKeybindingAction(   "plugin.keybindings.CHAT_PREVIOUS_TAB",
+                                    new BackwordTabAction());
+        this.addKeybindingAction(   "plugin.keybindings.CHAT_COPY",
+                                    new CopyAction());
+        this.addKeybindingAction(   "plugin.keybindings.CHAT_PASTE",
+                                    new PasteAction());
+        this.addKeybindingAction(   "chat-openSmilies",
+                                    new OpenSmileyAction());
+        this.addKeybindingAction(   "chat-openHistory",
+                                    new OpenHistoryAction());
+        this.addKeybindingAction(   "chat-close",
+                                    new CloseAction());
 
         this.addWindowListener(new ChatWindowAdapter());
 
@@ -406,20 +429,20 @@ public class ChatWindow
      * @return the currently selected chat panel.
      */
     public ChatPanel getCurrentChatPanel()
-    {   
+    {
         if(getChatTabCount() > 0)
-            return (ChatPanel)chatTabbedPane.getSelectedComponent();
+            return (ChatPanel) chatTabbedPane.getSelectedComponent();
         else
         {
             int componentCount = mainPanel.getComponentCount();
-            
+
             for (int i = 0; i < componentCount; i ++)
             {
                 Component c = mainPanel.getComponent(i);
 
                 if(c instanceof ChatPanel)
                 {
-                    return (ChatPanel)c;
+                    return (ChatPanel) c;
                 }
             }
         }
@@ -544,27 +567,13 @@ public class ChatWindow
     };
 
     /**
-     * The <tt>SendMessageAction</tt> is an <tt>AbstractAction</tt> that
-     * sends the text that is currently in the write message area.
-     */
-    private class SendMessageAction
-        extends AbstractAction
-    {
-		public void actionPerformed(ActionEvent e)
-        {
-            // chatPanel.stopTypingNotifications();
-            getCurrentChatPanel().sendButtonDoClick();
-        }
-    }
-
-    /**
      * The <tt>OpenSmileyAction</tt> is an <tt>AbstractAction</tt> that
      * opens the menu, containing all available smilies' icons.
      */
     private class OpenSmileyAction
         extends AbstractAction
     {
-		public void actionPerformed(ActionEvent e)
+        public void actionPerformed(ActionEvent e)
         {
             getCurrentChatPanel().getChatWritePanel()
                 .getEditTextToolBar().getSmiliesSelectorBox().open();
@@ -853,8 +862,8 @@ public class ChatWindow
         extends JPanel
     {
         private TexturePaint texture;
-        
-    /**
+
+        /**
          * Creates the logo bar and specify the size.
          */
         public LogoBar()
@@ -1157,4 +1166,52 @@ public class ChatWindow
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
     public void setParams(Object[] windowParams) {}
+
+    /**
+     * Handles <tt>WindowEvent</tt>s triggered when the window has gained focus.
+     */
+    public void windowGainedFocus(WindowEvent evt)
+    {
+        this.removeNonReadChatState();
+    }
+
+    public void windowLostFocus(WindowEvent arg0)
+    {}
+
+    /**
+     * Removes the non read state of the currently selected chat session. This
+     * will result in removal of all icons representing the non read state (like
+     * envelopes in contact list).
+     */
+    private void removeNonReadChatState()
+    {
+        final ChatPanel currentChatPanel = this.getCurrentChatPanel();
+
+        // If there's no chat panel selected we do nothing.
+        if (currentChatPanel == null)
+            return;
+
+        ChatSession chatSession
+            = currentChatPanel.getChatSession();
+
+        if(chatSession instanceof MetaContactChatSession)
+        {
+            MetaContact selectedMetaContact
+                = (MetaContact) chatSession.getDescriptor();
+
+            ContactList clist
+                = GuiActivator.getUIService().getMainFrame()
+                    .getContactListPanel().getContactList();
+
+            // Remove the envelope from the contact when the chat has
+            // gained the focus.
+            if(clist.isMetaContactActive(selectedMetaContact))
+            {
+                clist.removeActiveContact(selectedMetaContact);
+            }
+
+            this.getCurrentChatPanel()
+                .fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
+        }
+    }
 }
