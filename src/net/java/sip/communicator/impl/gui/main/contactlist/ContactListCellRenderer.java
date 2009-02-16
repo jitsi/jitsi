@@ -82,7 +82,6 @@ public class ContactListCellRenderer
 
         this.setOpaque(false);
         this.nameLabel.setOpaque(false);
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         this.nameLabel.setIconTextGap(2);
 

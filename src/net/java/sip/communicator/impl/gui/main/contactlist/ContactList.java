@@ -98,8 +98,6 @@ public class ContactList
 
         this.setCellRenderer(new ContactListCellRenderer());
 
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
         this.setShowOffline(ConfigurationManager.isShowOffline());
 
         this.initListeners();
@@ -827,6 +825,8 @@ public class ContactList
             draggedElement.setLocation(p);
             draggedElement.repaint();
         }
+        else
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -919,10 +919,22 @@ public class ContactList
             draggedElement.setVisible(false);
             draggedElement = null;
         }
+
+        if (dest instanceof MetaContactGroup)
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        else
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     public void mouseMoved(MouseEvent e)
     {
+        int selectedIndex = this.locationToIndex(e.getPoint());
+        Object cell = listModel.getElementAt(selectedIndex);
+
+        if (cell instanceof MetaContactGroup)
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        else
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**

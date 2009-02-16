@@ -602,8 +602,10 @@ public class ContactRightButtonMenu
                     itemName.substring(moveSubcontactPrefix.length()));
 
             guiContactList.addExcContactListListener(this);
-            guiContactList.setCursor(
-                    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+
+            // FIXME: set the special cursor while moving a subcontact
+            //guiContactList.setCursor(
+            //        Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 
             this.moveDialog = new MoveSubcontactMessageDialog(mainFrame, this);
 
@@ -779,8 +781,9 @@ public class ContactRightButtonMenu
 
         guiContactList.removeExcContactListListener(this);
 
-        guiContactList.setCursor(
-                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // FIXME: unset the special cursor after a subcontact has been moved
+        //guiContactList.setCursor(
+        //        Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         if(moveAllContacts)
         {
@@ -834,8 +837,9 @@ public class ContactRightButtonMenu
         else {
             guiContactList.removeExcContactListListener(this);
 
-            guiContactList.setCursor(
-                    Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            // FIXME: unset the special cursor after a subcontact has been moved
+            //guiContactList.setCursor(
+            //        Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
             if(moveAllContacts)
             {

@@ -88,9 +88,11 @@ public class MoveSubcontactMessageDialog
                     = mainFrame.getContactListPanel().getContactList();
                 
                 clist.removeExcContactListListener(clistListener);
-                
-                clist.setCursor(
-                        Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                // FIXME: unset the special cursor after a subcontact has been
+                // moved (other related FIXMEs in ContactRightButtonMenu.java)
+                //clist.setCursor(
+                //        Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             }
         });
         
