@@ -19,12 +19,12 @@ public abstract class CallParticipantSecurityStatusEvent
     /**
      * Constant value defining that security is enabled.
      */
-    public static final int AUDIO_SESSION = 1 << 0;
+    public static final int AUDIO_SESSION = 1;
 
     /**
      * Constant value defining that security is disabled.
      */
-    public static final int VIDEO_SESSION = 1 << 1;
+    public static final int VIDEO_SESSION = 2;
 
     private final int sessionType;
 
@@ -32,6 +32,9 @@ public abstract class CallParticipantSecurityStatusEvent
      * Constructor required by the EventObject.
      * 
      * @param source the source object for this event.
+     * @param sessionType either <code>AUDIO_SESSION</code> or
+     *                    <code>VIDEO_SESSION</code> to indicate the type of the
+     *                    session
      */
     public CallParticipantSecurityStatusEvent(Object source, int sessionType)
     {
