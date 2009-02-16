@@ -44,8 +44,8 @@ public class SIPCommTabbedPaneUI
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a rollover
      * close button on a tab.
      */
-    private static final String CLOSE_TAB_SELECTED_ICON =
-        "service.gui.lookandfeel.CLOSE_TAB_SELECTED_ICON";
+    //private static final String CLOSE_TAB_SELECTED_ICON =
+    //    "service.gui.lookandfeel.CLOSE_TAB_SELECTED_ICON";
 
     // Instance variables initialized at installation
     private ContainerListener containerListener;
@@ -85,9 +85,9 @@ public class SIPCommTabbedPaneUI
     private static final Border OVERBORDER = new SoftBevelBorder(
             SoftBevelBorder.RAISED);
 
-    private Image closeImgB;
+    //private Image closeImgB;
 
-    private BufferedImage maxImgB;
+    //private BufferedImage maxImgB;
 
     private Image closeImgI;
 
@@ -117,10 +117,10 @@ public class SIPCommTabbedPaneUI
     {
         super();
 
-        closeImgB = UtilActivator.getImage(CLOSE_TAB_SELECTED_ICON);
+        //closeImgB = UtilActivator.getImage(CLOSE_TAB_SELECTED_ICON);
 
-        maxImgB = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
-                BufferedImage.TYPE_4BYTE_ABGR);
+        //maxImgB = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
+        //        BufferedImage.TYPE_4BYTE_ABGR);
 
         closeImgI = UtilActivator.getImage(CLOSE_TAB_ICON);
 
@@ -514,14 +514,14 @@ public class SIPCommTabbedPaneUI
     ActionMap createMyActionMap()
     {
         ActionMap map = new ActionMapUIResource();
-        map.put("navigateNext", new NextAction());
-        map.put("navigatePrevious", new PreviousAction());
-        map.put("navigateRight", new RightAction());
-        map.put("navigateLeft", new LeftAction());
-        map.put("navigateUp", new UpAction());
-        map.put("navigateDown", new DownAction());
-        map.put("navigatePageUp", new PageUpAction());
-        map.put("navigatePageDown", new PageDownAction());
+        map.put("navigateNext", new DirectionAction(NEXT));
+        map.put("navigatePrevious", new DirectionAction(PREVIOUS));
+        map.put("navigateRight", new DirectionAction(EAST));
+        map.put("navigateLeft", new DirectionAction(WEST));
+        map.put("navigateUp", new DirectionAction(NORTH));
+        map.put("navigateDown", new DirectionAction(SOUTH));
+        map.put("navigatePageUp", new PageAction(true));
+        map.put("navigatePageDown", new PageAction(false));
         map.put("requestFocus", new RequestFocusAction());
         map.put("requestFocusForVisibleComponent",
                 new RequestFocusForVisibleAction());
@@ -756,7 +756,7 @@ public class SIPCommTabbedPaneUI
      * from (tab.y + tab.height) and adding yCropLen[i] to (tab.x).
      */
 
-    private static final int CROP_SEGMENT = 12;
+    //private static final int CROP_SEGMENT = 12;
 
     private void paintCroppedTabEdge(Graphics g, int tabPlacement,
             int tabIndex, boolean isSelected, int x, int y)
@@ -933,68 +933,34 @@ public class SIPCommTabbedPaneUI
         return false;
     }
 
-    private static class RightAction extends AbstractAction
+    private static class DirectionAction
+        extends AbstractAction
     {
+        private final int direction;
+
+        public DirectionAction(int direction)
+        {
+            this.direction = direction;
+        }
+
         public void actionPerformed(ActionEvent e)
         {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
-            ui.navigateSelectedTab(EAST);
+            ui.navigateSelectedTab(direction);
         }
     };
 
-    private static class LeftAction extends AbstractAction
+    private static class PageAction
+        extends AbstractAction
     {
-        public void actionPerformed(ActionEvent e)
+        private final boolean up;
+
+        public PageAction(boolean up)
         {
-            JTabbedPane pane = (JTabbedPane) e.getSource();
-            SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
-            ui.navigateSelectedTab(WEST);
+            this.up = up;
         }
-    };
 
-    private static class UpAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            JTabbedPane pane = (JTabbedPane) e.getSource();
-            SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
-            ui.navigateSelectedTab(NORTH);
-        }
-    };
-
-    private static class DownAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            JTabbedPane pane = (JTabbedPane) e.getSource();
-            SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
-            ui.navigateSelectedTab(SOUTH);
-        }
-    };
-
-    private static class NextAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            JTabbedPane pane = (JTabbedPane) e.getSource();
-            SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
-            ui.navigateSelectedTab(NEXT);
-        }
-    };
-
-    private static class PreviousAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            JTabbedPane pane = (JTabbedPane) e.getSource();
-            SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
-            ui.navigateSelectedTab(PREVIOUS);
-        }
-    };
-
-    private static class PageUpAction extends AbstractAction
-    {
         public void actionPerformed(ActionEvent e)
         {
             JTabbedPane pane = (JTabbedPane) e.getSource();
@@ -1002,34 +968,20 @@ public class SIPCommTabbedPaneUI
             int tabPlacement = pane.getTabPlacement();
             if (tabPlacement == TOP || tabPlacement == BOTTOM)
             {
-                ui.navigateSelectedTab(WEST);
+                ui.navigateSelectedTab(up ? WEST : EAST);
             }
             else
             {
-                ui.navigateSelectedTab(NORTH);
+                ui.navigateSelectedTab(up ? NORTH : SOUTH);
             }
         }
     };
 
-    private static class PageDownAction extends AbstractAction
+    private static class RequestFocusAction
+        extends AbstractAction
     {
-        public void actionPerformed(ActionEvent e) {
-            JTabbedPane pane = (JTabbedPane) e.getSource();
-            SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
-            int tabPlacement = pane.getTabPlacement();
-            if (tabPlacement == TOP || tabPlacement == BOTTOM)
-            {
-                ui.navigateSelectedTab(EAST);
-            }
-            else
-            {
-                ui.navigateSelectedTab(SOUTH);
-            }
-        }
-    };
+        private static final long serialVersionUID = 0L;
 
-    private static class RequestFocusAction extends AbstractAction
-    {
         public void actionPerformed(ActionEvent e)
         {
             JTabbedPane pane = (JTabbedPane) e.getSource();
@@ -1037,8 +989,11 @@ public class SIPCommTabbedPaneUI
         }
     };
 
-    private static class RequestFocusForVisibleAction extends AbstractAction
+    private static class RequestFocusForVisibleAction
+        extends AbstractAction
     {
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             JTabbedPane pane = (JTabbedPane) e.getSource();
@@ -1052,8 +1007,11 @@ public class SIPCommTabbedPaneUI
      * command. The tab selected is based on the first tab that has a mnemonic
      * matching the first character of the action command.
      */
-    private static class SetSelectedIndexAction extends AbstractAction
+    private static class SetSelectedIndexAction
+        extends AbstractAction
     {
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             JTabbedPane pane = (JTabbedPane) e.getSource();
@@ -1085,6 +1043,8 @@ public class SIPCommTabbedPaneUI
     private static class ScrollTabsForwardAction
         extends AbstractAction
     {
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             JTabbedPane pane = null;
@@ -1104,13 +1064,14 @@ public class SIPCommTabbedPaneUI
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 
             ui.tabScroller.scrollForward(pane.getTabPlacement());
-
         }
     }
 
     private static class ScrollTabsBackwardAction
         extends AbstractAction
     {
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             JTabbedPane pane = null;
@@ -1130,7 +1091,6 @@ public class SIPCommTabbedPaneUI
             SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 
             ui.tabScroller.scrollBackward(pane.getTabPlacement());
-
         }
     }
 
@@ -1179,7 +1139,7 @@ public class SIPCommTabbedPaneUI
 
                 // In order to allow programs to use a single component
                 // as the display for multiple tabs, we will not change
-                // the visible compnent if the currently selected tab
+                // the visible component if the currently selected tab
                 // has a null component. This is a bit dicey, as we don't
                 // explicitly state we support this in the spec, but since
                 // programs are now depending on this, we're making it work.
@@ -1482,9 +1442,10 @@ public class SIPCommTabbedPaneUI
         extends JViewport
         implements UIResource
     {
+        private static final long serialVersionUID = 0L;
+
         public ScrollableTabViewport()
         {
-            super();
             setOpaque(false);
             setScrollMode(SIMPLE_SCROLL_MODE);
         }
@@ -1502,28 +1463,30 @@ public class SIPCommTabbedPaneUI
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
+
             SIPCommTabbedPaneUI.this.paintTabArea(g, tabPane.getTabPlacement(),
                     tabPane.getSelectedIndex());
         }
     }
 
-    protected class ScrollableTabButton extends BasicArrowButton implements
-            UIResource, SwingConstants
+    protected static class ScrollableTabButton
+        extends BasicArrowButton
+        implements UIResource, SwingConstants
     {
+        private static final long serialVersionUID = 0L;
+
         public ScrollableTabButton(int direction)
         {
             super(direction, UIManager.getColor("TabbedPane.selected"),
                     UIManager.getColor("TabbedPane.shadow"), UIManager
                             .getColor("TabbedPane.darkShadow"), UIManager
                             .getColor("TabbedPane.highlight"));
-
         }
 
         public boolean scrollsForward()
         {
             return direction == EAST || direction == SOUTH;
         }
-
     }
 
     /**
@@ -1531,7 +1494,7 @@ public class SIPCommTabbedPaneUI
      * class should be treated as a &quot;protected&quot; inner class.
      * Instantiate it only within subclasses of BasicTabbedPaneUI.
      */
-    public class TabSelectionHandler implements ChangeListener
+    private class TabSelectionHandler implements ChangeListener
     {
         public void stateChanged(ChangeEvent e)
         {
@@ -1583,7 +1546,6 @@ public class SIPCommTabbedPaneUI
      * text, this code should be removed and replaced by something which uses
      * that.
      */
-
     private class ContainerHandler implements ContainerListener
     {
         public void componentAdded(ContainerEvent e)
@@ -1665,13 +1627,8 @@ public class SIPCommTabbedPaneUI
         return htmlViews;
     }
 
-    class MyMouseHandler extends MouseHandler
+    private class MyMouseHandler extends MouseHandler
     {
-        public MyMouseHandler()
-        {
-            super();
-        }
-
         public void mousePressed(MouseEvent e)
         {
             if (closeIndexStatus == OVER)
@@ -1750,10 +1707,9 @@ public class SIPCommTabbedPaneUI
 
     }
 
-    class MyMouseMotionListener
+    private class MyMouseMotionListener
         implements MouseMotionListener
     {
-
         public void mouseMoved(MouseEvent e)
         {
             if (actionPopupMenu.isVisible())

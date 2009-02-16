@@ -920,10 +920,9 @@ public class ContactList
             draggedElement = null;
         }
 
-        if (dest instanceof MetaContactGroup)
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        else
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        setCursor(Cursor
+            .getPredefinedCursor((dest instanceof MetaContactGroup) ? Cursor.HAND_CURSOR
+                : Cursor.DEFAULT_CURSOR));
     }
 
     public void mouseMoved(MouseEvent e)
@@ -931,10 +930,9 @@ public class ContactList
         int selectedIndex = this.locationToIndex(e.getPoint());
         Object cell = listModel.getElementAt(selectedIndex);
 
-        if (cell instanceof MetaContactGroup)
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        else
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        setCursor(Cursor
+            .getPredefinedCursor((cell instanceof MetaContactGroup) ? Cursor.HAND_CURSOR
+                : Cursor.DEFAULT_CURSOR));
     }
 
     /**

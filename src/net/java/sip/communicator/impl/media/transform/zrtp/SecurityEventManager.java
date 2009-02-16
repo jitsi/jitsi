@@ -31,7 +31,6 @@ import net.java.sip.communicator.util.*;
  * @author Emanuel Onica
  * @author Werner Dittmann
  * @author Yana Stamcheva
- *
  */
 public class SecurityEventManager extends ZrtpUserCallback
 {
@@ -48,7 +47,7 @@ public class SecurityEventManager extends ZrtpUserCallback
 
     private CallParticipant callParticipant;
 
-    private CallSession callSession;
+    private final CallSession callSession;
 
     /**
      * Is this a ZRTP DH (Master) session?

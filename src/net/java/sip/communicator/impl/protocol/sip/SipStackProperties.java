@@ -16,6 +16,8 @@ import java.util.*;
 public class SipStackProperties
     extends Properties
 {
+    private static final long serialVersionUID = 0L;
+
     /**
      * The name of the property under which the jain-sip-ri would expect to find
      * the name of a debug log file.
@@ -33,12 +35,12 @@ public class SipStackProperties
      * The name of the property under which the jain-sip-ri would expect to find
      * the name of the server log file.
      */
-    private static final String NSPNAME_SERVER_LOG
-        = "gov.nist.javax.sip.SERVER_LOG";
+    //private static final String NSPNAME_SERVER_LOG
+    //    = "gov.nist.javax.sip.SERVER_LOG";
 
     /**
      * The default name of a server log file for the jain-sip RI.
-     * (not final on purpose, see contructor)
+     * (not final on purpose, see constructor)
      */
     private static String NSPVALUE_SERVER_LOG  = "log/sc-jainsipserver.log";
 
@@ -46,14 +48,14 @@ public class SipStackProperties
      * The name of the property under which the jain-sip-ri would expect to find
      * if the content of the messages (eg SDP) has to be logged
      */
-    private static final String NSPNAME_LOG_MESSAGE_CONTENT
-        = "gov.nist.javax.sip.LOG_MESSAGE_CONTENT";
+    //private static final String NSPNAME_LOG_MESSAGE_CONTENT
+    //    = "gov.nist.javax.sip.LOG_MESSAGE_CONTENT";
 
     /**
      * A string indicating to jain-sip-ri if the content of the messages (eg
      * SDP) has to be logged
      */
-    private static final String NSPVALUE_LOG_MESSAGE_CONTENT = "true";
+    //private static final String NSPVALUE_LOG_MESSAGE_CONTENT = "true";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
