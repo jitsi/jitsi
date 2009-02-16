@@ -279,9 +279,12 @@ public class SIPCommTabbedPaneUI
 
     protected void updateOverTab(int x, int y)
     {
-        if (overTabIndex != (overTabIndex = getTabAtLocation(x, y)))
+        int overTabIndex = getTabAtLocation(x, y);
+        if (this.overTabIndex != overTabIndex) 
+        {
+            this.overTabIndex = overTabIndex;
             tabScroller.tabPanel.repaint();
-
+        }
     }
 
     protected void updateCloseIcon(int x, int y)
@@ -293,8 +296,11 @@ public class SIPCommTabbedPaneUI
             if (closeRect.contains(x, y))
                 newCloseIndexStatus = mousePressed ? PRESSED : OVER;
 
-            if (closeIndexStatus != (closeIndexStatus = newCloseIndexStatus))
+            if (closeIndexStatus != newCloseIndexStatus)
+            {
+                closeIndexStatus = newCloseIndexStatus;
                 tabScroller.tabPanel.repaint();
+            }
         }
     }
 
@@ -309,8 +315,11 @@ public class SIPCommTabbedPaneUI
             if (maxRect.contains(x, y))
                 newMaxIndexStatus = mousePressed ? PRESSED : OVER;
 
-            if (maxIndexStatus != (maxIndexStatus = newMaxIndexStatus))
+            if (maxIndexStatus != newMaxIndexStatus)
+            {
+                maxIndexStatus = newMaxIndexStatus;
                 tabScroller.tabPanel.repaint();
+            }
         }
     }
 
