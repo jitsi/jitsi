@@ -29,7 +29,7 @@ public class MuteButton
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
      * stream to a specific <tt>CallParticipant</tt>.
      * 
-     * @param callParticipant the <tt>CallParticipant</tt> to be associated with
+     * @param call the <tt>Call</tt> to be associated with
      *            the new instance and to have the audio stream sent to muted
      */
     public MuteButton(Call call)
@@ -63,7 +63,7 @@ public class MuteButton
          * Initializes a new <tt>MuteButtonModel</tt> instance to represent the
          * state of a specific <tt>CallParticipant</tt> as a toggle button.
          * 
-         * @param callParticipant the <tt>CallParticipant</tt> whose state is to
+         * @param call the <tt>Call</tt> whose state is to
          *            be represented as a toggle button
          */
         public MuteButtonModel(Call call)

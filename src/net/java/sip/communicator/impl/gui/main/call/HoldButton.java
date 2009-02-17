@@ -29,7 +29,7 @@ public class HoldButton
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
      * <tt>CallParticipant</tt> on/off hold.
      * 
-     * @param callParticipant the <tt>CallParticipant</tt> to be associated with
+     * @param call the <tt>Call</tt> to be associated with
      *            the new instance and to be put on/off hold upon performing its
      *            action
      */

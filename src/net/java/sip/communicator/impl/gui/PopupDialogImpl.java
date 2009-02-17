@@ -67,7 +67,7 @@ public class PopupDialogImpl
     public String showInputPopupDialog(Object message, String title,
         int messageType)
     {
-        return (String) showInputDialog(null, message, title,
+        return showInputDialog(null, message, title,
             popupDialog2JOptionPaneMessageType(messageType));
     }
 

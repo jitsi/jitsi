@@ -182,7 +182,7 @@ public class MainFrame
                 getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED");
 
         boolean isToolBarExtended
-            = new Boolean(isToolbarExtendedString).booleanValue();
+            = Boolean.parseBoolean(isToolbarExtendedString);
 
         JPanel menusPanel = new JPanel(new BorderLayout());
 
@@ -261,7 +261,7 @@ public class MainFrame
 
         Font font = new Font(   fontName,
                                 Font.BOLD,
-                                new Integer(titleFontSize).intValue());
+                                Integer.parseInt(titleFontSize));
 
         final int componentCount = layeredPane.getComponentCount();
         for (int i = 0; i < componentCount; i++)
@@ -429,7 +429,7 @@ public class MainFrame
             + protocolProvider.getAccountID().getAccountAddress());
 
         this.protocolProviders.put(protocolProvider,
-                new Integer(initiateProviderIndex(protocolProvider)));
+                initiateProviderIndex(protocolProvider));
 
         this.addProtocolSupportedOperationSets(protocolProvider);
 
@@ -453,7 +453,7 @@ public class MainFrame
     {
         Integer o = protocolProviders.get(protocolProvider);
 
-        return (o != null) ? o.intValue() : 0;
+        return (o != null) ? o : 0;
     }
 
     /**
@@ -690,16 +690,13 @@ public class MainFrame
         List<String> accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
 
-        boolean savedAccount = false;
-
         for (String accountRootPropName : accounts) {
             String accountUID
                 = configService.getString(accountRootPropName);
 
             if(accountUID.equals(protocolProvider
-                    .getAccountID().getAccountUniqueID())) {
-
-                savedAccount = true;
+                    .getAccountID().getAccountUniqueID()))
+            {
                 String  index = configService.getString(
                         accountRootPropName + ".accountIndex");
 
@@ -708,35 +705,30 @@ public class MainFrame
                     //return this index
                     return Integer.parseInt(index);
                 }
-                else {
+                else
+                {
                     //if there's no stored accountIndex for this protocol
                     //provider, calculate the index, set it in the configuration
                     //service and return it.
 
-                    int accountIndex = createAccountIndex(protocolProvider,
+                    return createAccountIndex(protocolProvider,
                             accountRootPropName);
-                    return accountIndex;
                 }
             }
         }
 
-        if(!savedAccount) {
-            String accNodeName
-                = "acc" + Long.toString(System.currentTimeMillis());
+        String accNodeName
+            = "acc" + Long.toString(System.currentTimeMillis());
 
-            String accountPackage
-                = "net.java.sip.communicator.impl.gui.accounts."
-                        + accNodeName;
+        String accountPackage
+            = "net.java.sip.communicator.impl.gui.accounts."
+                    + accNodeName;
 
-            configService.setProperty(accountPackage,
-                    protocolProvider.getAccountID().getAccountUniqueID());
+        configService.setProperty(accountPackage,
+                protocolProvider.getAccountID().getAccountUniqueID());
 
-            int accountIndex = createAccountIndex(protocolProvider,
-                    accountPackage);
-
-            return accountIndex;
-        }
-        return -1;
+        return createAccountIndex(protocolProvider,
+                accountPackage);
     }
 
     /**
@@ -761,7 +753,7 @@ public class MainFrame
                 && !pps.equals(protocolProvider))
             {
 
-                int index = protocolProviders.get(pps).intValue();
+                int index = protocolProviders.get(pps);
 
                 if (accountIndex < index)
                     accountIndex = index;
@@ -770,7 +762,7 @@ public class MainFrame
         accountIndex++;
         configService.setProperty(
                 accountRootPropName + ".accountIndex",
-                new Integer(accountIndex));
+                accountIndex);
 
         return accountIndex;
     }
@@ -803,7 +795,7 @@ public class MainFrame
         }
 
         if(sameProtocolProvidersCount < 2 && currentProvider != null) {
-            protocolProviders.put(currentProvider, new Integer(0));
+            protocolProviders.put(currentProvider, 0);
 
             List<String> accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
@@ -817,7 +809,7 @@ public class MainFrame
 
                     configService.setProperty(
                             rootPropName + ".accountIndex",
-                            new Integer(0));
+                            0);
                 }
             }
         }
@@ -1045,7 +1037,7 @@ public class MainFrame
                 else
                 {
                     String pluginConstraints = c.getConstraints();
-                    Object constraints = null;
+                    Object constraints;
 
                     if (pluginConstraints != null)
                         constraints =
@@ -1076,7 +1068,7 @@ public class MainFrame
             || pluginContainer.equals(Container.CONTAINER_STATUS_BAR))
         {
             String pluginConstraints = pluginComponent.getConstraints();
-            Object constraints = null;
+            Object constraints;
 
             if (pluginConstraints != null)
                 constraints =
@@ -1527,18 +1519,18 @@ public class MainFrame
                         }
                     });
 
-                    rootPane.setGlassPane(glassPane);
-                    glassPane.setVisible(true);
-                }
-                else if (!glassPane.isVisible())
-                {
-                    // we re-set the same glasspane in the root pane otherwise
-                    // we are not guaranteed it will be painted in some case
-                    rootPane.setGlassPane(glassPane);
-                    glassPane.setVisible(true);
-                }
-                else
-                    glassPane.setVisible(false);
+                rootPane.setGlassPane(glassPane);
+                glassPane.setVisible(true);
+            }
+            else if (!glassPane.isVisible())
+            {
+                // we re-set the same glasspane in the root pane otherwise
+                // we are not guaranteed it will be painted in some case
+                rootPane.setGlassPane(glassPane);
+                glassPane.setVisible(true);
+            }
+            else
+                glassPane.setVisible(false);
         }
     }
 }

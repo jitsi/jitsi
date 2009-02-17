@@ -103,9 +103,9 @@ public class FullScreenLayout implements LayoutManager
         Component[] components = getLayoutComponents();
         Dimension size = new Dimension(0, 0);
 
-        for (int i = 0; i < components.length; i++)
+        for (Component component : components)
         {
-            Dimension componentSize = components[i].getMinimumSize();
+            Dimension componentSize = component.getMinimumSize();
 
             size.width = Math.max(size.width, componentSize.width);
             if (overlay)
@@ -121,9 +121,9 @@ public class FullScreenLayout implements LayoutManager
         Component[] components = getLayoutComponents();
         Dimension size = new Dimension(0, 0);
 
-        for (int i = 0; i < components.length; i++)
+        for (Component component : components)
         {
-            Dimension componentSize = components[i].getPreferredSize();
+            Dimension componentSize = component.getPreferredSize();
 
             size.width = Math.max(size.width, componentSize.width);
             if (overlay)

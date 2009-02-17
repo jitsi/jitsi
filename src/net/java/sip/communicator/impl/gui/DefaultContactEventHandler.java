@@ -20,9 +20,10 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class DefaultContactEventHandler implements ContactEventHandler
+public class DefaultContactEventHandler
+    implements ContactEventHandler
 {
-    private MainFrame mainFrame;
+    private final MainFrame mainFrame;
 
     /**
      * Creates an instance of <tt>DefaultContactEventHandler</tt>.
@@ -64,11 +65,12 @@ public class DefaultContactEventHandler implements ContactEventHandler
      * 
      * @author Yana Stamcheva
      */
-    public class RunMessageWindow implements Runnable
+    public static class RunMessageWindow
+        implements Runnable
     {
-        private MetaContact metaContact;
+        private final MetaContact metaContact;
 
-        private Contact protocolContact;
+        private final Contact protocolContact;
 
         /**
          * Creates a chat window 
@@ -88,12 +90,10 @@ public class DefaultContactEventHandler implements ContactEventHandler
          */
         public void run()
         {
-            ChatPanel chatPanel;
-
             ChatWindowManager chatWindowManager
                 = GuiActivator.getUIService().getChatWindowManager();
 
-            chatPanel = chatWindowManager
+            ChatPanel chatPanel = chatWindowManager
                     .getContactChat(metaContact, protocolContact);
 
             chatWindowManager.openChat(chatPanel, true);

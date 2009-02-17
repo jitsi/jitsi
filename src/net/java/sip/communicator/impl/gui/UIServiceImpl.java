@@ -170,8 +170,6 @@ public class UIServiceImpl
      *
      * @param pluginComponent the plugin component that is added to the
      *            container.
-     * @param containerID the containerID that corresponds to the container
-     *            where the component is added.
      * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
      *            the nature of the event.
      */
@@ -550,10 +548,7 @@ public class UIServiceImpl
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
 
-        ChatPanel chatPanel
-            = chatWindowManager.getContactChat(metaContact);
-
-        return chatPanel;
+        return chatWindowManager.getContactChat(metaContact);
     }
 
     /**
@@ -565,10 +560,7 @@ public class UIServiceImpl
      */
     public ChatPanel getChat(ChatRoom chatRoom)
     {
-        ChatPanel chatPanel
-            = chatWindowManager.getMultiChat(chatRoom);
-
-        return chatPanel;
+        return chatWindowManager.getMultiChat(chatRoom);
     }
 
     /**
@@ -807,10 +799,9 @@ public class UIServiceImpl
                 // appropriate
                 // default decoration.
                 boolean isDecorated =
-                    new Boolean(GuiActivator.getResources()
+                    Boolean.parseBoolean(GuiActivator.getResources()
                         .getSettingsString(
-                                        "impl.gui.IS_LOOK_AND_FEEL_DECORATED"))
-                        .booleanValue();
+                                        "impl.gui.IS_LOOK_AND_FEEL_DECORATED"));
 
                 if (isDecorated)
                 {
@@ -912,7 +903,7 @@ public class UIServiceImpl
             String isTransparentString = (String) evt.getNewValue();
 
             boolean isTransparentWindowEnabled
-                = new Boolean(isTransparentString).booleanValue();
+                = Boolean.parseBoolean(isTransparentString);
 
             try
             {
@@ -958,7 +949,7 @@ public class UIServiceImpl
 
         Font font = new Font(   fontName,
                                 Font.BOLD,
-                                new Integer(titleFontSize).intValue());
+                                Integer.parseInt(titleFontSize));
 
         for (int i = 0; i < layeredPane.getComponentCount(); i++)
         {
