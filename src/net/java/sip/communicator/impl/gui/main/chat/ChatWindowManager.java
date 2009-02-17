@@ -65,7 +65,7 @@ public class ChatWindowManager
                         chatWindow.setExtendedState(JFrame.NORMAL);
                         chatWindow.toFront();
                     }
-                    
+
                     if(!chatWindow.getTitle().startsWith("*"))
                         chatWindow.setTitle(
                             "*" + chatWindow.getTitle());
@@ -93,7 +93,7 @@ public class ChatWindowManager
             }
         }
     }
-    
+
     /**
      * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>MetaContact</tt>.
@@ -111,7 +111,7 @@ public class ChatWindowManager
                 && getChat(chatSession).isShown());
         }
     }
-    
+
     /**
      * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>ChatRoom</tt>.
@@ -121,7 +121,7 @@ public class ChatWindowManager
      * <tt>ChatRoom</tt>
      */
     public boolean isChatOpenedForChatRoom(ChatRoomWrapper chatRoomWrapper)
-    {   
+    {
         synchronized (syncChat)
         {
             ChatSession chatSession
@@ -299,8 +299,8 @@ public class ChatWindowManager
                 return createChat(metaContact);
             }
         }
-    } 
-    
+    }
+
     /**
      * Returns the chat panel corresponding to the given meta contact
      *
@@ -323,7 +323,7 @@ public class ChatWindowManager
                 return createChat(metaContact, protocolContact);
         }
     }
-    
+
     /**
      * Returns the chat panel corresponding to the given meta contact
      *
@@ -351,7 +351,7 @@ public class ChatWindowManager
                                     escapedMessageID);
         }
     }
-    
+
     /**
      * Returns the currently selected <tt>ChatPanel</tt>.
      * @return the currently selected <tt>ChatPanel</tt>
@@ -384,7 +384,7 @@ public class ChatWindowManager
                         selectedChat = chatPanel;
                 }
             }
-            
+
             return selectedChat;
         }
     }
@@ -707,7 +707,7 @@ public class ChatWindowManager
             ChatSession chatSession = chatPanel.getChatSession();
 
             if (chatSession.getDescriptor().equals(descriptor))
-                return chatSession; 
+                return chatSession;
         }
 
         return null;
@@ -728,7 +728,7 @@ public class ChatWindowManager
             return chatPanels.contains(chatPanel);
         }
     }
-    
+
     /**
      * Returns the <tt>ChatPanel</tt> corresponding to the given meta contact.
      * 
@@ -742,12 +742,12 @@ public class ChatWindowManager
         for (ChatPanel chatPanel : chatPanels)
         {
             if (chatSession.equals(chatPanel.getChatSession()))
-                return chatPanel; 
+                return chatPanel;
         }
 
         return null;
     }
-    
+
     /**
      * Disposes the chat window.
      */

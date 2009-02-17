@@ -221,7 +221,7 @@ public class ChatWindow
     {
         return mainToolBar;
     }
-    
+
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
      * 
@@ -365,7 +365,7 @@ public class ChatWindow
     public void removeAllChats()
     {
         logger.debug("Remove all tabs from the chat window.");
-        
+
         if(getChatTabCount() > 0)
         {
             this.chatTabbedPane.removeAll();
@@ -469,7 +469,7 @@ public class ChatWindow
         this.chatTabbedPane.highlightTab(
             chatTabbedPane.indexOfComponent(chatPanel));
     }
-    
+
     /**
      * Sets the given icon to the tab opened for the given chat panel.
      * 
@@ -490,11 +490,11 @@ public class ChatWindow
     public void setTabTitle(ChatPanel chatPanel, String title)
     {
         int index = this.chatTabbedPane.indexOfComponent(chatPanel);
-        
+
         if(index > -1)
             this.chatTabbedPane.setTitleAt(index, title);
     }
-    
+
     /**
      * The <tt>ForwordTabAction</tt> is an <tt>AbstractAction</tt> that
      * changes the currently selected tab with the next one. Each time when the
@@ -592,7 +592,7 @@ public class ChatWindow
         }
     }
 
-    
+
     /**
      * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that
      * closes a tab in the chat window.
@@ -605,8 +605,7 @@ public class ChatWindow
             close(true);
         }
     }
-    
-        
+
     /**
      * Returns the time of the last received message.
      *
@@ -617,7 +616,7 @@ public class ChatWindow
         return chatPanel.getChatConversationPanel()
             .getLastIncomingMsgTimestamp();
     }
-      
+
     /**
      * Before closing the chat window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
@@ -677,7 +676,7 @@ public class ChatWindow
                     chatPanel);
             }
         }
-        else 
+        else
         {
             GuiActivator.getUIService().getChatWindowManager()
                 .closeWindow(this);
@@ -686,10 +685,10 @@ public class ChatWindow
 
     /**
      * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
-     * Returns the identifier of this window, which will 
+     * Returns the identifier of this window, which will
      */
     public WindowID getIdentifier()
-    {   
+    {
         return ExportedWindow.CHAT_WINDOW;
     }
 
@@ -707,7 +706,7 @@ public class ChatWindow
      * window.
      */
     public void maximize()
-    {   
+    {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
@@ -719,7 +718,7 @@ public class ChatWindow
     {
         if(getExtendedState() == JFrame.ICONIFIED)
             setExtendedState(JFrame.NORMAL);
-        
+
         this.toFront();
     }
 
@@ -834,7 +833,7 @@ public class ChatWindow
     {
         return chatCount;
     }
-    
+
     public void addChatChangeListener(ChatChangeListener listener)
     {
         synchronized (chatChangeListeners)
@@ -843,7 +842,7 @@ public class ChatWindow
                 chatChangeListeners.add(listener);
         }
     }
-    
+
     public void removeChatChangeListener(ChatChangeListener listener)
     {
         synchronized (chatChangeListeners)
