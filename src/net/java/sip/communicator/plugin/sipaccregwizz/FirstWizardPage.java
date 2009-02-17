@@ -506,7 +506,7 @@ public class FirstWizardPage
                             ProtocolProviderFactory.FORCE_P2P_MODE, false);
 
         boolean enabledDefaultEncryption = accountID.getAccountPropertyBoolean(
-                            ProtocolProviderFactory.DEFAULT_ENCRYPTION, false);
+                            ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
 
         String pollingPeriod = accountID.getAccountPropertyString(
                             ProtocolProviderFactory.POLLING_PERIOD);
