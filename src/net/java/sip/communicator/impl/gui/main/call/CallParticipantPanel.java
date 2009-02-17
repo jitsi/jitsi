@@ -76,7 +76,6 @@ public class CallParticipantPanel
      */
     private Window fullScreenWindow;
 
-    private ParticipantStatusPanel statusPanel;
     private SecurityPanel securityPanel = null;
 
     /**
@@ -164,14 +163,10 @@ public class CallParticipantPanel
 
         buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-        for (int buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++)
+        for (Component button : buttons)
         {
-            Component button = buttons[buttonIndex];
-
             if (button != null)
-            {
                 buttonBar.add(button);
-            }
         }
         return buttonBar;
     }
@@ -269,7 +264,8 @@ public class CallParticipantPanel
         securityStatusLabel.setForeground(Color.WHITE);
         securityStatusLabel.setText(callParticipant.getState().getStateString());
 
-        statusPanel = new ParticipantStatusPanel(new GridLayout(1, 0, 5, 5));
+        ParticipantStatusPanel statusPanel
+                = new ParticipantStatusPanel(new GridLayout(1, 0, 5, 5));
 
         timeLabel.setForeground(Color.WHITE);
 
@@ -949,8 +945,8 @@ public class CallParticipantPanel
         if (component instanceof Container)
         {
             Component[] components = ((Container) component).getComponents();
-            for (int i = 0; i < components.length; i++)
-                setBackground(components[i], background);
+            for (Component c : components)
+                setBackground(c, background);
         }
     }
 
@@ -960,8 +956,8 @@ public class CallParticipantPanel
         if (component instanceof Container)
         {
             Component[] components = ((Container) component).getComponents();
-            for (int i = 0; i < components.length; i++)
-                addKeyListener(components[i], l);
+            for (Component c : components)
+                addKeyListener(c, l);
         }
     }
 

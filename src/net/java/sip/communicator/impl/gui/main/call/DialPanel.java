@@ -32,7 +32,7 @@ public class DialPanel
     extends JPanel
     implements MouseListener
 {
-    private Logger logger = Logger.getLogger(DialPanel.class);
+    private final Logger logger = Logger.getLogger(DialPanel.class);
 
     /**
      * Handles press and hold zero button action.
@@ -71,8 +71,7 @@ public class DialPanel
      * specifying the parent <tt>CallManager</tt> and the
      * <tt>CallParticipant</tt>.
      * 
-     * @param callManager the parent <tt>CallManager</tt>
-     * @param callParticipant the <tt>CallParticipant</tt>, for which the
+     * @param callParticipants the <tt>CallParticipant</tt>s, for which the
      * dialpad will be opened.
      */
     public DialPanel(Iterator<CallParticipant> callParticipants)
@@ -340,8 +339,8 @@ public class DialPanel
 
         Graphics2D g2 = (Graphics2D) g;
 
-        boolean isTextureBackground = new Boolean(GuiActivator.getResources()
-            .getSettingsString("impl.gui.IS_TEXTURE_BACKGROUND")).booleanValue();
+        boolean isTextureBackground = Boolean.parseBoolean(GuiActivator.getResources()
+            .getSettingsString("impl.gui.IS_TEXTURE_BACKGROUND"));
 
         BufferedImage bgImage
             = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
@@ -418,7 +417,7 @@ public class DialPanel
             while (callParticipants.hasNext())
             {
                 CallParticipant participant
-                    = (CallParticipant) callParticipants.next();
+                    = callParticipants.next();
 
                 if (participant.getProtocolProvider()
                     .getOperationSet(OperationSetDTMF.class) != null)

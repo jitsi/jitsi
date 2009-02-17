@@ -26,7 +26,7 @@ public class MoreButton
 {
     private boolean isMouseOver = false;
 
-    private JPopupMenu menu = new JPopupMenu();
+    private final JPopupMenu menu = new JPopupMenu();
 
     private final Map<String, Component> menuItemsTable =
         new Hashtable<String, Component>();
@@ -101,9 +101,11 @@ public class MoreButton
 
         if (!menu.isVisible())
         {
+            Point locationOnScreen = getLocationOnScreen();
+
             menu.setLocation(
-                getLocationOnScreen().x,
-                getLocationOnScreen().y + getHeight());
+                locationOnScreen.x,
+                locationOnScreen.y + getHeight());
 
             menu.setVisible(true);
         }
@@ -155,11 +157,8 @@ public class MoreButton
                             1,
                             false);
 
-                    MouseListener[] listeners = c.getMouseListeners();
-
-                    for (int i = 0; i < listeners.length; i++)
+                    for (MouseListener l : c.getMouseListeners())
                     {
-                        MouseListener l = listeners[i];
                         l.mousePressed(mouseEvent);
                         l.mouseReleased(mouseEvent);
                         l.mouseClicked(mouseEvent);

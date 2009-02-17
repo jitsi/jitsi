@@ -20,7 +20,8 @@ import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -35,27 +36,9 @@ public class FileMenu
     implements ActionListener
 {
     private static final Logger logger =
-        Logger.getLogger(FileMenu.class.getName());
+        Logger.getLogger(FileMenu.class);
 
-    private JMenuItem newAccountMenuItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.NEW_ACCOUNT"));
-
-    private JMenuItem addContactItem
-        = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"), 
-            new ImageIcon(ImageLoader.getImage(
-                ImageLoader.ADD_CONTACT_16x16_ICON)));
-
-    private JMenuItem createGroupItem
-        = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.CREATE_GROUP"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
-
-    private JMenuItem myChatRoomsItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.MY_CHAT_ROOMS"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
-
-    private MainFrame parentWindow;
+    private final MainFrame parentWindow;
 
     /**
      * Creates an instance of <tt>FileMenu</tt>.
@@ -65,10 +48,26 @@ public class FileMenu
     {
         super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
 
+        ResourceManagementService resources = GuiActivator.getResources();
+        JMenuItem newAccountMenuItem = new JMenuItem(
+            resources.getI18NString("service.gui.NEW_ACCOUNT"));
+        JMenuItem addContactItem
+            = new JMenuItem(
+                resources.getI18NString("service.gui.ADD_CONTACT"),
+                new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.ADD_CONTACT_16x16_ICON)));
+        JMenuItem createGroupItem
+            = new JMenuItem(
+                resources.getI18NString("service.gui.CREATE_GROUP"),
+                new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+        JMenuItem myChatRoomsItem = new JMenuItem(
+            resources.getI18NString("service.gui.MY_CHAT_ROOMS"),
+            new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+
         this.setOpaque(false);
 
         this.setForeground(
-            new Color(GuiActivator.getResources()
+            new Color(resources
                 .getColor("service.gui.MAIN_MENU_FOREGROUND")));
 
         this.parentWindow = parentWindow;
@@ -89,25 +88,25 @@ public class FileMenu
         //this.addContactItem.setIcon(new ImageIcon(ImageLoader
         //        .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
-        this.newAccountMenuItem.setName("newAccount");
-        this.addContactItem.setName("addContact");
-        this.createGroupItem.setName("createGroup");
-        this.myChatRoomsItem.setName("myChatRooms");
+        newAccountMenuItem.setName("newAccount");
+        addContactItem.setName("addContact");
+        createGroupItem.setName("createGroup");
+        myChatRoomsItem.setName("myChatRooms");
 
-        this.newAccountMenuItem.addActionListener(this);
-        this.addContactItem.addActionListener(this);
-        this.createGroupItem.addActionListener(this);
-        this.myChatRoomsItem.addActionListener(this);
+        newAccountMenuItem.addActionListener(this);
+        addContactItem.addActionListener(this);
+        createGroupItem.addActionListener(this);
+        myChatRoomsItem.addActionListener(this);
 
-        this.setMnemonic(GuiActivator.getResources()
+        this.setMnemonic(resources
             .getI18nMnemonic("service.gui.FILE"));
-        this.newAccountMenuItem.setMnemonic(GuiActivator.getResources()
+        newAccountMenuItem.setMnemonic(resources
             .getI18nMnemonic("service.gui.NEW_ACCOUNT"));
-        this.addContactItem.setMnemonic(GuiActivator.getResources()
+        addContactItem.setMnemonic(resources
             .getI18nMnemonic("service.gui.ADD_CONTACT"));
-        this.createGroupItem.setMnemonic(GuiActivator.getResources()
+        createGroupItem.setMnemonic(resources
             .getI18nMnemonic("service.gui.CREATE_GROUP"));
-        this.myChatRoomsItem.setMnemonic(GuiActivator.getResources()
+        myChatRoomsItem.setMnemonic(resources
             .getI18nMnemonic("service.gui.MY_CHAT_ROOMS"));
     }
 
@@ -183,7 +182,7 @@ public class FileMenu
             { userData });
 
             if (result instanceof Boolean)
-                return ((Boolean) result).booleanValue();
+                return (Boolean) result;
         }
         catch (ClassNotFoundException ex)
         {

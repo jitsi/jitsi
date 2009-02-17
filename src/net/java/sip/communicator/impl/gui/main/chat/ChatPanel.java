@@ -547,10 +547,8 @@ public class ChatPanel
                                         String message,
                                         String contentType)
     {
-        String processedMessage
-            = this.conversationPanel.processMessage(contactName, date,
+        return this.conversationPanel.processMessage(contactName, date,
                                             messageType, message, contentType);
-        return processedMessage;
     }
 
     /**
@@ -676,12 +674,9 @@ public class ChatPanel
     {
         ChatPanel currentChatPanel = chatWindow.getCurrentChatPanel();
 
-        if(currentChatPanel != null
+        return (currentChatPanel != null
                 && currentChatPanel.equals(this)
-                && chatWindow.isActive())
-            return true;
-
-        return false;
+                && chatWindow.isActive());
     }
 
     /**
@@ -751,7 +746,7 @@ public class ChatPanel
 
         if (greyHistoryProperty != null)
             isGreyHistoryDisabled
-                = new Boolean(greyHistoryProperty).booleanValue();
+                = Boolean.parseBoolean(greyHistoryProperty);
 
         return isProtocolHidden && isGreyHistoryDisabled;
     }
@@ -1309,7 +1304,7 @@ public class ChatPanel
      */
     private class HistoryMessagesLoader implements Runnable
     {
-        private Collection msgHistory;
+        private final Collection msgHistory;
 
         public HistoryMessagesLoader(Collection msgHistory)
         {
@@ -1435,7 +1430,7 @@ public class ChatPanel
     }
 
     public void inviteContacts( ChatTransport inviteChatTransport,
-                                Collection chatContacts,
+                                Collection<String> chatContacts,
                                 String reason)
     {
         ChatSession conferenceChatSession;
@@ -1464,11 +1459,8 @@ public class ChatPanel
             conferenceChatSession = chatSession;
         }
 
-        Iterator<String> contactsIter = chatContacts.iterator();
-        while (contactsIter.hasNext())
+        for (String contactAddress : chatContacts)
         {
-            String contactAddress = contactsIter.next();
-
             conferenceChatSession.getCurrentChatTransport()
                 .inviteChatContact(contactAddress, reason);
         }

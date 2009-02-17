@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * The main menu bar. This is the menu bar that appears on top of the main
@@ -27,21 +28,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class MainMenu
     extends JMenuBar
 {
-    private FileMenu fileMenu; 
-
-    private ToolsMenu toolsMenu;
-
-    private HelpMenu helpMenu;
-
-    private static final String fileString
-        = GuiActivator.getResources().getI18NString("service.gui.FILE");
-
-    private static final String toolsString
-        = GuiActivator.getResources().getI18NString("service.gui.TOOLS");
-
-    private static final String helpString
-        = GuiActivator.getResources().getI18NString("service.gui.HELP");
-
     /**
      * Creates an instance of <tt>Menu</tt>.
      */
@@ -51,41 +37,21 @@ public class MainMenu
             new Color(GuiActivator.getResources()
                     .getColor("service.gui.MAIN_MENU_FOREGROUND")));
 
-        this.fileMenu = new FileMenu(mainFrame);
-
-        this.toolsMenu = new ToolsMenu(mainFrame);
-
-        this.helpMenu = new HelpMenu(mainFrame);
-
-        this.init();
+        addMenu(new FileMenu(mainFrame), "service.gui.FILE");
+        addMenu(new ToolsMenu(mainFrame), "service.gui.TOOLS");
+        addMenu(new HelpMenu(mainFrame), "service.gui.HELP");
     }
 
-    /**
-     * Constructs the menu.
-     */
-    private void init()
+    private void addMenu(JMenu menu, String key)
     {
-        fileMenu.setText(fileString);
-        fileMenu.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.FILE"));
+        ResourceManagementService resources = GuiActivator.getResources();
 
-        toolsMenu.setText(toolsString);
-        toolsMenu.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
-
-        helpMenu.setText(helpString);
-        helpMenu.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.HELP"));
-
-        this.fileMenu.setOpaque(false);
-        this.toolsMenu.setOpaque(false);
-        this.helpMenu.setOpaque(false);
-
-        this.add(fileMenu);
-        this.add(toolsMenu);
-        this.add(helpMenu);
+        menu.setText(resources.getI18NString(key));
+        menu.setMnemonic(resources.getI18nMnemonic(key));
+        menu.setOpaque(false);
+        add(menu);
     }
-    
+
     /**
      * Returns <code>true</code> if there are selected menus, otherwise - 
      * returns <code>false</code>.

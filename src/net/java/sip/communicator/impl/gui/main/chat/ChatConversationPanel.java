@@ -390,7 +390,7 @@ public class ChatConversationPanel
     {
         String formattedMessage = message;
 
-        if (keyword != null && keyword != "")
+        if (keyword != null && keyword.length() != 0)
         {
             formattedMessage = processKeyword(message, contentType, keyword);
         }
@@ -502,12 +502,10 @@ public class ChatConversationPanel
                 
             try
             {
-                Element headerElement = null;
-                
                 // Remove the header of the message if such exists.
                 if(firstMsgIndex > 0)
                 {
-                    headerElement = rootElement.getElement(firstMsgIndex - 1);
+                    Element headerElement = rootElement.getElement(firstMsgIndex - 1);
                 
                     String idAttr = (String) headerElement
                         .getAttributes().getAttribute("identifier");
@@ -524,7 +522,6 @@ public class ChatConversationPanel
                 this.document.remove(firstMsgElement.getStartOffset(),
                         firstMsgElement.getEndOffset()
                             - firstMsgElement.getStartOffset());
-
             }
             catch (BadLocationException e)
             {
@@ -720,12 +717,10 @@ public class ChatConversationPanel
 
         for (Smiley smiley : smilies)
         {
-            String[] smileyStrings = smiley.getSmileyStrings();
-
-            for (int j = 0; j < smileyStrings.length; j++)
+            for (String smileyString : smiley.getSmileyStrings())
             {
                 regexp.append(GuiUtils.replaceSpecialRegExpChars(
-                    smileyStrings[j])).append("|");
+                    smileyString)).append("|");
             }
         }
         regexp = regexp.deleteCharAt(regexp.length() - 1);
@@ -844,7 +839,7 @@ public class ChatConversationPanel
             openContextMenu(p);
         }
         else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
-            && currentHref != null && currentHref != "")
+            && currentHref != null && currentHref.length() != 0)
         {
             GuiActivator.getBrowserLauncher().openURL(currentHref);
         }
@@ -858,7 +853,7 @@ public class ChatConversationPanel
      */
     private void openContextMenu(Point p)
     {
-        if (currentHref != null && currentHref != "")
+        if (currentHref != null && currentHref.length() != 0)
         {
             rightButtonMenu.insert(openLinkItem, 0);
             rightButtonMenu.insert(copyLinkItem, 1);
@@ -1001,7 +996,7 @@ public class ChatConversationPanel
         String dateString = (String)firstMessageElement
             .getAttributes().getAttribute("date");
             
-        return new Date(new Long(dateString).longValue()); 
+        return new Date(Long.parseLong(dateString)); 
     }
 
     /**
@@ -1033,7 +1028,7 @@ public class ChatConversationPanel
         String dateString = (String) lastMessageElement
             .getAttributes().getAttribute("date");
         
-        return new Date(new Long(dateString).longValue());
+        return new Date(Long.parseLong(dateString));
     }
     
     /**

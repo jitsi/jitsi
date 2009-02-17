@@ -21,13 +21,12 @@ public class AboutWindow
     implements  ActionListener,
                 ExportedWindow
 {
-    private WindowBackground mainPanel = new WindowBackground();
-
-    private JLabel versionLabel = new JLabel(" "
-            + System.getProperty("sip-communicator.version"));
-
     public AboutWindow()
     {
+        WindowBackground mainPanel = new WindowBackground();
+        JLabel versionLabel = new JLabel(" "
+            + System.getProperty("sip-communicator.version"));
+
         this.setModal(false);
         this.setResizable(false);
 
@@ -37,15 +36,15 @@ public class AboutWindow
                 new String[]{ GuiActivator.getResources()
                     .getSettingsString("service.gui.APPLICATION_NAME")}));
 
-        this.mainPanel.setLayout(null);
+        mainPanel.setLayout(null);
 
-        this.versionLabel.setFont(Constants.FONT.deriveFont(12));
-        this.versionLabel.setForeground(new Color(
+        versionLabel.setFont(Constants.FONT.deriveFont(12));
+        versionLabel.setForeground(new Color(
             GuiActivator.getResources()
                 .getColor("service.gui.SPLASH_SCREEN_TITLE_COLOR")));
-        this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.mainPanel.add(versionLabel);
+        mainPanel.add(versionLabel);
 
         Insets insets = mainPanel.getInsets();
         versionLabel.setBounds(370 + insets.left, 307 + insets.top, 200, 20);

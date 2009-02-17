@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
  */
 public class CallManager
 {
-    private static Logger logger = Logger.getLogger(CallManager.class.getName());
+    private static final Logger logger = Logger.getLogger(CallManager.class);
 
     /**
      * A table mapping protocol <tt>Call</tt> objects to the GUI dialogs
@@ -77,7 +77,7 @@ public class CallManager
 
             if (activeCalls.get(sourceCall) != null)
             {
-                CallDialog callDialog = (CallDialog) activeCalls.get(sourceCall);
+                CallDialog callDialog = activeCalls.get(sourceCall);
 
                 disposeCallDialogWait(callDialog);
             }
@@ -104,7 +104,7 @@ public class CallManager
     /**
      * Removes the given call panel tab.
      *
-     * @param callPanel the CallPanel to remove
+     * @param callDialog the CallDialog to remove
      */
     public static void disposeCallDialogWait(CallDialog callDialog)
     {

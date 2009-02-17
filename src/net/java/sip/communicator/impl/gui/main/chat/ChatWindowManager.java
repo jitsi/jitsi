@@ -107,11 +107,8 @@ public class ChatWindowManager
         {
             ChatSession chatSession = findChatSessionForDescriptor(metaContact);
 
-            if(chatSession != null
-                && getChat(chatSession).isShown())
-                return true;
-
-            return false;
+            return (chatSession != null
+                && getChat(chatSession).isShown());
         }
     }
     
@@ -130,11 +127,8 @@ public class ChatWindowManager
             ChatSession chatSession
                 = findChatSessionForDescriptor(chatRoomWrapper);
 
-            if(chatSession != null
-                && getChat(chatSession).isShown())
-                return true;
-
-            return false;
+            return (chatSession != null
+                && getChat(chatSession).isShown());
         }
     }
 
@@ -487,7 +481,7 @@ public class ChatWindowManager
         if (chatWindow.getChatCount() == 0)
             disposeChatWindow(chatWindow);
 
-        boolean isChatPanelContained = false;
+        boolean isChatPanelContained;
         synchronized (chatPanels)
         {
             isChatPanelContained = chatPanels.remove(chatPanel);
@@ -631,7 +625,7 @@ public class ChatWindowManager
      * Creates a <tt>ChatPanel</tt> for the given <tt>ChatRoom</tt> and saves it
      * in the list of created <tt>ChatPanel</tt>s.
      *
-     * @param chatRoom the <tt>ChatRoom</tt>, for which the chat will be created
+     * @param chatRoomWrapper the <tt>ChatRoom</tt>, for which the chat will be created
      * @return The <code>ChatPanel</code> newly created.
      */
     private ChatPanel createChat( ChatRoomWrapper chatRoomWrapper)
@@ -643,7 +637,7 @@ public class ChatWindowManager
      * Creates a <tt>ChatPanel</tt> for the given <tt>ChatRoom</tt> and saves it
      * in the list of created <tt>ChatPanel</tt>s.
      *
-     * @param chatRoom the <tt>ChatRoom</tt>, for which the chat will be created
+     * @param chatRoomWrapper the <tt>ChatRoom</tt>, for which the chat will be created
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
@@ -738,7 +732,7 @@ public class ChatWindowManager
     /**
      * Returns the <tt>ChatPanel</tt> corresponding to the given meta contact.
      * 
-     * @param key the key, which corresponds to the chat we are looking for. It
+     * @param chatSession the key, which corresponds to the chat we are looking for. It
      * could be a <tt>MetaContact</tt> in the case of single user chat and
      * a <tt>ChatRoom</tt> in the case of a multi user chat
      * @return the <tt>ChatPanel</tt> corresponding to the given meta contact

@@ -215,10 +215,10 @@ public class ExtendedQuickMenu
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                    .bundleContext.getService(serRef);
 
                     Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
@@ -575,17 +575,8 @@ public class ExtendedQuickMenu
 
             if (selectedObject != null)
             {
-                if (selectedObject instanceof MetaContact)
-                {
-                    contactList.setSelectedIndex(
-                        listModel.indexOf((MetaContact) selectedObject));
-                }
-                else
-                {
-                    contactList.setSelectedIndex(
-                        listModel.indexOf(
-                                (MetaContactGroup) selectedObject));
-                }
+                contactList.setSelectedIndex(
+                    listModel.indexOf(selectedObject));
             }
         }
         else if (buttonName.equals("info"))

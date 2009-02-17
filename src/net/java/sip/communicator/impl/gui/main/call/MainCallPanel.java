@@ -47,7 +47,7 @@ public class MainCallPanel
 
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
-    private MainFrame mainFrame;
+    private final MainFrame mainFrame;
 
     private ProtocolProviderService protocolProvider;
 
@@ -63,11 +63,6 @@ public class MainCallPanel
 
     private TransparentPanel comboPanel
         = new TransparentPanel(new BorderLayout());
-
-    private JLabel callViaLabel
-        = new JLabel(
-            GuiActivator.getResources().getI18NString("service.gui.CALL_VIA")
-            + " ");
 
     private TransparentPanel callViaPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
@@ -86,6 +81,11 @@ public class MainCallPanel
         super(new BorderLayout());
 
         this.mainFrame = mainFrame;
+
+        JLabel callViaLabel
+            = new JLabel(
+                GuiActivator.getResources().getI18NString("service.gui.CALL_VIA")
+                + " ");
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
@@ -155,10 +155,8 @@ public class MainCallPanel
                 java.util.List<Contact> telephonyContacts =
                     new Vector<Contact>();
 
-                for (int i = 0; i < selectedContacts.length; i++)
+                for (Object o : selectedContacts)
                 {
-                    Object o = selectedContacts[i];
-
                     if (o instanceof MetaContact)
                     {
                         Contact contact = ((MetaContact) o)
@@ -229,9 +227,7 @@ public class MainCallPanel
     }
 
     /**
-     * Sets the protocol provider to be used for making calls.
-     *
-     * @param protocolProvider the protocol provider to be used for making calls.
+     * Gets the protocol provider used for making calls.
      */
     public ProtocolProviderService getCallProvider()
     {
@@ -439,10 +435,10 @@ public class MainCallPanel
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);
+                    .bundleContext.getService(serRef);
 
                     Object selectedValue = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
@@ -457,7 +453,7 @@ public class MainCallPanel
                         .setCurrentContactGroup((MetaContactGroup)selectedValue);
                 }
 
-                Object constraints = null;
+                Object constraints;
 
                 if (component.getConstraints() != null)
                     constraints = UIServiceImpl

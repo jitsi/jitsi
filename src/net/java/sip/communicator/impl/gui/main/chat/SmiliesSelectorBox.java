@@ -25,7 +25,7 @@ public class SmiliesSelectorBox
     extends JMenuBar
     implements ActionListener
 {
-    private ChatWritePanel chatWritePanel;
+    private final ChatWritePanel chatWritePanel;
 
     private final Collection<Smiley> imageList;
 
@@ -33,9 +33,9 @@ public class SmiliesSelectorBox
 
     private int gridColCount = 0;
 
-    private SIPCommMenu selectorBox = new SIPCommMenu();
+    private final SIPCommMenu selectorBox = new SIPCommMenu();
 
-    private SelectorBoxRolloverListener rolloverListener =
+    private final SelectorBoxRolloverListener rolloverListener =
         new SelectorBoxRolloverListener();
 
     /**
@@ -117,10 +117,7 @@ public class SmiliesSelectorBox
      */
     public boolean isMenuSelected()
     {
-        if (selectorBox.isPopupMenuVisible())
-            return true;
-
-        return false;
+        return selectorBox.isPopupMenuVisible();
     }
 
     /**
@@ -134,7 +131,6 @@ public class SmiliesSelectorBox
 
         for (Smiley smiley : imageList)
         {
-
             String smileyString = smiley.getSmileyStrings()[0];
 
             if (buttonText.equals(smileyString))

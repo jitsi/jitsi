@@ -26,8 +26,6 @@ public class DialpadDialog
 {
     private DialPanel dialPanel;
 
-    private BackgroundPanel bgPanel;
-
     /**
      * Creates an instance of the <tt>DialpadDialog</tt>.
      * 
@@ -51,8 +49,6 @@ public class DialpadDialog
      */
     public DialpadDialog(MainCallPanel mainCallPanel)
     {
-        super();
-
         dialPanel = new DialPanel(mainCallPanel);
 
         this.init();
@@ -66,17 +62,17 @@ public class DialpadDialog
 
         this.dialPanel.setOpaque(false);
 
-        this.bgPanel = new BackgroundPanel();
+        BackgroundPanel bgPanel = new BackgroundPanel();
 
-        this.bgPanel.setLayout(new BorderLayout());
+        bgPanel.setLayout(new BorderLayout());
 
-        this.bgPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        bgPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(bgPanel, BorderLayout.CENTER);
 
-        this.bgPanel.add(dialPanel, BorderLayout.CENTER);
+        bgPanel.add(dialPanel, BorderLayout.CENTER);
 
         this.pack();
     }
@@ -85,26 +81,28 @@ public class DialpadDialog
      * New panel used as background for the dialpad which would be painted with
      * round corners and a gradient background.
      */
-    private class BackgroundPanel extends JPanel
+    private static class BackgroundPanel extends JPanel
     {
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
 
             Graphics2D g2 = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
 
-            GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                    Constants.GRADIENT_DARK_COLOR, this.getWidth() / 2,
-                    getHeight(),
+            GradientPaint p = new GradientPaint(width / 2, 0,
+                    Constants.GRADIENT_DARK_COLOR, width / 2,
+                    height,
                     Constants.GRADIENT_LIGHT_COLOR);
 
             g2.setPaint(p);
 
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+            g2.fillRoundRect(0, 0, width, height, 10, 10);
 
             g2.setColor(Constants.GRADIENT_DARK_COLOR);
 
-            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+            g2.drawRoundRect(0, 0, width - 1, height - 1, 10, 10);
         }
     }
 

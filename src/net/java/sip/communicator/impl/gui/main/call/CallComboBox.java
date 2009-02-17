@@ -74,7 +74,7 @@ public class CallComboBox
      */
     public boolean isComboFieldEmpty()
     {
-        String item = ((CallComboEditor) this.getEditor()).getItem().toString();
+        String item = this.getEditor().getItem().toString();
 
         return (item.length() <= 0);
     }
@@ -109,7 +109,7 @@ public class CallComboBox
      */
     protected void handleChange()
     {
-        String item = ((CallComboEditor) this.getEditor()).getItem().toString();
+        String item = this.getEditor().getItem().toString();
 
         if (item.length() > 0)
         {
@@ -157,7 +157,7 @@ public class CallComboBox
     {
         public void actionPerformed(ActionEvent e)
         {
-            String item = ((CallComboEditor) getEditor()).getItem().toString();
+            String item = getEditor().getItem().toString();
 
             if (item.length() > 0)
                 CallManager.createCall(parentCallPanel.getCallProvider(), item);

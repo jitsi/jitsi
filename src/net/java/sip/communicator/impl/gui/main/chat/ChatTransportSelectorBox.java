@@ -88,7 +88,7 @@ public class ChatTransportSelectorBox
      * used to update the "send via" menu when a protocol contact is moved or
      * removed from the contact list.
      * 
-     * @param contact the proto contact to be removed
+     * @param chatTransport the chat transport to be removed
      */
     public void removeChatTransport(ChatTransport chatTransport)
     {
@@ -136,7 +136,7 @@ public class ChatTransportSelectorBox
         int index = GuiActivator.getUIService().getMainFrame()
             .getProviderIndex(chatTransport.getProtocolProvider());
 
-        Image img = null;
+        Image img;
         if(index > 0) {
             BufferedImage buffImage = new BufferedImage(
                     22, 16, BufferedImage.TYPE_INT_ARGB);
@@ -150,7 +150,7 @@ public class ChatTransportSelectorBox
             g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
             g.drawImage(statusImage, 0, 0, null);
             g.setComposite(ac);
-            g.drawString(new Integer(index+1).toString(), 14, 8);
+            g.drawString(Integer.toString(index+1), 14, 8);
 
             img = buffImage;
         }
@@ -200,7 +200,7 @@ public class ChatTransportSelectorBox
      * In the "send via" menu selects the given contact and sets the given icon
      * to the "send via" menu button.
      * 
-     * @param protoContact
+     * @param chatTransport
      * @param icon
      */
     private void setSelected(ChatTransport chatTransport, ImageIcon icon)
@@ -225,7 +225,7 @@ public class ChatTransportSelectorBox
     
     /**
      * Sets the selected contact to the given proto contact.
-     * @param protoContact the proto contact to select
+     * @param chatTransport the proto contact to select
      */
     public void setSelected(ChatTransport chatTransport)
     {

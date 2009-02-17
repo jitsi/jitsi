@@ -81,8 +81,6 @@ public class ChatWindow
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
      * of the main application window.
-     * 
-     * @param mainFrame the main application window
      */
     public ChatWindow()
     {
@@ -130,9 +128,8 @@ public class ChatWindow
         this.setJMenuBar(menuBar);
 
         boolean isToolBarExtended
-            = new Boolean(GuiActivator.getResources().
-                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED"))
-                    .booleanValue();
+            = Boolean.parseBoolean(GuiActivator.getResources().
+                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED"));
 
         if (isToolBarExtended)
             mainToolBar = new ExtendedMainToolBar(this);
@@ -267,13 +264,12 @@ public class ChatWindow
         {
             if (getChatTabCount() == 0)
             {
-                ChatPanel firstChatPanel = currentChatPanel;
-                ChatSession firstChatSession = firstChatPanel.getChatSession();
+                ChatSession firstChatSession = currentChatPanel.getChatSession();
 
                 // Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(  firstChatSession.getChatName(),
                                         firstChatSession.getChatStatusIcon(),
-                                        firstChatPanel);
+                                        currentChatPanel);
 
                 chatTabbedPane.addTab(  chatName,
                                         chatSession.getChatStatusIcon(),
@@ -281,7 +277,7 @@ public class ChatWindow
 
                 // When added to the tabbed pane, the first chat panel should
                 // rest the selected component.
-                chatTabbedPane.setSelectedComponent(firstChatPanel);
+                chatTabbedPane.setSelectedComponent(currentChatPanel);
 
                 // Workaround for the following problem:
                 // The scrollbar in the conversation area moves up when the
@@ -290,7 +286,7 @@ public class ChatWindow
                 // is added to the tabbed pane. Then the scrollpane in the
                 // conversation area is slightly resized and is made smaller,
                 // which moves the scrollbar up.
-                firstChatPanel.setCaretToEnd();
+                currentChatPanel.setCaretToEnd();
 
                 //add the chatTabbedPane to the window
                 this.mainPanel.add(chatTabbedPane, BorderLayout.CENTER);
@@ -413,10 +409,9 @@ public class ChatWindow
      */
     public void setCurrentChatTab(int index)
     {
-        ChatPanel chatPanel = null;
         if(getChatTabCount() > 0)
         {
-            chatPanel = (ChatPanel) this.chatTabbedPane
+            ChatPanel chatPanel = (ChatPanel) this.chatTabbedPane
                 .getComponentAt(index);
 
             setCurrentChatPanel(chatPanel);
@@ -516,7 +511,7 @@ public class ChatWindow
                 }
             }
         }
-    };
+    }
 
     /**
      * The <tt>BackwordTabAction</tt> is an <tt>AbstractAction</tt> that
@@ -538,7 +533,7 @@ public class ChatWindow
                 }
             }
         }
-    };
+    }
 
     /**
      * The <tt>CopyAction</tt> is an <tt>AbstractAction</tt> that copies the
@@ -551,7 +546,7 @@ public class ChatWindow
         {
             getCurrentChatPanel().copy();
         }
-    };
+    }
 
     /**
      * The <tt>PasteAction</tt> is an <tt>AbstractAction</tt> that pastes
@@ -564,7 +559,7 @@ public class ChatWindow
         {
             getCurrentChatPanel().paste();
         }
-    };
+    }
 
     /**
      * The <tt>OpenSmileyAction</tt> is an <tt>AbstractAction</tt> that
@@ -766,11 +761,10 @@ public class ChatWindow
 
         if (serRefs != null)
         {
-
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
                 PluginComponent c = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);
+                    .bundleContext.getService(serRef);
 
                 Object borderLayoutConstraint = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(c.getConstraints());
@@ -986,7 +980,7 @@ public class ChatWindow
     /**
      * Sets the chat panel contact photo to this window.
      * 
-     * @param chatPanel The chat panel which contact photo to set.
+     * @param chatSession
      */
     private void setChatContactPhoto(ChatSession chatSession)
     {
@@ -1126,7 +1120,7 @@ public class ChatWindow
 
             while (transports.hasNext())
             {
-                ChatTransport transport = (ChatTransport) transports.next();
+                ChatTransport transport = transports.next();
 
                 ImageIcon protocolStatusIcon;
                 if (transport.getStatus() != null)

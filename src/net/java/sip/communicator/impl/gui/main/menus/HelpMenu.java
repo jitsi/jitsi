@@ -30,7 +30,7 @@ public class HelpMenu
     implements ActionListener,
                PluginComponentListener
 {
-    private Logger logger = Logger.getLogger(HelpMenu.class);
+    private final Logger logger = Logger.getLogger(HelpMenu.class);
 
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
@@ -79,10 +79,10 @@ public class HelpMenu
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                    .bundleContext.getService(serRef);
 
                 this.add((Component)component.getComponent());
             }
