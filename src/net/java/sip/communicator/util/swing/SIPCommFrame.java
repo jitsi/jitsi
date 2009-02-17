@@ -395,7 +395,7 @@ public abstract class SIPCommFrame
         }
     }
 
-    static class MainContentPane
+    public static class MainContentPane
         extends JPanel
     {
         private final boolean isColorBgEnabled;

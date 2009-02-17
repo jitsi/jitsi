@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.lang.reflect.*;
 
 import javax.swing.*;
+import net.java.sip.communicator.impl.systray.jdic.SystemTray.*;
 
 /**
  * @author Lubomir Marinov
@@ -37,25 +38,31 @@ public class TrayIcon
         HeadlessException,
         SecurityException
     {
-        peer =
-            SystemTray.getDefaultSystemTray().getPeer().createTrayIcon(icon,
-                tooltip, popup);
+        SystemTrayPeer systemTrayPeer =
+            SystemTray.getDefaultSystemTray().getPeer();
+        if (systemTrayPeer != null)
+            peer = systemTrayPeer.createTrayIcon(icon, tooltip, popup);
+        else
+            peer = null;
     }
 
     public void addActionListener(ActionListener listener)
     {
-        getPeer().addActionListener(listener);
+        if (peer != null)
+            peer.addActionListener(listener);
     }
 
     public void addBalloonActionListener(ActionListener listener)
     {
-        getPeer().addBalloonActionListener(listener);
+        if (peer != null)
+            peer.addBalloonActionListener(listener);
     }
 
     public void displayMessage(String caption, String text, int messageType)
         throws NullPointerException
     {
-        getPeer().displayMessage(caption, text, messageType);
+        if (peer != null)
+            peer.displayMessage(caption, text, messageType);
     }
 
     TrayIconPeer getPeer()
@@ -65,12 +72,14 @@ public class TrayIcon
 
     public void setIcon(ImageIcon icon) throws NullPointerException
     {
-        getPeer().setIcon(icon);
+        if (peer != null)
+            peer.setIcon(icon);
     }
 
     public void setIconAutoSize(boolean autoSize)
     {
-        getPeer().setIconAutoSize(autoSize);
+        if (peer != null)
+            peer.setIconAutoSize(autoSize);
     }
 
     static interface TrayIconPeer

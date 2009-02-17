@@ -46,19 +46,17 @@ public class PopupMessageNotificationHandlerImpl
 
     /**
      * Shows a popup message through the <tt>SystrayService</tt>.
-     * 
-     * @param title the title of the popup
+     *
      * @param message the message to show in the popup
      */
-    public void popupMessage(String title, String message)
+    public void popupMessage(PopupMessage message)
     {
         SystrayService systray = NotificationActivator.getSystray();
-        
+
         if(systray == null)
             return;
-        
-        systray.showPopupMessage(title, message,
-            SystrayService.NONE_MESSAGE_TYPE);
+
+        systray.showPopupMessage(message);
     }
 
     /**

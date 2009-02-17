@@ -771,7 +771,7 @@
     <target name="bundles"
         depends="bundle-sc-launcher,bundle-util,bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
-        bundle-callhistory, bundle-callhistory-slick,
+        bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
@@ -784,7 +784,7 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
-        bundle-growlnotification,bundle-sparkle,
+        bundle-growlnotification,bundle-swingnotification,bundle-sparkle,
         bundle-audionotifier,bundle-plugin-branding,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
@@ -1475,6 +1475,25 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/growlnotification"
                 prefix="net/java/sip/communicator/impl/growlnotification" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-SWINGNOTIFICATION-->
+    <target name="bundle-swingnotification">
+        <!-- Creates a bundle for the swingnotification plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/swingnotification.jar"
+            manifest="${src}/net/java/sip/communicator/impl/swingnotification/swingnotification.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/swingnotification"
+                prefix="net/java/sip/communicator/impl/swingnotification" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-POPUPMESSAGEHANDLER-SLICK-->
+    <target name="bundle-popupmessagehandler-slick">
+        <jar compress="false" destfile="${bundles.dest}/popupmessagehandler-slick.jar"
+            manifest="${testsrc}/net/java/sip/communicator/slick/popupmessagehandler/popupmessagehandler.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/popupmessagehandler"
+                prefix="net/java/sip/communicator/slick/popupmessagehandler"/>
         </jar>
     </target>
 

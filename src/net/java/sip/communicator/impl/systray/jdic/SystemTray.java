@@ -56,8 +56,17 @@ public class SystemTray
                 // We'll try org.jdesktop.jdic.tray then.
             }
         if (peer == null)
-            peer = new JdicSystemTrayPeer();
-
+            try
+            {
+                peer = new JdicSystemTrayPeer();
+            }
+            catch (Exception ex)
+            {
+                logger
+                    .error(
+                        "Failed to initialize the org.jdesktop.jdic.tray implementation.",
+                        ex);
+            }
         return (defaultSystemTray = new SystemTray(peer));
     }
 
@@ -72,7 +81,8 @@ public class SystemTray
         throws NullPointerException,
         IllegalArgumentException
     {
-        getPeer().addTrayIcon(trayIcon.getPeer());
+        if (peer != null)
+            peer.addTrayIcon(trayIcon.getPeer());
     }
 
     SystemTrayPeer getPeer()
@@ -82,7 +92,9 @@ public class SystemTray
 
     public boolean isSwing()
     {
-        return getPeer().isSwing();
+        if (peer != null)
+            return getPeer().isSwing();
+        return false;
     }
 
     static interface SystemTrayPeer
