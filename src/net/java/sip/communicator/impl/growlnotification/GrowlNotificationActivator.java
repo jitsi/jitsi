@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.growlnotification;
 
-import net.java.sip.communicator.service.resources.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.util.*;
@@ -19,18 +18,8 @@ import net.java.sip.communicator.util.*;
 public class GrowlNotificationActivator
     implements BundleActivator
 {
-    /**
-     * The bundle context in which we started
-     */
-    public static BundleContext bundleContext;
-
     private static final Logger logger =
         Logger.getLogger(GrowlNotificationActivator.class);
-
-    /**
-     * A reference to the resource management service.
-     */
-    private static ResourceManagementService resourcesService;
 
     /**
      * Initialize and start Growl Notifications Service
@@ -38,7 +27,7 @@ public class GrowlNotificationActivator
      * @param bundleContext BundleContext
      * @throws Exception
      */
-    public void start(BundleContext bc) throws Exception
+    public void start(BundleContext bundleContext) throws Exception
     {
         /* Check Java version: do not start if Java 6 */
         /* Actually, this plugin uses the Growl Java bindings which 
@@ -58,26 +47,10 @@ public class GrowlNotificationActivator
 
             logger.info("Growl Notification Plugin ...[Started]");
         }
-        bundleContext  = bc;
     }
 
     public void stop(BundleContext bundleContext) throws Exception
     {
         logger.info("Growl Notification Service ...[Stopped]");
-    }
-
-    /**
-     * Returns the <tt>ResourceManagementService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>ResourceManagementService</tt> obtained from the bundle
-     * context
-     */
-    public static ResourceManagementService getResources()
-    {
-        if (resourcesService == null)
-            resourcesService =
-                ResourceManagementServiceUtils.getService(bundleContext);
-        return resourcesService;
-
     }
 }

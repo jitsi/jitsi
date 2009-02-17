@@ -116,8 +116,8 @@ public class SystrayActivator
             ServiceReference serviceRef = bundleContext
                 .getServiceReference(UIService.class.getName());
 
-            if (serviceRef != null)
-                uiService = (UIService) bundleContext.getService(serviceRef);
+            uiService = (UIService) bundleContext
+                .getService(serviceRef);
         }
 
         return uiService;

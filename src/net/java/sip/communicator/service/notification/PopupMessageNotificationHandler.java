@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.notification;
 
-import net.java.sip.communicator.service.systray.*;
-
 /**
  * The <tt>PopupMessageNotificationHandler</tt> interface is meant to be
  * implemented by the notification bundle in order to provide handling of
@@ -28,9 +26,11 @@ public interface PopupMessageNotificationHandler
     public String getDefaultMessage();
     
     /**
-     * Shows the given <tt>PopupMessage</tt>
+     * Pops up a message with the given <tt>message</tt> content and the given
+     * <tt>title</tt>.
      * 
+     * @param title the title of the popup
      * @param message the message to show in the popup
      */
-    public void popupMessage(PopupMessage message);
+    public void popupMessage(String title, String message);
 }

@@ -62,11 +62,16 @@ public interface SystrayService
     public static final int ENVELOPE_IMG_TYPE = 1;
 
     /**
-     * Shows the given <tt>PopupMessage</tt>
+     * Shows a system tray message with the given title and message content. The
+     * message type will affect the icon used to present the message.
      *
-     * @param popupMessage the message to show
+     * @param title the title, which will be shown
+     * @param messageContent the content of the message to display
+     * @param messageType the message type; one of XXX_MESSAGE_TYPE constants
+     * declared in this class
      */
-    public void showPopupMessage(PopupMessage popupMessage);
+    public void showPopupMessage(String title,
+        String messageContent, int messageType);
 
     /**
      * Adds a listener for <tt>SystrayPopupMessageEvent</tt>s posted when user
@@ -82,20 +87,6 @@ public interface SystrayService
      * @param listener the listener to remove
      */
     public void removePopupMessageListener(SystrayPopupMessageListener listener);
-
-    /**
-     * Set the handler which will be used for popup message
-     * @param popupHandler the handler to use
-     * @return the previously used popup handler
-     */
-    public PopupMessageHandler setActivePopupMessageHandler(
-            PopupMessageHandler popupHandler);
-
-    /**
-     * Get the handler currently used by the systray service for popup message
-     * @return the handler used by the systray service
-     */
-    public PopupMessageHandler getActivePopupMessageHandler();
 
     /**
      * Sets a new icon to the systray.

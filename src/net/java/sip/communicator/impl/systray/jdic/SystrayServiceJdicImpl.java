@@ -6,12 +6,11 @@
  */
 package net.java.sip.communicator.impl.systray.jdic;
 
-import org.osgi.framework.*;
-
 import java.awt.Toolkit;
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
+import java.util.Timer;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -32,7 +31,6 @@ import net.java.sip.communicator.util.*;
  * @author Nicolas Chamouard
  * @author Yana Stamcheva
  * @author Lubomir Marinov
- * @author Symphorien Wanko
  */
 public class SystrayServiceJdicImpl
     implements SystrayService
@@ -53,15 +51,27 @@ public class SystrayServiceJdicImpl
     private Object menu;
 
     /**
-     * The popup handler currently used to show popup messages
+     * The list of all added popup message listeners.
      */
-    private PopupMessageHandler activePopupHandler;
+    private final List<SystrayPopupMessageListener> popupMessageListeners =
+        new Vector<SystrayPopupMessageListener>();
 
     /**
-     * A set of usable <tt>PopupMessageHandler</tt>
+     * List of all messages waiting to be shown.
      */
-    private final Hashtable<String, PopupMessageHandler> popupHandlerSet
-            = new Hashtable<String, PopupMessageHandler>();
+    private final List<SystrayMessage> messageQueue =
+        new ArrayList<SystrayMessage>();
+
+    private Timer popupTimer = new Timer();
+
+    /**
+     * The delay between the message pop ups.
+     */
+    private int messageDelay = 1000;
+
+    private int maxMessageNumber = 3;
+
+    private SystrayMessage aggregatedMessage;
 
     /**
      * Stores the system time, when the main window was restored the last time
@@ -69,17 +79,10 @@ public class SystrayServiceJdicImpl
     private long setVisibleTime = 0;
 
     /**
-     * A reference of the <tt>ConfigurationService</tt> obtained from the
-     * <tt>SystrayServiceActivator</tt>
-     */
-    private final ConfigurationService configService
-            = SystrayActivator.getConfigurationService();
-
-    /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(SystrayServiceJdicImpl.class);
+    private static Logger logger =
+        Logger.getLogger(SystrayServiceJdicImpl.class.getName());
 
     /**
      * The various icons used on the systray
@@ -103,12 +106,6 @@ public class SystrayServiceJdicImpl
     private boolean initialized = false;
 
     /**
-     * the listener we will use for popup message event (clicks on the popup)
-     */
-    private final SystrayPopupMessageListener popupMessageListener =
-            new SystrayPopupMessageListenerImpl();
-
-    /**
      * Creates an instance of <tt>Systray</tt>.
      */
     public SystrayServiceJdicImpl()
@@ -126,9 +123,7 @@ public class SystrayServiceJdicImpl
         {
             this.initSystray();
 
-            UIService ui = SystrayActivator.getUIService();
-            if (ui != null)
-                ui.setExitOnMainWindowClose(false);
+            SystrayActivator.getUIService().setExitOnMainWindowClose(false);
         }
     }
 
@@ -137,6 +132,7 @@ public class SystrayServiceJdicImpl
      */
     private void initSystray()
     {
+        popupTimer.scheduleAtFixedRate(new ShowPopupTask(), 0, messageDelay);
 
         // Get the system's double click speed
         Object o = Toolkit.getDefaultToolkit().getDesktopProperty(
@@ -219,8 +215,10 @@ public class SystrayServiceJdicImpl
             {
                 long currentTime = System.currentTimeMillis();
                 UIService uiService = SystrayActivator.getUIService();
-                boolean isVisible = !uiService.isVisible();
 
+                boolean isVisible;
+
+                isVisible = ! uiService.isVisible();
                 if (isVisible) {
                     setVisibleTime = currentTime;
                 }
@@ -233,6 +231,9 @@ public class SystrayServiceJdicImpl
                 }
 
                 uiService.setVisible(isVisible);
+
+                ConfigurationService configService
+                    = SystrayActivator.getConfigurationService();
 
                 configService.setProperty(
                         "net.java.sip.communicator.impl.systray.showApplication",
@@ -269,7 +270,7 @@ public class SystrayServiceJdicImpl
                     }
                     else
                     {
-                        getTrayIcon().setIcon(logoIcon);
+                        trayIcon.setIcon(logoIcon);
                         currentIcon = logoIcon;
                     }
                 }
@@ -281,67 +282,25 @@ public class SystrayServiceJdicImpl
             });
         }
 
-        PopupMessageHandler pph = new PopupMessageHandlerTrayIconImpl(trayIcon);
-        popupHandlerSet.put(pph.getClass().getName(), pph);
-        SystrayActivator.bundleContext.registerService(
-                PopupMessageHandler.class.getName(),
-                pph, null);
-
-        try
+        //Notify all interested listener that user has clicked on the systray
+        //popup message.
+        trayIcon.addBalloonActionListener(new ActionListener()
         {
-            SystrayActivator.bundleContext.addServiceListener(
-                    new ServiceListenerImpl(),
-                    "(objectclass=" + PopupMessageHandler.class.getName() + ")");
-        } catch (Exception e)
-        {
-            logger.warn(e);
-        }
-
-        // now we look if some handler has been registered before we start
-        // to listen
-        ServiceReference[] handlerRefs = null;
-        try
-        {
-            handlerRefs = SystrayActivator.bundleContext.getServiceReferences(
-                PopupMessageHandler.class.getName(),
-                null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("Error while retrieving service refs", ex);
-        }
-        if (handlerRefs != null)
-        {
-            for (int i = 0; i < handlerRefs.length; i++)
+            public void actionPerformed(ActionEvent e)
             {
-                PopupMessageHandler handler =
-                        (PopupMessageHandler) SystrayActivator.
-                        bundleContext.getService(handlerRefs[i]);
-                String handlerName = handler.getClass().getName();
-                if (!popupHandlerSet.containsKey(handlerName))
-                {
-                    popupHandlerSet
-                            .put(handlerName, handler);
-                    logger.info("added the following popup handler : " +
-                            handler);
-                    String configuredHandler =(String) configService.
-                            getProperty("systray.POPUP_HANDLER");
-                    if (configuredHandler.equals(handler.getClass().getName()))
-                        setActivePopupMessageHandler(handler);
-                }
-                
-            }
-        }
+                UIService uiService = SystrayActivator.getUIService();
 
-        // either we have an incorrect config value or the default popup handler
-        // is not yet available. we use the available popup handler and will
-        // auto switch to the configured one when it will be available.
-        // we will be aware of it since we listen for new registerred
-        // service in the bundle context.
-        if (activePopupHandler == null)
-        {
-            setActivePopupMessageHandler(pph);
-        }
+                firePopupMessageEvent(e.getSource());
+
+                ExportedWindow chatWindow
+                    = uiService.getExportedWindow(ExportedWindow.CHAT_WINDOW);
+
+                if(chatWindow != null && chatWindow.isVisible())
+                {
+                    chatWindow.bringToFront();
+                }
+            }
+        });
 
         systray.addTrayIcon(trayIcon);
 
@@ -361,6 +320,9 @@ public class SystrayServiceJdicImpl
             ProtocolProviderService protocolProvider,
             String statusName)
     {
+        ConfigurationService configService
+            = SystrayActivator.getConfigurationService();
+
         if(configService != null)
         {
             String prefix = "net.java.sip.communicator.impl.gui.accounts";
@@ -404,16 +366,37 @@ public class SystrayServiceJdicImpl
     }
 
     /**
-     * Implements <tt>SystraService#showPopupMessage()</tt>
+     * Implements the <tt>SystratService.showPopupMessage</tt> method. Shows
+     * a pop up message, above the Systray icon, which has the given title,
+     * message content and message type.
      *
-     * @param popupMessage the message we will show
+     * @param title the title of the message
+     * @param messageContent the content text
+     * @param messageType the type of the message
      */
-    public void showPopupMessage(PopupMessage popupMessage)
+    public void showPopupMessage(   String title,
+                                    String messageContent,
+                                    int messageType)
     {
-        // since popup handler could be loaded and unloader on the fly,
-        // we have to check if we currently have a valid one.
-        if (activePopupHandler != null)
-            activePopupHandler.showPopupMessage(popupMessage);
+        if(!checkInitialized())
+            return;
+
+        int trayMsgType = TrayIcon.NONE_MESSAGE_TYPE;
+
+        if (messageType == SystrayService.ERROR_MESSAGE_TYPE)
+            trayMsgType = TrayIcon.ERROR_MESSAGE_TYPE;
+        else if (messageType == SystrayService.INFORMATION_MESSAGE_TYPE)
+            trayMsgType = TrayIcon.INFO_MESSAGE_TYPE;
+        else if (messageType == SystrayService.WARNING_MESSAGE_TYPE)
+            trayMsgType = TrayIcon.WARNING_MESSAGE_TYPE;
+
+        // remove eventual html code before showing the popup message
+        messageContent = messageContent.replaceAll("</?\\w++[^>]*+>", "");
+
+        if(messageContent.length() > 40)
+            messageContent = messageContent.substring(0, 40).concat("...");
+
+        messageQueue.add(new SystrayMessage(title, messageContent, trayMsgType));
     }
 
     /**
@@ -423,8 +406,10 @@ public class SystrayServiceJdicImpl
      */
     public void addPopupMessageListener(SystrayPopupMessageListener listener)
     {
-        if (activePopupHandler != null)
-            activePopupHandler.addPopupMessageListener(listener);
+        synchronized (popupMessageListeners)
+        {
+            this.popupMessageListeners.add(listener);
+        }
     }
 
     /**
@@ -434,8 +419,37 @@ public class SystrayServiceJdicImpl
      */
     public void removePopupMessageListener(SystrayPopupMessageListener listener)
     {
-        if (activePopupHandler != null)
-            activePopupHandler.removePopupMessageListener(listener);
+        synchronized (popupMessageListeners)
+        {
+            this.popupMessageListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
+     * has occured.
+     *
+     * @param sourceObject the source of this event
+     */
+    private void firePopupMessageEvent(Object sourceObject)
+    {
+        SystrayPopupMessageEvent evt
+            = new SystrayPopupMessageEvent(sourceObject);
+
+        logger.trace("Will dispatch the following systray msg event: " + evt);
+
+        List<SystrayPopupMessageListener> listeners;
+        synchronized (popupMessageListeners)
+        {
+            listeners =
+                new ArrayList<SystrayPopupMessageListener>(
+                    popupMessageListeners);
+        }
+
+        for (SystrayPopupMessageListener listener : listeners)
+        {
+            listener.popupMessageClicked(evt);
+        }
     }
 
     /**
@@ -548,112 +562,161 @@ public class SystrayServiceJdicImpl
     }
 
     /**
-     * @return the trayIcon
+     * Shows the oldest message in the message queue and then removes it from
+     * the queue.
      */
-    public TrayIcon getTrayIcon()
+    private class ShowPopupTask extends TimerTask
     {
-        return trayIcon;
-    }
-
-    /**
-     * Set the handler which will be used for popup message
-     * @param newHandler the handler to set. providing a null handler is like
-     * disabling popup.
-     * @return the previously used popup handler
-     */
-    public PopupMessageHandler setActivePopupMessageHandler(
-            PopupMessageHandler newHandler)
-    {
-        PopupMessageHandler oldHandler = activePopupHandler;
-        if (oldHandler != null)
-            oldHandler.removePopupMessageListener(popupMessageListener);
-
-        if (newHandler != null)
-            newHandler.addPopupMessageListener(popupMessageListener);
-        activePopupHandler = newHandler;
-
-        return oldHandler;
-    }
-
-    /**
-     * Get the handler currently used by this implementation to popup message
-     * @return the current handler
-     */
-    public PopupMessageHandler getActivePopupMessageHandler()
-    {
-        return activePopupHandler;
-    }
-
-    /** our listener for popup message click */
-    private static class SystrayPopupMessageListenerImpl
-            implements SystrayPopupMessageListener
-    {
-        /** implements <tt>SystrayPopupMessageListener.popupMessageClicked()</tt> */
-        public void popupMessageClicked(SystrayPopupMessageEvent evt)
+        public void run()
         {
-            UIService uiService = SystrayActivator.getUIService();
-            ExportedWindow chatWindow
-                    = uiService.getExportedWindow(ExportedWindow.CHAT_WINDOW);
-            if (chatWindow != null && chatWindow.isVisible())
+            if(messageQueue.isEmpty())
+                return;
+
+            int messageNumber = messageQueue.size();
+
+            SystrayMessage msg = messageQueue.get(0);
+
+            if(messageNumber > maxMessageNumber)
             {
-                chatWindow.bringToFront();
+                messageQueue.clear();
+
+                if(aggregatedMessage != null)
+                {
+                    aggregatedMessage
+                        .addAggregatedMessageNumber(messageNumber);
+                }
+                else
+                {
+                    String messageContent = msg.getMessageContent();
+
+                    if(!messageContent.endsWith("..."))
+                        messageContent.concat("...");
+
+                    aggregatedMessage = new SystrayMessage(
+                        "Messages start by: " + messageContent,
+                        messageNumber);
+                }
+
+                messageQueue.add(aggregatedMessage);
+            }
+            else
+            {
+                trayIcon.displayMessage(msg.getTitle(),
+                                    msg.getMessageContent(),
+                                    msg.getMessageType());
+
+                messageQueue.remove(0);
+
+                if(msg.equals(aggregatedMessage))
+                    aggregatedMessage = null;
             }
         }
     }
 
-    /** an implementation of <tt>ServiceListener</tt> we will use */
-    private class ServiceListenerImpl implements ServiceListener
+    /**
+     * Represents a systray message.
+     */
+    private class SystrayMessage
     {
-        /** implements <tt>ServiceListener.serviceChanged</tt> */
-        public void serviceChanged(ServiceEvent serviceEvent)
+        private String title;
+        private String messageContent;
+        private int messageType;
+        private int aggregatedMessageNumber;
+
+        /**
+         * Creates an instance of <tt>SystrayMessage</tt> by specifying the
+         * message <tt>title</tt>, the content of the message and the type of
+         * the message.
+         *
+         * @param title the title of the message
+         * @param messageContent the content of the message
+         * @param messageType the type of the message
+         */
+        public SystrayMessage(  String title,
+                                String messageContent,
+                                int messageType)
         {
-            try
-            {
-                PopupMessageHandler handler =
-                        (PopupMessageHandler) SystrayActivator.bundleContext
-                                .getService(serviceEvent.getServiceReference());
-                if (serviceEvent.getType() == ServiceEvent.REGISTERED)
-                {
-                    if (!popupHandlerSet.containsKey(handler.getClass().getName()))
-                    {
-                        logger.info(
-                                "adding the following popup handler : " + handler);
-                        popupHandlerSet.put(
-                                handler.getClass().getName(), handler);
-                    }
-                    else
-                    {
-                        logger.warn("the following popup handler has not " +
-                                "been added since it is already known : " + handler);
-                    }
-                    String configuredHandler = (String) configService.
-                                    getProperty("systray.POPUP_HANDLER");
-                    if (configuredHandler.compareTo(
-                            handler.getClass().getName()) == 0)
-                    {
-                        setActivePopupMessageHandler(handler);
-                    }
-                }
-                else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
-                {
-                    popupHandlerSet.remove(handler.getClass().getName());
-                    if (activePopupHandler == handler)
-                    {
-                        activePopupHandler.removePopupMessageListener(
-                                popupMessageListener);
-                        activePopupHandler = null;
-                        if (!popupHandlerSet.isEmpty())
-                        {
-                            setActivePopupMessageHandler(popupHandlerSet.get(
-                                    popupHandlerSet.keys().nextElement()));
-                        }
-                    }
-                }
-            }
-            catch (IllegalStateException e)
-            {
-                logger.debug(e);
-            }
+            this.title = title;
+            this.messageContent = messageContent;
+            this.messageType = messageType;
+        }
+
+        /**
+         * Creates an instance of <tt>SystrayMessage</tt> by specifying the
+         * message <tt>title</tt>, the content of the message, the type of
+         * the message and the number of messages that this message has
+         * aggregated.
+         *
+         * @param messageContent the content of the message
+         * @param aggregatedMessageNumber the number of messages that this
+         * message has aggregated
+         */
+        public SystrayMessage(  String messageContent,
+                                int aggregatedMessageNumber)
+        {
+            this.aggregatedMessageNumber = aggregatedMessageNumber;
+
+            this.title = "You have received "
+                            + aggregatedMessageNumber
+                            + " new messages.";
+
+            this.messageContent = messageContent;
+            this.messageType = TrayIcon.INFO_MESSAGE_TYPE;
+        }
+
+        /**
+         * Returns the title of the message.
+         *
+         * @return the title of the message
+         */
+        public String getTitle()
+        {
+            return title;
+        }
+
+        /**
+         * Returns the message content.
+         *
+         * @return the message content
+         */
+        public String getMessageContent()
+        {
+            return messageContent;
+        }
+
+        /**
+         * Returns the message type.
+         *
+         * @return the message type
+         */
+        public int getMessageType()
+        {
+            return messageType;
+        }
+
+        /**
+         * Returns the number of aggregated messages this message represents.
+         *
+         * @return the number of aggregated messages this message represents.
+         */
+        public int getAggregatedMessageNumber()
+        {
+            return aggregatedMessageNumber;
+        }
+
+        /**
+         * Adds the given number of messages to the number of aggregated
+         * messages contained in this message.
+         *
+         * @param messageNumber the number of messages to add to the number of
+         * aggregated messages contained in this message
+         */
+        public void addAggregatedMessageNumber(int messageNumber)
+        {
+            this.aggregatedMessageNumber += messageNumber;
+
+            this.title = "You have received " + aggregatedMessageNumber
+                + " new messages.";
         }
     }
 }

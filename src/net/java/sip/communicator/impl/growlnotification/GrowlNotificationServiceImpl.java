@@ -7,15 +7,14 @@
 package net.java.sip.communicator.impl.growlnotification;
 
 import java.lang.reflect.*;
-import java.util.*;
 
 import org.osgi.framework.*;
 
 import com.growl.*;
 
-import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The Growl Notification Service displays on-screen information such as
@@ -24,13 +23,19 @@ import net.java.sip.communicator.util.*;
  * @author Romain Kuntz
  */
 public class GrowlNotificationServiceImpl
-    implements PopupMessageHandler
+    implements  MessageListener,
+                ServiceListener
 {
     /**
      * The logger for this class.
      */
     private static Logger logger =
         Logger.getLogger(GrowlNotificationServiceImpl.class);
+
+    /**
+     * The BundleContext that we got from the OSGI bus.
+     */
+    private BundleContext bundleContext = null;
 
     /**
      * The Growl notifier
@@ -63,10 +68,6 @@ public class GrowlNotificationServiceImpl
      */
     private String sipIconPath = "resources/images/logo/sc_logo_128x128.icns";
 
-    /** The list of all added popup listeners */
-    private final List<SystrayPopupMessageListener> popupMessageListeners =
-            new Vector<SystrayPopupMessageListener>();
-
     /**
      * starts the service. Creates a Growl notifier, and check the current
      * registerd protocol providers which supports BasicIM and adds message
@@ -79,6 +80,7 @@ public class GrowlNotificationServiceImpl
         throws Exception
     {
         logger.debug("Starting the Growl Notification implementation.");
+        this.bundleContext = bc;
 
         /* Register to Growl */
         try
@@ -119,7 +121,38 @@ public class GrowlNotificationServiceImpl
             throw ex;
         }
 
-        bc.registerService(PopupMessageHandler.class.getName(), this, null);
+        /* Start listening for newly register or removed protocol providers */
+        bc.addServiceListener(this);
+
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error("Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            logger.debug("Found "
+                            + protocolProviderRefs.length
+                            + " already installed providers.");
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService) bc
+                    .getService(protocolProviderRefs[i]);
+
+                this.handleProviderAdded(provider);
+            }
+        }
     }
 
     /**
@@ -129,6 +162,197 @@ public class GrowlNotificationServiceImpl
      */
     public void stop(BundleContext bc)
     {
+        // start listening for newly register or removed protocol providers
+        bc.removeServiceListener(this);
+
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService) bc
+                    .getService(protocolProviderRefs[i]);
+
+                this.handleProviderRemoved(provider);
+            }
+        }
+    }
+
+    // ////////////////////////////////////////////////////////////////////////
+    // MessageListener implementation methods
+
+    /**
+     * Passes the newly received message to growl.
+     * @param evt MessageReceivedEvent the vent containing the new message.
+     */
+    public void messageReceived(MessageReceivedEvent evt)
+    {
+        //byte[] contactImage = null;
+        //try
+        //{
+        //    contactImage = evt.getSourceContact().getImage();
+        //}
+        //catch (Exception ex)
+        //{
+        //    logger.error("Failed to load contact photo for Growl", ex);
+        //}
+
+        try
+        {
+            notifyGrowlOf("Message Received"
+                          , sipIconPath
+                          , evt.getSourceContact().getDisplayName()
+                          , evt.getSourceMessage().getContent());
+        }
+        catch (Exception ex)
+        {
+            logger.error("Could not notify the received message to Growl", ex);
+        }
+    }
+
+    /**
+     * Notify growl that a message has been sent.
+     * @param evt the event containing the message that has just been sent.
+     */
+    public void messageDelivered(MessageDeliveredEvent evt)
+    {
+        try
+        {
+            notifyGrowlOf("Message Sent"
+                          , sipIconPath
+                          , "Me"
+                          , evt.getSourceMessage().getContent());
+        }
+        catch (Exception ex)
+        {
+            logger.error("Could not pass the sent message to Growl", ex);
+        }
+    }
+
+    /**
+     * Currently unused
+     * @param evt ignored
+     */
+    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
+    {
+    }
+    // //////////////////////////////////////////////////////////////////////////
+
+    /**
+     * When new protocol provider is registered we check
+     * does it supports BasicIM and if so add a listener to it
+     *
+     * @param serviceEvent ServiceEvent
+     */
+    public void serviceChanged(ServiceEvent serviceEvent)
+    {
+        Object sService
+            = bundleContext.getService(serviceEvent.getServiceReference());
+
+        logger.trace("Received a service event for: "
+                     + sService.getClass().getName());
+
+        // we don't care if the source service is not a protocol provider
+        if (! (sService instanceof ProtocolProviderService))
+        {
+            return;
+        }
+
+        logger.debug("Service is a protocol provider.");
+        if (serviceEvent.getType() == ServiceEvent.REGISTERED)
+        {
+            logger.debug("Handling registration of a new Protocol Provider.");
+
+            this.handleProviderAdded((ProtocolProviderService)sService);
+        }
+        else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.handleProviderRemoved( (ProtocolProviderService) sService);
+        }
+
+    }
+
+    /**
+     * Used to attach the Growl Notification Service to existing or
+     * just registered protocol provider. Checks if the provider has
+     * implementation of OperationSetBasicInstantMessaging
+     *
+     * @param provider ProtocolProviderService
+     */
+    private void handleProviderAdded(ProtocolProviderService provider)
+    {
+        logger.debug("Adding protocol provider " + provider.getProtocolName());
+
+        // check whether the provider has a basic im operation set
+        OperationSetBasicInstantMessaging opSetIm =
+            (OperationSetBasicInstantMessaging) provider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
+
+        if (opSetIm != null)
+        {
+            opSetIm.addMessageListener(this);
+            try
+            {
+                notifyGrowlOf("Protocol events"
+                              , sipIconPath
+                              , "New Protocol Registered"
+                              , provider.getProtocolName() + " registered");
+            }
+            catch (Exception ex)
+            {
+                logger.error("Could not notify the message to Growl", ex);
+            }
+        }
+        else
+        {
+            logger.trace("Service did not have a im op. set.");
+        }
+    }
+
+    /**
+     * Removes the specified provider from the list of currently known providers
+     * and ignores all the messages exchanged by it
+     *
+     * @param provider the ProtocolProviderService that has been unregistered.
+     */
+    private void handleProviderRemoved(ProtocolProviderService provider)
+    {
+        OperationSetBasicInstantMessaging opSetIm =
+            (OperationSetBasicInstantMessaging) provider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
+
+        if (opSetIm != null)
+        {
+            opSetIm.removeMessageListener(this);
+            try
+            {
+                notifyGrowlOf("Protocol events"
+                              , sipIconPath
+                              , "Protocol deregistered"
+                              , provider.getProtocolName()
+                              + " deregistered");
+            }
+            catch (Exception ex)
+            {
+                logger.error("Could not notify the message to Growl", ex);
+            }
+        }
     }
 
     /**
@@ -184,50 +408,4 @@ public class GrowlNotificationServiceImpl
         setDefaultNotifMethod.invoke(notifier, new Object[]{inDefNotes});
     }
 
-    public void addPopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (popupMessageListeners)
-        {
-            if (!popupMessageListeners.contains(listener))
-                popupMessageListeners.add(listener);
-        }
-    }
-
-    public void removePopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (popupMessageListeners)
-        {
-            popupMessageListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Implements <tt>PopupMessageHandler#showPopupMessage()</tt>
-     *
-     * @param popupMessage the message we will show
-     */
-    public void showPopupMessage(PopupMessage popupMessage)
-    {
-        try
-        {
-            notifyGrowlOf("Message Received"
-                          , sipIconPath
-                          , popupMessage.getMessageTitle()
-                          , popupMessage.getMessage());
-        }
-        catch (Exception ex)
-        {
-            logger.error("Could not notify the received message to Growl", ex);
-        }
-    }
-
-    /**
-     * Implements <tt>toString</tt> from <tt>PopupMessageHandler</tt>
-     * @return a description of this handler
-     */
-    public String toString()
-    {
-        return GrowlNotificationActivator.getResources()
-            .getI18NString("impl.growlnotification.POPUP_MESSAGE_HANDLER");
-    }
 }

@@ -12,7 +12,6 @@ import net.java.sip.communicator.impl.notification.EventNotification.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.notification.event.*;
-import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -395,13 +394,13 @@ public class NotificationServiceImpl
 
             NotificationActionHandler handler = action.getActionHandler();
 
-            if ((handler == null) || !handler.isEnabled())
+            if (!handler.isEnabled())
                 continue;
 
             if (actionType.equals(NotificationService.ACTION_POPUP_MESSAGE))
             {
                 ((PopupMessageNotificationHandler) handler)
-                    .popupMessage(new PopupMessage(title, message));
+                    .popupMessage(title, message);
             }
             else if (actionType.equals(NotificationService.ACTION_LOG_MESSAGE))
             {
