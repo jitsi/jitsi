@@ -50,7 +50,8 @@ public class ChatWindow
     extends SIPCommFrame
     implements  ExportedWindow,
                 PluginComponentListener,
-                WindowFocusListener
+                WindowFocusListener,
+                WindowListener
 {
     private final Logger logger = Logger.getLogger(ChatWindow.class);
 
@@ -90,6 +91,11 @@ public class ChatWindow
         }
 
         this.addWindowFocusListener(this);
+        this.addWindowListener(this);
+
+        // prevent focus stealing at opening
+        // the window is made focusable again in windowOpened()
+        this.setFocusableWindowState(false);
 
         this.setHierarchicallyOpaque(false);
 
@@ -399,8 +405,6 @@ public class ChatWindow
             mainToolBar.enableInviteButton(false);
 
         mainToolBar.changeHistoryButtonsState(chatPanel);
-
-        chatPanel.requestFocusInWriteArea();
     }
 
     /**
@@ -1167,9 +1171,35 @@ public class ChatWindow
     public void windowGainedFocus(WindowEvent evt)
     {
         this.removeNonReadChatState();
+        this.getCurrentChatPanel().requestFocusInWriteArea();
     }
 
     public void windowLostFocus(WindowEvent arg0)
+    {}
+
+    public void windowOpened(WindowEvent evt)
+    {
+        // the window was previously set non focusable
+        // to prevent focus stealing at opening
+        this.setFocusableWindowState(true);
+    }
+
+    public void windowActivated(WindowEvent evt)
+    {}
+
+    public void windowDeactivated(WindowEvent evt)
+    {}
+
+    public void windowClosing(WindowEvent evt)
+    {}
+
+    public void windowClosed(WindowEvent evt)
+    {}
+
+    public void windowIconified(WindowEvent evt)
+    {}
+
+    public void windowDeiconified(WindowEvent evt)
     {}
 
     /**
