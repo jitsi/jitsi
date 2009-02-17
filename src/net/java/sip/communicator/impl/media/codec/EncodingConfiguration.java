@@ -182,12 +182,10 @@ public class EncodingConfiguration
      */
     private void updateSupportedEncodings()
     {
-        for (int i = 0; i < availableAudioEncodings.length; i++)
+        for (String ac : availableAudioEncodings)
         {
-            String ac = availableAudioEncodings[i];
-
             Integer pref1 = encodingPreferences.get(ac);
-            int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
+            int pref1IntValue = (pref1 == null) ? 0 : pref1;
 
             if (pref1IntValue > 0)
                 supportedAudioEncodings.add(ac);
@@ -195,12 +193,10 @@ public class EncodingConfiguration
                 supportedAudioEncodings.remove(ac);
         }
 
-        for (int i = 0; i < availableVideoEncodings.length; i++)
+        for (String ac : availableVideoEncodings)
         {
-            String ac = availableVideoEncodings[i];
-
             Integer pref1 = encodingPreferences.get(ac);
-            int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
+            int pref1IntValue = (pref1 == null) ? 0 : pref1;
 
             if (pref1IntValue > 0)
                 supportedVideoEncodings.add(ac);
@@ -219,7 +215,7 @@ public class EncodingConfiguration
         for (String c : encs)
         {
             Integer pref1 = encodingPreferences.get(c);
-            int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
+            int pref1IntValue = (pref1 == null) ? 0 : pref1;
 
             if (pref1IntValue > 0)
                 result.add(c);
@@ -250,7 +246,7 @@ public class EncodingConfiguration
      * 
      * @param encoding a string containing the SDP int of the encoding whose
      *            pref we're setting.
-     * @param pref a positive int indicating the preference for that encoding.
+     * @param priority a positive int indicating the preference for that encoding.
      */
     public void setPriority(String encoding, int priority)
     {
@@ -280,10 +276,8 @@ public class EncodingConfiguration
         registeredPlugins.addAll(PlugInManager.getPlugInList(null, null,
             PlugInManager.CODEC));
 
-        for (int i = 0; i < customCodecs.length; i++)
+        for (String className : customCodecs)
         {
-            String className = customCodecs[i];
-
             if (registeredPlugins.contains(className))
             {
                 logger.debug("Codec : " + className + " is already registered");
@@ -341,10 +335,8 @@ public class EncodingConfiguration
         Vector<String> currentPackagePrefix =
             PackageManager.getProtocolPrefixList();
 
-        for (int i = 0; i < customPackages.length; i++)
+        for (String className : customPackages)
         {
-            String className = customPackages[i];
-
             // linear search in a loop, but it doesn't have to scale since the
             // list is always short
             if (!currentPackagePrefix.contains(className))
@@ -398,10 +390,10 @@ public class EncodingConfiguration
     private int compareEncodingPreferences(String enc1, String enc2)
     {
         Integer pref1 = encodingPreferences.get(enc1);
-        int pref1IntValue = (pref1 == null) ? 0 : pref1.intValue();
+        int pref1IntValue = (pref1 == null) ? 0 : pref1;
 
         Integer pref2 = encodingPreferences.get(enc2);
-        int pref2IntValue = (pref2 == null) ? 0 : pref2.intValue();
+        int pref2IntValue = (pref2 == null) ? 0 : pref2;
 
         return pref2IntValue - pref1IntValue;
     }

@@ -119,8 +119,7 @@ public class EncodingConfigurationTableModel
         switch (columnIndex)
         {
         case 0:
-            return Boolean
-                .valueOf(encodingConfiguration.getPriority(encoding) > 0);
+            return (encodingConfiguration.getPriority(encoding) > 0);
         case 1:
             return MediaUtils.sdpToJmfEncoding(encoding);
         default:

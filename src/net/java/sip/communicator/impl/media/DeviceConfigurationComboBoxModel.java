@@ -85,9 +85,9 @@ public class DeviceConfigurationComboBoxModel
             new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, index0,
                 index1);
 
-        for (int i = 0; i < listeners.length; i++)
+        for (ListDataListener listener : listeners)
         {
-            listeners[i].contentsChanged(event);
+            listener.contentsChanged(event);
         }
     }
 
@@ -146,10 +146,8 @@ public class DeviceConfigurationComboBoxModel
             throw new IllegalStateException("type");
         }
 
-        CaptureDevice[] devices = getDevices();
-        for (int i = 0; i < devices.length; i++)
+        for (CaptureDevice device : getDevices())
         {
-            CaptureDevice device = devices[i];
             if (CaptureDevice.equals(device.info, info))
                 return device;
         }

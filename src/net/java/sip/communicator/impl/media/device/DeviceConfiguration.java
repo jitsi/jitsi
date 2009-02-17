@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Martin Andre
  * @author Emil Ivov
- * @authod Lubomir Marinov
+ * @author Lubomir Marinov
  */
 public class DeviceConfiguration
 {
@@ -72,7 +72,7 @@ public class DeviceConfiguration
     * Listeners that will be notified every time
     * a device has been changed.
     */
-    private List<PropertyChangeListener> propertyChangeListeners = 
+    private final List<PropertyChangeListener> propertyChangeListeners = 
         new Vector<PropertyChangeListener>();
 
     /**
@@ -239,10 +239,9 @@ public class DeviceConfiguration
 
     /**
      * Gets the list of audio capture devices which are available through this
-     * <code>DeviceConfiguration</code>, amongst which are
-     * {@link #getAudioCaptureDevice()} and
-     * {@link #getDefaultAudioCaptureDevice()} and represent acceptable values
-     * for {@link #setDefaultAudioCaptureDevice()}
+     * <code>DeviceConfiguration</code>, amongst which is
+     * {@link #getAudioCaptureDevice()} and represent acceptable values
+     * for {@link #setAudioCaptureDevice(CaptureDeviceInfo)}
      * 
      * @return an array of <code>CaptureDeviceInfo</code> describing the audio
      *         capture devices available through this
@@ -259,10 +258,9 @@ public class DeviceConfiguration
 
     /**
      * Gets the list of video capture devices which are available through this
-     * <code>DeviceConfiguration</code>, amongst which are
-     * {@link #getVideoCaptureDevice()} and
-     * {@link #getDefaultVideoCaptureDevice()} and represent acceptable values
-     * for {@link #setDefaultVideoCaptureDevice()}
+     * <code>DeviceConfiguration</code>, amongst which is
+     * {@link #getVideoCaptureDevice()} and represent acceptable values
+     * for {@link #setVideoCaptureDevice(CaptureDeviceInfo)}
      * 
      * @return an array of <code>CaptureDeviceInfo</code> describing the video
      *         capture devices available through this
