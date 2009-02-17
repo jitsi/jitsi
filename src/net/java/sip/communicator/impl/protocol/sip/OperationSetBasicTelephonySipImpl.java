@@ -600,8 +600,8 @@ public class OperationSetBasicTelephonySipImpl
             }
             else
             {
-                logger
-                    .error("reINVITEs while the dialog is not confirmed are not currently supported.");
+                logger.error("reINVITEs while the dialog is not"
+                            + "confirmed are not currently supported.");
             }
         }
         // ACK
@@ -786,8 +786,8 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            logger.error(
-                "Failed to make Accepted REFER response keep the dialog alive after BYE:\n"
+            logger.error("Failed to make Accepted REFER response"
+                        + " keep the dialog alive after BYE:\n"
                     + accepted, ex);
         }
     }
@@ -881,7 +881,8 @@ public class OperationSetBasicTelephonySipImpl
         CallParticipantSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
 
-        if (callParticipant.getState() == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
+        if (callParticipant.getState()
+                == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
         {
             // This can happen if we are receigin early media for a second time.
             logger.warn("Ignoring invite 183 since call participant is "
@@ -1945,7 +1946,8 @@ public class OperationSetBasicTelephonySipImpl
      * @param serverTransaction the transaction that the Ack was received in.
      * @param ackRequest Request
      */
-    private void processAck(ServerTransaction serverTransaction, Request ackRequest)
+    private void processAck(ServerTransaction serverTransaction,
+                            Request ackRequest)
     {
         // find the call
         CallParticipantSipImpl callParticipant =
@@ -2148,9 +2150,9 @@ public class OperationSetBasicTelephonySipImpl
                 }
                 catch (SipException ex)
                 {
-                    logger.error(
-                        "Failed to make the REFER request keep the dialog alive after BYE:\n"
-                            + referRequest, ex);
+                    logger.error("Failed to make the REFER request"
+                                + "keep the dialog alive after BYE:\n"
+                                + referRequest, ex);
                 }
 
                 // NOTIFY Trying
@@ -2258,13 +2260,15 @@ public class OperationSetBasicTelephonySipImpl
                 .getHeader(SubscriptionStateHeader.NAME);
         if (ssHeader == null)
         {
-            logger
-                .error("NOTIFY of refer event type with no Subscription-State header.");
+            logger.error("NOTIFY of refer event type"
+                        + "with no Subscription-State header.");
+
             return false;
         }
 
         Dialog dialog = serverTransaction.getDialog();
-        CallParticipantSipImpl participant = activeCallsRepository.findCallParticipant(dialog);
+        CallParticipantSipImpl participant
+            = activeCallsRepository.findCallParticipant(dialog);
 
         if (participant == null)
         {
@@ -2377,7 +2381,8 @@ public class OperationSetBasicTelephonySipImpl
         if (sendNotifyRequest)
         {
             String referStatus =
-                CallState.CALL_IN_PROGRESS.equals(referToCallState) ? "SIP/2.0 200 OK"
+                CallState.CALL_IN_PROGRESS.equals(referToCallState)
+                    ? "SIP/2.0 200 OK"
                     : "SIP/2.0 603 Declined";
             try
             {
@@ -3109,37 +3114,60 @@ public class OperationSetBasicTelephonySipImpl
             sipParticipant.setState(CallParticipantState.CONNECTED);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see net.java.sip.communicator.service.protocol.OperationSetSecureTelephony#setSecure(net.java.sip.communicator.service.protocol.CallParticipant, boolean, net.java.sip.communicator.service.protocol.OperationSetSecureTelephony.SecureStatusChangeSource)
+    /**
+     * Sets the secure communication status of the call associated to the given
+     * participant.
+     * 
+     * @param participant the call participant, for which we're setting the
+     * state.
+     * @param secure indicates the security status - enabled ot disabled.
+     * @param source indicates the source of this change - local change, remote
+     * change or revert of the status.
      */
-    public void setSecure(CallParticipant participant, boolean secure,
-            SecureStatusChangeSource source) {
-        CallSession cs = ((CallSipImpl) participant.getCall())
-                .getMediaCallSession();
+    public void setSecure(  CallParticipant participant,
+                            boolean secure,
+                            SecureStatusChangeSource source)
+    {
+        CallSession cs
+            = ((CallSipImpl) participant.getCall()).getMediaCallSession();
+
         if (cs != null)
             cs.setSecureCommunicationStatus(secure, source);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see net.java.sip.communicator.service.protocol.OperationSetSecureTelephony#isSecure(net.java.sip.communicator.service.protocol.CallParticipant)
+    /**
+     * Returns <code>true</code> to indicate that the call associated with the 
+     * given participant is secured, otherwise returns <code>false</code>.
+     * 
+     * @return <code>true</code> to indicate that the call associated with the 
+     * given participant is secured, otherwise returns <code>false</code>.
      */
-    public boolean isSecure(CallParticipant participant) {
-        CallSession cs = ((CallSipImpl) participant.getCall())
-                .getMediaCallSession();
+    public boolean isSecure(CallParticipant participant)
+    {
+        CallSession cs
+            = ((CallSipImpl) participant.getCall()).getMediaCallSession();
+
         if (cs != null)
             return cs.getSecureCommunicationStatus();
         else
             return false;
     }
 
-    public boolean setSasVerified(CallParticipant participant, boolean verified) {
+    /**
+     * Sets the SAS verification property value for the given call participant.
+     * 
+     * @param participant the call participant, for which we set the 
+     * @param isVerified indicates whether the SAS string is verified or not
+     * for the given participant.
+     */
+    public boolean setSasVerified(  CallParticipant participant,
+                                    boolean isVerified)
+    {
+        CallSession cs
+            = ((CallSipImpl) participant.getCall()).getMediaCallSession();
 
-        CallSession cs = ((CallSipImpl) participant.getCall())
-                .getMediaCallSession();
         if (cs != null)
-            return cs.setZrtpSASVerification(verified);
+            return cs.setZrtpSASVerification(isVerified);
         else
             return false;
     }

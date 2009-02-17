@@ -65,7 +65,7 @@ public abstract class Call
 
         defaultEncryption =
             accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_ENCRYPTION, false);
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
     }
 
     /**
