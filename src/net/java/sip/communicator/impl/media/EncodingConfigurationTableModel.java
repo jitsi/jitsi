@@ -85,10 +85,8 @@ public class EncodingConfigurationTableModel
             {
                 public int compare(String encoding0, String encoding1)
                 {
-                    if (encodingConfiguration.getPriority(encoding0) > encodingConfiguration
-                        .getPriority(encoding1))
-                        return -1;
-                    return encoding0.compareTo(encoding1);
+                    return encodingConfiguration.getPriority(encoding1) -
+                        encodingConfiguration.getPriority(encoding0);
                 }
             });
         }
