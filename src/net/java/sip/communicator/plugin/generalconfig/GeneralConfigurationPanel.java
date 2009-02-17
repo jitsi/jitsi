@@ -11,13 +11,16 @@ import java.awt.event.*;
 import java.io.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import com.izforge.izpack.util.os.*;
+import org.osgi.framework.*;
 
 /**
  * @author Yana Stamcheva
@@ -41,6 +44,9 @@ public class GeneralConfigurationPanel
     private JCheckBox enableTypingNotifiCheckBox;
     private JCheckBox showHistoryCheckBox;
     private JPanel logHistoryPanel;
+    private JPanel notifConfigPanel;
+    private JLabel notifConfigLabel;
+    private JComboBox notifConfigComboBox;
 
     public GeneralConfigurationPanel()
     {
@@ -217,6 +223,75 @@ public class GeneralConfigurationPanel
                 bringToFrontCheckBox.setText(
                     Resources.getString("plugin.generalconfig.BRING_WINDOW_TO_FRONT"));
                 bringToFrontCheckBox.addActionListener(this);
+            }
+            {
+                ServiceReference[] handlerRefs = null;
+                BundleContext bc = GeneralConfigPluginActivator.bundleContext;
+                try
+                {
+                    handlerRefs = bc.getServiceReferences(
+                        PopupMessageHandler.class.getName(),
+                        null);
+                }
+                catch (InvalidSyntaxException ex)
+                {
+                    logger.warn("Error while retrieving service refs", ex);
+                }
+                // user has choice only if there is more than one handler
+                if ((handlerRefs != null) && (handlerRefs.length > 1))
+                {
+                    notifConfigPanel = new JPanel();
+                    notifConfigPanel.setOpaque(false);
+                    notifConfigPanel.setLayout(new BorderLayout(10, 10));
+                    notifConfigPanel.setAlignmentX(0.0f);
+                    notifConfigPanel.setPreferredSize(
+                        new java.awt.Dimension(380, 22));
+
+                    mainPanel.add(notifConfigPanel);
+                    mainPanel.add(Box.createVerticalStrut(10));
+                    {
+                        notifConfigLabel = new JLabel(
+                            Resources.getString(
+                            "plugin.notificationconfig.POPUP_NOTIF_HANDLER"));
+                        notifConfigPanel.add(
+                            notifConfigLabel, BorderLayout.WEST);
+                    }
+                    {
+                        notifConfigComboBox = new JComboBox();
+
+                        String currentConfig =
+                                ConfigurationManager.getPopupHandlerConfig();
+                        for (int i = 0; i < handlerRefs.length; i++)
+                        {
+                            PopupMessageHandler handler =
+                                (PopupMessageHandler) bc.getService(
+                                handlerRefs[i]);
+
+                            notifConfigComboBox.addItem(handler);
+
+                            String handlerName = handler.getClass().getName();
+                            
+                            if (handlerName.equals(currentConfig))
+                                notifConfigComboBox.setSelectedItem(handler);
+                        }
+
+                        notifConfigComboBox.addItemListener(new ItemListener()
+                        {
+                            public void itemStateChanged(ItemEvent evt)
+                            {
+                                PopupMessageHandler handler =
+                                    (PopupMessageHandler)
+                                    notifConfigComboBox.getSelectedItem();
+                                ConfigurationManager.setPopupHandlerConfig(
+                                    handler.getClass().getName());
+                                GeneralConfigPluginActivator.getSystrayService()
+                                    .setActivePopupMessageHandler(handler);
+                            }
+                        });
+                        notifConfigPanel.add(
+                            notifConfigComboBox, BorderLayout.CENTER);
+                    }
+                }
             }
 //            {
 //                JPanel transparencyPanel = new JPanel();

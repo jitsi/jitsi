@@ -34,7 +34,7 @@ public class ConfigurationManager
     private static int windowTransparency;
     
     private static boolean isTransparentWindowEnabled;
-    
+
     private static ConfigurationService configService
         = GeneralConfigPluginActivator.getConfigurationService();
 
@@ -281,6 +281,26 @@ public class ConfigurationManager
     public static String getSendMessageCommand()
     {
         return sendMessageCommand;
+    }
+
+    /**
+     * Gets the configuration handler which is currently in use.
+     * 
+     * @return the configuration handler which is currently in use
+     */
+    public static String getPopupHandlerConfig()
+    {
+        return (String) configService.getProperty("systray.POPUP_HANDLER");
+    }
+
+    /**
+     * Saves the popup handler choice made by the user.
+     *
+     * @param handler the handler which will be used
+     */
+    public static void setPopupHandlerConfig(String handler)
+    {
+        configService.setProperty("systray.POPUP_HANDLER", handler);
     }
 
     /**

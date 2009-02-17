@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.generalconfig;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -17,6 +18,8 @@ public class GeneralConfigPluginActivator implements BundleActivator
     private Logger logger = Logger.getLogger(GeneralConfigPluginActivator.class);
 
     private static ConfigurationService configService;
+
+    private static SystrayService systrayService;
 
     protected static BundleContext bundleContext;
     
@@ -66,7 +69,26 @@ public class GeneralConfigPluginActivator implements BundleActivator
 
         return configService;
     }
-    
+
+    /**
+     * Returns the <tt>SystrayService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>SystrayService</tt> obtained from the bundle
+     * context
+     */
+    public static SystrayService getSystrayService()
+    {
+        if(systrayService == null) {
+            ServiceReference configReference = bundleContext
+                .getServiceReference(SystrayService.class.getName());
+
+            systrayService = (SystrayService) bundleContext
+                .getService(configReference);
+        }
+
+        return systrayService;
+    }
+
      /**
      * Returns the <tt>UIService</tt>.
      * 
