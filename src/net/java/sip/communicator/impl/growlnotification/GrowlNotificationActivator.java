@@ -54,7 +54,7 @@ public class GrowlNotificationActivator
                         "on JDK version " + version);
         } else {
             /* Create and start the Growl Notification service. */
-            new GrowlNotificationServiceImpl().start(bundleContext);
+            new GrowlNotificationServiceImpl().start(bc);
 
             logger.info("Growl Notification Plugin ...[Started]");
         }
