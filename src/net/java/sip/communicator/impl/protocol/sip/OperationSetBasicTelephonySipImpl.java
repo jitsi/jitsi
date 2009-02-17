@@ -127,7 +127,7 @@ public class OperationSetBasicTelephonySipImpl
      */
     public Call createCall(Contact callee) throws OperationFailedException
     {
-        Address toAddress = null;
+        Address toAddress;
 
         try
         {
@@ -263,13 +263,12 @@ public class OperationSetBasicTelephonySipImpl
             // that the media service can choose the most proper local
             // address to advertise.
             javax.sip.address.URI calleeURI = calleeAddress.getURI();
-            InetAddress intendedDestination = null;
             if (calleeURI.isSipURI())
             {
                 String host = ((SipURI) calleeURI).getHost();
-
-                intendedDestination = protocolProvider
+                InetAddress intendedDestination = protocolProvider
                         .resolveSipAddress(host).getAddress();
+
                 invite.setContent(callSession
                             .createSdpOffer(intendedDestination),
                             contentTypeHeader);
@@ -2715,7 +2714,7 @@ public class OperationSetBasicTelephonySipImpl
 
             ArrayList<ViaHeader> viaHeaders =
                 protocolProvider.getLocalViaHeaders(destination);
-            bye.setHeader((ViaHeader) viaHeaders.get(0));
+            bye.setHeader(viaHeaders.get(0));
             bye.addHeader(protocolProvider.getSipCommUserAgentHeader());
         }
         catch (SipException ex)
@@ -2914,7 +2913,7 @@ public class OperationSetBasicTelephonySipImpl
                 .setMediaCallSession(callSession);
 
             String sdpOffer = callParticipant.getSdpDescription();
-            String sdp = null;
+            String sdp;
             // if the offer was in the invite create an sdp answer
             if ((sdpOffer != null) && (sdpOffer.length() > 0))
             {
@@ -3147,10 +3146,7 @@ public class OperationSetBasicTelephonySipImpl
         CallSession cs
             = ((CallSipImpl) participant.getCall()).getMediaCallSession();
 
-        if (cs != null)
-            return cs.getSecureCommunicationStatus();
-        else
-            return false;
+        return (cs != null) && cs.getSecureCommunicationStatus();
     }
 
     /**
@@ -3166,10 +3162,7 @@ public class OperationSetBasicTelephonySipImpl
         CallSession cs
             = ((CallSipImpl) participant.getCall()).getMediaCallSession();
 
-        if (cs != null)
-            return cs.setZrtpSASVerification(isVerified);
-        else
-            return false;
+        return (cs != null) && cs.setZrtpSASVerification(isVerified);
     }
 
 

@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-
 /**
  * A representation of a Call. The Call class must only be created by users (i.e.
  * telephony protocols) of the PhoneUIService such as a SIP protocol
@@ -23,24 +22,24 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class Call
 {
-    private static final Logger logger
-        = Logger.getLogger(Call.class);
+    private static final Logger logger = Logger.getLogger(Call.class);
+
     /**
      * An identifier uniquely representing the call.
      */
-    private String callID = null;
+    private final String callID;
 
     /**
      * A list of all listeners currently registered for
      * <tt>CallChangeEvent</tt>s
      */
-    private Vector<CallChangeListener> callListeners
+    private final List<CallChangeListener> callListeners
                                             = new Vector<CallChangeListener>();
 
     /**
      * A reference to the ProtocolProviderService instance that created us.
      */
-    private ProtocolProviderService protocolProvider = null;
+    private final ProtocolProviderService protocolProvider;
 
     /**
      * If this flag is set to true according to the account properties
@@ -57,14 +56,13 @@ public abstract class Call
     protected Call(ProtocolProviderService sourceProvider)
     {
         //create the uid
-        this.callID = String.valueOf( System.currentTimeMillis())
+        this.callID = String.valueOf(System.currentTimeMillis())
                     + String.valueOf(super.hashCode());
 
         this.protocolProvider = sourceProvider;
-        AccountID accountID = sourceProvider.getAccountID();
 
         defaultEncryption =
-            accountID.getAccountPropertyBoolean(
+            protocolProvider.getAccountID().getAccountPropertyBoolean(
                 ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
     }
 
@@ -92,11 +90,8 @@ public abstract class Call
         if(obj == null
            || !(obj instanceof Call))
             return false;
-        if (obj == this
-           || ((Call)obj).getCallID().equals( getCallID() ))
-            return true;
-
-        return false;
+        return (obj == this)
+           || ((Call)obj).getCallID().equals(getCallID());
     }
 
     /**
@@ -180,15 +175,15 @@ public abstract class Call
                      + callListeners.size()
                      +" listeners. event is: " + cpEvent.toString());
 
-        Iterator listeners = null;
+        Iterator<CallChangeListener> listeners;
         synchronized(callListeners)
         {
-           listeners = new ArrayList(callListeners).iterator();
+           listeners = new ArrayList<CallChangeListener>(callListeners).iterator();
         }
 
         while(listeners.hasNext())
         {
-            CallChangeListener listener = (CallChangeListener)listeners.next();
+            CallChangeListener listener = listeners.next();
 
             if(eventID == CallParticipantEvent.CALL_PARTICIPANT_ADDED)
                 listener.callParticipantAdded(cpEvent);
@@ -232,15 +227,15 @@ public abstract class Call
                      + callListeners.size()
                      +" listeners. event is: " + ccEvent.toString());
 
-        Iterator listeners = null;
+        Iterator<CallChangeListener> listeners;
         synchronized(callListeners)
         {
-            listeners = new ArrayList(callListeners).iterator();
+            listeners = new ArrayList<CallChangeListener>(callListeners).iterator();
         }
 
         while(listeners.hasNext())
         {
-            CallChangeListener listener = (CallChangeListener)listeners.next();
+            CallChangeListener listener = listeners.next();
 
             if(type.equals(CallChangeEvent.CALL_STATE_CHANGE))
                 listener.callStateChanged(ccEvent);
