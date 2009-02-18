@@ -221,6 +221,12 @@ public class CallSessionImpl
         new HashMap<Component, LocalVisualComponentData>();
 
     /**
+     * Indicates whether current call is sending video data.
+     * Used to suppress or not video events for local video.
+     */
+    private boolean sendingVideo = false;
+
+    /**
      * List of RTP format strings which are supported by SIP Communicator in addition
      * to the JMF standard formats.
      *
@@ -1166,6 +1172,8 @@ public class CallSessionImpl
         PushBufferStream[] streams
             = ((PushBufferDataSource)dataSource).getStreams();
 
+        sendingVideo = false;
+
         //for each stream - determine whether it is a video or an audio
         //stream and assign it to the corresponding rtpmanager
         for (int i = 0; i < streams.length; i++)
@@ -1174,6 +1182,7 @@ public class CallSessionImpl
             if(streams[i].getFormat() instanceof VideoFormat)
             {
                 rtpManager = getVideoRtpManager();
+                sendingVideo = true;
             }
             else if (streams[i].getFormat() instanceof AudioFormat)
             {
@@ -1664,7 +1673,8 @@ public class CallSessionImpl
             mediaDescs.add(am);
         }
         //--------Video media description
-        if(supportedVideoEncodings.length> 0)
+        if(mediaServCallback.getDeviceConfiguration().isVideoCaptureSupported()
+                && supportedVideoEncodings.length> 0)
         {
             //"m=video 22222 RTP/AVP 34";
             MediaDescription vm
@@ -3103,8 +3113,9 @@ public class CallSessionImpl
             {
                 public void controllerUpdate(ControllerEvent event)
                 {
-                    controllerUpdateForCreateLocalVisualComponent(event,
-                        listener);
+                    if(sendingVideo)
+                        controllerUpdateForCreateLocalVisualComponent(event,
+                            listener);
                 }
             });
             player.start();
