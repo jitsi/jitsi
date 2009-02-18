@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.media;
 
-
 import java.net.*;
 import java.util.*;
 import javax.sdp.*;
@@ -39,7 +38,7 @@ public class MediaServiceImpl
     /**
      * Our logger.
      */
-    private Logger logger = Logger.getLogger(MediaServiceImpl.class);
+    private final Logger logger = Logger.getLogger(MediaServiceImpl.class);
 
     /**
      * The SdpFactory instance that we use for construction of all sdp
@@ -108,7 +107,7 @@ public class MediaServiceImpl
     /**
      * Currently open call sessions.
      */
-    private Map activeCallSessions =  new Hashtable();
+    //private Map activeCallSessions =  new Hashtable();
 
     /**
      * Default constructor
@@ -194,9 +193,8 @@ public class MediaServiceImpl
     {
         waitUntilStarted();
 
-        RtpFlowImpl rtpFlow = new RtpFlowImpl(this, localIP, remoteIP,
+        return new RtpFlowImpl(this, localIP, remoteIP,
                 localPort, remotePort, new Hashtable(mediaEncodings));
-        return rtpFlow;
     }
 
 
@@ -301,9 +299,9 @@ public class MediaServiceImpl
      * resources that it might have allocated and prepare for shutdown/garbage
      * collection.
      */
-    public void shutdown() {
+    public void shutdown()
+    {
         isStarted = false;
-        return;
     }
 
     /**

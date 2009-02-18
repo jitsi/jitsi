@@ -33,7 +33,7 @@ public class MetaContactGroupImpl
     /**
      * A list containing all child contacts.
      */
-    private TreeSet<MetaContactImpl> childContacts
+    private final Set<MetaContactImpl> childContacts
                                             = new TreeSet<MetaContactImpl>();
 
     /**
@@ -377,7 +377,7 @@ public class MetaContactGroupImpl
 
         while (encapsulatedGroups.hasNext())
         {
-            ContactGroup group = (ContactGroup)encapsulatedGroups.next();
+            ContactGroup group = encapsulatedGroups.next();
 
             if (group.getGroupName().equals(groupName)
                 && group.getProtocolProvider() == ownerProvider)
@@ -674,7 +674,7 @@ public class MetaContactGroupImpl
     public MetaContactGroup getMetaContactSubgroup(int index) throws
         IndexOutOfBoundsException
     {
-        return (MetaContactGroup)subgroups.get(index);
+        return subgroups.get(index);
     }
 
     /**
@@ -818,7 +818,7 @@ public class MetaContactGroupImpl
             if(contactGroups.hasNext())
                 buff.append(", ");
         }
-        buff.append("]").toString();
+        buff.append("]");
 
         buff.append("\nRootChildContacts="+countChildContacts()+":[");
 

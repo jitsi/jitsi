@@ -27,8 +27,6 @@ public class Packetizer
 {
     private final static String PLUGIN_NAME = "H264 Packetizer";
 
-    private Format[] supportedOutputFormats = null;
-
     private static int DEF_WIDTH = 352;
     private static int DEF_HEIGHT = 288;
 
@@ -68,14 +66,12 @@ public class Packetizer
         VideoFormat videoIn = (VideoFormat) in;
         Dimension inSize = videoIn.getSize();
 
-        supportedOutputFormats =
+        return
             new VideoFormat[]
             {
                 new VideoFormat(Constants.H264_RTP, inSize,
                     Format.NOT_SPECIFIED, Format.byteArray, videoIn
                         .getFrameRate()) };
-
-        return supportedOutputFormats;
     }
 
     /**
@@ -88,7 +84,8 @@ public class Packetizer
             return defOutputFormats;
 
         // mismatch input format
-        if (!(in instanceof VideoFormat) || null == matches(in, inputFormats))
+        if (!(in instanceof VideoFormat)
+                || null == JNIDecoder.matches(in, inputFormats))
             return new Format[0];
 
         return getMatchingOutputFormats(in);
@@ -97,7 +94,8 @@ public class Packetizer
     public Format setInputFormat(Format in)
     {
         // mismatch input format
-        if (!(in instanceof VideoFormat) || null == matches(in, inputFormats))
+        if (!(in instanceof VideoFormat)
+                || null == JNIDecoder.matches(in, inputFormats))
             return null;
 
         inputFormat = in;
@@ -109,7 +107,7 @@ public class Packetizer
     {
         // mismatch output format
         if (!(out instanceof VideoFormat)
-            || null == matches(out, getMatchingOutputFormats(inputFormat)))
+                || null == JNIDecoder.matches(out, getMatchingOutputFormats(inputFormat)))
             return null;
 
         VideoFormat videoOut = (VideoFormat) out;
@@ -308,19 +306,5 @@ public class Packetizer
     public String getName()
     {
         return PLUGIN_NAME;
-    }
-
-    /**
-     * Utility to perform format matching.
-     */
-    public static Format matches(Format in, Format outs[])
-    {
-       for (int i = 0; i < outs.length; i++)
-       {
-          if (in.matches(outs[i]))
-              return outs[i];
-       }
-
-       return null;
     }
 }

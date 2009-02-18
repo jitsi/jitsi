@@ -80,7 +80,7 @@ public class MetaContactImpl
     /**
      * A sync lock for use when modifying the parentGroup field.
      */
-    private Object parentGroupModLock = new Object();
+    private final Object parentGroupModLock = new Object();
 
     /**
      * Hashtable containing the contact details.
@@ -332,6 +332,11 @@ public class MetaContactImpl
         {
             for (Contact protoContact : protoContacts)
             {
+
+                /*
+                 * TODO currentStatus is initialized to null and then there's a
+                 * check whether it's non-null i.e. the check will always fail.
+                 */
                 PresenceStatus currentStatus = null;
 
                 // we filter to care only about contact which support
@@ -935,9 +940,9 @@ public class MetaContactImpl
     }
 
     /**
-     * Stores avatar bytes in the given <tt>History</tt>.
+     * Stores avatar bytes in the given <tt>Contact</tt>.
      *
-     * @param history The history in which we store the avatar.
+     * @param protoContact The contact in which we store the avatar.
      * @param avatarBytes The avatar image bytes.
      */
     public void cacheAvatar( Contact protoContact,
@@ -1035,8 +1040,7 @@ public class MetaContactImpl
      * Replacing the characters that we must escape
      * used for the created filename.
      *
-     * @param ids Ids - folder names as we are using
-     *          FileSystem for storing files.
+     * @param id
      */
     private String escapeSpecialCharacters(String id)
     {

@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.media.codec.video;
 
+/**
+ * @author Lubomir Marinov
+ */
 public class FFMPEG
 {
     public static final int CODEC_FLAG_LOOP_FILTER = 0x00000800;

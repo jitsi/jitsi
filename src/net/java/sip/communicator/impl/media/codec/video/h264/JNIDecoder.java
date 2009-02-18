@@ -126,10 +126,8 @@ public class JNIDecoder
         else
         {
             ovf = null;
-            for (int i = 0; i < outputFormats.length; i++)
+            for (VideoFormat vf : outputFormats)
             {
-                VideoFormat vf = outputFormats[i];
-
                 if (vf.getSize().equals(inSize))
                 {
                     ovf = vf;
@@ -331,10 +329,10 @@ public class JNIDecoder
 
     private VideoFormat getVideoFormat(double width, float frameRate)
     {
-        for (int i = 0; i < outputFormats.length; i++)
+        for (VideoFormat vf : outputFormats)
         {
-            VideoFormat vf = outputFormats[i];
             Dimension size = vf.getSize();
+
             if (size.getWidth() == width)
             {
                 return new RGBFormat(size, -1, Format.intArray,
@@ -381,10 +379,10 @@ public class JNIDecoder
      */
     public static Format matches(Format in, Format outs[])
     {
-        for (int i = 0; i < outs.length; i++)
+        for (Format out : outs)
         {
-            if (in.matches(outs[i]))
-                return outs[i];
+            if (in.matches(out))
+                return out;
         }
         return null;
     }

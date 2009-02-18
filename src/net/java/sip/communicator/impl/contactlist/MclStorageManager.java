@@ -72,11 +72,6 @@ public class MclStorageManager
     private FileAccessService faService = null;
 
     /**
-     * A reference to the currently valid instance of the configuration service.
-     */
-    private ConfigurationService configurationService = null;
-
-    /**
      * The name of the system property that stores the name of the contact list
      * file.
      */
@@ -278,7 +273,7 @@ public class MclStorageManager
             bundleContext.getServiceReference(ConfigurationService.class
                 .getName());
 
-        configurationService =
+        ConfigurationService configurationService =
             (ConfigurationService) bundleContext.getService(confServiceRefs);
 
         String fileName = configurationService.getString(FILE_NAME_PROPERTY);
@@ -676,7 +671,7 @@ public class MclStorageManager
     {
         // first resolve the group itself.(unless this is the meta contact list
         // root which is already resolved)
-        MetaContactGroupImpl currentMetaGroup = null;
+        MetaContactGroupImpl currentMetaGroup;
 
         // in this map we store all proto groups that we find in this meta group
         // (unless this is the MCL root)in order to pass them as parent

@@ -74,7 +74,7 @@ public class MetaContactListServiceImpl
      * Listeners interested in events dispatched upon modification of the meta
      * contact list.
      */
-    private Vector<MetaContactListListener> metaContactListListeners
+    private final Vector<MetaContactListListener> metaContactListListeners
                         = new Vector<MetaContactListListener>();
 
     /**
@@ -705,8 +705,7 @@ public class MetaContactListServiceImpl
 
         //make sure that "parent" does not already contain a subgroup called
         //"groupName"
-        Iterator<MetaContactGroup> subgroups
-                            = ((MetaContactGroupImpl)parent).getSubgroups();
+        Iterator<MetaContactGroup> subgroups = parent.getSubgroups();
 
         while(subgroups.hasNext())
         {
@@ -1135,8 +1134,7 @@ public class MetaContactListServiceImpl
         try
         {
             //remove all proto groups and then remove the meta group as well.
-            Iterator<ContactGroup> protoGroups
-                = ( (MetaContactGroupImpl) groupToRemove).getContactGroups();
+            Iterator<ContactGroup> protoGroups = groupToRemove.getContactGroups();
 
             while (protoGroups.hasNext())
             {
@@ -1812,8 +1810,7 @@ public class MetaContactListServiceImpl
         }
 
         List<ProtocolProviderService> existingProvList
-            = (List<ProtocolProviderService>)this.contactEventIgnoreList
-                    .get(contact);
+            = this.contactEventIgnoreList.get(contact);
 
         if (existingProvList == null)
         {
@@ -1836,9 +1833,8 @@ public class MetaContactListServiceImpl
     private boolean isContactInEventIgnoreList(
         String contact, ProtocolProviderService ownerProvider)
     {
-        List<ProtocolProviderService> existingProvList =
-            (List<ProtocolProviderService>)
-                this.contactEventIgnoreList.get(contact);
+        List<ProtocolProviderService> existingProvList
+            = this.contactEventIgnoreList.get(contact);
 
         return existingProvList != null
             && existingProvList.contains(ownerProvider);
@@ -1874,8 +1870,7 @@ public class MetaContactListServiceImpl
                || contact.equals(contactAddress))
             {
                 List<ProtocolProviderService> existingProvList =
-                    (List<ProtocolProviderService>)
-                        this.contactEventIgnoreList.get(contactAddress);
+                    this.contactEventIgnoreList.get(contactAddress);
 
                 return existingProvList != null
                     && existingProvList.contains(ownerProvider);
@@ -2228,7 +2223,7 @@ public class MetaContactListServiceImpl
                             .equals(evt.getPropertyName()))
             {
                 if( evt.getOldValue() != null
-                    && ((String)evt.getOldValue()).equals(mc.getDisplayName()))
+                    && evt.getOldValue().equals(mc.getDisplayName()))
                 {
                     renameMetaContact(mc, (String)evt.getNewValue());
                 }
@@ -2752,7 +2747,7 @@ public class MetaContactListServiceImpl
                                         String               accountID)
     {
         //get the presence op set
-        ProtocolProviderService sourceProvider = (ProtocolProviderService)
+        ProtocolProviderService sourceProvider =
             currentlyInstalledProviders.get(accountID);
         OperationSetPersistentPresence presenceOpSet =
             (OperationSetPersistentPresence) sourceProvider
@@ -2803,7 +2798,7 @@ public class MetaContactListServiceImpl
 
         //create unresolved contacts for the protocontacts associated with this
         //mc
-        ProtocolProviderService sourceProvider = (ProtocolProviderService)
+        ProtocolProviderService sourceProvider =
             currentlyInstalledProviders.get(accountID);
         OperationSetPersistentPresence presenceOpSet =
             (OperationSetPersistentPresence) sourceProvider

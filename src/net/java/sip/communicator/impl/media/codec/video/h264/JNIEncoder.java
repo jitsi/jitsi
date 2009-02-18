@@ -36,8 +36,6 @@ public class JNIEncoder
     private static final Format[] defOutputFormats =
     { new VideoFormat(Constants.H264) };
 
-    private VideoFormat[] outputFormats = null;
-
     // the frame rate we will use
     private static final int TARGET_FRAME_RATE = 15;
 
@@ -92,12 +90,10 @@ public class JNIEncoder
         VideoFormat videoIn = (VideoFormat) in;
         Dimension inSize = videoIn.getSize();
 
-        outputFormats =
+        return
             new VideoFormat[]
             { new VideoFormat(Constants.H264, inSize, Format.NOT_SPECIFIED,
                 Format.byteArray, videoIn.getFrameRate()) };
-
-        return outputFormats;
     }
 
     /**
