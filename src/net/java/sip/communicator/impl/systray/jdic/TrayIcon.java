@@ -11,7 +11,10 @@ import java.awt.event.*;
 import java.lang.reflect.*;
 
 import javax.swing.*;
+
+import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.impl.systray.jdic.SystemTray.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * @author Lubomir Marinov
@@ -100,6 +103,8 @@ public class TrayIcon
         implements TrayIconPeer
     {
         private final Method addActionListener;
+        
+        private final Method addMouseListener;
 
         private final Method displayMessage;
 
@@ -112,7 +117,7 @@ public class TrayIcon
         private final Method setIconAutoSize;
 
         public AWTTrayIconPeer(Class<?> clazz, Image image, String tooltip,
-            PopupMenu popup)
+            JPopupMenu popup)
             throws IllegalArgumentException,
             UnsupportedOperationException,
             HeadlessException,
@@ -122,10 +127,13 @@ public class TrayIcon
             try
             {
                 constructor = clazz.getConstructor(new Class<?>[]
-                { Image.class, String.class, PopupMenu.class });
+                { Image.class, String.class });
                 addActionListener =
                     clazz.getMethod("addActionListener", new Class<?>[]
                     { ActionListener.class });
+                addMouseListener =
+                    clazz.getMethod("addMouseListener", new Class<?>[]
+                    { MouseListener.class });
                 messageTypeClass =
                     Class.forName("java.awt.TrayIcon$MessageType");
                 displayMessage =
@@ -149,7 +157,9 @@ public class TrayIcon
             try
             {
                 impl = constructor.newInstance(new Object[]
-                { image, tooltip, popup });
+                { image, tooltip });
+                
+                addMouseListener(new AWTMouseAdapter(popup));
             }
             catch (IllegalAccessException ex)
             {
@@ -182,6 +192,24 @@ public class TrayIcon
             {
                 addActionListener.invoke(getImpl(), new Object[]
                 { listener });
+            }
+            catch (IllegalAccessException ex)
+            {
+                throw new UndeclaredThrowableException(ex);
+            }
+            catch (InvocationTargetException ex)
+            {
+                Throwable cause = ex.getCause();
+                throw new UndeclaredThrowableException((cause == null) ? ex
+                    : cause);
+            }
+        }
+        
+        public void addMouseListener(MouseListener listener)
+        {
+            try
+            {
+                addMouseListener.invoke(getImpl(), new Object[] { listener });
             }
             catch (IllegalAccessException ex)
             {
@@ -337,6 +365,71 @@ public class TrayIcon
         public void setIconAutoSize(boolean autoSize)
         {
             getImpl().setIconAutoSize(autoSize);
+        }
+    }
+    
+    /**
+     * Extended mouse adapter to show the JpopupMenu in java 6
+     * Based on : http://weblogs.java.net/blog/ixmal/archive/2006/05/using_jpopupmen.html
+     * 
+     * @author Damien Roth
+     */
+    static class AWTMouseAdapter
+        extends MouseAdapter
+    {
+    	private static int MARGIN = 15;
+        private JPopupMenu popup;
+        private boolean popupVisible = false;
+        private Component invoker;
+    
+        public AWTMouseAdapter(JPopupMenu p)
+        {
+            this.popup = p;
+            
+            // Get the MainFrame
+            ExportedWindow win = SystrayActivator.getUIService()
+                .getExportedWindow(ExportedWindow.MAIN_WINDOW);
+            
+            /* 
+             * The JPopupMenu need to have a invoker defined to work correctly.
+             * It can be the popup menu itself, but if the mainframe is used, the popup
+             * automatically close when the mainframe lost the focus
+             */
+            if(win == null || win.getSource() == null || !(win.getSource() instanceof JFrame))
+                this.invoker = p;
+            else
+                this.invoker = (Component) win.getSource();
+        }
+        
+        public void mouseReleased(MouseEvent e)
+        {
+            // Trick used here, the isVisible function always return false
+            // So we manage this manually
+            if (e.getButton() == MouseEvent.BUTTON3 && !popupVisible)
+            {
+                Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+                int x = e.getX(), y = e.getY();
+                
+                // Use a margin to avoid the menu hiding the icon
+                if (x < MARGIN)
+                    x = MARGIN;
+                else if (x > screen.getWidth()-MARGIN)
+                    x = (int) screen.getWidth()-MARGIN;
+                if (y < MARGIN)
+                    y = MARGIN;
+                else if (y > screen.getHeight()-MARGIN)
+                    y = (int) screen.getWidth()-MARGIN;
+                
+                popup.setLocation(x, y);
+                popup.setInvoker(invoker);
+                popup.setVisible(true);
+                popupVisible = true;
+            }
+            else
+            {
+                popup.setVisible(false);
+                popupVisible = false;
+            }
         }
     }
 }

@@ -192,7 +192,7 @@ public class SystemTray
             SecurityException
         {
             return new AWTTrayIconPeer(trayIconClass, (icon == null) ? null
-                : icon.getImage(), tooltip, (PopupMenu) popup);
+                : icon.getImage(), tooltip, (JPopupMenu) popup);
         }
 
         public boolean isSwing()
