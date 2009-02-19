@@ -20,10 +20,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.impl.protocol.sip.security.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-
-//we import the following to avoid ambiguity with org.osgi.framework.Version
-import net.java.sip.communicator.service.version.Version;
-
+import net.java.sip.communicator.service.version.Version; // avoid ambiguity with org.osgi.framework.Version
 import net.java.sip.communicator.util.*;
 
 import gov.nist.javax.sip.header.*;
@@ -53,7 +50,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * We use this to lock access to initialization.
      */
-    private Object initializationLock = new Object();
+    private final Object initializationLock = new Object();
 
     /**
      * indicates whether or not the provider is initialized and ready for use.
@@ -63,7 +60,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * A list of all events registered for this provider.
      */
-    private List<String> registeredEvents = new ArrayList<String>();
+    private final List<String> registeredEvents = new ArrayList<String>();
 
     /**
      * The AddressFactory used to create URLs ans Address objects.
@@ -544,10 +541,9 @@ public class ProtocolProviderServiceSipImpl
             logger.debug("Found " + processors.size()
                 + " processor(s) for method " + method);
 
-            for (Iterator<MethodProcessor> processorIter =
-                processors.iterator(); processorIter.hasNext();)
+            for (MethodProcessor processor : processors)
             {
-                if (processorIter.next().processResponse(responseEvent))
+                if (processor.processResponse(responseEvent))
                 {
                     break;
                 }
@@ -585,7 +581,6 @@ public class ProtocolProviderServiceSipImpl
         Request request = transaction.getRequest();
         logger.debug("received timeout for req=" + request);
 
-
         //find the object that is supposed to take care of responses with the
         //corresponding method
         String method = request.getMethod();
@@ -596,10 +591,9 @@ public class ProtocolProviderServiceSipImpl
             logger.debug("Found " + processors.size()
                 + " processor(s) for method " + method);
 
-            for (Iterator<MethodProcessor> processorIter =
-                processors.iterator(); processorIter.hasNext();)
+            for (MethodProcessor processor : processors)
             {
-                if (processorIter.next().processTimeout(timeoutEvent))
+                if (processor.processTimeout(timeoutEvent))
                 {
                     break;
                 }
@@ -636,7 +630,6 @@ public class ProtocolProviderServiceSipImpl
         Request request = transaction.getRequest();
         logger.debug("Transaction terminated for req=" + request);
 
-
         //find the object that is supposed to take care of responses with the
         //corresponding method
         String method = request.getMethod();
@@ -647,10 +640,9 @@ public class ProtocolProviderServiceSipImpl
             logger.debug("Found " + processors.size()
                 + " processor(s) for method " + method);
 
-            for (Iterator<MethodProcessor> processorIter =
-                processors.iterator(); processorIter.hasNext();)
+            for (MethodProcessor processor : processors)
             {
-                if (processorIter.next().processTransactionTerminated(
+                if (processor.processTransactionTerminated(
                     transactionTerminatedEvent))
                 {
                     break;
@@ -769,10 +761,9 @@ public class ProtocolProviderServiceSipImpl
             logger.debug("Found " + processors.size()
                 + " processor(s) for method " + method);
 
-            for (Iterator<MethodProcessor> processorIter =
-                processors.iterator(); processorIter.hasNext();)
+            for (MethodProcessor processor : processors)
             {
-                if (processorIter.next().processRequest(requestEvent))
+                if (processor.processRequest(requestEvent))
                 {
                     break;
                 }
@@ -1108,13 +1099,12 @@ public class ProtocolProviderServiceSipImpl
      */
     public MessageFactory getMessageFactory()
     {
-        if(this.messageFactory == null)
+        if (messageFactory == null)
         {
-            MessageFactory wrappedFactory
-                = new MessageFactoryImpl();
-            this.messageFactory = new SipMessageFactory(this, wrappedFactory);
+            messageFactory =
+                new SipMessageFactory(this, new MessageFactoryImpl());
         }
-        return this.messageFactory;
+        return messageFactory;
     }
 
     /**
@@ -2282,3 +2272,4 @@ public class ProtocolProviderServiceSipImpl
         }
     }
 }
+

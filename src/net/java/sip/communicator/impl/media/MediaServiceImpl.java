@@ -94,15 +94,16 @@ public class MediaServiceImpl
      * have been answered by a mailbox plug-in and that will be using a file
      * as their sound source. 
      */
-    private final Map<Call, MediaControl> callMediaControlMappings =
-            new Hashtable<Call, MediaControl>();
+    private final Map<Call, MediaControl> callMediaControlMappings
+            = new Hashtable<Call, MediaControl>();
 
     /**
      * Mappings of calls to custom data sinks. Used by mailbox plug-ins for
      * sending audio/video flows to a file instead of the sound card or the 
      * screen.
      */
-    private Map callDataSinkMappings = new Hashtable();
+    private final Map<Call, URL> callDataSinkMappings
+            = new Hashtable<Call, URL>();
 
     /**
      * Currently open call sessions.
@@ -160,7 +161,7 @@ public class MediaServiceImpl
         //if we have this call mapped to a custom data destination, pass that
         //destination on to the callSession.
         CallSessionImpl callSession = new CallSessionImpl(
-                call, this, (URL)callDataSinkMappings.get(call));
+                call, this, callDataSinkMappings.get(call));
 
         // commented out because it leaks memory, and activeCallSessions isn't 
         // used anyway (by Michael Koch)

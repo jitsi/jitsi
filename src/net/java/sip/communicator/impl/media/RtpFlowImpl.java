@@ -75,7 +75,7 @@ public class RtpFlowImpl
     /**
      * Collection of send streams used by this <tt>RtpFlow</tt>
      */
-    private List sendStreams = new ArrayList();
+    private final List<SendStream> sendStreams = new ArrayList<SendStream>();
 
     /**
      * The media on which this <tt>RtpFlow</tt> depend,
@@ -91,12 +91,14 @@ public class RtpFlowImpl
     /**
      * Media encoding passed to JMF via the media control
      */
-    private Hashtable mediaEncoding = new Hashtable();
+    private final Hashtable<String, List<String>> mediaEncoding
+            = new Hashtable<String, List<String>>();
 
     /**
      * A list of listeners registered for media events.
      */
-    private Vector mediaListeners = new Vector();
+    private final List<MediaListener> mediaListeners
+            = new Vector<MediaListener>();
 
     /**
      * Creates an instance of <tt>RtpFlowImpl</tt> for media transmission.
@@ -117,7 +119,7 @@ public class RtpFlowImpl
                        String remoteIpAddress,
                        int localPort,
                        int remotePort,
-                       Hashtable mediaEncoding)
+                       Hashtable<String, List<String>> mediaEncoding)
             throws MediaException
     {
         this.localAddress = localIpAddress;
@@ -126,7 +128,7 @@ public class RtpFlowImpl
         this.remotePort = remotePort;
         this.mediaService = mediaServie;
         this.mediaControl = mediaService.getMediaControl();
-        this.mediaEncoding.putAll( mediaEncoding );
+        this.mediaEncoding.putAll(mediaEncoding);
 
         initialize();
     }
@@ -279,14 +281,10 @@ public class RtpFlowImpl
      */
      public void resume()
      {
-        Iterator it = sendStreams.iterator();
-        SendStream sendStream;
+        logger.info("resuming transmission... ");
 
-        logger.info("pausing transmission... ");
-
-        while (it.hasNext())
+        for (SendStream sendStream : sendStreams)
         {
-            sendStream = (SendStream) it.next();
             try
             {
                 sendStream.start();
@@ -303,14 +301,10 @@ public class RtpFlowImpl
      */
      public void pause()
      {
-        Iterator it = sendStreams.iterator();
-        SendStream sendStream;
-
         logger.info("pausing transmission... ");
 
-        while (it.hasNext())
+        for (SendStream sendStream : sendStreams)
         {
-            sendStream = (SendStream) it.next();
             try
             {
                 sendStream.stop();
@@ -436,8 +430,7 @@ public class RtpFlowImpl
         {
             p.start();
         }
-
-        if (ce instanceof ControllerErrorEvent)
+        else if (ce instanceof ControllerErrorEvent)
         {
             p.removeControllerListener(this);
             logger.warn("Receiver internal error " + ce);
@@ -466,15 +459,15 @@ public class RtpFlowImpl
     {
         MediaEvent mediaEvent = new MediaEvent(this, from);
 
-        Iterator listeners = null;
+        MediaListener[] listeners;
         synchronized(mediaListeners)
         {
-            listeners = new ArrayList(mediaListeners).iterator();
+            listeners =
+                mediaListeners.toArray(new MediaListener[mediaListeners.size()]);
         }
 
-        while(listeners.hasNext())
+        for (MediaListener listener : listeners)
         {
-            MediaListener listener = (MediaListener) listeners.next();
             listener.receivedMediaStream(mediaEvent);
         }
     }
