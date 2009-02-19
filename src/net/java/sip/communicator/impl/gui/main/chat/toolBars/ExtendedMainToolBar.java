@@ -113,26 +113,14 @@ public class ExtendedMainToolBar
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         this.setPreferredSize(new Dimension(300, DEFAULT_BUTTON_HEIGHT + 5));
 
-//        this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
-
-//        this.add(saveButton);
-//        this.add(printButton);
-
-//        this.addSeparator();
-
         this.add(cutButton);
         this.add(copyButton);
         this.add(pasteButton);
         this.add(settingsButton);
         this.add(previousButton);
         this.add(nextButton);
-//        this.add(sendFileButton);
         this.add(historyButton);
         this.add(addButton);
-
-//        this.addSeparator();
-//
-//        this.add(fontButton);
 
         this.saveButton.setName("save");
         this.saveButton.setToolTipText(
@@ -337,7 +325,8 @@ public class ExtendedMainToolBar
 
             this.setFont(getFont().deriveFont(Font.BOLD, 10f));
             this.setForeground(new Color(
-                GuiActivator.getResources().getColor("toolBarForeground")));
+                GuiActivator.getResources()
+                    .getColor("service.gui.TOOL_BAR_FOREGROUND")));
 
             this.setVerticalTextPosition(SwingConstants.BOTTOM);
             this.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -382,7 +371,7 @@ public class ExtendedMainToolBar
             {
                 color = new Color(
                     GuiActivator.getResources()
-                    .getColor("toolbarRolloverBackground"));
+                    .getColor("service.gui.TOOL_BAR_ROLLOVER_BACKGROUND"));
 
                 g2.setColor(color);
 
@@ -391,8 +380,8 @@ public class ExtendedMainToolBar
 
             if (isMousePressed)
             {
-                color = new Color(
-                    GuiActivator.getResources().getColor("toolbarBackground"));
+                color = new Color(GuiActivator.getResources()
+                        .getColor("service.gui.TOOL_BAR_BACKGROUND"));
 
                 g2.setColor(new Color(   color.getRed(),
                                         color.getGreen(),
@@ -415,23 +404,17 @@ public class ExtendedMainToolBar
         String buttonText = button.getName();
 
         ChatPanel chatPanel = messageWindow.getCurrentChatPanel();
-        
-        if (buttonText.equalsIgnoreCase("save")) {
-            // TODO: Implement the save operation in chat MainToolBar.
-        }
-        else if (buttonText.equalsIgnoreCase("print")) {
-            // TODO: Implement the print operation in chat MainToolBar.
-        }
-        else if (buttonText.equalsIgnoreCase("cut")) {
 
+        if (buttonText.equalsIgnoreCase("cut"))
+        {
             chatPanel.cut();
         }
-        else if (buttonText.equalsIgnoreCase("copy")) {
-
+        else if (buttonText.equalsIgnoreCase("copy"))
+        {
             chatPanel.copy();
         }
-        else if (buttonText.equalsIgnoreCase("paste")) {
-
+        else if (buttonText.equalsIgnoreCase("paste"))
+        {
             chatPanel.paste();
         }
         else if (buttonText.equalsIgnoreCase("previous"))
@@ -441,9 +424,6 @@ public class ExtendedMainToolBar
         else if (buttonText.equalsIgnoreCase("next"))
         {   
             chatPanel.loadNextPageFromHistory();
-        }
-        else if (buttonText.equalsIgnoreCase("sendFile")) {
-
         }
         else if (buttonText.equalsIgnoreCase("history"))
         {
@@ -528,7 +508,7 @@ public class ExtendedMainToolBar
 
             g2.setColor(new Color(
                 GuiActivator.getResources()
-                .getColor("service.gui.DESKTOP_BACKGROUND")));
+                .getColor("service.gui.MAIN_WINDOW_BACKGROUND")));
 
             g2.drawRect(0, this.getHeight() - 2, this.getWidth(), 2);
         }

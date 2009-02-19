@@ -190,6 +190,19 @@ public class MainFrame
         {
             menusPanel.add(new ExtendedQuickMenu(this), BorderLayout.SOUTH);
         }
+        else
+        {
+            JLabel moreActionsLabel = new JLabel(moreActionsIcon);
+            moreActionsLabel.setToolTipText(GuiActivator.getResources()
+                .getI18NString("service.gui.OPEN_TOOLS"));
+            moreActionsLabel.addMouseListener(new ActionMenuMouseListener());
+
+            TransparentPanel moreActionsPanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+            moreActionsPanel.add(moreActionsLabel);
+
+            centerPanel.add(moreActionsPanel, BorderLayout.NORTH);
+        }
 
         this.setJMenuBar(menu);
 
@@ -199,16 +212,6 @@ public class MainFrame
         northPanel.add(menusPanel, BorderLayout.CENTER);
         northPanel.add(accountStatusPanel, BorderLayout.SOUTH);
 
-        JLabel moreActionsLabel = new JLabel(moreActionsIcon);
-        moreActionsLabel.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.OPEN_TOOLS"));
-        moreActionsLabel.addMouseListener(new ActionMenuMouseListener());
-
-        TransparentPanel moreActionsPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        moreActionsPanel.add(moreActionsLabel);
-
-        centerPanel.add(moreActionsPanel, BorderLayout.NORTH);
         centerPanel.add(contactListPanel, BorderLayout.CENTER);
         centerPanel.add(mainCallPanel, BorderLayout.SOUTH);
 
@@ -1196,8 +1199,8 @@ public class MainFrame
                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
             g.drawImage(logoImage, 0, 0, null);
-            g.setColor(new Color(
-                GuiActivator.getResources().getColor("logoBarBackground")));
+            g.setColor(new Color(GuiActivator.getResources()
+                .getColor("service.gui.LOGO_BAR_BACKGROUND")));
 
             Graphics2D g2 = (Graphics2D) g;
 

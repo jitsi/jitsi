@@ -895,8 +895,8 @@ public class ChatWindow
                  = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
             g.drawImage(logoImage, 0, 0, null);
-            g.setColor(new Color(
-                GuiActivator.getResources().getColor("logoBarBackground")));
+            g.setColor(new Color(GuiActivator.getResources()
+                .getColor("service.gui.LOGO_BAR_BACKGROUND")));
 
             Graphics2D g2 = (Graphics2D) g;
 

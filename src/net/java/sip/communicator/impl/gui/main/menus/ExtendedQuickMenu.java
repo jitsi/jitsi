@@ -451,7 +451,8 @@ public class ExtendedQuickMenu
 
             this.setFont(getFont().deriveFont(Font.BOLD, 10f));
             this.setForeground(new Color(
-                GuiActivator.getResources().getColor("toolBarForeground")));
+                GuiActivator.getResources()
+                    .getColor("service.gui.TOOL_BAR_FOREGROUND")));
 
             this.setVerticalTextPosition(SwingConstants.BOTTOM);
             this.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -496,7 +497,7 @@ public class ExtendedQuickMenu
             {
                 color = new Color(
                     GuiActivator.getResources()
-                    .getColor("toolbarRolloverBackground"));
+                    .getColor("service.gui.TOOL_BAR_ROLLOVER_BACKGROUND"));
 
                 g2.setColor(color);
 
@@ -506,7 +507,8 @@ public class ExtendedQuickMenu
             if (isMousePressed)
             {
                 color = new Color(
-                    GuiActivator.getResources().getColor("toolbarBackground"));
+                    GuiActivator.getResources()
+                        .getColor("service.gui.TOOL_BAR_BACKGROUND"));
 
                 g2.setColor(new Color(   color.getRed(),
                                         color.getGreen(),
