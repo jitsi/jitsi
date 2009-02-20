@@ -427,17 +427,29 @@ public class SipStackSharing
      */
     public void processDialogTerminated(DialogTerminatedEvent event)
     {
-        ProtocolProviderServiceSipImpl recipient
-            = (ProtocolProviderServiceSipImpl) SipApplicationData
-            .getApplicationData(event.getDialog(),
-                    SipApplicationData.KEY_SERVICE);
-        if(recipient == null)
-            logger.error("Dialog wasn't marked, please report this to "
-                    + "dev@sip-communicator.dev.java.net");
-        else
+        try
         {
-            logger.trace("service was found with dialog data");
-            recipient.processDialogTerminated(event);
+            ProtocolProviderServiceSipImpl recipient
+                = (ProtocolProviderServiceSipImpl) SipApplicationData
+                    .getApplicationData(event.getDialog(),
+                                        SipApplicationData.KEY_SERVICE);
+            if(recipient == null)
+            {
+                logger.error("Dialog wasn't marked, please report this to "
+                                + "dev@sip-communicator.dev.java.net");
+            }
+            else
+            {
+                logger.trace("service was found with dialog data");
+                recipient.processDialogTerminated(event);
+            }
+        }
+        catch(Throwable exc)
+        {
+            //any exception thrown within our code should be caught here
+            //so that we could log it rather than interrupt stack activity with
+            //it.
+            this.logApplicationException(DialogTerminatedEvent.class, exc);
         }
     }
 
@@ -449,10 +461,20 @@ public class SipStackSharing
      */
     public void processIOException(IOExceptionEvent event)
     {
-        logger.trace(event);
+        try
+        {
+            logger.trace(event);
 
-        // impossible to dispatch, log here
-        logger.debug("@todo implement processIOException()");
+            // impossible to dispatch, log here
+            logger.debug("@todo implement processIOException()");
+        }
+        catch(Throwable exc)
+        {
+            //any exception thrown within our code should be caught here
+            //so that we could log it rather than interrupt stack activity with
+            //it.
+            this.logApplicationException(DialogTerminatedEvent.class, exc);
+        }
     }
 
     /**
@@ -463,56 +485,73 @@ public class SipStackSharing
      */
     public void processRequest(RequestEvent event)
     {
-        logger.trace("received request: " + event.getRequest().getMethod());
-        Request request = event.getRequest();
+        try
+        {
+            logger.trace("received request: " + event.getRequest().getMethod());
+            Request request = event.getRequest();
 
-        // Create the transaction if it doesn't exist yet. If it is a
-        // dialog-creating request, the dialog will also be automatically
-        // created by the stack.
-        if (event.getServerTransaction() == null)
-        {
-            try
+            // Create the transaction if it doesn't exist yet. If it is a
+            // dialog-creating request, the dialog will also be automatically
+            // created by the stack.
+            if (event.getServerTransaction() == null)
             {
-                SipProvider source = (SipProvider) event.getSource();
-                ServerTransaction transaction
-                    = source.getNewServerTransaction(request);
-                // Update the event, otherwise getServerTransaction() and
-                // getDialog() will still return their previous value.
-                event = new RequestEvent(source, transaction,
-                        transaction.getDialog(), request);
+                try
+                {
+                    SipProvider source = (SipProvider) event.getSource();
+                    ServerTransaction transaction
+                        = source.getNewServerTransaction(request);
+                    // Update the event, otherwise getServerTransaction() and
+                    // getDialog() will still return their previous value.
+                    event = new RequestEvent(source, transaction,
+                                transaction.getDialog(), request);
+                }
+                catch (SipException ex)
+                {
+                    logger.error("couldn't create transaction, please report "
+                                 + "this to dev@sip-communicator.dev.java.net",
+                                 ex);
+                }
             }
-            catch (SipException ex)
-            {
-                logger.error("couldn't create transaction, please report "
-                        + "this to dev@sip-communicator.dev.java.net", ex);
-            }
-        }
 
-        ProtocolProviderServiceSipImpl service
-            = getServiceData(event.getServerTransaction());
-        if (service != null)
-        {
-            service.processRequest(event);
-        }
-        else
-        {
-            service = findTargetFor(request);
-            if (service == null)
-                logger.error("couldn't find a ProtocolProviderServiceSipImpl "
-                        +"to dispatch to");
+            ProtocolProviderServiceSipImpl service
+                = getServiceData(event.getServerTransaction());
+            if (service != null)
+            {
+                service.processRequest(event);
+            }
             else
             {
+                service = findTargetFor(request);
+                if (service == null)
+                {
+                    logger.error("couldn't find a ProtocolProviderServiceSipImpl "
+                                +"to dispatch to");
+                }
+                else
+                {
                 // Mark the dialog for the dispatching of later in-dialog
                 // requests. If there is no dialog, we need to mark the request
                 // to dispatch a possible timeout when sending the response.
-                if (event.getDialog() != null)
-                    SipApplicationData.setApplicationData(event.getDialog(),
-                            SipApplicationData.KEY_SERVICE, service);
-                else
-                    SipApplicationData.setApplicationData(request,
-                            SipApplicationData.KEY_SERVICE, service);
-                service.processRequest(event);
+                    if (event.getDialog() != null)
+                    {
+                        SipApplicationData.setApplicationData(event.getDialog(),
+                                    SipApplicationData.KEY_SERVICE, service);
+                    }
+                    else
+                    {
+                        SipApplicationData.setApplicationData(request,
+                                    SipApplicationData.KEY_SERVICE, service);
+                    }
+                    service.processRequest(event);
+                }
             }
+        }
+        catch(Throwable exc)
+        {
+            //any exception thrown within our code should be caught here
+            //so that we could log it rather than interrupt stack activity with
+            //it.
+            this.logApplicationException(DialogTerminatedEvent.class, exc);
         }
     }
 
@@ -524,28 +563,45 @@ public class SipStackSharing
      */
     public void processResponse(ResponseEvent event)
     {
-        // we don't have to accept the transaction since we created the request
-        ClientTransaction transaction = event.getClientTransaction();
-        logger.trace("received response: " + event.getResponse().getStatusCode()
-                + " " + event.getResponse().getReasonPhrase());
-
-        ProtocolProviderServiceSipImpl service = getServiceData(transaction);
-        if (service != null)
+        try
         {
-            // Mark the dialog for the dispatching of later in-dialog responses.
-            // If there is no dialog then the initial request sure is marked
-            // otherwise we won't have found the service with getServiceData().
-            // The request has to be marked in case we receive one more response
-            // in an out-of-dialog transaction.
-            if (event.getDialog() != null)
-                SipApplicationData.setApplicationData(event.getDialog(),
-                        SipApplicationData.KEY_SERVICE, service);
-            service.processResponse(event);
+            // we don't have to accept the transaction since we
+            //created the request
+            ClientTransaction transaction = event.getClientTransaction();
+            logger.trace("received response: "
+                            + event.getResponse().getStatusCode()
+                            + " " + event.getResponse().getReasonPhrase());
+
+            ProtocolProviderServiceSipImpl service
+                = getServiceData(transaction);
+            if (service != null)
+            {
+                // Mark the dialog for the dispatching of later in-dialog
+                // responses. If there is no dialog then the initial request
+                // sure is marked otherwise we won't have found the service with
+                // getServiceData(). The request has to be marked in case we
+                // receive one more response in an out-of-dialog transaction.
+                if (event.getDialog() != null)
+                {
+                    SipApplicationData.setApplicationData(event.getDialog(),
+                                    SipApplicationData.KEY_SERVICE, service);
+                }
+                service.processResponse(event);
+            }
+            else
+            {
+                logger.error("We received a response which "
+                                + "wasn't marked, please report this to "
+                                + "dev@sip-communicator.dev.java.net");
+            }
         }
-        else
-            logger.error("We received a response which "
-                    + "wasn't marked, please report this to "
-                    + "dev@sip-communicator.dev.java.net");
+        catch(Throwable exc)
+        {
+            //any exception thrown within our code should be caught here
+            //so that we could log it rather than interrupt stack activity with
+            //it.
+            this.logApplicationException(DialogTerminatedEvent.class, exc);
+        }
     }
 
     /**
@@ -556,19 +612,38 @@ public class SipStackSharing
      */
     public void processTimeout(TimeoutEvent event)
     {
-        Transaction transaction;
-        if (event.isServerTransaction())
-            transaction = event.getServerTransaction();
-        else
-            transaction = event.getClientTransaction();
+        try
+        {
+            Transaction transaction;
+            if (event.isServerTransaction())
+            {
+                transaction = event.getServerTransaction();
+            }
+            else
+            {
+                transaction = event.getClientTransaction();
+            }
 
-        ProtocolProviderServiceSipImpl recipient = getServiceData(transaction);
-        if (recipient == null)
-            logger.error("We received a timeout which wasn't "
-                    + "marked, please report this to "
-                    + "dev@sip-communicator.dev.java.net");
-        else
-            recipient.processTimeout(event);
+            ProtocolProviderServiceSipImpl recipient
+                = getServiceData(transaction);
+            if (recipient == null)
+            {
+                logger.error("We received a timeout which wasn't "
+                                + "marked, please report this to "
+                                + "dev@sip-communicator.dev.java.net");
+            }
+            else
+            {
+                recipient.processTimeout(event);
+            }
+        }
+        catch(Throwable exc)
+        {
+            //any exception thrown within our code should be caught here
+            //so that we could log it rather than interrupt stack activity with
+            //it.
+            this.logApplicationException(DialogTerminatedEvent.class, exc);
+        }
     }
 
     /**
@@ -580,19 +655,35 @@ public class SipStackSharing
      */
     public void processTransactionTerminated(TransactionTerminatedEvent event)
     {
-        Transaction transaction;
-        if (event.isServerTransaction())
-            transaction = event.getServerTransaction();
-        else
-            transaction = event.getClientTransaction();
+        try
+        {
+            Transaction transaction;
+            if (event.isServerTransaction())
+                transaction = event.getServerTransaction();
+            else
+                transaction = event.getClientTransaction();
 
-        ProtocolProviderServiceSipImpl recipient = getServiceData(transaction);
-        if (recipient == null)
-            logger.error("We received a transaction terminated which wasn't "
-                    + "marked, please report this to "
-                    + "dev@sip-communicator.dev.java.net");
-        else
-            recipient.processTransactionTerminated(event);
+            ProtocolProviderServiceSipImpl recipient
+                = getServiceData(transaction);
+
+            if (recipient == null)
+            {
+                logger.error("We received a transaction terminated which wasn't"
+                                + " marked, please report this to"
+                                + " dev@sip-communicator.dev.java.net");
+            }
+            else
+            {
+                recipient.processTransactionTerminated(event);
+            }
+        }
+        catch(Throwable exc)
+        {
+            //any exception thrown within our code should be caught here
+            //so that we could log it rather than interrupt stack activity with
+            //it.
+            this.logApplicationException(DialogTerminatedEvent.class, exc);
+        }
     }
 
     /**
@@ -737,6 +828,18 @@ public class SipStackSharing
         return null;
     }
 
+    /**
+     * Retrieves and returns that ProtocolProviderService that this transaction
+     * belongs to, or <tt>null</tt> if we couldn't associate it with a provider
+     * based on neither the request nor the transaction itself.
+     *
+     * @param transaction the transaction that we'd like to determine a provider
+     * for.
+     *
+     * @return a reference to the <tt>ProtocolProviderServiceSipImpl</tt> that
+     * <tt>transaction</tt> was associated with or <tt>null</tt> if we couldn't
+     * determine which one it is.
+     */
     private ProtocolProviderServiceSipImpl
         getServiceData(Transaction transaction)
     {
@@ -744,6 +847,7 @@ public class SipStackSharing
             = (ProtocolProviderServiceSipImpl) SipApplicationData
             .getApplicationData(transaction.getRequest(),
                     SipApplicationData.KEY_SERVICE);
+
         if (service != null)
         {
             logger.trace("service was found in request data");
@@ -754,7 +858,25 @@ public class SipStackSharing
             .getApplicationData(transaction.getDialog(),
                     SipApplicationData.KEY_SERVICE);
         if (service != null)
+        {
             logger.trace("service was found in dialog data");
+        }
+
         return service;
+    }
+
+    /**
+     * Logs exceptions that have occurred in the application while processing
+     * events originating from the stack.
+     *
+     * @param eventClass the class of the jain-sip event that we were handling
+     * when the exception was thrown.
+     * @param exc the exception that we need to log.
+     */
+    private void logApplicationException(Class eventClass, Throwable exc)
+    {
+        logger.error("An error occurred while processing event of type: "
+                        + eventClass.getName());
+        logger.debug(exc);
     }
 }
