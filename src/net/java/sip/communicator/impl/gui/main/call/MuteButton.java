@@ -34,17 +34,53 @@ public class MuteButton
      */
     public MuteButton(Call call)
     {
-        super(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.MUTE_BUTTON),
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
+        this(call, false, false);
+    }
+
+    /**
+     * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
+     * stream to a specific <tt>CallParticipant</tt>.
+     * 
+     * @param call  the <tt>Call</tt> to be associated with
+     *              the new instance and to be put on/off hold upon performing
+     *              its action.
+     * @param isFullScreenMode indicates if this button will be used in a normal
+     *              or full screen mode.
+     * @param isSelected indicates the initial state of this toggle button -
+     *              selected or not.
+     */
+    public MuteButton(Call call, boolean isFullScreenMode, boolean isSelected)
+    {
+        super();
+
+        if (isFullScreenMode)
+        {
+            this.setBgImage(
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
+            this.setBgRolloverImage(
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
+            this.setIconImage(
+                ImageLoader.getImage(ImageLoader.MUTE_BUTTON));
+            this.setPressedImage(
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG_PRESSED));
+        }
+        else
+        {
+            this.setBgImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
+            this.setBgRolloverImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
+            this.setIconImage(
+                ImageLoader.getImage(ImageLoader.MUTE_BUTTON));
+            this.setPressedImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
+        }
 
         setModel(new MuteButtonModel(call));
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.MUTE_BUTTON_TOOL_TIP"));
+        setSelected(isSelected);
     }
-
     /**
      * Represents the model of a toggle button that mutes the audio stream sent
      * to a specific <tt>CallParticipant</tt>.
@@ -114,9 +150,11 @@ public class MuteButton
                     telephony.setMute(  callParticipant,
                                         !callParticipant.isMute());
 
-                    fireItemStateChanged(new ItemEvent(this,
+                    fireItemStateChanged(
+                        new ItemEvent(this,
                         ItemEvent.ITEM_STATE_CHANGED, this,
                         isSelected() ? ItemEvent.SELECTED : ItemEvent.DESELECTED));
+
                     fireStateChanged();
                 }
             }

@@ -3107,10 +3107,7 @@ public class OperationSetBasicTelephonySipImpl
         ((CallSipImpl) sipParticipant.getCall())
             .getMediaCallSession().setMute(mute);
 
-        if (mute)
-            sipParticipant.setState(CallParticipantState.MUTED);
-        else
-            sipParticipant.setState(CallParticipantState.CONNECTED);
+        sipParticipant.setMute(mute);
     }
 
     /**

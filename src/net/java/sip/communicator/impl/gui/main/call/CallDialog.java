@@ -38,17 +38,20 @@ public class CallDialog
 
     private final CallPanel callPanel;
 
+    private final HoldButton holdButton;
+
+    private final MuteButton muteButton;
+
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
-     * 
-     * @param callPanel The underlying call panel.
      */
-    public CallDialog(CallPanel callPanel)
+    public CallDialog(Call call, String callType)
     {
-        this.callPanel = callPanel;
-
         this.setTitle(
             GuiActivator.getResources().getI18NString("service.gui.CALL"));
+
+        this.callPanel
+            = new CallPanel(this, call, GuiCallParticipantRecord.INCOMING_CALL);
 
         this.setPreferredSize(new Dimension(500, 400));
 
@@ -65,8 +68,8 @@ public class CallDialog
             ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
             ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
 
-        HoldButton holdButton = new HoldButton(callPanel.getCall());
-        MuteButton muteButton = new MuteButton(callPanel.getCall());
+        holdButton = new HoldButton(call);
+        muteButton = new MuteButton(call);
 
         dialButton.setName(DIAL_BUTTON);
 
@@ -204,5 +207,49 @@ public class CallDialog
                 : callPanel.getCall().getCallParticipants();
 
         return new DialpadDialog(callParticipants);
+    }
+
+    /**
+     * Returns <code>true</code> if the hold button is selected,
+     * <code>false</code> - otherwise.
+     * 
+     * @return  <code>true</code> if the hold button is selected,
+     * <code>false</code> - otherwise.
+     */
+    public boolean isHoldButtonSelected()
+    {
+        return holdButton.isSelected();
+    }
+
+    /**
+     * Selects or unselects the hold button in this call dialog.
+     * 
+     * @param isSelected indicates if the hold button should be selected or not
+     */
+    public void setHoldButtonSelected(boolean isSelected)
+    {
+        this.holdButton.setSelected(true);
+    }
+
+    /**
+     * Returns <code>true</code> if the mute button is selected,
+     * <code>false</code> - otherwise.
+     * 
+     * @return  <code>true</code> if the mute button is selected,
+     * <code>false</code> - otherwise.
+     */
+    public boolean isMuteButtonSelected()
+    {
+        return muteButton.isSelected();
+    }
+
+    /**
+     * Selects or unselects the mute button in this call dialog.
+     * 
+     * @param isSelected indicates if the mute button should be selected or not
+     */
+    public void setMuteButtonSelected(boolean isSelected)
+    {
+        this.muteButton.setSelected(true);
     }
 }

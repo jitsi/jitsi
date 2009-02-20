@@ -35,15 +35,54 @@ public class HoldButton
      */
     public HoldButton(Call call)
     {
-        super(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.HOLD_BUTTON),
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
+        this(call, false, false);
+    }
+
+    /**
+     * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
+     * <tt>CallParticipant</tt> on/off hold.
+     * 
+     * @param call  the <tt>Call</tt> to be associated with
+     *              the new instance and to be put on/off hold upon performing
+     *              its action.
+     * @param isFullScreenMode indicates if this button will be used in a normal
+     *              or full screen mode.
+     * @param isSelected indicates the initial state of this toggle button -
+     *              selected or not.
+     */
+    public HoldButton(  Call call,
+                        boolean isFullScreenMode,
+                        boolean isSelected)
+    {
+        super();
+
+        if (isFullScreenMode)
+        {
+            this.setBgImage(
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
+            this.setBgRolloverImage(
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
+            this.setIconImage(
+                ImageLoader.getImage(ImageLoader.HOLD_BUTTON));
+            this.setPressedImage(
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG_PRESSED));
+        }
+        else
+        {
+            this.setBgImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
+            this.setBgRolloverImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
+            this.setIconImage(
+                ImageLoader.getImage(ImageLoader.HOLD_BUTTON));
+            this.setPressedImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
+        }
 
         setModel(new HoldButtonModel(call));
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.HOLD_BUTTON_TOOL_TIP"));
+        setSelected(isSelected);
     }
 
     /**

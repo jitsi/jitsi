@@ -19,15 +19,14 @@ public class SecurityStatusLabel
     private final CallParticipantPanel callParticipantPanel;
 
     public SecurityStatusLabel( CallParticipantPanel callParticipantPanel,
-                                String text,
                                 Icon icon,
                                 int alignment)
     {
-        super(text, icon, alignment);
+        super(icon, alignment);
 
         this.callParticipantPanel = callParticipantPanel;
 
-        this.setToolTipText("Test");
+        this.setToolTipText("Security status");
     }
 
     /**

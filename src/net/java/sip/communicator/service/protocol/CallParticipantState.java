@@ -241,22 +241,6 @@ public class CallParticipantState
                                 = new CallParticipantState(_ON_HOLD_REMOTELY);
 
     /**
-     * The constant value being a String representation of the MUTED
-     * call participant state.
-     * <p>
-     * This constant has the String value "Muted".
-     * </p>
-     */
-    public static final String _MUTED = "Muted";
-
-    /**
-     * The constant value indicating that the user has muted the conversation
-     * with this call participant.
-     */
-    public static final CallParticipantState MUTED
-                                = new CallParticipantState(_MUTED);
-
-    /**
      * Determines whether a specific <tt>CallParticipantState</tt> value
      * signal a call hold regardless of the issuer (which may be local and/or
      * remote).

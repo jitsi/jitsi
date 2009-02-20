@@ -35,7 +35,7 @@ public class SIPCommButton
      * Creates a button with custom background image and icon image.
      * 
      * @param bgImage       The background image.
-     * @param pressedImage
+     * @param pressedImage  The pressed image.
      * @param iconImage     The icon.
      */
     public SIPCommButton(   Image bgImage,
@@ -156,6 +156,49 @@ public class SIPCommButton
                         this);
         }
 
+        // Paint pressed state.
+        if (this.getModel().isPressed())
+        {
+            if (this.pressedImage != null)
+            {
+                g.drawImage(this.pressedImage, 0, 0, this);
+            }
+            else if (this.iconImage != null)
+            {
+                g.drawImage(this.iconImage,
+                    this.getWidth()/2 - this.iconImage.getWidth(null)/2 + 1,
+                    this.getHeight()/2 - this.iconImage.getHeight(null)/2 + 1,
+                    this);
+            }
+        }
+
+        // Paint a roll over fade out.
+        FadeTracker fadeTracker = FadeTracker.getInstance();
+
+        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
+        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
+        {
+            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
+        }
+
+        visibility /= 2;
+
+        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
+
+        if (this.bgImage != null)
+        {
+            g.fillRoundRect(
+                this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
+                this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
+                bgImage.getWidth(null),
+                bgImage.getHeight(null),
+                10, 10);
+        }
+        else if (isContentAreaFilled() || (visibility != 0.0f))
+        {
+            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
+        }
+
         if (this.iconImage != null)
         {
             Image paintIconImage;
@@ -172,57 +215,32 @@ public class SIPCommButton
                         this.getHeight()/2 - this.iconImage.getHeight(null)/2,
                         this);
         }
-
-        // Rollover state.
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
-        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
-        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
-        {
-            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-        }
-        visibility /= 2;
-
-        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
-
-        if (this.bgImage != null)
-        {
-            g.fillRoundRect(this.getWidth() / 2 - this.bgImage.getWidth(null)
-                / 2, this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
-                bgImage.getWidth(null), bgImage.getHeight(null), 10, 10);
-        }
-        else if (isContentAreaFilled() || (visibility != 0.0f))
-        {
-            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
-        }
-
-        // Pressed state.
-        if (this.getModel().isPressed())
-        {
-            if (this.pressedImage != null)
-            {
-                g.drawImage(this.pressedImage, 0, 0, this);
-            }
-            else if (this.iconImage != null)
-            {
-                g.drawImage(this.iconImage,
-                    this.getWidth()/2 - this.iconImage.getWidth(null)/2 + 1,
-                    this.getHeight()/2 - this.iconImage.getHeight(null)/2 + 1,
-                    this);
-            }
-        }
     }
 
+    /**
+     * Returns the background image of this button.
+     * 
+     * @return the background image of this button.
+     */
     public Image getBackgroundImage()
     {
         return bgImage;
     }
 
+    /**
+     * Sets the background image of this button.
+     * 
+     * @param bgImage the background image of this button.
+     */
     public void setBackgroundImage(Image bgImage)
     {
         this.bgImage = bgImage;
     }
 
+    /**
+     * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
+     * when the fade animation is performed.
+     */
     private class ButtonRepaintCallback implements FadeTrackerCallback
     {
         public void fadeEnded(FadeKind arg0)
@@ -232,7 +250,7 @@ public class SIPCommButton
 
         public void fadePerformed(FadeKind arg0, float arg1)
         {
-        	repaintLater();
+            repaintLater();
         }
 
         private void repaintLater()
@@ -251,6 +269,9 @@ public class SIPCommButton
         }
     }
 
+    /**
+     * Perform a fade animation on mouse over.
+     */
     private class MouseRolloverHandler
         implements  MouseListener,
                     MouseMotionListener

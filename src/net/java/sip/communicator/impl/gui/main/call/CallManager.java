@@ -85,18 +85,16 @@ public class CallManager
         }
 
         /**
-         * Creats and opens a call dialog. Implements
+         * Creates and opens a call dialog. Implements
          * CallListener.outGoingCallCreated. .
          */
         public void outgoingCallCreated(CallEvent event)
         {
             Call sourceCall = event.getSourceCall();
 
-            CallPanel callPanel
-                = new CallPanel(sourceCall,
-                                GuiCallParticipantRecord.OUTGOING_CALL);
-
-            CallDialog callDialog = CallManager.openCallDialog(callPanel);
+            CallDialog callDialog
+                = CallManager.openCallDialog(sourceCall,
+                    GuiCallParticipantRecord.OUTGOING_CALL);
 
             activeCalls.put(sourceCall, callDialog);
         }
@@ -109,7 +107,8 @@ public class CallManager
      */
     public static void disposeCallDialogWait(CallDialog callDialog)
     {
-        Timer timer = new Timer(5000, new DisposeCallDialogListener(callDialog));
+        Timer timer
+            = new Timer(5000, new DisposeCallDialogListener(callDialog));
 
         timer.setRepeats(false);
         timer.start();
@@ -148,10 +147,8 @@ public class CallManager
      */
     public static void answerCall(final Call call)
     {
-        CallPanel callPanel = new CallPanel(call,
+        CallManager.openCallDialog(call,
             GuiCallParticipantRecord.INCOMING_CALL);
-
-        CallManager.openCallDialog(callPanel);
 
         new AnswerCallThread(call).start();
     }
@@ -173,6 +170,7 @@ public class CallManager
     /**
      * Creates a call to the contact represented by the given string.
      *
+     * @param protocolProvider the protocol provider to which this call belongs.
      * @param contact the contact to call to
      */
     public static void createCall(  ProtocolProviderService protocolProvider,
@@ -184,6 +182,7 @@ public class CallManager
     /**
      * Creates a call to the given list of contacts.
      *
+     * @param protocolProvider the protocol provider to which this call belongs.
      * @param contacts the list of contacts to call to
      */
     public static void createCall(  ProtocolProviderService protocolProvider,
@@ -195,11 +194,12 @@ public class CallManager
     /**
      * Opens a call dialog.
      *
-     * @param callPanel The call panel.
+     * @param call the call object to pass to the call dialog
+     * @param callType the call type
      */
-    public static CallDialog openCallDialog(CallPanel callPanel)
+    public static CallDialog openCallDialog(Call call, String callType)
     {
-        CallDialog callDialog = new CallDialog(callPanel);
+        CallDialog callDialog = new CallDialog(call, callType);
 
         callDialog.pack();
 

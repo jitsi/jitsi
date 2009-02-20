@@ -35,7 +35,11 @@ public class CallParticipantPanel
     private static final Logger logger =
         Logger.getLogger(CallParticipantPanel.class);
 
+    private final JLabel callStatusLabel = new JLabel();
+
     private final SecurityStatusLabel securityStatusLabel;
+
+    private final JLabel muteStatusLabel = new JLabel();
 
     private final JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
 
@@ -90,7 +94,6 @@ public class CallParticipantPanel
 
         this.securityStatusLabel = new SecurityStatusLabel(
             this,
-            "Unknown",
             new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)),
             JLabel.CENTER);
 
@@ -161,7 +164,7 @@ public class CallParticipantPanel
         Container buttonBar
             = heavyweight ? new Container() : new TransparentPanel();
 
-        buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 3, 3));
 
         for (Component button : buttons)
         {
@@ -261,16 +264,25 @@ public class CallParticipantPanel
     private Component createStatusBar()
     {
         // stateLabel
-        securityStatusLabel.setForeground(Color.WHITE);
-        securityStatusLabel.setText(callParticipant.getState().getStateString());
+        callStatusLabel.setForeground(Color.WHITE);
+        callStatusLabel.setText(callParticipant.getState().getStateString());
 
         ParticipantStatusPanel statusPanel
-                = new ParticipantStatusPanel(new GridLayout(1, 0, 5, 5));
+            = new ParticipantStatusPanel(
+                new FlowLayout(FlowLayout.CENTER, 10, 0));
+
+        TransparentPanel statusIconsPanel
+            = new TransparentPanel(
+                new FlowLayout(FlowLayout.CENTER, 5, 0));
 
         timeLabel.setForeground(Color.WHITE);
 
+        statusIconsPanel.add(securityStatusLabel);
+        statusIconsPanel.add(muteStatusLabel);
+        statusIconsPanel.add(callStatusLabel);
+
         statusPanel.add(timeLabel);
-        statusPanel.add(securityStatusLabel);
+        statusPanel.add(statusIconsPanel);
 
         Component[] buttons =
             new Component[]
@@ -597,28 +609,39 @@ public class CallParticipantPanel
      */
     public void setState(String state, Icon icon)
     {
-        this.securityStatusLabel.setText(state);
-        this.securityStatusLabel.setIcon(icon);
+        this.callStatusLabel.setText(state);
+        this.callStatusLabel.setIcon(icon);
     }
 
     /**
-     * Sets the state string.
-     * 
-     * @param stateString the state string
+     * Sets the secured status icon to the status panel.
+     *
+     * @param isSecured indicates if the call with this participant is
+     * secured
      */
-    public void setStateString(String stateString)
+    public void setSecured(boolean isSecured)
     {
-        this.securityStatusLabel.setText(stateString);
+        if (isSecured)
+            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.SECURE_BUTTON_ON)));
+        else
+            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.SECURE_BUTTON_OFF)));
     }
 
     /**
-     * Sets the states icon.
-     * 
-     * @param icon the state icon
+     * Sets the mute status icon to the status panel.
+     *
+     * @param isMute indicates if the call with this participant is
+     * muted
      */
-    public void setStateIcon(Icon icon)
+    public void setMute(boolean isMute)
     {
-        this.securityStatusLabel.setIcon(icon);
+        if(isMute)
+            muteStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
+        else
+            muteStatusLabel.setIcon(null);
     }
 
     /**
@@ -804,8 +827,7 @@ public class CallParticipantPanel
     {
         JButton button =
             new SIPCommButton(
-                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG),
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG),
                 ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
 
         button.setToolTipText(GuiActivator.getResources().getI18NString(
@@ -827,13 +849,24 @@ public class CallParticipantPanel
 
     private Component createFullScreenButtonBar()
     {
+        CallParticipantState participantState
+            = callParticipant.getState();
+
         Component[] buttons =
             new Component[]
-            {   new HoldButton(callParticipant.getCall()),
-                new MuteButton(callParticipant.getCall()),
+            {   new HoldButton( callParticipant.getCall(),
+                                true,
+                                CallParticipantState.isOnHold(participantState)),
+                new MuteButton( callParticipant.getCall(),
+                                true,
+                                callParticipant.isMute()),
                 createExitFullScreenButton() };
 
-        return createButtonBar(true, buttons);
+        Component fullScreenButtonBar = createButtonBar(true, buttons);
+
+        fullScreenButtonBar.setPreferredSize(new Dimension(500, 100));
+
+        return fullScreenButtonBar;
     }
 
     private void enterFullScreen()

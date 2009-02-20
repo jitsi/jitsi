@@ -401,7 +401,8 @@ public class MainFrame
      */
     public Iterator<ProtocolProviderService> getProtocolProviders()
     {
-        return ((Map<ProtocolProviderService, Integer>)protocolProviders.clone()).keySet().iterator();
+        return ((Map<ProtocolProviderService, Integer>)
+            protocolProviders.clone()).keySet().iterator();
     }
 
     /**
@@ -414,8 +415,10 @@ public class MainFrame
     public ProtocolProviderService getProtocolProviderForAccount(
             String accountName)
     {
-        for (ProtocolProviderService pps : protocolProviders.keySet()) {
-            if (pps.getAccountID().getUserID().equals(accountName)) {
+        for (ProtocolProviderService pps : protocolProviders.keySet())
+        {
+            if (pps.getAccountID().getUserID().equals(accountName))
+            {
                return pps;
             }
         }

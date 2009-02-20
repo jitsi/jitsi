@@ -29,10 +29,10 @@ public class NotificationManager
     {
         NotificationService notificationService
             = GuiActivator.getNotificationService();
-        
+
         if(notificationService == null)
             return;
-        
+
         // Register incoming message notifications.
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_MESSAGE,
@@ -45,18 +45,18 @@ public class NotificationManager
                 NotificationService.ACTION_SOUND,
                 SoundProperties.INCOMING_MESSAGE,
                 null);
-        
+
         // Register incoming call notifications.
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_CALL,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
-    
+
         SoundNotificationHandler inCallSoundHandler
             = (SoundNotificationHandler) notificationService
                 .createSoundNotificationHandler(SoundProperties.INCOMING_CALL, 2000);
-        
+
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_CALL,
                 NotificationService.ACTION_SOUND,
@@ -66,7 +66,7 @@ public class NotificationManager
         SoundNotificationHandler outCallSoundHandler
             = (SoundNotificationHandler) notificationService
                 .createSoundNotificationHandler(SoundProperties.OUTGOING_CALL, 3000);
-        
+
         notificationService.registerDefaultNotificationForEvent(
                 OUTGOING_CALL,
                 NotificationService.ACTION_SOUND,
@@ -76,7 +76,7 @@ public class NotificationManager
         SoundNotificationHandler busyCallSoundHandler
             = (SoundNotificationHandler) notificationService
                 .createSoundNotificationHandler(SoundProperties.BUSY, 1);
-        
+
         notificationService.registerDefaultNotificationForEvent(
                 BUSY_CALL,
                 NotificationService.ACTION_SOUND,
@@ -88,8 +88,15 @@ public class NotificationManager
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
+
+        // Register warning message notifications.
+        notificationService.registerDefaultNotificationForEvent(
+                WARNING_MESSAGE,
+                NotificationService.ACTION_POPUP_MESSAGE,
+                null,
+                null);
     }
-    
+
     /**
      * Fires a message notification for the given event type through the
      * <tt>NotificationService</tt>.
@@ -104,7 +111,7 @@ public class NotificationManager
     {
         NotificationService notificationService
             = GuiActivator.getNotificationService();
-        
+
         if(notificationService == null)
             return;
 
@@ -176,10 +183,10 @@ public class NotificationManager
     {
         NotificationService notificationService
             = GuiActivator.getNotificationService();
-        
+
         if(notificationService == null)
             return;
-        
+
         notificationService.fireNotification(eventType);
     }
 

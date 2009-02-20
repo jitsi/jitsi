@@ -40,11 +40,19 @@ public abstract class AbstractCallParticipant
             = new ArrayList<CallParticipantSecurityListener>();
 
     /**
+     * All the PropertyChangeListener-s registered with this CallParticipant.
+     */
+    protected final List<PropertyChangeListener> propertyChangeListeners
+        = new ArrayList<PropertyChangeListener>();
+
+    /**
      * The state of the call participant.
      */
     private CallParticipantState state = CallParticipantState.UNKNOWN;
 
     private long callDurationStartTime = CALL_DURATION_START_TIME_UNKNOWN;
+
+    private boolean isMute;
 
     /**
      * Registers the <tt>listener</tt> to the list of listeners that would be
@@ -107,6 +115,38 @@ public abstract class AbstractCallParticipant
         synchronized(callParticipantSecurityListeners)
         {
             callParticipantSecurityListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Allows the user interface to register a listener interested in property
+     * changes.
+     * @param listener a property change listener instance to register with this
+     * participant.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+        if (listener == null)
+            return;
+        synchronized(propertyChangeListeners)
+        {
+            if (!propertyChangeListeners.contains(listener))
+                propertyChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters the specified property change listener.
+     * 
+     * @param listener the property change listener to unregister.
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        if (listener == null)
+            return;
+        synchronized(propertyChangeListeners)
+        {
+            propertyChangeListeners.remove(listener);
         }
     }
 
@@ -300,6 +340,42 @@ public abstract class AbstractCallParticipant
     }
 
     /**
+     * Constructs a <tt>PropertyChangeEvent</tt> using this call
+     * participant as source, setting the corresponding <tt>oldValue</tt> and
+     * <tt>newValue</tt>.
+     *
+     * @param eventType the type of the event to create and dispatch.
+     * @param oldValue the value of the source property before it changed.
+     * @param newValue the current value of the source property.
+     */
+    protected void firePropertyChangeEvent( String propertyName,
+                                            Object oldValue,
+                                            Object newValue)
+    {
+        PropertyChangeEvent event
+            = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
+
+        logger.debug("Dispatching a PropertyChangeEvent event to "
+                     + propertyChangeListeners.size()
+                     + " listeners. event is: " + event.toString());
+
+        Iterator<PropertyChangeListener> listeners = null;
+        synchronized (propertyChangeListeners)
+        {
+            listeners = new ArrayList<PropertyChangeListener>(
+                                propertyChangeListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            PropertyChangeListener listener
+                = (PropertyChangeListener) listeners.next();
+
+            listener.propertyChange(event);
+        }
+    }
+
+    /**
      * Returns a string representation of the participant in the form of
      * <br/>
      * Display Name &lt;address&gt;;status=CallParticipantStatus
@@ -410,6 +486,18 @@ public abstract class AbstractCallParticipant
     public boolean isMute()
     {
         return false;
+    }
+
+    /**
+     * Sets the mute property for this call participant.
+     * 
+     * @param mute the new value of the mute property for this call participant
+     */
+    public void setMute(boolean newMuteValue)
+    {
+        firePropertyChangeEvent(MUTE_PROPERTY_NAME, isMute, newMuteValue);
+
+        this.isMute = newMuteValue;
     }
 
     /**

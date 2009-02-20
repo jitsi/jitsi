@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.net.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The CallParticipant is an interface that represents participants in a call.
@@ -33,6 +34,11 @@ public interface CallParticipant
      * time of its occurrence is unknown.
      */
     public static final long CALL_DURATION_START_TIME_UNKNOWN = 0;
+
+    /**
+     * The mute property name.
+     */
+    public static final String MUTE_PROPERTY_NAME = "Mute";
 
     /**
      * Returns a unique identifier representing this participant. Identifiers
@@ -103,6 +109,21 @@ public interface CallParticipant
      */
     public void removeCallParticipantSecurityListener(
         CallParticipantSecurityListener listener);
+
+    /**
+     * Allows the user interface to register a listener interested in property
+     * changes.
+     * @param listener a property change listener instance to register with this
+     * participant.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
+
+    /**
+     * Unregisters the specified property change listener.
+     * 
+     * @param listener the property change listener to unregister.
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
 
     /**
      * Gets the time at which this <code>CallParticipant</code> transitioned

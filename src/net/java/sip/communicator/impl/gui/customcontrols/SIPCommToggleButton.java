@@ -7,11 +7,14 @@
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jvnet.lafwidget.animation.*;
 
 /**
  * The <tt>SIPCommToggleButton</tt> is a flexible <tt>JToggleButton</tt> that
@@ -29,34 +32,47 @@ public class SIPCommToggleButton
 
     private Image iconImage;
 
-    private final Image pressedImage;
+    private Image pressedImage;
+
+    public SIPCommToggleButton()
+    {
+        // Explicitly remove all borders that may be set from the current
+        // look and feel.
+        this.setBorder(null);
+
+        MouseRolloverHandler mouseHandler = new MouseRolloverHandler();
+
+        this.addMouseListener(mouseHandler);
+        this.addMouseMotionListener(mouseHandler);
+    }
 
     /**
      * Creates a button with custom background image, rollover image and
      * icon image.
      * 
      * @param bgImage       The background image.
-     * @param rolloverImage The rollover image.
+     * @param rolloverImage The roll over image.
      * @param iconImage     The icon.
+     * @param pressedImage  The image used to paint the pressed state.
      */
-    public SIPCommToggleButton(Image bgImage,
-            Image rolloverImage, 
-            Image iconImage,
-            Image pressedImage)
+    public SIPCommToggleButton( Image bgImage,
+                                Image rolloverImage, 
+                                Image iconImage,
+                                Image pressedImage)
     {
+        this();
+
         this.bgImage = bgImage;
         this.bgRolloverImage = rolloverImage;
         this.iconImage = iconImage;
         this.pressedImage = pressedImage;
 
-        // Explicitly remove all borders that may be set from the current
-        // look and feel.
-        this.setBorder(null);
+        this.setPreferredSize(
+            new Dimension(  this.bgImage.getWidth(null),
+                            this.bgImage.getHeight(null)));
 
-        this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
-                this.bgImage.getHeight(null)));
-
-        this.setIcon(new ImageIcon(this.iconImage));
+        if (iconImage != null)
+            this.setIcon(new ImageIcon(this.iconImage));
     }
 
     /**
@@ -67,18 +83,13 @@ public class SIPCommToggleButton
      */
     public SIPCommToggleButton(Image bgImage, Image rolloverImage)
     {
-        this.bgImage = bgImage;
-        this.bgRolloverImage = rolloverImage;
-        this.pressedImage = null;
-
-        this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
-                this.bgImage.getHeight(null)));
+        this(bgImage, rolloverImage, null, null);
     }
 
     /**
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt>
      * to paint the button background and icon, and all additional effects
-     * of this configururable button.
+     * of this configurable button.
      * 
      * @param g The Graphics object.
      */
@@ -96,6 +107,11 @@ public class SIPCommToggleButton
         }
     }
 
+    /**
+     * Paints this button.
+     * 
+     * @param g The Graphics object.
+     */
     private void internalPaintComponent(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);
@@ -116,16 +132,42 @@ public class SIPCommToggleButton
             }
         }
 
+        // Paint the roll over image.
         if (this.getModel().isRollover() && this.bgRolloverImage != null)
         {
             g.drawImage(this.bgRolloverImage, 0, 0, this);
         }
 
+        // Paint the pressed image.
         if (this.getModel().isSelected() && this.pressedImage != null)
         {
             g.drawImage(this.pressedImage, 0, 0, this);
         }
 
+        // Paint a roll over fade out.
+        FadeTracker fadeTracker = FadeTracker.getInstance();
+
+        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
+        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
+        {
+            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
+        }
+        visibility /= 2;
+
+        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
+
+        if (this.bgImage != null)
+        {
+            g.fillRoundRect(this.getWidth() / 2 - this.bgImage.getWidth(null)
+                / 2, this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
+                bgImage.getWidth(null), bgImage.getHeight(null), 10, 10);
+        }
+        else if (isContentAreaFilled() || (visibility != 0.0f))
+        {
+            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
+        }
+
+        // Paint the icon image.
         if (this.iconImage != null)
         {
             if (!isEnabled())
@@ -166,6 +208,9 @@ public class SIPCommToggleButton
     public void setBgImage(Image bgImage)
     {
         this.bgImage = bgImage;
+
+        this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
+            this.bgImage.getHeight(null)));
     }
 
     /**
@@ -203,5 +248,107 @@ public class SIPCommToggleButton
     {
         this.iconImage = iconImage;
         this.repaint();
+    }
+    
+    /**
+     * Sets the image representing the pressed state of this button.
+     * 
+     * @param pressedImage The image representing the pressed state of this
+     * button.
+     */
+    public void setPressedImage(Image pressedImage)
+    {
+        this.pressedImage = pressedImage;
+        this.repaint();
+    }
+
+    /**
+     * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
+     * when the fade animation is performed.
+     */
+    private class ButtonRepaintCallback implements FadeTrackerCallback
+    {
+        public void fadeEnded(FadeKind arg0)
+        {
+            repaintLater();
+        }
+
+        public void fadePerformed(FadeKind arg0, float arg1)
+        {
+            repaintLater();
+        }
+
+        private void repaintLater()
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    SIPCommToggleButton.this.repaint();
+                }
+            });
+        }
+
+        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
+        {
+        }
+    }
+
+    /**
+     * Perform a fade animation on mouse over.
+     */
+    private class MouseRolloverHandler
+        implements  MouseListener,
+                    MouseMotionListener
+    {
+        public void mouseMoved(MouseEvent e)
+        {
+        }
+
+        public void mouseExited(MouseEvent e)
+        {
+            if (isEnabled())
+            {
+                getModel().setRollover(false);
+
+                FadeTracker fadeTracker = FadeTracker.getInstance();
+
+                fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
+                    SIPCommToggleButton.this,
+                    true,
+                    new ButtonRepaintCallback());
+            }
+        }
+
+        public void mouseClicked(MouseEvent e)
+        {
+        }
+
+        public void mouseEntered(MouseEvent e)
+        {
+            if (isEnabled())
+            {
+                getModel().setRollover(true);
+
+                FadeTracker fadeTracker = FadeTracker.getInstance();
+
+                fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
+                    SIPCommToggleButton.this,
+                    true,
+                    new ButtonRepaintCallback());
+            }
+        }
+
+        public void mousePressed(MouseEvent e)
+        {
+        }
+
+        public void mouseReleased(MouseEvent e)
+        {
+        }
+
+        public void mouseDragged(MouseEvent e)
+        {
+        }
     }
 }

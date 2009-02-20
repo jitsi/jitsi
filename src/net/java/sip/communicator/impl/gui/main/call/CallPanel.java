@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -30,6 +31,7 @@ public class CallPanel
     extends TransparentPanel
     implements  CallChangeListener,
                 CallParticipantListener,
+                PropertyChangeListener,
                 CallParticipantSecurityListener
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
@@ -41,10 +43,22 @@ public class CallPanel
     private String title;
 
     private Call call;
+    
+    private final CallDialog callDialog;
 
-    public CallPanel(Call call, String callType)
+    /**
+     * Creates a call panel for the corresponding call, by specifying the 
+     * call type (incoming or outgoing) and the parent dialog.
+     * 
+     * @param callDialog    the dialog containing this panel
+     * @param call          the call corresponding to this panel
+     * @param callType      the type of the call
+     */
+    public CallPanel(CallDialog callDialog, Call call, String callType)
     {
         super(new BorderLayout());
+
+        this.callDialog = callDialog;
 
         this.mainPanel.setBorder(BorderFactory
             .createEmptyBorder(5, 5, 5, 5));
@@ -228,11 +242,15 @@ public class CallPanel
         {
             newStateIcon = new ImageIcon(
                 ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON));
-        }
-        else if (newState == CallParticipantState.MUTED)
-        {
-            newStateIcon = new ImageIcon(
-                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON));
+
+            // If we have clicked the hold button in a full screen mode
+            // we need to update the state of the call dialog hold button.
+            if ((newState.equals(CallParticipantState.ON_HOLD_LOCALLY)
+                || newState.equals(CallParticipantState.ON_HOLD_MUTUALLY))
+                && !callDialog.isHoldButtonSelected())
+            {
+                callDialog.setHoldButtonSelected(true);
+            }
         }
 
         participantPanel.setState(newStateString, newStateIcon);
@@ -257,8 +275,7 @@ public class CallPanel
         CallParticipantPanel participantPanel =
             getParticipantPanel(participant);
 
-        participantPanel.setStateIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_BUTTON_ON)));
+        participantPanel.setSecured(true);
 
         participantPanel.setEncryptionCipher(securityEvent.getCipher());
 
@@ -281,8 +298,7 @@ public class CallPanel
         CallParticipantPanel participantPanel =
             getParticipantPanel(participant);
 
-        participantPanel.setStateIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_BUTTON_OFF)));
+        participantPanel.setSecured(false);
 
         switch (securityEvent.getSessionType()) {
         case CallParticipantSecurityOnEvent.AUDIO_SESSION:
@@ -329,6 +345,7 @@ public class CallPanel
 
             participant.addCallParticipantListener(this);
             participant.addCallParticipantSecurityListener(this);
+            participant.addPropertyChangeListener(this);
 
             this.addCallParticipant(participant, callType);
         }
@@ -425,5 +442,36 @@ public class CallPanel
             NotificationManager.WARNING_MESSAGE,
             "Security error",
             event.getI18nMessage());
+    }
+
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        String propertyName = evt.getPropertyName();
+
+        if (propertyName.equals(CallParticipant.MUTE_PROPERTY_NAME))
+        {
+            boolean isMute = (Boolean) evt.getNewValue();
+
+            CallParticipant sourceParticipant
+                = (CallParticipant) evt.getSource();
+
+            if (sourceParticipant.getCall() != call)
+                return;
+
+            CallParticipantPanel participantPanel =
+                getParticipantPanel(sourceParticipant);
+
+            if (isMute)
+            {
+                // If we have clicked the mute button in a full screen mode
+                // we need to update the state of the call dialog mute button.
+                if (!callDialog.isMuteButtonSelected())
+                {
+                    callDialog.setMuteButtonSelected(true);
+                }
+            }
+
+            participantPanel.setMute(isMute);
+        }
     }
 }

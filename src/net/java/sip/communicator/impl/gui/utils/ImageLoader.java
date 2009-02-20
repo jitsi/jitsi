@@ -23,13 +23,13 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * Stores and loads images used throughout this ui implementation.
+ * Stores and loads images used throughout this UI implementation.
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
-public class ImageLoader {
-
+public class ImageLoader
+{
     private static final Logger log = Logger.getLogger(ImageLoader.class);
 
     /**
@@ -378,12 +378,6 @@ public class ImageLoader {
         = new ImageID("service.gui.buttons.HOLD_BUTTON");
 
     /**
-     * A hold button icon for the full screen mode.
-     */
-    public static final ImageID HOLD_BUTTON_FULL_SCREEN
-        = new ImageID("service.gui.buttons.HOLD_BUTTON_FULL_SCREEN");
-
-    /**
      * The icon shown when the status of the call is "On hold".
      */
     public static final ImageID HOLD_STATUS_ICON
@@ -400,12 +394,6 @@ public class ImageLoader {
      */
     public static final ImageID MUTE_BUTTON
         = new ImageID("service.gui.buttons.MUTE_BUTTON");
-
-    /**
-     * A mute button icon for the full screen mode.
-     */
-    public static final ImageID MUTE_BUTTON_FULL_SCREEN
-        = new ImageID("service.gui.buttons.MUTE_BUTTON_FULL_SCREEN");
 
     /**
      * A call-transfer button icon. The icon shown in the CallParticipant panel.
@@ -473,6 +461,18 @@ public class ImageLoader {
      */
     public static final ImageID EXIT_FULL_SCREEN_BUTTON =
         new ImageID("service.gui.buttons.EXIT_FULL_SCREEN_BUTTON");
+
+    /**
+     * The background image used for the full screen buttons.
+     */
+    public static final ImageID FULL_SCREEN_BUTTON_BG =
+        new ImageID("service.gui.buttons.FULL_SCREEN_BUTTON_BG");
+
+    /**
+     * The background image used for the pressed state of full screen buttons.
+     */
+    public static final ImageID FULL_SCREEN_BUTTON_BG_PRESSED =
+        new ImageID("service.gui.buttons.FULL_SCREEN_BUTTON_BG_PRESSED");
 
     /**
      * The image used, when a contact has no photo specified.
