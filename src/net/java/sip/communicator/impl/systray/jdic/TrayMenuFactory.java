@@ -62,12 +62,9 @@ public final class TrayMenuFactory
             if (dialog != null)
                 dialog.setVisible(true);
             else
-                SystrayActivator
-                    .getUIService()
-                    .getPopupDialog()
-                    .showMessagePopupDialog(
-                        Resources
-                            .getString("impl.systray.FAILED_TO_OPEN_ADD_CONTACT_DIALOG"));
+                SystrayActivator.getUIService().getPopupDialog()
+                    .showMessagePopupDialog(Resources.getString(
+                        "impl.systray.FAILED_TO_OPEN_ADD_CONTACT_DIALOG"));
         }
     }
 
@@ -94,7 +91,8 @@ public final class TrayMenuFactory
             ((PopupMenu) trayMenu).addSeparator();
     }
 
-    public static Object createTrayMenu(SystrayServiceJdicImpl tray, boolean swing)
+    public static Object createTrayMenu(SystrayServiceJdicImpl tray,
+                                        boolean swing)
     {
     	swing = true;
         JPopupMenu trayMenu = new JPopupMenu();
@@ -107,7 +105,7 @@ public final class TrayMenuFactory
         };
 
         add(trayMenu, createTrayMenuItem("settings", "service.gui.SETTINGS",
-            "service.gui.icons.QUICK_MENU_CONFIGURE_ICON", listener, swing));
+            "service.systray.CONFIGURE_ICON", listener, swing));
         add(trayMenu, createTrayMenuItem("addContact",
             "service.gui.ADD_CONTACT",
             "service.gui.icons.ADD_CONTACT_16x16_ICON", listener, swing));
@@ -121,8 +119,11 @@ public final class TrayMenuFactory
         return trayMenu;
     }
 
-    private static Object createTrayMenuItem(String name, String textID, String iconID,
-        ActionListener listener, boolean swing)
+    private static Object createTrayMenuItem(   String name,
+                                                String textID,
+                                                String iconID,
+                                                ActionListener listener,
+                                                boolean swing)
     {
         String text = Resources.getString(textID);
         
