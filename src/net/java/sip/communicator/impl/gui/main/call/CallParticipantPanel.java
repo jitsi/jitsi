@@ -864,8 +864,6 @@ public class CallParticipantPanel
 
         Component fullScreenButtonBar = createButtonBar(true, buttons);
 
-        fullScreenButtonBar.setPreferredSize(new Dimension(500, 100));
-
         return fullScreenButtonBar;
     }
 
