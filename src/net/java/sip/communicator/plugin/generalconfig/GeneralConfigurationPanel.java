@@ -65,8 +65,7 @@ public class GeneralConfigurationPanel
             this.setOpaque(false);
             this.mainPanel.setOpaque(false);
 
-            BoxLayout boxLayout = new BoxLayout(
-                mainPanel, javax.swing.BoxLayout.Y_AXIS);
+            BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
             mainPanel.setLayout(boxLayout);
             this.add(mainPanel, BorderLayout.NORTH);
 
@@ -101,8 +100,7 @@ public class GeneralConfigurationPanel
                 mainPanel.add(logHistoryPanel);
                 mainPanel.add(Box.createVerticalStrut(10));
                 logHistoryPanel.setLayout(null);
-                logHistoryPanel.setPreferredSize(
-                    new java.awt.Dimension(380, 57));
+                logHistoryPanel.setPreferredSize(new Dimension(380, 57));
                 logHistoryPanel.setAlignmentX(0.0f);
                 {
                     logHistoryCheckBox = new SIPCommCheckBox();
@@ -174,8 +172,7 @@ public class GeneralConfigurationPanel
                 mainPanel.add(sendMessagePanel);
                 mainPanel.add(Box.createVerticalStrut(10));
                 sendMessagePanel.setAlignmentX(0.0f);
-                sendMessagePanel.setPreferredSize(
-                    new java.awt.Dimension(380, 22));
+                sendMessagePanel.setPreferredSize(new Dimension(380, 22));
                 {
                     sendMessageLabel = new JLabel();
                     sendMessagePanel.add(
@@ -211,7 +208,7 @@ public class GeneralConfigurationPanel
                 enableTypingNotifiCheckBox.setText(
                     Resources.getString("service.gui.ENABLE_TYPING_NOTIFICATIONS"));
                 enableTypingNotifiCheckBox.setPreferredSize(
-                    new java.awt.Dimension(253, 20));
+                    new Dimension(253, 20));
                 enableTypingNotifiCheckBox.setAlignmentY(0.0f);
                 enableTypingNotifiCheckBox.addActionListener(this);
             }
@@ -236,15 +233,13 @@ public class GeneralConfigurationPanel
                 {
                     logger.warn("Error while retrieving service refs", ex);
                 }
-                // user has choice only if there is more than one handler
-                if ((handlerRefs != null) && (handlerRefs.length > 1))
+                if (handlerRefs != null)
                 {
                     notifConfigPanel = new JPanel();
                     notifConfigPanel.setOpaque(false);
                     notifConfigPanel.setLayout(new BorderLayout(10, 10));
                     notifConfigPanel.setAlignmentX(0.0f);
-                    notifConfigPanel.setPreferredSize(
-                        new java.awt.Dimension(380, 22));
+                    notifConfigPanel.setPreferredSize(new Dimension(380, 22));
 
                     mainPanel.add(notifConfigPanel);
                     mainPanel.add(Box.createVerticalStrut(10));

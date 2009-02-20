@@ -115,7 +115,7 @@ public class NotificationManager
         if(notificationService == null)
             return;
 
-        notificationService.fireNotification(eventType, messageTitle, message);
+        notificationService.fireNotification(eventType, messageTitle, message, null);
     }
 
     /**
@@ -148,8 +148,7 @@ public class NotificationManager
         else if (contact instanceof ChatRoom)
         {
             // For system rooms we don't want to send notification events.
-            if ((contact instanceof ChatRoom)
-                && ((ChatRoom) contact).isSystem())
+            if (((ChatRoom) contact).isSystem())
                 return;
 
             chatPanel = GuiActivator.getUIService().getChat((ChatRoom) contact);
@@ -166,7 +165,8 @@ public class NotificationManager
             popupActionHandler.setEnabled(false);
         }
 
-        notificationService.fireNotification(eventType, messageTitle, message);
+        notificationService.fireNotification(
+            eventType, messageTitle, message, contact);
 
         if(popupActionHandler != null)
             popupActionHandler.setEnabled(true);

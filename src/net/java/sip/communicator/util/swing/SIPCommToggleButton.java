@@ -4,15 +4,12 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jvnet.lafwidget.animation.*;
 
@@ -20,7 +17,7 @@ import org.jvnet.lafwidget.animation.*;
  * The <tt>SIPCommToggleButton</tt> is a flexible <tt>JToggleButton</tt> that
  * allows to configure its background, its icon, the look when a mouse is over
  * it, etc.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommToggleButton
@@ -49,14 +46,14 @@ public class SIPCommToggleButton
     /**
      * Creates a button with custom background image, rollover image and
      * icon image.
-     * 
+     *
      * @param bgImage       The background image.
      * @param rolloverImage The roll over image.
      * @param iconImage     The icon.
      * @param pressedImage  The image used to paint the pressed state.
      */
     public SIPCommToggleButton( Image bgImage,
-                                Image rolloverImage, 
+                                Image rolloverImage,
                                 Image iconImage,
                                 Image pressedImage)
     {
@@ -77,7 +74,7 @@ public class SIPCommToggleButton
 
     /**
      * Creates a button with custom background image and rollover image.
-     * 
+     *
      * @param bgImage The background button image.
      * @param rolloverImage The rollover button image.
      */
@@ -90,10 +87,10 @@ public class SIPCommToggleButton
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt>
      * to paint the button background and icon, and all additional effects
      * of this configurable button.
-     * 
+     *
      * @param g The Graphics object.
      */
-    
+
     public void paintComponent(Graphics g)
     {
         g = g.create();
@@ -109,7 +106,7 @@ public class SIPCommToggleButton
 
     /**
      * Paints this button.
-     * 
+     *
      * @param g The Graphics object.
      */
     private void internalPaintComponent(Graphics g)
@@ -249,10 +246,10 @@ public class SIPCommToggleButton
         this.iconImage = iconImage;
         this.repaint();
     }
-    
+
     /**
      * Sets the image representing the pressed state of this button.
-     * 
+     *
      * @param pressedImage The image representing the pressed state of this
      * button.
      */

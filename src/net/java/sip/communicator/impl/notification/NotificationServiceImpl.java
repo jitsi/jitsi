@@ -376,8 +376,13 @@ public class NotificationServiceImpl
      * @param title the title of the given message
      * @param message the message to use if and where appropriate (e.g. with
      * systray or log notification.)
+     * @param tag additional info to be used by the notification handler
      */
-    public void fireNotification(String eventType, String title, String message)
+    public void fireNotification(
+        String eventType,
+        String title,
+        String message,
+        Object tag)
     {
         EventNotification notification
             = (EventNotification) notificationsTable.get(eventType);
@@ -401,7 +406,7 @@ public class NotificationServiceImpl
             if (actionType.equals(NotificationService.ACTION_POPUP_MESSAGE))
             {
                 ((PopupMessageNotificationHandler) handler)
-                    .popupMessage(new PopupMessage(title, message));
+                    .popupMessage(new PopupMessage(title, message, tag));
             }
             else if (actionType.equals(NotificationService.ACTION_LOG_MESSAGE))
             {
@@ -431,7 +436,7 @@ public class NotificationServiceImpl
      */
     public void fireNotification(String eventType)
     {
-        this.fireNotification(eventType, null, null);
+        this.fireNotification(eventType, null, null, null);
     }
     
     /**

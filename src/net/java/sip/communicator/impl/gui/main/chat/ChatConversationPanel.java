@@ -107,6 +107,8 @@ public class ChatConversationPanel
 
         this.chatEditorPane.addHyperlinkListener(this);
         this.chatEditorPane.addMouseListener(this);
+        this.chatEditorPane.setCursor(
+            Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 
         this.setWheelScrollingEnabled(true);
 

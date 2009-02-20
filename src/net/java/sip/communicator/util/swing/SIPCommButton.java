@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,13 +13,10 @@ import javax.swing.*;
 
 import org.jvnet.lafwidget.animation.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.swing.*;
-
 /**
  * The <tt>SIPCommButton</tt> is a very flexible <tt>JButton</tt> that allows
  * to configure its background, its icon, the look when a mouse is over it, etc.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommButton
@@ -33,7 +30,7 @@ public class SIPCommButton
 
     /**
      * Creates a button with custom background image and icon image.
-     * 
+     *
      * @param bgImage       The background image.
      * @param pressedImage  The pressed image.
      * @param iconImage     The icon.
@@ -69,7 +66,7 @@ public class SIPCommButton
 
     /**
      * Creates a button with custom background image.
-     * 
+     *
      * @param bgImage The background button image.
      */
     public SIPCommButton(   Image bgImage,
@@ -80,7 +77,7 @@ public class SIPCommButton
 
     /**
      * Creates a button with custom background image.
-     * 
+     *
      * @param bgImage The background button image.
      */
     public SIPCommButton(Image bgImage)
@@ -90,7 +87,7 @@ public class SIPCommButton
 
     /**
      * Resets the background image for this button.
-     * 
+     *
      * @param bgImage the new image to set.
      */
     public void setImage(Image bgImage)
@@ -104,7 +101,7 @@ public class SIPCommButton
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt> to
      * paint the button background and icon, and all additional effects of this
      * configurable button.
-     * 
+     *
      * @param g The Graphics object.
      */
     protected void paintComponent(Graphics g)
@@ -219,7 +216,7 @@ public class SIPCommButton
 
     /**
      * Returns the background image of this button.
-     * 
+     *
      * @return the background image of this button.
      */
     public Image getBackgroundImage()
@@ -229,7 +226,7 @@ public class SIPCommButton
 
     /**
      * Sets the background image of this button.
-     * 
+     *
      * @param bgImage the background image of this button.
      */
     public void setBackgroundImage(Image bgImage)

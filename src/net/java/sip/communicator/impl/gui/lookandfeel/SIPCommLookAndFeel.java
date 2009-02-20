@@ -9,8 +9,7 @@ package net.java.sip.communicator.impl.gui.lookandfeel;
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
-
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The default SIP-Communicator look&feel.

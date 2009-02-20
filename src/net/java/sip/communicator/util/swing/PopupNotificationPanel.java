@@ -23,6 +23,9 @@ public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
     /** logger for this class */
     private final Logger logger = Logger.getLogger(SIPCommFrame.class);
 
+    /** an object to distinguish this <tt>PopupNotificationPanel</tt> */
+    private Object tag;
+
     /**
      * Creates a new <tt>PopupNotificationPanel</tt> with a customized panel title
      */
@@ -35,16 +38,41 @@ public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
                 "service.gui.SIP_COMMUNICATOR_LOGO"),
                 SwingConstants.LEFT);
 
-        final JLabel notifClose = new JLabel(
+//        JLabel notifClose = new JLabel(
+//                UtilActivator.getResources()
+//                .getImage("service.gui.lookandfeel.CLOSE_TAB_ICON"));
+
+        final SIPCommButton notifClose = new SIPCommButton(
                 UtilActivator.getResources()
-                .getImage("service.gui.lookandfeel.CLOSE_TAB_ICON"));
+                .getImage("service.gui.lookandfeel.CLOSE_TAB_ICON").getImage());
         notifClose.setToolTipText(UtilActivator.getResources()
                 .getI18NString("service.gui.CLOSE"));
+        //notifClose.
 
-        notifClose.addMouseListener(new MouseAdapter()
+        notifClose.addActionListener(new ActionListener()
         {
-            @Override
+            //@Override
             public void mouseClicked(MouseEvent e)
+            {
+                try
+                {
+                    // TODO : that is pretty ugly. It will be nice if
+                    // it is possible to reach the top window in a better way
+                    JWindow jw = (JWindow) notifClose
+                            .getParent().getParent().getParent()
+                            .getParent().getParent().getParent();
+                    jw.dispose();
+                }
+                catch (Exception ex)
+                {
+                    // should never happens : if the user clicks on the close
+                    // icon, it means that the popup window were visible
+                    logger.warn("error while getting the popup window :"
+                            , ex);
+                }
+            }
+
+            public void actionPerformed(ActionEvent e)
             {
                 try
                 {
@@ -65,20 +93,18 @@ public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
             }
         });
 
-        BorderLayout borderLayout = new BorderLayout();
-        borderLayout.setVgap(5);
-
-        JPanel notificationWindowTitle = new JPanel(borderLayout);
+        JPanel notificationWindowTitle =
+            new JPanel(new BorderLayout(0, 2));
         notificationWindowTitle
-                .setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                .setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         notificationWindowTitle.setOpaque(false);
-
         notificationWindowTitle.add(notifTitle, BorderLayout.WEST);
         notificationWindowTitle.add(notifClose, BorderLayout.EAST);
 
         JSeparator jSep = new JSeparator();
 
         notificationWindowTitle.add(jSep, BorderLayout.SOUTH);
+
         add(notificationWindowTitle, BorderLayout.NORTH);
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
     }
@@ -89,10 +115,28 @@ public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
      *
      * @param notificationContent content to add in the new created
      * <tt>PopupNotificationPanel</tt>
+     * @param tag an object to distinguish this <tt>PopupNotificationPanel</tt>
      */
-    public PopupNotificationPanel(JPanel notificationContent)
+    public PopupNotificationPanel(JPanel notificationContent, Object tag)
     {
         this();
         add(notificationContent, BorderLayout.CENTER);
+        this.tag = tag;
+    }
+
+    /**
+     * @return the tag
+     */
+    public Object getTag()
+    {
+        return tag;
+    }
+
+    /**
+     * @param tag the tag to set
+     */
+    public void setTag(Object tag)
+    {
+        this.tag = tag;
     }
 }

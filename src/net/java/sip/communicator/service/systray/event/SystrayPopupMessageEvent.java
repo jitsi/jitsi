@@ -17,8 +17,40 @@ import java.util.*;
 public class SystrayPopupMessageEvent
     extends EventObject
 {
+    /** an object to distinguish this <tt>SystrayPopupMessageEvent</tt> */
+    private Object tag;
+
     public SystrayPopupMessageEvent(Object source)
     {
         super(source);
     }
+
+    /**
+     * Creates a new <tt>SystrayPopupMessageEvent</tt> with the source of the
+     * event and additional info provided by the popup handler.
+     * @param source the source of the event
+     * @param tag additional info for listeners
+     */
+    public SystrayPopupMessageEvent(Object source, Object tag)
+    {
+        super(source);
+        this.tag = tag;
+    }
+
+    /**
+     * @return the tag
+     */
+    public Object getTag()
+    {
+        return tag;
+    }
+
+    /**
+     * @param tag the tag to set
+     */
+    public void setTag(Object tag)
+    {
+        this.tag = tag;
+    }
+
 }

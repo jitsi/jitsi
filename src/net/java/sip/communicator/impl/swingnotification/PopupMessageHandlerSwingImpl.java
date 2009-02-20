@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.*;
 
 import javax.swing.Timer;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
@@ -36,7 +37,7 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
     /** An icon representing the contact from which the notification comes */
     private ImageIcon defaultIcon =
         SwingNotificationActivator.getResources().getImage(
-        "service.gui.DEFAULT_USER_PHOTO");;
+        "service.gui.SIP_COMMUNICATOR_LOGO_39x58");;
 
     /**
      * Adds a listerner to receive popup events
@@ -76,11 +77,9 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
             getDefaultConfiguration();
 
         final JWindow notificationWindow = new JWindow(graphicsConf);
-        notificationWindow.setPreferredSize(new Dimension(225, 125));
 
         final Timer popupTimer = new Timer(10000, new ActionListener()
         {
-
             public void actionPerformed(ActionEvent e)
             {
                 if (notificationWindow.isVisible())
@@ -108,18 +107,27 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                firePopupMessageClicked(new SystrayPopupMessageEvent(e));
+                Container container = notificationWindow.getContentPane();
+                PopupNotificationPanel notif =
+                    (PopupNotificationPanel) container.getComponent(0);
+                firePopupMessageClicked(
+                    new SystrayPopupMessageEvent(e, notif.getTag()));
                 notificationWindow.dispose();
             }
         });
 
         if (popupMessage.getComponent() != null)
+        {
             notificationWindow.add(popupMessage.getComponent());
+        }
         else
+        {
             notificationWindow.add(createPopup(
                 popupMessage.getMessageTitle(),
                 popupMessage.getMessage(),
-                popupMessage.getIcon()));
+                popupMessage.getTag()));
+            notificationWindow.setPreferredSize(new Dimension(225, 120));
+        }
         notificationWindow.setAlwaysOnTop(true);
         notificationWindow.pack();
 
@@ -136,38 +144,46 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
      * @return
      */
     private JComponent createPopup(String title, String message,
-        ImageIcon icon)
+        Object tag)
     {
-        String msg;
+        String ttle = title;
+        if (title.length() > 50)
+            ttle = title.substring(0, 47) + "...";
+        JLabel msgTitle = new JLabel("<html>" + ttle);
+        msgTitle.setForeground(Color.DARK_GRAY);
 
-        if (message.length() > 70)
-            msg = "<html><b>" + message.substring(0, 77) + "...";
-        else
-            msg = "<html><b>" + message;
+        String msg = message;
+        if (message.length() > 90)
+            msg = message.substring(0, 87) + "...";
+        JLabel msgContent = new JLabel("<html><b>" + msg);
 
-        JLabel msgContent = new JLabel(msg);
+        JPanel notificationBody = new JPanel(new BorderLayout());
+        notificationBody.setOpaque(false);
+        notificationBody.add(msgTitle, BorderLayout.NORTH);
+        notificationBody.add(msgContent, BorderLayout.CENTER);
 
-        if (title.length() > 40)
-            title = title.substring(0, 28) + "...";
-        JLabel msgFrom = new JLabel(title);
-        msgFrom.setForeground(Color.DARK_GRAY);
-
-        JLabel msgIcon = (icon == null) ?
-            new JLabel(defaultIcon) :
-            new JLabel(icon);
-        msgIcon.setOpaque(false);
+        JLabel msgIcon = new JLabel(defaultIcon);
+        if (tag instanceof Contact)
+        {
+            byte[] b = ((Contact) tag).getImage();
+            if (b != null)
+                msgIcon = new JLabel(new ImageIcon(b));
+        }
+        else if (tag instanceof ImageIcon)
+        {
+            msgIcon = new JLabel((ImageIcon) tag);
+        }
         msgIcon.setPreferredSize(new Dimension(45, 45));
 
-        JPanel notificationContent = new JPanel(new BorderLayout(5, 1));
+        JPanel notificationContent = new JPanel(new BorderLayout(5, 0));
         notificationContent.setBorder(
-                BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                BorderFactory.createEmptyBorder(0, 3, 3, 3));
         notificationContent.setOpaque(false);
 
-        notificationContent.add(msgFrom, BorderLayout.NORTH);
-        notificationContent.add(msgContent, BorderLayout.CENTER);
         notificationContent.add(msgIcon, BorderLayout.WEST);
+        notificationContent.add(notificationBody, BorderLayout.CENTER);
 
-        return new PopupNotificationPanel(notificationContent);
+        return new PopupNotificationPanel(notificationContent, tag);
     }
 
     /**

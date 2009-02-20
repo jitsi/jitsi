@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>StatusSimpleSelector</tt> is a submenu which allow to select a status

@@ -57,8 +57,7 @@ public class CallManager
             // FIXME: I18N
             NotificationManager.fireNotification(
                 NotificationManager.INCOMING_CALL,
-                GuiActivator.getResources().getSettingsString(
-                "service.gui.APPLICATION_NAME"),
+                "",
                 "Incoming call received from: "
                     + sourceCall.getCallParticipants().next());
         }

@@ -128,7 +128,8 @@ public class TestPopupMessageHandler
         notificationService.fireNotification(
                 NotificationService.ACTION_POPUP_MESSAGE,
                 messageStart,
-                messageStart);
+                messageStart,
+                null);
     }
 
     /** A trivial handler implementing <tt>PopupMessageHandler</tt> */

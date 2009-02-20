@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray.jdic;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -14,9 +14,9 @@ import javax.swing.*;
  * An image filter that "disables" an image by turning
  * it into a grayscale image, and brightening the pixels
  * in the image. Used by buttons to create an image for
- * a disabled button. Creates a more brighter image than 
+ * a disabled button. Creates a more brighter image than
  * the javax.swing.GrayFilter.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class LightGrayFilter extends GrayFilter {
@@ -37,7 +37,7 @@ public class LightGrayFilter extends GrayFilter {
      * @return A disabled image based on the source image.
      */
     public static Image createDisabledImage(Image i) {
-        LightGrayFilter filter = new LightGrayFilter(true, 65);
+        LightGrayFilter filter = new LightGrayFilter(true, 30);
         ImageProducer prod = new FilteredImageSource(i.getSource(), filter);
         Image grayImage = Toolkit.getDefaultToolkit().createImage(prod);
 

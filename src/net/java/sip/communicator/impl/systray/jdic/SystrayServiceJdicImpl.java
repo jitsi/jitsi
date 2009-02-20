@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.systray.jdic;
 
 import org.osgi.framework.*;
 
-import java.awt.Toolkit;
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
@@ -63,11 +62,6 @@ public class SystrayServiceJdicImpl
      */
     private final Hashtable<String, PopupMessageHandler> popupHandlerSet =
         new Hashtable<String, PopupMessageHandler>();
-
-    /**
-     * Stores the system time, when the main window was restored the last time
-     */
-    private long setVisibleTime = 0;
 
     /**
      * A reference of the <tt>ConfigurationService</tt> obtained from the
@@ -137,9 +131,7 @@ public class SystrayServiceJdicImpl
 
             UIService ui = SystrayActivator.getUIService();
             if (ui != null)
-            {
                 ui.setExitOnMainWindowClose(false);
-            }
         }
     }
 
@@ -148,13 +140,6 @@ public class SystrayServiceJdicImpl
      */
     private void initSystray()
     {
-
-        // Get the system's double click speed
-        Object o = Toolkit.getDefaultToolkit().getDesktopProperty(
-            "awt.multiClickInterval");
-        final int doubleClickSpeed = (o instanceof Integer ? ((Integer) o).
-            intValue() : 500);
-
         menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
 
         String osName = System.getProperty("os.name");
@@ -222,29 +207,19 @@ public class SystrayServiceJdicImpl
         //Show/hide the contact list when user clicks on the systray.
         trayIcon.addActionListener(new ActionListener()
         {
-
             public void actionPerformed(ActionEvent e)
             {
-                long currentTime = System.currentTimeMillis();
                 UIService uiService = SystrayActivator.getUIService();
-                boolean isVisible = !uiService.isVisible();
-
-                if (isVisible)
+                ExportedWindow win =
+                    uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
+                if (!win.isVisible())
                 {
-                    setVisibleTime = currentTime;
-                } else if (currentTime < (setVisibleTime + doubleClickSpeed))
-                {
-                    // Do nothing. the last restore is less than 2 seconds, so it is very
-                    // likely, that the user made a double click. prevent the main window
-                    // from opening and immediately closing again.
-                    return;
+                    win.setVisible(true);
+                    configService.setProperty(
+                        "net.java.sip.communicator.impl.systray.showApplication",
+                        Boolean.toString(true));
                 }
-
-                uiService.setVisible(isVisible);
-
-                configService.setProperty(
-                    "net.java.sip.communicator.impl.systray.showApplication",
-                    Boolean.toString(isVisible));
+                win.bringToFront();
             }
         });
 
@@ -288,12 +263,15 @@ public class SystrayServiceJdicImpl
             });
         }
 
-        PopupMessageHandler pph = new PopupMessageHandlerTrayIconImpl(trayIcon);
-        popupHandlerSet.put(pph.getClass().getName(), pph);
-        SystrayActivator.bundleContext.registerService(
-            PopupMessageHandler.class.getName(),
-            pph, null);
-
+        PopupMessageHandler pph = null;
+        if (!osName.startsWith("Mac OS X"))
+        {
+            pph = new PopupMessageHandlerTrayIconImpl(trayIcon);
+            popupHandlerSet.put(pph.getClass().getName(), pph);
+            SystrayActivator.bundleContext.registerService(
+                PopupMessageHandler.class.getName(),
+                pph, null);
+        }
         try
         {
             SystrayActivator.bundleContext.addServiceListener(
@@ -611,9 +589,12 @@ public class SystrayServiceJdicImpl
             UIService uiService = SystrayActivator.getUIService();
             ExportedWindow chatWindow = uiService.getExportedWindow(
                 ExportedWindow.CHAT_WINDOW);
-            if (chatWindow != null && chatWindow.isVisible())
-            {
+            if (chatWindow != null)
                 chatWindow.bringToFront();
+            Object o = evt.getTag();
+            if (o instanceof Contact)
+            {
+//                TODO: bring the chat with that contact to front
             }
         }
     }

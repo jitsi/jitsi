@@ -35,8 +35,8 @@ public class PopupMessage
     /** type of the message */
     private int messageType;
 
-    /** the contact which is the cause of this popup message */
-    private Contact contact;
+    /** additional info to be used by the <tt>PopupMessageHandler</tt> */
+    private Object tag;
 
     /**
      * Creates a <tt>PopupMessage</tt> with the given title and message inside
@@ -92,6 +92,21 @@ public class PopupMessage
     {
         this(title, message);
         this.component = component;
+    }
+
+    /**
+     * Creates a new <tt>PopupMessage</tt> with the given
+     * <tt>JComponent</tt> as its content. This constructor also takes a title
+     * and a message as replacements in cases the component is not usable.
+     *
+     * @param component the component to put in the <tt>PopupMessage</tt>
+     * @param title of the message
+     * @param tag additional info to be used by the <tt>PopupMessageHandler</tt>
+     */
+    public PopupMessage(String title, String message, Object tag)
+    {
+        this(title, message);
+        this.tag = tag;
     }
 
     /**
@@ -175,18 +190,18 @@ public class PopupMessage
     }
 
     /**
-     * @return the contact
+     * @return the object used to tag this <tt>PopupMessage</tt>
      */
-    public Contact getContact()
+    public Object getTag()
     {
-        return contact;
+        return tag;
     }
 
     /**
-     * @param contact the contact to set
+     * @param tag the object to set
      */
-    public void setContact(Contact contact)
+    public void setTag(Object tag)
     {
-        this.contact = contact;
+        this.tag = tag;
     }
 }

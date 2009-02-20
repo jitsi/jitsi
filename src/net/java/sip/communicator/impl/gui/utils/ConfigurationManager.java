@@ -31,7 +31,7 @@ public class ConfigurationManager
     private static boolean isShowOffline = true;
     
     private static boolean isApplicationVisible = true;
-    
+
     private static boolean isQuitWarningShown = true;
     
     private static boolean isSendTypingNotifications;
@@ -96,7 +96,7 @@ public class ConfigurationManager
 
         if(callPanelShown != null && callPanelShown.length() > 0)
         {
-            isCallPanelShown = new Boolean(callPanelShown).booleanValue();
+            isCallPanelShown = Boolean.parseBoolean(callPanelShown);
         }
 
         // Load the "showOffline" property.
@@ -105,7 +105,7 @@ public class ConfigurationManager
         
         if(showOffline != null && showOffline.length() > 0)
         {
-            isShowOffline = new Boolean(showOffline).booleanValue();
+            isShowOffline = Boolean.parseBoolean(showOffline);
         }
 
         // Load the "showApplication" property.
@@ -124,7 +124,7 @@ public class ConfigurationManager
         if(quitWarningShown != null && quitWarningShown.length() > 0)
         {
             isQuitWarningShown
-                = new Boolean(quitWarningShown).booleanValue();
+                = Boolean.parseBoolean(quitWarningShown);
         }
 
         // Load the "sendTypingNotifications" property.
@@ -141,7 +141,7 @@ public class ConfigurationManager
         if(isSendTypingNotif != null && isSendTypingNotif.length() > 0)
         {
             isSendTypingNotifications
-                = new Boolean(isSendTypingNotif).booleanValue();
+                = Boolean.parseBoolean(isSendTypingNotif);
         }
         
         // Load the "isMoveContactConfirmationRequested" property.
@@ -153,8 +153,8 @@ public class ConfigurationManager
             && isMoveContactConfirmationRequestedString.length() > 0)
         {
             isMoveContactConfirmationRequested
-                = new Boolean(isMoveContactConfirmationRequestedString)
-                .booleanValue();
+                = Boolean.parseBoolean(isMoveContactConfirmationRequestedString)
+                ;
         }
 
         // Load the "isMultiChatWindowEnabled" property.
@@ -173,8 +173,8 @@ public class ConfigurationManager
             && isMultiChatWindowEnabledString.length() > 0)
         {
             isMultiChatWindowEnabled
-                = new Boolean(isMultiChatWindowEnabledString)
-                .booleanValue();
+                = Boolean.parseBoolean(isMultiChatWindowEnabledString)
+                ;
         }
         
         // Load the "isHistoryLoggingEnabled" property.
@@ -186,8 +186,8 @@ public class ConfigurationManager
             && isHistoryLoggingEnabledString.length() > 0)
         {
             isHistoryLoggingEnabled
-                = new Boolean(isHistoryLoggingEnabledString)
-                .booleanValue();
+                = Boolean.parseBoolean(isHistoryLoggingEnabledString)
+                ;
         }
         
         // Load the "isHistoryShown" property.
@@ -206,8 +206,8 @@ public class ConfigurationManager
             && isHistoryShownString.length() > 0)
         {
             isHistoryShown
-                = new Boolean(isHistoryShownString)
-                    .booleanValue();
+                = Boolean.parseBoolean(isHistoryShownString)
+                    ;
         }
         
         // Load the "chatHistorySize" property.
@@ -245,7 +245,7 @@ public class ConfigurationManager
             && isTransparentWindowEnabledString.length() > 0)
         {
             isTransparentWindowEnabled
-                = new Boolean(isTransparentWindowEnabledString).booleanValue();
+                = Boolean.parseBoolean(isTransparentWindowEnabledString);
         }
 
         // Load the "windowTransparency" property.
@@ -283,7 +283,7 @@ public class ConfigurationManager
             && isWindowDecoratedString.length() > 0)
         {
             isWindowDecorated
-                = new Boolean(isWindowDecoratedString).booleanValue();
+                = Boolean.parseBoolean(isWindowDecoratedString);
         }
 
         // Load the "lastContactParent" property.
@@ -524,14 +524,14 @@ public class ConfigurationManager
     /**
      * Updates the "showApplication" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isVisible <code>true</code> to indicate that the
      * application should be shown, <code>false</code> otherwise.
      */
     public static void setApplicationVisible(boolean isVisible)
     {
         isApplicationVisible = isVisible;
-            
+
         configService.setProperty(
                 "net.java.sip.communicator.impl.systray.showApplication",
                 Boolean.toString(isVisible));
@@ -824,7 +824,7 @@ public class ConfigurationManager
                 String status = (String) configService
                     .getProperty(  groupRootPropName + ".isClosed");
 
-                return new Boolean(status).booleanValue();
+                return Boolean.parseBoolean(status);
             }
         }
         
@@ -845,7 +845,7 @@ public class ConfigurationManager
                 String autoPopupString = (String) evt.getNewValue();
                 
                 autoPopupNewMessage
-                    = new Boolean(autoPopupString).booleanValue();
+                    = Boolean.parseBoolean(autoPopupString);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.SEND_MESSAGE_COMMAND"))
@@ -859,7 +859,7 @@ public class ConfigurationManager
                 String showCallPanelString = (String) evt.getNewValue();
                 
                 isCallPanelShown
-                    = new Boolean(showCallPanelString).booleanValue();
+                    = Boolean.parseBoolean(showCallPanelString);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.showOffline"))
@@ -867,13 +867,13 @@ public class ConfigurationManager
                 String showOfflineString = (String) evt.getNewValue();
                 
                 isShowOffline
-                    = new Boolean(showOfflineString).booleanValue();
+                    = Boolean.parseBoolean(showOfflineString);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.systray.showApplication"))
             {
                 String showApplicationString = (String) evt.getNewValue();
-                
+
                 isApplicationVisible
                     = new Boolean(showApplicationString).booleanValue();
             }
@@ -883,7 +883,7 @@ public class ConfigurationManager
                 String showQuitWarningString = (String) evt.getNewValue();
                 
                 isQuitWarningShown
-                    = new Boolean(showQuitWarningString).booleanValue();
+                    = Boolean.parseBoolean(showQuitWarningString);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED"))
@@ -891,7 +891,7 @@ public class ConfigurationManager
                 String sendTypingNorifString = (String) evt.getNewValue();
                 
                 isSendTypingNotifications
-                    = new Boolean(sendTypingNorifString).booleanValue();
+                    = Boolean.parseBoolean(sendTypingNorifString);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested"))
@@ -899,7 +899,7 @@ public class ConfigurationManager
                 String moveContactConfirmString = (String) evt.getNewValue();
                 
                 isMoveContactConfirmationRequested
-                    = new Boolean(moveContactConfirmString).booleanValue();
+                    = Boolean.parseBoolean(moveContactConfirmString);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED"))
@@ -907,7 +907,7 @@ public class ConfigurationManager
                 String multiChatWindowString = (String) evt.getNewValue();
                 
                 isMultiChatWindowEnabled
-                    = new Boolean(multiChatWindowString).booleanValue();
+                    = Boolean.parseBoolean(multiChatWindowString);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled"))
@@ -915,7 +915,7 @@ public class ConfigurationManager
                 String historyLoggingString = (String) evt.getNewValue();
                 
                 isHistoryLoggingEnabled
-                    = new Boolean(historyLoggingString).booleanValue();
+                    = Boolean.parseBoolean(historyLoggingString);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.IS_MESSAGE_HISTORY_SHOWN"))
@@ -923,7 +923,7 @@ public class ConfigurationManager
                 String historyShownString = (String) evt.getNewValue();
                 
                 isHistoryShown
-                    = new Boolean(historyShownString).booleanValue();
+                    = Boolean.parseBoolean(historyShownString);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.MESSAGE_HISTORY_SIZE"))
@@ -939,7 +939,7 @@ public class ConfigurationManager
                 String isTransparentString = (String) evt.getNewValue();
 
                 isTransparentWindowEnabled
-                    = new Boolean(isTransparentString).booleanValue();
+                    = Boolean.parseBoolean(isTransparentString);
             }
             else if (evt.getPropertyName().equals(
                 "impl.gui.WINDOW_TRANSPARENCY"))

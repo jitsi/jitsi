@@ -77,6 +77,8 @@ public class ChatWritePanel
         this.editorPane.getDocument().addUndoableEditListener(this);
         this.editorPane.addKeyListener(this);
         this.editorPane.addMouseListener(this);
+        this.editorPane.setCursor(
+            Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 
         //set our own transfer (i.e. copy/paste) handler
         this.editorPane.setTransferHandler(new ChatWritePanelTransferHandler());
