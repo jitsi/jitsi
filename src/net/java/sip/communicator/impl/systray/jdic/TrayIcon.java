@@ -380,7 +380,7 @@ public class TrayIcon
     	private static int MARGIN = 15;
         private JPopupMenu popup;
         private boolean popupVisible = false;
-        private Component invoker;
+        private Component mframe = null;
     
         public AWTMouseAdapter(JPopupMenu p)
         {
@@ -395,10 +395,8 @@ public class TrayIcon
              * It can be the popup menu itself, but if the mainframe is used, the popup
              * automatically close when the mainframe lost the focus
              */
-            if(win == null || win.getSource() == null || !(win.getSource() instanceof JFrame))
-                this.invoker = p;
-            else
-                this.invoker = (Component) win.getSource();
+            if(win != null || win.getSource() != null || (win.getSource() instanceof JFrame))
+                this.mframe = (Component) win.getSource();
         }
         
         public void mouseReleased(MouseEvent e)
@@ -421,7 +419,11 @@ public class TrayIcon
                     y = (int) screen.getWidth()-MARGIN;
                 
                 popup.setLocation(x, y);
-                popup.setInvoker(invoker);
+                
+                if (mframe != null && mframe.isVisible())
+                	popup.setInvoker(mframe);
+                else
+                    popup.setInvoker(popup);
                 popup.setVisible(true);
                 popupVisible = true;
             }
