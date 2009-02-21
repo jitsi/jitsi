@@ -326,6 +326,12 @@ public class ZRTPTransformEngine
     private boolean holdFlag = false;
 
     /**
+     * Only multi-stream session may be started as one-way communication
+     * channels.
+     */
+    private boolean multiStream = false;
+
+    /**
      * Construct a ZRTPTransformEngine.
      *
      */
@@ -552,7 +558,7 @@ public class ZRTPTransformEngine
          */
         if (!zPkt.isZrtpPacket())
         {
-            if (!started && enableZrtp && sendPacketCount >= 1)
+            if (!started && enableZrtp && (multiStream || (sendPacketCount >= 1)))
             {
                 startZrtp();
             }
@@ -1032,8 +1038,10 @@ public class ZRTPTransformEngine
      */
     public void setMultiStrParams(byte[] parameters)
     {
-        if (zrtpEngine != null)
+        if (zrtpEngine != null) {
             zrtpEngine.setMultiStrParams(parameters);
+            multiStream = true;
+        }
     }
 
     /**
