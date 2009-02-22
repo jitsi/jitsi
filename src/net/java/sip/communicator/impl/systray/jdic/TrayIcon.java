@@ -374,13 +374,13 @@ public class TrayIcon
      * 
      * @author Damien Roth
      */
-    static class AWTMouseAdapter
+    private static class AWTMouseAdapter
         extends MouseAdapter
     {
-    	private static int MARGIN = 15;
-        private JPopupMenu popup;
+    	private static final  int MARGIN = 15;
+        private final JPopupMenu popup;
         private boolean popupVisible = false;
-        private Component mframe = null;
+        private final Component mframe;
     
         public AWTMouseAdapter(JPopupMenu p)
         {
@@ -395,13 +395,14 @@ public class TrayIcon
              * It can be the popup menu itself, but if the mainframe is used,
              * the popup automatically closes when the mainframe loses the focus.
              */
-            if(win != null)
+            if (win != null)
             {
                 Object source = win.getSource();
 
-                if (source instanceof JFrame)
-                    this.mframe = (Component) source;
+                this.mframe = (source instanceof JFrame) ? (Component) source : null;
             }
+            else
+                this.mframe = null;
         }
         
         public void mouseReleased(MouseEvent e)
