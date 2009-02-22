@@ -19,7 +19,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
-import org.jvnet.lafwidget.animation.*;
 import org.osgi.framework.*;
 
 public class ActionMenuPanel
@@ -172,8 +171,6 @@ public class ActionMenuPanel
             GradientPaint p =
                 new GradientPaint(width / 2, 0, startBgColor, width / 2,
                     height, endBgColor);
-
-            FadeTracker fadeTracker = FadeTracker.getInstance();
 
             g2.setPaint(p);
             g2.fillRoundRect(0, 0, width - 1, height - 1, 15, 15);
