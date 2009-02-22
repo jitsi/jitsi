@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.systray;
 
 import javax.swing.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>PopupMessage</tt> class encloses informations to show in a popup.
