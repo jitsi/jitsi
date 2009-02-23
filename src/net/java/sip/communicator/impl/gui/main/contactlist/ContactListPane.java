@@ -63,7 +63,7 @@ public class ContactListPane
      * 
      * Time to live : 1 minute
      */
-    private Map<String,Long> proactiveTimer = new HashMap<String, Long>();
+    private Map<Contact,Long> proactiveTimer = new HashMap<Contact, Long>();
 
     /**
      * Creates the contactlist scroll panel defining the parent frame.
@@ -534,7 +534,7 @@ public class ContactListPane
             // Proactive typing notification
             if (!chatWindowManager.isChatOpenedForContact(metaContact))
             {
-                this.fireProactiveNotification(contactName.trim());
+                this.fireProactiveNotification(evt.getSourceContact());
                 return;
             }
         }
@@ -568,9 +568,9 @@ public class ContactListPane
      * The notification is fired only if another notification hasn't been
      * recieved for more than 1 minute
      *
-     * @param contactName The contact name
+     * @param contac The contact the notification comes from
      */
-    private void fireProactiveNotification(String contactName)
+    private void fireProactiveNotification(Contact contact)
     {
         long currentTime = System.currentTimeMillis();
 
@@ -578,11 +578,11 @@ public class ContactListPane
         {
             //first remove contacts that have been here longer than the timeout
             //to avoid memory leaks
-            Iterator<Map.Entry<String, Long>> entries
+            Iterator<Map.Entry<Contact, Long>> entries
                                     = this.proactiveTimer.entrySet().iterator();
             while (entries.hasNext())
             {
-                Map.Entry<String, Long> entry = entries.next();
+                Map.Entry<Contact, Long> entry = entries.next();
                 Long lastNotificationDate = entry.getValue();
                 if (lastNotificationDate.longValue() + 30000 <  currentTime)
                 {
@@ -592,18 +592,19 @@ public class ContactListPane
             }
 
             // Now, check if the contact is still in the map
-            if (this.proactiveTimer.containsKey(contactName))
+            if (this.proactiveTimer.containsKey(contact))
             {
                 // We already notified the others about this
                 return;
             }
         }
 
-        this.proactiveTimer.put(contactName, currentTime);
+        this.proactiveTimer.put(contact, currentTime);
 
-        NotificationManager.fireNotification(
+        NotificationManager.fireChatNotification(
+                contact,
                 NotificationManager.PROACTIVE_NOTIFICATION,
-                contactName,
+                contact.getDisplayName(),
                 GuiActivator.getResources()
                     .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
     }

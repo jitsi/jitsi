@@ -34,6 +34,13 @@ public interface Chat
      * @return the message written by user in the chat write area
      */
     public String getMessage();
+
+    /**
+     * Bring this chat to front if <tt>b</tt> is true, hide it otherwise.
+     *
+     * @param isVisible tells if the chat will be made visible or not.
+     */
+    public void setChatVisible(boolean isVisible);
     
     /**
      * Sets the given message as a message in the chat write area.

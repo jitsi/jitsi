@@ -583,19 +583,22 @@ public class SystrayServiceJdicImpl
         implements SystrayPopupMessageListener
     {
 
-        /** implements <tt>SystrayPopupMessageListener.popupMessageClicked()</tt> */
+        /**
+         * Handles a user click on a systray popup message. If the
+         * popup notification was the result of an incoming message from a
+         * contact, the chat window with that contact will be opened if not already,
+         * and brought to front.
+         *
+         * @param evt the event triggered when user clicks on a systray popup
+         * message
+         */
         public void popupMessageClicked(SystrayPopupMessageEvent evt)
         {
-            UIService uiService = SystrayActivator.getUIService();
-            ExportedWindow chatWindow = uiService.getExportedWindow(
-                ExportedWindow.CHAT_WINDOW);
-            if (chatWindow != null)
-                chatWindow.bringToFront();
             Object o = evt.getTag();
+
             if (o instanceof Contact)
-            {
-//                TODO: bring the chat with that contact to front
-            }
+                SystrayActivator.getUIService().
+                    getChat((Contact) o).setChatVisible(true);
         }
     }
 

@@ -664,6 +664,22 @@ public class ChatPanel
     }
 
     /**
+     * Brings the <tt>ChatWindow</tt> containing  this <tt>ChatPanel</tt> to front
+     * if <tt>isVisble</tt> is true, hides it otherwise.
+     * 
+     * @param isVisible tells if the chat will shown or hidden
+     */
+    public void setChatVisible(boolean isVisible)
+    {
+        if (isVisible)
+            GuiActivator.getUIService().getChatWindowManager()
+                .openChat(this, isVisible);
+        else
+            GuiActivator.getUIService().getChatWindowManager()
+                .closeChat(this);
+    }
+
+    /**
      * Implements the <tt>Chat.isChatFocused</tt> method. Returns TRUE if this
      * chat panel is the currently selected panel and if the chat window, where
      * it's contained is active.
