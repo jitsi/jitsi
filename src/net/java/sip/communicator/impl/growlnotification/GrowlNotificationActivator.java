@@ -53,12 +53,12 @@ public class GrowlNotificationActivator
             logger.info("Growl Notification Plugin cannot be started " +
                         "on JDK version " + version);
         } else {
+            bundleContext  = bc;
             /* Create and start the Growl Notification service. */
             new GrowlNotificationServiceImpl().start(bc);
 
             logger.info("Growl Notification Plugin ...[Started]");
         }
-        bundleContext  = bc;
     }
 
     public void stop(BundleContext bundleContext) throws Exception
