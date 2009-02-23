@@ -346,8 +346,20 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 }
 
                 if (messageBuff.length() > 0)
+                {
+                    // we remove body tags around message cause their
+                    // end body tag is breaking
+                    // the visualization as html in the UI
+                    String receivedMessage =
+                        messageBuff.toString()
+                        // removes body start tag
+                        .replaceAll("\\<[bB][oO][dD][yY].*?>","")
+                        // removes body end tag
+                        .replaceAll("\\</[bB][oO][dD][yY].*?>","");
+
                     newMessage =
-                        createMessage(messageBuff.toString(), HTML_MIME_TYPE);
+                        createMessage(receivedMessage, HTML_MIME_TYPE);
+                }
             }
 
             Contact sourceContact =

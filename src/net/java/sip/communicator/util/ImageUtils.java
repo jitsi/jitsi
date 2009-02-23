@@ -127,7 +127,10 @@ public class ImageUtils
             InputStream in = new ByteArrayInputStream(imageBytes);
             BufferedImage image = ImageIO.read(in);
 
-            imageIcon = getScaledRoundedIcon(image, width, height);
+            if(image != null)
+                imageIcon = getScaledRoundedIcon(image, width, height);
+            else
+                logger.trace("Unknown image format or error reading image");
         }
         catch (Exception e)
         {

@@ -415,14 +415,13 @@ public class ChatPanel
                                 String escapedMessageID)
     {
         Iterator<EventObject> iterator = historyList.iterator();
-        String historyString = "";
 
         String messageType;
 
         while (iterator.hasNext())
         {
             Object o = iterator.next();
-
+            String historyString = "";
 
             if(o instanceof MessageDeliveredEvent)
             {
@@ -437,7 +436,7 @@ public class ChatPanel
                 else
                     messageType = Constants.HISTORY_OUTGOING_MESSAGE;
 
-                historyString += processHistoryMessage(
+                historyString = processHistoryMessage(
                             GuiActivator.getUIService().getMainFrame()
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(),
@@ -460,7 +459,7 @@ public class ChatPanel
                     else
                         messageType = Constants.HISTORY_INCOMING_MESSAGE;
 
-                    historyString += processHistoryMessage(
+                    historyString = processHistoryMessage(
                                 evt.getSourceContact().getDisplayName(),
                                 evt.getTimestamp(),
                                 messageType,
@@ -476,7 +475,7 @@ public class ChatPanel
                 ProtocolProviderService protocolProvider = evt
                     .getSourceChatRoom().getParentProvider();
 
-                historyString += processHistoryMessage(
+                historyString = processHistoryMessage(
                             GuiActivator.getUIService().getMainFrame()
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(),
@@ -492,7 +491,7 @@ public class ChatPanel
                 if(!evt.getMessage().getMessageUID()
                         .equals(escapedMessageID))
                 {
-                    historyString += processHistoryMessage(
+                    historyString = processHistoryMessage(
                             evt.getSourceChatRoomMember().getName(),
                             evt.getTimestamp(),
                             Constants.HISTORY_INCOMING_MESSAGE,
@@ -500,9 +499,10 @@ public class ChatPanel
                             evt.getMessage().getContentType());
                 }
             }
+
+            conversationPanel.appendMessageToEnd(historyString);
         }
 
-        conversationPanel.insertMessageAfterStart(historyString);
 
         getChatWindow().getMainToolBar()
             .changeHistoryButtonsState(this);
