@@ -13,7 +13,6 @@ import java.util.List;
 import javax.swing.*;
 
 import javax.swing.Timer;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
