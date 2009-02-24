@@ -8,45 +8,87 @@
 package net.java.sip.communicator.util;
 
 import java.io.*;
+
 import javax.swing.text.html.*;
-import javax.swing.text.*;
+import javax.swing.text.html.parser.*;
 
 /**
  * A utility class that allows to extract the text content of an html page 
  * stripped from all formatting tags.
  * 
  * @author Emil Ivov <emcho at sip-communicator.org>
+ * @author Yana Stamcheva
  */
-public class Html2Text 
+public class Html2Text
 {
     private static final Logger logger
         = Logger.getLogger(Html2Text.class);
+
+    private static HTMLParserCallBack parser;
+
     /**
-     * The editor kit we use for conversions.
-     */
-    private HTMLEditorKit htmlEditorKit = new HTMLEditorKit(); 
-    
-    /**
-     * A utility class that allows to extract the text content of an html page 
+     * A utility method that allows to extract the text content of an html page 
      * stripped from all formatting tags. Method is synchronized to avoid 
      * concurrent access to the underlying html editor kit.
      * 
      * @param html the html string that we will extract the text from.
      * @return the text content of the <tt>html</tt> parameter.
      */
-    public synchronized String extractText(String html)
+    public static synchronized String extractText(String html)
     {
-        Document doc = htmlEditorKit.createDefaultDocument();
-        
+        if (parser == null)
+            parser = new HTMLParserCallBack();
+
         try
         {
-            htmlEditorKit.read(new StringReader(html), doc, 0);
-            return doc.getText(1, doc.getLength() - 1);
-        } 
+            StringReader in = new StringReader(html);
+            parser.parse(in);
+            in.close();
+
+            return parser.getText();
+        }
         catch (Exception exc)
         {
             logger.info("Failed to extract plain text from html="+html, exc);
             return html;
-        } 
+        }
+    }
+
+    /**
+     * The ParserCallback that will parse the html.
+     */
+    private static class HTMLParserCallBack extends HTMLEditorKit.ParserCallback
+    {
+        StringBuffer s;
+
+        /**
+         * Parses the text contained in the given reader.
+         * 
+         * @param in the reader to parse.
+         * @throws IOException thrown if we fail to parse the reader.
+         */
+        public void parse(Reader in) throws IOException
+        {
+            s = new StringBuffer();
+            ParserDelegator delegator = new ParserDelegator();
+            // the third parameter is TRUE to ignore charset directive
+            delegator.parse(in, this, Boolean.TRUE);
+        }
+
+        /**
+         * Appends the given text to the string buffer.
+         */
+        public void handleText(char[] text, int pos)
+        {
+            s.append(text);
+        }
+
+        /**
+         * Returns the parsed text.
+         */
+        public String getText()
+        {
+            return s.toString();
+        }
     }
 }

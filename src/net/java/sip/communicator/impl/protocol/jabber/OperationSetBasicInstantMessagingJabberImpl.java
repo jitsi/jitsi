@@ -85,12 +85,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private static final String CLOSE_BODY_TAG = "</body>";
     
     /**
-     * The instance of the html2Txt converter that we use to send messages in 
-     * both the text/html and text/plain content types.
-     */
-    private Html2Text html2Txt = new Html2Text();
-
-    /**
      * Creates an instance of this operation set.
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
@@ -201,7 +195,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             
             if(message.getContentType().equals(HTML_MIME_TYPE))
             {
-                msg.setBody(html2Txt.extractText(content));
+                msg.setBody(Html2Text.extractText(content));
                 
                 // Add the XHTML text to the message
                 XHTMLManager.addBody(msg, 
@@ -214,10 +208,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             msg.addExtension(new Version());
-            
+
             MessageEventManager.
                 addNotificationsRequests(msg, true, false, false, true);
-             
+
             chat.sendMessage(msg);
 
             MessageDeliveredEvent msgDeliveredEvt
@@ -380,7 +374,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     if(msgEvent != null && msgEvent.isOffline())
                     {
                         errorResultCode =
-                            MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED;
+                            MessageDeliveryFailedEvent
+                                .OFFLINE_MESSAGES_NOT_SUPPORTED;
                     }
                 }
 

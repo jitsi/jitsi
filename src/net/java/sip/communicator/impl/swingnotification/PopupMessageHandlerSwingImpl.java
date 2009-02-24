@@ -143,16 +143,16 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
      */
     private JComponent createPopup( String titleString,
                                     String message,
-                                    byte[] imageIcon,
+                                    byte[] imageBytes,
                                     Object tag)
     {
         FramedImage msgIcon = new FramedImage(defaultIcon, 45, 45);
 
-        if (imageIcon != null)
+        if (imageBytes != null)
         {
-            ImageIcon contactIcon = new ImageIcon(imageIcon);
+            ImageIcon imageIcon = new ImageIcon(imageBytes);
 
-            msgIcon = new FramedImage(contactIcon, 45, 45);
+            msgIcon = new FramedImage(imageIcon, 45, 45);
         }
 
         JLabel msgTitle = new JLabel(titleString);
@@ -161,13 +161,15 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
         msgTitle.setPreferredSize(new Dimension(200, msgTitleHeight));
         msgTitle.setFont(msgTitle.getFont().deriveFont(Font.BOLD));
 
-        JTextArea msgContent = new JTextArea(message);
+        String plainMessage = Html2Text.extractText(message);
+        JTextArea msgContent = new JTextArea(plainMessage);
         msgContent.setLineWrap(true);
         msgContent.setWrapStyleWord(true);
         msgContent.setOpaque(false);
         msgContent.setAlignmentX(JTextArea.LEFT_ALIGNMENT);
 
-        int msgContentHeight = getPopupMessageAreaHeight(msgContent, message);
+        int msgContentHeight
+            = getPopupMessageAreaHeight(msgContent, plainMessage);
         msgContent.setPreferredSize(new Dimension(200, msgContentHeight));
 
         TransparentPanel notificationBody = new TransparentPanel();
