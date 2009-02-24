@@ -115,7 +115,11 @@ public class NotificationManager
         if(notificationService == null)
             return;
 
-        notificationService.fireNotification(eventType, messageTitle, message, null);
+        notificationService.fireNotification(   eventType,
+                                                messageTitle,
+                                                message,
+                                                null,
+                                                null);
     }
 
     /**
@@ -128,7 +132,7 @@ public class NotificationManager
      * @param messageTitle the title of the message
      * @param message the content of the message
      */
-    public static void fireChatNotification(Object contact,
+    public static void fireChatNotification(Object chatContact,
                                             String eventType,
                                             String messageTitle,
                                             String message)
@@ -142,16 +146,24 @@ public class NotificationManager
         NotificationActionHandler popupActionHandler = null;
 
         Chat chatPanel = null;
-
-        if (contact instanceof Contact)
-            chatPanel = GuiActivator.getUIService().getChat((Contact) contact);
-        else if (contact instanceof ChatRoom)
+        byte[] contactIcon = null;
+        if (chatContact instanceof Contact)
         {
+            Contact contact = (Contact) chatContact;
+
+            chatPanel = GuiActivator.getUIService().getChat(contact);
+
+            contactIcon = contact.getImage();
+        }
+        else if (chatContact instanceof ChatRoom)
+        {
+            ChatRoom chatRoom = (ChatRoom) chatContact;
+
             // For system rooms we don't want to send notification events.
-            if (((ChatRoom) contact).isSystem())
+            if (chatRoom.isSystem())
                 return;
 
-            chatPanel = GuiActivator.getUIService().getChat((ChatRoom) contact);
+            chatPanel = GuiActivator.getUIService().getChat(chatRoom);
         }
 
         if(eventType.equals(INCOMING_MESSAGE)
@@ -165,8 +177,11 @@ public class NotificationManager
             popupActionHandler.setEnabled(false);
         }
 
-        notificationService.fireNotification(
-            eventType, messageTitle, message, contact);
+        notificationService.fireNotification(   eventType,
+                                                messageTitle,
+                                                message,
+                                                contactIcon,
+                                                chatContact);
 
         if(popupActionHandler != null)
             popupActionHandler.setEnabled(true);

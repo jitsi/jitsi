@@ -18,8 +18,8 @@ import javax.swing.*;
  * 
  * @author Yana Stamcheva
  */
-public class GuiUtils {
-
+public class GuiUtils
+{
     private static Calendar c1 = Calendar.getInstance();
     
     private static Calendar c2 = Calendar.getInstance();
@@ -29,21 +29,23 @@ public class GuiUtils {
      * @param text The initial text.
      * @return the formatted text
      */
-    public static String replaceSpecialRegExpChars(String text) {
+    public static String replaceSpecialRegExpChars(String text)
+    {
         return text.replaceAll("([.()^&$*|])", "\\\\$1");
     }
-
+    
     /**
      * Returns the width in pixels of a text.
      * @param c the component where the text is contained
      * @param text the text to measure
      * @return the width in pixels of a text.
      */
-    public static int getStringWidth(Component c, String text) {
+    public static int getStringWidth(Component c, String text)
+    {
         return SwingUtilities.computeStringWidth(c
                 .getFontMetrics(c.getFont()), text);
     }
-    
+
     /**
      * Compares the two dates. The comparison is based only on the day, month
      * and year values. Returns 0 if the two dates are equals, a value < 0 if
@@ -70,17 +72,18 @@ public class GuiUtils {
         
         if((day1 == day2)
                 && (month1 == month2)
-                && (year1 == year2)) {
-            
+                && (year1 == year2))
+        {
             return 0;
         }
         else if((day1 < day2)
                 && (month1 <= month2)
-                && (year1 <= year2)) {
-            
+                && (year1 <= year2))
+        {
             return -1;
         }
-        else {
+        else
+        {
             return 1;
         }
     }
@@ -94,9 +97,9 @@ public class GuiUtils {
     public static String formatDate(Date date)
     {
         c1.setTime(date);
-        
+
         return GuiUtils.processMonth(c1.get(Calendar.MONTH) + 1) + " " 
-            + GuiUtils.formatTime(c1.get(Calendar.DAY_OF_MONTH)) + ", "                
+            + GuiUtils.formatTime(c1.get(Calendar.DAY_OF_MONTH)) + ", "
             + GuiUtils.formatTime(c1.get(Calendar.YEAR));
     }
     
@@ -136,7 +139,7 @@ public class GuiUtils {
         int min
             = (int)(( difMil - days*milPerDay - hour*milPerHour ) / milPerMin);
         int sec
-            = (int)(( difMil - days*milPerDay - hour*milPerHour - min*milPerMin )
+            = (int)(( difMil - days*milPerDay - hour*milPerHour - min*milPerMin)
                     / milPerSec);
         
         c1.clear();

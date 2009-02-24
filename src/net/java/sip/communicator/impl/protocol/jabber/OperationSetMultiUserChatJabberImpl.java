@@ -206,7 +206,7 @@ public class OperationSetMultiUserChatJabberImpl
 
         if(room != null)
             throw new OperationFailedException(
-                            "There is already a room with"
+                            "There is already a room with this name."
                             , OperationFailedException.IDENTIFICATION_CONFLICT);
 
         MultiUserChat muc = new MultiUserChat(getXmppConnection(), roomName);

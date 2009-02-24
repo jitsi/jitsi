@@ -34,7 +34,7 @@ public class TestPopupMessageHandler
     private static SystrayService systrayService = null;
 
     /**
-     * reference to services we will retrive from bundle context
+     * reference to services we will retrieve from bundle context
      */
     private static ServiceReference serviceReference = null;
 
@@ -45,7 +45,7 @@ public class TestPopupMessageHandler
     private static NotificationService notificationService = null;
 
     /**
-     * a trivial message we will send via the nofification service.
+     * a trivial message we will send via the notification service.
      */
     private String messageStart = "Lorem ipsum dolor sit amet.";
 
@@ -123,19 +123,20 @@ public class TestPopupMessageHandler
         serviceReference =  bc.getServiceReference(
                 NotificationService.class.getName());
 
-        notificationService = (NotificationService) bc.getService(serviceReference);
+        notificationService
+            = (NotificationService) bc.getService(serviceReference);
 
         notificationService.fireNotification(
                 NotificationService.ACTION_POPUP_MESSAGE,
                 messageStart,
                 messageStart,
+                null,
                 null);
     }
 
     /** A trivial handler implementing <tt>PopupMessageHandler</tt> */
     private class MockPopupMessageHandler implements PopupMessageHandler
     {
-
         /**
          * implements <tt>PopupMessageHandler.addPopupMessageListener()</tt>
          */
@@ -160,6 +161,5 @@ public class TestPopupMessageHandler
             // is it the expected handler which is handling it ?
             assertEquals(handler2, this);
         }
-        
     }
 }

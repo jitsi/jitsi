@@ -4,18 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A custom component, used to show contact images in a frame,
- * where appropriate.
+ * A custom component, used to show images in a frame.
  * 
  * @author Yana Stamcheva
  */
@@ -31,12 +29,12 @@ public class FramedImage
     private final int height;
 
     /**
-     * Creates a ContactPhotoLabel by specifying the width and the height of the
-     * label. These are used to paint the frame in the correct bounds.
+     * Creates a FramedImage by specifying the width and the height of the
+     * label. These are used to paint the image frame in the correct bounds.
      * 
      * @param imageIcon the icon to show within the frame
-     * @param width the width of the label.
-     * @param height the height of the label.
+     * @param width the width of the frame
+     * @param height the height of the frame
      */
     public FramedImage(ImageIcon imageIcon, int width, int height)
     {
@@ -45,9 +43,10 @@ public class FramedImage
 
         this.setPreferredSize(new Dimension(width, height));
 
-        this.frameImage =
-            ImageUtils.scaleImageWithinBounds(ImageLoader
-                .getImage(ImageLoader.USER_PHOTO_FRAME), width, height);
+        this.frameImage = ImageUtils.scaleImageWithinBounds(
+            UtilActivator.getResources()
+                .getImage("service.gui.USER_PHOTO_FRAME").getImage(),
+                width, height);
 
         if (imageIcon != null)
         {
@@ -55,11 +54,22 @@ public class FramedImage
         }
     }
 
+    /**
+     * Creates a FramedImage by specifying the width and the height of the frame.
+     * 
+     * @param width the width of the frame
+     * @param height the height of the frame
+     */
     public FramedImage(int width, int height)
     {
         this(null, width, height);
     }
 
+    /**
+     * Sets the image to display in the frame.
+     * 
+     * @param imageIcon the image to display in the frame
+     */
     public void setImageIcon(ImageIcon imageIcon)
     {
         this.image =
@@ -67,8 +77,10 @@ public class FramedImage
                 height - 2);
     }
 
-    /*
-     * Overrides {@link JComponent#paintComponent(Graphics)}.
+    /**
+     * Paints the contained image in a frame.
+     * 
+     * @overrides {@link JComponent#paintComponent(Graphics)}.
      */
     public void paintComponent(Graphics g)
     {

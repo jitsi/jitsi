@@ -333,11 +333,14 @@ public interface NotificationService
      * (e.g. with systray)
      * @param message the message to use if and where appropriate (e.g. with
      * systray or log notification.)
+     * @param icon the icon to show in the notification if and where
+     * appropriate
      * @param tag additional info to be used by the notification handler
      */
     public void fireNotification(   String eventType,
                                     String messageTitle,
                                     String message,
+                                    byte[] icon,
                                     Object tag);
 
     /**

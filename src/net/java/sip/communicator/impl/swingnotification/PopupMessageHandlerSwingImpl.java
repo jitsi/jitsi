@@ -25,7 +25,6 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
 {
-
     /** logger for the <tt>PopupMessageHandlerSwingImpl</tt> class */
     private final Logger logger =
         Logger.getLogger(PopupMessageHandlerSwingImpl.class);
@@ -37,7 +36,7 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
     /** An icon representing the contact from which the notification comes */
     private ImageIcon defaultIcon =
         SwingNotificationActivator.getResources().getImage(
-        "service.gui.SIP_COMMUNICATOR_LOGO_39x58");;
+        "service.gui.SIP_COMMUNICATOR_LOGO_45x45");;
 
     /**
      * Adds a listerner to receive popup events
@@ -125,8 +124,8 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
             notificationWindow.add(createPopup(
                 popupMessage.getMessageTitle(),
                 popupMessage.getMessage(),
+                popupMessage.getIcon(),
                 popupMessage.getTag()));
-            notificationWindow.setPreferredSize(new Dimension(225, 120));
         }
         notificationWindow.setAlwaysOnTop(true);
         notificationWindow.pack();
@@ -143,42 +142,50 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
      * @param icon message icon
      * @return
      */
-    private JComponent createPopup(String title, String message,
-        Object tag)
+    private JComponent createPopup( String titleString,
+                                    String message,
+                                    byte[] imageIcon,
+                                    Object tag)
     {
-        String ttle = title;
-        if (title.length() > 50)
-            ttle = title.substring(0, 47) + "...";
-        JLabel msgTitle = new JLabel("<html>" + ttle);
-        msgTitle.setForeground(Color.DARK_GRAY);
+        FramedImage msgIcon = new FramedImage(defaultIcon, 45, 45);
 
-        String msg = message;
-        if (message.length() > 90)
-            msg = message.substring(0, 87) + "...";
-        JLabel msgContent = new JLabel("<html><b>" + msg);
-
-        JPanel notificationBody = new JPanel(new BorderLayout());
-        notificationBody.setOpaque(false);
-        notificationBody.add(msgTitle, BorderLayout.NORTH);
-        notificationBody.add(msgContent, BorderLayout.CENTER);
-
-        JLabel msgIcon = new JLabel(defaultIcon);
-        if (tag instanceof Contact)
+        if (imageIcon != null)
         {
-            byte[] b = ((Contact) tag).getImage();
-            if (b != null)
-                msgIcon = new JLabel(new ImageIcon(b));
-        }
-        else if (tag instanceof ImageIcon)
-        {
-            msgIcon = new JLabel((ImageIcon) tag);
-        }
-        msgIcon.setPreferredSize(new Dimension(45, 45));
+            ImageIcon contactIcon = new ImageIcon(imageIcon);
 
-        JPanel notificationContent = new JPanel(new BorderLayout(5, 0));
+            msgIcon = new FramedImage(contactIcon, 45, 45);
+        }
+
+        JLabel msgTitle = new JLabel(titleString);
+        int msgTitleHeight
+            = msgTitle.getFontMetrics(msgTitle.getFont()).getHeight();
+        msgTitle.setPreferredSize(new Dimension(200, msgTitleHeight));
+        msgTitle.setFont(msgTitle.getFont().deriveFont(Font.BOLD));
+
+        JTextArea msgContent = new JTextArea(message);
+        msgContent.setLineWrap(true);
+        msgContent.setWrapStyleWord(true);
+        msgContent.setOpaque(false);
+        msgContent.setAlignmentX(JTextArea.LEFT_ALIGNMENT);
+
+        int msgContentHeight = getPopupMessageAreaHeight(msgContent, message);
+        msgContent.setPreferredSize(new Dimension(200, msgContentHeight));
+
+        TransparentPanel notificationBody = new TransparentPanel();
+        notificationBody.setLayout(
+            new BoxLayout(notificationBody, BoxLayout.Y_AXIS));
+        notificationBody.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        notificationBody.add(msgTitle);
+        notificationBody.add(msgContent);
+
+        TransparentPanel notificationContent
+            = new TransparentPanel();
+
+        notificationContent.setLayout(new BorderLayout(5, 0));
+
         notificationContent.setBorder(
-                BorderFactory.createEmptyBorder(0, 3, 3, 3));
-        notificationContent.setOpaque(false);
+                BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         notificationContent.add(msgIcon, BorderLayout.WEST);
         notificationContent.add(notificationBody, BorderLayout.CENTER);
@@ -307,5 +314,20 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
                 }
             } while (height < 0);
         }
+    }
+    
+    private int getPopupMessageAreaHeight(Component c, String message)
+    {
+        int stringWidth = GuiUtils.getStringWidth(c, message);
+
+        int numberOfRows = 0;
+        if (stringWidth/200 > 3)
+            numberOfRows = 3;
+        else
+            numberOfRows = stringWidth/200;
+
+        FontMetrics fontMetrics = c.getFontMetrics(c.getFont());
+
+        return fontMetrics.getHeight()*numberOfRows;
     }
 }
