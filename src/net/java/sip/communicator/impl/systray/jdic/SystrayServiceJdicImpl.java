@@ -214,12 +214,12 @@ public class SystrayServiceJdicImpl
                     uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
                 boolean setIsVisible = !win.isVisible();
 
-                win.setVisible(setIsVisible);
-                configService.setProperty(
+                if(!win.isVisible())
+                {
+                    win.setVisible(setIsVisible);
+                    configService.setProperty(
                     "net.java.sip.communicator.impl.systray.showApplication",
                     Boolean.toString(setIsVisible));
-                if(win.isVisible())
-                {
                     win.bringToFront();
                 }
             }
