@@ -212,14 +212,16 @@ public class SystrayServiceJdicImpl
                 UIService uiService = SystrayActivator.getUIService();
                 ExportedWindow win =
                     uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
-                if (!win.isVisible())
+                boolean setIsVisible = !win.isVisible();
+
+                win.setVisible(setIsVisible);
+                configService.setProperty(
+                    "net.java.sip.communicator.impl.systray.showApplication",
+                    Boolean.toString(setIsVisible));
+                if(win.isVisible())
                 {
-                    win.setVisible(true);
-                    configService.setProperty(
-                        "net.java.sip.communicator.impl.systray.showApplication",
-                        Boolean.toString(true));
+                    win.bringToFront();
                 }
-                win.bringToFront();
             }
         });
 
