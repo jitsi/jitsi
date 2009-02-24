@@ -315,6 +315,14 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
         }
     }
     
+    /**
+     * Returns the appropriate popup message height, according to the currently
+     * used font and the size of the message.
+     * 
+     * @param c the component used to show the message
+     * @param message the message
+     * @return the appropriate popup message height
+     */
     private int getPopupMessageAreaHeight(Component c, String message)
     {
         int stringWidth = GuiUtils.getStringWidth(c, message);
