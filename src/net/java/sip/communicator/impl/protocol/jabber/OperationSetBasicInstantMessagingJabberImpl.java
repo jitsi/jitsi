@@ -185,7 +185,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         org.jivesoftware.smack.packet.Message arg1) {}
             };
 
-            Chat chat = jabberProvider.getConnection().getChatManager()
+            XMPPConnection jabberConnection = jabberProvider.getConnection();
+
+            Chat chat = jabberConnection.getChatManager()
                 .createChat(to.getAddress(), msgListener);
             
             org.jivesoftware.smack.packet.Message msg = 
@@ -197,9 +199,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
             {
                 msg.setBody(Html2Text.extractText(content));
                 
-                // Add the XHTML text to the message
-                XHTMLManager.addBody(msg, 
-                    OPEN_BODY_TAG + content + CLOSE_BODY_TAG);
+                // Check if the other user supports XHTML messages
+                if (XHTMLManager.isServiceEnabled(  jabberConnection,
+                                                    chat.getParticipant()))
+                {
+                    // Add the XHTML text to the message
+                    XHTMLManager.addBody(msg, 
+                        OPEN_BODY_TAG + content + CLOSE_BODY_TAG);
+                }
             }
             else
             {
