@@ -20,7 +20,7 @@ public class CallParticipantEvent
     /**
      * The call that the source call participant is associated with.
      */
-    private Call sourceCall = null;
+    private final Call sourceCall;
 
     /**
      * An event id value indicating that this event is about the fact that
@@ -37,7 +37,7 @@ public class CallParticipantEvent
     /**
      * The id indicating the type of this event.
      */
-    private int eventID = -1;
+    private final int eventID;
 
     /**
      * Creates a call participant event instance indicating that an event with

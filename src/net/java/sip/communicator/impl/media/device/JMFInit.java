@@ -137,9 +137,9 @@ public class JMFInit
             }
         }
         try {
-            Object instance = auto.newInstance();
+            auto.newInstance();
             if (autoPlus != null) {
-                Object instancePlus = autoPlus.newInstance();
+                autoPlus.newInstance();
             }
             logger.info("Finished detecting video capture devices");
         }
@@ -250,7 +250,7 @@ public class JMFInit
 //            runLinuxPreInstall();
 
             if (jmfProperties.length() == 0) {
-                JMFInit init = new JMFInit();
+                new JMFInit();
             }
         }
         finally

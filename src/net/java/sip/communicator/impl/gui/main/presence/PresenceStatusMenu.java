@@ -30,12 +30,12 @@ import net.java.sip.communicator.util.*;
 public class PresenceStatusMenu
     extends StatusSelectorMenu
 {
-    private Logger logger =
-        Logger.getLogger(PresenceStatusMenu.class.getName());
+    private final Logger logger =
+        Logger.getLogger(PresenceStatusMenu.class);
 
     private ProtocolProviderService protocolProvider;
 
-    private Iterator statusIterator;
+    private Iterator<PresenceStatus> statusIterator;
 
     private PresenceStatus offlineStatus;
 
@@ -90,7 +90,7 @@ public class PresenceStatusMenu
 
         while (statusIterator.hasNext())
         {
-            PresenceStatus status = (PresenceStatus) statusIterator.next();
+            PresenceStatus status = statusIterator.next();
             int connectivity = status.getStatus();
 
             if (connectivity < 1)
@@ -134,12 +134,11 @@ public class PresenceStatusMenu
                 LoginManager loginManager
                     = GuiActivator.getUIService().getLoginManager();
 
-                Iterator statusSet = presence.getSupportedStatusSet();
+                Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
                 while (statusSet.hasNext())
                 {
-
-                    PresenceStatus status = ((PresenceStatus) statusSet.next());
+                    PresenceStatus status = statusSet.next();
 
                     if (status.getStatusName().equals(menuItem.getText()))
                     {

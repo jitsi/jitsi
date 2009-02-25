@@ -129,7 +129,7 @@ public class OperationFailedException
     /**
      * The error code of the exception
      */
-    private int errorCode = GENERAL_ERROR;
+    private final int errorCode;
 
     /**
      * Creates an exception with the specified error message and error code.

@@ -13,10 +13,12 @@ package net.java.sip.communicator.util.xml;
  * @author Emil Ivov
  * @version 1.0
  */
-
-public class XMLException extends Exception
+public class XMLException
+    extends Exception
 {
-    /**
+    private static final long serialVersionUID = 0L;
+
+	/**
      * Constructs a new XMLException with the specified detail message and cause.
      *
      * @param message a message specifying the reason that caused the
@@ -41,5 +43,4 @@ public class XMLException extends Exception
     {
         super(message);
     }
-
 }

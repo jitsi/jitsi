@@ -45,7 +45,7 @@ public class DirectSoundAuto {
         boolean supported = false;
         // instance JavaSoundDetector to check is javasound's capture is availabe
         try {
-            Class cls = Class.forName(detectClass);
+            Class.forName(detectClass);
             supported = true;
         } catch (Throwable t) {
             supported = false;

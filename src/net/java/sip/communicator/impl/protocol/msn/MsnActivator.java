@@ -42,7 +42,8 @@ public class MsnActivator
      */
     public void start(BundleContext context) throws Exception
     {
-        this.bundleContext = context;
+        MsnActivator.bundleContext = context;
+
         Hashtable hashtable = new Hashtable();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.MSN);
 

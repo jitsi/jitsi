@@ -92,8 +92,8 @@ public class SipStatusEnum
      * The supported status set stores all statuses supported by this protocol
      * implementation.
      */
-    public final List<SipPresenceStatus> supportedStatusSet
-        = new LinkedList<SipPresenceStatus>();
+    public final List<PresenceStatus> supportedStatusSet
+        = new LinkedList<PresenceStatus>();
 
     public SipStatusEnum(String iconPath)
     {
@@ -163,7 +163,7 @@ public class SipStatusEnum
      * @return an <tt>Iterator</tt> over all status instances supported by the
      * sip provider.
      */
-    public Iterator getSupportedStatusSet()
+    public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         return supportedStatusSet.iterator();
     }

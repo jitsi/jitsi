@@ -346,7 +346,7 @@ public class OperationSetPersistentPresenceZeroconfImpl
      * @return Iterator a PresenceStatus array containing "enterable" status
      *   instances.
      */
-    public Iterator getSupportedStatusSet()
+    public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         return ZeroconfStatusEnum.supportedStatusSet();
     }

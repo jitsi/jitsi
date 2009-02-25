@@ -148,13 +148,13 @@ public class StatusUpdateThread implements Runnable
      */
     private PresenceStatus findAwayStatus(OperationSetPresence presence)
     {
-        Iterator statusSet = presence.getSupportedStatusSet();
+        Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
         PresenceStatus status = null;
 
         while (statusSet.hasNext())
         {
-            PresenceStatus possibleState = (PresenceStatus) statusSet.next();
+            PresenceStatus possibleState = statusSet.next();
 
             if (possibleState.getStatus() < PresenceStatus.AVAILABLE_THRESHOLD
                     && possibleState.getStatus() >= PresenceStatus.ONLINE_THRESHOLD)

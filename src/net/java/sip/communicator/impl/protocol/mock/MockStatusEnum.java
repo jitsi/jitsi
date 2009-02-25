@@ -87,7 +87,7 @@ public class MockStatusEnum
         = new MockStatusEnum(100, "MockStatus100");
 
 
-    private static List supportedStatusSet = new LinkedList();
+    private static List<PresenceStatus> supportedStatusSet = new LinkedList<PresenceStatus>();
     static{
         supportedStatusSet.add(MOCK_STATUS_00);
         supportedStatusSet.add(MOCK_STATUS_10);
@@ -119,7 +119,7 @@ public class MockStatusEnum
      * @return an <tt>Iterator</tt> over all status instances supported by the
      * mock provider.
      */
-    static Iterator supportedStatusSet()
+    static Iterator<PresenceStatus> supportedStatusSet()
     {
         return supportedStatusSet.iterator();
     }

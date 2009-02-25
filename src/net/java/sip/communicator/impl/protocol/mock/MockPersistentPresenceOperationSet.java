@@ -326,7 +326,7 @@ public class MockPersistentPresenceOperationSet
      * @return Iterator a PresenceStatus array containing "enterable" status
      *   instances.
      */
-    public Iterator getSupportedStatusSet()
+    public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         return MockStatusEnum.supportedStatusSet();
     }

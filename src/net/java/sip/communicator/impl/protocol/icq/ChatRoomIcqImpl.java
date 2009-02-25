@@ -20,7 +20,6 @@ import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
  * 
  * @author Rupert Burchardi
  */
-
 @SuppressWarnings("unchecked")
 public class ChatRoomIcqImpl implements ChatRoom
 {

@@ -137,7 +137,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * The array list we use when returning from the getSupportedStatusSet()
      * method.
      */
-    private ArrayList supportedPresenceStatusSet = new ArrayList();
+    private final List<PresenceStatus> supportedPresenceStatusSet = new ArrayList<PresenceStatus>();
 
     /**
      * A map containing bindings between SIP Communicator's icq presence status
@@ -887,7 +887,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * @return Iterator a PresenceStatus array containing "enterable" status
      *   instances.
      */
-    public Iterator getSupportedStatusSet()
+    public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         if(supportedPresenceStatusSet.size() == 0)
         {
@@ -959,7 +959,6 @@ public class OperationSetPersistentPresenceIcqImpl
                     ran = true;
                 }
 
-                Object value = null;
                 if (snac instanceof UserInfoCmd)
                 {
                     UserInfoCmd uic = (UserInfoCmd) snac;

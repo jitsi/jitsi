@@ -16,20 +16,20 @@ import net.java.sip.communicator.service.protocol.*;
  * "Hangup" and thus and the participation of a CallParticipant in a call. The
  * source of the event is considered to be the CallParticipant that is being
  * controlled. As the event might also be used to indicate a user request to
- * transfer a given participant to a different number, the calss also contains
- * a targetURI field, containing the adress that a client is being redirected to
+ * transfer a given participant to a different number, the class also contains
+ * a targetURI field, containing the address that a client is being redirected to
  * (the target uri might also have slightly different meanings depending on the
  * method dispatching the event).
+ * 
  * @author Emil Ivov
- *
  */
 public class CallParticipantControlEvent
     extends java.util.EventObject
 {
-    private String targetURI = null;
+    private final String targetURI;
 
     /**
-     * Creates a new event instance with the specifieed source CallParticipant
+     * Creates a new event instance with the specified source CallParticipant
      * and targetURI, if any.
      * @param source the CallParticipant that this event is pertaining to.
      * @param targetURI the URI to transfer to if this is a "Transfer" event

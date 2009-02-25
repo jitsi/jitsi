@@ -109,7 +109,7 @@ public class GibberishStatusEnum
     /**
      * Initialize the list of supported status states.
      */
-    private static List supportedStatusSet = new LinkedList();
+    private static List<PresenceStatus> supportedStatusSet = new LinkedList<PresenceStatus>();
     static
     {
         supportedStatusSet.add(OFFLINE);
@@ -142,7 +142,7 @@ public class GibberishStatusEnum
      * @return an <tt>Iterator</tt> over all status instances supported by the
      * gibberish provider.
      */
-    static Iterator supportedStatusSet()
+    static Iterator<PresenceStatus> supportedStatusSet()
     {
         return supportedStatusSet.iterator();
     }

@@ -241,12 +241,11 @@ public class GlobalStatusSelectorBox
                         continue;
                     }
 
-                    Iterator statusSet = presence.getSupportedStatusSet();
+                    Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
                     while (statusSet.hasNext())
                     {
-                        PresenceStatus status
-                            = (PresenceStatus) statusSet.next();
+                        PresenceStatus status = statusSet.next();
 
                         if( status.getStatus()
                                 < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD
@@ -286,12 +285,11 @@ public class GlobalStatusSelectorBox
                         continue;
                     }
 
-                    Iterator statusSet = presence.getSupportedStatusSet();
+                    Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
                     while (statusSet.hasNext())
                     {
-                        PresenceStatus status
-                            = (PresenceStatus) statusSet.next();
+                        PresenceStatus status = statusSet.next();
 
                         if(status.getStatus()
                             < PresenceStatus.ONLINE_THRESHOLD)
@@ -331,14 +329,13 @@ public class GlobalStatusSelectorBox
                 if (presence == null)
                     continue;
 
-                Iterator statusSet = presence.getSupportedStatusSet();
+                Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
                 PresenceStatus status = null;
 
                 while (statusSet.hasNext())
                 {
-                    PresenceStatus currentStatus
-                        = (PresenceStatus) statusSet.next();
+                    PresenceStatus currentStatus = statusSet.next();
 
                     if (status == null)
                         status = currentStatus; 
@@ -370,14 +367,13 @@ public class GlobalStatusSelectorBox
                 if (presence == null)
                     continue;
 
-                Iterator statusSet = presence.getSupportedStatusSet();
+                Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
                 PresenceStatus status = null;
 
                 while (statusSet.hasNext())
                 {
-                    PresenceStatus currentStatus
-                        = (PresenceStatus) statusSet.next();
+                    PresenceStatus currentStatus = statusSet.next();
 
                     if (status == null
                         && currentStatus.getStatus()
@@ -702,14 +698,14 @@ public class GlobalStatusSelectorBox
         if (presence == null)
             return null;
 
-        Iterator i = presence.getSupportedStatusSet();
+        Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
 
         if (lastStatus != null)
         {
             PresenceStatus status;
             while (i.hasNext())
             {
-                status = (PresenceStatus) i.next();
+                status = i.next();
                 if (status.getStatusName().equals(lastStatus))
                 {
                     return status;

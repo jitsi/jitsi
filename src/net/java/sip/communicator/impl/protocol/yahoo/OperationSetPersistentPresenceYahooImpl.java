@@ -65,7 +65,7 @@ public class OperationSetPersistentPresenceYahooImpl
      * The array list we use when returning from the getSupportedStatusSet()
      * method.
      */
-    private static final ArrayList supportedPresenceStatusSet = new ArrayList();
+    private static final List<PresenceStatus> supportedPresenceStatusSet = new ArrayList<PresenceStatus>();
     static{
         supportedPresenceStatusSet.add(YahooStatusEnum.AVAILABLE);
         supportedPresenceStatusSet.add(YahooStatusEnum.BE_RIGHT_BACK);
@@ -358,7 +358,7 @@ public class OperationSetPersistentPresenceYahooImpl
      * @return Iterator a PresenceStatus array containing "enterable" status
      *   instances.
      */
-    public Iterator getSupportedStatusSet()
+    public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         return supportedPresenceStatusSet.iterator();
     }

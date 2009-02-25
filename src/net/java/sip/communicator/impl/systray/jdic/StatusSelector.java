@@ -80,11 +80,12 @@ public class StatusSelector
 
         /* the submenu itself */
 
-        Iterator statusIterator = this.presence.getSupportedStatusSet();
+        Iterator<PresenceStatus> statusIterator
+            = this.presence.getSupportedStatusSet();
 
         while (statusIterator.hasNext())
         {
-            PresenceStatus status = (PresenceStatus) statusIterator.next();
+            PresenceStatus status = statusIterator.next();
             String text = status.getStatusName();
 
             if (menu instanceof Container)
@@ -137,11 +138,11 @@ public class StatusSelector
         else
             menuItemText = ((MenuItem) source).getLabel();
 
-        Iterator statusSet = presence.getSupportedStatusSet();
+        Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
         while (statusSet.hasNext())
         {
-            PresenceStatus status = (PresenceStatus) statusSet.next();
+            PresenceStatus status = statusSet.next();
 
             if (status.getStatusName().equals(menuItemText))
             {

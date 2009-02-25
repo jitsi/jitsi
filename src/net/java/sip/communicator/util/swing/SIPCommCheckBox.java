@@ -14,7 +14,9 @@ import javax.swing.*;
 public class SIPCommCheckBox
     extends JCheckBox
 {
-    private static final boolean setContentAreaFilled = isWindows();
+    private static final long serialVersionUID = 0L;
+
+	private static final boolean setContentAreaFilled = isWindows();
 
     private static boolean isWindows()
     {

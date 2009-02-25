@@ -100,7 +100,6 @@ public class SunVideoAuto
     {
 
         xilCap = new XILCapture(null);
-        VideoFormat vf;
         formats = new Vector();
         //boolean gotPort = false;
 

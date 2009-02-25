@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol.event;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * CallChangeEvent-s are triggerred whenever a change occurs in a Call.
+ * CallChangeEvent-s are triggered whenever a change occurs in a Call.
  * Dispatched events may be of one of the following types.
  * <p>
  * CALL_STATE_CHANGE - indicates a change in the state of a Call.
@@ -19,7 +19,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallChangeEvent
     extends java.beans.PropertyChangeEvent
 {
-    /**
+    private static final long serialVersionUID = 0L;
+
+	/**
      * An event type indicating that the corresponding event is caused by a
      * change of the Call state.
      */
@@ -71,9 +73,7 @@ public class CallChangeEvent
      */
     public Call getSourceCall()
     {
-
         return (Call)getSource();
     }
-
 }
 

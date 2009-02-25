@@ -67,7 +67,7 @@ public class OperationSetPersistentPresenceMsnImpl
      * The array list we use when returning from the getSupportedStatusSet()
      * method.
      */
-    private static final ArrayList supportedPresenceStatusSet = new ArrayList();
+    private static final List<PresenceStatus> supportedPresenceStatusSet = new ArrayList<PresenceStatus>();
     static{
         supportedPresenceStatusSet.add(MsnStatusEnum.AWAY);
         supportedPresenceStatusSet.add(MsnStatusEnum.BE_RIGHT_BACK);
@@ -341,7 +341,7 @@ public class OperationSetPersistentPresenceMsnImpl
      * @return Iterator a PresenceStatus array containing "enterable" status
      *   instances.
      */
-    public Iterator getSupportedStatusSet()
+    public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         return supportedPresenceStatusSet.iterator();
     }

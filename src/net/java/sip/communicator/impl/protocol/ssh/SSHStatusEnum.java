@@ -95,7 +95,7 @@ public class SSHStatusEnum
     /**
      * Initialize the list of supported status states.
      */
-    private static List supportedStatusSet = new LinkedList();
+    private static List<PresenceStatus> supportedStatusSet = new LinkedList<PresenceStatus>();
     static
     {
         supportedStatusSet.add(OFFLINE);
@@ -124,7 +124,7 @@ public class SSHStatusEnum
      * @return an <tt>Iterator</tt> over all status instances supported by the
      * ssh provider.
      */
-    static Iterator supportedStatusSet()
+    static Iterator<PresenceStatus> supportedStatusSet()
     {
         return supportedStatusSet.iterator();
     }

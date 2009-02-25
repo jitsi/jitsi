@@ -23,12 +23,12 @@ public class ChatRoomInvitationReceivedEvent
     /**
      * The invitation corresponding to this event.
      */
-    private ChatRoomInvitation invitation;
+    private final ChatRoomInvitation invitation;
     
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
-    private Date timestamp;
+    private final Date timestamp;
 
     /**
      * Creates an <tt>InvitationReceivedEvent</tt> representing reception of

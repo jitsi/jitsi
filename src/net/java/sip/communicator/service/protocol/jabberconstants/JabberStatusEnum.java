@@ -105,8 +105,8 @@ public class JabberStatusEnum
      * The supported status set stores all statuses supported by this protocol
      * implementation.
      */
-    public final List<JabberPresenceStatus> supportedStatusSet =
-        new LinkedList<JabberPresenceStatus>();
+    public final List<PresenceStatus> supportedStatusSet =
+        new LinkedList<PresenceStatus>();
 
     /**
      * The Unknown status. Indicate that we don't know if the user is present or
@@ -217,7 +217,7 @@ public class JabberStatusEnum
      * @return an <tt>Iterator</tt> over all status instances supported by the
      *         sip provider.
      */
-    public Iterator getSupportedStatusSet()
+    public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         return supportedStatusSet.iterator();
     }

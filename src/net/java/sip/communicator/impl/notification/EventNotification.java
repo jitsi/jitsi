@@ -20,7 +20,7 @@ public class EventNotification
     /**
      * The event type as declared by the bundle registering it.
      */
-    private String eventType;
+    private final String eventType;
  
     /**
      * Indicates if this event notification is currently active. By default all
@@ -32,7 +32,7 @@ public class EventNotification
      * Contains all actions which will be executed when this event notification
      * is fired.
      */
-    private Hashtable actionsTable = new Hashtable();
+    private final Hashtable actionsTable = new Hashtable();
     
     /**
      * Creates an instance of <tt>EventNotification</tt> by specifying the

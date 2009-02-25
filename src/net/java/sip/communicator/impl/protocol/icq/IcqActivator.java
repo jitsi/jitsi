@@ -39,7 +39,8 @@ public class IcqActivator
      */
     public void start(BundleContext context) throws Exception
     {
-        this.bundleContext = context;
+        IcqActivator.bundleContext = context;
+
         Hashtable icqHashtable = new Hashtable();
         icqHashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.ICQ);
         

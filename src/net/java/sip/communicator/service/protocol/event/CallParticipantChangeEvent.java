@@ -72,7 +72,7 @@ public class CallParticipantChangeEvent
      * would be mostly used for events issued upon a CallParticipantState
      * transition that has led to a FAILED state.
      */
-    private String reason = null;
+    private final String reason;
 
     /**
      * Creates a CallParticipantChangeEvent with the specified source, type,

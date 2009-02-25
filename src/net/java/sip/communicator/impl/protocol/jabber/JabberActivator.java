@@ -60,7 +60,8 @@ public class JabberActivator
      */
     public void start(BundleContext context) throws Exception
     {
-        this.bundleContext = context;
+        JabberActivator.bundleContext = context;
+
         Hashtable hashtable = new Hashtable();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.JABBER);
 

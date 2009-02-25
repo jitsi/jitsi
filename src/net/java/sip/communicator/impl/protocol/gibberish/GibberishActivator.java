@@ -58,7 +58,7 @@ public class GibberishActivator
     public void start(BundleContext context)
         throws Exception
     {
-        this.bundleContext = context;
+        GibberishActivator.bundleContext = context;
 
         Hashtable hashtable = new Hashtable();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, "Gibberish");
@@ -110,7 +110,7 @@ public class GibberishActivator
     public void stop(BundleContext context)
         throws Exception
     {
-        this.gibberishProviderFactory.stop();
+        gibberishProviderFactory.stop();
         gibberishPpFactoryServReg.unregister();
         logger.info("Gibberish protocol implementation [STOPPED].");
     }
