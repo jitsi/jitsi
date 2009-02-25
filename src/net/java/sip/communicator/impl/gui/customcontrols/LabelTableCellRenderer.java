@@ -10,6 +10,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -52,7 +53,11 @@ public class LabelTableCellRenderer
             MetaContactGroup group = (MetaContactGroup) value;
             this.setText(group.getGroupName());
         }
-        else {
+        else if (value instanceof ChatRoomProviderWrapper) {
+            ChatRoomProviderWrapper provider = (ChatRoomProviderWrapper) value;
+            this.setText(
+                provider.getProtocolProvider().getAccountID().getDisplayName());
+        } else {
             this.setText(value.toString());
         }
 
