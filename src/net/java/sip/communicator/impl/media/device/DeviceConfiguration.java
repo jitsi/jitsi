@@ -81,15 +81,7 @@ public class DeviceConfiguration
     public DeviceConfiguration()
     {
     }
-    
-    /**
-     * Adds <tt>listener</tt> to the list of listeners registered to receive
-     * events upon modification of chat room properties such as its subject
-     * for example.
-     *
-     * @param listener the <tt>ChatRoomChangeListener</tt> that is to be
-     * registered for <tt>ChatRoomChangeEvent</tt>-s.
-     */
+
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
         synchronized(propertyChangeListeners)
@@ -99,12 +91,6 @@ public class DeviceConfiguration
         }
     }
 
-    /**
-     * Removes <tt>listener</tt> from the list of listeneres current
-     * registered for chat room modification events.
-     *
-     * @param listener the <tt>ChatRoomChangeListener</tt> to remove.
-     */
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
         synchronized(propertyChangeListeners)

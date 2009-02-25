@@ -10,6 +10,7 @@ import java.awt.event.*;
 import java.io.*;
 
 import javax.media.*;
+import javax.media.MediaException;
 import javax.media.protocol.*;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -46,6 +47,24 @@ public class MediaConfigurationPanel
         Logger.getLogger(MediaConfigurationPanel.class);
 
     private final MediaServiceImpl mediaService = getMediaService();
+
+    /**
+     * The video <code>CaptureDeviceInfo</code> this instance started to create
+     * the preview of.
+     * <p>
+     * Because the creation of the preview is asynchronous, it's possible to
+     * request the preview of one and the same device multiple times. Which may
+     * lead to failures because of, for example, busy devices and/or resources
+     * (as is the case with LTI-CIVIL and video4linux2). 
+     * </p>
+     */
+    private CaptureDeviceInfo videoDeviceInPreview;
+
+    /**
+     * The <code>Player</code> depicting the preview of the currently selected
+     * <code>CaptureDeviceInfo</code>. 
+     */
+    private Player videoPlayerInPreview;
 
     public MediaConfigurationPanel()
     {
@@ -226,56 +245,25 @@ public class MediaConfigurationPanel
     }
 
     private void createPreview(CaptureDeviceInfo device,
-        final Container videoContainer)
+                               final Container videoContainer)
+        throws IOException,
+               MediaException
     {
         videoContainer.removeAll();
+        if (videoPlayerInPreview != null)
+            disposePlayer(videoPlayerInPreview);
 
         if (device == null)
             return;
 
-        DataSource dataSource = null;
-        Exception exception = null;
-        try
-        {
-            dataSource = Manager.createDataSource(device.getLocator());
-        }
-        catch (IOException ex)
-        {
-            exception = ex;
-        }
-        catch (NoDataSourceException ex)
-        {
-            exception = ex;
-        }
-        if (exception != null)
-        {
-            logger.error("Failed to create preview for device " + device,
-                exception);
-            return;
-        }
+        DataSource dataSource = Manager.createDataSource(device.getLocator());
 
         Dimension size = videoContainer.getPreferredSize();
         MediaControl.selectVideoSize(dataSource, size.width, size.height);
 
-        Player player = null;
-        try
-        {
-            player = Manager.createPlayer(dataSource);
-        }
-        catch (IOException ex)
-        {
-            exception = ex;
-        }
-        catch (NoPlayerException ex)
-        {
-            exception = ex;
-        }
-        if (exception != null)
-        {
-            logger.error("Failed to create preview for device " + device,
-                exception);
-            return;
-        }
+        Player player = Manager.createPlayer(dataSource);
+
+        videoPlayerInPreview = player;
 
         player.addControllerListener(new ControllerListener()
         {
@@ -300,23 +288,65 @@ public class MediaConfigurationPanel
 
             preview = createVideoContainer(noPreview);
 
-            ActionListener comboBoxListener = new ActionListener()
+            final ActionListener comboBoxListener = new ActionListener()
             {
                 public void actionPerformed(ActionEvent event)
                 {
                     Object selection = comboBox.getSelectedItem();
                     CaptureDeviceInfo device = null;
                     if (selection instanceof DeviceConfigurationComboBoxModel.CaptureDevice)
-                    {
                         device =
                             ((DeviceConfigurationComboBoxModel.CaptureDevice) selection).info;
+
+                    if ((device != null) && device.equals(videoDeviceInPreview))
+                        return;
+
+                    Exception exception;
+                    try
+                    {
+                        createPreview(device, preview);
+                        exception = null;
+                    }
+                    catch (IOException ex)
+                    {
+                        exception = ex;
+                    }
+                    catch (MediaException ex)
+                    {
+                        exception = ex;
+                    }
+                    if (exception != null)
+                    {
+                        logger.error(
+                            "Failed to create preview for device " + device,
+                            exception);
+
+                        device = null;
                     }
 
-                    createPreview(device, preview);
+                    videoDeviceInPreview = device;
                 }
             };
             comboBox.addActionListener(comboBoxListener);
-            comboBoxListener.actionPerformed(null);
+
+            /*
+             * We have to initialize the controls to reflect the configuration
+             * at the time of creating this instance. Additionally, because the
+             * video preview will stop when it and its associated controls
+             * become unnecessary, we have to restart it when the mentioned
+             * controls become necessary again. We'll address the two goals
+             * described by pretending there's a selection in the video combo
+             * box when the combo box in question becomes displayable.
+             */
+            comboBox.addHierarchyListener(new HierarchyListener()
+            {
+                public void hierarchyChanged(HierarchyEvent event)
+                {
+                    if (((event.getChangeFlags() & HierarchyEvent.DISPLAYABILITY_CHANGED) != 0)
+                            && comboBox.isDisplayable())
+                        comboBoxListener.actionPerformed(null);
+                }
+            });
         } else
             preview = new TransparentPanel();
         return preview;
@@ -332,6 +362,10 @@ public class MediaConfigurationPanel
         player.stop();
         player.deallocate();
         player.close();
+
+        if ((videoPlayerInPreview != null)
+                && videoPlayerInPreview.equals(player))
+            videoPlayerInPreview = null;
     }
 
     private char getDisplayedMnemonic(int type)
@@ -408,10 +442,10 @@ public class MediaConfigurationPanel
                         }
                         windowListener = null;
                     }
-
                     preview.removeHierarchyListener(this);
 
                     disposePlayer(player);
+                    videoDeviceInPreview = null;
                 }
 
                 public void hierarchyChanged(HierarchyEvent event)

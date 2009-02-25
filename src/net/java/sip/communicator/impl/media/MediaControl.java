@@ -151,8 +151,8 @@ public class MediaControl
             initDebugDataSource(debugDataSourceURL);
         }
 
-        deviceConfiguration.addPropertyChangeListener(new PropertyChangeListener(){
-
+        deviceConfiguration.addPropertyChangeListener(new PropertyChangeListener()
+        {
             public void propertyChange(PropertyChangeEvent evt)
             {
                 try
@@ -163,7 +163,8 @@ public class MediaControl
                 {
                     logger.error("Cannot init capture devices after change", e);
                 }
-            }});
+            }
+        });
     }
 
     /**
