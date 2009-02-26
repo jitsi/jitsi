@@ -169,8 +169,7 @@ public class SecurityEventManager extends ZrtpUserCallback
         if (msgCode instanceof ZrtpCodes.InfoCodes)
         {
             ZrtpCodes.InfoCodes inf = (ZrtpCodes.InfoCodes) msgCode;
-           
-            
+
             // If the ZRTP Master session (DH mode) signals "security on"
             // then start multi-stream sessions.
             // Signal SAS to GUI only if this is a DH mode session.
@@ -181,13 +180,15 @@ public class SecurityEventManager extends ZrtpUserCallback
                 {
                     multiStreams = ((CallSessionImpl) callSession)
                             .startZrtpMultiStreams();
-                    ((AbstractCallParticipant) callParticipant).setSecurityOn(true,
-                            sessionType, cipher, sas, isSasVerified);
+
+                    ((AbstractCallParticipant) callParticipant)
+                        .setSecurityOn( sessionType, cipher,
+                                        sas, isSasVerified);
                 }
                 else 
                 {
-                    ((AbstractCallParticipant) callParticipant).setSecurityOn(true,
-                        sessionType, cipher, null, false);
+                    ((AbstractCallParticipant) callParticipant)
+                        .setSecurityOn(sessionType, cipher, null, false);
                 }
             }
         }

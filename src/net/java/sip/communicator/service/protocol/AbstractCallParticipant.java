@@ -501,26 +501,29 @@ public abstract class AbstractCallParticipant
     }
 
     /**
-     * Sets the security status for this call participant.
+     * Sets the security status to ON for this call participant.
      * 
-     * @param isSecurityOn <code>true</code> to indicate that the security is
-     * turned on and <code>false</code> - otherwise.
      * @param sessionType the type of the call session - audio or video.
+     * @param cipher the cipher
+     * @param securityString the SAS
+     * @param isVerified indicates if the SAS has been verified
      */
-    public void setSecurityOn(  boolean isSecurityOn,
-                                int sessionType,
+    public void setSecurityOn(  int sessionType,
                                 String cipher,
                                 String securityString,
                                 boolean isVerified)
     {
-        if (isSecurityOn)
-            fireCallParticipantSecurityOnEvent(
-                sessionType,
-                cipher,
-                securityString,
-                isVerified);
+        fireCallParticipantSecurityOnEvent( sessionType,
+                                            cipher,
+                                            securityString,
+                                            isVerified);
     }
 
+    /**
+     * Sets the security status to OFF for this call participant.
+     * 
+     * @param sessionType the type of the call session - audio or video.
+     */
     public void setSecurityOff(int sessionType)
     {
         fireCallParticipantSecurityOffEvent(sessionType);
