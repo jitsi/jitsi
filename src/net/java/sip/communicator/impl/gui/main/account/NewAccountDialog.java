@@ -340,6 +340,8 @@ public class NewAccountDialog
         }
         else if (sourceButton.equals(cancelButton))
         {
+            newAccountDialog = null;
+
             this.dispose();
         }
     }
