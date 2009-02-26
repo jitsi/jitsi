@@ -146,13 +146,14 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
                                     byte[] imageBytes,
                                     Object tag)
     {
-        FramedImage msgIcon = new FramedImage(defaultIcon, 45, 45);
+        JLabel msgIcon = new JLabel(defaultIcon);
 
         if (imageBytes != null)
         {
-            ImageIcon imageIcon = new ImageIcon(imageBytes);
+            ImageIcon imageIcon
+                = ImageUtils.getScaledRoundedIcon(imageBytes, 45, 45);
 
-            msgIcon = new FramedImage(imageIcon, 45, 45);
+            msgIcon = new JLabel(imageIcon);
         }
 
         JLabel msgTitle = new JLabel(titleString);

@@ -74,7 +74,7 @@ public class MetaContactChatContact
 
         if(contactImage != null && contactImage.length > 0)
         {
-            return ImageUtils.getScaledRoundedImage(
+            return ImageUtils.getScaledRoundedIcon(
                         contactImage,
                         AVATAR_ICON_WIDTH,
                         AVATAR_ICON_HEIGHT

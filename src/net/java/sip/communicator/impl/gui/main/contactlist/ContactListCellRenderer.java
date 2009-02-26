@@ -147,7 +147,7 @@ public class ContactListCellRenderer
             if (avatar != null && avatar.length > 0)
             {
                 ImageIcon roundedAvatar
-                    = ImageUtils.getScaledRoundedImage( avatar,
+                    = ImageUtils.getScaledRoundedIcon( avatar,
                                                         AVATAR_WIDTH,
                                                         AVATAR_HEIGHT);
 

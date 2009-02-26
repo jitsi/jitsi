@@ -990,7 +990,7 @@ public class ChatWindow
         ImageIcon contactPhotoIcon;
         if (chatAvatar != null && chatAvatar.length > 0)
         {
-            contactPhotoIcon = ImageUtils.getScaledRoundedImage(chatAvatar,
+            contactPhotoIcon = ImageUtils.getScaledRoundedIcon(chatAvatar,
                                                                 10,
                                                                 10);
 

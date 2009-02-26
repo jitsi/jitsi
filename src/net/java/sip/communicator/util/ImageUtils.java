@@ -113,7 +113,7 @@ public class ImageUtils
      * 
      * @return The rounded corner scaled image.
      */
-    public static ImageIcon getScaledRoundedImage(  byte[] imageBytes,
+    public static ImageIcon getScaledRoundedIcon(  byte[] imageBytes,
                                                     int width,
                                                     int height)
     {

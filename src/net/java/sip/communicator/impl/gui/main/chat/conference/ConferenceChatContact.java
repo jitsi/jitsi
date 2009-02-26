@@ -74,7 +74,7 @@ public class ConferenceChatContact
 
         if (avatarBytes != null && avatarBytes.length > 0)
         {
-            return ImageUtils.getScaledRoundedImage(avatarBytes,
+            return ImageUtils.getScaledRoundedIcon(avatarBytes,
                                                     AVATAR_ICON_WIDTH,
                                                     AVATAR_ICON_HEIGHT
                                                     );

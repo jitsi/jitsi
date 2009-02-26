@@ -184,7 +184,7 @@ public class ContactInfoDetailsPanel
         // default
         if (bytes != null)
         {
-            scaledImage = ImageUtils.getScaledRoundedImage(
+            scaledImage = ImageUtils.getScaledRoundedIcon(
                 bytes,
                 AVATAR_AREA_WIDTH,
                 AVATAR_AREA_HEIGHT
