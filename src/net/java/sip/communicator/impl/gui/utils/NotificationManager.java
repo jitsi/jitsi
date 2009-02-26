@@ -25,6 +25,10 @@ public class NotificationManager
     
     public static final String WARNING_MESSAGE = "WarningMessage";
     
+    public static final String CALL_SECURITY_ON = "CallSecurityOn";
+    
+    public static final String CALL_SECURITY_OFF = "CallSecurityOff";
+
     public static void registerGuiNotifications()
     {
         NotificationService notificationService
@@ -55,7 +59,8 @@ public class NotificationManager
 
         SoundNotificationHandler inCallSoundHandler
             = (SoundNotificationHandler) notificationService
-                .createSoundNotificationHandler(SoundProperties.INCOMING_CALL, 2000);
+                .createSoundNotificationHandler(SoundProperties.INCOMING_CALL,
+                                                2000);
 
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_CALL,
@@ -65,7 +70,8 @@ public class NotificationManager
         // Register outgoing call notifications.
         SoundNotificationHandler outCallSoundHandler
             = (SoundNotificationHandler) notificationService
-                .createSoundNotificationHandler(SoundProperties.OUTGOING_CALL, 3000);
+                .createSoundNotificationHandler(SoundProperties.OUTGOING_CALL,
+                                                3000);
 
         notificationService.registerDefaultNotificationForEvent(
                 OUTGOING_CALL,
@@ -95,6 +101,21 @@ public class NotificationManager
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
+
+        // Register sound notification for security state on during a call.
+        notificationService.registerDefaultNotificationForEvent(
+                CALL_SECURITY_ON,
+                NotificationService.ACTION_SOUND,
+                SoundProperties.ZRTP_SECURE,
+                null);
+
+        // Register sound notification for security state off during a call.
+        notificationService.registerDefaultNotificationForEvent(
+                CALL_SECURITY_OFF,
+                NotificationService.ACTION_SOUND,
+                SoundProperties.ZRTP_ALERT,
+                null);
+
     }
 
     /**

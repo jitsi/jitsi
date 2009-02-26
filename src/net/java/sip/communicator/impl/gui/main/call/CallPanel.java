@@ -289,6 +289,9 @@ public class CallPanel
         }
 
         participantPanel.createSecurityPanel(securityEvent);
+
+        NotificationManager.fireNotification(
+            NotificationManager.CALL_SECURITY_ON);
     }
 
     public void securityOff(CallParticipantSecurityOffEvent securityEvent)
@@ -300,7 +303,8 @@ public class CallPanel
 
         participantPanel.setSecured(false);
 
-        switch (securityEvent.getSessionType()) {
+        switch (securityEvent.getSessionType())
+        {
         case CallParticipantSecurityOnEvent.AUDIO_SESSION:
             participantPanel.setAudioSecurityOn(false);
             break;
@@ -308,6 +312,9 @@ public class CallPanel
             participantPanel.setVideoSecurityOn(false);
             break;
         }
+
+        NotificationManager.fireNotification(
+            NotificationManager.CALL_SECURITY_OFF);
     }
 
     /**

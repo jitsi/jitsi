@@ -11,9 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
@@ -27,15 +25,6 @@ public class SecurityPanel
     private final Image iconEncrVerified;
 
     private boolean sasVerified = false;
-
-    private final NotificationService notificationService =
-        GuiActivator.getNotificationService();
-
-    private static final String ZRTP_SECURE_NOTIFICATION
-        = "ZrtpSecureNotification";
-
-    private static final String ZRTP_ALERT_NOTIFICATION
-        = "ZrtpAlertNotification";
 
     private final SIPCommButton sasVerificationButton;
 
@@ -56,21 +45,6 @@ public class SecurityPanel
                 ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
         iconEncr = ImageLoader.getImage(ImageLoader.ENCR);
         sasVerificationButton = new SIPCommButton(iconEncr);
-
-        if (notificationService != null)
-        {
-            notificationService.registerDefaultNotificationForEvent(
-                    ZRTP_SECURE_NOTIFICATION,
-                    NotificationService.ACTION_SOUND,
-                    SoundProperties.ZRTP_SECURE,
-                    null);
-
-            notificationService.registerDefaultNotificationForEvent(
-                    ZRTP_ALERT_NOTIFICATION,
-                    NotificationService.ACTION_SOUND,
-                    SoundProperties.ZRTP_ALERT,
-                    null);
-        }
 
         this.addComponentsToPane();
     }
@@ -131,8 +105,6 @@ public class SecurityPanel
 
         sasVerificationButton
             .setImage(event.isSecurityVerified() ? iconEncrVerified : iconEncr);
-
-        notificationService.fireNotification(ZRTP_SECURE_NOTIFICATION);
 
         revalidate();
         repaint();
