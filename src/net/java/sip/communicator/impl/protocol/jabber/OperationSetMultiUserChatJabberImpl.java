@@ -198,31 +198,7 @@ public class OperationSetMultiUserChatJabberImpl
         //first make sure we are connected and the server supports multichat
         assertSupportedAndConnected();
 
-        //make sure we have the complete room name.
-        roomName = getCanonicalRoomName(roomName);
-
-        //check if the room hasn't been created already
-        ChatRoom room = findRoom(roomName);
-
-        if(room != null)
-            throw new OperationFailedException(
-                            "There is already a room with this name."
-                            , OperationFailedException.IDENTIFICATION_CONFLICT);
-
-        MultiUserChat muc = new MultiUserChat(getXmppConnection(), roomName);
-
-        try
-        {
-            muc.create(getXmppConnection().getUser());
-        }
-        catch (XMPPException ex)
-        {
-            logger.error("Failed to create chat room.", ex);
-            throw new OperationFailedException("Failed to create chat room"
-                                               , ex.getXMPPError().getCode()
-                                               , ex.getCause());
-        }
-        return createLocalChatRoomInstance(muc);
+        return findRoom(getCanonicalRoomName(roomName));
     }
 
     /**
@@ -252,16 +228,13 @@ public class OperationSetMultiUserChatJabberImpl
         }
     }
 
-
     /**
-     * Returns a reference to a chatRoom named <tt>roomName</tt> or null if
-     * no such room exists.
+     * Returns a reference to a chatRoom named <tt>roomName</tt>. The room is
+     * created if it doesn't exists
      *
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking
      *   for.
-     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt> or null if no
-     *   such room exists on the server that this provider is currently
-     *   connected to.
+     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt>.
      * @throws OperationFailedException if an error occurs while trying to
      * discover the room on the server.
      * @throws OperationNotSupportedException if the server does not support
@@ -284,8 +257,20 @@ public class OperationSetMultiUserChatJabberImpl
         //if not, we create it.
         else
         {
-            return createLocalChatRoomInstance(
-                new MultiUserChat(getXmppConnection(), roomName));
+            MultiUserChat muc = new MultiUserChat(getXmppConnection(), roomName);
+
+            try
+            {
+                muc.create(getXmppConnection().getUser());
+            }
+            catch (XMPPException ex)
+            {
+                logger.error("Failed to create chat room.", ex);
+                throw new OperationFailedException("Failed to create chat room"
+                                                   , ex.getXMPPError().getCode()
+                                                   , ex.getCause());
+            }
+            return createLocalChatRoomInstance(muc);
         }
     }
 

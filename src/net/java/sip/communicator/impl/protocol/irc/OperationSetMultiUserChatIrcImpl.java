@@ -155,18 +155,15 @@ public class OperationSetMultiUserChatIrcImpl
     public ChatRoom createChatRoom(String roomName, Hashtable roomProperties)
         throws OperationFailedException, OperationNotSupportedException
     {
-        Object newChatRoom = this.findRoom(roomName);
-
-        return ((ChatRoom) newChatRoom);
+        return findRoom(roomName);
     }
 
     /**
-     * Returns a reference to a chatRoom named <tt>roomName</tt> or null if
-     * no such room exists.
+     * Returns a reference to a chatRoom named <tt>roomName</tt>. The room is
+     * created if it doesn't exists
      * <p>
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking for.
-     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt> or null if no such
-     * room exists on the server that this provider is currently connected to.
+     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
     public ChatRoom findRoom(String roomName)
     {

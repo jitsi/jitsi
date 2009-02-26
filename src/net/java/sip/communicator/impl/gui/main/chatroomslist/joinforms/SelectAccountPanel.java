@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -27,35 +28,35 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SelectAccountPanel extends TransparentPanel
 {
-    private JScrollPane tablePane = new JScrollPane(
+    private final JScrollPane tablePane = new JScrollPane(
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     
-    private JTable accountsTable;
+    private final JTable accountsTable;
     
-    private DefaultTableModel tableModel = new DefaultTableModel();
+    private final DefaultTableModel tableModel = new DefaultTableModel();
     
-    private NewChatRoom joinChatRoom;
+    private final NewChatRoom joinChatRoom;
     
-    private Iterator chatRoomProvidersList;
+    private final Iterator chatRoomProvidersList;
     
-    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
+    private final JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
     
-    private JPanel rightPanel = new TransparentPanel(new BorderLayout(5, 5));
+    private final JPanel rightPanel = new TransparentPanel(new BorderLayout(5, 5));
     
-    private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
+    private final JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
-    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+    private final SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_PROVIDERS_FOR_CHAT_ROOM"));
     
-    private JLabel infoTitleLabel = new JLabel(
+    private final JLabel infoTitleLabel = new JLabel(
         GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_ACCOUNT"), 
         JLabel.CENTER);
     
-    private ButtonGroup radioButtonGroup = new ButtonGroup();
+    private final ButtonGroup radioButtonGroup = new ButtonGroup();
     
     /**
      * Creates and initializes the <tt>SelectAccountPanel</tt>.
@@ -92,14 +93,6 @@ public class SelectAccountPanel extends TransparentPanel
 
         this.add(rightPanel, BorderLayout.CENTER);
 
-        this.tableInit();
-    }
-    
-    /**
-     * Initializes the accounts table.
-     */
-    private void tableInit()
-    {
         accountsTable = new JTable(tableModel)
         {
             public void tableChanged(TableModelEvent e)
@@ -109,6 +102,14 @@ public class SelectAccountPanel extends TransparentPanel
             }
         };
 
+        this.tableInit();
+    }
+    
+    /**
+     * Initializes the accounts table.
+     */
+    private void tableInit()
+    {
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 
         tableModel.addColumn("");
@@ -127,7 +128,8 @@ public class SelectAccountPanel extends TransparentPanel
             JLabel protocolLabel = new JLabel();
             protocolLabel.setText(pName);
 
-            byte[] providerImage = provider.getImage();
+            byte[] providerImage = provider.getProtocolProvider()
+                .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16);
 
             if (providerImage != null)
                 protocolLabel.setIcon(new ImageIcon(providerImage));

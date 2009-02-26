@@ -17,6 +17,6 @@ public class RadioButtonTableCellRenderer
     public Component getTableCellRendererComponent(JTable table, Object value,
         boolean isSelected, boolean hasFocus, int row, int column)
     {
-      return (value == null) ? null : (Component) value;
+      return (Component) value;
     }
 }
