@@ -180,6 +180,9 @@ public class MediaControl
     private void initCaptureDevices()
         throws MediaException
     {
+        if (avDataSource != null)
+            avDataSource.disconnect();
+
         // Init Capture devices
         DataSource audioDataSource = null;
         DataSource videoDataSource = null;
