@@ -340,8 +340,6 @@ public class NewAccountDialog
         }
         else if (sourceButton.equals(cancelButton))
         {
-            newAccountDialog = null;
-
             this.dispose();
         }
     }
@@ -359,10 +357,20 @@ public class NewAccountDialog
     }
 
     /**
-     * Reinitialize the newAccountDialog, when the window is closed.
+     * Remove the newAccountDialog, when the window is closed.
      */
     protected void close(boolean isEscaped)
     {
         newAccountDialog = null;
+    }
+
+    /**
+     * Remove the newAccountDialog on dispose.
+     */
+    public void dispose()
+    {
+        newAccountDialog = null;
+
+        super.dispose();
     }
 }
