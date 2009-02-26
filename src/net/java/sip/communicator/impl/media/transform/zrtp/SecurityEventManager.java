@@ -308,8 +308,16 @@ public class SecurityEventManager extends ZrtpUserCallback
         if (logger.isInfoEnabled())
             logger.info(sessionTypeToString(sessionType) + ": Security off");
 
-        ((AbstractCallParticipant) callParticipant)
-            .setSecurityOff(sessionType);
+        // If this event has been triggered because of a call end event and the
+        // call is already ended we don't need to alert the user for
+        // security off.
+        if (callParticipant.getCall() != null
+            && !callParticipant.getCall().getCallState()
+                .equals(CallState.CALL_ENDED))
+        {
+            ((AbstractCallParticipant) callParticipant)
+                .setSecurityOff(sessionType);
+        }
     }
 
     /**
@@ -318,10 +326,9 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void zrtpNotSuppOther()
     {
         if (logger.isInfoEnabled())
-            logger
-                .info(sessionTypeToString(sessionType)
-                    + ": Other party does not support ZRTP key negotiation protocol,"
-                    + " no secure calls possible.");
+            logger.info(sessionTypeToString(sessionType)
+                + ": Other party does not support ZRTP key negotiation protocol,"
+                + " no secure calls possible.");
     }
 
     /**
