@@ -113,10 +113,7 @@ public class SelectAccountPanel
         {
             public void actionPerformed(ActionEvent arg0)
             {
-                NewAccountDialog newAccountDialog = new NewAccountDialog();
-
-                newAccountDialog.pack();
-                newAccountDialog.setVisible(true);
+                NewAccountDialog.showNewAccountDialog();
             }
         });
 

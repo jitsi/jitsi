@@ -120,21 +120,22 @@ public class FileMenu
 
         if (itemName.equals("newAccount"))
         {
-            NewAccountDialog dialog = new NewAccountDialog();
-
-            dialog.setVisible(true);
+            NewAccountDialog.showNewAccountDialog();
         }
-        else if (itemName.equals("addContact")) {
+        else if (itemName.equals("addContact"))
+        {
             AddContactWizard wizard = new AddContactWizard(parentWindow);
 
             wizard.showDialog(false);
         }
-        else if (itemName.equals("createGroup")) {
+        else if (itemName.equals("createGroup"))
+        {
             CreateGroupDialog dialog = new CreateGroupDialog(parentWindow);
 
             dialog.setVisible(true);
         }
-        else if (itemName.equals("close")) {
+        else if (itemName.equals("close"))
+        {
             closeActionPerformed();
         }
         else if (itemName.equals("myChatRooms"))

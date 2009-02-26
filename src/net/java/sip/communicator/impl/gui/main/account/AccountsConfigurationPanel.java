@@ -139,10 +139,7 @@ public class AccountsConfigurationPanel
 
         if (sourceButton.equals(newButton))
         {
-            NewAccountDialog newAccountDialog = new NewAccountDialog();
-
-            newAccountDialog.pack();
-            newAccountDialog.setVisible(true);
+            NewAccountDialog.showNewAccountDialog();
         }
         else if (sourceButton.equals(saveButton))
         {

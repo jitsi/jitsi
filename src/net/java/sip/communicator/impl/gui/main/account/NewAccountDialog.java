@@ -23,7 +23,7 @@ import org.osgi.framework.*;
 
 public class NewAccountDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener
 {
     private final Logger logger = Logger.getLogger(NewAccountDialog.class);
 
@@ -57,6 +57,8 @@ public class NewAccountDialog
         = new TransparentPanel(new BorderLayout());
 
     private String preferredWizardName;
+
+    private static NewAccountDialog newAccountDialog;
 
     public NewAccountDialog()
     {
@@ -272,11 +274,6 @@ public class NewAccountDialog
         this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
     }
 
-    @Override
-    protected void close(boolean isEscaped)
-    {
-    }
-
     public void actionPerformed(ActionEvent event)
     {
         JButton sourceButton = (JButton) event.getSource();
@@ -345,5 +342,25 @@ public class NewAccountDialog
         {
             this.dispose();
         }
+    }
+
+    /**
+     * Shows the new account dialog.
+     */
+    public static void showNewAccountDialog()
+    {
+        if (newAccountDialog == null)
+            newAccountDialog = new NewAccountDialog();
+
+        newAccountDialog.pack();
+        newAccountDialog.setVisible(true);
+    }
+
+    /**
+     * Reinitialize the newAccountDialog, when the window is closed.
+     */
+    protected void close(boolean isEscaped)
+    {
+        newAccountDialog = null;
     }
 }
