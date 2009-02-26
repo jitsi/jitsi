@@ -53,18 +53,16 @@ public class ProtocolProviderFactorySipImpl
     public AccountID installAccount( String userIDStr,
                                  Map<String, String> accountProperties)
     {
-        BundleContext context
-            = SipActivator.getBundleContext();
+        BundleContext context = SipActivator.getBundleContext();
         if (context == null)
             throw new NullPointerException("The specified BundleContext was null");
 
         if (userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
-
-        accountProperties.put(USER_ID, userIDStr);
-
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was null");
+
+        accountProperties.put(USER_ID, userIDStr);
 
         // serverAddress == null is OK because of registrarless support
         String serverAddress = accountProperties.get(SERVER_ADDRESS);
@@ -94,8 +92,7 @@ public class ProtocolProviderFactorySipImpl
         {
             //it might happen that load-ing the account fails because of a bad
             //initialization. if this is the case, make sure we remove it.
-            this.removeStoredAccount(SipActivator.getBundleContext(),
-                                     accountID);
+            this.removeStoredAccount(context, accountID);
 
             throw exc;
         }

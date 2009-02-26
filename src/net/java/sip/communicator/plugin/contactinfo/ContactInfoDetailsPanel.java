@@ -47,12 +47,12 @@ public class ContactInfoDetailsPanel
     /**
      * The default width of hte avater area.
      */
-    private final int AVATAR_AREA_WIDTH = 105;
+    private static final int AVATAR_AREA_WIDTH = 105;
 
     /**
      * The default height of hte avater area.
      */
-    private final int AVATAR_AREA_HEIGHT = 130;
+    private static final int AVATAR_AREA_HEIGHT = 130;
 
     /**
      * Construct a tabbed pane that will have one tab with a summary of info for

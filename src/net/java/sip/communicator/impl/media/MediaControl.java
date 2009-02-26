@@ -84,19 +84,19 @@ public class MediaControl
     /**
      * The list of readers currently using our processor.
      */
-    private List<Object> processorReaders = new Vector<Object>();
+    private final List<Object> processorReaders = new Vector<Object>();
 
     /**
      * An object that we use for.
      */
-    private ProcessorUtility processorUtility = new ProcessorUtility();
+    private final ProcessorUtility processorUtility = new ProcessorUtility();
 
     /**
      * The name of the property that could contain the name of a media file
      * to use instead of capture devices.
      */
     private static final String DEBUG_DATA_SOURCE_URL_PROPERTY_NAME
-      = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
+        = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
 
     /**
      * The default constructor.
@@ -114,9 +114,8 @@ public class MediaControl
      */
     public javax.media.Time getOutputDuration()
     {
-        if (sourceProcessor == null)
-            return Duration.DURATION_UNKNOWN;
-        else return sourceProcessor.getDuration();
+        return (sourceProcessor == null) ? Duration.DURATION_UNKNOWN
+                                         : sourceProcessor.getDuration();
     }
 
     /**
@@ -227,13 +226,13 @@ public class MediaControl
         // Create the av data source
         if (audioDataSource != null && videoDataSource != null)
         {
-            DataSource[] allDS = new DataSource[] {
-                    audioDataSource,
-                    videoDataSource
-            };
             try
             {
-                avDataSource = Manager.createMergingDataSource(allDS);
+                avDataSource
+                    = Manager.createMergingDataSource(new DataSource[] {
+                          audioDataSource,
+                          videoDataSource
+                      });
             }
             catch (IncompatibleSourceException exc)
             {
@@ -271,8 +270,7 @@ public class MediaControl
     {
         try
         {
-            URL url = new URL(debugMediaSource);
-            initDataSourceFromURL(url);
+            initDataSourceFromURL(new URL(debugMediaSource));
         }
         catch (MalformedURLException e)
         {
@@ -294,9 +292,8 @@ public class MediaControl
         throws MediaException
     {
         logger.debug("Using a data source from url: " + dataSourceURL);
-        MediaLocator locator = new MediaLocator(dataSourceURL);
 
-        avDataSource = createDataSource(locator);
+        avDataSource = createDataSource(new MediaLocator(dataSourceURL));
 
         //avDataSource may be null (Bug report Vince Fourcade)
         if (avDataSource != null)
@@ -424,9 +421,9 @@ public class MediaControl
         List<String> transmittableAudioEncodings = new ArrayList<String>();
         List<String> transmittableVideoEncodings = new ArrayList<String>();
 
-        for (int i = 0; i < trackControls.length; i++)
+        for (TrackControl trackControl : trackControls)
         {
-            Format[] formats = trackControls[i].getSupportedFormats();
+            Format[] formats = trackControl.getSupportedFormats();
             for (int j = 0; j < formats.length; j++)
             {
                 Format format = formats[j];
@@ -439,7 +436,6 @@ public class MediaControl
 
                     if (format instanceof AudioFormat)
                     {
-
                         if (!transmittableAudioEncodings.contains(sdp))
                         {
                             if (logger.isDebugEnabled())
@@ -752,30 +748,30 @@ public class MediaControl
      */
     private void setJpegQuality(Player player, float val)
     {
-        if (player == null
-            || player.getState() < Player.Realized)
+        if ((player == null)
+                || (player.getState() < Player.Realized))
             return;
         Control cs[] = player.getControls();
         QualityControl qc = null;
         VideoFormat jpegFmt = new VideoFormat(VideoFormat.JPEG);
         // Loop through the controls to find the Quality control for
         // the JPEG encoder.
-        for (int i = 0; i < cs.length; i++)
+        for (Control c : cs)
         {
-            if (cs[i] instanceof QualityControl && cs[i] instanceof Owned)
+            if (c instanceof QualityControl && c instanceof Owned)
             {
-                Object owner = ( (Owned) cs[i]).getOwner();
+                Object owner = ((Owned) c).getOwner();
                 // Check to see if the owner is a Codec.
                 // Then check for the output format.
                 if (owner instanceof Codec)
                 {
-                    Format fmts[] = ( (Codec) owner)
+                    Format fmts[] = ((Codec) owner)
                         .getSupportedOutputFormats(null);
-                    for (int j = 0; j < fmts.length; j++)
+                    for (Format fmt : fmts)
                     {
-                        if (fmts[j].matches(jpegFmt))
+                        if (fmt.matches(jpegFmt))
                         {
-                            qc = (QualityControl) cs[i];
+                            qc = (QualityControl) c;
                             qc.setQuality(val);
                             logger.debug("Setting quality to "
                                          + val + " on " + qc);
@@ -804,11 +800,12 @@ public class MediaControl
     private VideoFormat assertSize(VideoFormat sourceFormat)
     {
         int width, height;
-        Dimension size = sourceFormat.getSize();
-        Format jpegFmt = new Format(VideoFormat.JPEG_RTP);
-        Format h263Fmt = new Format(VideoFormat.H263_RTP);
-        if (sourceFormat.matches(jpegFmt))
+
+        // JPEG
+        if (sourceFormat.matches(new Format(VideoFormat.JPEG_RTP)))
         {
+            Dimension size = sourceFormat.getSize();
+
             // For JPEG, make sure width and height are divisible by 8.
             width = (size.width % 8 == 0)
                 ? size.width
@@ -817,7 +814,8 @@ public class MediaControl
                 ? size.height
                 : (size.height / 8) * 8;
         }
-        else if (sourceFormat.matches(h263Fmt))
+        // H.263
+        else if (sourceFormat.matches(new Format(VideoFormat.H263_RTP)))
         {
             // For H.263, we only support some specific sizes.
             //if (size.width < 128)
@@ -877,15 +875,12 @@ public class MediaControl
         Enumeration<List<String>> formatSets = requestedEncodings.elements();
         while (formatSets.hasMoreElements())
         {
-            for (Iterator<String> currentSetIter =
-                formatSets.nextElement().iterator(); currentSetIter.hasNext();)
+            for (String currentSetElement : formatSets.nextElement())
             {
-                String currentSetElement = currentSetIter.next();
-
                 for (int i = 0; i < availableFormats.length; i++)
                 {
                     if (availableFormats[i].getEncoding().equals(
-                        currentSetElement))
+                            currentSetElement))
                     {
                         return i;
                     }
@@ -1086,7 +1081,8 @@ public class MediaControl
 
     public DataSource createLocalVideoDataSource()
     {
-        return (cloneableVideoDataSource == null) ? null
-            : cloneableVideoDataSource.createClone();
+        return (cloneableVideoDataSource == null)
+                ? null
+                : cloneableVideoDataSource.createClone();
     }
 }

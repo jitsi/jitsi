@@ -1492,7 +1492,7 @@ public class ProtocolProviderServiceSipImpl
     {
         SipRegistrarConnection src = getRegistrarConnection();
 
-        if( src != null & !src.isRegistrarless() )
+        if( src != null && !src.isRegistrarless() )
             return src.getAddressOfRecord();
 
         //we are apparently running in "No Registrar" mode so let's create an
