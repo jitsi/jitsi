@@ -36,6 +36,9 @@ public class Html2Text
      */
     public static synchronized String extractText(String html)
     {
+        if(html == null)
+            return null;
+
         if (parser == null)
             parser = new HTMLParserCallBack();
 
