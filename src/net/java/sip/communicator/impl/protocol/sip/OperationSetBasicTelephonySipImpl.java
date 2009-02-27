@@ -259,6 +259,8 @@ public class OperationSetBasicTelephonySipImpl
             ((CallSipImpl) callParticipant.getCall())
                 .setMediaCallSession(callSession);
 
+            callSession.setSessionCreatorCallback(callParticipant);
+
             // if possible try to indicate the address of the callee so
             // that the media service can choose the most proper local
             // address to advertise.
@@ -1091,6 +1093,10 @@ public class OperationSetBasicTelephonySipImpl
                     callSession =
                         SipActivator.getMediaService().createCallSession(
                             callParticipant.getCall());
+
+                    callSession
+                        .setSessionCreatorCallback(callParticipant);
+
                     String sdp =
                         callSession.processSdpOffer(callParticipant,
                             callParticipant.getSdpDescription());
@@ -2911,6 +2917,8 @@ public class OperationSetBasicTelephonySipImpl
                     callParticipant.getCall());
             ((CallSipImpl) callParticipant.getCall())
                 .setMediaCallSession(callSession);
+
+            callSession.setSessionCreatorCallback(callParticipant);
 
             String sdpOffer = callParticipant.getSdpDescription();
             String sdp;

@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.media.transform.*;
 import net.java.sip.communicator.impl.media.transform.zrtp.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.MediaException;
+import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -125,6 +126,8 @@ public class CallSessionImpl
      * The media service instance that created us.
      */
     private final MediaServiceImpl mediaServCallback;
+
+    private SessionCreatorCallback securityCallback;
 
     /**
      * The minimum port number that we'd like our rtp managers to bind upon.
@@ -537,7 +540,8 @@ public class CallSessionImpl
         }
 
         //remove targets
-        if (selectedKeyProviderAlgorithm != null && selectedKeyProviderAlgorithm.getProviderType()
+        if (selectedKeyProviderAlgorithm != null
+            && selectedKeyProviderAlgorithm.getProviderType()
                 == KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
         {
             TransformConnector transConnector =
@@ -545,9 +549,10 @@ public class CallSessionImpl
 
             if (transConnector != null)
             {
-                if (usingZRTP) {
-                    ZRTPTransformEngine engine = (ZRTPTransformEngine) transConnector
-                            .getEngine();
+                if (usingZRTP)
+                {
+                    ZRTPTransformEngine engine
+                        = (ZRTPTransformEngine) transConnector.getEngine();
                     engine.stopZrtp();
                     engine.cleanup();
                 }
@@ -3239,5 +3244,30 @@ public class CallSessionImpl
             this.player = player;
             this.listener = listener;
         }
+    }
+
+    /**
+     * Sets a <tt>SessionCreatorCallback</tt> that will listen for
+     * security events.
+     * 
+     * @param securityCallBack the <tt>SessionCreatorCallback</tt> to
+     * set
+     */
+    public void setSessionCreatorCallback(
+        SessionCreatorCallback securityCallback)
+    {
+        this.securityCallback = securityCallback;
+    }
+
+    /**
+     * Returns the <tt>SessionCreatorCallback</tt> which listens for
+     * security events.
+     * 
+     * @return the <tt>SessionCreatorCallback</tt> which listens for
+     * security events
+     */
+    public SessionCreatorCallback getSessionCreatorCallback()
+    {
+        return securityCallback;
     }
 }

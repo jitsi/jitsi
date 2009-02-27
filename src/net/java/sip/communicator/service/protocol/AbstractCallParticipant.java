@@ -499,49 +499,4 @@ public abstract class AbstractCallParticipant
 
         this.isMute = newMuteValue;
     }
-
-    /**
-     * Sets the security status to ON for this call participant.
-     * 
-     * @param sessionType the type of the call session - audio or video.
-     * @param cipher the cipher
-     * @param securityString the SAS
-     * @param isVerified indicates if the SAS has been verified
-     */
-    public void setSecurityOn(  int sessionType,
-                                String cipher,
-                                String securityString,
-                                boolean isVerified)
-    {
-        fireCallParticipantSecurityOnEvent( sessionType,
-                                            cipher,
-                                            securityString,
-                                            isVerified);
-    }
-
-    /**
-     * Sets the security status to OFF for this call participant.
-     * 
-     * @param sessionType the type of the call session - audio or video.
-     */
-    public void setSecurityOff(int sessionType)
-    {
-        fireCallParticipantSecurityOffEvent(sessionType);
-    }
-
-    /**
-     * Sets the security message associated with a failure/warning or
-     * information coming from the encryption protocol.
-     * 
-     * @param messageType the type of the message.
-     * @param message the message
-     */
-    public void setSecurityMessage( String messageType,
-                                    String i18nMessage,
-                                    int severity)
-    {
-        fireCallParticipantSecurityMessageEvent(messageType,
-                                                i18nMessage,
-                                                severity);
-    }
 }

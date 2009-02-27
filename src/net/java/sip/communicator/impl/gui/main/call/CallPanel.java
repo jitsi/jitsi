@@ -12,6 +12,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -312,9 +313,6 @@ public class CallPanel
             participantPanel.setVideoSecurityOn(false);
             break;
         }
-
-//        NotificationManager.fireNotification(
-//            NotificationManager.CALL_SECURITY_OFF);
     }
 
     /**
@@ -446,24 +444,38 @@ public class CallPanel
         CallParticipantSecurityMessageEvent event)
     {
         int severity = event.getEventSeverity();
-        
-        switch (severity) {
-        
-        // Don't play alert sound for Info or warning.
-        case CallParticipantSecurityMessageEvent.INFORMATION:
-        case CallParticipantSecurityMessageEvent.WARNING:
-            break;
 
-        // Alert sound indicates: security cannot established
-        case CallParticipantSecurityMessageEvent.SEVERE:
-        case CallParticipantSecurityMessageEvent.ZRTP:
-          NotificationManager.fireNotification(
-          NotificationManager.ZRTP_ALERT);
-            
+        String messageTitle = null;
+
+        switch (severity)
+        {
+            // Don't play alert sound for Info or warning.
+            case CallParticipantSecurityMessageEvent.INFORMATION:
+            {
+                messageTitle = GuiActivator.getResources().getI18NString(
+                    "service.gui.SECURITY_INFO");
+                break;
+            }
+            case CallParticipantSecurityMessageEvent.WARNING:
+            {
+                messageTitle = GuiActivator.getResources().getI18NString(
+                    "service.gui.SECURITY_WARNING");
+                break;
+            }
+            // Alert sound indicates: security cannot established
+            case CallParticipantSecurityMessageEvent.SEVERE:
+            case CallParticipantSecurityMessageEvent.ERROR:
+            {
+                messageTitle = GuiActivator.getResources().getI18NString(
+                    "service.gui.SECURITY_ERROR");
+                NotificationManager.fireNotification(
+                    NotificationManager.CALL_SECURITY_ERROR);
+            }
         }
+
         NotificationManager.fireNotification(
             NotificationManager.SECURITY_MESSAGE,
-            event.getType(),
+            messageTitle,
             event.getI18nMessage());
     }
 

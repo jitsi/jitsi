@@ -10,6 +10,7 @@ import java.awt.*;
 import java.net.*;
 import java.text.*;
 
+import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -268,4 +269,23 @@ public interface CallSession
      *            removed in this <code>CallSession</code>
      */
     void removeVideoListener(VideoListener listener);
+
+    /**
+     * Sets a <tt>SessionCreatorCallback</tt> that will listen for
+     * security events.
+     * 
+     * @param sessionCreatorCallBack the <tt>SessionCreatorCallback</tt> to
+     * set
+     */
+    public void setSessionCreatorCallback(
+        SessionCreatorCallback sessionCreatorCallBack);
+
+    /**
+     * Returns the <tt>SessionCreatorCallback</tt> which listens for
+     * security events.
+     * 
+     * @return the <tt>SessionCreatorCallback</tt> which listens for
+     * security events
+     */
+    public SessionCreatorCallback getSessionCreatorCallback();
 }

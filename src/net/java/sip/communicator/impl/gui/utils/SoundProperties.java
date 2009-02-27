@@ -48,9 +48,9 @@ public final class SoundProperties
 
     public static final String BUSY;
 
-    public static final String ZRTP_SECURE;
+    public static final String CALL_SECURITY_ON;
 
-    public static final String ZRTP_ALERT;
+    public static final String CALL_SECURITY_ERROR;
 
     static
     {
@@ -81,8 +81,8 @@ public final class SoundProperties
         DIAL_DIEZ = resources.getSoundPath("DIAL_DIEZ");
         DIAL_STAR = resources.getSoundPath("DIAL_STAR");
         BUSY = resources.getSoundPath("BUSY");
-        ZRTP_SECURE = resources.getSoundPath("ZRTP_SECURE");
-        ZRTP_ALERT = resources.getSoundPath("ZRTP_ALERT");
+        CALL_SECURITY_ON = resources.getSoundPath("CALL_SECURITY_ON");
+        CALL_SECURITY_ERROR = resources.getSoundPath("CALL_SECURITY_ERROR");
     }
 
     private SoundProperties() {

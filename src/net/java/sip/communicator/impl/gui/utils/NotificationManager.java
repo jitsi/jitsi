@@ -27,7 +27,7 @@ public class NotificationManager
     
     public static final String CALL_SECURITY_ON = "CallSecurityOn";
     
-    public static final String ZRTP_ALERT = "ZrtpAlert";
+    public static final String CALL_SECURITY_ERROR = "CallSecurityError";
 
     public static void registerGuiNotifications()
     {
@@ -106,14 +106,14 @@ public class NotificationManager
         notificationService.registerDefaultNotificationForEvent(
                 CALL_SECURITY_ON,
                 NotificationService.ACTION_SOUND,
-                SoundProperties.ZRTP_SECURE,
+                SoundProperties.CALL_SECURITY_ON,
                 null);
 
         // Register sound notification for security state off during a call.
         notificationService.registerDefaultNotificationForEvent(
-                ZRTP_ALERT,
+                CALL_SECURITY_ERROR,
                 NotificationService.ACTION_SOUND,
-                SoundProperties.ZRTP_ALERT,
+                SoundProperties.CALL_SECURITY_ERROR,
                 null);
 
     }
