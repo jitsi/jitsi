@@ -136,7 +136,11 @@ public class SearchChatRoomPanel
             }
 
             chatRoomsList.setListData(new Vector(list));
+            chatRoomsList.setBorder(
+                    BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            
             chatRoomsScrollPane.setPreferredSize(new Dimension(500, 120));
+            chatRoomsScrollPane.setOpaque(false);
 
             chatRoomsScrollPane.getViewport().add(chatRoomsList);
 
