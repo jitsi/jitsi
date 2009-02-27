@@ -502,11 +502,15 @@ public class ZRTPTransformEngine
      */
     public RawPacket transform(RawPacket pkt)
     {
-        ZrtpRawPacket zPkt = new ZrtpRawPacket(pkt);
         /*
          * Never transform outgoing ZRTP packets.
+         * check if the first byte of the received data
+         * matches the defined ZRTP pattern 0x10
          */
-        if (zPkt.isZrtpPacket())
+        
+        byte[] buffer = pkt.getBuffer();
+        int offset = pkt.getOffset();
+        if ((buffer[offset] & 0x10) == 0x10) 
         {
             return pkt;
         }
@@ -527,7 +531,7 @@ public class ZRTPTransformEngine
         // ZRTP needs the SSRC of the sending stream.
         if (enableZrtp && ownSSRC == 0)
         {
-            ownSSRC = zPkt.getSSRC();
+            ownSSRC = (int)(pkt.readUnsignedIntAsLong(8) & 0xffffffff);
         }
 
         // If SRTP is active then srtpTransformer is set, use it.
@@ -550,13 +554,13 @@ public class ZRTPTransformEngine
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
-        ZrtpRawPacket zPkt = new ZrtpRawPacket(pkt);
-
         /*
-         * Check if incoming packt is a ZRTP packet, if no treat
+         * Check if incoming packt is a ZRTP packet, if not treat
          * it as normal RTP packet and handle it accordingly.
          */
-        if (!zPkt.isZrtpPacket())
+        byte[] buffer = pkt.getBuffer();
+        int offset = pkt.getOffset();
+        if ((buffer[offset] & 0x10) != 0x10) 
         {
             if (!started && enableZrtp && (multiStream || (sendPacketCount >= 1)))
             {
@@ -584,6 +588,7 @@ public class ZRTPTransformEngine
          */
         if (enableZrtp)
         {
+            ZrtpRawPacket zPkt = new ZrtpRawPacket(pkt);
             if (!zPkt.checkCrc())
             {
                 securityEventManager.showMessage(ZrtpCodes.MessageSeverity.Warning,

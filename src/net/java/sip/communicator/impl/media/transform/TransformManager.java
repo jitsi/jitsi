@@ -67,25 +67,17 @@ public class TransformManager
      * @param addr local RTP session listen address
      * @param cryptoProvider the cryptography services provider selection string
  *                       should be obtained from a resource file or by querying 
-     * @return the TransformConnector used for SRTP encyption/decryption
+     * @return the TransformConnector used for ZRTP processing
      * @throws InvalidSessionAddressException
      */
     public static TransformConnector createZRTPConnector(SessionAddress addr,
                                                          CallSession callSession)
         throws InvalidSessionAddressException
     {
-        //for adding multistream support the engine should be instantiated 
-        //once as a static variable of this class and passed to every ZRTP
-        //connector as a parameter
         ZRTPTransformEngine engine = new ZRTPTransformEngine(); 
 
         TransformConnector connector = new ZrtpTransformConnector(addr, engine);
 
-        //for adding multistream support this method should be replaced with 
-        //an addConnector, which should add the connector to an internal engine 
-        //connector array; supporting multistream mode by the engine implies
-        //the proper management of this connector array - practically every 
-        //stream has it's own connector
         engine.setConnector(connector);
 
         return connector;
