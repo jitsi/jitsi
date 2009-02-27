@@ -310,14 +310,14 @@ public abstract class AbstractCallParticipant
      */
     protected void fireCallParticipantSecurityMessageEvent(
         String messageType,
-        String message,
-        String i18nMessage)
+        String i18nMessage,
+        int severity)
     {
         CallParticipantSecurityMessageEvent evt
             = new CallParticipantSecurityMessageEvent(   this,
                                                         messageType,
-                                                        message,
-                                                        i18nMessage);
+                                                        i18nMessage,
+                                                        severity);
 
         logger.debug("Dispatching a CallParticipantSecurityFailedEvent event to "
                      + callParticipantSecurityListeners.size()
@@ -537,11 +537,11 @@ public abstract class AbstractCallParticipant
      * @param message the message
      */
     public void setSecurityMessage( String messageType,
-                                    String message,
-                                    String i18nMessage)
+                                    String i18nMessage,
+                                    int severity)
     {
         fireCallParticipantSecurityMessageEvent(messageType,
-                                                message,
-                                                i18nMessage);
+                                                i18nMessage,
+                                                severity);
     }
 }

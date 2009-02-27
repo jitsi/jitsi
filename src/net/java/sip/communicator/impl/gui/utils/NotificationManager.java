@@ -23,11 +23,11 @@ public class NotificationManager
     
     public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
     
-    public static final String WARNING_MESSAGE = "WarningMessage";
+    public static final String SECURITY_MESSAGE = "SecurityMessage";
     
     public static final String CALL_SECURITY_ON = "CallSecurityOn";
     
-    public static final String CALL_SECURITY_OFF = "CallSecurityOff";
+    public static final String ZRTP_ALERT = "ZrtpAlert";
 
     public static void registerGuiNotifications()
     {
@@ -97,7 +97,7 @@ public class NotificationManager
 
         // Register warning message notifications.
         notificationService.registerDefaultNotificationForEvent(
-                WARNING_MESSAGE,
+                SECURITY_MESSAGE,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
@@ -111,7 +111,7 @@ public class NotificationManager
 
         // Register sound notification for security state off during a call.
         notificationService.registerDefaultNotificationForEvent(
-                CALL_SECURITY_OFF,
+                ZRTP_ALERT,
                 NotificationService.ACTION_SOUND,
                 SoundProperties.ZRTP_ALERT,
                 null);

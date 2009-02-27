@@ -163,12 +163,25 @@ public class SecurityEventManager extends ZrtpUserCallback
         Object msgCode = ii.next();
 
         String messageType = null;
-        String message = null;
         String i18nMessage = null;
-
+        int severity = 0;
+        boolean sendEvent = true;
+        
         if (msgCode instanceof ZrtpCodes.InfoCodes)
         {
             ZrtpCodes.InfoCodes inf = (ZrtpCodes.InfoCodes) msgCode;
+            
+            /*
+             * Use the following fields if INFORMATION type messages shall be
+             * shown to the user via SecurityMessageEvent, i.e. if
+             * sendEvent is set to true 
+            severity = CallParticipantSecurityMessageEvent.INFORMATION;
+            messageType = MediaActivator.getResources().getI18NString(
+            "impl.media.security.INFO");
+            */
+            
+            // Don't spam user with ino messages, only internal processing or logging
+            sendEvent = false;
 
             // If the ZRTP Master session (DH mode) signals "security on"
             // then start multi-stream sessions.
@@ -197,66 +210,56 @@ public class SecurityEventManager extends ZrtpUserCallback
             // Warning codes usually do not affect encryption or security. Only
             // in few cases inform the user and ask to verify SAS.
             ZrtpCodes.WarningCodes warn = (ZrtpCodes.WarningCodes) msgCode;
-
+            severity = CallParticipantSecurityMessageEvent.WARNING;
+            messageType = MediaActivator.getResources().getI18NString(
+                    "impl.media.security.WARNING");
+            
             if (warn == ZrtpCodes.WarningCodes.WarningNoRSMatch)
             {
-                messageType = CallParticipantSecurityMessageEvent
-                                .SECURITY_AUTHENTICATION_REQUIRED;
-                message = "No retained shared secret available.";
                 i18nMessage = WARNING_NO_RS_MATCH;
             }
             else if (warn == ZrtpCodes.WarningCodes.WarningNoExpectedRSMatch)
             {
-                messageType = CallParticipantSecurityMessageEvent
-                                .RETAINED_SECURITY_AUTHENTICATION_FAILED;
-                message = "An expected retained shared secret is missing.";
                 i18nMessage = WARNING_NO_EXPECTED_RS_MATCH;
             }
             else if (warn == ZrtpCodes.WarningCodes.WarningCRCmismatch)
             {
-                messageType = CallParticipantSecurityMessageEvent
-                                .CHECKSUM_MISMATCH;
-                message = "Internal ZRTP packet checksum mismatch.";
                 i18nMessage = MediaActivator.getResources().getI18NString(
                     "impl.media.security.CHECKSUM_MISMATCH");
+            }
+            else 
+            {
+                // Other warnings are  internal only, no user action requied
+                sendEvent = false;
             }
         }
         else if (msgCode instanceof ZrtpCodes.SevereCodes)
         {
             ZrtpCodes.SevereCodes severe = (ZrtpCodes.SevereCodes) msgCode;
+            severity = CallParticipantSecurityMessageEvent.SEVERE;
+            messageType = MediaActivator.getResources().getI18NString(
+                    "impl.media.security.SEVERE");
 
             if (severe == ZrtpCodes.SevereCodes.SevereCannotSend)
             {
-                messageType = CallParticipantSecurityMessageEvent
-                                .DATA_SEND_FAILED;
-                message = "Failed to send data."
-                            + "Internet data connection or peer is down.";
                 i18nMessage = MediaActivator.getResources().getI18NString(
                     "impl.media.security.DATA_SEND_FAILED",
                     new String[]{msgCode.toString()});
             }
             else if (severe == ZrtpCodes.SevereCodes.SevereTooMuchRetries)
             {
-                messageType = CallParticipantSecurityMessageEvent
-                                .RETRY_RATE_EXCEEDED;
-                message = "Too much retries during ZRTP negotiation.";
                 i18nMessage = MediaActivator.getResources().getI18NString(
                     "impl.media.security.RETRY_RATE_EXCEEDED",
                     new String[]{msgCode.toString()});
             }
             else if (severe == ZrtpCodes.SevereCodes.SevereProtocolError)
             {
-                messageType = CallParticipantSecurityMessageEvent
-                                .INTERNAL_PROTOCOL_ERROR;
-                message = "Internal protocol error occured.";
                 i18nMessage = MediaActivator.getResources().getI18NString(
                     "impl.media.security.INTERNAL_PROTOCOL_ERROR",
                     new String[]{msgCode.toString()});
             }
             else
             {
-                messageType = CallParticipantSecurityMessageEvent.GENERAL_ERROR;
-                message = "General error has occurred.";
                 i18nMessage =  MediaActivator.getResources().getI18NString(
                     "impl.media.security.ZRTP_GENERIC_MSG",
                     new String[]{msgCode.toString()});
@@ -264,18 +267,18 @@ public class SecurityEventManager extends ZrtpUserCallback
         }
         else if (msgCode instanceof ZrtpCodes.ZrtpErrorCodes)
         {
-            messageType = CallParticipantSecurityMessageEvent.NOT_COMPATIBLE;
-            message = "Indicates compatibility problems like for example:"
-                        + "unsupported protocol version, unsupported hash type,"
-                        + "cypher type, SAS scheme, etc.";
+            severity = CallParticipantSecurityMessageEvent.ZRTP;
+            messageType = MediaActivator.getResources().getI18NString(
+                    "impl.media.security.ZRTP");
+
             i18nMessage =  MediaActivator.getResources().getI18NString(
                 "impl.media.security.ZRTP_GENERIC_MSG",
                 new String[]{msgCode.toString()});
         }
 
-        if (messageType != null)
+        if (sendEvent)
             ((AbstractCallParticipant) callParticipant)
-                .setSecurityMessage(messageType, message, i18nMessage);
+                .setSecurityMessage(messageType, i18nMessage, severity);
 
         if (logger.isInfoEnabled())
         {

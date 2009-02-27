@@ -85,7 +85,7 @@ public class CallParticipantSecurityMessageEvent
      * Indicates compatibility problems like for example: unsupported protocol
      * version, unsupported hash type, cypher type, SAS scheme, etc.
      */
-    public static final String NOT_COMPATIBLE = "NotCompatible";
+    public static final String ZRTP_ERROR = "ZRTPError";
 
     /**
      * Indicates that the other party doesn't support the encryption algorithm
@@ -99,20 +99,39 @@ public class CallParticipantSecurityMessageEvent
     public static final String GENERAL_ERROR = "GeneralError";
 
     /**
+     * This is a information message. Security will be established.
+     */
+    public static final int INFORMATION = 0;
+
+    /**
+     * This is a warning message. Security will not be established.
+     */
+    public static final int WARNING = 1;
+
+    /**
+     * This is a severe error. Security will not be established.
+     */
+    public static final int SEVERE = 2;
+
+    /**
+     * This is a ZRTP error message. Security will not be established.
+     */
+    public static final int ZRTP = 3;
+    
+    /**
      * One of the event types defined in this class.
      */
     private final String eventType;
-
-    /**
-     * The message associated with this event.
-     */
-    private final String eventMessage;
 
     /**
      * The internationalized message associated with this event.
      */
     private final String eventI18nMessage;
 
+    /**
+     * The severity of the security message event.
+     */
+    private final int eventSeverity;
     /**
      * Creates a <tt>CallParticipantSecurityFailedEvent</tt> by specifying the
      * call participant, event type and message associated with this event.
@@ -124,16 +143,16 @@ public class CallParticipantSecurityMessageEvent
      * @param i18nMessage the internationalized message associated with this
      * event that could be shown to the user.
      */
-    public CallParticipantSecurityMessageEvent(  CallParticipant callParticipant,
+    public CallParticipantSecurityMessageEvent( CallParticipant callParticipant,
                                                 String eventType,
-                                                String eventMessage,
-                                                String i18nMessage)
+                                                String i18nMessage,
+                                                int eventSeverity)
     {
         super(callParticipant);
 
         this.eventType = eventType;
-        this.eventMessage = eventMessage;
         this.eventI18nMessage = i18nMessage;
+        this.eventSeverity = eventSeverity;
     }
 
     /**
@@ -147,16 +166,6 @@ public class CallParticipantSecurityMessageEvent
     }
 
     /**
-     * Returns the message associated with this event.
-     * 
-     * @return the message associated with this event.
-     */
-    public String getMessage()
-    {
-        return eventMessage;
-    }
-
-    /**
      * Returns the internationalized message associated with this event.
      * 
      * @return the internationalized message associated with this event.
@@ -164,5 +173,14 @@ public class CallParticipantSecurityMessageEvent
     public String getI18nMessage()
     {
         return eventI18nMessage;
+    }
+
+    /**
+     * Returns the event severity.
+     * 
+     * @return the eventSeverity
+     */
+    public int getEventSeverity() {
+        return eventSeverity;
     }
 }

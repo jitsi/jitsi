@@ -313,8 +313,8 @@ public class CallPanel
             break;
         }
 
-        NotificationManager.fireNotification(
-            NotificationManager.CALL_SECURITY_OFF);
+//        NotificationManager.fireNotification(
+//            NotificationManager.CALL_SECURITY_OFF);
     }
 
     /**
@@ -445,9 +445,25 @@ public class CallPanel
     public void securityMessageRecieved(
         CallParticipantSecurityMessageEvent event)
     {
+        int severity = event.getEventSeverity();
+        
+        switch (severity) {
+        
+        // Don't play alert sound for Info or warning.
+        case CallParticipantSecurityMessageEvent.INFORMATION:
+        case CallParticipantSecurityMessageEvent.WARNING:
+            break;
+
+        // Alert sound indicates: security cannot established
+        case CallParticipantSecurityMessageEvent.SEVERE:
+        case CallParticipantSecurityMessageEvent.ZRTP:
+          NotificationManager.fireNotification(
+          NotificationManager.ZRTP_ALERT);
+            
+        }
         NotificationManager.fireNotification(
-            NotificationManager.WARNING_MESSAGE,
-            "Security error",
+            NotificationManager.SECURITY_MESSAGE,
+            event.getType(),
             event.getI18nMessage());
     }
 
