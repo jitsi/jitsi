@@ -2789,61 +2789,6 @@ public class CallSessionImpl
         return usingZRTP;
     }
 
-    /**
-     * Method for setting the default secure status value for communication
-     * Also has the role to trigger going secure from not secure or viceversa
-     * Notifies any present CallSession of change in the status value for this
-     * purpose
-     *
-     * @param activator setting for default communication securing
-     * @param source the source of changing the secure status (local or remote)
-     */
-    public void setSecureCommunicationStatus(boolean activator,
-                                             OperationSetSecureTelephony.
-                                             SecureStatusChangeSource source)
-    {
-
-        logger.trace("Call session secure status change event received");
-
-        // Make the change for default security enabled/disabled start option
-        usingZRTP = activator;
-
-        // Fire the change event to notify any present CallSession of security
-        // change status
-        // if not the case of a reverted secure state
-        // (usually case of previous change rejected due to an error)
-        if (source != OperationSetSecureTelephony.
-                    SecureStatusChangeSource.SECURE_STATUS_REVERTED)
-        {
-            SecureEvent secureEvent
-                    = new SecureEvent(this,
-                                      activator ? SecureEvent.SECURE_COMMUNICATION
-                                                : SecureEvent.UNSECURE_COMMUNICATION,
-                                      source);
-            if (selectedKeyProviderAlgorithm.getProviderType() ==
-                KeyProviderAlgorithm.ProviderType.ZRTP_PROVIDER)
-            {
-                zrtpChangeStatus(this.audioRtpManager, secureEvent);
-
-                /* TODO: Video securing related code
-                 *
-                 * We disable for the moment the video securing due to (yet)
-                 * unsuported multistream mode in ZRTP4J; This can be re-enabled and
-                 * attempted as is implemented, using a separate instance of ZRTP
-                 * engine which will attempt securing through DH mode; This might
-                 * result in some unexpected behavior at the GUI level, but in
-                 * theory should work; However, due to incomplete standard
-                 * compliance and potential problems mentioned we leave it disabled;
-                 * To enable just check the other "Video securing related code"
-                 * sections in this source
-                 *
-                 * Uncomment the next line as part of enabling video securing
-                 */
-                //zrtpChangeStatus(this.videoRtpManager, secureEvent);
-            }
-        }
-    }
-
     /*
      * The following methods are specific to ZRTP key management implementation.
      */
@@ -2865,51 +2810,6 @@ public class CallSessionImpl
         }
 
         return true;
-    }
-
-    /**
-     * The method for changing security status for a specific RTPManager when
-     * the ZRTP key sharing solution is used.
-     * Called when a new SecureEvent is received.
-     *
-     * @param manager The RTP manager for which the media streams
-     * will be secure or unsecure
-     * @param event The secure status changed event
-     */
-    private void zrtpChangeStatus(RTPManager manager, SecureEvent event)
-    {
-        int newStatus = event.getEventID();
-        OperationSetSecureTelephony.SecureStatusChangeSource source
-            = event.getSource();
-
-        TransformConnector transConnector = this.transConnectors.get(manager);
-
-        ZRTPTransformEngine engine
-            = (ZRTPTransformEngine)transConnector.getEngine();
-
-        // Perform ZRTP engine actions only if triggered by user commands;
-        // If the remote peer caused the event only general call session
-        //security status is changed (done before event processing)
-        if (source == OperationSetSecureTelephony.
-                        SecureStatusChangeSource.SECURE_STATUS_CHANGE_BY_LOCAL)
-        {
-            if (newStatus == SecureEvent.SECURE_COMMUNICATION)
-            {
-                // Secure the comm after the call begins
-                if (!engine.isStarted())
-                {
-                    logger.trace("Normal call securing event processing");
-
-                    if (!engine.initialize("GNUZRTP4J.zid"))
-                    {
-                        engine.sendInfo(
-                            ZrtpCodes.MessageSeverity.Info,
-                            EnumSet.of(
-                                ZRTPCustomInfoCodes.ZRTPEngineInitFailure));
-                    }
-                }
-            }
-        }
     }
 
     /**

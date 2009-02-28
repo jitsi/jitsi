@@ -3119,27 +3119,6 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Sets the secure communication status of the call associated to the given
-     * participant.
-     * 
-     * @param participant the call participant, for which we're setting the
-     * state.
-     * @param secure indicates the security status - enabled ot disabled.
-     * @param source indicates the source of this change - local change, remote
-     * change or revert of the status.
-     */
-    public void setSecure(  CallParticipant participant,
-                            boolean secure,
-                            SecureStatusChangeSource source)
-    {
-        CallSession cs
-            = ((CallSipImpl) participant.getCall()).getMediaCallSession();
-
-        if (cs != null)
-            cs.setSecureCommunicationStatus(secure, source);
-    }
-
-    /**
      * Returns <code>true</code> to indicate that the call associated with the 
      * given participant is secured, otherwise returns <code>false</code>.
      * 

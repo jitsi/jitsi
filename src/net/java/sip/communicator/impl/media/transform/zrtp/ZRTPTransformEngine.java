@@ -503,7 +503,7 @@ public class ZRTPTransformEngine
     public RawPacket transform(RawPacket pkt)
     {
         /*
-         * Never transform outgoing ZRTP packets.
+         * Never transform outgoing ZRTP (invalid RTP) packets.
          * check if the first byte of the received data
          * matches the defined ZRTP pattern 0x10
          */

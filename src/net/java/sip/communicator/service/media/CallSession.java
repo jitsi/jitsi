@@ -201,17 +201,6 @@ public interface CallSession
     public boolean stopStreaming();
 
     /**
-     * Sets the default secure/unsecure communication status for the supported
-     * call sessions.
-     *
-     * @param activator value of default secure communication status
-     * @param source the initiator of the secure status change (can be local or remote)
-     */
-    public void setSecureCommunicationStatus(boolean activator,
-                                             OperationSetSecureTelephony.
-                                             SecureStatusChangeSource source);
-
-    /**
      * Gets the default secure/unsecure communication status for the supported
      * call sessions.
      *

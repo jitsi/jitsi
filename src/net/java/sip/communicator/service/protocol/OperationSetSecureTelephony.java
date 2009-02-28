@@ -17,18 +17,6 @@ public interface OperationSetSecureTelephony
     extends OperationSet
 {
     /**
-     * Sets the secure state of the call session in which a specific participant
-     * is involved
-     *
-     * @param participant the participant who toggled (or for whom is remotely
-     *        toggled) the secure status change for the call
-     * @param secure the new secure status
-     * @param source the source who generated the call change
-     */
-    public void setSecure(CallParticipant participant, boolean secure,
-                           SecureStatusChangeSource source);
-
-    /**
      * Gets the secure state of the call session in which a specific participant
      * is involved
      *
@@ -47,15 +35,4 @@ public interface OperationSetSecureTelephony
      * @param source the source who generated the call change
      */
     public boolean setSasVerified(CallParticipant participant, boolean verified);
-
-    /**
-     * Use this to indicate the source of setting the secure status
-     * of the communication as being the local or remote peer or reverted by
-     * local
-     */
-    public static enum SecureStatusChangeSource {
-        SECURE_STATUS_CHANGE_BY_LOCAL,
-        SECURE_STATUS_CHANGE_BY_REMOTE,
-        SECURE_STATUS_REVERTED;
-    }
 }
