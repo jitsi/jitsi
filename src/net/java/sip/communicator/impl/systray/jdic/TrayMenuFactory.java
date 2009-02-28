@@ -94,8 +94,11 @@ public final class TrayMenuFactory
     public static Object createTrayMenu(SystrayServiceJdicImpl tray,
                                         boolean swing)
     {
-    	swing = true;
-        JPopupMenu trayMenu = new JPopupMenu();
+    	// Enable swing for java 1.6 except for the mac version
+        if (!swing && !System.getProperty("os.name").startsWith("Mac"))
+            swing = true;
+        
+    	Object trayMenu = swing ? new JPopupMenu() : new PopupMenu();
         ActionListener listener = new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
@@ -126,11 +129,22 @@ public final class TrayMenuFactory
                                                 boolean swing)
     {
         String text = Resources.getString(textID);
-        
-        JMenuItem menuItem = new JMenuItem(text, Resources.getImage(iconID));
-        menuItem.setName(name);
-        menuItem.addActionListener(listener);
-        return menuItem;
+        Object trayMenuItem;
+        if (swing)
+        {
+            JMenuItem menuItem = new JMenuItem(text, Resources.getImage(iconID));
+            menuItem.setName(name);
+            menuItem.addActionListener(listener);
+            trayMenuItem = menuItem;
+        }
+        else
+        {
+            MenuItem menuItem = new MenuItem(text);
+            menuItem.setName(name);
+            menuItem.addActionListener(listener);
+            trayMenuItem = menuItem;
+        }
+        return trayMenuItem;
     }
 
     public static boolean isVisible(Object trayMenu)
