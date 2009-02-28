@@ -318,7 +318,7 @@ public class FirstWizardPage
                 || serverField.getText() == null
                 || serverField.getText().equals("")
                 || (!passwordNotRequired.isSelected()
-                        && passField.equals("")))
+                        && passField.getText().equals("")))
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }

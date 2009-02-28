@@ -1018,14 +1018,14 @@ public class ConferenceChatManager
                 Constants.ONLINE_STATUS);
 
             String errorMessage = null;
-            if(returnCode.equals(AUTHENTICATION_FAILED))
+            if(AUTHENTICATION_FAILED.equals(returnCode))
             {
                 ChatRoomAuthenticationWindow authWindow
                     = new ChatRoomAuthenticationWindow(chatRoomWrapper);
 
                 authWindow.setVisible(true);
             }
-            else if(returnCode.equals(REGISTRATION_REQUIRED))
+            else if(REGISTRATION_REQUIRED.equals(returnCode))
             {
                 errorMessage
                     = GuiActivator.getResources()
@@ -1033,14 +1033,14 @@ public class ConferenceChatManager
                             "service.gui.CHAT_ROOM_REGISTRATION_REQUIRED",
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
-            else if(returnCode.equals(PROVIDER_NOT_REGISTERED))
+            else if(PROVIDER_NOT_REGISTERED.equals(returnCode))
             {
                 errorMessage
                     = GuiActivator.getResources()
                         .getI18NString("service.gui.CHAT_ROOM_NOT_CONNECTED",
                         new String[]{chatRoomWrapper.getChatRoomName()});
             }
-            else if(returnCode.equals(SUBSCRIPTION_ALREADY_EXISTS))
+            else if(SUBSCRIPTION_ALREADY_EXISTS.equals(returnCode))
             {
                 errorMessage
                     = GuiActivator.getResources()
@@ -1055,8 +1055,8 @@ public class ConferenceChatManager
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
 
-            if (!returnCode.equals(SUCCESS)
-                    && !returnCode.equals(AUTHENTICATION_FAILED))
+            if (!SUCCESS.equals(returnCode)
+                    && !AUTHENTICATION_FAILED.equals(returnCode))
             {
                 new ErrorDialog(
                     GuiActivator.getUIService().getMainFrame(),

@@ -68,8 +68,6 @@ public class Wizard
     public static final String CANCEL_BUTTON_ACTION_COMMAND =
         "CancelButtonActionCommand";
 
-    private BufferedImage wizardIcon;
-
     private JLabel wizardIconLabel;
 
     private TransparentPanel wizardIconPanel =
@@ -500,17 +498,12 @@ public class Wizard
         this.close(Wizard.CANCEL_RETURN_CODE);
     }
 
-	static {
+    static {
         ResourceManagementService resources = GuiActivator.getResources();
         BACK_TEXT = resources.getI18NString("service.gui.PREVIOUS");
         NEXT_TEXT = resources.getI18NString("service.gui.NEXT");
         CANCEL_TEXT = resources.getI18NString("service.gui.CANCEL");
         FINISH_TEXT = resources.getI18NString("service.gui.FINISH");
-	}
-
-    public BufferedImage getWizzardIcon()
-    {
-        return wizardIcon;
     }
 
     public void setWizzardIcon(BufferedImage wizardIcon)

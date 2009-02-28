@@ -340,22 +340,14 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 case 0x02DA : cmd.setWorkWebPage(((StringDetail)detail).getString()); break;
                 case 0x0258 : cmd.setNotes(((StringDetail)detail).getString()); break;
                 case 0x01EA :
-                    ArrayList interests = new ArrayList();
+                    List<InterestDetail> interests = new ArrayList<InterestDetail>();
                     Iterator intIter = getDetails(InterestDetail.class);
                     while (intIter.hasNext())
                     {
                         InterestDetail item = (InterestDetail) intIter.next();
                         interests.add(item);
                     }
-                    InterestDetail[] interestsArr = (InterestDetail[])interests.toArray();
-                    int[] interestsCategories = new int[interestsArr.length];
-                    String[] interestsStr = new String[interestsArr.length];
-                    for (int k = 0; k < interestsArr.length; k++)
-                    {
-                        interestsStr[k] = interestsArr[k].getInterest();
-                        interestsCategories[k] = getInterestCode(interestsStr[k]);
-                    }
-                    cmd.setInterests(interestsCategories, interestsStr);
+                    setInterests(cmd, interests);
                     break;
                 case 0x0316 :
                     int offset = ((ServerStoredDetails.TimeZoneDetail)detail).
@@ -383,6 +375,20 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                             OperationFailedException.GENERAL_ERROR);
 
         infoRetreiver.detailsChanged(uin);
+    }
+
+    private void setInterests(MetaFullInfoSetCmd cmd, List<InterestDetail> interests)
+        throws IOException
+    {
+        int interestCount = interests.size();
+        int[] interestsCategories = new int[interestCount];
+        String[] interestsStr = new String[interestCount];
+        for (int k = 0; k < interestCount; k++)
+        {
+            interestsStr[k] = interests.get(k).getInterest();
+            interestsCategories[k] = getInterestCode(interestsStr[k]);
+        }
+        cmd.setInterests(interestsCategories, interestsStr);
     }
 
     /**
@@ -662,25 +668,17 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 case 0x02DA : cmd.setWorkWebPage(((StringDetail)newDetailValue).getString()); break;
                 case 0x0258 : cmd.setNotes(((StringDetail)newDetailValue).getString()); break;
                 case 0x01EA :
-                    ArrayList interests = new ArrayList();
+                    List<InterestDetail> interests = new ArrayList<InterestDetail>();
                     Iterator intIter = getDetails(InterestDetail.class);
                     while (intIter.hasNext())
                     {
                         InterestDetail item = (InterestDetail) intIter.next();
                         if(item.equals(currentDetailValue))
-                            interests.add(newDetailValue);
+                            interests.add((InterestDetail) newDetailValue);
                         else
                             interests.add(item);
                     }
-                    InterestDetail[] interestsArr = (InterestDetail[])interests.toArray();
-                    int[] interestsCategories = new int[interestsArr.length];
-                    String[] interestsStr = new String[interestsArr.length];
-                    for (int k = 0; k < interestsArr.length; k++)
-                    {
-                        interestsStr[k] = interestsArr[k].getInterest();
-                        interestsCategories[k] = getInterestCode(interestsStr[k]);
-                    }
-                    cmd.setInterests(interestsCategories, interestsStr);
+                    setInterests(cmd, interests);
                     break;
                 case 0x0316 :
                     int offset = ((ServerStoredDetails.TimeZoneDetail)newDetailValue).

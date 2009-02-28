@@ -286,13 +286,14 @@ public class ChatContactRightButtonMenu
      */
     private class BanParticipantThread extends Thread
     {
-        private ChatRoom chatRoom;
+        private final ChatRoom chatRoom;
         
-        private String reason;
+        private final String reason;
         
         BanParticipantThread(ChatRoom chatRoom, String reason)
         {
             this.chatRoom = chatRoom;
+            this.reason = reason;
         }
         
         public void run()
@@ -300,8 +301,7 @@ public class ChatContactRightButtonMenu
             try
             {
                 chatRoom.banParticipant(
-                    (ChatRoomMember)chatContact
-                        .getDescriptor(),
+                    (ChatRoomMember) chatContact.getDescriptor(),
                     reason);
             }
             catch (OperationFailedException e)
@@ -310,36 +310,26 @@ public class ChatContactRightButtonMenu
 
                 String errorTitle = GuiActivator.getResources()
                     .getI18NString("service.gui.BAN_FAILED");
+                String errorMessageKey;
 
-                if (e.getErrorCode()
-                    == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
-                {
-                    new ErrorDialog(chatPanel.getChatWindow(),
-                        errorTitle,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.BAN_FAILED_NOT_ENOUGH_PERMISSIONS",
-                            new String[]{chatContact.getName()}),
-                        e).showDialog();
+                switch (e.getErrorCode()) {
+                case OperationFailedException.NOT_ENOUGH_PRIVILEGES:
+                    errorMessageKey = 
+                        "service.gui.BAN_FAILED_NOT_ENOUGH_PERMISSIONS";
+                    break;
+                case OperationFailedException.FORBIDDEN:
+                    errorMessageKey = "service.gui.BAN_FAILED_NOT_ALLOWED";
+                    break;
+                default:
+                    errorMessageKey = "service.gui.BAN_FAILED_GENERAL_ERROR";
+                    break;
                 }
-                else if (e.getErrorCode()
-                    == OperationFailedException.FORBIDDEN)
-                {
-                    new ErrorDialog(chatPanel.getChatWindow(),
-                        errorTitle,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.BAN_FAILED_NOT_ALLOWED",
-                            new String[]{chatContact.getName()}),
-                        e).showDialog();
-                }
-                else
-                {
-                    new ErrorDialog(chatPanel.getChatWindow(),
-                        errorTitle,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.BAN_FAILED_GENERAL_ERROR",
-                            new String[]{chatContact.getName()}),
-                        e).showDialog();
-                }
+                new ErrorDialog(chatPanel.getChatWindow(),
+                    errorTitle,
+                    GuiActivator.getResources().getI18NString(
+                        errorMessageKey,
+                        new String[]{chatContact.getName()}),
+                    e).showDialog();
             }
         }
     }
