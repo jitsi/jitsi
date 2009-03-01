@@ -41,7 +41,7 @@ import net.java.sip.communicator.util.swing.*;
 public class TransparentBackground extends JComponent {
     private BufferedImage background;
 
-    private Robot robot;
+    private final Robot robot;
 
     private final Window window;
 
@@ -53,20 +53,16 @@ public class TransparentBackground extends JComponent {
      * @param window The parent <tt>Window</tt>
      */
     public TransparentBackground(Window window) {
-
         this.window = window;
 
+        Robot robot;
         try {
-
             robot = new Robot();
-
         } catch (AWTException e) {
-
             e.printStackTrace();
-
-            return;
-
+            robot = null;
         }
+        this.robot = robot;
     }
 
     /**

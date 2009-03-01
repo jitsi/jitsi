@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.configuration;
 
-import java.util.*;
-
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -43,7 +41,7 @@ public class ConfigurationActivator
 
         bundleContext.registerService(ConfigurationService.class.getName(),
                                       impl,
-                                      new Hashtable());
+                                      null);
 
         logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
     }

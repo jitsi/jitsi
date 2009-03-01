@@ -27,12 +27,6 @@ public class IrcActivator
         = Logger.getLogger(IrcActivator.class);
 
     /**
-     * A reference to the registration of our IRC protocol provider
-     * factory.
-     */
-    private ServiceRegistration  ircPpFactoryServReg   = null;
-
-    /**
      * A reference to the IRC protocol provider factory.
      */
     private static ProtocolProviderFactoryIrcImpl
@@ -67,7 +61,7 @@ public class IrcActivator
         ircProviderFactory = new ProtocolProviderFactoryIrcImpl();
 
         //Register the IRC provider factory.
-        ircPpFactoryServReg =  context.registerService(
+        context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     ircProviderFactory,
                     hashtable);

@@ -38,9 +38,25 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
     private static final Insets SAFE_EDITOR_BORDER_INSETS 
         = new Insets(2, 2, 2, 0);
 
-    private class EditorBorder extends AbstractBorder {
-        public void paintBorder(Component c, Graphics g, 
-                int x, int y, int w, int h) {
+    private static class EditorBorder
+        extends AbstractBorder
+    {
+        public void paintBorder(Component c, Graphics g, int x, int y, int w,
+                int h) {
+            g = g.create();
+            try
+            {
+                internalPaintBorder(c, g, x, y, w, h);
+            }
+            finally
+            {
+                g.dispose();
+            }
+        }
+
+        private void internalPaintBorder(Component c, Graphics g, int x, int y,
+                int w, int h)
+        {
             Graphics2D g2d = (Graphics2D)g;
             
             AntialiasingManager.activateAntialiasing(g2d);

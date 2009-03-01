@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.version;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.util.*;
-import java.util.*;
 import net.java.sip.communicator.service.version.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The entry point to the Version Service Implementation. We register the
@@ -40,8 +40,7 @@ public class VersionActivator
     public void start(BundleContext context) throws Exception
     {
         logger.debug("Started.");
-        this.bundleContext = context;
-        Hashtable hashtable = new Hashtable();
+        VersionActivator.bundleContext = context;
 
         VersionServiceImpl versionServiceImpl = new VersionServiceImpl();
 
@@ -49,7 +48,7 @@ public class VersionActivator
         versionServReg =  context.registerService(
                     VersionService.class.getName(),
                     versionServiceImpl,
-                    hashtable);
+                    null);
         logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
         logger.debug("SIP Communicator Version: sip-communicator-"
                      + VersionImpl.currentVersion().toString());
