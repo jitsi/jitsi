@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.ircaccregwizz;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -317,8 +318,7 @@ public class FirstWizardPage
                 || nickField.getText().equals("")
                 || serverField.getText() == null
                 || serverField.getText().equals("")
-                || (!passwordNotRequired.isSelected()
-                        && passField.getText().equals("")))
+                || (!passwordNotRequired.isSelected() && isEmpty(passField)))
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
@@ -326,6 +326,27 @@ public class FirstWizardPage
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
+    }
+
+    private boolean isEmpty(JPasswordField passField)
+    {
+        if (passField.getDocument() != null)
+        {
+            char[] pass = passField.getPassword();
+
+            if (pass != null)
+            {
+
+                /*
+                 * The Javadoc of JPasswordField.getPassword() recommends
+                 * clearing the returned character array for stronger security
+                 * by setting each character to zero
+                 */
+                Arrays.fill(pass, '\0');
+                return (pass.length <= 0);
+            }
+        }
+        return true;
     }
 
     /**
