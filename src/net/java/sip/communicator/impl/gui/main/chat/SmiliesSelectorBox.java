@@ -96,10 +96,15 @@ public class SmiliesSelectorBox
      */
     private void calculateGridDimensions(int itemsCount)
     {
-
         this.gridRowCount = (int) Math.round(Math.sqrt(itemsCount));
 
-        this.gridColCount = (int) Math.ceil(itemsCount / gridRowCount);
+        /*
+         * FIXME The original code was "(int)Math.ceil(itemsCount/gridRowCount)".
+         * But it was unnecessary because both itemsCount and gridRowCount are
+         * integers and, consequently, itemsCount/gridRowCount gives an integer.
+         * Was the intention to have the division produce a real number?
+         */
+        this.gridColCount = itemsCount / gridRowCount;
     }
 
     /**

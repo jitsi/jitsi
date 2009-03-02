@@ -20,17 +20,9 @@ public class SIPCommMsgTextArea
 {
     private static final long serialVersionUID = 0L;
 
-	public SIPCommMsgTextArea()
+    public SIPCommMsgTextArea()
     {
-        this.setEditable(false);
-        this.setLineWrap(true);
-        this.setWrapStyleWord(true);
-        this.setOpaque(false);
-        
-        int col = 40;
-        this.setColumns(col);
-        int docLen = this.getDocument().getLength();
-        this.setRows((int)Math.ceil(docLen/col));
+        init();
     }
     
     /** 
@@ -40,7 +32,12 @@ public class SIPCommMsgTextArea
      */
     public SIPCommMsgTextArea(String text){
         super(text);
-        
+
+        init();
+    }
+
+    private void init()
+    {
         this.setEditable(false);
         this.setLineWrap(true);
         this.setWrapStyleWord(true);
@@ -49,6 +46,13 @@ public class SIPCommMsgTextArea
         int col = 40;
         this.setColumns(col);
         int docLen = this.getDocument().getLength();
-        this.setRows((int)Math.ceil(docLen/col));
+
+        /*
+         * FIXME The original code was "(int)Math.ceil(docLen/col)". But it was
+         * unnecessary because both docLen and col are integers and,
+         * consequently, docLen/col gives an integer. Was the intention to have
+         * the division produce a real number?
+         */
+        this.setRows(docLen/col);
     }
 }

@@ -47,11 +47,17 @@ public class BoxPopupMenu extends JPopupMenu {
     /**
      * In order to have a popup which is at the form closest to sqware.
      */
-    private void calculateGridDimensions() {
-
+    private void calculateGridDimensions()
+    {
         this.gridRowCount = (int) Math.round(Math.sqrt(this.itemsCount));
 
-        this.gridColCount = (int) Math.round(this.itemsCount / gridRowCount);
+        /*
+         * FIXME The original code was "(int)Math.round(itemsCount/gridRowCount)".
+         * But it was unnecessary because both itemsCount and gridRowCount are
+         * integers and, consequently, itemsCount/gridRowCount gives an integer.
+         * Was the intention to have the division produce a real number?
+         */
+        this.gridColCount = itemsCount / gridRowCount;
     }
 
     /**
