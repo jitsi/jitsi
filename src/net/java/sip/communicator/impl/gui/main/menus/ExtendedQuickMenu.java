@@ -438,7 +438,7 @@ public class ExtendedQuickMenu
                     ImageLoader.QUICK_MENU_SOUND_OFF_ICON)));
     }
 
-    private class ToolBarButton
+    private static class ToolBarButton
         extends JLabel
     {
         private boolean isMouseOver = false;
@@ -524,7 +524,7 @@ public class ExtendedQuickMenu
             return null;
         }
     }
-    
+
     public void mouseClicked(MouseEvent e)
     {
         JLabel button = (JLabel) e.getSource();

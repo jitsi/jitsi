@@ -1940,7 +1940,7 @@ public class ProtocolProviderServiceSipImpl
         return new ArrayList<String>(methodProcessors.keySet());
     }
 
-    private class ShutdownUnregistrationBlockListener
+    private static class ShutdownUnregistrationBlockListener
         implements RegistrationStateChangeListener
     {
             public List<RegistrationState> collectedNewStates =

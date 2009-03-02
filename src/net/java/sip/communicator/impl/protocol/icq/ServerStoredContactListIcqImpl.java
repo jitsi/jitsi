@@ -1215,7 +1215,7 @@ public class ServerStoredContactListIcqImpl
 
     }
 
-    private class JoustSimBuddyListener implements BuddyListener
+    private static class JoustSimBuddyListener implements BuddyListener
     {
         /**
          * screennameChanged
@@ -1310,7 +1310,6 @@ public class ServerStoredContactListIcqImpl
                 + " oldAwaitingAuth: " + oldAwaitingAuth
                 + " newAwaitingAuth: " + newAwaitingAuth);
         }
-
     }
 
     /**
@@ -1318,7 +1317,8 @@ public class ServerStoredContactListIcqImpl
      *
      * @author Emil Ivov
      */
-    private class JoustSimItemChangeListener implements SsiItemChangeListener
+    private static class JoustSimItemChangeListener
+        implements SsiItemChangeListener
     {
         public void handleItemCreated(SsiItem item)
         {

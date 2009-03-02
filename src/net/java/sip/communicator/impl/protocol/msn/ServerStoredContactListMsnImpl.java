@@ -1103,7 +1103,7 @@ public class ServerStoredContactListMsnImpl
     /**
      * Waits for removing a group
      */
-    private class ModListenerRemoveGroup
+    private static class ModListenerRemoveGroup
         extends EventAdapter
     {
         private int contactCount = 0;

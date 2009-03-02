@@ -107,7 +107,7 @@ public class StrategiesList
      * 
      * @author ROTH Damien
      */
-    class ListModel
+    static class ListModel
         extends AbstractListModel
     {
         List<Strategy> data;
@@ -177,7 +177,7 @@ public class StrategiesList
      * 
      * @author ROTH Damien
      */
-    class CellRenderer
+    static class CellRenderer
         extends JLabel
         implements ListCellRenderer
     {

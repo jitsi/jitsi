@@ -421,12 +421,12 @@ public class Mailbox
      * its state and answer it if nobody else does for <tt>getWaitTime()</tt>
      * milliseconds to pass.
      */
-    private class IncomingCallTracker extends Thread
+    private static class IncomingCallTracker extends Thread
     {
         /**
          * The call event that made us create this thread.
          */
-        private CallEvent callEvent;
+        private final CallEvent callEvent;
 
         /**
          * Creates a new daemon thread that would track changes in the state of

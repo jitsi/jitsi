@@ -278,7 +278,7 @@ public class RssFeedReader
         return rssURL.toString();
     }
 
-    private class SyndEntryComparator implements Comparator
+    private static class SyndEntryComparator implements Comparator
     {
         /**
          * Compares its two items for order.  Returns a negative integer,

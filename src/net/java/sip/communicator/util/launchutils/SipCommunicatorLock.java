@@ -685,13 +685,13 @@ public class SipCommunicatorLock extends Thread
      * We use this thread to handle individual messages in server side inter
      * instance communication.
      */
-    private class LockServerConnectionProcessor extends Thread
+    private static class LockServerConnectionProcessor extends Thread
     {
         /**
          * The socket that we will be using to communicate with the fellow SIP
          * Communicator instance..
          */
-        private Socket connectionSocket = null;
+        private final Socket connectionSocket;
 
         /**
          * Creates an instance of <tt>LockServerConnectionProcessor</tt> that

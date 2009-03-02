@@ -1438,7 +1438,7 @@ public class SIPCommTabbedPaneUI
 
     }
 
-    private class ScrollableTabViewport
+    private static class ScrollableTabViewport
         extends JViewport
         implements UIResource
     {

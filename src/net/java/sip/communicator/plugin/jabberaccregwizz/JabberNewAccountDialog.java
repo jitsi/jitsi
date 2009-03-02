@@ -389,7 +389,7 @@ public class JabberNewAccountDialog
      * A GlassPane that would change the cursor to a waiting cursor until the
      * new account is registered.
      */
-    private class LoadingAccountGlassPane extends JComponent
+    private static class LoadingAccountGlassPane extends JComponent
     {
         public LoadingAccountGlassPane()
         {

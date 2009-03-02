@@ -178,11 +178,11 @@ public class SelectGroupPanel
         this.setNextButtonAccordingToComboBox();
     }
 
-    private class GroupWrapper
+    private static class GroupWrapper
     {
-        private String groupName;
+        private final String groupName;
 
-        private MetaContactGroup group;
+        private final MetaContactGroup group;
 
         public GroupWrapper(MetaContactGroup group)
         {
@@ -206,5 +206,4 @@ public class SelectGroupPanel
             return this.group;
         }
     }
-
 }

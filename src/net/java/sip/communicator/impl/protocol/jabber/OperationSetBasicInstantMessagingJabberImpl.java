@@ -561,7 +561,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         this.keepAliveEnabled = keepAliveEnabled;
     }
     
-    private class GroupMessagePacketFilter implements PacketFilter
+    private static class GroupMessagePacketFilter implements PacketFilter
     {   
         public boolean accept(Packet packet)
         {            

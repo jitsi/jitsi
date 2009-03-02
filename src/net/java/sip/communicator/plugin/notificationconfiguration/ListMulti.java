@@ -359,7 +359,7 @@ public class ListMulti extends JPanel
     /*
      * Extends the JTable to make easier to use whith the pluggin
      */
-    class MyJTable extends JTable
+    static class MyJTable extends JTable
     {
         MyJTable(TableModel model)
         {

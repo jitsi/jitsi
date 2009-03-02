@@ -1773,7 +1773,7 @@ public class MessageHistoryServiceImpl
     /**
      * Simple message implementation.
      */
-    private class MessageImpl
+    private static class MessageImpl
         extends AbstractMessage
     {
         private final boolean isOutgoing;
@@ -1800,7 +1800,7 @@ public class MessageHistoryServiceImpl
      * Used to compare MessageDeliveredEvent or MessageReceivedEvent
      * and to be ordered in TreeSet according their timestamp
      */
-    private class MessageEventComparator
+    private static class MessageEventComparator
         implements Comparator
     {
         public int compare(Object o1, Object o2)
@@ -1831,7 +1831,7 @@ public class MessageHistoryServiceImpl
      * or ChatRoomMessageReceivedEvent
      * and to be ordered in TreeSet according their timestamp
      */
-    private class ChatRoomMessageEventComparator
+    private static class ChatRoomMessageEventComparator
         implements Comparator
     {
         public int compare(Object o1, Object o2)
@@ -1860,12 +1860,12 @@ public class MessageHistoryServiceImpl
     /**
      * Simple ChatRoomMember implementation.
      */
-    class ChatRoomMemberImpl
+    static class ChatRoomMemberImpl
         implements ChatRoomMember
     {
-        private ChatRoom chatRoom;
-        private String name;
-        private ChatRoomMemberRole role;
+        private final ChatRoom chatRoom;
+        private final String name;
+        private final ChatRoomMemberRole role;
 
         public ChatRoomMemberImpl(String name, ChatRoom chatRoom,
             ChatRoomMemberRole role)

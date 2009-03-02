@@ -229,7 +229,7 @@ public class InfoRetreiver
     /**
      * wait for response of our ShorInfo Requests
      */
-    private class ShortInfoResponseRetriever extends SnacRequestAdapter
+    private static class ShortInfoResponseRetriever extends SnacRequestAdapter
     {
         String nickname = null;
 

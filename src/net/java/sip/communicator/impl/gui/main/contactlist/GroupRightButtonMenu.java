@@ -297,9 +297,9 @@ public class GroupRightButtonMenu
      * The <tt>AccountMenuItem</tt> is a <tt>JMenuItem</tt> that stores a
      * <tt>ProtocolProviderService</tt> in it.
      */
-    private class AccountMenuItem extends JMenuItem
+    private static class AccountMenuItem extends JMenuItem
     {
-        private ProtocolProviderService pps;
+        private final ProtocolProviderService pps;
 
         public AccountMenuItem(ProtocolProviderService pps, Icon icon)
         {

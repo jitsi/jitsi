@@ -887,7 +887,7 @@ public class HistoryReaderImpl
      * Used to compare HistoryRecords
      * ant to be ordered in TreeSet
      */
-    private class HistoryRecordComparator
+    private static class HistoryRecordComparator
         implements Comparator
     {
         public int compare(Object o1, Object o2)

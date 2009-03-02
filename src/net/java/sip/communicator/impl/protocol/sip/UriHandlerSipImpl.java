@@ -562,9 +562,9 @@ public class UriHandlerSipImpl
      * A class that we use to wrap providers before showing them to the user
      * through a selection popup dialog from the UIService.
      */
-    private class ProviderComboBoxEntry
+    private static class ProviderComboBoxEntry
     {
-        public ProtocolProviderService provider;
+        public final ProtocolProviderService provider;
 
         public ProviderComboBoxEntry(ProtocolProviderService provider)
         {

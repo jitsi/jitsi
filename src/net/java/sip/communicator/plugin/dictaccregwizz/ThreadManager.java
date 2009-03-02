@@ -93,12 +93,12 @@ public class ThreadManager
      * 
      * @author ROTH Damien, LITZELMANN Cedric
      */
-    class StrategyThread
+    static class StrategyThread
         extends Thread
     {
-        private FirstWizardPage wizard;
-        private String host;
-        private int port;
+        private final FirstWizardPage wizard;
+        private final String host;
+        private final int port;
         
         /**
          * Informations messages

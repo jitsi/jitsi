@@ -446,7 +446,7 @@ public class EditTextToolBar
             "font-underline"); //$NON-NLS-1$
     }
 
-    private class ColorLabel extends JLabel
+    private static class ColorLabel extends JLabel
     {
         public void paintComponent(Graphics g)
         {

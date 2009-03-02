@@ -746,7 +746,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * Waiting for Acknowledge package and success byte.
      * To set that the operation was successful
      */
-    private class SuccessResponseListener
+    private static class SuccessResponseListener
         implements SnacRequestListener
     {
         public Object waitingForResponseLock = new Object();

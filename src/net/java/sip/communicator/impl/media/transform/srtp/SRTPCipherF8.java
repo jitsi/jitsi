@@ -69,7 +69,7 @@ public class SRTPCipherF8
      * F8 mode encryption context, see RFC3711 section 4.1.2 for detailed
      * description.
      */
-    class F8Context
+    static class F8Context
     {
         public byte[] S;
         public byte[] ivAccent;
@@ -82,7 +82,7 @@ public class SRTPCipherF8
      */
     public static void process(AESFastEngine aesCipher, byte[] data, int off, int len,
             byte[] iv, byte[] key, byte[] salt, AESFastEngine f8Cipher) {
-        F8Context f8ctx = new SRTPCipherF8().new F8Context();
+        F8Context f8ctx = new F8Context();
 
         /*
          * Get memory for the derived IV (IV')

@@ -838,7 +838,9 @@ public class ProtocolProviderServiceIcqImpl
         }
     }
 
-    public class AimConversationListener implements ConversationListener{
+    public static class AimConversationListener
+        implements ConversationListener
+    {
         public void sentOtherEvent(Conversation conversation,
                                    ConversationEventInfo event)
         {

@@ -273,9 +273,10 @@ public class AuthenticationWindow
      * the <code>paintComponent</code> method to provide a custom background
      * image for this window.
      */
-    private class LoginWindowBackground extends TransparentPanel
+    private static class LoginWindowBackground extends TransparentPanel
     {
-        private Image bgImage;
+        private final Image bgImage;
+
         public LoginWindowBackground(Image bgImage)
         {
             this.bgImage = bgImage;
@@ -283,6 +284,7 @@ public class AuthenticationWindow
 
         public LoginWindowBackground()
         {
+            this.bgImage = null;
         }
 
         protected void paintComponent(Graphics g)

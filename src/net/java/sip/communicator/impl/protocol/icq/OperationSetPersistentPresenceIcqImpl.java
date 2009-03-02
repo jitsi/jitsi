@@ -945,11 +945,10 @@ public class OperationSetPersistentPresenceIcqImpl
      * a timeout would make the StatusResponseRetriever call its notifyAll
      * method so that those that are waiting on it be notified.
      */
-    private class StatusResponseRetriever extends SnacRequestAdapter
+    private static class StatusResponseRetriever extends SnacRequestAdapter
     {
             private boolean ran = false;
             private long status = -1;
-
 
             public void handleResponse(SnacResponseEvent e) {
                 SnacCommand snac = e.getSnacCommand();

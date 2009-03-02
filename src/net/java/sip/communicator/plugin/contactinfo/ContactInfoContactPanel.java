@@ -108,7 +108,7 @@ public class ContactInfoContactPanel
     /**
      * A cell renderer that allows both text and icons in our contactList.
      */
-    private class ContactPanelCellRenderer
+    private static class ContactPanelCellRenderer
         extends DefaultListCellRenderer
     {
         private boolean isSelected;

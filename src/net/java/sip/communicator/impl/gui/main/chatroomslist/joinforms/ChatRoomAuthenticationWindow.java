@@ -195,9 +195,10 @@ public class ChatRoomAuthenticationWindow
      * the <code>paintComponent</code> method to provide a custom background
      * image for this window.
      */
-    private class LoginWindowBackground extends JPanel
+    private static class LoginWindowBackground extends JPanel
     {
-        private ImageIcon bgImage;
+        private final ImageIcon bgImage;
+
         public LoginWindowBackground(ImageIcon bgImage)
         {
             this.bgImage = bgImage;
@@ -205,6 +206,7 @@ public class ChatRoomAuthenticationWindow
 
         public LoginWindowBackground()
         {
+            this.bgImage = null;
         }
 
         protected void paintComponent(Graphics g)

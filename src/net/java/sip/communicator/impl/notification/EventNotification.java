@@ -103,11 +103,11 @@ public class EventNotification
      * action type, action descriptor and the default message associated with
      * the action.
      */
-    public class Action
+    public static class Action
     {
-        private String actionType;
+        private final String actionType;
         
-        private NotificationActionHandler actionHandler;
+        private final NotificationActionHandler actionHandler;
                 
         /**
          * Creates an instance of <tt>Action</tt> by specifying the type of the
@@ -121,7 +121,6 @@ public class EventNotification
                 NotificationActionHandler actionHandler)
         {
             this.actionType = actionType;
-        
             this.actionHandler = actionHandler;
         }
 

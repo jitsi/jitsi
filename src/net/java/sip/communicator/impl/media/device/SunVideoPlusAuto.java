@@ -168,7 +168,7 @@ public class SunVideoPlusAuto
         }
     }
 
-    class FormatSetup
+    static class FormatSetup
     {
 
         int id;

@@ -696,7 +696,7 @@ public class AccountDetailsPanel
     /**
      * A custom filter that would accept only image files.
      */
-    private class ImageFilter extends FileFilter
+    private static class ImageFilter extends FileFilter
     {
         /**
          * Accept all directories and all gif, jpg, tiff, or png files.

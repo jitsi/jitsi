@@ -214,7 +214,7 @@ public class RssActivator
      * A trust manager that would accept all certificates so that we would be
      * able to add rss feeds from sites with expired/self-signed certificates.
      */
-    private class TrustlessManager implements X509TrustManager
+    private static class TrustlessManager implements X509TrustManager
     {
 
         public java.security.cert.X509Certificate[] getAcceptedIssuers()

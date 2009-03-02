@@ -310,11 +310,9 @@ public class ExtendedMainToolBar
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
-    private class ToolBarButton
+    private static class ToolBarButton
         extends JLabel
     {
-        private Image iconImage;
-
         private boolean isMouseOver = false;
 
         private boolean isMousePressed = false;
