@@ -2926,10 +2926,11 @@ public class MetaContactListServiceImpl
      * Utility class used for blocking the current thread until an event
      * is delivered confirming the creation of a particular group.
      */
-    private class BlockingGroupEventRetriever
+    private static class BlockingGroupEventRetriever
         implements ServerStoredGroupListener
     {
-        private String groupName = null;
+        private final String groupName;
+
         public ServerStoredGroupEvent evt = null;
 
         /**
@@ -3014,11 +3015,12 @@ public class MetaContactListServiceImpl
      * Utility class used for blocking the current thread until an event
      * is delivered confirming the creation of a particular contact.
      */
-    private class BlockingSubscriptionEventRetriever
+    private static class BlockingSubscriptionEventRetriever
         implements SubscriptionListener,
                    ServerStoredGroupListener
     {
-        private String      subscriptionAddress = null;
+        private final String      subscriptionAddress;
+
         public  Contact     sourceContact = null;
         public  EventObject evt = null;
 

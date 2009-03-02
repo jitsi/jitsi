@@ -91,15 +91,14 @@ public class MessageHistoryServiceImpl
     {
         TreeSet result = new TreeSet(new MessageEventComparator());
         // get the readers for this contact
-        Hashtable readers = getHistoryReaders(contact);
+        Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
 
-        Iterator iter = readers.keySet().iterator();
-        while (iter.hasNext())
+        for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
-            Contact item = (Contact)iter.next();
-            HistoryReader reader = (HistoryReader)readers.get(item);
+            Contact item = readerEntry.getKey();
+            HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, recordsCount);
@@ -111,14 +110,15 @@ public class MessageHistoryServiceImpl
         }
 
         // now remove this listeners
-        iter = readers.values().iterator();
-        while (iter.hasNext())
-        {
-            HistoryReader item = (HistoryReader) iter.next();
-            removeHistorySearchProgressListeners(item);
-        }
+        removeHistorySearchProgressListeners(readers);
 
         return result;
+    }
+
+    private void removeHistorySearchProgressListeners(Map<?, HistoryReader> readers)
+    {
+        for (HistoryReader item : readers.values())
+            removeHistorySearchProgressListeners(item);
     }
 
     /**
@@ -136,15 +136,14 @@ public class MessageHistoryServiceImpl
         TreeSet result = new TreeSet(new MessageEventComparator());
 
         // get the readers for this contact
-        Hashtable readers = getHistoryReaders(contact);
+        Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
 
-        Iterator iter = readers.keySet().iterator();
-        while (iter.hasNext())
+        for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
-            Contact item = (Contact)iter.next();
-            HistoryReader reader = (HistoryReader)readers.get(item);
+            Contact item = readerEntry.getKey();
+            HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, recordsCount);
@@ -156,12 +155,7 @@ public class MessageHistoryServiceImpl
         }
 
         // now remove this listeners
-        iter = readers.values().iterator();
-        while (iter.hasNext())
-        {
-            HistoryReader item = (HistoryReader) iter.next();
-            removeHistorySearchProgressListeners(item);
-        }
+        removeHistorySearchProgressListeners(readers);
 
         return result;
     }
@@ -181,15 +175,14 @@ public class MessageHistoryServiceImpl
     {
         TreeSet result = new TreeSet(new MessageEventComparator());
         // get the readers for this contact
-        Hashtable readers = getHistoryReaders(contact);
+        Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
 
-        Iterator iter = readers.keySet().iterator();
-        while (iter.hasNext())
+        for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
-            Contact item = (Contact)iter.next();
-            HistoryReader reader = (HistoryReader)readers.get(item);
+            Contact item = readerEntry.getKey();
+            HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, recordsCount);
@@ -202,12 +195,7 @@ public class MessageHistoryServiceImpl
         }
 
         // now remove this listeners
-        iter = readers.values().iterator();
-        while (iter.hasNext())
-        {
-            HistoryReader item = (HistoryReader) iter.next();
-            removeHistorySearchProgressListeners(item);
-        }
+        removeHistorySearchProgressListeners(readers);
 
         return result;
     }
@@ -1111,15 +1099,14 @@ public class MessageHistoryServiceImpl
     {
         TreeSet result = new TreeSet(new MessageEventComparator());
         // get the readers for this contact
-        Hashtable readers = getHistoryReaders(contact);
+        Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
 
-        Iterator iter = readers.keySet().iterator();
-        while (iter.hasNext())
+        for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
-            Contact item = (Contact) iter.next();
-            HistoryReader reader = (HistoryReader) readers.get(item);
+            Contact item = readerEntry.getKey();
+            HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, recordsCount);
@@ -1133,12 +1120,7 @@ public class MessageHistoryServiceImpl
         }
 
         // now remove this listeners
-        iter = readers.values().iterator();
-        while (iter.hasNext())
-        {
-            HistoryReader item = (HistoryReader) iter.next();
-            removeHistorySearchProgressListeners(item);
-        }
+        removeHistorySearchProgressListeners(readers);
 
         return result;
     }
@@ -1159,15 +1141,14 @@ public class MessageHistoryServiceImpl
     {
         TreeSet result = new TreeSet(new MessageEventComparator());
         // get the readers for this contact
-        Hashtable readers = getHistoryReaders(contact);
+        Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
 
-        Iterator iter = readers.keySet().iterator();
-        while (iter.hasNext())
+        for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
-            Contact item = (Contact) iter.next();
-            HistoryReader reader = (HistoryReader) readers.get(item);
+            Contact item = readerEntry.getKey();
+            HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, recordsCount);
@@ -1181,12 +1162,7 @@ public class MessageHistoryServiceImpl
         }
 
         // now remove this listeners
-        iter = readers.values().iterator();
-        while (iter.hasNext())
-        {
-            HistoryReader item = (HistoryReader) iter.next();
-            removeHistorySearchProgressListeners(item);
-        }
+        removeHistorySearchProgressListeners(readers);
 
         return result;
     }
@@ -1207,15 +1183,14 @@ public class MessageHistoryServiceImpl
     {
         TreeSet result = new TreeSet(new MessageEventComparator());
         // get the readers for this contact
-        Hashtable readers = getHistoryReaders(contact);
+        Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
         int recordsCount = countRecords(readers);
 
-        Iterator iter = readers.keySet().iterator();
-        while (iter.hasNext())
+        for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
-            Contact item = (Contact) iter.next();
-            HistoryReader reader = (HistoryReader) readers.get(item);
+            Contact item = readerEntry.getKey();
+            HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, recordsCount);
@@ -1229,12 +1204,7 @@ public class MessageHistoryServiceImpl
         }
 
         // now remove this listeners
-        iter = readers.values().iterator();
-        while (iter.hasNext())
-        {
-            HistoryReader item = (HistoryReader) iter.next();
-            removeHistorySearchProgressListeners(item);
-        }
+        removeHistorySearchProgressListeners(readers);
 
         return result;
     }
@@ -1244,9 +1214,9 @@ public class MessageHistoryServiceImpl
      * @param contact MetaContact
      * @return Hashtable
      */
-    private Hashtable getHistoryReaders(MetaContact contact)
+    private Map<Contact, HistoryReader> getHistoryReaders(MetaContact contact)
     {
-        Hashtable readers = new Hashtable();
+        Map<Contact, HistoryReader> readers = new Hashtable<Contact, HistoryReader>();
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
         {
@@ -1274,18 +1244,12 @@ public class MessageHistoryServiceImpl
      *              Thrown if an exception occurs during the execution of the
      *              query, such as internal IO error.
      */
-    public int countRecords(Hashtable readers)
+    public int countRecords(Map<?, HistoryReader> readers)
     {
         int result = 0;
 
-        Enumeration readersEnum = readers.elements();
-
-        while (readersEnum.hasMoreElements())
-        {
-            HistoryReader r = (HistoryReader)readersEnum.nextElement();
+        for (HistoryReader r : readers.values())
             result += r.countRecords();
-        }
-
         return result;
     }
 

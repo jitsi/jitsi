@@ -1057,7 +1057,7 @@ public class CallHistoryServiceImpl
      * Used to compare CallRecords and to be ordered in TreeSet according their
      * timestamp
      */
-    private class CallRecordComparator
+    private static class CallRecordComparator
         implements Comparator<CallRecord>
     {
         public int compare(CallRecord o1, CallRecord o2)

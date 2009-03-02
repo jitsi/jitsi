@@ -31,9 +31,9 @@ public class BrowserLauncherImpl
     /**
      * Launch browser in a separate thread.
      */
-    private class LaunchBrowser extends Thread
+    private static class LaunchBrowser extends Thread
     {
-        private String url;
+        private final String url;
         
         public LaunchBrowser(String url)
         {

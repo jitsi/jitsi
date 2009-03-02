@@ -401,7 +401,7 @@ public class GuiActivator implements BundleActivator
      * passed event concerns a <tt>NotificationService</tt> and if so
      * intiates the gui NotificationManager.
      */
-    private class NotificationServiceListener implements ServiceListener
+    private static class NotificationServiceListener implements ServiceListener
     {
         /**
          * Implements the <tt>ServiceListener</tt> method. Verifies whether the

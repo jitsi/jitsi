@@ -109,16 +109,10 @@ public class SIPAccountRegistrationWizard
      * @return Iterator
      */
     public Iterator<Map.Entry> getSummary() {
-        Hashtable<String, String> summaryTable = new Hashtable<String, String>();
-
-        boolean rememberPswd = new Boolean(registration.isRememberPassword())
-            .booleanValue();
-
-        String rememberPswdString;
-        if(rememberPswd)
-            rememberPswdString = Resources.getString("service.gui.YES");
-        else
-            rememberPswdString = Resources.getString("service.gui.NO");
+        Map<String, String> summaryTable = new Hashtable<String, String>();
+        boolean rememberPswd = registration.isRememberPassword();
+        String rememberPswdString = Resources.getString(
+                rememberPswd ? "service.gui.YES" : "service.gui.NO");
 
         summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.USERNAME"),

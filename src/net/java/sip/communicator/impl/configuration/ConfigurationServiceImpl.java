@@ -1104,9 +1104,9 @@ public class ConfigurationServiceImpl
      * PropertyReference instance that will retrive it from the system
      * properties when necessary.
      */
-    private class PropertyReference
+    private static class PropertyReference
     {
-        private String propertyName = null;
+        private final String propertyName;
 
         PropertyReference(String propertyName)
         {

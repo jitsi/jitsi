@@ -33,11 +33,11 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
         return popup;
     }
     
-    private class SIPCommComboPopup extends BasicComboPopup
+    private static class SIPCommComboPopup extends BasicComboPopup
     {
         private static final long serialVersionUID = 0L;
 
-		public SIPCommComboPopup(JComboBox combo)
+        public SIPCommComboPopup(JComboBox combo)
         {
             super(combo);
         }

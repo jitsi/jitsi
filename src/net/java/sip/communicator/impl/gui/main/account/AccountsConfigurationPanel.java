@@ -206,7 +206,7 @@ public class AccountsConfigurationPanel
 
     public void providerStatusMessageChanged(PropertyChangeEvent evt) {}
 
-    private class AccountPanel
+    private static class AccountPanel
         extends TransparentPanel
         implements ActionListener
     {

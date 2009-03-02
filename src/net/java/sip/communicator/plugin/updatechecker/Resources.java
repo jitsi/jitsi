@@ -31,30 +31,45 @@ public class Resources
      */
     public static String getConfigString(String key)
     {
-        try
+        if (configProps == null)
         {
-            if(configProps == null)
+            configProps = new Properties();
+
+            File configPropsFile = new File(CONFIG_PROP_FILE_NAME);
+            if (!configPropsFile.exists())
             {
-                configProps = new Properties();
-
-                File configPropsFile = new File(CONFIG_PROP_FILE_NAME);
-                if(!configPropsFile.exists())
-                {
-                    logger.info("No config file specified for update checker");
-                    logger.info("Disabling update checks");
-                    return null;
-                }
-
-                configProps.load(new FileInputStream(configPropsFile));
+                logger.info("No config file specified for update checker. Disabling update checks");
+                return null;
             }
 
-            return configProps.getProperty(key);
+            InputStream configPropsInputStream = null;
+            try
+            {
+                configPropsInputStream = new FileInputStream(configPropsFile);
+                configProps.load(configPropsInputStream);
+            }
+            catch (IOException ex)
+            {
+                logger.error("Could not open config file.");
+                logger.debug("Error was: " + ex);
+                return null;
+            }
+            finally
+            {
+                if (configPropsInputStream != null)
+                {
+                    try
+                    {
+                        configPropsInputStream.close();
+                    }
+                    catch (IOException ex)
+                    {
+                        logger.error("Could not close config file.");
+                    }
+                }
+            }
         }
-        catch (IOException exc)
-        {
-            logger.error("Could not open config file.");
-            logger.debug("Error was: " + exc);
-            return null;
-        }
+
+        return configProps.getProperty(key);
     }
 }

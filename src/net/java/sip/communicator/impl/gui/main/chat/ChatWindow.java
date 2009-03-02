@@ -851,10 +851,10 @@ public class ChatWindow
      * The logo bar is positioned on the top of the window and is meant to
      * contain the application logo.
      */
-    private class LogoBar
+    private static class LogoBar
         extends JPanel
     {
-        private TexturePaint texture;
+        private final TexturePaint texture;
 
         /**
          * Creates the logo bar and specify the size.
