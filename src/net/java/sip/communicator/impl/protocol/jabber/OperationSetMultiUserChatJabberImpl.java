@@ -870,9 +870,7 @@ public class OperationSetMultiUserChatJabberImpl
              if (member != null)
              {
                  member.setContact(contact);
-
-                 if (contact != null)
-                     member.setAvatar(contact.getImage());
+                 member.setAvatar(contact.getImage());
              }
          }
      }
