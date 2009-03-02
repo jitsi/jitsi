@@ -248,7 +248,10 @@ public class Wizard
         // the dialog.
 
         if (id == null)
+        {
             close(Wizard.ERROR_RETURN_CODE);
+            return;
+        }
 
         WizardPage oldPanelDescriptor = wizardModel.getCurrentWizardPage();
         if (oldPanelDescriptor != null)

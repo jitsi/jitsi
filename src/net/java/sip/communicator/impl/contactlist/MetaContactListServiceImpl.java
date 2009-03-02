@@ -42,40 +42,40 @@ public class MetaContactListServiceImpl
     /**
      * The list of protocol providers that we're currently aware of.
      */
-    private Map<String, ProtocolProviderService> currentlyInstalledProviders
+    private final Map<String, ProtocolProviderService> currentlyInstalledProviders
         = new Hashtable<String, ProtocolProviderService>();
 
     /**
      * The root of the meta contact list.
      */
-    MetaContactGroupImpl rootMetaGroup
+    final MetaContactGroupImpl rootMetaGroup
         = new MetaContactGroupImpl("RootMetaContactGroup",
                                    "RootMetaContactGroup");
 
     /**
      * The event handler that will be handling our subscription events.
      */
-    ContactListSubscriptionListener clSubscriptionEventHandler
+    private final ContactListSubscriptionListener clSubscriptionEventHandler
         = new ContactListSubscriptionListener();
 
     /**
      * The event handler that will be handling group events.
      */
-    ContactListGroupListener clGroupEventHandler
+    private final ContactListGroupListener clGroupEventHandler
         = new ContactListGroupListener();
 
     /**
      * The number of milliseconds to wait for confirmations of account
      * modifications before deciding to drop.
      */
-    public static int CONTACT_LIST_MODIFICATION_TIMEOUT = 10000;
+    public static final int CONTACT_LIST_MODIFICATION_TIMEOUT = 10000;
 
     /**
      * Listeners interested in events dispatched upon modification of the meta
      * contact list.
      */
     private final Vector<MetaContactListListener> metaContactListListeners
-                        = new Vector<MetaContactListListener>();
+        = new Vector<MetaContactListListener>();
 
     /**
      * Contains (as keys) <tt>MetaContactGroup</tt> names that are currently
@@ -87,7 +87,7 @@ public class MetaContactListServiceImpl
      * carries a name present in this table and is issued by one of the
      * providers mapped against this groupName.
      */
-    private Hashtable<String, List<ProtocolProviderService>>
+    private final Hashtable<String, List<ProtocolProviderService>>
         groupEventIgnoreList = new Hashtable<String,
                                              List<ProtocolProviderService>>();
 
@@ -101,7 +101,7 @@ public class MetaContactListServiceImpl
      * carries a name present in this table and is issued by one of the
      * providers mapped against this groupName.
      */
-    private Hashtable<String, List<ProtocolProviderService>>
+    private final Hashtable<String, List<ProtocolProviderService>>
         contactEventIgnoreList = new Hashtable<String,
                                                List<ProtocolProviderService>>();
 
@@ -109,7 +109,7 @@ public class MetaContactListServiceImpl
      * The instance of the storage manager which is handling the local copy of
      * our contact list.
      */
-    private MclStorageManager storageManager = new MclStorageManager();
+    private final MclStorageManager storageManager = new MclStorageManager();
 
     /**
      * Creates an instance of this class.
@@ -237,10 +237,7 @@ public class MetaContactListServiceImpl
             }
         }
         currentlyInstalledProviders.clear();
-        if(storageManager != null)
-        {
-            storageManager.stop();
-        }
+        storageManager.stop();
     }
 
     /**

@@ -9,9 +9,10 @@ package net.java.sip.communicator.impl.protocol.zeroconf;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.*;
+
 import net.java.sip.communicator.impl.protocol.zeroconf.jmdns.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Class dealing with JmDNS and treating all the
@@ -33,7 +34,8 @@ public class BonjourService extends Thread
     private ServiceInfo service;
     private boolean dead = false;
 
-    private Vector contacts = new Vector();
+    private final List<ContactZeroconfImpl> contacts
+        = new Vector<ContactZeroconfImpl>();
 
     private ProtocolProviderServiceZeroconfImpl pps;
     OperationSetPersistentPresenceZeroconfImpl opSetPersPresence;
@@ -587,7 +589,7 @@ public class BonjourService extends Thread
      *
      * @return a java.util.Iterator over all contacts
      */
-    public Iterator contacts()
+    public Iterator<ContactZeroconfImpl> contacts()
     {
         return contacts.iterator();
     }
@@ -598,6 +600,9 @@ public class BonjourService extends Thread
      */
     public void addContact(ContactZeroconfImpl contact)
     {
+        if (contact == null)
+            throw new IllegalArgumentException("contact");
+
         synchronized(contacts)
         {
             contacts.add(contact);
@@ -617,17 +622,15 @@ public class BonjourService extends Thread
 
         synchronized(contacts)
         {
-            Iterator contactsIter = contacts();
+            Iterator<ContactZeroconfImpl> contactsIter = contacts();
 
             while (contactsIter.hasNext())
             {
-                ContactZeroconfImpl contact =
-                    (ContactZeroconfImpl)contactsIter.next();
+                ContactZeroconfImpl contact = contactsIter.next();
                 //System.out.println("ZEROCNF: Comparing "+id+ " "+ip+
                 //" with "+ contact.getAddress()+ " " + contact.getIpAddress());
                 if (((contact.getAddress().equals(id)) || (id == null))
-                 && ((contact.getIpAddress().equals(ip)) || (ip == null))
-                 && (contact != null))
+                 && ((contact.getIpAddress().equals(ip)) || (ip == null)))
                     return contact;
 
             }
@@ -649,11 +652,10 @@ public class BonjourService extends Thread
     {
         synchronized(contacts)
         {
-            Iterator contactsIter = contacts();
+            Iterator<ContactZeroconfImpl> contactsIter = contacts();
             while (contactsIter.hasNext())
             {
-                ContactZeroconfImpl contact =
-                    (ContactZeroconfImpl)contactsIter.next();
+                ContactZeroconfImpl contact = contactsIter.next();
                 if (((contact.getAddress().equals(id)) || (id == null))
                   &&((contact.getIpAddress().equals(ip)) || (ip == null)))
                 {

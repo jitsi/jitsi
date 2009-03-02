@@ -216,7 +216,7 @@ public class HistoryWindow
      */
     private HTMLDocument createHistory(Collection historyRecords)
     {
-        if(historyRecords.size() > 0) {
+        if((historyRecords != null) && (historyRecords.size() > 0)) {
             
             Iterator i = historyRecords.iterator();
             String processedMessage = "";
@@ -402,12 +402,10 @@ public class HistoryWindow
                     new Date(System.currentTimeMillis()));
             }
 
-            Object[] msgArray = msgList.toArray();
-            Date date = null;
-
-            for (int i = 0; i < msgArray.length; i ++)
+            if (msgList != null)
+            for (Object o : msgList)
             {
-                Object o = msgArray[i];
+                Date date = null;
 
                 if (o instanceof MessageDeliveredEvent)
                 {
@@ -449,7 +447,7 @@ public class HistoryWindow
                 }
             }
             
-            if(msgArray.length > 0)
+            if((msgList != null) && (msgList.size() > 0))
             {
                 Runnable updateDatesPanel = new Runnable() {
                     public void run() {
@@ -477,9 +475,8 @@ public class HistoryWindow
      */
     private class MessagesLoader extends Thread
     {
-        private Collection msgList;
-        private Date startDate;
-        private Date endDate;
+        private final Date startDate;
+        private final Date endDate;
 
         /**
          * Creates a MessageLoader thread charged to load history messages in
@@ -496,6 +493,8 @@ public class HistoryWindow
         
         public void run()
         {
+            final Collection msgList;
+
             if(historyContact instanceof MetaContact)
             {
                 msgList = msgHistory.findByPeriod(
@@ -512,6 +511,8 @@ public class HistoryWindow
                 msgList = msgHistory.findByPeriod(
                     chatRoomWrapper.getChatRoom(), startDate, endDate);
             }
+            else
+                msgList = null;
 
             Runnable updateMessagesPanel = new Runnable()
             {
@@ -534,8 +535,7 @@ public class HistoryWindow
      */
     private class KeywordDatesLoader extends Thread {
         private Vector keywordDatesVector = new Vector();
-        private Collection msgList;
-        private String keyword;
+        private final String keyword;
 
         /**
          * Creates a KeywordDatesLoader thread charged to load a list of dates
@@ -550,6 +550,8 @@ public class HistoryWindow
         
         public void run()
         {
+            Collection msgList = null;
+
             if (historyContact instanceof MetaContact)
             {
                 msgList = msgHistory.findByKeyword(
@@ -567,12 +569,10 @@ public class HistoryWindow
                     chatRoomWrapper.getChatRoom(), keyword);
             }
 
-            Object[] msgArray = msgList.toArray();
-            Date date = null;
+            if (msgList != null)
+            for (Object o : msgList) {
+                Date date = null;
                         
-            for (int i = 0; i < msgArray.length; i ++) {
-                Object o = msgArray[i];
-
                 if (o instanceof MessageDeliveredEvent) {
                     MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
                     date = evt.getTimestamp();

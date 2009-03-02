@@ -52,18 +52,16 @@ public class ProtocolProviderFactoryIcqImpl
     public AccountID installAccount( String userIDStr,
                                      Map accountProperties)
     {
-        BundleContext context
-            = IcqActivator.getBundleContext();
+        BundleContext context = IcqActivator.getBundleContext();
         if (context == null)
             throw new NullPointerException("The specified BundleContext was null");
 
         if (userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
-
-        accountProperties.put(USER_ID, userIDStr);
-
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was null");
+
+        accountProperties.put(USER_ID, userIDStr);
 
         // we are installing new aim account from the wizzard, so mark it as aim
         if(isAimFactory)

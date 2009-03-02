@@ -52,20 +52,22 @@ public class XMLConfUtils extends XMLUtils
      */
     public static Element createLastPathComponent(Document doc, String[] path)
     {
+        if (doc == null)
+            throw new IllegalArgumentException("doc must not be null");
+        if (path == null)
+            throw new IllegalArgumentException("path must not be null");
+
         Element parent = (Element)doc.getFirstChild();
-        if(   path   == null
-           || parent == null
-           || doc   == null)
-            throw new IllegalArgumentException(
-                "Document parent and path must not be null");
+        if (parent == null)
+            throw new IllegalArgumentException("parentmust not be null");
 
         Element e = parent;
-        for(int i=0; i < path.length; i++)
+        for (String pathEl : path)
         {
-            Element newEl = findChild(e, path[i]);
-            if(newEl == null)
+            Element newEl = findChild(e, pathEl);
+            if (newEl == null)
             {
-                newEl = doc.createElement(path[i]);
+                newEl = doc.createElement(pathEl);
                 e.appendChild(newEl);
             }
             e = newEl;

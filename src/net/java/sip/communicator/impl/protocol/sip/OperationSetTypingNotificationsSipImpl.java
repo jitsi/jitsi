@@ -74,7 +74,7 @@ public class OperationSetTypingNotificationsSipImpl
     private static final String COMPOSING_STATE_IDLE = "idle";
     
     private Timer timer = new Timer();
-    private Vector<TypingTask> typingTasks = new Vector<TypingTask>();
+    private final List<TypingTask> typingTasks = new Vector<TypingTask>();
     
     /**
      * Creates an instance of this operation set.
@@ -289,7 +289,7 @@ public class OperationSetTypingNotificationsSipImpl
         // process the typing info we have gathered
         if(state.equals(COMPOSING_STATE_ACTIVE))
         {
-            TypingTask task = findTypigTask(from);
+            TypingTask task = findTypingTask(from);
             
             if(task == null)
             {
@@ -389,16 +389,13 @@ public class OperationSetTypingNotificationsSipImpl
         return false;
     }
     
-    private TypingTask findTypigTask(Contact contact)
+    private TypingTask findTypingTask(Contact contact)
     {
-        Iterator<TypingTask> tasksIter = typingTasks.iterator();
-        while (tasksIter.hasNext())
+        for (TypingTask typingTask : typingTasks)
         {
-            TypingTask typingTask = tasksIter.next();
-            if(typingTask.equals(contact))
+            if (typingTask.typingContact.equals(contact))
                 return typingTask;
         }
-        
         return null;
     }
     
@@ -560,7 +557,7 @@ public class OperationSetTypingNotificationsSipImpl
     public void messageReceived(MessageReceivedEvent evt)
     {
         Contact from = evt.getSourceContact();
-        TypingTask task = findTypigTask(from);
+        TypingTask task = findTypingTask(from);
         
         if(task != null)
         {
@@ -582,7 +579,7 @@ public class OperationSetTypingNotificationsSipImpl
     private class TypingTask
         extends TimerTask
     {
-        Contact typingContact = null;
+        public final Contact typingContact;
         
         TypingTask(Contact typingContact)
         {

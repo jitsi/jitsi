@@ -83,11 +83,8 @@ public class TransformOutputStream
      */
     public boolean removeTarget(InetAddress remoteAddr, int remotePort)
     {
-        boolean ok = true;
-        ok = ok && this.remoteAddrs.remove(remoteAddr);
-        ok = ok && this.remoteAddrs.remove(new Integer(remotePort));
-
-        return ok;
+        return remoteAddrs.remove(remoteAddr)
+            && remotePorts.remove(new Integer(remotePort));
     }
 
     /**
