@@ -414,17 +414,49 @@ public class MessageHistoryServiceImpl
         String remoteId = remoteContact == null ? "default" : remoteContact
                 .getAddress();
 
+        String account =
+            remoteContact.getProtocolProvider().getAccountID().getAccountUniqueID();
+
         HistoryID historyId = HistoryID.createFromRawID(
+            new String[] {  "messages",
+                            localId,
+                            account,
+                            remoteId });
+
+        // if this history doesn't exists check to see if old one still exists
+        // old one is not storing history per account
+        // if old one exists its converted/moved to the new one
+        // the new one is in format messages/profile_name/account_uid/contact
+        // the old one was messages/profile_name/contact
+        if(!this.historyService.isHistoryCreated(historyId))
+        {
+            HistoryID historyId_old = HistoryID.createFromRawID(
             new String[] {  "messages",
                             localId,
                             remoteId });
 
+            if(this.historyService.isHistoryCreated(historyId_old))
+            {
+                try
+                {
+                    this.historyService.moveHistory(historyId_old, historyId);
+                }
+                catch (IOException iOException)
+                {
+                    // something is wrong just use the old one
+                    historyId = historyId_old;
+                }
+            }
+        }
+
         if (this.historyService.isHistoryExisting(historyId))
         {
             retVal = this.historyService.getHistory(historyId);
-        } else {
+        }
+        else
+        {
             retVal = this.historyService.createHistory(historyId,
-                    recordStructure);
+                recordStructure);
         }
 
         return retVal;

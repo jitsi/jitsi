@@ -240,10 +240,10 @@ public class HistoryServiceImpl
             dirs[0] = userSetDataDirectory;
         else
             dirs[0] = DATA_DIRECTORY;
-        
+
         // escape chars in direcotory names
         escapeCharacters(idComponents);
-        
+
         System.arraycopy(idComponents, 0, dirs, 1, dirs.length - 1);
 
         File directory = null;
@@ -255,7 +255,7 @@ public class HistoryServiceImpl
             throw (IOException) new IOException(
                     "Could not create history due to file system error")
                     .initCause(e);
-        }
+            }
 
         if (!directory.exists() && !directory.mkdirs())
         {
@@ -316,12 +316,12 @@ public class HistoryServiceImpl
         }
         dir.delete();
     }
-    
+
     /**
      * Replacing the characters that we must escape
      * used for the created filename.
-     * 
-     * @param ids Ids - folder names as we are using 
+     *
+     * @param ids Ids - folder names as we are using
      *          FileSystem for storing files.
      */
     private void escapeCharacters(String[] ids)
@@ -329,7 +329,7 @@ public class HistoryServiceImpl
         for (int i = 0; i < ids.length; i++)
         {
             String currId = ids[i];
-            
+
             for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
             {
                 currId = currId.
@@ -357,5 +357,88 @@ public class HistoryServiceImpl
                 .getServiceReference(FileAccessService.class.getName());
         return (serviceReference == null) ? null
             : (FileAccessService) bundleContext.getService(serviceReference);
+    }
+
+    /**
+     * Moves the content of oldId history to the content of the newId.
+     * Moves the content from the oldId folder to the newId folder.
+     * Old folder must exist.
+     *
+     * @param oldId old and existing history
+     * @param newId the place where content of oldId will be moved
+     * @throws java.io.IOException problem moving to newId
+     */
+    public void moveHistory(HistoryID oldId, HistoryID newId)
+        throws IOException
+    {
+        if(!isHistoryCreated(oldId))// || !isHistoryExisting(newId))
+            return;
+
+        File oldDir = this.createHistoryDirectories(oldId);
+        File newDir = getDirForHistory(newId);
+
+        // make sure parent path is existing
+        newDir.getParentFile().mkdirs();
+
+        if(!oldDir.renameTo(newDir))
+        {
+            logger.info("Cannot move history!");
+            throw new IOException("Cannot move history!");
+        }
+
+        histories.remove(oldId);
+    }
+
+    /**
+     * Returns the folder for the given history without creating it.
+     * @param id the history
+     * @return the folder for the history
+     */
+    private File getDirForHistory(HistoryID id)
+    {
+        // put together subfolder names.
+        String[] dirNames = id.getID();
+        StringBuffer dirName = new StringBuffer();
+        for (int i = 0; i < dirNames.length; i++)
+        {
+            if (i > 0)
+            {
+                dirName.append(File.separatorChar);
+            }
+            dirName.append(dirNames[i]);
+        }
+
+        // get the parent directory
+        File histDir = null;
+        try
+        {
+            String userSetDataDirectory =
+                System.getProperty("HistoryServiceDirectory");
+
+            if(userSetDataDirectory != null)
+                histDir = this.fileAccessService
+                    .getPrivatePersistentDirectory(userSetDataDirectory);
+            else
+                histDir = this.fileAccessService
+                    .getPrivatePersistentDirectory(DATA_DIRECTORY);
+
+
+        } catch (Exception e)
+        {
+            logger.error("Error opening directory", e);
+        }
+
+        return new File(histDir, dirName.toString());
+    }
+
+    /**
+     * Checks whether a history is created and stored.
+     * Exists in the file system.
+     * @param id the history to check
+     * @return whether a history is created and stored.
+     */
+    public boolean isHistoryCreated(HistoryID id)
+    {
+        return getDirForHistory(id).exists();
     }
 }

@@ -35,7 +35,7 @@ public interface HistoryService {
      *
      * @return An iterator to a list of IDs.
      */
-    Iterator<HistoryID> getExistingIDs();
+    public Iterator<HistoryID> getExistingIDs();
 
     /**
      * Returns the history associated with this ID.
@@ -46,16 +46,16 @@ public interface HistoryService {
      * @throws IllegalArgumentException
      *             Thrown if there is no such history.
      */
-    History getHistory(HistoryID id) throws IllegalArgumentException;
+    public History getHistory(HistoryID id) throws IllegalArgumentException;
 
     /**
-     * Tests if a history with the given ID exists.
+     * Tests if a history with the given ID exists and is loaded.
      *
      * @param id
      *            The ID to test.
      * @return True if a history with this ID exists. False otherwise.
      */
-    boolean isHistoryExisting(HistoryID id);
+    public boolean isHistoryExisting(HistoryID id);
 
     /**
      * Creates a new history for this ID.
@@ -70,7 +70,7 @@ public interface HistoryService {
      * @throws IOException
      *             Thrown if the history could not be created due to a IO error.
      */
-    History createHistory(HistoryID id, HistoryRecordStructure recordStructure)
+    public History createHistory(HistoryID id, HistoryRecordStructure recordStructure)
             throws IllegalArgumentException, IOException;
 
     /**
@@ -81,4 +81,21 @@ public interface HistoryService {
      *             Thrown if the history could not be removed due to a IO error.
      */
     public void purgeLocallyStoredHistory(HistoryID id) throws IOException;
+
+    /**
+     * Moves the content of oldId history to the content of the newId.
+     *
+     * @param oldId id of the old and existing history
+     * @param newId the place where content of oldId will be moved
+     * @throws java.io.IOException problem moving content to newId.
+     */
+    public void moveHistory(HistoryID oldId, HistoryID newId)
+        throws IOException;
+
+    /**
+     * Checks whether a history is created and stored.
+     * @param id the history to check
+     * @return whether a history is created and stored.
+     */
+    public boolean isHistoryCreated(HistoryID id);
 }
