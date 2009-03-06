@@ -69,22 +69,6 @@ public interface NetworkAddressManagerService
                BindException;
 
     /**
-     * Tries to obtain a mapped/public address for the specified port (possibly
-     * by executing a STUN query).
-     *
-     * @param port the port whose mapping we are interested in.
-     *
-     * @return a public address corresponding to the specified port or null
-     *   if all attempts to retrieve such an address have failed.
-     *
-     * @throws IOException if an error occurs while stun4j is using sockets.
-     * @throws BindException if the port is already in use.
-     */
-    public InetSocketAddress getPublicAddressFor(int port)
-        throws IOException,
-               BindException;
-
-    /**
       * Initializes the network address manager service implementation and
       * starts all processes/threads associated with this address manager, such
       * as a stun firewall/nat detector, keep alive threads, binding lifetime

@@ -108,12 +108,6 @@ public class NetworkAddressManagerServiceImpl
         = "net.java.sip.communicator.service.netaddr.BIND_RETRIES";
 
     /**
-     * Default STUN server address.
-     */
-    public static final String DEFAULT_STUN_SERVER_ADDRESS
-        = "stun.iptel.org";
-
-    /**
      * Default STUN server port.
      */
     public static final int DEFAULT_STUN_SERVER_PORT = 3478;
@@ -141,11 +135,8 @@ public class NetworkAddressManagerServiceImpl
          if (stunAddressStr == null
              || portStr == null)
          {
-             useStun = false;
-             //we use the default stun server address only for chosing a public
-            //route and not for stun queries.
-            stunServerAddress = new StunAddress(DEFAULT_STUN_SERVER_ADDRESS
-                                               , DEFAULT_STUN_SERVER_PORT);
+            useStun = false;
+
             logger.info("Stun server address("
                         +stunAddressStr+")/port("
                         +portStr
@@ -160,10 +151,10 @@ public class NetworkAddressManagerServiceImpl
             }
             catch (NumberFormatException ex)
             {
-                logger.error(portStr + " is not a valid port number. "
+                logger.info(portStr + " is not a valid port number. "
                              +"Defaulting to 3478",
                              ex);
-                port = 3478;
+                port = DEFAULT_STUN_SERVER_PORT;
             }
 
              stunServerAddress = new StunAddress(stunAddressStr, port);
@@ -425,28 +416,6 @@ public class NetworkAddressManagerServiceImpl
                          + port +" as follows: " + result);
         return result;
     }
-
-    /**
-     * Tries to obtain a mapped/public address for the specified port (possibly
-     * by executing a STUN query).
-     *
-     * @param port the port whose mapping we are interested in.
-     *
-     * @return a public address corresponding to the specified port or null
-     *   if all attempts to retrieve such an address have failed.
-     *
-     * @throws IOException if an error occurs while stun4j is using sockets.
-     * @throws BindException if the port is already in use.
-     */
-    public InetSocketAddress getPublicAddressFor(int port)
-        throws IOException,
-               BindException
-    {
-        return getPublicAddressFor(
-                    this.stunServerAddress.getSocketAddress().getAddress()
-                    , port);
-    }
-
 
     /**
      * This method gets called when a bound property is changed.
