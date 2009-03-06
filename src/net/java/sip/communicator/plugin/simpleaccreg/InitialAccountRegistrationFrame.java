@@ -249,6 +249,10 @@ public class InitialAccountRegistrationFrame
                         JLabel.RIGHT);
 
                 signupLabel.setFont(signupLabel.getFont().deriveFont(10f));
+                signupLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                signupLabel.setToolTipText(
+                        Resources.getString(
+                        "plugin.simpleaccregwizz.SPECIAL_SIGNUP"));
                 signupLabel.addMouseListener(new MouseAdapter()
                 {
                     public void mousePressed(MouseEvent e)
