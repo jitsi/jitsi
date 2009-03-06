@@ -43,7 +43,7 @@ public class ErrorDialog
 
     private StyledHTMLEditorPane htmlMsgEditorPane = new StyledHTMLEditorPane();
 
-    private JLabel msgJLabel = new JLabel();
+    private JEditorPane messageArea = new JEditorPane();
 
     private JTextArea stackTraceTextArea = new JTextArea();
 
@@ -72,9 +72,19 @@ public class ErrorDialog
     public static final int ERROR = 0;
 
     /**
+     * The maximum width that we allow message dialogs to have.
+     */
+    private static final int MAX_MSG_PANE_WIDTH = 600;
+
+    /**
+     * The maximum height that we allow message dialogs to have.
+     */
+    private static final int MAX_MSG_PANE_HEIGHT = 800;
+
+    /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
      * owner window and the message to be displayed.
-     * 
+     *
      * @param owner the dialog owner
      * @param title the title of the dialog
      * @param message the message to be displayed
@@ -96,12 +106,23 @@ public class ErrorDialog
 
         this.setTitle(title);
 
-        this.infoMessagePanel.setLayout(
-            new BoxLayout(infoMessagePanel, BoxLayout.Y_AXIS));
+        this.infoMessagePanel.setLayout(new BorderLayout());
 
-        msgJLabel.setText("<html><body><p align=\"left\">"+message+"</p></body></html>");
-        this.infoMessagePanel.add(msgJLabel);
-        
+        this.messageArea.setOpaque(false);
+        this.messageArea.setEditable(false);
+        this.messageArea.setContentType("text/html");
+        messageArea.setText("<html><body><p align=\"left\" >"+message+"</p></body></html>");
+
+        //try to reevaluate the preferred size of the message pane.
+        //(this is definitely not a neat way to do it ... but it works).
+        this.messageArea.setSize(
+                        new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
+        int height = this.messageArea.getPreferredSize().height;
+        this.messageArea.setPreferredSize(
+                        new Dimension(MAX_MSG_PANE_WIDTH, height));
+
+        this.infoMessagePanel.add(messageArea, BorderLayout.CENTER);
+
         this.init();
     }
 
@@ -129,7 +150,7 @@ public class ErrorDialog
 
         displayOrHideDetails();
 
-        this.infoMessagePanel.add(htmlMsgEditorPane);
+        this.infoMessagePanel.add(htmlMsgEditorPane, BorderLayout.SOUTH);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
