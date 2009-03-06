@@ -198,6 +198,7 @@ public class FirstWizardPage
         this.registerArea.setEditable(false);
         this.registerArea.setLineWrap(true);
         this.registerArea.setWrapStyleWord(true);
+        this.registerArea.setOpaque(false);
 
         this.registerPanel.add(registerArea);
         this.registerPanel.add(buttonPanel);

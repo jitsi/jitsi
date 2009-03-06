@@ -98,6 +98,8 @@ public class FirstWizardPage
 
         this.accountInfoArea.setWrapStyleWord(true);
         this.accountInfoArea.setLineWrap(true);
+        this.accountInfoArea.setEditable(false);
+        this.accountInfoArea.setOpaque(false);
 
         this.existingAccountLabel.setForeground(Color.RED);
         this.existingAccountPanel.add(existingAccountLabel);

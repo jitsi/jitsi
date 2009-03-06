@@ -244,7 +244,8 @@ public class FirstWizardPage
 
         // Description
         firstDescription.setLineWrap(true);
-        firstDescription.setLineWrap(true);
+        firstDescription.setEditable(false);
+        firstDescription.setOpaque(false);
         firstDescription.setRows(6);
         firstDescription.setWrapStyleWord(true);
         firstDescription.setAutoscrolls(false);

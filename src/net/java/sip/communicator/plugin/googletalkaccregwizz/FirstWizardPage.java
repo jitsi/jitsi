@@ -272,7 +272,7 @@ public class FirstWizardPage
 
         buttonPanel.add(registerButton);
 
-        registerArea.setEnabled(false);
+        registerArea.setEditable(false);
         registerArea.setOpaque(false);
         registerArea.setLineWrap(true);
         registerArea.setWrapStyleWord(true);
