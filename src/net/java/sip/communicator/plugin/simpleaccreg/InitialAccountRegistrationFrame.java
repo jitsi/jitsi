@@ -188,7 +188,8 @@ public class InitialAccountRegistrationFrame
         private JLabel usernameLabel
             = new JLabel(Resources.getString("service.gui.LOGIN"));
 
-        private JLabel passwordLabel = new JLabel("Password");
+        private JLabel passwordLabel
+            = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
         private JTextField usernameField = new JTextField();
 
