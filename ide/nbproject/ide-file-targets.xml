@@ -9,7 +9,7 @@
     <import file="../build.xml"/>
 
     <target name="debug-selected-file-in-test"
-            depends="prepare-local-accounts,prepare-all-tests,-deploy-os-specific-bundles"
+            depends="prepare-local-accounts,prepare-all-tests,deploy-os-specific-bundles"
             description="Starts felix and debugs the selected Service Impl Compatibility Kit" >
         <!-- This target runs felix under the debugger, but it can only work with
              unit test classes that extend TestSuite and implements BundleActivator

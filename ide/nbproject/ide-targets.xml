@@ -9,7 +9,7 @@
     <import file="../build.xml"/>
 
     <target name="debug-nb-wholeApp"
-            depends="-deploy-os-specific-bundles"
+            depends="deploy-os-specific-bundles"
             description="Starts felix and runs sip-comunicator gui (use latest build).">
         <nbjpdastart addressproperty="jpda.address"
                      name="SIP Communicator"
@@ -23,7 +23,7 @@
              string here (in the normal case the user will not have defined
              any - otherwise the application would find an argument with
              the value ${args} )-->
-        <property name="args" value=""/>
+        <property name="args" value="--multiple"/>
 
         <!-- fork=true no longer prevents debug break points latching... -->
         <java fork="true"
