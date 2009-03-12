@@ -79,11 +79,14 @@ public class FramedImage
 
     /**
      * Paints the contained image in a frame.
-     * 
+     *
      * @overrides {@link JComponent#paintComponent(Graphics)}.
      */
     public void paintComponent(Graphics g)
     {
+        if(image == null)
+            return;
+
         g.drawImage(image, width / 2 - image.getWidth(null) / 2, height / 2
             - image.getHeight(null) / 2, null);
 

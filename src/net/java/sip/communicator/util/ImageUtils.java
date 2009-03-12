@@ -75,6 +75,10 @@ public class ImageUtils
         int scaledImageWidth = scaledImage.getIconWidth();
         int scaledImageHeight = scaledImage.getIconHeight();
 
+        if(scaledImageHeight <= 0 ||
+           scaledImageWidth <= 0)
+            return null;
+
         BufferedImage destImage =
             new BufferedImage(scaledImageWidth, scaledImageHeight,
                 BufferedImage.TYPE_INT_ARGB);
