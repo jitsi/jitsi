@@ -118,7 +118,7 @@ public class TestOperationSetMultiUserChat2
         if (opSetMUC2 == null)
         {
             throw new NullPointerException(
-                "No implementation for basic IM was found");
+                "No implementation for MUC was found");
         }
 
         opSetPresence2 = (OperationSetPresence)
@@ -194,7 +194,7 @@ public class TestOperationSetMultiUserChat2
      *
      * @return true if the name is found, false otherwise
      */
-    public boolean nameIsOnMemberList(
+    private boolean nameIsOnMemberList(
         String name, List<ChatRoomMember> memberList)
     {
         for (ChatRoomMember member : memberList)
@@ -291,8 +291,7 @@ public class TestOperationSetMultiUserChat2
                 return; // ok the created room is listed on server
             }
         }
-        throw new OperationFailedException(
-            "the room creation test failed", OperationFailedException.NOT_FOUND);
+        fail("the new created room is not liste on server");
     }
 
     /**
@@ -316,12 +315,9 @@ public class TestOperationSetMultiUserChat2
         assertTrue(
             "we are not in the room we just joined", opSet1Room.isJoined());
 
-        List<ChatRoomMember> members = opSet1Room.getMembers();
-        String memberAddress = members.iterator().next().getContactAddress();
-
-        assertEquals("the member addres is not the good one"
-            , memberAddress, fixture.userID1);
-
+        assertTrue("user is not listed in the room with his nickname",
+            nameIsOnMemberList(
+            opSet1Room.getUserNickname(), opSet1Room.getMembers()));
     }
 
     /**
@@ -355,9 +351,7 @@ public class TestOperationSetMultiUserChat2
                 return; // ok opSet1Room is on the joined rooms list
             }
         }
-        throw new OperationFailedException(
-            "the joined room list does not contains a joinde room ",
-            OperationFailedException.NOT_FOUND);
+        fail("the joined room list does not contains a joined room");
     }
 
     /**
@@ -429,7 +423,7 @@ public class TestOperationSetMultiUserChat2
 
         opSet2Collector.waitForEvent(10000);
 
-        //now we look is user2 received an event
+        //now we look if user2 received an event
         assertEquals(
             "The invitation sent from user1 to user2 has not been received "
             , 1, opSet2Collector.collectedEvents.size());
@@ -470,7 +464,7 @@ public class TestOperationSetMultiUserChat2
     }
 
     /**
-     * <tt>testInviteFindJoin</tt> reproduces the following scenarion : user1
+     * <tt>testInviteFindJoin</tt> reproduces the following scenario : user1
      * invite user2. user2 retrieves the room where he is invited then, he joins it.
      */
     public void testInviteJoin()
@@ -516,8 +510,7 @@ public class TestOperationSetMultiUserChat2
         ChatRoom opSet2Room = invitation.getTargetChatRoom();
 
         MUCEventCollector opSet2RoomCollector =
-            new MUCEventCollector(opSet2Room,
-            MUCEventCollector.EVENT_PRESENCE);
+            new MUCEventCollector(opSet2Room, MUCEventCollector.EVENT_PRESENCE);
 
         opSet2Room.join();
 
@@ -526,7 +519,8 @@ public class TestOperationSetMultiUserChat2
 
         // we know check if both member received events
         assertEquals("a room member has not been notified that someone " +
-            "joined the room", 1, opSet1RoomCollector.collectedEvents.size());
+            "joined the room"
+            , 1, opSet1RoomCollector.collectedEvents.size());
 
         assertEquals("a room member has not been notified that someone " +
             "joined the room"
@@ -536,9 +530,9 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberPresenceChangeEvent)
             opSet1RoomCollector.collectedEvents.get(0);
 
-        assertEquals("user received an event of the wrong type ",
-            ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, memberEvent.
-            getEventType());
+        assertEquals("user received an event of the wrong type "
+            , ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED
+            , memberEvent.getEventType());
 
         assertEquals("the user who joined is not the one who was invited"
             , fixture.userID2
@@ -553,7 +547,7 @@ public class TestOperationSetMultiUserChat2
             "from one side to other"
             , opSet1Room.getMembersCount(), opSet2Room.getMembersCount());
 
-        //user2 must to be on room members list
+        //user2 must be on room members list now
         assertTrue("user is not listed in the room with his nickname",
             nameIsOnMemberList(
             opSet2Room.getUserNickname(), opSet2Room.getMembers()));
@@ -586,8 +580,8 @@ public class TestOperationSetMultiUserChat2
         if (opSet2Room.isJoined())
             opSet2Room.leave();
 
-        assertFalse(
-            "user is in a room he left or didnt joined", opSet2Room.isJoined());
+        assertFalse("user is in a room he left or didnt joined"
+            , opSet2Room.isJoined());
 
         MUCEventCollector opSet1RoomCollector =
             new MUCEventCollector(opSet1Room, MUCEventCollector.EVENT_PRESENCE);
@@ -602,10 +596,10 @@ public class TestOperationSetMultiUserChat2
 
         // does users received events since a member joined
         assertEquals("a room member has not been notified that someone else " +
-            "joined the room", 1, opSet1RoomCollector.collectedEvents.size());
+            "joined the room"
+            , 1, opSet1RoomCollector.collectedEvents.size());
 
-        assertTrue(
-            "user failed to join a room", opSet2Room.isJoined());
+        assertTrue("user failed to join a room", opSet2Room.isJoined());
 
         // checking if the user is listed with the right nickname
         assertTrue("user nickname not found in the room after join "
@@ -625,7 +619,8 @@ public class TestOperationSetMultiUserChat2
 
         opSet1RoomCollector.waitForEvent(10000);
 
-        assertFalse("we are in a room we just left", opSet2Room.isJoined());
+        assertFalse("an user is reported present in a room he left"
+            , opSet2Room.isJoined());
 
         // the nickname shouldnt be listed anymore
         assertFalse("user nickname is still on the room list after he left"
@@ -634,7 +629,7 @@ public class TestOperationSetMultiUserChat2
 
         // and the other side
 
-        // does user1 received events for the left operation
+        // does user1 received notifcation since user2 left
         assertEquals("an user joined and left and a room member missed events "
             , 1, opSet1RoomCollector.collectedEvents.size());
 
@@ -658,8 +653,8 @@ public class TestOperationSetMultiUserChat2
     }
 
     /**
-     * In <tt>testNickName</tt>, user nicknames will changed multiple
-     * times and we will check if changes are well reflected on both user
+     * In <tt>testNickName</tt>, user nicknames will be changed
+     * and we will check if changes are well reflected on both user
      * sides.
      */
     public void testNickName()
@@ -762,7 +757,7 @@ public class TestOperationSetMultiUserChat2
     }
 
     /**
-     * Here we test conference messagin : sending, receiving messages and
+     * Here we test conference messaging : sending, receiving messages and
      * corresponding events.
      */
     public void testConferenceChat()
