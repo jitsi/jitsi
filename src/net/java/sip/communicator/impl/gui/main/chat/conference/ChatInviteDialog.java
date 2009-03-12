@@ -32,19 +32,20 @@ public class ChatInviteDialog
     extends SIPCommDialog
     implements ActionListener
 {
-    private JTextArea reasonArea = new JTextArea();
+    private final JTextArea reasonArea = new JTextArea();
 
-    private JButton inviteButton = new JButton(
+    private final JButton inviteButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.INVITE"));
 
-    private JButton cancelButton = new JButton(
+    private final JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private DefaultListModel contactListModel = new DefaultListModel();
+    private final DefaultListModel contactListModel = new DefaultListModel();
 
-    private DefaultListModel selectedContactListModel = new DefaultListModel();
+    private final DefaultListModel selectedContactListModel
+        = new DefaultListModel();
 
-    private ChatPanel chatPanel;
+    private final ChatPanel chatPanel;
 
     private ChatTransport inviteChatTransport;
 
@@ -153,6 +154,8 @@ public class ChatInviteDialog
 
         JScrollPane contactListScrollPane = new JScrollPane();
 
+        contactListScrollPane.setOpaque(false);
+        contactListScrollPane.getViewport().setOpaque(false);
         contactListScrollPane.getViewport().add(contactList);
         contactListScrollPane.getViewport().setBorder(null);
         contactListScrollPane.setViewportBorder(null);
@@ -161,6 +164,8 @@ public class ChatInviteDialog
 
         JScrollPane selectedListScrollPane = new JScrollPane();
 
+        selectedListScrollPane.setOpaque(false);
+        selectedListScrollPane.getViewport().setOpaque(false);
         selectedListScrollPane.getViewport().add(selectedContactList);
         selectedListScrollPane.getViewport().setBorder(null);
         selectedListScrollPane.setViewportBorder(null);
@@ -172,11 +177,13 @@ public class ChatInviteDialog
 
         listPanel.add(contactListScrollPane);
         listPanel.add(selectedListScrollPane);
+        listPanel.setOpaque(false);
 
         this.initContactListData();
 
         // Add remove buttons panel.
         JPanel addRemoveButtonsPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+        addRemoveButtonsPanel.setOpaque(false);
 
         JButton addContactButton = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.ADD"));
@@ -263,13 +270,13 @@ public class ChatInviteDialog
             java.util.List<String> selectedContactAddresses =
                 new ArrayList<String>();
 
-            Enumeration selectedContacts
-                = selectedContactListModel.elements();
+            Enumeration<MetaContact> selectedContacts
+                = (Enumeration<MetaContact>) selectedContactListModel.elements();
 
             while (selectedContacts.hasMoreElements())
             {
                 MetaContact metaContact
-                    = (MetaContact) selectedContacts.nextElement();
+                    = selectedContacts.nextElement();
 
                 Iterator<Contact> contactsIter = metaContact
                     .getContactsForProvider(

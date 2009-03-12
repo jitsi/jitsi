@@ -48,7 +48,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * We use this to lock access to initialization.
      */
-    private Object initializationLock = new Object();
+    private final Object initializationLock = new Object();
 
     /**
      * The identifier of the account that this provider represents.
@@ -87,7 +87,7 @@ public class ProtocolProviderServiceJabberImpl
      * We can find features corresponding to op set in the xep(s) related
      * to implemented functionality.
      */
-    private List supportedFeatures = new ArrayList();
+    private final List supportedFeatures = new ArrayList();
 
     /**
      * The <tt>ServiceDiscoveryManager</tt> is responsible for advertising
@@ -355,7 +355,7 @@ public class ProtocolProviderServiceJabberImpl
                         , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                         , null);
 
-                if(accountResource == null || accountResource == "")
+                if(accountResource == null || accountResource.equals(""))
                     accountResource = "sip-comm";
 
                 connection.login(userID, password, accountResource);
@@ -394,13 +394,11 @@ public class ProtocolProviderServiceJabberImpl
         {
             discoveryManager = ServiceDiscoveryManager.
                     getInstanceFor(connection);
-            discoveryManager.setIdentityName("sip-comm");
-            discoveryManager.setIdentityType("registered");
-            Iterator it = supportedFeatures.iterator();
+            ServiceDiscoveryManager.setIdentityName("sip-comm");
+            ServiceDiscoveryManager.setIdentityType("registered");
+            Iterator<String> it = supportedFeatures.iterator();
             while (it.hasNext())
-            {
-                discoveryManager.addFeature((String) it.next());
-            }
+                discoveryManager.addFeature(it.next());
         }
 
     }
@@ -581,6 +579,8 @@ public class ProtocolProviderServiceJabberImpl
             // specific functionnality we support in muc.
             // see http://www.xmpp.org/extensions/xep-0045.html
             supportedFeatures.add("http://jabber.org/protocol/muc");
+            supportedFeatures.add("http://jabber.org/protocol/muc#rooms");
+            supportedFeatures.add("http://jabber.org/protocol/muc#traffic");
 
             //initialize the telephony opset
             if(JabberActivator.getMediaService() != null)

@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import org.jivesoftware.smack.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -19,22 +21,22 @@ public class ChatRoomMemberJabberImpl
     /**
      * The chat room that we are a member of.
      */
-    private ChatRoomJabberImpl containingRoom = null;
+    private final ChatRoomJabberImpl containingRoom;
     /**
      * The role that this member has in its member room.
      */
-    private ChatRoomMemberRole  role = null;
+    private final ChatRoomMemberRole  role;
 
     /**
      * The jabber id of the member (will only be visible to members with
      * necessary permissions)
      */
-    private String jabberID = null;
+    private final String jabberID;
 
     /**
      * The nick name that this member is using inside its containing chat room.
      */
-    private String nickName = null;
+    private String nickName;
 
     /**
      * The contact from our server stored contact list corresponding to this
@@ -99,7 +101,7 @@ public class ChatRoomMemberJabberImpl
      */
     public String getContactAddress()
     {
-        return jabberID;
+        return StringUtils.parseBareAddress(jabberID);
     }
 
     /**
@@ -112,6 +114,18 @@ public class ChatRoomMemberJabberImpl
     public String getName()
     {
         return nickName;
+    }
+
+    /**
+     * Update the name of this parcipant
+     * @param newNick the newNick of the participant
+     */
+    protected void setName(String newNick)
+    {
+        if ((newNick == null) || !(newNick.length() > 0))
+            throw new IllegalArgumentException(
+                "a room member nickname could not be null");
+        nickName = newNick;
     }
 
     /**

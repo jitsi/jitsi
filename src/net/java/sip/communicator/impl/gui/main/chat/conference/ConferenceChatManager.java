@@ -40,13 +40,14 @@ public class ConferenceChatManager
                 LocalUserChatRoomPresenceListener,
                 ServiceListener
 {
-    private Logger logger = Logger.getLogger(ConferenceChatManager.class);
+    private static final Logger logger
+        = Logger.getLogger(ConferenceChatManager.class);
 
-    private Hashtable chatRoomHistory = new Hashtable();
+    private final Hashtable chatRoomHistory = new Hashtable();
 
-    private ChatRoomList chatRoomList = new ChatRoomList();
+    private final ChatRoomList chatRoomList = new ChatRoomList();
 
-    private Vector<ChatRoomListChangeListener> listChangeListeners
+    private final Vector<ChatRoomListChangeListener> listChangeListeners
         = new Vector<ChatRoomListChangeListener>();
 
     /**
@@ -310,7 +311,7 @@ public class ConferenceChatManager
         {
             if(chatRoomWrapper != null)
             {
-                this.fireChatRoomListChanedEvent(
+                this.fireChatRoomListChangedEvent(
                     chatRoomWrapper,
                     ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
 
@@ -333,7 +334,7 @@ public class ConferenceChatManager
                 {
                     chatWindowManager.openChat(chatPanel, true);
                 }
-            }
+                    }
 
             if (sourceChatRoom.isSystem())
             {
@@ -364,7 +365,7 @@ public class ConferenceChatManager
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
-            fireChatRoomListChanedEvent(
+            fireChatRoomListChangedEvent(
                 chatRoomWrapper,
                 ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
 
@@ -377,7 +378,7 @@ public class ConferenceChatManager
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
-            fireChatRoomListChanedEvent(
+            fireChatRoomListChangedEvent(
                 chatRoomWrapper,
                 ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
 
@@ -390,7 +391,7 @@ public class ConferenceChatManager
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
-            fireChatRoomListChanedEvent(
+            fireChatRoomListChangedEvent(
                 chatRoomWrapper,
                 ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
 
@@ -520,7 +521,7 @@ public class ConferenceChatManager
             chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
             chatRoomList.addChatRoom(chatRoomWrapper);
 
-            fireChatRoomListChanedEvent(
+            fireChatRoomListChangedEvent(
                 chatRoomWrapper,
                 ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
         }
@@ -564,7 +565,7 @@ public class ConferenceChatManager
 
         chatRoomList.removeChatRoom(chatRoomWrapper);
 
-        this.fireChatRoomListChanedEvent(
+        this.fireChatRoomListChangedEvent(
             chatRoomWrapper,
             ChatRoomListChangeEvent.CHAT_ROOM_REMOVED);
     }
@@ -590,7 +591,7 @@ public class ConferenceChatManager
 
             chatRoomList.addChatRoom(chatRoomWrapper);
 
-            fireChatRoomListChanedEvent(
+            fireChatRoomListChangedEvent(
                 chatRoomWrapper,
                 ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
         }
@@ -621,7 +622,7 @@ public class ConferenceChatManager
 
             chatRoomList.addChatRoom(chatRoomWrapper);
 
-            fireChatRoomListChanedEvent(
+            fireChatRoomListChangedEvent(
                 chatRoomWrapper,
                 ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
         }
@@ -814,7 +815,7 @@ public class ConferenceChatManager
      * Notifies all interested listeners that a change in the chat room list
      * model has occurred.
      */
-    private void fireChatRoomListChanedEvent(   ChatRoomWrapper chatRoomWrapper,
+    private void fireChatRoomListChangedEvent(   ChatRoomWrapper chatRoomWrapper,
                                                 int eventID)
     {
         ChatRoomListChangeEvent evt

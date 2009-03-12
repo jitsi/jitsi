@@ -25,56 +25,56 @@ public class InvitationReceivedDialog
     extends SIPCommDialog
     implements ActionListener
 {    
-    private JTextArea infoTextArea = new JTextArea();
+    private final JTextArea infoTextArea = new JTextArea();
     
-    private JTextArea invitationReasonTextArea = new JTextArea();
+    private final JTextArea invitationReasonTextArea = new JTextArea();
     
-    private JPanel reasonPanel = new JPanel(new BorderLayout());
+    private final JPanel reasonPanel = new JPanel(new BorderLayout());
     
-    private JLabel reasonLabel = new JLabel(
+    private final JLabel reasonLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.REASON") + ": ");
     
-    private JTextField reasonField = new JTextField();
+    private final JTextField reasonField = new JTextField();
 
-    private JPanel dataPanel = new JPanel(new BorderLayout(10, 10));
+    private final JPanel dataPanel = new JPanel(new BorderLayout(10, 10));
     
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    private final JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private JButton acceptButton = new JButton(
+    private final JButton acceptButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ACCEPT"));
     
-    private JButton rejectButton = new JButton(
+    private final JButton rejectButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.REJECT"));
     
-    private JButton ignoreButton = new JButton(
+    private final JButton ignoreButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.IGNORE"));
     
-    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    private final JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
-    private JPanel northPanel = new JPanel(new BorderLayout(10, 10));
+    private final JPanel northPanel = new JPanel(new BorderLayout(10, 10));
     
-    private JLabel iconLabel = new JLabel(new ImageIcon(
+    private final JLabel iconLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
     
-    private String title = GuiActivator.getResources()
+    private final String title = GuiActivator.getResources()
         .getI18NString("service.gui.INVITATION_RECEIVED");
     
     /**
      * The <tt>ChatRoomInvitation</tt> for which this dialog is.
      */
-    private ChatRoomInvitation invitation;
+    private final ChatRoomInvitation invitation;
     
     /**
      * The <tt>MultiUserChatManager</tt> is the one that deals with invitation
      * events.
      */
-    private ConferenceChatManager multiUserChatManager;
+    private final ConferenceChatManager multiUserChatManager;
     
     /**
      * The operation set that would handle the rejection if the user choose to
      * reject the invitation.
      */
-    private OperationSetMultiUserChat multiUserChatOpSet;
+    private final OperationSetMultiUserChat multiUserChatOpSet;
     
     /**
      * Constructs the <tt>ChatInviteDialog</tt>.
@@ -103,12 +103,15 @@ public class InvitationReceivedDialog
 
         this.mainPanel.setPreferredSize(new Dimension(400, 230));
 
+//        this.mainPanel.setOpaque(false);
+
         infoTextArea.setText(
-            GuiActivator.getResources().getI18NString("service.gui.INVITATION_RECEIVED_MSG",
+            GuiActivator.getResources().getI18NString(
+                "service.gui.INVITATION_RECEIVED_MSG",
                 new String[] {  invitation.getInviter(),
                                 invitation.getTargetChatRoom().getName()}));
 
-        if(invitation.getReason() != null && invitation.getReason() != "")
+        if(invitation.getReason() != null && !invitation.getReason().equals(""))
         {
             invitationReasonTextArea.setText(invitation.getReason());
             invitationReasonTextArea.setBorder(
@@ -127,11 +130,14 @@ public class InvitationReceivedDialog
         
         this.northPanel.add(iconLabel, BorderLayout.WEST);
         this.northPanel.add(infoTextArea, BorderLayout.CENTER);
+        this.northPanel.setOpaque(false);
         
         this.reasonPanel.add(reasonLabel, BorderLayout.WEST);
         this.reasonPanel.add(reasonField, BorderLayout.CENTER);
-        
+        this.reasonPanel.setOpaque(false);
+
         this.dataPanel.add(reasonPanel, BorderLayout.SOUTH);
+        this.dataPanel.setOpaque(false);
         
         this.acceptButton.addActionListener(this);
         this.rejectButton.addActionListener(this);
@@ -140,6 +146,7 @@ public class InvitationReceivedDialog
         this.buttonsPanel.add(acceptButton);
         this.buttonsPanel.add(rejectButton);
         this.buttonsPanel.add(ignoreButton);
+        this.buttonsPanel.setOpaque(false);
         
         this.getRootPane().setDefaultButton(acceptButton);
         this.acceptButton.setMnemonic(
@@ -155,6 +162,7 @@ public class InvitationReceivedDialog
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
         this.mainPanel.add(dataPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        this.mainPanel.setOpaque(false);
         
         this.getContentPane().add(mainPanel);
     }

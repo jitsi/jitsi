@@ -59,6 +59,8 @@ public class ChatRoomMemberListPanel
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         contactsScrollPane.getViewport().add(memberList);
+        contactsScrollPane.getViewport().setOpaque(false);
+        contactsScrollPane.setOpaque(false);
 
         this.add(contactsScrollPane);
     }

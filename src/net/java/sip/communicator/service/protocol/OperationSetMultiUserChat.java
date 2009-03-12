@@ -32,7 +32,7 @@ public interface OperationSetMultiUserChat
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public List getExistingChatRooms()
+    public List<String> getExistingChatRooms()
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
@@ -42,7 +42,7 @@ public interface OperationSetMultiUserChat
      * @return a <tt>List</tt> of the rooms where the user has joined using a
      * given connection.
      */
-    public List getCurrentlyJoinedChatRooms();
+    public List<ChatRoom> getCurrentlyJoinedChatRooms();
 
     /**
      * Returns a list of the chat rooms that <tt>chatRoomMember</tt> has joined
@@ -58,7 +58,7 @@ public interface OperationSetMultiUserChat
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
+    public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
@@ -83,11 +83,12 @@ public interface OperationSetMultiUserChat
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
-     * Returns a reference to a chatRoom named <tt>roomName</tt>. The room is
-     * created if it doesn't exists
+     * Returns a reference to a chatRoom named <tt>roomName</tt> or null
+     * if no room with the given name exist on the server.
      * <p>
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking for.
-     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt>
+     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt> if it exists, null
+     * otherwise.
      *
      * @throws OperationFailedException if an error occurs while trying to
      * discover the room on the server.

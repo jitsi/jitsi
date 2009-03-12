@@ -24,12 +24,12 @@ import org.osgi.framework.*;
  */
 public class ChatRoomList
 {
-    private Logger logger = Logger.getLogger(ChatRoomList.class);
+    private static final Logger logger = Logger.getLogger(ChatRoomList.class);
 
     /**
      * The list containing all chat servers and rooms.
      */
-    private Vector<ChatRoomProviderWrapper> providersList
+    private final Vector<ChatRoomProviderWrapper> providersList
         = new Vector<ChatRoomProviderWrapper>();
 
     /**

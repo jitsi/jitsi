@@ -182,6 +182,7 @@ public class ChatPanel
             this.chatContactListPanel = new ChatRoomMemberListPanel(this);
             this.chatContactListPanel.setPreferredSize(new Dimension(150, 100));
             this.chatContactListPanel.setMinimumSize(new Dimension(150, 100));
+            this.chatContactListPanel.setOpaque(false);
 
             this.topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -199,6 +200,7 @@ public class ChatPanel
 //            this.add(subjectPanel, BorderLayout.NORTH);
 
             topSplitPane.setRightComponent(chatContactListPanel);
+            topSplitPane.setOpaque(false);
 
             // Initialize chat participants' panel.
             Iterator<ChatContact> chatParticipants

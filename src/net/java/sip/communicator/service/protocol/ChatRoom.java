@@ -264,7 +264,7 @@ public interface ChatRoom
      * @throws OperationFailedException if we fail retrieving the list of room
      * participants.
      */
-    public List getMembers();
+    public List<ChatRoomMember> getMembers();
 
     /**
      * Returns the number of participants that are currently in this chat room.
@@ -337,7 +337,8 @@ public interface ChatRoom
      * request to the server or you don't have enough privileges to get this
      * information
      */
-    public Iterator getBanList() throws OperationFailedException;
+    public Iterator<ChatRoomMember> getBanList()
+        throws OperationFailedException;
     
     /**
      * Bans a user from the room. An administrator or owner of the room can ban

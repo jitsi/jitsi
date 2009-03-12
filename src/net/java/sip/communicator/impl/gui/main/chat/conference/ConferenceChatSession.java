@@ -27,15 +27,15 @@ public class ConferenceChatSession
                 ChatRoomMemberPresenceListener,
                 ChatRoomPropertyChangeListener
 {
-    private ArrayList chatParticipants = new ArrayList();
+    private final ArrayList chatParticipants = new ArrayList();
 
-    private ArrayList chatTransports = new ArrayList();
+    private final ArrayList chatTransports = new ArrayList();
 
     private ChatTransport currentChatTransport;
 
-    private ChatRoomWrapper chatRoomWrapper;
+    private final ChatRoomWrapper chatRoomWrapper;
 
-    private ChatSessionRenderer sessionRenderer;
+    private final ChatSessionRenderer sessionRenderer;
 
     /**
      * Creates an instance of <tt>ConferenceChatSession</tt>, by specifying the
@@ -81,6 +81,8 @@ public class ConferenceChatSession
     {
         chatRoomWrapper.getChatRoom().removeMemberPresenceListener(this);
         chatRoomWrapper.getChatRoom().removePropertyChangeListener(this);
+        GuiActivator.getUIService().getConferenceChatManager().
+            leaveChatRoom(chatRoomWrapper);
     }
 
     /**

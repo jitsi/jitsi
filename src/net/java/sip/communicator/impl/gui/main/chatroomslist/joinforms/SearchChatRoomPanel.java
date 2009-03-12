@@ -23,27 +23,27 @@ public class SearchChatRoomPanel
     extends TransparentPanel
     implements ActionListener
 {
-    private ChatRoomNamePanel namePanel = new ChatRoomNamePanel();
+    private final ChatRoomNamePanel namePanel = new ChatRoomNamePanel();
     
-    private JPanel mainPanel = new TransparentPanel();
+    private final JPanel mainPanel = new TransparentPanel();
 
-    private JPanel searchPanel = new TransparentPanel(new GridLayout(0, 1));
+    private final JPanel searchPanel = new TransparentPanel(new GridLayout(0, 1));
     
-    private JTextArea searchTextArea = new JTextArea(
+    private final JTextArea searchTextArea = new JTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.SEARCH_FOR_CHAT_ROOMS_MSG"));
     
-    private JButton searchButton = new JButton(
+    private final JButton searchButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.SEARCH"));
     
-    private JPanel buttonPanel = new TransparentPanel(
+    private final JPanel buttonPanel = new TransparentPanel(
         new FlowLayout(FlowLayout.CENTER));
     
-    private JList chatRoomsList = new JList();
+    private final JList chatRoomsList = new JList();
     
-    private JScrollPane chatRoomsScrollPane = new JScrollPane();
+    private final JScrollPane chatRoomsScrollPane = new JScrollPane();
 
-    private WizardContainer wizardContainer;
+    private final WizardContainer wizardContainer;
 
     private ChatRoomProviderWrapper chatRoomProvider;
 
@@ -68,6 +68,7 @@ public class SearchChatRoomPanel
     public SearchChatRoomPanel(ChatRoomProviderWrapper provider)
     {
         this.chatRoomProvider = provider;
+        wizardContainer = null;
 
         this.init();
     }
@@ -105,7 +106,7 @@ public class SearchChatRoomPanel
 
         this.chatRoomsScrollPane.setBorder(BorderFactory
             .createTitledBorder(GuiActivator.getResources()
-                .getI18NString("service.gui.CHAT_ROOM_REQUIRES_PASSWORD")));
+                .getI18NString("service.gui.CHAT_ROOMS")));
 
         this.chatRoomsList.addListSelectionListener(
             new ChatRoomListSelectionListener());

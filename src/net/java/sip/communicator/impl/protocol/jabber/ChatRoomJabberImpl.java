@@ -43,59 +43,59 @@ public class ChatRoomJabberImpl
      * Listeners that will be notified of changes in member status in the
      * room such as member joined, left or being kicked or dropped.
      */
-    private Vector memberListeners = new Vector();
+    private final Vector memberListeners = new Vector();
 
     /**
      * Listeners that will be notified of changes in member role in the
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private Vector memberRoleListeners = new Vector();
+    private final Vector memberRoleListeners = new Vector();
     
     /**
      * Listeners that will be notified of changes in local user role in the
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private Vector localUserRoleListeners = new Vector();
+    private final Vector localUserRoleListeners = new Vector();
 
     /**
      * Listeners that will be notified every time
      * a new message is received on this chat room.
      */
-    private Vector messageListeners = new Vector();
+    private final Vector messageListeners = new Vector();
 
     /**
      * Listeners that will be notified every time
      * a chat room property has been changed.
      */
-    private Vector propertyChangeListeners = new Vector();
+    private final Vector propertyChangeListeners = new Vector();
 
     /**
      * Listeners that will be notified every time
      * a chat room member property has been changed.
      */
-    private Vector memberPropChangeListeners = new Vector();
+    private final Vector memberPropChangeListeners = new Vector();
 
     /**
      * The protocol provider that created us
      */
-    private ProtocolProviderServiceJabberImpl provider = null;
+    private final ProtocolProviderServiceJabberImpl provider;
 
     /**
      * The operation set that created us.
      */
-    private OperationSetMultiUserChatJabberImpl opSetMuc = null;
+    private final OperationSetMultiUserChatJabberImpl opSetMuc;
 
     /**
      * The list of members of this chat room.
      */
-    private Hashtable members = new Hashtable();
+    private final Hashtable<String, ChatRoomMember> members = new Hashtable();
 
     /**
-     * The list of members of this chat room.
+     * The list of banned members of this chat room.
      */
-    private Hashtable banList = new Hashtable();
+    private final Hashtable<String, ChatRoomMember> banList = new Hashtable();
     
     /**
      * The nickname of this chat room local user participant.
@@ -106,7 +106,7 @@ public class ChatRoomJabberImpl
      * The subject of this chat room. Keeps track of the subject changes.
      */
     private String oldSubject;
-    
+
     /**
      * The corresponding configuration form.
      */
@@ -313,7 +313,7 @@ public class ChatRoomJabberImpl
      * @return a <tt>List</tt> of <tt>Member</tt> corresponding to all room
      *   members.
      */
-    public List getMembers()
+    public List<ChatRoomMember> getMembers()
     {
         return new LinkedList(members.values());
     }
@@ -364,7 +364,7 @@ public class ChatRoomJabberImpl
         return multiUserChat.getNickname();
     }
 
-    /**
+    /**bje
      * Returns the last known room subject/theme or <tt>null</tt> if the user
      * hasn't joined the room or the room does not have a subject yet.
      *
@@ -531,23 +531,32 @@ public class ChatRoomJabberImpl
         this.assertConnected();
         
         this.nickname = nickname;
-        
+
         try
         {
-            multiUserChat.join(nickname);
+            if (multiUserChat.isJoined())
+            {
+                if (!multiUserChat.getNickname().equals(nickname))
+                    multiUserChat.changeNickname(nickname);
+            }
+            else
+                multiUserChat.join(nickname);
 
-            ChatRoomMemberJabberImpl member
-                = new ChatRoomMemberJabberImpl( this,
-                                                nickname,
-                                                provider.getAccountID()
-                                                    .getAccountAddress(),
-                                                ChatRoomMemberRole.GUEST);
-          
+            if (members.get(nickname) == null)
+            {
+                ChatRoomMemberJabberImpl member
+                    = new ChatRoomMemberJabberImpl( this,
+                                                    nickname,
+                                                    provider.getAccountID()
+                                                        .getAccountAddress(),
+                                                    ChatRoomMemberRole.GUEST);
+
             members.put(nickname, member);
-  
-            //we don't specify a reason
-            opSetMuc.fireLocalUserPresenceEvent(this,
-                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED, null);
+
+                //we don't specify a reason
+                opSetMuc.fireLocalUserPresenceEvent(this,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED, null);
+            }
         }
         catch (XMPPException ex)
         {
@@ -669,11 +678,12 @@ public class ChatRoomJabberImpl
     {
         String participantName = StringUtils.parseResource(participant);
         
-        Iterator chatRoomMembers = this.members.values().iterator();
+        Iterator<ChatRoomMember> chatRoomMembers =
+            this.members.values().iterator();
         
         while(chatRoomMembers.hasNext())
         {
-            ChatRoomMember member = (ChatRoomMember) chatRoomMembers.next();
+            ChatRoomMember member = chatRoomMembers.next();
             
             if(participantName.equals(member.getName())
                 || participant.equals(member.getContactAddress()))
@@ -689,7 +699,9 @@ public class ChatRoomJabberImpl
     public void leave()
     {
         multiUserChat.leave();
-        
+
+// FIXME : do we have to do the following when we leave the room ?
+
         Iterator membersSet = members.entrySet().iterator();
         
         while(membersSet.hasNext())
@@ -942,6 +954,8 @@ public class ChatRoomJabberImpl
 
             if(member == null)
                 return;
+
+            ((ChatRoomMemberJabberImpl) member).setName(newNickname);
 
             String participantName = StringUtils.parseResource(participant);
             
@@ -1205,7 +1219,7 @@ public class ChatRoomJabberImpl
     /**
      * Returns the list of banned users.
      */
-    public Iterator getBanList()
+    public Iterator<ChatRoomMember> getBanList()
         throws OperationFailedException
     {   
         return banList.values().iterator();
@@ -1702,7 +1716,18 @@ public class ChatRoomJabberImpl
      */
     public boolean isPersistent()
     {
-        return true;
+        boolean persistent = false;
+        String roomName = multiUserChat.getRoom();
+        try
+        {
+            persistent = MultiUserChat.getRoomInfo(
+                provider.getConnection(), roomName).isPersistent();
+        } catch (XMPPException ex)
+        {
+            logger.warn("could not get persistent state for room :" +
+                roomName + "\n", ex);
+        }
+        return persistent;
     }
 
     /**
