@@ -100,6 +100,7 @@ public class JabberProtocolProviderServiceLick
 
             /** @todo UNCOMMENT */
 //            addTest(TestOperationSetMultiUserChat.suite());
+            addTest(TestOperationSetMultiUserChat2.suite());
         }
 
 
