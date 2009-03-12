@@ -230,9 +230,9 @@ public class TestOperationSetMultiUserChat2
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testInviteReject"));
-
-        suite.addTest(
-            new TestOperationSetMultiUserChat2("testInviteJoin"));
+//
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testInviteJoin"));
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testLeave"));
@@ -291,7 +291,7 @@ public class TestOperationSetMultiUserChat2
                 return; // ok the created room is listed on server
             }
         }
-        fail("the new created room is not liste on server");
+        fail("the new created room is not listed on server");
     }
 
     /**
@@ -537,7 +537,6 @@ public class TestOperationSetMultiUserChat2
         assertEquals("the user who joined is not the one who was invited"
             , fixture.userID2
             , memberEvent.getChatRoomMember().getContactAddress());
-
 
         assertEquals("there is not exactly two members in the room"
             , 2 , opSet1Room.getMembersCount());
