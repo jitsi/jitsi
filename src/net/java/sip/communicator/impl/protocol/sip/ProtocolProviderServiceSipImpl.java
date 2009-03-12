@@ -432,20 +432,20 @@ public class ProtocolProviderServiceSipImpl
             initRegistrarConnection(accountID);
 
             //init our call processor
-            OperationSetAdvancedTelephony opSetAdvancedTelephony
+            OperationSetBasicTelephonySipImpl opSetBasicTelephonySipImpl
                 = new OperationSetBasicTelephonySipImpl(this);
             this.supportedOperationSets.put(
                 OperationSetBasicTelephony.class.getName()
-                , opSetAdvancedTelephony);
+                , opSetBasicTelephonySipImpl);
             this.supportedOperationSets.put(
                 OperationSetAdvancedTelephony.class.getName()
-                , opSetAdvancedTelephony);
+                , opSetBasicTelephonySipImpl);
 
             // init ZRTP (OperationSetBasicTelephonySipImpl implements
             // OperationSetSecureTelephony)
             this.supportedOperationSets.put(
                 OperationSetSecureTelephony.class.getName()
-                , opSetAdvancedTelephony);
+                , opSetBasicTelephonySipImpl);
 
             //init presence op set.
             OperationSetPersistentPresence opSetPersPresence
@@ -474,8 +474,9 @@ public class ProtocolProviderServiceSipImpl
                 opSetTyping);
 
             // OperationSetVideoTelephony
-            supportedOperationSets.put(OperationSetVideoTelephony.class
-                .getName(), new OperationSetVideoTelephonySipImpl());
+            supportedOperationSets.put(
+                OperationSetVideoTelephony.class.getName(),
+                new OperationSetVideoTelephonySipImpl(opSetBasicTelephonySipImpl));
 
             // init DTMF (from JM Heitz)
             OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);

@@ -254,7 +254,7 @@ public class XMLUtils
            // not working for jdk 1.4
            try
            {
-                tf.setAttribute("indent-number", new Integer(4));
+                tf.setAttribute("indent-number", 4);
            }catch(Exception e){}
            
            Transformer serializer = tf.newTransformer();

@@ -72,6 +72,7 @@ import gnu.java.zrtp.*;
  * @author Emanuel Onica
  */
 public class CallSessionImpl
+    extends PropertyChangeNotifier
         implements   CallSession
                    , CallParticipantListener
                    , CallChangeListener
@@ -80,7 +81,6 @@ public class CallSessionImpl
                    , SessionListener
                    , ControllerListener
 //                   , SecureEventListener
-
 {
     private static final Logger logger
         = Logger.getLogger(CallSessionImpl.class);
@@ -224,12 +224,6 @@ public class CallSessionImpl
         new HashMap<Component, LocalVisualComponentData>();
 
     /**
-     * Indicates whether current call is sending video data.
-     * Used to suppress or not video events for local video.
-     */
-    private boolean sendingVideo = false;
-
-    /**
      * List of RTP format strings which are supported by SIP Communicator in addition
      * to the JMF standard formats.
      *
@@ -297,6 +291,12 @@ public class CallSessionImpl
     private InetAddress lastIntendedDestination;
 
     /**
+     * The indicator which determines whether this instance is currently
+     * streaming the local video (to remote destinations).
+     */
+    private boolean localVideoStreaming = false;
+
+    /**
      * Creates a new session for the specified <tt>call</tt> with a custom
      * destination for incoming data.
      *
@@ -315,7 +315,7 @@ public class CallSessionImpl
         registerCustomCodecFormats(audioRtpManager);
 
         // not currently needed, we don't have any custom video formats.
-         registerCustomVideoCodecFormats(videoRtpManager);
+        registerCustomVideoCodecFormats(videoRtpManager);
 
         call.addCallChangeListener(this);
         initializePortNumbers();
@@ -391,15 +391,15 @@ public class CallSessionImpl
      *
      * @throws MediaException if start() fails for all send streams.
      */
-    private void startStreaming()
+    public void startStreaming()
         throws MediaException
     {
         //start all audio streams
         boolean startedAtLeastOneStream = false;
         RTPManager rtpManager = getAudioRtpManager();
 
-        Vector<SendStream> sendStreams = rtpManager.getSendStreams();
-        if(sendStreams != null && sendStreams.size() > 0)
+        List<SendStream> sendStreams = rtpManager.getSendStreams();
+        if((sendStreams != null) && (sendStreams.size() > 0))
         {
             logger.trace("Will be starting " + sendStreams.size()
                          + " audio send streams.");
@@ -426,8 +426,9 @@ public class CallSessionImpl
 
         //start video streams
         rtpManager = getVideoRtpManager();
-        sendStreams = rtpManager.getSendStreams();
-        if(sendStreams != null && sendStreams.size() > 0)
+        if(mediaServCallback.getMediaControl(getCall()).isLocalVideoAllowed()
+                && ((sendStreams = rtpManager.getSendStreams()) != null)
+                && (sendStreams.size() > 0))
         {
             logger.trace("Will be starting " + sendStreams.size()
                          + " video send streams.");
@@ -444,6 +445,9 @@ public class CallSessionImpl
                     logger.warn("Failed to start stream.", ex);
                 }
             }
+
+            if (startedAtLeastOneStream)
+                setLocalVideoStreaming(true);
         }
         else
         {
@@ -457,6 +461,8 @@ public class CallSessionImpl
             throw new MediaException("Failed to start streaming"
                                      , MediaException.INTERNAL_ERROR);
         }
+
+        applyOnHold();
     }
 
     /**
@@ -485,18 +491,27 @@ public class CallSessionImpl
         return stoppedStreaming;
     }
 
-    /**
-     * Stops and closes all streams currently handled by <tt>rtpManager</tt>.
-     *
-     * @param rtpManager the rtpManager whose streams we'll be stopping.
-     * @return <tt>true</tt> if there was an actual change in the streaming i.e.
-     *         the streaming wasn't already stopped before this request;
-     *         <tt>false</tt>, otherwise
-     */
-    private boolean stopStreaming(RTPManager rtpManager)
+    private boolean stopSendStreaming()
     {
         boolean stoppedAtLeastOneStream = false;
+        
+        RTPManager audioRtpManager = getAudioRtpManager();
+        if ((audioRtpManager != null)
+                && stopSendStreaming(audioRtpManager))
+            stoppedAtLeastOneStream = true;
+
+        RTPManager videoRtpManager = getVideoRtpManager();
+        if ((videoRtpManager != null)
+                && stopSendStreaming(videoRtpManager))
+            stoppedAtLeastOneStream = true;
+
+        return stoppedAtLeastOneStream;
+    }
+
+    private boolean stopSendStreaming(RTPManager rtpManager)
+    {
         List<SendStream> sendStreams = rtpManager.getSendStreams();
+        boolean stoppedAtLeastOneStream = false;
 
         for (SendStream stream : sendStreams)
         {
@@ -512,6 +527,20 @@ public class CallSessionImpl
             }
             stoppedAtLeastOneStream = true;
         }
+        return stoppedAtLeastOneStream;
+    }
+
+    /**
+     * Stops and closes all streams currently handled by <tt>rtpManager</tt>.
+     *
+     * @param rtpManager the rtpManager whose streams we'll be stopping.
+     * @return <tt>true</tt> if there was an actual change in the streaming i.e.
+     *         the streaming wasn't already stopped before this request;
+     *         <tt>false</tt>, otherwise
+     */
+    private boolean stopStreaming(RTPManager rtpManager)
+    {
+        boolean stoppedAtLeastOneStream = stopSendStreaming(rtpManager);
 
         List<ReceiveStream> receiveStreams;
         try
@@ -519,7 +548,7 @@ public class CallSessionImpl
             receiveStreams = rtpManager.getReceiveStreams();
         }
         //it appears that in early call states, when there are no streams
-        //this method could throug a null pointer exception. Make sure we handle
+        //this method could throw a null pointer exception. Make sure we handle
         //it gracefully
         catch (Exception e)
         {
@@ -669,6 +698,26 @@ public class CallSessionImpl
         throws net.java.sip.communicator.service.media.MediaException
     {
         return createSessionDescription(null, intendedDestination).toString();
+    }
+
+    public String createSdpOffer(String participantSdpDescription)
+        throws MediaException
+    {
+        SessionDescription participantDescription = null;
+        try
+        {
+            participantDescription =
+                mediaServCallback.getSdpFactory().createSessionDescription(
+                    participantSdpDescription);
+        }
+        catch (SdpParseException ex)
+        {
+            throw new MediaException(
+                "Failed to parse the SDP description of the participant.",
+                MediaException.INTERNAL_ERROR, ex);
+        }
+
+        return createSessionDescription(participantDescription, null).toString();
     }
 
     /**
@@ -1017,6 +1066,11 @@ public class CallSessionImpl
         //create and init the streams (don't start streaming just yet but wait
         //for the call to enter the connected state).
         createSendStreams(mediaDescriptions);
+
+        CallParticipantState responderState = responder.getState();
+        if (CallParticipantState.CONNECTED.equals(responderState)
+                || CallParticipantState.isOnHold(responderState))
+            startStreaming();
     }
 
     /**
@@ -1157,8 +1211,6 @@ public class CallSessionImpl
         PushBufferStream[] streams
             = ((PushBufferDataSource)dataSource).getStreams();
 
-        sendingVideo = false;
-
         //for each stream - determine whether it is a video or an audio
         //stream and assign it to the corresponding rtpmanager
         for (int i = 0; i < streams.length; i++)
@@ -1170,7 +1222,6 @@ public class CallSessionImpl
             if(format instanceof VideoFormat)
             {
                 rtpManager = getVideoRtpManager();
-                sendingVideo = true;
             }
             else if (format instanceof AudioFormat)
             {
@@ -1315,12 +1366,12 @@ public class CallSessionImpl
     }
 
     /**
-     * Creates an SDP description of this session using the offer descirption
+     * Creates an SDP description of this session using the offer description
      * (if not null) for limiting. The intendedDestination parameter, which may
      * contain the address that the offer is to be sent to, will only be used if
      * the <tt>offer</tt> or its connection parameter are <tt>null</tt>. In the
-     * oposite case we are using the address provided in the connection param as
-     * an intended destination.
+     * opposite case we are using the address provided in the connection param
+     * as an intended destination.
      *
      * @param offer the call participant meant to receive the offer or null if
      * we are to construct our own offer.
@@ -1442,10 +1493,7 @@ public class CallSessionImpl
                 lastIntendedDestination = intendedDestination;
 
                 if (startStreaming)
-                {
                     startStreaming();
-                    applyOnHold();
-                }
             }
 
             InetAddress publicIpAddress = audioPublicAddress.getAddress();
@@ -1673,8 +1721,7 @@ public class CallSessionImpl
 
             byte onHold = this.onHold;
 
-            if (!mediaServCallback.getDeviceConfiguration()
-                .isVideoCaptureSupported())
+            if (!mediaControl.isLocalVideoAllowed())
             {
                 /* We don't have anything to send. */
                 onHold |= ON_HOLD_REMOTELY;
@@ -1941,8 +1988,6 @@ public class CallSessionImpl
 
         NetworkAddressManagerService netAddressManager
                     = MediaActivator.getNetworkAddressManagerService();
-
-
 
         //try to initialize a public address for the rtp manager.
         for (int i = bindRetries; i > 0; i--)
@@ -2406,6 +2451,13 @@ public class CallSessionImpl
              * here shouldn't be necessary because #stopStreaming() should've
              * already take care of it.
              */
+
+            // Clean up after the support for viewing the local video.
+            Component[] localVisualComponents
+                = this.localVisualComponents.keySet().toArray(
+                        new Component[this.localVisualComponents.size()]);
+            for (Component localVisualComponent : localVisualComponents)
+                disposeLocalVisualComponent(localVisualComponent);
         }
     }
 
@@ -2667,7 +2719,6 @@ public class CallSessionImpl
             // logger.debug("Player does not have gain control.");
 
             logger.debug("A player was realized and will be started.");
-            player.start();
 
             if (dataSink != null)
             {
@@ -2939,9 +2990,12 @@ public class CallSessionImpl
     public Component createLocalVisualComponent(final VideoListener listener)
         throws MediaException
     {
-        DataSource dataSource =
-            mediaServCallback.getMediaControl(getCall())
-                .createLocalVideoDataSource();
+        if (!isLocalVideoStreaming())
+            return null;
+
+        final MediaControl mediaControl
+            = mediaServCallback.getMediaControl(getCall());
+        DataSource dataSource = mediaControl.createLocalVideoDataSource();
 
         if (dataSource != null)
         {
@@ -2968,9 +3022,8 @@ public class CallSessionImpl
             {
                 public void controllerUpdate(ControllerEvent event)
                 {
-                    if(sendingVideo)
-                        controllerUpdateForCreateLocalVisualComponent(event,
-                            listener);
+                    controllerUpdateForCreateLocalVisualComponent(
+                            event, listener, mediaControl);
                 }
             });
             player.start();
@@ -2979,7 +3032,8 @@ public class CallSessionImpl
     }
 
     private void controllerUpdateForCreateLocalVisualComponent(
-        ControllerEvent controllerEvent, VideoListener listener)
+        ControllerEvent controllerEvent, VideoListener listener,
+        MediaControl mediaControl)
     {
         if (controllerEvent instanceof RealizeCompleteEvent)
         {
@@ -2988,16 +3042,26 @@ public class CallSessionImpl
 
             if (visualComponent != null)
             {
-                VideoEvent videoEvent =
-                    new VideoEvent(this, VideoEvent.VIDEO_ADDED,
-                        visualComponent, VideoEvent.LOCAL);
+                VideoEvent videoEvent = new VideoEvent(
+                        this,
+                        VideoEvent.VIDEO_ADDED,
+                        visualComponent,
+                        VideoEvent.LOCAL);
 
                 listener.videoAdded(videoEvent);
 
                 if (videoEvent.isConsumed())
                 {
-                    localVisualComponents.put(visualComponent,
-                        new LocalVisualComponentData(player, listener));
+                    localVisualComponents.put(
+                            visualComponent,
+                            new LocalVisualComponentData(
+                                    player, listener, mediaControl));
+                }
+                else
+                {
+                    player.stop();
+                    player.deallocate();
+                    player.close();
                 }
             }
         }
@@ -3008,22 +3072,19 @@ public class CallSessionImpl
         if (component == null)
             throw new IllegalArgumentException("component");
 
-        LocalVisualComponentData data = localVisualComponents.get(component);
+        LocalVisualComponentData data = localVisualComponents.remove(component);
         if (data != null)
         {
-            Player player = data.player;
-
-            player.stop();
-            player.deallocate();
-            player.close();
-            localVisualComponents.remove(component);
-
             VideoListener listener = data.listener;
+
+            data.dispose();
 
             if (listener != null)
             {
-                VideoEvent videoEvent =
-                    new VideoEvent(this, VideoEvent.VIDEO_REMOVED, component,
+                VideoEvent videoEvent = new VideoEvent(
+                        this,
+                        VideoEvent.VIDEO_REMOVED,
+                        component,
                         VideoEvent.LOCAL);
 
                 listener.videoRemoved(videoEvent);
@@ -3133,16 +3194,101 @@ public class CallSessionImpl
         }
     }
 
-    private static class LocalVisualComponentData
+    /*
+     * Implements CallSession#setLocalVideoAllowed(boolean).
+     */
+    public void setLocalVideoAllowed(boolean allowed)
+        throws MediaException
+    {
+        stopSendStreaming();
+        mediaServCallback.getMediaControl(getCall())
+            .setLocalVideoAllowed(allowed);
+    }
+
+    /*
+     * Implements CallSession#isLocalVideoAllowed().
+     */
+    public boolean isLocalVideoAllowed()
+    {
+        return mediaServCallback.getMediaControl(getCall())
+                .isLocalVideoAllowed();
+    }
+
+    /**
+     * Sets the indicator which determine whether this <code>CallSession</code>
+     * is currently streaming the local video (to remote destinations). If the
+     * setting causes a change in the current state, registered
+     * <code>PropertyChangeListener</code>s are notified about a change in the
+     * value of the property {@link CallSession#LOCAL_VIDEO_STREAMING}.
+     *
+     * @param streaming <tt>true</tt> to indicate that this instance is
+     *            currently streaming the local video (to remote destinations);
+     *            otherwise, <tt>false</tt>
+     */
+    private void setLocalVideoStreaming(boolean streaming)
+    {
+        if (localVideoStreaming != streaming)
+        {
+            boolean oldValue = localVideoStreaming;
+
+            localVideoStreaming = streaming;
+
+            firePropertyChange(
+                LOCAL_VIDEO_STREAMING, oldValue, localVideoStreaming);
+        }
+    }
+
+    /*
+     * Implements CallSession#isLocalVideoStreaming().
+     */
+    public boolean isLocalVideoStreaming()
+    {
+        return localVideoStreaming;
+    }
+
+    private class LocalVisualComponentData
     {
         public final VideoListener listener;
 
+        private final MediaControl mediaControl;
+
+        private PropertyChangeListener mediaControlListener;
+
         public final Player player;
 
-        public LocalVisualComponentData(Player player, VideoListener listener)
+        public LocalVisualComponentData(Player player, VideoListener listener,
+                MediaControl mediaControl)
         {
             this.player = player;
             this.listener = listener;
+
+            this.mediaControl = mediaControl;
+            this.mediaControlListener = new PropertyChangeListener()
+            {
+                private final Component component
+                    = LocalVisualComponentData.this.player.getVisualComponent();
+
+                public void propertyChange(PropertyChangeEvent event)
+                {
+                    if (MediaControl.VIDEO_DATA_SOURCE.equals(event.getPropertyName()))
+                        disposeLocalVisualComponent(component);
+                }
+            };
+            this.mediaControl.addPropertyChangeListener(
+                    this.mediaControlListener);
+        }
+
+        public void dispose()
+        {
+            if (mediaControlListener != null)
+            {
+                mediaControl.removePropertyChangeListener(mediaControlListener);
+                mediaControlListener = null;
+            }
+
+            player.stop();
+            player.deallocate();
+            player.close();
         }
     }
 

@@ -32,6 +32,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class MediaControl
+    extends PropertyChangeNotifier
 {
     private static final Logger logger = Logger.getLogger(MediaControl.class);
 
@@ -51,11 +52,21 @@ public class MediaControl
     private DataSource avDataSource = null;
 
     /**
-     * The audio <tt>DataSource</tt> which provides mute support.
+     * The audio <code>DataSource</code> which provides mute support.
      */
     private MutePushBufferDataSource muteAudioDataSource;
 
-    private SourceCloneable cloneableVideoDataSource;
+    /**
+     * The current video <code>DataSource</code>. If present, it's available in
+     * {@link #avDataSource} either directly or as a merged
+     * <code>DataSource</code>.
+     */
+    private SourceCloneable videoDataSource;
+
+    /**
+     * The property which represents the current video <code>DataSource</code>.
+     */
+    public static final String VIDEO_DATA_SOURCE = "VIDEO_DATA_SOURCE";
 
     /**
      * SDP Codes of all video formats that JMF supports for current datasource.
@@ -97,6 +108,15 @@ public class MediaControl
      */
     private static final String DEBUG_DATA_SOURCE_URL_PROPERTY_NAME
         = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
+
+    /**
+     * The indicator which determines whether the streaming of local video
+     * through this <code>MediaControl</code> is allowed. The setting does not
+     * reflect the availability of actual video capture devices, it just
+     * expresses the desire of the user to have the local video streamed in the
+     * case the system is actually able to do so.
+     */
+    private boolean localVideoAllowed = true;
 
     /**
      * The default constructor.
@@ -182,14 +202,11 @@ public class MediaControl
         if (avDataSource != null)
             avDataSource.disconnect();
 
-        // Init Capture devices
+        // Init audio device
+        CaptureDeviceInfo audioDeviceInfo
+            = deviceConfiguration.getAudioCaptureDevice();
         DataSource audioDataSource = null;
-        DataSource videoDataSource = null;
-        CaptureDeviceInfo audioDeviceInfo = null;
-        CaptureDeviceInfo videoDeviceInfo = null;
 
-        // audio device
-        audioDeviceInfo = deviceConfiguration.getAudioCaptureDevice();
         muteAudioDataSource = null;
         if (audioDeviceInfo != null)
         {
@@ -203,24 +220,32 @@ public class MediaControl
                             (PushBufferDataSource) audioDataSource);
         }
 
-        // video device
-        videoDeviceInfo = deviceConfiguration.getVideoCaptureDevice();
-        cloneableVideoDataSource = null;
-        if (videoDeviceInfo != null)
+        // Init video device
+        CaptureDeviceInfo videoDeviceInfo
+            = localVideoAllowed
+                ? deviceConfiguration.getVideoCaptureDevice()
+                : null;
+        DataSource videoDataSource = null;
+
+        DataSource cloneableVideoDataSource = null;
+        try
         {
-            videoDataSource = createDataSource(videoDeviceInfo.getLocator());
-
-            // we will check video sizes and will set the most appropriate one
-            selectVideoSize(videoDataSource);
-
-            DataSource cloneableVideoDataSource =
-                Manager.createCloneableDataSource(videoDataSource);
-            if (cloneableVideoDataSource != null)
+            if (videoDeviceInfo != null)
             {
-                videoDataSource = cloneableVideoDataSource;
-                this.cloneableVideoDataSource =
-                    (SourceCloneable) cloneableVideoDataSource;
+                videoDataSource = createDataSource(videoDeviceInfo.getLocator());
+
+                // we will check video sizes and will set the most appropriate one
+                selectVideoSize(videoDataSource);
+
+                cloneableVideoDataSource =
+                    Manager.createCloneableDataSource(videoDataSource);
+                if (cloneableVideoDataSource != null)
+                    videoDataSource = cloneableVideoDataSource;
             }
+        }
+        finally
+        {
+            setVideoDataSource((SourceCloneable) cloneableVideoDataSource);
         }
 
         // Create the av data source
@@ -276,7 +301,6 @@ public class MediaControl
         {
             logger.fatal("Failed to Create the Debug Media Data Source!",e);
         }
-
     }
 
     /**
@@ -1079,10 +1103,80 @@ public class MediaControl
         return ((VideoFormat) selectedFormat).getSize();
     }
 
+    /**
+     * Sets the <code>DataSource</code> to be used by this instance to capture
+     * video. The <code>DataSource</code> is to be provided in the form of a
+     * <code>SourceCloneable</code> so that it can give access to the local
+     * video both as a stand-alone <code>DataSource</code> and a merged one with
+     * audio. If the setting changes the state of this instance, registered
+     * <code>PropertyChangeListener</code>s are notified about the change of the
+     * value of the property {@link #VIDEO_DATA_SOURCE}.
+     * 
+     * @param videoDataSource a <code>SourceCloneable</code> representing the
+     *            <code>DataSource</code> to be used by this instance to capture
+     *            video.
+     */
+    private void setVideoDataSource(SourceCloneable videoDataSource)
+    {
+        Object oldValue = this.videoDataSource;
+
+        this.videoDataSource = videoDataSource;
+
+        firePropertyChange(VIDEO_DATA_SOURCE, oldValue, this.videoDataSource);
+    }
+
+    /**
+     * Creates a <code>DataSource</code> which gives access to the local video
+     * this instance captures and controls.
+     * 
+     * @return a <code>DataSource</code> which gives access to the local video
+     *         this instance captures and controls; <tt>null</tt> if video is
+     *         not utilized by this instance
+     */
     public DataSource createLocalVideoDataSource()
     {
-        return (cloneableVideoDataSource == null)
+        return (videoDataSource == null)
                 ? null
-                : cloneableVideoDataSource.createClone();
+                : videoDataSource.createClone();
+    }
+
+    /**
+     * Sets the indicator which determines whether the streaming of local video
+     * through this <code>MediaControl</code> is allowed. The setting does not
+     * reflect the availability of actual video capture devices, it just
+     * expresses the desire of the user to have the local video streamed in the
+     * case the system is actually able to do so.
+     *
+     * @param allowed <tt>true</tt> to allow the streaming of local video for
+     *            this <code>MediaControl</code>; <tt>false</tt> to disallow it
+     */
+    public void setLocalVideoAllowed(boolean allowed)
+        throws MediaException
+    {
+        if (localVideoAllowed != allowed)
+        {
+            localVideoAllowed = allowed;
+
+            if (sourceProcessor != null)
+                sourceProcessor.stop();
+            initCaptureDevices();
+            if (sourceProcessor.getState() != Processor.Started)
+                sourceProcessor.start();
+        }
+    }
+
+    /**
+     * Gets the indicator which determines whether the streaming of local video
+     * through this <code>MediaControl</code> is allowed. The setting does not
+     * reflect the availability of actual video capture devices, it just
+     * expresses the desire of the user to have the local video streamed in the
+     * case the system is actually able to do so.
+     *
+     * @return <tt>true</tt> if the streaming of local video for this
+     *         <code>MediaControl</code> is allowed; <tt>false</tt>, otherwise
+     */
+    public boolean isLocalVideoAllowed()
+    {
+        return localVideoAllowed;
     }
 }

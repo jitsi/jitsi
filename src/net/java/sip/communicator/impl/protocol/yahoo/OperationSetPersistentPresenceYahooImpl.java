@@ -9,10 +9,12 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
+
 import ymsg.network.*;
 import ymsg.network.event.*;
 
@@ -86,34 +88,35 @@ public class OperationSetPersistentPresenceYahooImpl
      * A map containing bindings between SIP Communicator's yahoo presence status
      * instances and Yahoo status codes
      */
-    private static Map scToYahooModesMappings = new Hashtable();
+    private static final Map<PresenceStatus, Long> scToYahooModesMappings
+        = new Hashtable<PresenceStatus, Long>();
     static{
         scToYahooModesMappings.put(YahooStatusEnum.AVAILABLE,
-                                new Long(StatusConstants.STATUS_AVAILABLE));
+                                StatusConstants.STATUS_AVAILABLE);
         scToYahooModesMappings.put(YahooStatusEnum.BE_RIGHT_BACK,
-                                new Long(StatusConstants.STATUS_BRB));
+                                StatusConstants.STATUS_BRB);
         scToYahooModesMappings.put(YahooStatusEnum.BUSY,
-                                 new Long(StatusConstants.STATUS_BUSY));
+                                 StatusConstants.STATUS_BUSY);
         scToYahooModesMappings.put(YahooStatusEnum.IDLE,
-                                 new Long(StatusConstants.STATUS_IDLE));
+                                 StatusConstants.STATUS_IDLE);
         scToYahooModesMappings.put(YahooStatusEnum.INVISIBLE,
-                                 new Long(StatusConstants.STATUS_INVISIBLE));
+                                 StatusConstants.STATUS_INVISIBLE);
         scToYahooModesMappings.put(YahooStatusEnum.NOT_AT_DESK,
-                                 new Long(StatusConstants.STATUS_NOTATDESK));
+                                 StatusConstants.STATUS_NOTATDESK);
         scToYahooModesMappings.put(YahooStatusEnum.NOT_AT_HOME,
-                                 new Long(StatusConstants.STATUS_NOTATHOME));
+                                 StatusConstants.STATUS_NOTATHOME);
         scToYahooModesMappings.put(YahooStatusEnum.NOT_IN_OFFICE,
-                                 new Long(StatusConstants.STATUS_NOTINOFFICE));
+                                 StatusConstants.STATUS_NOTINOFFICE);
         scToYahooModesMappings.put(YahooStatusEnum.OFFLINE,
-                                 new Long(StatusConstants.STATUS_OFFLINE));
+                                 StatusConstants.STATUS_OFFLINE);
         scToYahooModesMappings.put(YahooStatusEnum.ON_THE_PHONE,
-                                 new Long(StatusConstants.STATUS_ONPHONE));
+                                 StatusConstants.STATUS_ONPHONE);
         scToYahooModesMappings.put(YahooStatusEnum.ON_VACATION,
-                                 new Long(StatusConstants.STATUS_ONVACATION));
+                                 StatusConstants.STATUS_ONVACATION);
         scToYahooModesMappings.put(YahooStatusEnum.OUT_TO_LUNCH,
-                                 new Long(StatusConstants.STATUS_OUTTOLUNCH));
+                                 StatusConstants.STATUS_OUTTOLUNCH);
         scToYahooModesMappings.put(YahooStatusEnum.STEPPED_OUT,
-                                 new Long(StatusConstants.STATUS_STEPPEDOUT));
+                                 StatusConstants.STATUS_STEPPEDOUT);
     }
 
     /**
@@ -436,7 +439,7 @@ public class OperationSetPersistentPresenceYahooImpl
             }
             
             parentProvider.getYahooSession().setStatus(
-                ((Long)scToYahooModesMappings.get(status)).longValue());
+                scToYahooModesMappings.get(status).longValue());
             
             fireProviderPresenceStatusChangeEvent(currentStatus, status);
         }

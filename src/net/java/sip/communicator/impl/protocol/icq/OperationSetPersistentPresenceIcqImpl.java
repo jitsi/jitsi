@@ -143,36 +143,34 @@ public class OperationSetPersistentPresenceIcqImpl
      * A map containing bindings between SIP Communicator's icq presence status
      * instances and ICQ status codes
      */
-    private static Map scToIcqStatusMappings = new Hashtable();
+    private static final Map<PresenceStatus, Long> scToIcqStatusMappings
+        = new Hashtable<PresenceStatus, Long>();
     static{
-
         scToIcqStatusMappings.put(IcqStatusEnum.AWAY,
-                                  new Long(FullUserInfo.ICQSTATUS_AWAY));
+                                  FullUserInfo.ICQSTATUS_AWAY);
         scToIcqStatusMappings.put(IcqStatusEnum.DO_NOT_DISTURB,
-                                  new Long(FullUserInfo.ICQSTATUS_DND ));
+                                  FullUserInfo.ICQSTATUS_DND);
         scToIcqStatusMappings.put(IcqStatusEnum.FREE_FOR_CHAT,
-                                  new Long(FullUserInfo.ICQSTATUS_FFC ));
+                                  FullUserInfo.ICQSTATUS_FFC);
         scToIcqStatusMappings.put(IcqStatusEnum.INVISIBLE,
-                                  new Long(FullUserInfo.ICQSTATUS_INVISIBLE));
+                                  FullUserInfo.ICQSTATUS_INVISIBLE);
         scToIcqStatusMappings.put(IcqStatusEnum.NOT_AVAILABLE,
-                                  new Long(FullUserInfo.ICQSTATUS_NA));
+                                  FullUserInfo.ICQSTATUS_NA);
         scToIcqStatusMappings.put(IcqStatusEnum.OCCUPIED,
-                                  new Long(FullUserInfo.ICQSTATUS_OCCUPIED));
+                                  FullUserInfo.ICQSTATUS_OCCUPIED);
         scToIcqStatusMappings.put(IcqStatusEnum.ONLINE,
-                                  new Long(ICQ_ONLINE_MASK));
-
+                                  ICQ_ONLINE_MASK);
     }
 
-    private static Map scToAimStatusMappings = new Hashtable();
+    private static final Map<PresenceStatus, Long> scToAimStatusMappings
+        = new Hashtable<PresenceStatus, Long>();
     static{
-
         scToAimStatusMappings.put(AimStatusEnum.AWAY,
-                                  new Long(FullUserInfo.ICQSTATUS_AWAY));
+                                  FullUserInfo.ICQSTATUS_AWAY);
         scToAimStatusMappings.put(AimStatusEnum.INVISIBLE,
-                                  new Long(FullUserInfo.ICQSTATUS_INVISIBLE));
+                                  FullUserInfo.ICQSTATUS_INVISIBLE);
         scToAimStatusMappings.put(AimStatusEnum.ONLINE,
-                                  new Long(ICQ_ONLINE_MASK));
-
+                                  ICQ_ONLINE_MASK);
     }
 
     /**
@@ -377,9 +375,9 @@ public class OperationSetPersistentPresenceIcqImpl
     private long presenceStatusToStatusLong(PresenceStatus status)
     {
         if(parentProvider.USING_ICQ)
-            return ((Long)scToIcqStatusMappings.get(status)).longValue();
+            return scToIcqStatusMappings.get(status).longValue();
         else
-            return ((Long)scToAimStatusMappings.get(status)).longValue();
+            return scToAimStatusMappings.get(status).longValue();
     }
 
     /**

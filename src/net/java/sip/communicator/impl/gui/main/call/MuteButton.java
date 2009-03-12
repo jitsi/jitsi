@@ -51,8 +51,6 @@ public class MuteButton
      */
     public MuteButton(Call call, boolean isFullScreenMode, boolean isSelected)
     {
-        super();
-
         if (isFullScreenMode)
         {
             this.setBgImage(
@@ -87,6 +85,7 @@ public class MuteButton
      */
     private static class MuteButtonModel
         extends ToggleButtonModel
+        implements ActionListener
     {
 
         /**
@@ -106,33 +105,10 @@ public class MuteButton
         {
             this.call = call;
 
-            addActionListener(new ActionListener()
-            {
-
-                /**
-                 * Invoked when an action occurs.
-                 * 
-                 * @param evt the <tt>ActionEvent</tt> instance containing the
-                 *            data associated with the action and the act of its
-                 *            performing
-                 */
-                public void actionPerformed(ActionEvent evt)
-                {
-                    MuteButtonModel.this.actionPerformed(this, evt);
-                }
-            });
+            addActionListener(this);
         }
 
-        /**
-         * Handles actions performed on this model on behalf of a specific
-         * <tt>ActionListener</tt>.
-         * 
-         * @param listener the <tt>ActionListener</tt> notified about the
-         *            performing of the action
-         * @param evt the <tt>ActionEvent</tt> containing the data associated
-         *            with the action and the act of its performing
-         */
-        private void actionPerformed(ActionListener listener, ActionEvent evt)
+        public void actionPerformed(ActionEvent evt)
         {
             if (call != null)
             {

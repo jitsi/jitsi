@@ -4,9 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
-
-
 package net.java.sip.communicator.impl.media;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -24,14 +21,15 @@ import javax.media.*;
  * @author Ken Larson
  */
 public class ProcessorUtility implements ControllerListener {
-    private Logger logger = Logger.getLogger(ProcessorUtility.class);
+    private final Logger logger = Logger.getLogger(ProcessorUtility.class);
 
     /**
      * The object that we use for syncing when waiting for a processor
      * to enter a specific state.
      */
-    private Object  stateLock = new Object();
-    private boolean failed    = false;
+    private final Object stateLock = new Object();
+
+    private boolean failed = false;
 
     /**
      * Default constructor, creates an instance of the of the Processor utility.
@@ -83,8 +81,9 @@ public class ProcessorUtility implements ControllerListener {
         }
 
         if (ce instanceof ControllerEvent) {
-            synchronized (getStateLock()) {
-                getStateLock().notifyAll();
+            Object stateLock = getStateLock();
+            synchronized (stateLock) {
+                stateLock.notifyAll();
             }
         }
     }
@@ -113,9 +112,10 @@ public class ProcessorUtility implements ControllerListener {
         // success of the method, or a failure event.
         // See StateListener inner class
         while ((processor.getState() < state) &&!failed) {
-            synchronized (getStateLock()) {
+            Object stateLock = getStateLock();
+            synchronized (stateLock) {
                 try {
-                    getStateLock().wait();
+                    stateLock.wait();
                 } catch (InterruptedException ie) {
                     return false;
                 }

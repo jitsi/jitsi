@@ -530,7 +530,7 @@ public class NotificationServiceImpl
             
             configService.setProperty(
                 actionTypeNodeName + ".loopInterval",
-                new Integer(soundHandler.getLoopInterval()));
+                soundHandler.getLoopInterval());
             
             configService.setProperty(
                 actionTypeNodeName + ".enabled",
@@ -632,7 +632,7 @@ public class NotificationServiceImpl
 
                     handler = new SoundNotificationHandlerImpl(
                         soundFileDescriptor,
-                        new Integer(loopInterval).intValue());
+                        Integer.parseInt(loopInterval));
                     
                     handler.setEnabled(
                         isEnabled(actionPropName + ".enabled"));

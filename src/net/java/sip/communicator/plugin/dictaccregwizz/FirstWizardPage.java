@@ -7,7 +7,6 @@ package net.java.sip.communicator.plugin.dictaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -314,7 +313,7 @@ public class FirstWizardPage
         int port = Integer.parseInt(portField.getText());
         boolean isModified = false;
 
-        if (this.initAccountID instanceof AccountID)
+        if (this.initAccountID != null)
         { // We check if there are modifications to the server
             String accHost =
                 this.initAccountID.getAccountPropertyString(
@@ -323,7 +322,8 @@ public class FirstWizardPage
                 Integer.parseInt(this.initAccountID
                     .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT));
 
-            if (accHost != host || accPort != port)
+            if (((accHost == null) ? (host != null) : !accHost.equals(host))
+                    || (accPort != port))
             {
                 isModified = true;
             }
@@ -514,8 +514,7 @@ public class FirstWizardPage
         ProtocolProviderFactory factory =
             DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
-        return !registeredAccounts.isEmpty();
+        return !factory.getRegisteredAccounts().isEmpty();
     }
 
     /**

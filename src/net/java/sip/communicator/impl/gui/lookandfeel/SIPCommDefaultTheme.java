@@ -333,7 +333,6 @@ public class SIPCommDefaultTheme
 
     public void addCustomEntriesToTable(UIDefaults table)
     {
-
         List buttonGradient
             = Arrays.asList(new Object[]
                { new Float(.3f), new Float(0f), BUTTON_GRADIENT_DARK_COLOR,
@@ -400,9 +399,9 @@ public class SIPCommDefaultTheme
 
                 "SplitPane.oneTouchButtonsOpaque", Boolean.FALSE,
                 "SplitPane.dividerFocusColor", SPLIT_PANE_DEVIDER_FOCUS_COLOR,
-                "SplitPane.dividerSize", new Integer(5),
+                "SplitPane.dividerSize", Integer.valueOf(5),
 
-                "ScrollBar.width", new Integer(12),
+                "ScrollBar.width", Integer.valueOf(12),
                 "ScrollBar.horizontalThumbIcon",
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HORIZONTAL),
                 "ScrollBar.verticalThumbIcon",

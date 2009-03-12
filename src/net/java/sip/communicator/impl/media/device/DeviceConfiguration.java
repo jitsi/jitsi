@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class DeviceConfiguration
+    extends PropertyChangeNotifier
 {
 
     /**
@@ -69,34 +70,10 @@ public class DeviceConfiguration
     private CaptureDeviceInfo videoCaptureDevice;
 
     /**
-    * Listeners that will be notified every time
-    * a device has been changed.
-    */
-    private final List<PropertyChangeListener> propertyChangeListeners = 
-        new Vector<PropertyChangeListener>();
-
-    /**
      * Default constructor.
      */
     public DeviceConfiguration()
     {
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-        synchronized(propertyChangeListeners)
-        {
-            if (!propertyChangeListeners.contains(listener))
-                propertyChangeListeners.add(listener);
-        }
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener listener)
-    {
-        synchronized(propertyChangeListeners)
-        {
-            propertyChangeListeners.remove(listener);
-        }
     }
 
     /**
@@ -329,15 +306,6 @@ public class DeviceConfiguration
 
             firePropertyChange(AUDIO_CAPTURE_DEVICE, oldDevice, device);
         }
-    }
-
-    protected void firePropertyChange(String property, Object oldValue,
-        Object newValue)
-    {
-        PropertyChangeEvent event =
-            new PropertyChangeEvent(this, property, oldValue, newValue);
-        for (PropertyChangeListener listener : propertyChangeListeners)
-            listener.propertyChange(event);
     }
 
     /**

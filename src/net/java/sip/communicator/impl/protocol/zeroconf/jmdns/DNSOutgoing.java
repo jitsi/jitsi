@@ -261,7 +261,7 @@ final class DNSOutgoing
                 writeByte(val);
                 return;
             }
-            names.put(name, new Integer(off));
+            names.put(name, off);
             writeUTF(name, 0, n);
             name = name.substring(n);
             if (name.startsWith("."))

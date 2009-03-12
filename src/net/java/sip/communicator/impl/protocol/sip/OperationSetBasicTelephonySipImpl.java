@@ -453,7 +453,7 @@ public class OperationSetBasicTelephonySipImpl
      *            specified call participant with the sent invite
      * @throws OperationFailedException
      */
-    private void sendInviteRequest(CallParticipantSipImpl sipParticipant,
+    void sendInviteRequest(CallParticipantSipImpl sipParticipant,
         String sdpOffer) throws OperationFailedException
     {
         Dialog dialog = sipParticipant.getDialog();

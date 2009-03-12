@@ -55,11 +55,8 @@ public class MailboxConfigurationPanel
     private JLabel jlblWaitTime
         = new JLabel(Resources.getString("plugin.mailbox.WAIT_TIME"));
 
-    private JSpinner jsWaitTime = new JSpinner(new SpinnerNumberModel(
-                                                new Integer(10000),
-                                                new Integer(0),
-                                                null,
-                                                new Integer(1000)));
+    private JSpinner jsWaitTime =
+        new JSpinner(new SpinnerNumberModel(10000, 0, null, 1000));
 
     private JPanel jpWaitTime =
         new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
@@ -67,11 +64,8 @@ public class MailboxConfigurationPanel
     private JLabel jlblMaxMessageTime
         = new JLabel(Resources.getString("plugin.mailbox.MAX_MESSAGE_TIME"));
 
-    private JSpinner jsMaxMessageTime = new JSpinner(new SpinnerNumberModel(
-                                                new Integer(10000),
-                                                new Integer(0),
-                                                null,
-                                                new Integer(1000)));
+    private JSpinner jsMaxMessageTime
+        = new JSpinner(new SpinnerNumberModel(10000, 0, null, 1000));
 
     private JPanel jpMaxMessageTime = new TransparentPanel(
                                     new FlowLayout(FlowLayout.LEFT));
@@ -106,13 +100,12 @@ public class MailboxConfigurationPanel
         jpIncomingMessage.add(jbtnIncomingMessage);
 
         //get our wait time panel set up
-        jsWaitTime.setValue(new Integer(Mailbox.getWaitTime()));
+        jsWaitTime.setValue(Mailbox.getWaitTime());
         jpWaitTime.add(jlblWaitTime);
         jpWaitTime.add(jsWaitTime);
 
         //get our max message time panel set up
-        jsMaxMessageTime.setValue(new Integer(
-                            Mailbox.getMaxMessageDuration()));
+        jsMaxMessageTime.setValue(Mailbox.getMaxMessageDuration());
         jpMaxMessageTime.add(jlblMaxMessageTime);
         jpMaxMessageTime.add(jsMaxMessageTime);
 
@@ -197,9 +190,9 @@ public class MailboxConfigurationPanel
                 config.setProperty(Mailbox.OUTGOING_MESSAGE_PROPERTY_NAME,
                                     null);
                 config.setProperty(Mailbox.MAX_MSG_DURATION_PROPERTY_NAME,
-                                new Integer(Mailbox.getMaxMessageDuration()));
+                                   Mailbox.getMaxMessageDuration());
                 config.setProperty(Mailbox.WAIT_TIME_PROPERTY_NAME,
-                                new Integer(Mailbox.getWaitTime()));
+                                   Mailbox.getWaitTime());
                 config.setProperty(Mailbox.INCOMING_MESSAGE_PROPERTY_NAME,
                                 Mailbox.getIncomingMessageDirectory());
                 config.setProperty(Mailbox.OUTGOING_MESSAGE_PROPERTY_NAME,
@@ -212,9 +205,9 @@ public class MailboxConfigurationPanel
                 jtfOutgoingMessage.setText(Mailbox
                                     .getOutgoingMessageFileLocation()
                                     .toString());
-                jsWaitTime.setValue(new Integer(Mailbox.getWaitTime()));
-                jsMaxMessageTime.setValue(new Integer(
-                            Mailbox.getMaxMessageDuration()));
+                jsWaitTime.setValue(Mailbox.getWaitTime());
+                jsMaxMessageTime.setValue(
+                            Mailbox.getMaxMessageDuration());
             }
         }
 

@@ -343,7 +343,7 @@ public class MediaServiceImpl
      * <tt>call</tt> is not mapped to a particular <tt>MediaControl</tt>
      * instance, the default instance will be returned
      *
-     * @param call the call whose MediaControl we will fetch
+     * @param call the call to fetch the MediaControl of
      * @return the instance of MediaControl that is mapped to <tt>call</tt>
      * or the <tt>defaultMediaControl</tt> if no custom one is registered for
      * <tt>call</tt>.

@@ -8,9 +8,7 @@
  *
  * SSH Suport in SIP Communicator - GSoC' 07 Projec
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
-
 
 import java.io.*;
 import java.util.*;
@@ -33,7 +31,7 @@ public class ContactSSHImpl
             = Logger.getLogger(ContactSSHImpl.class);
     
     /**
-     * This acts as a seperator between details stored in persistent data
+     * This acts as a separator between details stored in persistent data
      */
     private final String separator = 
         Resources.getString("impl.protocol.ssh.DETAILS_SEPARATOR");
@@ -381,8 +379,8 @@ public class ContactSSHImpl
                 this.persistentData.substring(fourthCommaIndex + 1,
                         fifthCommaIndex));
         
-        this.sshConfigurationForm.setUpdateInterval(new Integer(Integer
-                .parseInt(this.persistentData.substring(fifthCommaIndex+1)) ));
+        this.sshConfigurationForm.setUpdateInterval(
+            Integer.parseInt(this.persistentData.substring(fifthCommaIndex+1)));
     }
     
     /**

@@ -13,6 +13,7 @@ import java.text.*;
 import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A CallSession contains parameters associated with a particular Call such as
@@ -33,6 +34,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public interface CallSession
 {
+
     /**
      * The method is meant for use by protocol service implementations when
      * willing to send an invitation to a remote callee.
@@ -60,6 +62,22 @@ public interface CallSession
      * before the service was started.
      */
     public String createSdpOffer(InetAddress intendedDestination)
+        throws MediaException;
+
+    /**
+     * Creates a SDP description including the current state of the local media
+     * setup and in accord with a specific SDP description of a call participant
+     * (who is to be offered the created SDP description, for example, as part
+     * of a re-INVITE).
+     *
+     * @param participantSdpDescription the SDP description (of a call
+     *            participant) to have the created SDP description in accord
+     *            with
+     * @return a SDP description including the current state of the local media
+     *         setup and in accord with the specified SDP description of a call
+     *         participant
+     */
+    public String createSdpOffer(String participantSdpDescription)
         throws MediaException;
 
     /**
@@ -191,6 +209,12 @@ public interface CallSession
     public void setMute(boolean mute);
 
     /**
+     * Starts the streaming of the local media (to the remote destinations).
+     */
+    public void startStreaming()
+        throws MediaException;
+
+    /**
      * Stops and closes the audio and video streams flowing through this
      * session.
      *
@@ -231,12 +255,37 @@ public interface CallSession
      *            visual/video <code>Component</code>s are being added or
      *            removed in this <code>CallSession</code>
      */
-    void addVideoListener(VideoListener listener);
+    public void addVideoListener(VideoListener listener);
 
-    Component createLocalVisualComponent(VideoListener listener)
+    /**
+     * Creates a visual <code>Component</code> which represents the local video
+     * streamed by this <code>CallSession</code> (to remote destinations). If
+     * the synchronous creation of the <code>Component</code> isn't supported,
+     * it will be carried out asynchronously and the progress of the operation
+     * and its result will be delivered through a specific
+     * <code>VideoListener</code>.
+     *
+     * @param listener the <code>VideoListener</code> to track the progress of
+     *            the creation and deliver its result in case the operation is
+     *            carried out asynchronously by this implementation
+     * @return a visual <code>Component</code> which represents the local video
+     *         if this implementation creates it synchronously; <tt>null</tt> if
+     *         this implementation attempts asynchronous creation in which case
+     *         the result will be delivered to the specified
+     *         <code>VideoListener</code>
+     */
+    public Component createLocalVisualComponent(VideoListener listener)
         throws MediaException;
 
-    void disposeLocalVisualComponent(Component component);
+    /**
+     * Disposes of a specific visual <code>Component</code> representing local
+     * video which has been created by this instance with
+     * {@link #createLocalVisualComponent(VideoListener)}.
+     *
+     * @param component the visual <code>Component</code> representing local
+     *            video to be disposed
+     */
+    public void disposeLocalVisualComponent(Component component);
 
     /**
      * Gets the visual/video <code>Component</code>s available in this
@@ -245,7 +294,7 @@ public interface CallSession
      * @return an array of the visual <code>Component</code>s available in this
      *         <code>CallSession</code>
      */
-    Component[] getVisualComponents();
+    public Component[] getVisualComponents();
 
     /**
      * Removes a specific <code>VideoListener</code> from this
@@ -257,7 +306,32 @@ public interface CallSession
      *            when visual/video <code>Component</code>s are being added or
      *            removed in this <code>CallSession</code>
      */
-    void removeVideoListener(VideoListener listener);
+    public void removeVideoListener(VideoListener listener);
+
+    /**
+     * Sets the indicator which determines whether the streaming of local video
+     * in this <code>CallSession</code> is allowed. The setting does not reflect
+     * the availability of actual video capture devices, it just expresses the
+     * desire of the user to have the local video streamed in the case the
+     * system is actually able to do so.
+     *
+     * @param allowed <tt>true</tt> to allow the streaming of local video for
+     *            this <code>CallSession</code>; <tt>false</tt> to disallow it
+     */
+    public void setLocalVideoAllowed(boolean allowed)
+        throws MediaException;
+
+    /**
+     * Gets the indicator which determines whether the streaming of local video
+     * in this <code>CallSession</code> is allowed. The setting does not reflect
+     * the availability of actual video capture devices, it just expresses the
+     * desire of the user to have the local video streamed in the case the
+     * system is actually able to do so.
+     *
+     * @return <tt>true</tt> if the streaming of local video in this
+     *          <code>CallSession</code> is allowed; otherwise, <tt>false</tt>
+     */
+    public boolean isLocalVideoAllowed();
 
     /**
      * Sets a <tt>SessionCreatorCallback</tt> that will listen for
@@ -277,4 +351,44 @@ public interface CallSession
      * security events
      */
     public SessionCreatorCallback getSessionCreatorCallback();
+
+    /**
+     * The property which indicates whether a <code>CallSession</code> is
+     * currently streaming the local video (to a remote destination).
+     */
+    public static final String LOCAL_VIDEO_STREAMING = "LOCAL_VIDEO_STREAMING";
+
+    /**
+     * Gets the indicator which determines whether this <code>CallSession</code>
+     * is currently streaming the local video (to a remote destination).
+     *
+     * @return <tt>true</tt> if this <code>CallSession</code> is currently
+     *         streaming the local video (to a remote destination); otherwise,
+     *         <tt>false</tt>
+     */
+    public boolean isLocalVideoStreaming();
+
+    /**
+     * Adds a specific <code>PropertyChangeListener</code> to the list of
+     * listeners which get notified when the properties (e.g.
+     * {@link #LOCAL_VIDEO_STREAMING}) associated with this
+     * <code>CallSession</code> change their values.
+     *
+     * @param listener the <code>PropertyChangeListener</code> to be notified
+     *            when the properties associated with this
+     *            <code>CallSession</code> change their values
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
+
+    /**
+     * Removes a specific <code>PropertyChangeListener</code> from the list of
+     * listeners which get notified when the properties (e.g.
+     * {@link #LOCAL_VIDEO_STREAMING}) associated with this
+     * <code>CallSession</code> change their values.
+     *
+     * @param listener the <code>PropertyChangeListener</code> to no longer be
+     *            notified when the properties associated with this
+     *            <code>CallSession</code> change their values
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
 }

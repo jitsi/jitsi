@@ -219,17 +219,16 @@ public class TransferCallButton
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        Class telephonyClass = OperationSetBasicTelephony.class;
+        Class<OperationSetBasicTelephony> telephonyClass
+            = OperationSetBasicTelephony.class;
         CallParticipant participant = null;
 
-        for (int i = 0; i < serviceReferences.length; i++)
+        for (ServiceReference serviceReference : serviceReferences)
         {
-            ProtocolProviderService service =
-                (ProtocolProviderService) bundleContext
-                    .getService(serviceReferences[i]);
-            OperationSetBasicTelephony telephony =
-                (OperationSetBasicTelephony) service
-                    .getOperationSet(telephonyClass);
+            ProtocolProviderService service = (ProtocolProviderService)
+                bundleContext.getService(serviceReference);
+            OperationSetBasicTelephony telephony = (OperationSetBasicTelephony)
+                service.getOperationSet(telephonyClass);
 
             if (telephony != null)
             {

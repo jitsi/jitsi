@@ -128,11 +128,11 @@ public class EditTextToolBar
                     ActionEvent fontSizeActionEvent
                         = new ActionEvent(  chatEditorPane,
                                             ActionEvent.ACTION_PERFORMED,
-                                            new Integer(fontSize).toString());
+                                            Integer.toString(fontSize));
 
                     action
                         = new StyledEditorKit.FontSizeAction(
-                            new Integer(fontSize).toString(),
+                            Integer.toString(fontSize),
                             fontSize);
 
                     action.actionPerformed(fontSizeActionEvent);
@@ -204,8 +204,8 @@ public class EditTextToolBar
                             ActionEvent.ACTION_PERFORMED, "");
 
                     Action action =
-                        new HTMLEditorKit.ForegroundAction(new Integer(newColor
-                            .getRGB()).toString(), newColor);
+                        new HTMLEditorKit.ForegroundAction(Integer.toString(newColor
+                            .getRGB()), newColor);
 
                     action.actionPerformed(evt);
                 }

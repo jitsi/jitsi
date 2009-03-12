@@ -223,7 +223,7 @@ public class Constants
      * The default <tt>Font</tt> object used through this ui implementation.
      */
     public static final Font FONT = new Font(Constants.FONT_NAME, Font.PLAIN,
-            new Integer(Constants.FONT_SIZE).intValue());
+            Integer.parseInt(Constants.FONT_SIZE));
 
     /*
      * ======================================================================
@@ -290,14 +290,14 @@ public class Constants
     /**
      * A list of all special chars that should be escaped for some reasons.
      */
-    private static final ArrayList specialCharsList = new ArrayList();
-    static{
-        specialCharsList.add(new Integer(KeyEvent.VK_PLUS));
-        specialCharsList.add(new Integer(KeyEvent.VK_MINUS));
-        specialCharsList.add(new Integer(KeyEvent.VK_SPACE));
-        specialCharsList.add(new Integer(KeyEvent.VK_ENTER));
-        specialCharsList.add(new Integer(KeyEvent.VK_LEFT));
-        specialCharsList.add(new Integer(KeyEvent.VK_RIGHT));
+    private static final int[] specialChars = new int[]
+    {
+        KeyEvent.VK_PLUS,
+        KeyEvent.VK_MINUS,
+        KeyEvent.VK_SPACE,
+        KeyEvent.VK_ENTER,
+        KeyEvent.VK_LEFT,
+        KeyEvent.VK_RIGHT
     };
 
     /**
@@ -306,10 +306,11 @@ public class Constants
      * @param charCode The char code.
      */
     public static boolean isSpecialChar(int charCode) {
-        if(specialCharsList.contains(new Integer(charCode)))
-            return true;
-        else
-            return false;
+        for (int specialChar : specialChars) {
+            if (specialChar == charCode)
+                return true;
+        }
+        return false;
     }
 
     /**

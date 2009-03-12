@@ -159,8 +159,7 @@ public class ConfigurationManager
             && chatHistorySizeString.length() > 0)
         {
             chatHistorySize
-                = new Integer(chatHistorySizeString)
-                .intValue();
+                = Integer.parseInt(chatHistorySizeString);
         }
 
         // Load the "isTransparentWindowEnabled" property.
@@ -196,7 +195,7 @@ public class ConfigurationManager
             && windowTransparencyString.length() > 0)
         {
             windowTransparency
-                = new Integer(windowTransparencyString).intValue();
+                = Integer.parseInt(windowTransparencyString);
         }
     }
 
@@ -342,7 +341,7 @@ public class ConfigurationManager
 
         configService.setProperty(
             "impl.gui.WINDOW_TRANSPARENCY",
-            new Integer(windowTransparency).toString());
+            Integer.toString(windowTransparency));
     }
 
     /**

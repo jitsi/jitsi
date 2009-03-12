@@ -359,6 +359,33 @@ public class CallParticipantPanel
         }
     }
 
+    private class VideoTelephonyListener
+        implements PropertyChangeListener,
+                   VideoListener
+    {
+        public void propertyChange(PropertyChangeEvent event)
+        {
+            if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING.equals(
+                    event.getPropertyName()))
+            {
+                handleLocalVideoStreamingChange(
+                        this,
+                        (Boolean) event.getOldValue(),
+                        (Boolean) event.getNewValue());
+            }
+        }
+
+        public void videoAdded(VideoEvent event)
+        {
+            handleVideoEvent(event);
+        }
+
+        public void videoRemoved(VideoEvent event)
+        {
+            handleVideoEvent(event);
+        }
+    }
+
     /**
      * Sets up listening to notifications about adding or removing video for the
      * <code>CallParticipant</code> this panel depicts and displays the video in
@@ -379,18 +406,8 @@ public class CallParticipantPanel
         if (telephony == null)
             return null;
 
-        final VideoListener videoListener = new VideoListener()
-        {
-            public void videoAdded(VideoEvent event)
-            {
-                handleVideoEvent(event);
-            }
-
-            public void videoRemoved(VideoEvent event)
-            {
-                handleVideoEvent(event);
-            }
-        };
+        final VideoTelephonyListener videoTelephonyListener
+            = new VideoTelephonyListener();
 
         /*
          * The video is only available while the #callParticipant is in a Call
@@ -403,23 +420,24 @@ public class CallParticipantPanel
 
             private void addVideoListener()
             {
-                telephony.addVideoListener(callParticipant, videoListener);
-                try
-                {
-                    telephony.createLocalVisualComponent(callParticipant,
-                        videoListener);
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error(
-                        "Failed to create local video/visual Component.", ex);
-                }
+                telephony.addVideoListener(
+                        callParticipant, videoTelephonyListener);
+                telephony.addPropertyChangeListener(
+                        call, videoTelephonyListener);
                 videoListenerIsAdded = true;
 
                 synchronized (videoContainers)
                 {
                     videoTelephony = telephony;
+
                     handleVideoEvent(null);
+
+                    boolean localVideoStreaming
+                        = videoTelephony.isLocalVideoStreaming(call);
+                    handleLocalVideoStreamingChange(
+                            videoTelephonyListener,
+                            !localVideoStreaming,
+                            localVideoStreaming);
                 }
             }
 
@@ -432,13 +450,13 @@ public class CallParticipantPanel
                 CallParticipantEvent event)
             {
                 if (callParticipant.equals(event.getSourceCallParticipant())
-                    && !videoListenerIsAdded)
+                        && !videoListenerIsAdded)
                 {
                     Call call = callParticipant.getCall();
 
                     if ((call != null)
-                        && CallState.CALL_IN_PROGRESS.equals(call
-                            .getCallState()))
+                            && CallState.CALL_IN_PROGRESS.equals(
+                                    call.getCallState()))
                         addVideoListener();
                 }
             }
@@ -487,13 +505,20 @@ public class CallParticipantPanel
 
             private void removeVideoListener()
             {
-                telephony.removeVideoListener(callParticipant, videoListener);
-                if (localVideo != null)
-                    telephony.disposeLocalVisualComponent(callParticipant,
-                        localVideo);
+                telephony.removeVideoListener(
+                        callParticipant, videoTelephonyListener);
+                telephony.removePropertyChangeListener(
+                        call, videoTelephonyListener);
                 videoListenerIsAdded = false;
 
-                synchronized (videoTelephony)
+                if (localVideo != null)
+                {
+                    telephony.disposeLocalVisualComponent(
+                            callParticipant, localVideo);
+                    localVideo = null;
+                }
+
+                synchronized (videoContainers)
                 {
                     if (telephony.equals(videoTelephony))
                         videoTelephony = null;
@@ -595,6 +620,37 @@ public class CallParticipantPanel
                  * Component though the former has already been removed...
                  */
                 videoContainer.repaint();
+            }
+        }
+    }
+
+    private void handleLocalVideoStreamingChange(
+            VideoTelephonyListener listener, boolean oldValue, boolean newValue)
+    {
+        synchronized (videoContainers)
+        {
+            if (videoTelephony == null)
+                return;
+
+            if (videoTelephony.isLocalVideoStreaming(callParticipant.getCall()))
+            {
+                try
+                {
+                    videoTelephony.createLocalVisualComponent(
+                            callParticipant, listener);
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error(
+                            "Failed to create local video/visual Component.",
+                            ex);
+                }
+            }
+            else if (localVideo != null)
+            {
+                videoTelephony.disposeLocalVisualComponent(
+                        callParticipant, localVideo);
+                localVideo = null;
             }
         }
     }

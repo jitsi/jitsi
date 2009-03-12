@@ -54,8 +54,6 @@ public class HoldButton
                         boolean isFullScreenMode,
                         boolean isSelected)
     {
-        super();
-
         if (isFullScreenMode)
         {
             this.setBgImage(
@@ -91,6 +89,7 @@ public class HoldButton
      */
     private static class HoldButtonModel
         extends ToggleButtonModel
+        implements ActionListener
     {
 
         /**
@@ -112,21 +111,10 @@ public class HoldButton
         {
             this.call = call;
 
-            InternalListener listener = new InternalListener();
-
-            addActionListener(listener);
+            addActionListener(this);
         }
 
-        /**
-         * Handles actions performed on this model on behalf of a specific
-         * <tt>ActionListener</tt>.
-         * 
-         * @param listener the <tt>ActionListener</tt> notified about the
-         *            performing of the action
-         * @param evt the <tt>ActionEvent</tt> containing the data associated
-         *            with the action and the act of its performing
-         */
-        private void actionPerformed(ActionListener listener, ActionEvent evt)
+        public void actionPerformed(ActionEvent evt)
         {
             if (call != null)
             {
@@ -153,26 +141,6 @@ public class HoldButton
                         // TODO Auto-generated method stub
                     }
                 }
-            }
-        }
-
-        /**
-         * Represents the set of <tt>EventListener</tt>s this instance uses
-         * to track the changes in its <tt>CallParticipant</tt> model.
-         */
-        private class InternalListener
-            implements ActionListener
-        {
-            /**
-             * Invoked when an action occurs.
-             * 
-             * @param evt the <tt>ActionEvent</tt> instance containing the data
-             *            associated with the action and the act of its
-             *            performing
-             */
-            public void actionPerformed(ActionEvent evt)
-            {
-                HoldButtonModel.this.actionPerformed(this, evt);
             }
         }
     }

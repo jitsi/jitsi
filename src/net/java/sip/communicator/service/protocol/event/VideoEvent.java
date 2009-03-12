@@ -19,8 +19,18 @@ import java.util.*;
 public class VideoEvent
     extends EventObject
 {
+
+    /**
+     * The video origin of a <code>VideoEvent</code> which is local to the
+     * executing client such as a local video capture device.
+     */
     public static final int LOCAL = 1;
 
+    /**
+     * The video origin of a <code>VideoEvent</code> which is remote to the
+     * executing client such as a video being remotely streamed from a
+     * <code>CallParticipant</code>.
+     */
     public static final int REMOTE = 2;
 
     /**
@@ -46,6 +56,10 @@ public class VideoEvent
      */
     private boolean consumed;
 
+    /**
+     * The origin of the video this <code>VideoEvent</code> notifies about which
+     * is one of {@link #LOCAL} and {@link #REMOTE}.
+     */
     private final int origin;
 
     /**
@@ -74,7 +88,8 @@ public class VideoEvent
      * @param visualComponent the visual <code>Component</code> depicting video
      *            which had its availability in the <code>source</code> provider
      *            changed
-     * @param origin
+     * @param origin the origin of the video the new <code>VideoEvent</code> is
+     *            to notify about
      */
     public VideoEvent(Object source, int type, Component visualComponent,
         int origin)
@@ -98,6 +113,13 @@ public class VideoEvent
         consumed = true;
     }
 
+    /**
+     * Gets the origin of the video this <code>VideoEvent</code> notifies about
+     * which is one of {@link #LOCAL} and {@link #REMOTE}.
+     *
+     * @return one of {@link LOCAL} and {@link #REMOTE} which specifies the
+     *         origin of the video this <code>VideoEvent</code> notifies about
+     */
     public int getOrigin()
     {
         return origin;

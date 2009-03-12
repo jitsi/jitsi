@@ -339,7 +339,7 @@ public class ContactInfoDetailsPanel
             if (c.get(Calendar.MONTH) < calendarDetail.get(Calendar.MONTH))
                 age--;
 
-            ageDetail = new Integer(age).toString().trim();
+            ageDetail = Integer.toString(age).trim();
         }
 
         if (birthDateDetail.equals(""))

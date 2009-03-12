@@ -7,10 +7,12 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.awt.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <code>OperationSetVideoTelephony</code> in order to give access to
@@ -31,6 +33,25 @@ public class OperationSetVideoTelephonySipImpl
     implements OperationSetVideoTelephony
 {
 
+    /**
+     * The telephony-related functionality this extension builds upon.
+     */
+    private final OperationSetBasicTelephonySipImpl basicTelephony;
+
+    /**
+     * Initializes a new <code>OperationSetVideoTelephonySipImpl</code> instance
+     * which builds upon the telephony-related functionality of a specific
+     * <code>OperationSetBasicTelephonySipImpl</code>.
+     *
+     * @param basicTelephony the <code>OperationSetBasicTelephonySipImpl</code>
+     *            the new extension should build upon
+     */
+    public OperationSetVideoTelephonySipImpl(
+        OperationSetBasicTelephonySipImpl basicTelephony)
+    {
+        this.basicTelephony = basicTelephony;
+    }
+
     /*
      * Delegates to the CallSession of the Call of the specified CallParticipant
      * because the video is provided by the CallSession in the SIP protocol
@@ -50,6 +71,12 @@ public class OperationSetVideoTelephonySipImpl
                 new InternalVideoListener(this, participant, listener));
     }
 
+    /*
+     * Implements OperationSetVideoTelephony#createLocalVisualComponent(
+     * CallParticipant, VideoListener). Delegates to CallSession#createLocalVisualComponent(
+     * VideoListener) of the Call of the specified CallParticipant because the
+     * CallSession manages the visual components which represent local video.
+     */
     public Component createLocalVisualComponent(CallParticipant participant,
         VideoListener listener) throws OperationFailedException
     {
@@ -65,13 +92,19 @@ public class OperationSetVideoTelephonySipImpl
             catch (MediaException ex)
             {
                 throw new OperationFailedException(
-                    "Failed to create visual Component for local video (capture).",
-                    OperationFailedException.INTERNAL_ERROR, ex);
+                        "Failed to create visual Component for local video (capture).",
+                        OperationFailedException.INTERNAL_ERROR, ex);
             }
         }
         return null;
     }
 
+    /*
+     * Implements OperationSetVideoTelephony#disposeLocalVisualComponent(
+     * CallParticipant, Component). Delegates to CallSession#disposeLocalVisualComponent(
+     * Component) of the Call of the specified CallParticipant because the
+     * CallSession manages the visual components which represent local video.
+     */
     public void disposeLocalVisualComponent(CallParticipant participant,
         Component component)
     {
@@ -79,9 +112,7 @@ public class OperationSetVideoTelephonySipImpl
             ((CallSipImpl) participant.getCall()).getMediaCallSession();
 
         if (callSession != null)
-        {
             callSession.disposeLocalVisualComponent(component);
-        }
     }
 
     /*
@@ -115,6 +146,109 @@ public class OperationSetVideoTelephonySipImpl
                 .removeVideoListener(
                     new InternalVideoListener(this, participant, listener));
         }
+    }
+
+    /*
+     * Implements OperationSetVideoTelephony#setLocalVideoAllowed(Call,
+     * boolean). Modifies the local media setup to reflect the requested setting
+     * for the streaming of the local video and then re-invites all
+     * CallParticipants to re-negotiate the modified media setup.
+     */
+    public void setLocalVideoAllowed(Call call, boolean allowed)
+        throws OperationFailedException
+    {
+
+        /*
+         * Modify the local media setup to reflect the requested setting for the
+         * streaming of the local video.
+         */
+        CallSipImpl sipCall = (CallSipImpl) call;
+        CallSession callSession = sipCall.getMediaCallSession();
+
+        try
+        {
+            callSession.setLocalVideoAllowed(allowed);
+        }
+        catch (MediaException ex)
+        {
+            throw new OperationFailedException(
+                    "Failed to allow/disallow the streaming of local video.",
+                    OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        /*
+         * Once the local state has been modified, re-invite all
+         * CallParticipants to re-negotiate the modified media setup.
+         */
+        Iterator<CallParticipant> participants = call.getCallParticipants();
+        while (participants.hasNext())
+        {
+            CallParticipantSipImpl participant
+                = (CallParticipantSipImpl) participants.next();
+            String sdpOffer = null;
+
+            try
+            {
+                sdpOffer
+                    = callSession.createSdpOffer(
+                        participant.getSdpDescription());
+            }
+            catch (MediaException ex)
+            {
+                throw new OperationFailedException(
+                        "Failed to create re-invite offer for participant "
+                            + participant,
+                        OperationFailedException.INTERNAL_ERROR,
+                        ex);
+            }
+
+            basicTelephony.sendInviteRequest(participant, sdpOffer);
+        }
+    }
+
+    /*
+     * Implements OperationSetVideoTelephony#isLocalVideoAllowed(Call).
+     * Delegates to CallSession#isLocalVideoAllowed() of the specified Call.
+     */
+    public boolean isLocalVideoAllowed(Call call)
+    {
+        return ((CallSipImpl) call).getMediaCallSession().isLocalVideoAllowed();
+    }
+
+    /*
+     * Implements OperationSetVideoTelephony#isLocalVideoStreaming(Call).
+     * Delegates to CallSession#isLocalVideoStreaming() of the specified Call.
+     */
+    public boolean isLocalVideoStreaming(Call call)
+    {
+        return ((CallSipImpl) call)
+            .getMediaCallSession().isLocalVideoStreaming();
+    }
+
+    /*
+     * Implements OperationSetVideoTelephony#addPropertyChangeListener(Call,
+     * PropertyChangeListener). Delegates to CallSession#addPropertyChangeListener(
+     * PropertyChangeListener) of the specified Call because CallSession
+     * contains the properties associated with a Call.
+     */
+    public void addPropertyChangeListener(
+            Call call, PropertyChangeListener listener)
+    {
+        ((CallSipImpl) call)
+            .getMediaCallSession().addPropertyChangeListener(listener);
+    }
+
+    /*
+     * Implements OperationSetVideoTelephony#removePropertyChangeListener(Call,
+     * PropertyChangeListener). Delegates to CallSession#removePropertyChangeListener(
+     * PropertyChangeListener) of the specified Call because CallSession
+     * contains the properties associated with a Call.
+     */
+    public void removePropertyChangeListener(
+            Call call, PropertyChangeListener listener)
+    {
+        ((CallSipImpl) call)
+            .getMediaCallSession().removePropertyChangeListener(listener);
     }
 
     /**

@@ -308,10 +308,10 @@ public class WhiteboardFrame
         setSize(800, 600);
         initializeTransform();
 
-        Integer value = new Integer(1);
-        Integer min = new Integer(1);
-        Integer max = new Integer(10);
-        Integer step = new Integer(1);
+        Integer value = 1;
+        Integer min = 1;
+        Integer max = 10;
+        Integer step = 1;
         spinModel = new SpinnerNumberModel(value, min, max, step);
         jSpinnerThickness.setModel(spinModel);
 
@@ -469,8 +469,7 @@ public class WhiteboardFrame
                         {
                             shape.setSelected(true);
                             selectedShape = shape;
-                            spinModel.setValue(new Integer(selectedShape
-                                .getThickness()));
+                            spinModel.setValue(selectedShape.getThickness());
                             jLabelColor.setBackground(Color.getColor("",
                                 selectedShape.getColor()));
                             break;
@@ -495,8 +494,7 @@ public class WhiteboardFrame
                             shape.setModifyPoint(point);
 
                             selectedShape = shape;
-                            spinModel.setValue(new Integer(selectedShape
-                                .getThickness()));
+                            spinModel.setValue(selectedShape.getThickness());
                             jLabelColor.setBackground(
                                 Color.getColor("", selectedShape.getColor()));
                             break;

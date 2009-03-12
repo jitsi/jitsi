@@ -824,14 +824,9 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         if (code == 0 || code == 9999) // not specified or other
             return null;
 
-        String cryStr = (String) countryIndexToLocaleString.get(new Integer(
-            code));
+        String cryStr = countryIndexToLocaleString.get(code);
 
-        // if no such country
-        if (cryStr == null)
-            return null;
-
-        return new Locale("", cryStr);
+        return (cryStr == null) ? null : new Locale("", cryStr);
     }
 
     /**
@@ -844,13 +839,11 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         if (cLocale == null)
             return 0; // not specified
 
-        Iterator iter = countryIndexToLocaleString.keySet().iterator();
-        while (iter.hasNext())
+        for (Map.Entry<Integer, String> entry : countryIndexToLocaleString.entrySet())
         {
-            Integer key = (Integer) iter.next();
+            Integer key = entry.getKey();
+            String countryString = entry.getValue().toUpperCase();
 
-            String countryString = ( (String) countryIndexToLocaleString.get(
-                key)).toUpperCase();
             if (countryString.equals(cLocale.getCountry()))
                 return key.intValue();
         }
@@ -1224,254 +1217,255 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
 // Hashtable holding the country index
 // corresponding to the country locale string
-    private static Hashtable countryIndexToLocaleString = new Hashtable();
+    private static final Map<Integer, String> countryIndexToLocaleString
+        = new Hashtable<Integer, String>();
     static
     {
-//        countryIndexToLocaleString.put(new Integer(0),""); //not specified
-        countryIndexToLocaleString.put(new Integer(1), "us"); //USA
-        countryIndexToLocaleString.put(new Integer(101), "ai"); //Anguilla
-        countryIndexToLocaleString.put(new Integer(102), "ag"); //Antigua
-        countryIndexToLocaleString.put(new Integer(1021), "ag"); //Antigua & Barbuda
-        countryIndexToLocaleString.put(new Integer(103), "bs"); //Bahamas
-        countryIndexToLocaleString.put(new Integer(104), "bb"); //Barbados
-        countryIndexToLocaleString.put(new Integer(105), "bm"); //Bermuda
-        countryIndexToLocaleString.put(new Integer(106), "vg"); //British Virgin Islands
-        countryIndexToLocaleString.put(new Integer(107), "ca"); //Canada
-        countryIndexToLocaleString.put(new Integer(108), "ky"); //Cayman Islands
-        countryIndexToLocaleString.put(new Integer(109), "dm"); //Dominica
-        countryIndexToLocaleString.put(new Integer(110), "do"); //Dominican Republic
-        countryIndexToLocaleString.put(new Integer(111), "gd"); //Grenada
-        countryIndexToLocaleString.put(new Integer(112), "jm"); //Jamaica
-        countryIndexToLocaleString.put(new Integer(113), "ms"); //Montserrat
-        countryIndexToLocaleString.put(new Integer(114), "kn"); //Nevis
-        countryIndexToLocaleString.put(new Integer(1141), "kn"); //Saint Kitts and Nevis
-        countryIndexToLocaleString.put(new Integer(115), "kn"); //St. Kitts
-        countryIndexToLocaleString.put(new Integer(116), "vc"); //St. Vincent & the Grenadines
-        countryIndexToLocaleString.put(new Integer(117), "tt"); //Trinidad & Tobago
-        countryIndexToLocaleString.put(new Integer(118), "tc"); //Turks & Caicos Islands
-        countryIndexToLocaleString.put(new Integer(120), "ag"); //Barbuda
-        countryIndexToLocaleString.put(new Integer(121), "pr"); //Puerto Rico
-        countryIndexToLocaleString.put(new Integer(122), "lc"); //Saint Lucia
-        countryIndexToLocaleString.put(new Integer(123), "vi"); //Virgin Islands (USA)
-        countryIndexToLocaleString.put(new Integer(178), "es"); //Canary Islands ???
-        countryIndexToLocaleString.put(new Integer(20), "eg"); //Egypt
-        countryIndexToLocaleString.put(new Integer(212), "ma"); //Morocco
-        countryIndexToLocaleString.put(new Integer(213), "dz"); //Algeria
-        countryIndexToLocaleString.put(new Integer(216), "tn"); //Tunisia
-        countryIndexToLocaleString.put(new Integer(218), "ly"); //Libyan Arab Jamahiriya
-        countryIndexToLocaleString.put(new Integer(220), "gm"); //Gambia
-        countryIndexToLocaleString.put(new Integer(221), "sn"); //Senegal
-        countryIndexToLocaleString.put(new Integer(222), "mr"); //Mauritania
-        countryIndexToLocaleString.put(new Integer(223), "ml"); //Mali
-        countryIndexToLocaleString.put(new Integer(224), "pg"); //Guinea
-        countryIndexToLocaleString.put(new Integer(225), "ci"); //Cote d'Ivoire
-        countryIndexToLocaleString.put(new Integer(226), "bf"); //Burkina Faso
-        countryIndexToLocaleString.put(new Integer(227), "ne"); //Niger
-        countryIndexToLocaleString.put(new Integer(228), "tg"); //Togo
-        countryIndexToLocaleString.put(new Integer(229), "bj"); //Benin
-        countryIndexToLocaleString.put(new Integer(230), "mu"); //Mauritius
-        countryIndexToLocaleString.put(new Integer(231), "lr"); //Liberia
-        countryIndexToLocaleString.put(new Integer(232), "sl"); //Sierra Leone
-        countryIndexToLocaleString.put(new Integer(233), "gh"); //Ghana
-        countryIndexToLocaleString.put(new Integer(234), "ng"); //Nigeria
-        countryIndexToLocaleString.put(new Integer(235), "td"); //Chad
-        countryIndexToLocaleString.put(new Integer(236), "cf"); //Central African Republic
-        countryIndexToLocaleString.put(new Integer(237), "cm"); //Cameroon
-        countryIndexToLocaleString.put(new Integer(238), "cv"); //Cape Verde Islands
-        countryIndexToLocaleString.put(new Integer(239), "st"); //Sao Tome & Principe
-        countryIndexToLocaleString.put(new Integer(240), "gq"); //Equatorial Guinea
-        countryIndexToLocaleString.put(new Integer(241), "ga"); //Gabon
-        countryIndexToLocaleString.put(new Integer(242), "cg"); //Congo, (Rep. of the)
-        countryIndexToLocaleString.put(new Integer(243), "cd"); //Congo, Democratic Republic of
-        countryIndexToLocaleString.put(new Integer(244), "ao"); //Angola
-        countryIndexToLocaleString.put(new Integer(245), "gw"); //Guinea-Bissau
-//        countryIndexToLocaleString.put(new Integer(246),""); //Diego Garcia ???
-//        countryIndexToLocaleString.put(new Integer(247),""); //Ascension Island ???
-        countryIndexToLocaleString.put(new Integer(248), "sc"); //Seychelles
-        countryIndexToLocaleString.put(new Integer(249), "sd"); //Sudan
-        countryIndexToLocaleString.put(new Integer(250), "rw"); //Rwanda
-        countryIndexToLocaleString.put(new Integer(251), "et"); //Ethiopia
-        countryIndexToLocaleString.put(new Integer(252), "so"); //Somalia
-        countryIndexToLocaleString.put(new Integer(253), "dj"); //Djibouti
-        countryIndexToLocaleString.put(new Integer(254), "ke"); //Kenya
-        countryIndexToLocaleString.put(new Integer(255), "tz"); //Tanzania
-        countryIndexToLocaleString.put(new Integer(256), "ug"); //Uganda
-        countryIndexToLocaleString.put(new Integer(257), "bi"); //Burundi
-        countryIndexToLocaleString.put(new Integer(258), "mz"); //Mozambique
-        countryIndexToLocaleString.put(new Integer(260), "zm"); //Zambia
-        countryIndexToLocaleString.put(new Integer(261), "mg"); //Madagascar
-//        countryIndexToLocaleString.put(new Integer(262),""); //Reunion Island ???
-        countryIndexToLocaleString.put(new Integer(263), "zw"); //Zimbabwe
-        countryIndexToLocaleString.put(new Integer(264), "na"); //Namibia
-        countryIndexToLocaleString.put(new Integer(265), "mw"); //Malawi
-        countryIndexToLocaleString.put(new Integer(266), "ls"); //Lesotho
-        countryIndexToLocaleString.put(new Integer(267), "bw"); //Botswana
-        countryIndexToLocaleString.put(new Integer(268), "sz"); //Swaziland
-        countryIndexToLocaleString.put(new Integer(269), "yt"); //Mayotte Island
-        countryIndexToLocaleString.put(new Integer(2691), "km"); //Comoros
-        countryIndexToLocaleString.put(new Integer(27), "za"); //South Africa
-        countryIndexToLocaleString.put(new Integer(290), "sh"); //St. Helena
-        countryIndexToLocaleString.put(new Integer(291), "er"); //Eritrea
-        countryIndexToLocaleString.put(new Integer(297), "aw"); //Aruba
-//        countryIndexToLocaleString.put(new Integer(298),""); //Faeroe Islands ???
-        countryIndexToLocaleString.put(new Integer(299), "gl"); //Greenland
-        countryIndexToLocaleString.put(new Integer(30), "gr"); //Greece
-        countryIndexToLocaleString.put(new Integer(31), "nl"); //Netherlands
-        countryIndexToLocaleString.put(new Integer(32), "be"); //Belgium
-        countryIndexToLocaleString.put(new Integer(33), "fr"); //France
-        countryIndexToLocaleString.put(new Integer(34), "es"); //Spain
-        countryIndexToLocaleString.put(new Integer(350), "gi"); //Gibraltar
-        countryIndexToLocaleString.put(new Integer(351), "pt"); //Portugal
-        countryIndexToLocaleString.put(new Integer(352), "lu"); //Luxembourg
-        countryIndexToLocaleString.put(new Integer(353), "ie"); //Ireland
-        countryIndexToLocaleString.put(new Integer(354), "is"); //Iceland
-        countryIndexToLocaleString.put(new Integer(355), "al"); //Albania
-        countryIndexToLocaleString.put(new Integer(356), "mt"); //Malta
-        countryIndexToLocaleString.put(new Integer(357), "cy"); //Cyprus
-        countryIndexToLocaleString.put(new Integer(358), "fi"); //Finland
-        countryIndexToLocaleString.put(new Integer(359), "bg"); //Bulgaria
-        countryIndexToLocaleString.put(new Integer(36), "hu"); //Hungary
-        countryIndexToLocaleString.put(new Integer(370), "lt"); //Lithuania
-        countryIndexToLocaleString.put(new Integer(371), "lv"); //Latvia
-        countryIndexToLocaleString.put(new Integer(372), "ee"); //Estonia
-        countryIndexToLocaleString.put(new Integer(373), "md"); //Moldova, Republic of
-        countryIndexToLocaleString.put(new Integer(374), "am"); //Armenia
-        countryIndexToLocaleString.put(new Integer(375), "by"); //Belarus
-        countryIndexToLocaleString.put(new Integer(376), "ad"); //Andorra
-        countryIndexToLocaleString.put(new Integer(377), "mc"); //Monaco
-        countryIndexToLocaleString.put(new Integer(378), "sm"); //San Marino
-        countryIndexToLocaleString.put(new Integer(379), "va"); //Vatican City
-        countryIndexToLocaleString.put(new Integer(380), "ua"); //Ukraine
-//        countryIndexToLocaleString.put(new Integer(381),""); //Yugoslavia ???
-        countryIndexToLocaleString.put(new Integer(3811), "cs"); //Yugoslavia - Serbia
-        countryIndexToLocaleString.put(new Integer(382), "cs"); //Yugoslavia - Montenegro
-        countryIndexToLocaleString.put(new Integer(385), "hr"); //Croatia
-        countryIndexToLocaleString.put(new Integer(386), "si"); //Slovenia
-        countryIndexToLocaleString.put(new Integer(387), "ba"); //Bosnia & Herzegovina
-        countryIndexToLocaleString.put(new Integer(389), "mk"); //Macedonia (F.Y.R.O.M.)
-        countryIndexToLocaleString.put(new Integer(39), "it"); //Italy
-        countryIndexToLocaleString.put(new Integer(40), "ro"); //Romania
-        countryIndexToLocaleString.put(new Integer(41), "ch"); //Switzerland
-        countryIndexToLocaleString.put(new Integer(4101), "li"); //Liechtenstein
-        countryIndexToLocaleString.put(new Integer(42), "cz"); //Czech Republic
-        countryIndexToLocaleString.put(new Integer(4201), "sk"); //Slovakia
-        countryIndexToLocaleString.put(new Integer(43), "at"); //Austria
-        countryIndexToLocaleString.put(new Integer(44), "gb"); //United Kingdom
-//        countryIndexToLocaleString.put(new Integer(441),""); //Wales ???
-//        countryIndexToLocaleString.put(new Integer(442),""); //Scotland ???
-        countryIndexToLocaleString.put(new Integer(45), "dk"); //Denmark
-        countryIndexToLocaleString.put(new Integer(46), "se"); //Sweden
-        countryIndexToLocaleString.put(new Integer(47), "no"); //Norway
-        countryIndexToLocaleString.put(new Integer(48), "pl"); //Poland
-        countryIndexToLocaleString.put(new Integer(49), "de"); //Germany
-//        countryIndexToLocaleString.put(new Integer(500),""); //Falkland Islands ???
-        countryIndexToLocaleString.put(new Integer(501), "bz"); //Belize
-        countryIndexToLocaleString.put(new Integer(502), "gt"); //Guatemala
-        countryIndexToLocaleString.put(new Integer(503), "sv"); //El Salvador
-        countryIndexToLocaleString.put(new Integer(504), "hn"); //Honduras
-        countryIndexToLocaleString.put(new Integer(505), "ni"); //Nicaragua
-        countryIndexToLocaleString.put(new Integer(506), "cr"); //Costa Rica
-        countryIndexToLocaleString.put(new Integer(507), "pa"); //Panama
-        countryIndexToLocaleString.put(new Integer(508), "pm"); //St. Pierre & Miquelon
-        countryIndexToLocaleString.put(new Integer(509), "ht"); //Haiti
-        countryIndexToLocaleString.put(new Integer(51), "pe"); //Peru
-        countryIndexToLocaleString.put(new Integer(52), "mx"); //Mexico
-        countryIndexToLocaleString.put(new Integer(53), "cu"); //Cuba
-        countryIndexToLocaleString.put(new Integer(54), "ar"); //Argentina
-        countryIndexToLocaleString.put(new Integer(55), "br"); //Brazil
-        countryIndexToLocaleString.put(new Integer(56), "cl"); //Chile, Republic of
-        countryIndexToLocaleString.put(new Integer(57), "co"); //Colombia
-        countryIndexToLocaleString.put(new Integer(58), "ve"); //Venezuela
-        countryIndexToLocaleString.put(new Integer(590), "gp"); //Guadeloupe
-        countryIndexToLocaleString.put(new Integer(5901), "an"); //French Antilles
-        countryIndexToLocaleString.put(new Integer(5902), "an"); //Antilles
-        countryIndexToLocaleString.put(new Integer(591), "bo"); //Bolivia
-        countryIndexToLocaleString.put(new Integer(592), "gy"); //Guyana
-        countryIndexToLocaleString.put(new Integer(593), "ec"); //Ecuador
-        countryIndexToLocaleString.put(new Integer(594), "gy"); //French Guyana
-        countryIndexToLocaleString.put(new Integer(595), "py"); //Paraguay
-        countryIndexToLocaleString.put(new Integer(596), "mq"); //Martinique
-        countryIndexToLocaleString.put(new Integer(597), "sr"); //Suriname
-        countryIndexToLocaleString.put(new Integer(598), "uy"); //Uruguay
-        countryIndexToLocaleString.put(new Integer(599), "an"); //Netherlands Antilles
-        countryIndexToLocaleString.put(new Integer(60), "my"); //Malaysia
-        countryIndexToLocaleString.put(new Integer(61), "au"); //Australia
-        countryIndexToLocaleString.put(new Integer(6101), "cc"); //Cocos-Keeling Islands
-        countryIndexToLocaleString.put(new Integer(6102), "cc"); //Cocos (Keeling) Islands
-        countryIndexToLocaleString.put(new Integer(62), "id"); //Indonesia
-        countryIndexToLocaleString.put(new Integer(63), "ph"); //Philippines
-        countryIndexToLocaleString.put(new Integer(64), "nz"); //New Zealand
-        countryIndexToLocaleString.put(new Integer(65), "sg"); //Singapore
-        countryIndexToLocaleString.put(new Integer(66), "th"); //Thailand
-//        countryIndexToLocaleString.put(new Integer(670),""); //Saipan Island ???
-//        countryIndexToLocaleString.put(new Integer(6701),""); //Rota Island  ???
-//        countryIndexToLocaleString.put(new Integer(6702),""); //Tinian Island ???
-        countryIndexToLocaleString.put(new Integer(671), "gu"); //Guam, US Territory of
-        countryIndexToLocaleString.put(new Integer(672), "cx"); //Christmas Island
-        countryIndexToLocaleString.put(new Integer(6722), "nf"); //Norfolk Island
-        countryIndexToLocaleString.put(new Integer(673), "bn"); //Brunei
-        countryIndexToLocaleString.put(new Integer(674), "nr"); //Nauru
-        countryIndexToLocaleString.put(new Integer(675), "pg"); //Papua New Guinea
-        countryIndexToLocaleString.put(new Integer(676), "to"); //Tonga
-        countryIndexToLocaleString.put(new Integer(677), "sb"); //Solomon Islands
-        countryIndexToLocaleString.put(new Integer(678), "vu"); //Vanuatu
-        countryIndexToLocaleString.put(new Integer(679), "fj"); //Fiji
-        countryIndexToLocaleString.put(new Integer(680), "pw"); //Palau
-        countryIndexToLocaleString.put(new Integer(681), "wf"); //Wallis & Futuna Islands
-        countryIndexToLocaleString.put(new Integer(682), "ck"); //Cook Islands
-        countryIndexToLocaleString.put(new Integer(683), "nu"); //Niue
-        countryIndexToLocaleString.put(new Integer(684), "as"); //American Samoa
-        countryIndexToLocaleString.put(new Integer(685), "ws"); //Western Samoa
-        countryIndexToLocaleString.put(new Integer(686), "ki"); //Kiribati
-        countryIndexToLocaleString.put(new Integer(687), "nc"); //New Caledonia
-        countryIndexToLocaleString.put(new Integer(688), "tv"); //Tuvalu
-        countryIndexToLocaleString.put(new Integer(689), "pf"); //French Polynesia
-        countryIndexToLocaleString.put(new Integer(690), "tk"); //Tokelau
-        countryIndexToLocaleString.put(new Integer(691), "fm"); //Micronesia, Federated States of
-        countryIndexToLocaleString.put(new Integer(692), "mh"); //Marshall Islands
-        countryIndexToLocaleString.put(new Integer(7), "ru"); //Russia
-        countryIndexToLocaleString.put(new Integer(705), "kz"); //Kazakhstan
-        countryIndexToLocaleString.put(new Integer(706), "kg"); //Kyrgyzstan
-        countryIndexToLocaleString.put(new Integer(708), "tj"); //Tajikistan
-        countryIndexToLocaleString.put(new Integer(709), "tm"); //Turkmenistan
-        countryIndexToLocaleString.put(new Integer(711), "uz"); //Uzbekistan
-        countryIndexToLocaleString.put(new Integer(81), "jp"); //Japan
-        countryIndexToLocaleString.put(new Integer(82), "kr"); //Korea, South
-        countryIndexToLocaleString.put(new Integer(84), "vn"); //Viet Nam
-        countryIndexToLocaleString.put(new Integer(850), "kp"); //Korea, North
-        countryIndexToLocaleString.put(new Integer(852), "hk"); //Hong Kong
-        countryIndexToLocaleString.put(new Integer(853), "mo"); //Macau
-        countryIndexToLocaleString.put(new Integer(855), "kh"); //Cambodia
-        countryIndexToLocaleString.put(new Integer(856), "la"); //Laos
-        countryIndexToLocaleString.put(new Integer(86), "cn"); //China
-        countryIndexToLocaleString.put(new Integer(880), "bd"); //Bangladesh
-        countryIndexToLocaleString.put(new Integer(886), "tw"); //Taiwan
-        countryIndexToLocaleString.put(new Integer(90), "tr"); //Turkey
-        countryIndexToLocaleString.put(new Integer(91), "in"); //India
-        countryIndexToLocaleString.put(new Integer(92), "pk"); //Pakistan
-        countryIndexToLocaleString.put(new Integer(93), "af"); //Afghanistan
-        countryIndexToLocaleString.put(new Integer(94), "lk"); //Sri Lanka
-        countryIndexToLocaleString.put(new Integer(95), "mm"); //Myanmar
-        countryIndexToLocaleString.put(new Integer(960), "mv"); //Maldives
-        countryIndexToLocaleString.put(new Integer(961), "lb"); //Lebanon
-        countryIndexToLocaleString.put(new Integer(962), "jo"); //Jordan
-        countryIndexToLocaleString.put(new Integer(963), "sy"); //Syrian Arab Republic
-        countryIndexToLocaleString.put(new Integer(964), "iq"); //Iraq
-        countryIndexToLocaleString.put(new Integer(965), "kw"); //Kuwait
-        countryIndexToLocaleString.put(new Integer(966), "sa"); //Saudi Arabia
-        countryIndexToLocaleString.put(new Integer(967), "ye"); //Yemen
-        countryIndexToLocaleString.put(new Integer(968), "om"); //Oman
-        countryIndexToLocaleString.put(new Integer(971), "ae"); //United Arabian Emirates
-        countryIndexToLocaleString.put(new Integer(972), "il"); //Israel
-        countryIndexToLocaleString.put(new Integer(973), "bh"); //Bahrain
-        countryIndexToLocaleString.put(new Integer(974), "qa"); //Qatar
-        countryIndexToLocaleString.put(new Integer(975), "bt"); //Bhutan
-        countryIndexToLocaleString.put(new Integer(976), "mn"); //Mongolia
-        countryIndexToLocaleString.put(new Integer(977), "np"); //Nepal
-        countryIndexToLocaleString.put(new Integer(98), "ir"); //Iran (Islamic Republic of)
-        countryIndexToLocaleString.put(new Integer(994), "az"); //Azerbaijan
-        countryIndexToLocaleString.put(new Integer(995), "ge"); //Georgia
-//        countryIndexToLocaleString.put(new Integer(9999),""); //other
+//        countryIndexToLocaleString.put((0),""); //not specified
+        countryIndexToLocaleString.put((1), "us"); //USA
+        countryIndexToLocaleString.put((101), "ai"); //Anguilla
+        countryIndexToLocaleString.put((102), "ag"); //Antigua
+        countryIndexToLocaleString.put((1021), "ag"); //Antigua & Barbuda
+        countryIndexToLocaleString.put((103), "bs"); //Bahamas
+        countryIndexToLocaleString.put((104), "bb"); //Barbados
+        countryIndexToLocaleString.put((105), "bm"); //Bermuda
+        countryIndexToLocaleString.put((106), "vg"); //British Virgin Islands
+        countryIndexToLocaleString.put((107), "ca"); //Canada
+        countryIndexToLocaleString.put((108), "ky"); //Cayman Islands
+        countryIndexToLocaleString.put((109), "dm"); //Dominica
+        countryIndexToLocaleString.put((110), "do"); //Dominican Republic
+        countryIndexToLocaleString.put((111), "gd"); //Grenada
+        countryIndexToLocaleString.put((112), "jm"); //Jamaica
+        countryIndexToLocaleString.put((113), "ms"); //Montserrat
+        countryIndexToLocaleString.put((114), "kn"); //Nevis
+        countryIndexToLocaleString.put((1141), "kn"); //Saint Kitts and Nevis
+        countryIndexToLocaleString.put((115), "kn"); //St. Kitts
+        countryIndexToLocaleString.put((116), "vc"); //St. Vincent & the Grenadines
+        countryIndexToLocaleString.put((117), "tt"); //Trinidad & Tobago
+        countryIndexToLocaleString.put((118), "tc"); //Turks & Caicos Islands
+        countryIndexToLocaleString.put((120), "ag"); //Barbuda
+        countryIndexToLocaleString.put((121), "pr"); //Puerto Rico
+        countryIndexToLocaleString.put((122), "lc"); //Saint Lucia
+        countryIndexToLocaleString.put((123), "vi"); //Virgin Islands (USA)
+        countryIndexToLocaleString.put((178), "es"); //Canary Islands ???
+        countryIndexToLocaleString.put((20), "eg"); //Egypt
+        countryIndexToLocaleString.put((212), "ma"); //Morocco
+        countryIndexToLocaleString.put((213), "dz"); //Algeria
+        countryIndexToLocaleString.put((216), "tn"); //Tunisia
+        countryIndexToLocaleString.put((218), "ly"); //Libyan Arab Jamahiriya
+        countryIndexToLocaleString.put((220), "gm"); //Gambia
+        countryIndexToLocaleString.put((221), "sn"); //Senegal
+        countryIndexToLocaleString.put((222), "mr"); //Mauritania
+        countryIndexToLocaleString.put((223), "ml"); //Mali
+        countryIndexToLocaleString.put((224), "pg"); //Guinea
+        countryIndexToLocaleString.put((225), "ci"); //Cote d'Ivoire
+        countryIndexToLocaleString.put((226), "bf"); //Burkina Faso
+        countryIndexToLocaleString.put((227), "ne"); //Niger
+        countryIndexToLocaleString.put((228), "tg"); //Togo
+        countryIndexToLocaleString.put((229), "bj"); //Benin
+        countryIndexToLocaleString.put((230), "mu"); //Mauritius
+        countryIndexToLocaleString.put((231), "lr"); //Liberia
+        countryIndexToLocaleString.put((232), "sl"); //Sierra Leone
+        countryIndexToLocaleString.put((233), "gh"); //Ghana
+        countryIndexToLocaleString.put((234), "ng"); //Nigeria
+        countryIndexToLocaleString.put((235), "td"); //Chad
+        countryIndexToLocaleString.put((236), "cf"); //Central African Republic
+        countryIndexToLocaleString.put((237), "cm"); //Cameroon
+        countryIndexToLocaleString.put((238), "cv"); //Cape Verde Islands
+        countryIndexToLocaleString.put((239), "st"); //Sao Tome & Principe
+        countryIndexToLocaleString.put((240), "gq"); //Equatorial Guinea
+        countryIndexToLocaleString.put((241), "ga"); //Gabon
+        countryIndexToLocaleString.put((242), "cg"); //Congo, (Rep. of the)
+        countryIndexToLocaleString.put((243), "cd"); //Congo, Democratic Republic of
+        countryIndexToLocaleString.put((244), "ao"); //Angola
+        countryIndexToLocaleString.put((245), "gw"); //Guinea-Bissau
+//        countryIndexToLocaleString.put((246),""); //Diego Garcia ???
+//        countryIndexToLocaleString.put((247),""); //Ascension Island ???
+        countryIndexToLocaleString.put((248), "sc"); //Seychelles
+        countryIndexToLocaleString.put((249), "sd"); //Sudan
+        countryIndexToLocaleString.put((250), "rw"); //Rwanda
+        countryIndexToLocaleString.put((251), "et"); //Ethiopia
+        countryIndexToLocaleString.put((252), "so"); //Somalia
+        countryIndexToLocaleString.put((253), "dj"); //Djibouti
+        countryIndexToLocaleString.put((254), "ke"); //Kenya
+        countryIndexToLocaleString.put((255), "tz"); //Tanzania
+        countryIndexToLocaleString.put((256), "ug"); //Uganda
+        countryIndexToLocaleString.put((257), "bi"); //Burundi
+        countryIndexToLocaleString.put((258), "mz"); //Mozambique
+        countryIndexToLocaleString.put((260), "zm"); //Zambia
+        countryIndexToLocaleString.put((261), "mg"); //Madagascar
+//        countryIndexToLocaleString.put((262),""); //Reunion Island ???
+        countryIndexToLocaleString.put((263), "zw"); //Zimbabwe
+        countryIndexToLocaleString.put((264), "na"); //Namibia
+        countryIndexToLocaleString.put((265), "mw"); //Malawi
+        countryIndexToLocaleString.put((266), "ls"); //Lesotho
+        countryIndexToLocaleString.put((267), "bw"); //Botswana
+        countryIndexToLocaleString.put((268), "sz"); //Swaziland
+        countryIndexToLocaleString.put((269), "yt"); //Mayotte Island
+        countryIndexToLocaleString.put((2691), "km"); //Comoros
+        countryIndexToLocaleString.put((27), "za"); //South Africa
+        countryIndexToLocaleString.put((290), "sh"); //St. Helena
+        countryIndexToLocaleString.put((291), "er"); //Eritrea
+        countryIndexToLocaleString.put((297), "aw"); //Aruba
+//        countryIndexToLocaleString.put((298),""); //Faeroe Islands ???
+        countryIndexToLocaleString.put((299), "gl"); //Greenland
+        countryIndexToLocaleString.put((30), "gr"); //Greece
+        countryIndexToLocaleString.put((31), "nl"); //Netherlands
+        countryIndexToLocaleString.put((32), "be"); //Belgium
+        countryIndexToLocaleString.put((33), "fr"); //France
+        countryIndexToLocaleString.put((34), "es"); //Spain
+        countryIndexToLocaleString.put((350), "gi"); //Gibraltar
+        countryIndexToLocaleString.put((351), "pt"); //Portugal
+        countryIndexToLocaleString.put((352), "lu"); //Luxembourg
+        countryIndexToLocaleString.put((353), "ie"); //Ireland
+        countryIndexToLocaleString.put((354), "is"); //Iceland
+        countryIndexToLocaleString.put((355), "al"); //Albania
+        countryIndexToLocaleString.put((356), "mt"); //Malta
+        countryIndexToLocaleString.put((357), "cy"); //Cyprus
+        countryIndexToLocaleString.put((358), "fi"); //Finland
+        countryIndexToLocaleString.put((359), "bg"); //Bulgaria
+        countryIndexToLocaleString.put((36), "hu"); //Hungary
+        countryIndexToLocaleString.put((370), "lt"); //Lithuania
+        countryIndexToLocaleString.put((371), "lv"); //Latvia
+        countryIndexToLocaleString.put((372), "ee"); //Estonia
+        countryIndexToLocaleString.put((373), "md"); //Moldova, Republic of
+        countryIndexToLocaleString.put((374), "am"); //Armenia
+        countryIndexToLocaleString.put((375), "by"); //Belarus
+        countryIndexToLocaleString.put((376), "ad"); //Andorra
+        countryIndexToLocaleString.put((377), "mc"); //Monaco
+        countryIndexToLocaleString.put((378), "sm"); //San Marino
+        countryIndexToLocaleString.put((379), "va"); //Vatican City
+        countryIndexToLocaleString.put((380), "ua"); //Ukraine
+//        countryIndexToLocaleString.put((381),""); //Yugoslavia ???
+        countryIndexToLocaleString.put((3811), "cs"); //Yugoslavia - Serbia
+        countryIndexToLocaleString.put((382), "cs"); //Yugoslavia - Montenegro
+        countryIndexToLocaleString.put((385), "hr"); //Croatia
+        countryIndexToLocaleString.put((386), "si"); //Slovenia
+        countryIndexToLocaleString.put((387), "ba"); //Bosnia & Herzegovina
+        countryIndexToLocaleString.put((389), "mk"); //Macedonia (F.Y.R.O.M.)
+        countryIndexToLocaleString.put((39), "it"); //Italy
+        countryIndexToLocaleString.put((40), "ro"); //Romania
+        countryIndexToLocaleString.put((41), "ch"); //Switzerland
+        countryIndexToLocaleString.put((4101), "li"); //Liechtenstein
+        countryIndexToLocaleString.put((42), "cz"); //Czech Republic
+        countryIndexToLocaleString.put((4201), "sk"); //Slovakia
+        countryIndexToLocaleString.put((43), "at"); //Austria
+        countryIndexToLocaleString.put((44), "gb"); //United Kingdom
+//        countryIndexToLocaleString.put((441),""); //Wales ???
+//        countryIndexToLocaleString.put((442),""); //Scotland ???
+        countryIndexToLocaleString.put((45), "dk"); //Denmark
+        countryIndexToLocaleString.put((46), "se"); //Sweden
+        countryIndexToLocaleString.put((47), "no"); //Norway
+        countryIndexToLocaleString.put((48), "pl"); //Poland
+        countryIndexToLocaleString.put((49), "de"); //Germany
+//        countryIndexToLocaleString.put((500),""); //Falkland Islands ???
+        countryIndexToLocaleString.put((501), "bz"); //Belize
+        countryIndexToLocaleString.put((502), "gt"); //Guatemala
+        countryIndexToLocaleString.put((503), "sv"); //El Salvador
+        countryIndexToLocaleString.put((504), "hn"); //Honduras
+        countryIndexToLocaleString.put((505), "ni"); //Nicaragua
+        countryIndexToLocaleString.put((506), "cr"); //Costa Rica
+        countryIndexToLocaleString.put((507), "pa"); //Panama
+        countryIndexToLocaleString.put((508), "pm"); //St. Pierre & Miquelon
+        countryIndexToLocaleString.put((509), "ht"); //Haiti
+        countryIndexToLocaleString.put((51), "pe"); //Peru
+        countryIndexToLocaleString.put((52), "mx"); //Mexico
+        countryIndexToLocaleString.put((53), "cu"); //Cuba
+        countryIndexToLocaleString.put((54), "ar"); //Argentina
+        countryIndexToLocaleString.put((55), "br"); //Brazil
+        countryIndexToLocaleString.put((56), "cl"); //Chile, Republic of
+        countryIndexToLocaleString.put((57), "co"); //Colombia
+        countryIndexToLocaleString.put((58), "ve"); //Venezuela
+        countryIndexToLocaleString.put((590), "gp"); //Guadeloupe
+        countryIndexToLocaleString.put((5901), "an"); //French Antilles
+        countryIndexToLocaleString.put((5902), "an"); //Antilles
+        countryIndexToLocaleString.put((591), "bo"); //Bolivia
+        countryIndexToLocaleString.put((592), "gy"); //Guyana
+        countryIndexToLocaleString.put((593), "ec"); //Ecuador
+        countryIndexToLocaleString.put((594), "gy"); //French Guyana
+        countryIndexToLocaleString.put((595), "py"); //Paraguay
+        countryIndexToLocaleString.put((596), "mq"); //Martinique
+        countryIndexToLocaleString.put((597), "sr"); //Suriname
+        countryIndexToLocaleString.put((598), "uy"); //Uruguay
+        countryIndexToLocaleString.put((599), "an"); //Netherlands Antilles
+        countryIndexToLocaleString.put((60), "my"); //Malaysia
+        countryIndexToLocaleString.put((61), "au"); //Australia
+        countryIndexToLocaleString.put((6101), "cc"); //Cocos-Keeling Islands
+        countryIndexToLocaleString.put((6102), "cc"); //Cocos (Keeling) Islands
+        countryIndexToLocaleString.put((62), "id"); //Indonesia
+        countryIndexToLocaleString.put((63), "ph"); //Philippines
+        countryIndexToLocaleString.put((64), "nz"); //New Zealand
+        countryIndexToLocaleString.put((65), "sg"); //Singapore
+        countryIndexToLocaleString.put((66), "th"); //Thailand
+//        countryIndexToLocaleString.put((670),""); //Saipan Island ???
+//        countryIndexToLocaleString.put((6701),""); //Rota Island  ???
+//        countryIndexToLocaleString.put((6702),""); //Tinian Island ???
+        countryIndexToLocaleString.put((671), "gu"); //Guam, US Territory of
+        countryIndexToLocaleString.put((672), "cx"); //Christmas Island
+        countryIndexToLocaleString.put((6722), "nf"); //Norfolk Island
+        countryIndexToLocaleString.put((673), "bn"); //Brunei
+        countryIndexToLocaleString.put((674), "nr"); //Nauru
+        countryIndexToLocaleString.put((675), "pg"); //Papua New Guinea
+        countryIndexToLocaleString.put((676), "to"); //Tonga
+        countryIndexToLocaleString.put((677), "sb"); //Solomon Islands
+        countryIndexToLocaleString.put((678), "vu"); //Vanuatu
+        countryIndexToLocaleString.put((679), "fj"); //Fiji
+        countryIndexToLocaleString.put((680), "pw"); //Palau
+        countryIndexToLocaleString.put((681), "wf"); //Wallis & Futuna Islands
+        countryIndexToLocaleString.put((682), "ck"); //Cook Islands
+        countryIndexToLocaleString.put((683), "nu"); //Niue
+        countryIndexToLocaleString.put((684), "as"); //American Samoa
+        countryIndexToLocaleString.put((685), "ws"); //Western Samoa
+        countryIndexToLocaleString.put((686), "ki"); //Kiribati
+        countryIndexToLocaleString.put((687), "nc"); //New Caledonia
+        countryIndexToLocaleString.put((688), "tv"); //Tuvalu
+        countryIndexToLocaleString.put((689), "pf"); //French Polynesia
+        countryIndexToLocaleString.put((690), "tk"); //Tokelau
+        countryIndexToLocaleString.put((691), "fm"); //Micronesia, Federated States of
+        countryIndexToLocaleString.put((692), "mh"); //Marshall Islands
+        countryIndexToLocaleString.put((7), "ru"); //Russia
+        countryIndexToLocaleString.put((705), "kz"); //Kazakhstan
+        countryIndexToLocaleString.put((706), "kg"); //Kyrgyzstan
+        countryIndexToLocaleString.put((708), "tj"); //Tajikistan
+        countryIndexToLocaleString.put((709), "tm"); //Turkmenistan
+        countryIndexToLocaleString.put((711), "uz"); //Uzbekistan
+        countryIndexToLocaleString.put((81), "jp"); //Japan
+        countryIndexToLocaleString.put((82), "kr"); //Korea, South
+        countryIndexToLocaleString.put((84), "vn"); //Viet Nam
+        countryIndexToLocaleString.put((850), "kp"); //Korea, North
+        countryIndexToLocaleString.put((852), "hk"); //Hong Kong
+        countryIndexToLocaleString.put((853), "mo"); //Macau
+        countryIndexToLocaleString.put((855), "kh"); //Cambodia
+        countryIndexToLocaleString.put((856), "la"); //Laos
+        countryIndexToLocaleString.put((86), "cn"); //China
+        countryIndexToLocaleString.put((880), "bd"); //Bangladesh
+        countryIndexToLocaleString.put((886), "tw"); //Taiwan
+        countryIndexToLocaleString.put((90), "tr"); //Turkey
+        countryIndexToLocaleString.put((91), "in"); //India
+        countryIndexToLocaleString.put((92), "pk"); //Pakistan
+        countryIndexToLocaleString.put((93), "af"); //Afghanistan
+        countryIndexToLocaleString.put((94), "lk"); //Sri Lanka
+        countryIndexToLocaleString.put((95), "mm"); //Myanmar
+        countryIndexToLocaleString.put((960), "mv"); //Maldives
+        countryIndexToLocaleString.put((961), "lb"); //Lebanon
+        countryIndexToLocaleString.put((962), "jo"); //Jordan
+        countryIndexToLocaleString.put((963), "sy"); //Syrian Arab Republic
+        countryIndexToLocaleString.put((964), "iq"); //Iraq
+        countryIndexToLocaleString.put((965), "kw"); //Kuwait
+        countryIndexToLocaleString.put((966), "sa"); //Saudi Arabia
+        countryIndexToLocaleString.put((967), "ye"); //Yemen
+        countryIndexToLocaleString.put((968), "om"); //Oman
+        countryIndexToLocaleString.put((971), "ae"); //United Arabian Emirates
+        countryIndexToLocaleString.put((972), "il"); //Israel
+        countryIndexToLocaleString.put((973), "bh"); //Bahrain
+        countryIndexToLocaleString.put((974), "qa"); //Qatar
+        countryIndexToLocaleString.put((975), "bt"); //Bhutan
+        countryIndexToLocaleString.put((976), "mn"); //Mongolia
+        countryIndexToLocaleString.put((977), "np"); //Nepal
+        countryIndexToLocaleString.put((98), "ir"); //Iran (Islamic Republic of)
+        countryIndexToLocaleString.put((994), "az"); //Azerbaijan
+        countryIndexToLocaleString.put((995), "ge"); //Georgia
+//        countryIndexToLocaleString.put((9999),""); //other
     }
 
     /**

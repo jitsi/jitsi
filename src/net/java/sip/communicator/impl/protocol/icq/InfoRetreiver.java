@@ -303,7 +303,7 @@ public class InfoRetreiver
      */
     private List getInfoForRequest(int requestID)
     {
-        List res = (List) retreivedInfo.get(new Integer(requestID));
+        List res = (List) retreivedInfo.get(requestID);
 
         if (res == null)
         {
@@ -312,7 +312,7 @@ public class InfoRetreiver
             // from the sequence (basic info)
 
             res = new LinkedList();
-            retreivedInfo.put(new Integer(requestID), res);
+            retreivedInfo.put(requestID, res);
         }
 
         return res;

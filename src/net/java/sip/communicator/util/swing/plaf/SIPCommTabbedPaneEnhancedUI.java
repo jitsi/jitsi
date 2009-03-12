@@ -36,8 +36,8 @@ public class SIPCommTabbedPaneEnhancedUI
     private static final Color whiteColor = Color.white;
 
     private static final int TAB_OVERLAP
-        = new Integer(UtilActivator.getResources().
-            getSettingsString("impl.gui.TAB_OVERLAP")).intValue();
+        = Integer.parseInt(UtilActivator.getResources().
+            getSettingsString("impl.gui.TAB_OVERLAP"));
 
     private static final int PREFERRED_WIDTH = 150;
 

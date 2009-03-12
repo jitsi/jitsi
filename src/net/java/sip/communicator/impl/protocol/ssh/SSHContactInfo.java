@@ -109,7 +109,7 @@ class SSHContactInfo extends SIPCommDialog {
      * initialize the form.
      */
     public void initForm() {
-        updateTimer.setValue(new Integer(30));
+        updateTimer.setValue(30);
         MaskFormatter maskFormatter = new MaskFormatter();
         try {
             maskFormatter.setMask("#####");
@@ -118,7 +118,7 @@ class SSHContactInfo extends SIPCommDialog {
         }
         maskFormatter.setAllowsInvalid(false);
         portField = new JFormattedTextField(maskFormatter);
-        portField.setValue(new Integer(22));
+        portField.setValue(22);
         
         userNameField.setEnabled(false);
         passwordField.setEditable(false);
@@ -314,7 +314,7 @@ class SSHContactInfo extends SIPCommDialog {
      *
      * @param interval to be associated
      */
-    public void setUpdateInterval(Integer interval) {
+    public void setUpdateInterval(int interval) {
         this.updateTimer.setValue(interval);
     }
     

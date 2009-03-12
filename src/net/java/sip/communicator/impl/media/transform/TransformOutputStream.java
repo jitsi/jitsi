@@ -70,7 +70,7 @@ public class TransformOutputStream
     public void addTarget(InetAddress remoteAddr, int remotePort)
     {
         this.remoteAddrs.add(remoteAddr);
-        this.remotePorts.add(new Integer(remotePort));
+        this.remotePorts.add(remotePort);
     }
 
     /**
@@ -84,7 +84,7 @@ public class TransformOutputStream
     public boolean removeTarget(InetAddress remoteAddr, int remotePort)
     {
         return remoteAddrs.remove(remoteAddr)
-            && remotePorts.remove(new Integer(remotePort));
+            && remotePorts.remove(Integer.valueOf(remotePort));
     }
 
     /**

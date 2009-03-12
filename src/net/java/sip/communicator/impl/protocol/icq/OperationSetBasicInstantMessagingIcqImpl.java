@@ -629,8 +629,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 // check till we find a correct message
                 // or if NoSuchElementException is thrown
                 // there is no message
-                while(!checkFirstPacket())
-                {}
+                while(!checkFirstPacket());
             }
             catch (Exception ex)
             {

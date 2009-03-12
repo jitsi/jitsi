@@ -715,7 +715,7 @@ public class HistoryReaderImpl
             String filename = (String)filelist.next();
 
             files.add(
-                new Long(filename.substring(0, filename.length() - 4)));
+                Long.parseLong(filename.substring(0, filename.length() - 4)));
         }
         
         TreeSet resultAsLong = new TreeSet();
@@ -737,7 +737,7 @@ public class HistoryReaderImpl
         // if there is no startDate limit only to end date
         if(startDate == null)
         {
-            Long endLong = new Long(endDate.getTime());
+            Long endLong = Long.valueOf(endDate.getTime());
             files.add(endLong);
 
             resultAsLong.addAll(files.subSet(files.first(), endLong));
@@ -747,7 +747,7 @@ public class HistoryReaderImpl
         else if(endDate == null)
         {
             // end date is null get all the inclusive the one record before the startdate
-            Long startLong = new Long(startDate.getTime());
+            Long startLong = Long.valueOf(startDate.getTime());
 
             if(files.size() > 0 &&
                (startLong.longValue() < ((Long)files.first()).longValue()))
@@ -772,8 +772,8 @@ public class HistoryReaderImpl
         {
             // if both are present we must return all the elements between
             // the two dates and the one before the start date
-            Long startLong = new Long(startDate.getTime());
-            Long endLong = new Long(endDate.getTime());
+            Long startLong = Long.valueOf(startDate.getTime());
+            Long endLong = Long.valueOf(endDate.getTime());
             files.add(startLong);
             files.add(endLong);
 

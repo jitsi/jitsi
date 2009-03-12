@@ -396,6 +396,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.MUTE_BUTTON");
 
     /**
+     * A local video button icon. The icon shown in the CallParticipant panel.
+     */
+    public static final ImageID LOCAL_VIDEO_BUTTON
+        = new ImageID("service.gui.buttons.LOCAL_VIDEO_BUTTON");
+
+    /**
      * A call-transfer button icon. The icon shown in the CallParticipant panel.
      */
     public static final ImageID TRANSFER_CALL_BUTTON =
@@ -1360,7 +1366,7 @@ public class ImageLoader
             g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
             g.drawImage(statusImage, 0, 0, null);
             g.setComposite(ac);
-            g.drawString(new Integer(index + 1).toString(), 14, 8);
+            g.drawString(Integer.toString(index + 1), 14, 8);
 
             img = buffImage;
         }

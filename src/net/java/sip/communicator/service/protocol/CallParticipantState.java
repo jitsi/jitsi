@@ -80,7 +80,7 @@ public class CallParticipantState
 
     /**
      * This constant value indicates that the state of the call participant is
-     * is CONNECTING - which means that a network connection to that participant
+     * CONNECTING - which means that a network connection to that participant
      * is currently being established.
      */
     public static final CallParticipantState CONNECTING =
@@ -95,7 +95,7 @@ public class CallParticipantState
 
     /**
      * This constant value indicates that the state of the call participant is
-     * is CONNECTING - which means that a network connection to that participant
+     * CONNECTING - which means that a network connection to that participant
      * is currently being established.
      */
     public static final CallParticipantState CONNECTING_WITH_EARLY_MEDIA =
