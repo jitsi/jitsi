@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.event.*;
@@ -39,7 +38,7 @@ public class CListKeySearchListener implements KeyListener {
 
     private JList contactList;
 
-    private String lastTypedKey;
+    private char lastTypedKey = KeyEvent.CHAR_UNDEFINED;
 
     private long lastTypedTimestamp = 0;
 
@@ -75,15 +74,15 @@ public class CListKeySearchListener implements KeyListener {
             return;
         
         long eventTimestamp = e.getWhen();
-        String keyChar = String.valueOf(e.getKeyChar());
+        char keyChar = e.getKeyChar();
 
-        if(e.getKeyChar() == ' ') {
+        if(keyChar == ' ') {
             closeGroup();
         }
-        else if(e.getKeyChar() == '+') {
+        else if(keyChar == '+') {
             openGroup();
         }
-        else if(e.getKeyChar() == '-') {
+        else if(keyChar == '-') {
             closeGroup();
         }
         else {
@@ -117,20 +116,18 @@ public class CListKeySearchListener implements KeyListener {
             // 1) the newly entered character is different from the last one
             // or
             // 2) the currently selected contact starts with a different letter
-            int contactIndex = -1;
-            if (lastTypedKey != keyChar || !selectedSameLetterContact) {
-                contactIndex = this.contactList.getNextMatch(
-                        keyBuffer.toString(), 0, Position.Bias.Forward);
-            } else {
-                contactIndex = this.contactList.getNextMatch(
-                        keyBuffer.toString(),
-                        selectedIndex + 1, Position.Bias.Forward);
-            }
+            int contactIndex = contactList.getNextMatch(
+                    keyBuffer.toString(),
+                    (lastTypedKey != keyChar || !selectedSameLetterContact)
+                        ? 0
+                        : selectedIndex + 1,
+                    Position.Bias.Forward);
 
             int currentlySelectedIndex = this.contactList.getSelectedIndex();
 
             if (currentlySelectedIndex != contactIndex && contactIndex != -1) {
                 this.contactList.setSelectedIndex(contactIndex);
+                currentlySelectedIndex = contactList.getSelectedIndex();
             }
 
             this.contactList.ensureIndexIsVisible(currentlySelectedIndex);

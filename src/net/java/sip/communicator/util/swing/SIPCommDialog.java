@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 
 public abstract class SIPCommDialog extends JDialog
 {
-    private Logger logger = Logger.getLogger(SIPCommDialog.class);
+    private final Logger logger = Logger.getLogger(SIPCommDialog.class);
 
     private ActionMap amap;
     private InputMap imap;
@@ -140,29 +140,12 @@ public abstract class SIPCommDialog extends JDialog
      */
     private void saveSizeAndLocation()
     {
-        ConfigurationService configService =
-            UtilActivator.getConfigurationService();
-
-        String className = this.getClass().getName();
-                
-        try {
-            configService.setProperty(
-                className + ".width",
-                new Integer(getWidth()));
-    
-            configService.setProperty(
-                className + ".height",
-                new Integer(getHeight()));
-    
-            configService.setProperty(
-                className + ".x",
-                new Integer(getX()));
-    
-            configService.setProperty(
-                className + ".y",
-                new Integer(getY()));
+        try
+        {
+            SIPCommFrame.saveSizeAndLocation(this);
         }
-        catch (PropertyVetoException e1) {
+        catch (PropertyVetoException e1)
+        {
             logger.error("The proposed property change "
                     + "represents an unacceptable value");
         }

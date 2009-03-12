@@ -173,8 +173,9 @@ public class AuthenticationWindow
         else
             this.uinValue = new JTextField(userCredentials.getUserName());
 
-        if(userCredentials.getPassword() != null) {
-            this.passwdField.setText(userCredentials.getPassword().toString());
+        char[] password = userCredentials.getPassword();
+        if (password != null) {
+            this.passwdField.setText(String.valueOf(password));
         }
 
         this.realmTextArea.setEditable(false);

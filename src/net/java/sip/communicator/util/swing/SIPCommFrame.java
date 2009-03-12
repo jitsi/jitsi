@@ -135,28 +135,27 @@ public abstract class SIPCommFrame
      */
     private void saveSizeAndLocation()
     {
-        ConfigurationService configService =
-            UtilActivator.getConfigurationService();
-
-        String className = this.getClass().getName();
-
         try
         {
-            configService.setProperty(className + ".width", new Integer(
-                getWidth()));
-
-            configService.setProperty(className + ".height", new Integer(
-                getHeight()));
-
-            configService.setProperty(className + ".x", new Integer(getX()));
-
-            configService.setProperty(className + ".y", new Integer(getY()));
+            saveSizeAndLocation(this);
         }
         catch (PropertyVetoException e1)
         {
             logger.error("The proposed property change "
                 + "represents an unacceptable value");
         }
+    }
+
+    static void saveSizeAndLocation(Component component)
+        throws PropertyVetoException
+    {
+        ConfigurationService config = UtilActivator.getConfigurationService();
+        String className = component.getClass().getName();
+
+        config.setProperty(className + ".width", component.getWidth());
+        config.setProperty(className + ".height", component.getHeight());
+        config.setProperty(className + ".x", component.getX());
+        config.setProperty(className + ".y", component.getY());
     }
 
     /**

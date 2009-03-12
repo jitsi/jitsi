@@ -52,7 +52,7 @@ public class SIPCommTabbedPaneUI
 
     private Vector htmlViews;
 
-    private Hashtable mnemonicToIndexMap;
+    private Map<Integer, Integer> mnemonicToIndexMap;
 
     /**
      * InputMap used for mnemonics. Only non-null if the JTabbedPane has
@@ -111,12 +111,11 @@ public class SIPCommTabbedPaneUI
 
     protected JMenuItem closeItem;
 
-    protected Vector highlightedTabs = new Vector();
+    protected final java.util.List<Integer> highlightedTabs
+        = new Vector<Integer>();
 
     public SIPCommTabbedPaneUI()
     {
-        super();
-
         //closeImgB = UtilActivator.getImage(CLOSE_TAB_SELECTED_ICON);
 
         //maxImgB = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
@@ -583,7 +582,7 @@ public class SIPCommTabbedPaneUI
         mnemonicInputMap.put(KeyStroke.getKeyStroke(mnemonic, Event.ALT_MASK),
                 "setSelectedIndex");
 
-        mnemonicToIndexMap.put(new Integer(mnemonic), new Integer(index));
+        mnemonicToIndexMap.put(mnemonic, index);
     }
 
     /**
@@ -591,7 +590,7 @@ public class SIPCommTabbedPaneUI
      */
     private void initMnemonics()
     {
-        mnemonicToIndexMap = new Hashtable();
+        mnemonicToIndexMap = new Hashtable<Integer, Integer>();
         mnemonicInputMap = new InputMapUIResource();
         mnemonicInputMap.setParent(SwingUtilities.getUIInputMap(tabPane,
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
@@ -1029,8 +1028,7 @@ public class SIPCommTabbedPaneUI
                         mnemonic -= ('a' - 'A');
                     }
 
-                    Integer index = (Integer) ui.mnemonicToIndexMap
-                            .get(new Integer(mnemonic));
+                    Integer index = ui.mnemonicToIndexMap.get(mnemonic);
                     if (index != null && pane.isEnabledAt(index.intValue()))
                     {
                         pane.setSelectedIndex(index.intValue());
@@ -1729,20 +1727,18 @@ public class SIPCommTabbedPaneUI
 
     public void tabAddHightlight(int tabIndex)
     {
-        this.highlightedTabs.add(new Integer(tabIndex));
+        this.highlightedTabs.add(tabIndex);
     }
 
     public void tabRemoveHighlight(int tabIndex)
     {
-        Enumeration highlightedEnum = this.highlightedTabs.elements();
+        Iterator<Integer> highlightedIter = highlightedTabs.iterator();
 
-        while (highlightedEnum.hasMoreElements())
+        while (highlightedIter.hasNext())
         {
-            Integer element = (Integer) highlightedEnum.nextElement();
-
-            if (element.intValue() == tabIndex)
+            if (highlightedIter.next().intValue() == tabIndex)
             {
-                this.highlightedTabs.remove(element);
+                highlightedIter.remove();
                 break;
             }
         }
@@ -1750,16 +1746,7 @@ public class SIPCommTabbedPaneUI
 
     public boolean isTabHighlighted(int tabIndex)
     {
-        Enumeration highlightedEnum = this.highlightedTabs.elements();
-
-        while (highlightedEnum.hasMoreElements())
-        {
-            Integer element = (Integer) highlightedEnum.nextElement();
-
-            if (element.intValue() == tabIndex)
-                return true;
-        }
-        return false;
+        return highlightedTabs.contains(tabIndex);
     }
 
     /**

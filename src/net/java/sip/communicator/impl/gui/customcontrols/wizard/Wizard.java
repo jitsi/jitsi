@@ -300,18 +300,17 @@ public class Wizard
         else if (evt.getPropertyName().equals(
             WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY))
         {
-            nextButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
+            nextButton.setEnabled((Boolean) evt.getNewValue());
         }
         else if (evt.getPropertyName().equals(
             WizardModel.BACK_BUTTON_ENABLED_PROPERTY))
         {
-            backButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
+            backButton.setEnabled((Boolean) evt.getNewValue());
         }
         else if (evt.getPropertyName().equals(
             WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY))
         {
-            cancelButton.setEnabled(((Boolean) evt.getNewValue())
-                .booleanValue());
+            cancelButton.setEnabled((Boolean) evt.getNewValue());
         }
         else if (evt.getPropertyName().equals(
             WizardModel.NEXT_FINISH_BUTTON_ICON_PROPERTY))
@@ -338,7 +337,7 @@ public class Wizard
      */
     public boolean isBackButtonEnabled()
     {
-        return wizardModel.getBackButtonEnabled().booleanValue();
+        return wizardModel.getBackButtonEnabled();
     }
 
     /**
@@ -348,7 +347,7 @@ public class Wizard
      */
     public void setBackButtonEnabled(boolean newValue)
     {
-        wizardModel.setBackButtonEnabled(new Boolean(newValue));
+        wizardModel.setBackButtonEnabled(newValue);
     }
 
     /**
@@ -358,7 +357,7 @@ public class Wizard
      */
     public boolean isNextFinishButtonEnabled()
     {
-        return wizardModel.getNextFinishButtonEnabled().booleanValue();
+        return wizardModel.getNextFinishButtonEnabled();
     }
 
     /**
@@ -368,7 +367,7 @@ public class Wizard
      */
     public void setNextFinishButtonEnabled(boolean newValue)
     {
-        wizardModel.setNextFinishButtonEnabled(new Boolean(newValue));
+        wizardModel.setNextFinishButtonEnabled(newValue);
     }
 
     /**
@@ -378,7 +377,7 @@ public class Wizard
      */
     public boolean isCancelButtonEnabled()
     {
-        return wizardModel.getCancelButtonEnabled().booleanValue();
+        return wizardModel.getCancelButtonEnabled();
     }
 
     /**
@@ -388,7 +387,7 @@ public class Wizard
      */
     public void setCancelButtonEnabled(boolean newValue)
     {
-        wizardModel.setCancelButtonEnabled(new Boolean(newValue));
+        wizardModel.setCancelButtonEnabled(newValue);
     }
 
     /**

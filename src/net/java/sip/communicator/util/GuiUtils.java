@@ -231,14 +231,8 @@ public class GuiUtils
      */
     private static String formatTime(int time)
     {
-        String timeString = new Integer(time).toString();
+        String timeString = Integer.toString(time);
 
-        String resultString = "";
-        if (timeString.length() < 2)
-            resultString = resultString.concat("0").concat(timeString);
-        else
-            resultString = timeString;
-
-        return resultString;
+        return (timeString.length() < 2) ? "0".concat(timeString) : timeString;
     }
 }

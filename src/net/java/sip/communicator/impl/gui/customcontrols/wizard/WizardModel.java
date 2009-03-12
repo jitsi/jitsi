@@ -304,10 +304,12 @@ public class WizardModel {
      * @param newValue <code>true</code> to enable the Back button,
      * <code>false</code> to disable it.
      */
-    void setBackButtonEnabled(Boolean newValue) {
-        
+    void setBackButtonEnabled(boolean enabled)
+    {
+        Boolean newValue = enabled;
         Boolean oldValue = getBackButtonEnabled();        
-        if (newValue != oldValue) {
+        if (!newValue.equals(oldValue))
+        {
             buttonEnabledHashmap.put(BACK_BUTTON_ENABLED_PROPERTY, newValue);
             firePropertyChange(BACK_BUTTON_ENABLED_PROPERTY,
                     oldValue, newValue);
@@ -328,10 +330,12 @@ public class WizardModel {
      * @param newValue <code>true</code> to enable the Next/Finish button,
      * <code>false</code> to disable it.
      */
-    void setNextFinishButtonEnabled(Boolean newValue) {
-        
+    void setNextFinishButtonEnabled(boolean enabled)
+    {
+        Boolean newValue = enabled;
         Boolean oldValue = getNextFinishButtonEnabled();        
-        if (newValue != oldValue) {
+        if (!newValue.equals(oldValue))
+        {
             buttonEnabledHashmap.put(
                     NEXT_FINISH_BUTTON_ENABLED_PROPERTY, newValue);
             firePropertyChange(NEXT_FINISH_BUTTON_ENABLED_PROPERTY,
@@ -353,10 +357,12 @@ public class WizardModel {
      * @param newValue <code>true</code> to enable the Cancel button,
      * <code>false</code> to disable it.
      */
-    void setCancelButtonEnabled(Boolean newValue) {
-        
+    void setCancelButtonEnabled(boolean enabled)
+    {
+        Boolean newValue = enabled;
         Boolean oldValue = getCancelButtonEnabled();        
-        if (newValue != oldValue) {
+        if (!newValue.equals(oldValue))
+        {
             buttonEnabledHashmap.put(CANCEL_BUTTON_ENABLED_PROPERTY, newValue);
             firePropertyChange(CANCEL_BUTTON_ENABLED_PROPERTY,
                     oldValue, newValue);

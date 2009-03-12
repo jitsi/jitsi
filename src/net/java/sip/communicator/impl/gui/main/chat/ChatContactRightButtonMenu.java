@@ -219,13 +219,14 @@ public class ChatContactRightButtonMenu
      */
     private class KickParticipantThread extends Thread
     {
-        private ChatRoom chatRoom;
+        private final ChatRoom chatRoom;
         
-        private String reason;
+        private final String reason;
         
         KickParticipantThread(ChatRoom chatRoom, String reason)
         {
             this.chatRoom = chatRoom;
+            this.reason = reason;
         }
         
         public void run()
@@ -233,8 +234,7 @@ public class ChatContactRightButtonMenu
             try
             {
                 chatRoom.kickParticipant(
-                    (ChatRoomMember) chatContact
-                        .getDescriptor(),
+                    (ChatRoomMember) chatContact.getDescriptor(),
                     reason);
             }
             catch (OperationFailedException e)
