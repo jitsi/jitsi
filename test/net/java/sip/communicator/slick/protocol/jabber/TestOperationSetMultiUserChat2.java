@@ -236,9 +236,9 @@ public class TestOperationSetMultiUserChat2
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testLeave"));
-
-        suite.addTest(
-            new TestOperationSetMultiUserChat2("testNickName"));
+//
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testNickName"));
 
 
 // following test are not yet commplete
@@ -689,8 +689,8 @@ public class TestOperationSetMultiUserChat2
             , nameIsOnMemberList(user1SecondNick, opSet1Room.getMembers()));
 
         // checking the nickname modification on the other side
-        assertTrue("user nickname not found on member list after modification " +
-            "from, peer side",
+        assertTrue("user nickname not found on member list after modification, " +
+            "from peer side",
             nameIsOnMemberList(user1SecondNick, opSet2Room.getMembers()));
 
         //previous nickname should not rest on the list after change
