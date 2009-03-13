@@ -913,7 +913,8 @@ public class ConferenceChatManager
     /**
      * Joins a chat room in an asynchronous way.
      */
-    private class JoinChatRoomTask extends SwingWorker<String, Object>
+    private static class JoinChatRoomTask
+        extends SwingWorker<String, Object>
     {
         private static final String SUCCESS = "Success";
 
@@ -932,11 +933,11 @@ public class ConferenceChatManager
         private static final String UNKNOWN_ERROR
             = "UnknownError";
 
-        private ChatRoomWrapper chatRoomWrapper;
+        private final ChatRoomWrapper chatRoomWrapper;
 
-        private String nickName;
+        private final String nickName;
 
-        private byte[] password;
+        private final byte[] password;
 
         JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
                             String nickName,
@@ -971,29 +972,19 @@ public class ConferenceChatManager
                 logger.trace("Failed to join chat room: "
                     + chatRoom.getName(), e);
 
-                if(e.getErrorCode()
-                    == OperationFailedException.AUTHENTICATION_FAILED)
+                switch (e.getErrorCode())
                 {
+                case OperationFailedException.AUTHENTICATION_FAILED:
                     return AUTHENTICATION_FAILED;
-                }
-                else if(e.getErrorCode()
-                    == OperationFailedException.REGISTRATION_REQUIRED)
-                {
+                case OperationFailedException.REGISTRATION_REQUIRED:
                     return REGISTRATION_REQUIRED;
-                }
-                else if(e.getErrorCode()
-                    == OperationFailedException.PROVIDER_NOT_REGISTERED)
-                {
+                case OperationFailedException.PROVIDER_NOT_REGISTERED:
                     return PROVIDER_NOT_REGISTERED;
-                }
-                else if(e.getErrorCode()
-                        == OperationFailedException
-                            .SUBSCRIPTION_ALREADY_EXISTS)
-                {
+                case OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS:
                     return SUBSCRIPTION_ALREADY_EXISTS;
-                }
-                else
+                default:
                     return UNKNOWN_ERROR;
+                }
             }
         }
 
@@ -1070,11 +1061,12 @@ public class ConferenceChatManager
     /**
      * Finds a chat room in asynchronous way.
      */
-    private class FindRoomTask extends SwingWorker<ChatRoom, Object>
+    private static class FindRoomTask
+        extends SwingWorker<ChatRoom, Object>
     {
-        private String chatRoomName;
+        private final String chatRoomName;
 
-        private ChatRoomProviderWrapper chatRoomProvider;
+        private final ChatRoomProviderWrapper chatRoomProvider;
 
         FindRoomTask(   String chatRoomName,
                         ChatRoomProviderWrapper chatRoomProvider)
@@ -1109,9 +1101,10 @@ public class ConferenceChatManager
         }
     }
 
-    private class FindAllRoomsTask extends SwingWorker<List<String>, Object>
+    private static class FindAllRoomsTask
+        extends SwingWorker<List<String>, Object>
     {
-        private ChatRoomProviderWrapper chatRoomProvider;
+        private final ChatRoomProviderWrapper chatRoomProvider;
 
         FindAllRoomsTask(ChatRoomProviderWrapper provider)
         {

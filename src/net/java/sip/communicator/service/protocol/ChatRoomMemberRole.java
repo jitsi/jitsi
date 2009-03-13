@@ -61,7 +61,7 @@ public class ChatRoomMemberRole
     /**
      * the name of this role.
      */
-    private String roleName = null;
+    private final String roleName;
 
     /**
      * The index of a role is used to allow ordering of roles by other modules
@@ -69,7 +69,7 @@ public class ChatRoomMemberRole
      * Higher values of the role index indicate roles with more permissions and
      * lower values pertain to more restrictive roles.
      */
-    private int roleIndex;
+    private final int roleIndex;
 
     /**
      * Creates a role with the specified <tt>roleName</tt>. The constructor
@@ -136,17 +136,22 @@ public class ChatRoomMemberRole
      */
     public boolean equals(Object obj)
     {
-        if( obj == null
-            || !(obj instanceof ChatRoomMemberRole)
-            || !((ChatRoomMemberRole)obj).getRoleName().equals(roleName)
-            || ((ChatRoomMemberRole)obj).getRoleIndex() != getRoleIndex())
-        {
-            return false;
-        }
-        else
-        {
+        if (obj == this)
             return true;
-        }
+
+        /*
+         * XXX Implementing Object#equals(Object) with instanceof is error
+         * prone. The safe and recommended approach is to return true only if
+         * the runtime types of the two Objects being tested are one and the
+         * same i.e. getClass().equals(obj.getClass()).
+         */
+        if (!(obj instanceof ChatRoomMemberRole))
+            return false;
+
+        ChatRoomMemberRole role = (ChatRoomMemberRole) obj;
+
+        return role.getRoleName().equals(getRoleName())
+                && (role.getRoleIndex() == getRoleIndex());
     }
 
     /**
@@ -176,8 +181,7 @@ public class ChatRoomMemberRole
     public int compareTo(Object obj)
         throws ClassCastException
     {
-        return new Integer(getRoleIndex())
-            .compareTo(new Integer(((ChatRoomMemberRole)obj).getRoleIndex()));
+        return getRoleIndex() - ((ChatRoomMemberRole) obj).getRoleIndex();
     }
 
 }

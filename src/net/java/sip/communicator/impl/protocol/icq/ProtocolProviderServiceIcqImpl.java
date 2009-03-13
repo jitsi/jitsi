@@ -814,7 +814,7 @@ public class ProtocolProviderServiceIcqImpl
         return aimConnection;
     }
 
-    public class AimIcbmListener implements IcbmListener
+    public static class AimIcbmListener implements IcbmListener
     {
 
         public void newConversation(IcbmService service, Conversation conv)
@@ -834,7 +834,6 @@ public class ProtocolProviderServiceIcqImpl
             net.kano.joustsim.oscar.oscar.service.icbm.Message message,
             Set triedConversations)
         {
-
         }
     }
 
