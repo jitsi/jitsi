@@ -459,19 +459,22 @@ public class ProtocolProviderServiceSipImpl
                 OperationSetPresence.class.getName()
                 , opSetPersPresence);
 
-            // init instant messaging
-            OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
-                new OperationSetBasicInstantMessagingSipImpl(this);
-            this.supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
-                opSetBasicIM);
+            if (enablePresence)
+            {
+                // init instant messaging
+                OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
+                    new OperationSetBasicInstantMessagingSipImpl(this);
+                this.supportedOperationSets.put(
+                    OperationSetBasicInstantMessaging.class.getName(),
+                    opSetBasicIM);
 
-            // init typing notifications
-            OperationSetTypingNotificationsSipImpl opSetTyping =
-                new OperationSetTypingNotificationsSipImpl(this, opSetBasicIM);
-            this.supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
-                opSetTyping);
+                // init typing notifications
+                OperationSetTypingNotificationsSipImpl opSetTyping =
+                    new OperationSetTypingNotificationsSipImpl(this, opSetBasicIM);
+                this.supportedOperationSets.put(
+                    OperationSetTypingNotifications.class.getName(),
+                    opSetTyping);
+            }
 
             // OperationSetVideoTelephony
             supportedOperationSets.put(

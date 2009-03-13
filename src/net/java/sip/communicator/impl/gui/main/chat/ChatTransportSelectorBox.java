@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.swing.*;
  * chat window. The menu contains all protocol specific transports. In the case
  * of meta contact these would be all contacts for the currently selected meta
  * contact chat.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatTransportSelectorBox
@@ -53,6 +53,10 @@ public class ChatTransportSelectorBox
 
         this.add(menu);
 
+        // as a default disable the menu, it will be enabled as soon as we add
+        // a valid menu item
+        this.menu.setEnabled(false);
+
         Iterator chatTransports = chatSession.getChatTransports();
         while (chatTransports.hasNext())
         {
@@ -61,41 +65,62 @@ public class ChatTransportSelectorBox
             this.addChatTransport(chatTransport);
         }
 
-        this.setSelected(selectedChatTransport);
+        if (this.menu.getItemCount() > 0 &&
+            selectedChatTransport.allowsInstantMessage())
+        {
+            this.setSelected(selectedChatTransport);
+        }
+    }
+
+    /*
+     * Sets the menu to enabled or disabled. The menu is enabled, as soon as it
+     * contains one or more items. If it is empty, it is disabled.
+    */
+    private void updateEnableStatus()
+    {
+        this.menu.setEnabled(this.menu.getItemCount() > 0);
     }
 
     /**
      * Adds the given chat transport to the "send via" menu.
-     * 
+     * Only add those that support IM.
+     *
      * @param chatTransport The chat transport to add.
      */
     public void addChatTransport(ChatTransport chatTransport)
     {
-        Image img = createTransportStatusImage(chatTransport);
+        if (chatTransport.allowsInstantMessage())
+        {
+            Image img = createTransportStatusImage(chatTransport);
 
-        JMenuItem menuItem = new JMenuItem(
-                    chatTransport.getName(),
-                    new ImageIcon(img));
+            JMenuItem menuItem = new JMenuItem(
+                        chatTransport.getName(),
+                        new ImageIcon(img));
 
-        menuItem.addActionListener(this);
-        this.transportMenuItems.put(chatTransport, menuItem);
+            menuItem.addActionListener(this);
+            this.transportMenuItems.put(chatTransport, menuItem);
 
-        this.menu.add(menuItem);
+            this.menu.add(menuItem);
+
+            updateEnableStatus();
+        }
     }
-    
+
     /**
      * Removes the given chat transport from the "send via" menu. This method is
      * used to update the "send via" menu when a protocol contact is moved or
      * removed from the contact list.
-     * 
+     *
      * @param chatTransport the chat transport to be removed
      */
     public void removeChatTransport(ChatTransport chatTransport)
     {
         this.menu.remove(transportMenuItems.get(chatTransport));
         this.transportMenuItems.remove(chatTransport);
+
+        updateEnableStatus();
     }
-    
+
     /**
      * The listener of the chat transport selector box.
      */
@@ -124,7 +149,7 @@ public class ChatTransportSelectorBox
     /**
      * Obtains the status icon for the given chat transport and
      * adds to it the account index information.
-     * 
+     *
      * @param chatTransport The chat transport for which to create the image.
      * @return The indexed status image.
      */
@@ -162,7 +187,7 @@ public class ChatTransportSelectorBox
 
     /**
      * Updates the chat transport presence status.
-     * 
+     *
      * @param chatTransport The chat transport to update.
      */
     public void updateTransportStatus(ChatTransport chatTransport)
@@ -199,7 +224,7 @@ public class ChatTransportSelectorBox
     /**
      * In the "send via" menu selects the given contact and sets the given icon
      * to the "send via" menu button.
-     * 
+     *
      * @param chatTransport
      * @param icon
      */
@@ -222,7 +247,7 @@ public class ChatTransportSelectorBox
 
         this.menu.setToolTipText(tooltipText);
     }
-    
+
     /**
      * Sets the selected contact to the given proto contact.
      * @param chatTransport the proto contact to select
@@ -232,10 +257,10 @@ public class ChatTransportSelectorBox
         this.setSelected(chatTransport,
                 new ImageIcon(createTransportStatusImage(chatTransport)));
     }
-    
+
     /**
      * Returns the protocol menu.
-     * 
+     *
      * @return the protocol menu
      */
     public SIPCommMenu getMenu()
@@ -245,7 +270,7 @@ public class ChatTransportSelectorBox
 
     /**
      * Searches online contacts in the send via combo box.
-     * 
+     *
      * @return TRUE if the send via combo box contains online contacts, otherwise
      * returns FALSE.
      */

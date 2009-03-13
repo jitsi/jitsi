@@ -155,6 +155,15 @@ public class ChatPanel
 
             initChatTransportSelectorBox();
 
+            if (!transportSelectorBox.getMenu().isEnabled())
+            {
+                // Show a message to the user that IM is not possible.
+                getChatConversationPanel().appendMessageToEnd("<h5>" +
+                        GuiActivator.getResources().
+                            getI18NString("service.gui.MSG_NOT_POSSIBLE") +
+                        "</h5>");
+            }
+
             //Enables to change the protocol provider by simply pressing the
             // CTRL-P key combination
             ActionMap amap = this.getActionMap();
@@ -947,8 +956,20 @@ public class ChatPanel
         sendPanel.add(transportSelectorBox, 0);
         sendPanel.add(sendViaLabel, 0);
 
+        updateSendButtonStatus();
+
         this.revalidate();
         this.repaint();
+    }
+
+    /**
+     * Sets the send button to the same state (enabled/ disabled) as the
+    * transportSelectorBox.
+    */
+    private void updateSendButtonStatus()
+    {
+        getChatSendPanel().getSendButton().
+                setEnabled(transportSelectorBox.getMenu().isEnabled());
     }
 
     /**
@@ -1200,11 +1221,13 @@ public class ChatPanel
     public void addChatTransport(ChatTransport chatTransport)
     {
         transportSelectorBox.addChatTransport(chatTransport);
+        updateSendButtonStatus();
     }
 
     public void removeChatTransport(ChatTransport chatTransport)
     {
         transportSelectorBox.removeChatTransport(chatTransport);
+        updateSendButtonStatus();
     }
 
     public void setSelectedChatTransport(ChatTransport chatTransport)
