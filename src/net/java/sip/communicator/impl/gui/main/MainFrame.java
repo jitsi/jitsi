@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
