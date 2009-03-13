@@ -22,14 +22,14 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
  * Each of these panels is containing the name, status, etc. of only one
  * <tt>MetaContact</tt> or simple <tt>Contact</tt>. There is also a button,
  * which allows to add new contact to the chat.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatRoomMemberListPanel
     extends JPanel
     implements  MouseListener
 {
-    private final ContactList memberList;
+    private final DefaultContactList memberList;
 
     private final DefaultListModel memberListModel = new DefaultListModel();
 
@@ -42,17 +42,12 @@ public class ChatRoomMemberListPanel
     {
         super(new BorderLayout());
 
-        this.memberList = new ContactList(
-            GuiActivator.getUIService().getMainFrame());
+        this.memberList = new DefaultContactList();
 
         // this.chatPanel = chat;
 
         this.memberList.setModel(memberListModel);
         this.memberList.setCellRenderer(new ChatContactCellRenderer());
-        this.memberList.setSelectionMode(
-            ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        this.memberList.setMouseMotionListener(null);
-        this.memberList.setMouseListener(null);
 
         JScrollPane contactsScrollPane = new JScrollPane();
         contactsScrollPane.setHorizontalScrollBarPolicy(
@@ -68,7 +63,7 @@ public class ChatRoomMemberListPanel
     /**
      * Adds a <tt>ChatContact</tt> to the list of contacts contained in the
      * chat.
-     * 
+     *
      * @param chatContact the <tt>ChatContact</tt> to add
      */
     public void addContact(ChatContact chatContact)
@@ -78,7 +73,7 @@ public class ChatRoomMemberListPanel
 
     /**
      * Removes the given <tt>ChatContact</tt> from the list of chat contacts.
-     * 
+     *
      * @param chatContact the <tt>ChatContact</tt> to remove
      */
     public void removeContact(ChatContact chatContact)
@@ -89,20 +84,20 @@ public class ChatRoomMemberListPanel
     /**
      * In the corresponding <tt>ChatContactPanel</tt> changes the name of the
      * given <tt>Contact</tt>.
-     * 
+     *
      * @param chatContact the <tt>ChatContact</tt> to be renamed
      */
     public void renameContact(ChatContact chatContact)
     {
-        
+
     }
 
     public void mouseClicked(MouseEvent e)
-    {   
+    {
     }
 
     public void mouseEntered(MouseEvent e)
-    {   
+    {
     }
 
     public void mouseExited(MouseEvent e)
@@ -115,7 +110,7 @@ public class ChatRoomMemberListPanel
     }
 
     public void mouseReleased(MouseEvent e)
-    {   
+    {
     }
 
     /**

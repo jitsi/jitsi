@@ -95,7 +95,7 @@ public class ContactListCellRenderer
 
     /**
      * Implements the <tt>ListCellRenderer</tt> method.
-     * 
+     *
      * Returns this panel that has been configured to display the meta contact
      * and meta contact group cells.
      */
@@ -106,7 +106,7 @@ public class ContactListCellRenderer
 
         this.photoLabel.setIcon(null);
 
-        ContactList contactList = (ContactList) list;
+        DefaultContactList contactList = (DefaultContactList) list;
 
         if (value instanceof MetaContact)
         {
@@ -185,7 +185,7 @@ public class ContactListCellRenderer
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
 
-            if(((ContactListModel)list.getModel()).isGroupClosed(groupItem))
+            if(contactList.isGroupClosed(groupItem))
                 this.nameLabel.setIcon(closedGroupIcon);
             else
                 this.nameLabel.setIcon(openedGroupIcon);

@@ -14,7 +14,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -25,7 +24,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The invite dialog is the one shown when the user clicks on the conference
  * button in the chat toolbar.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatInviteDialog
@@ -51,9 +50,9 @@ public class ChatInviteDialog
 
     /**
      * Constructs the <tt>ChatInviteDialog</tt>.
-     * 
+     *
      * @param chatPanel the <tt>ChatPanel</tt> corresponding to the
-     * <tt>ChatRoom</tt>, where the contact is invited. 
+     * <tt>ChatRoom</tt>, where the contact is invited.
      */
     public ChatInviteDialog (ChatPanel chatPanel)
     {
@@ -113,17 +112,14 @@ public class ChatInviteDialog
         cancelButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
-        MainFrame mainFrame = GuiActivator.getUIService().getMainFrame();
+        final DefaultContactList contactList = new DefaultContactList();
 
-        final ContactList contactList = new ContactList(mainFrame);
-
-        final ContactList selectedContactList = new ContactList(mainFrame);
+        final DefaultContactList selectedContactList = new DefaultContactList();
 
         contactList.setModel(contactListModel);
         selectedContactList.setModel(selectedContactListModel);
 
-        contactList.setMouseMotionListener(null);
-        contactList.setMouseListener(new MouseAdapter()
+        contactList.addMouseListener(new MouseAdapter()
         {
             public void mouseClicked(MouseEvent e)
             {
@@ -137,8 +133,7 @@ public class ChatInviteDialog
             }
         });
 
-        selectedContactList.setMouseMotionListener(null);
-        selectedContactList.setMouseListener(new MouseAdapter()
+        selectedContactList.addMouseListener(new MouseAdapter()
         {
             public void mouseClicked(MouseEvent e)
             {
@@ -307,7 +302,7 @@ public class ChatInviteDialog
 
     /**
      * Moves a contact from the left list to the right.
-     * 
+     *
      * @param metaContact the contact to move.
      */
     private void moveContactFromLeftToRight(MetaContact metaContact)
@@ -319,7 +314,7 @@ public class ChatInviteDialog
 
     /**
      * Moves a contact from the right list to the left.
-     * 
+     *
      * @param metaContact the contact to move.
      */
     private void moveContactFromRightToLeft(MetaContact metaContact)

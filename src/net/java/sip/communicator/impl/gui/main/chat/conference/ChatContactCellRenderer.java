@@ -34,7 +34,7 @@ public class ChatContactCellRenderer
 
         this.photoLabel.setIcon(null);
 
-        ContactList contactList = (ContactList) list;
+        DefaultContactList contactList = (DefaultContactList) list;
 
         ChatContact chatContact = (ChatContact) value;
 
