@@ -58,7 +58,7 @@ public class MainFrame
     private final Logger logger = Logger.getLogger(MainFrame.class);
 
     private final TransparentPanel mainPanel
-        = new TransparentPanel(new BorderLayout(0, 8));
+        = new TransparentPanel(new BorderLayout(0, 0));
 
     private final TransparentPanel statusBarPanel
         = new TransparentPanel(new BorderLayout());
@@ -208,7 +208,6 @@ public class MainFrame
 
         menusPanel.setUI(new SIPCommOpaquePanelUI());
 
-        northPanel.add(new LogoBar(), BorderLayout.NORTH);
         northPanel.add(menusPanel, BorderLayout.CENTER);
         northPanel.add(accountStatusPanel, BorderLayout.SOUTH);
 
@@ -1152,65 +1151,6 @@ public class MainFrame
             }
 
             nativePluginsTable.remove(pluginComponent);
-        }
-    }
-
-    /**
-     * The logo bar is positioned on the top of the window and is meant to
-     * contain the application logo.
-     */
-    private static class LogoBar
-        extends JPanel
-    {
-        private final TexturePaint texture;
-
-        /**
-         * Creates the logo bar and specify the size.
-         */
-        public LogoBar()
-        {
-            int width = GuiActivator.getResources()
-                .getSettingsInt("impl.gui.LOGO_BAR_WIDTH");
-            int height = GuiActivator.getResources()
-                .getSettingsInt("impl.gui.LOGO_BAR_HEIGHT");
-            Dimension size = new Dimension(width, height);
-
-            this.setMinimumSize(size);
-            this.setPreferredSize(size);
-
-            BufferedImage bgImage =
-                ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
-
-            Rectangle rect =
-                new Rectangle(0, 0, bgImage.getWidth(null), bgImage
-                    .getHeight(null));
-
-            texture = new TexturePaint(bgImage, rect);
-        }
-
-        /**
-         * Paints the logo bar.
-         *
-         * @param g the <tt>Graphics</tt> object used to paint the background
-         * image of this logo bar.
-         */
-        public void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-
-            Image logoImage
-                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
-
-            g.drawImage(logoImage, 0, 0, null);
-            g.setColor(new Color(GuiActivator.getResources()
-                .getColor("service.gui.LOGO_BAR_BACKGROUND")));
-
-            Graphics2D g2 = (Graphics2D) g;
-
-            g2.setPaint(texture);
-
-            g2.fillRect(logoImage.getWidth(null), 0,
-                this.getWidth(), this.getHeight());
         }
     }
 

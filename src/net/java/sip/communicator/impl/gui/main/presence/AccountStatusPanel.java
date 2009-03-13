@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
+import java.awt.image.*;
 
 import javax.swing.*;
 
@@ -25,6 +26,21 @@ public class AccountStatusPanel
     private static final int AVATAR_ICON_HEIGHT = 45;
 
     private static final int AVATAR_ICON_WIDTH = 45;
+
+    private final Color bgColor = new Color(GuiActivator.getResources()
+        .getColor("service.gui.LOGO_BAR_BACKGROUND"));
+
+    private final Image logoBgImage
+        = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+
+    private final BufferedImage bgImage =
+        ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
+
+    private final Rectangle rect =
+        new Rectangle(0, 0, bgImage.getWidth(null), bgImage
+            .getHeight(null));
+
+    private final TexturePaint texture = new TexturePaint(bgImage, rect);
 
     private JMenuBar statusMenuBar = new JMenuBar();
 
@@ -48,6 +64,8 @@ public class AccountStatusPanel
     public AccountStatusPanel(MainFrame mainFrame)
     {
         super(new BorderLayout(10, 0));
+
+        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         statusComboBox = new GlobalStatusSelectorBox(mainFrame);
 
@@ -187,6 +205,25 @@ public class AccountStatusPanel
                     }
                 }
             }).start();
+        }
+    }
+
+    public void paintComponent(Graphics g)
+    { 
+        super.paintComponent(g);
+
+        if (logoBgImage != null)
+        {
+            g.setColor(bgColor);
+
+            Graphics2D g2 = (Graphics2D) g;
+
+            g2.setPaint(texture);
+
+            g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+            g.drawImage(logoBgImage,
+                this.getWidth() - logoBgImage.getWidth(null), 0, null);
         }
     }
 }
