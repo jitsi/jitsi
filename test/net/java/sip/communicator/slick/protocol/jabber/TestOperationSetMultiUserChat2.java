@@ -230,9 +230,9 @@ public class TestOperationSetMultiUserChat2
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testInviteReject"));
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testInviteJoin"));
+
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testInviteJoin"));
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testLeave"));
@@ -539,12 +539,17 @@ public class TestOperationSetMultiUserChat2
             , memberEvent.getChatRoomMember().getContactAddress());
 
         assertEquals("there is not exactly two members in the room"
-            , 2 , opSet1Room.getMembersCount());
+            , 2, opSet1Room.getMembersCount());
 
-        //both sides should report the same members number
+        // both sides should report the same members number.
+        // here we use opSet2Room.getMembers().size() rather than
+        // opSet2Room.getMembersCount() because the last method will not
+        // be always accurate for a newly joined jabber room (stated in
+        // the smack lib)
         assertEquals("the same room reports different members count " +
             "from one side to other"
-            , opSet1Room.getMembersCount(), opSet2Room.getMembersCount());
+            , opSet1Room.getMembers().size()
+            , opSet2Room.getMembers().size());
 
         //user2 must be on room members list now
         assertTrue("user is not listed in the room with his nickname",
