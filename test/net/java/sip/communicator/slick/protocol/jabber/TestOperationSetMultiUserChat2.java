@@ -236,10 +236,9 @@ public class TestOperationSetMultiUserChat2
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testLeave"));
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testNickName"));
 
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testNickName"));
 
 // following test are not yet commplete
 //
@@ -682,6 +681,9 @@ public class TestOperationSetMultiUserChat2
         assertTrue("user nickname not found by peer "
             , nameIsOnMemberList(user1FirstNick, opSet2Room.getMembers()));
 
+        MUCEventCollector opSet2RoomCollector =
+            new MUCEventCollector(opSet2Room, MUCEventCollector.EVENT_PROPERTY);
+
         // change the nickname
         opSet1Room.setUserNickname(user1SecondNick);
 
@@ -693,7 +695,20 @@ public class TestOperationSetMultiUserChat2
             "user nickname not found on member list after modification"
             , nameIsOnMemberList(user1SecondNick, opSet1Room.getMembers()));
 
-        // checking the nickname modification on the other side
+        // user2 have to wait for the event
+        opSet2RoomCollector.waitForEvent(10000);
+
+        assertEquals("no event received since a member changed his nick"
+            , 1, opSet2RoomCollector.collectedEvents.size());
+
+        ChatRoomMemberPropertyChangeEvent changeEvent =
+            (ChatRoomMemberPropertyChangeEvent)
+            opSet2RoomCollector.collectedEvents.get(0);
+
+        assertEquals("the change event doesnt comes from the expected member"
+            , fixture.userID1
+            , changeEvent.getSourceChatRoomMember().getContactAddress());
+
         assertTrue("user nickname not found on member list after modification, " +
             "from peer side",
             nameIsOnMemberList(user1SecondNick, opSet2Room.getMembers()));
@@ -936,9 +951,9 @@ public class TestOperationSetMultiUserChat2
                    ChatRoomInvitationListener,
                    LocalUserChatRoomPresenceListener,
                    ChatRoomMemberPresenceListener,
-                   ChatRoomMessageListener
+                   ChatRoomMessageListener,
+                   ChatRoomMemberPropertyChangeListener
     {
-
         private final ArrayList collectedEvents = new ArrayList();
 
         private int waitCount = 0;
@@ -952,6 +967,8 @@ public class TestOperationSetMultiUserChat2
         private static final int EVENT_PRESENCE = 2;
 
         private static final int EVENT_MESSAGE = 3;
+
+        private static final int EVENT_PROPERTY = 4;
 
         /**
          * Creates an event collector to listen for specific events from
@@ -992,6 +1009,9 @@ public class TestOperationSetMultiUserChat2
                     break;
                 case EVENT_MESSAGE:
                     room.addMessageListener(this);
+                    break;
+                case EVENT_PROPERTY:
+                    room.addMemberPropertyChangeListener(this);
                     break;
                 default:
                     throw new IllegalArgumentException(
@@ -1093,6 +1113,12 @@ public class TestOperationSetMultiUserChat2
 
         public void messageDeliveryFailed(
             ChatRoomMessageDeliveryFailedEvent evt)
+        {
+            collectEvent(evt);
+        }
+
+        public void chatRoomPropertyChanged(
+            ChatRoomMemberPropertyChangeEvent evt)
         {
             collectEvent(evt);
         }
