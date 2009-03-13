@@ -9,6 +9,8 @@ package net.java.sip.communicator.util.swing;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.awt.image.*;
+import java.net.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -399,9 +401,15 @@ public abstract class SIPCommFrame
     {
         private final boolean isColorBgEnabled;
 
+        private final boolean isImageBgEnabled;
+
         private final Color bgStartColor;
 
         private final Color bgEndColor;
+
+        private BufferedImage bgImage = null;
+
+        private TexturePaint texture = null;
 
         public MainContentPane()
         {
@@ -433,6 +441,25 @@ public abstract class SIPCommFrame
                 bgStartColor = null;
                 bgEndColor = null;
             }
+
+            isImageBgEnabled =
+                new Boolean(resources.getSettingsString(
+                    "impl.gui.IS_WINDOW_IMAGE_BACKGROUND_ENABLED"))
+                    .booleanValue();
+
+            if (isImageBgEnabled)
+            {
+                final URL bgImagePath
+                    = resources.getImageURL("service.gui.WINDOW_TITLE_BAR_BG");
+
+                bgImage = ImageUtils.getBufferedImage(bgImagePath);
+
+                final Rectangle rect =
+                    new Rectangle(0, 0, bgImage.getWidth(),
+                                    bgImage.getHeight());
+
+                texture = new TexturePaint(bgImage, rect);
+            }
         }
 
         public void paintComponent(Graphics g)
@@ -451,6 +478,18 @@ public abstract class SIPCommFrame
                 finally
                 {
                     g.dispose();
+                }
+            }
+
+            if (isImageBgEnabled)
+            {
+                if (bgImage != null && texture != null)
+                {
+                    Graphics2D g2 = (Graphics2D) g;
+
+                    g2.setPaint(texture);
+
+                    g2.fillRect(0, 0, this.getWidth(), bgImage.getHeight());
                 }
             }
         }
