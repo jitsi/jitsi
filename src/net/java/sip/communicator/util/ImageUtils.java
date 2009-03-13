@@ -9,6 +9,7 @@ package net.java.sip.communicator.util;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
+import java.net.*;
 
 import javax.imageio.*;
 import javax.swing.*;
@@ -142,5 +143,33 @@ public class ImageUtils
         }
 
         return imageIcon;
+    }
+
+    /**
+     * Returns the buffered image corresponding to the given url image path.
+     * 
+     * @param imagePath the path indicating, where we can find the image.
+     * 
+     * @return the buffered image corresponding to the given url image path.
+     */
+    public static BufferedImage getBufferedImage(URL imagePath)
+    {
+        BufferedImage image = null;
+
+        if (imagePath == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            image = ImageIO.read(imagePath);
+        }
+        catch (Exception exc)
+        {
+            logger.debug("Failed to load image:" + imagePath, exc);
+        }
+
+        return image;
     }
 }
