@@ -241,9 +241,9 @@ public class TestOperationSetMultiUserChat2
             new TestOperationSetMultiUserChat2("testNickName"));
 
 // following test are not yet commplete
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testRoomSubject"));
+
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testRoomSubject"));
 //
 //
 //        suite.addTest(
@@ -511,10 +511,14 @@ public class TestOperationSetMultiUserChat2
         MUCEventCollector opSet2RoomCollector =
             new MUCEventCollector(opSet2Room, MUCEventCollector.EVENT_PRESENCE);
 
+        opSet2Collector =
+            new MUCEventCollector(opSetMUC2, MUCEventCollector.EVENT_PRESENCE);
+
         opSet2Room.join();
 
-        opSet2RoomCollector.waitForEvent(10000);
-        opSet1RoomCollector.waitForEvent(10000);
+        opSet2Collector.waitForEvent(10000);      // listening for user2 own join
+        opSet2RoomCollector.waitForEvent(10000);  // listening for user1 join
+        opSet1RoomCollector.waitForEvent(10000);  // listening for user2 join
 
         // we know check if both member received events
         assertEquals("a room member has not been notified that someone " +
@@ -539,6 +543,18 @@ public class TestOperationSetMultiUserChat2
 
         assertEquals("there is not exactly two members in the room"
             , 2, opSet1Room.getMembersCount());
+
+        // is user2 notified of its own join
+        assertEquals("user hasn't been notified of its own join"
+            , 1, opSet2Collector.collectedEvents.size());
+
+        LocalUserChatRoomPresenceChangeEvent localEvent =
+            (LocalUserChatRoomPresenceChangeEvent)
+            opSet2Collector.collectedEvents.get(0);
+
+        assertEquals("the event user2 received is not LOCAL_USER_JOINED"
+            , LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED
+            , localEvent.getEventType());
 
         // both sides should report the same members number.
         // here we use opSet2Room.getMembers().size() rather than
@@ -746,33 +762,66 @@ public class TestOperationSetMultiUserChat2
         throws OperationFailedException,
         OperationNotSupportedException
     {
-        if (true) // just to avoid the not reacheable statement when compiling
-            throw new OperationNotSupportedException("not yet implemented");
         String testRoomName = testRoomBaseName + roomID++;
+
+        String oldSubject;
+        String newSubjet = "bingo";
 
         // we create the test room
         ChatRoom opSet1Room =
             opSetMUC1.createChatRoom(testRoomName, null);
         opSet1Room.join();
 
-        String subject1 = "one";
-        String subject2 = "two";
-
         ChatRoom opSet2Room = opSetMUC2.findRoom(testRoomName);
+        opSet2Room.join();
 
-        opSet1Room.setSubject(subject1);
-        assertEquals("failed to change room subject"
-            , subject1, opSet1Room.getSubject());
+        MUCEventCollector opSet2RoomCollector =
+            new MUCEventCollector(opSet2Room, MUCEventCollector.EVENT_PROPERTY);
 
-        assertEquals("subject change not seen on peer side"
-            , subject1, opSet2Room.getSubject());
+        MUCEventCollector opSet1RoomCollector =
+            new MUCEventCollector(opSet2Room, MUCEventCollector.EVENT_PROPERTY);
 
-        opSet1Room.setSubject(subject2);
-        assertEquals("failed to change room subject"
-            , subject2, opSet1Room.getSubject());
+        oldSubject = opSet1Room.getSubject();
 
-        assertEquals("subject change not seem on peer side"
-            , subject2, opSet2Room.getSubject());
+        opSet1Room.setSubject(newSubjet);
+
+        opSet1RoomCollector.waitForEvent(10000);
+        opSet2RoomCollector.waitForEvent(10000);
+
+        assertEquals("user1 didnt received an event for room subject change"
+            , 1, opSet1RoomCollector.collectedEvents.size());
+
+        assertEquals("user2 didnt received an event for room subject change"
+            , 1, opSet2RoomCollector.collectedEvents.size());
+
+        assertEquals("the room subject is not up to date "
+            , newSubjet, opSet1Room.getSubject());
+
+        assertEquals("the room subject is not up to date " +
+            "from peer side"
+            , newSubjet, opSet2Room.getSubject());
+
+        ChatRoomPropertyChangeEvent changeEvent =
+            (ChatRoomPropertyChangeEvent)
+            opSet1RoomCollector.collectedEvents.get(0);
+
+        assertEquals("the old subject provided by the change event " +
+            "is not the good one"
+            , oldSubject, changeEvent.getOldValue());
+
+        assertEquals("the new subject provided by the change event " +
+            "is not the good one"
+            , newSubjet, changeEvent.getNewValue());
+
+        ChatRoomPropertyChangeEvent peerEvent =
+            (ChatRoomPropertyChangeEvent)
+            opSet2RoomCollector.collectedEvents.get(0);
+
+        assertEquals("both sides didn't received similar change event ",
+            changeEvent.getOldValue(), peerEvent.getOldValue());
+
+        assertEquals("both sides didn't received similar change event ",
+            changeEvent.getNewValue(), peerEvent.getNewValue());
     }
 
     /**
@@ -952,7 +1001,8 @@ public class TestOperationSetMultiUserChat2
                    LocalUserChatRoomPresenceListener,
                    ChatRoomMemberPresenceListener,
                    ChatRoomMessageListener,
-                   ChatRoomMemberPropertyChangeListener
+                   ChatRoomMemberPropertyChangeListener,
+                   ChatRoomPropertyChangeListener
     {
         private final ArrayList collectedEvents = new ArrayList();
 
@@ -1012,6 +1062,7 @@ public class TestOperationSetMultiUserChat2
                     break;
                 case EVENT_PROPERTY:
                     room.addMemberPropertyChangeListener(this);
+                    room.addPropertyChangeListener(this);
                     break;
                 default:
                     throw new IllegalArgumentException(
@@ -1028,7 +1079,7 @@ public class TestOperationSetMultiUserChat2
          */
         public void waitForEvent(long waitFor)
         {
-            logger.trace("Waiting for a CallEvent");
+            logger.trace("Waiting for a MUC Event");
 
             synchronized (this)
             {
@@ -1119,6 +1170,18 @@ public class TestOperationSetMultiUserChat2
 
         public void chatRoomPropertyChanged(
             ChatRoomMemberPropertyChangeEvent evt)
+        {
+            collectEvent(evt);
+        }
+
+        public void chatRoomPropertyChanged(
+            ChatRoomPropertyChangeEvent evt)
+        {
+            collectEvent(evt);
+        }
+
+        public void chatRoomPropertyChangeFailed(
+            ChatRoomPropertyChangeFailedEvent evt)
         {
             collectEvent(evt);
         }

@@ -121,11 +121,11 @@ public class ChatRoomPropertyChangeFailedEvent
         return "ChatRoomPropertyChangeEvent[type="
             + this.getPropertyName()
             + " sourceRoom="
-            + this.getSource().toString()
+            + this.getSource()
             + "oldValue="
-            + this.getOldValue().toString()
+            + this.getOldValue()
             + "newValue="
-            + this.getNewValue().toString()
+            + this.getNewValue()
             + "]";
     }
 }
