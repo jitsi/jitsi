@@ -23,10 +23,21 @@ public class NetworkUtils
 {
     private static final Logger logger
         = Logger.getLogger(NetworkUtils.class);
+
+    /**
+     * A string containing the "any" local address for IPv6.
+     */
+    public static final String IN6_ADDR_ANY = "::0";
+
+    /**
+     * A string containing the "any" local address for IPv4.
+     */
+    public static final String IN4_ADDR_ANY = "0.0.0.0";
+
     /**
      * A string containing the "any" local address.
      */
-    public static final String IN_ADDR_ANY = "0.0.0.0";
+    public static final String IN_ADDR_ANY = determineAnyAddress();
 
     /**
      * The maximum int value that could correspond to a port nubmer.
@@ -389,5 +400,47 @@ public class NetworkUtils
         {
             return InetAddress.getByName(hostAddress);
         }
+    }
+
+    /**
+     * Tries to determine if this host supports IPv6 addresses (i.e. has at
+     * least one IPv6 address) and returns IN6_ADDR_ANY or IN4_ADDR_ANY
+     * accordingly. This method is only used to initialize IN_ADDR_ANY so that
+     * it could be used when binding sockets. The reason we need it is because
+     * on mac (contrary to lin or win) binding a socket on 0.0.0.0 would make
+     * it deaf to IPv6 traffic. Binding on ::0 does the trick but that would
+     * fail on hosts that have no IPv6 support. Using the result of this method
+     * provides an easy way to bind sockets in cases where we simply want any
+     * IP packets coming on the port we are listening on (regardless of IP
+     * version).
+     *
+     * @return IN6_ADDR_ANY or IN4_ADDR_ANY if this host supports or not IPv6.
+     */
+    private static String determineAnyAddress()
+    {
+        Enumeration<NetworkInterface> ifaces;
+        try
+        {
+            ifaces = NetworkInterface.getNetworkInterfaces();
+        }
+        catch (SocketException e)
+        {
+            logger.debug("Couldn't retrieve local interfaces.", e);
+            return IN4_ADDR_ANY;
+        }
+
+        while(ifaces.hasMoreElements())
+        {
+            Enumeration<InetAddress> addrs
+                                = ifaces.nextElement().getInetAddresses();
+            while (addrs.hasMoreElements())
+            {
+                if(addrs.nextElement() instanceof Inet6Address)
+                    return IN6_ADDR_ANY;
+            }
+        }
+
+        return IN4_ADDR_ANY;
+
     }
 }

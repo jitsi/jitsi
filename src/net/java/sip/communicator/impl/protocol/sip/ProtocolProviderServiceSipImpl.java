@@ -1528,6 +1528,7 @@ public class ProtocolProviderServiceSipImpl
         }
         catch (ParseException exc)
         {
+            logger.trace("Failed to create our SIP AOR address", exc);
             // this should never happen since we are using InetAddresses
             // everywhere so parsing could hardly go wrong.
             throw new IllegalArgumentException(

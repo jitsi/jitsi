@@ -450,7 +450,7 @@
     </target>
 
     <target name="prepare-single-test"
-	    depends="identify-test"
+      depends="identify-test"
             if="test.name.known">
         <!--internal-target- prepare to run a single Service Impl Compatibility Kit -->
         <!-- extract the simple Test class name...
@@ -574,7 +574,7 @@
       </junitreport>
     </target>
 
-    
+
     <target name="run-simple-tests"
             depends="prepare-all-tests,prepare-local-accounts,deploy-os-specific-bundles"
             description="runs selected non-felix tests under junit.">
@@ -647,7 +647,7 @@
                 value="${lib}/logging.properties"/>
 
             <sysproperty key="java.net.preferIPv6Addresses"
-                value="false"/>
+                value="true"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                     value="${user.home}/schome"/-->
@@ -655,7 +655,7 @@
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
-        	<sysproperty key="jna.library.path"
+          <sysproperty key="jna.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
 
             <!-- pass l10n properties from ant call for
@@ -788,7 +788,7 @@
         bundle-audionotifier,bundle-plugin-branding,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
-    	bundle-plugin-call-history-form,
+      bundle-plugin-call-history-form,
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,bundle-plugin-whiteboard,
         bundle-irc,bundle-plugin-ircaccregwizz,
@@ -963,10 +963,10 @@
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-        	   
-        	<zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+
+          <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>
 
@@ -983,10 +983,10 @@
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-        	
-        	<zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+
+          <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>
 
@@ -1003,10 +1003,10 @@
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-	
-        	<zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+
+          <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>
 
@@ -1098,8 +1098,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
-            <zipfileset src="${lib.noinst}/jain-sip-ri-1.2.92.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sip-api-1.2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sip-ri.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sip-api.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
         </jar>
@@ -1416,7 +1416,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
         </jar>
     </target>
-	
+
     <!-- BUNDLE-PLUGIN-GIBBERISHACCREGWIZZ -->
     <target name="bundle-plugin-gibberishaccregwizz">
         <!-- Creates a bundle for the plugin Gibberish Account Registration
@@ -1939,8 +1939,8 @@ javax.swing.event, javax.swing.border"/>
             <manifest>
                 <attribute name="Export-Package" value="gnu.java.zrtp,gnu.java.zrtp.packets,gnu.java.zrtp.utils,gnu.java.zrtp.zidfile"/>
                 <attribute name="Import-Package" value=" org.bouncycastle.crypto,org.bouncycastle.crypto.digests,org.bouncycastle.crypto.macs,
-                	org.bouncycastle.crypto.params,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.agreement,
-                	org.bouncycastle.crypto.generators,org.bouncycastle.crypto.modes "/>
+                  org.bouncycastle.crypto.params,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.agreement,
+                  org.bouncycastle.crypto.generators,org.bouncycastle.crypto.modes "/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.3"/>

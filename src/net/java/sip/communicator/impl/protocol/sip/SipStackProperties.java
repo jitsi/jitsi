@@ -7,11 +7,16 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
+import net.java.sip.communicator.util.Logger;
 
 /**
  * The properties used at the creation of the JAIN-SIP stack.
  *
  * @author Sebastien Mazy
+ * @author Emil Ivov
  */
 public class SipStackProperties
     extends Properties
@@ -109,7 +114,7 @@ public class SipStackProperties
      * A String indicating the default debug level for the jain-sip-ri (must be
      * log4j compatible).
      */
-    private static final String NSPVALUE_TRACE_LEVEL = "ERROR";
+    private static final String NSPVALUE_DEFAULT_TRACE_LEVEL = "ERROR";
 
     /**
      * The name of the property under which jain-sip will know if it must
@@ -196,9 +201,6 @@ public class SipStackProperties
         this.setProperty(NSPNAME_CACHE_CLIENT_CONNECTIONS,
                 NSPVALUE_CACHE_CLIENT_CONNECTIONS);
 
-        // Log level
-        this.setProperty(NSPNAME_TRACE_LEVEL, NSPVALUE_TRACE_LEVEL);
-
         // deliver unsolicited NOTIFY
         this.setProperty(NSPNAME_DELIVER_UNSOLICITED_NOTIFY,
                 NSPVALUE_DELIVER_UNSOLICITED_NOTIFY);
@@ -212,5 +214,51 @@ public class SipStackProperties
         // our ProxyRouter will send the message to the outbound proxy
         this.setProperty(NSPNAME_ROUTER_PATH,
                 NSPVALUE_ROUTER_PATH);
+
+        //make sure that jain-sip would accept java generated addresses
+        //containing address scope zones
+        System.setProperty("gov.nist.core.STRIP_ADDR_SCOPES", "true");
+
+        //set stack log (trace) level properties according to parameters
+        //set in logging.properties for the gov.nist packages
+        String logLevel
+            = LogManager.getLogManager().getProperty("gov.nist.level");
+
+        String jainSipTraceLevel = null;
+
+        //if this is a java logging level - convert it to a NIST level
+        if (logLevel == null)
+        {
+            jainSipTraceLevel = NSPVALUE_DEFAULT_TRACE_LEVEL;
+        }
+        else if (logLevel.equals(Level.FINEST.getName()))
+        {
+            jainSipTraceLevel = "TRACE";
+        }
+        else if (logLevel.equals(Level.FINER.getName()))
+        {
+            jainSipTraceLevel = "DEBUG";
+        }
+        else if (logLevel.equals(Level.FINE.getName()))
+        {
+            jainSipTraceLevel = "INFO";
+        }
+        else if (logLevel.equals(Level.WARNING.getName())
+                 || logLevel.equals(Level.SEVERE.getName()))
+        {
+            jainSipTraceLevel = "ERROR";
+        }
+        else if (logLevel.equals(Level.OFF))
+        {
+            jainSipTraceLevel = "OFF";
+        }
+        else
+        {
+            //doesn't look like a java logging level, so we just supposed the
+            //string was a jain-sip level and pass it directly
+            jainSipTraceLevel = logLevel;
+        }
+
+        this.setProperty(NSPNAME_TRACE_LEVEL, jainSipTraceLevel);
     }
 }

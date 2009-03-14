@@ -15,8 +15,8 @@
     <classpathentry kind="lib" path="lib/installer-exclude/dnsjava-2.0.3.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/izpack-shortcut-link.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-api-1.2.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-ri-1.2.92.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-api.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-ri.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jcalendar-1.3.2.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jdic_misc.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jdom.jar"/>
@@ -35,7 +35,7 @@
     <classpathentry kind="lib" path="lib/installer-exclude/laf-widget.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/lti-civil-no_s_w_t.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/nist-sdp-1.0.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/jain-sdp.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/pircbot.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/profiler4j-1.0-beta3-SC.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/rome-0.9.jar"/>

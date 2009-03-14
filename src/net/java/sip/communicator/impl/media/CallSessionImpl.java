@@ -494,7 +494,7 @@ public class CallSessionImpl
     private boolean stopSendStreaming()
     {
         boolean stoppedAtLeastOneStream = false;
-        
+
         RTPManager audioRtpManager = getAudioRtpManager();
         if ((audioRtpManager != null)
                 && stopSendStreaming(audioRtpManager))
@@ -2046,7 +2046,8 @@ public class CallSessionImpl
 
         // Get our local address for the intended destination.
         // Use this address to bind our local RTP sockets
-        InetAddress inAddrLocal = netAddressManager.getLocalHost(intendedDestination);
+        InetAddress inAddrLocal
+                        = netAddressManager.getLocalHost(intendedDestination);
 
         //check the number of times that we'd have to retry binding to local
         //ports before giving up.
@@ -2151,9 +2152,9 @@ public class CallSessionImpl
                 // - if no other audio session was started before then this will
                 //   become
                 //   ZRTP Master session
-                // - only the ZRTP master sessions start in "auto-sensing" mode 
+                // - only the ZRTP master sessions start in "auto-sensing" mode
                 //   to immediately catch ZRTP communication from other client
-                // - after the master session has completed its key negotiation 
+                // - after the master session has completed its key negotiation
                 //   it will start other media sessions (see SCCallback)
                 if (rtpManager.equals(audioRtpManager))
                 {
@@ -3295,7 +3296,7 @@ public class CallSessionImpl
     /**
      * Sets a <tt>SessionCreatorCallback</tt> that will listen for
      * security events.
-     * 
+     *
      * @param securityCallBack the <tt>SessionCreatorCallback</tt> to
      * set
      */
@@ -3308,7 +3309,7 @@ public class CallSessionImpl
     /**
      * Returns the <tt>SessionCreatorCallback</tt> which listens for
      * security events.
-     * 
+     *
      * @return the <tt>SessionCreatorCallback</tt> which listens for
      * security events
      */
