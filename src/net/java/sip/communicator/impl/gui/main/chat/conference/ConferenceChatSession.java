@@ -81,8 +81,6 @@ public class ConferenceChatSession
     {
         chatRoomWrapper.getChatRoom().removeMemberPresenceListener(this);
         chatRoomWrapper.getChatRoom().removePropertyChangeListener(this);
-        GuiActivator.getUIService().getConferenceChatManager().
-            leaveChatRoom(chatRoomWrapper);
     }
 
     /**
