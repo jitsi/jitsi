@@ -86,10 +86,22 @@ public class BrandingActivator
 
     private boolean bundleChanged(BundleEvent evt, WelcomeWindow welcomeWindow)
     {
-        if (welcomeWindow != null && welcomeWindow.isShowing()
-                && evt.getType() == BundleEvent.STARTED)
-            welcomeWindow.setBundle(evt.getBundle().getHeaders().get(
-                    "Bundle-Name").toString());
+        if ((welcomeWindow != null)
+                && welcomeWindow.isShowing()
+                && (evt.getType() == BundleEvent.STARTED))
+        {
+
+            /*
+             * The IBM JRE on GNU/Linux reports the Bundle-Name as null while
+             * the SUN JRE reports it as non-null. Just prevent the throwing of
+             * a NullPointerException because displaying the Bundle-Name isn't
+             * vital anyway.
+             */
+            Object bundleName = evt.getBundle().getHeaders().get("Bundle-Name");
+
+            welcomeWindow.setBundle(
+                (bundleName == null) ? null : bundleName.toString());
+        }
 
         ServiceReference uiServiceRef =
             bundleContext.getServiceReference(UIService.class.getName());
