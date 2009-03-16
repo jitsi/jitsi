@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.muc.*;
@@ -277,20 +278,41 @@ public class OperationSetMultiUserChatJabberImpl
         {
             try
             {
-                RoomInfo infos = MultiUserChat.getRoomInfo(
+                Collection<HostedRoom> co =
+                    MultiUserChat.getHostedRooms(
                     getXmppConnection(), canonicalRoomName);
+                for (HostedRoom ho : co)
+                {
+                    if (ho.getJid().equals(canonicalRoomName))
+                    {
+                        MultiUserChat muc =
+                            new MultiUserChat(
+                            getXmppConnection(), canonicalRoomName);
 
-                if (infos.getRoom().equals(canonicalRoomName))
+                        room = new ChatRoomJabberImpl(muc,
+                            jabberProvider);
+
+                        chatRoomCache.put(canonicalRoomName, room);
+                        break;
+                    }
+                }
+            } catch (XMPPException ex)
+            {
+                // if we get any error other than not found, it is not guaranted
+                // the room doesnt exists. we will know it only when we will
+                // try to join the room
+                if (!ex.getXMPPError().getCondition().equals(
+                    XMPPError.Condition.item_not_found.toString()))
                 {
                     MultiUserChat muc =
-                        new MultiUserChat(getXmppConnection(), canonicalRoomName);
+                        new MultiUserChat(
+                        getXmppConnection(), canonicalRoomName);
+
                     room = new ChatRoomJabberImpl(muc,
                         jabberProvider);
 
                     chatRoomCache.put(canonicalRoomName, room);
                 }
-            } catch (XMPPException ex)
-            {
                 logger.debug(
                     "failed to find room " + canonicalRoomName + "\n", ex);
             }

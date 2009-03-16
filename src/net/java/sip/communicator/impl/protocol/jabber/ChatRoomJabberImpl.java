@@ -1724,9 +1724,11 @@ public class ChatRoomJabberImpl
         String roomName = multiUserChat.getRoom();
         try
         {
-            persistent = MultiUserChat.getRoomInfo(
-                provider.getConnection(), roomName).isPersistent();
-        } catch (XMPPException ex)
+            RoomInfo info = MultiUserChat.getRoomInfo(
+                provider.getConnection(), roomName);
+            if (info != null)
+                persistent = info.isPersistent();
+        } catch (Exception ex)
         {
             logger.warn("could not get persistent state for room :" +
                 roomName + "\n", ex);
