@@ -10,8 +10,6 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
-import net.java.sip.communicator.util.Logger;
-
 /**
  * The properties used at the creation of the JAIN-SIP stack.
  *
