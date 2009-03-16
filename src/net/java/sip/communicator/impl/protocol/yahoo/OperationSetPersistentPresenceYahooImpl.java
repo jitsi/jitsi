@@ -913,9 +913,12 @@ public class OperationSetPersistentPresenceYahooImpl
                 }
 
                 // clear listener
-                parentProvider.getYahooSession().
-                        removeSessionListener(earlyEventListener);
-                earlyEventListener = null;
+                if(earlyEventListener != null)
+                {
+                    parentProvider.getYahooSession().
+                            removeSessionListener(earlyEventListener);
+                    earlyEventListener = null;
+                }
             }
         }
     }
